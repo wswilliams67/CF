@@ -1,0 +1,1509 @@
+<!--
+* Nimbus v1 Portable Design System — CaseFusion Application Template
+* Template:   CF Case Administrator — Sidenav Layout
+* File:       tmpl_ca_sidenav.html
+* Role:       Case Administrator
+* Layout:     Fixed sidenav (left) + scrollable content area (right)
+*
+* CASE ADMIN VARIANT — Nimbus AppFrame
+* ────────────────────────────────────
+* Matches the Nimbus/AppFrame design: a slim utility header, a floating
+* rounded sidenav (secondary navigation), and a single content slot. There is
+* no main-nav tab bar, page-title bar, or header search on this frame — the
+* sidenav is the primary navigation surface. Sidenav items are generic
+* placeholders ("Menu Item N") to be swapped for the case admin sections.
+*
+* PORTABLE DESIGN SYSTEM
+* ──────────────────────
+* All CSS and JS assets are self-contained within casefusion/1.6/. No external
+* design system URL required — deploy the whole 1.6/ folder to any server and
+* every asset reference resolves. This page lives one level deep (1.6/pages/),
+* which is the "../" path depth the Nimbus include blocks assume.
+* Assets: ../css/  ../js/  ../img/  ../fonts/  ../plugins/
+*
+* Two entry points, nothing else:
+*   css/nimbus.css  @imports every core, component and plugin stylesheet plus
+*                   the MDI + FontAwesome icon fonts.
+*   js/nimbus.js    loads core/*.js then every components/*.js and plugins/*.js
+*                   in dependency order, runs Nimbus.DataAPI.init(), and fires
+*                   `cnds.ready` on document.
+* Per-component <link>/<script> tags must NOT be added — they duplicate what the
+* entry points already pull in. See the head and body blocks for the detail.
+*
+* NIMBUS COMPONENTS USED
+* ──────────────────────
+* • .sidenav / .sidenav.show / .sidenav-slim   components/sidenav.css + sidenav.js
+* • .nav-cf-utility (+ .fr_logo / .fr_tools / .nav-cf-utility-divider)   app.css
+* • .sidebar-header                             app.css
+* • data-cnds-toggle="tooltip"                  components/tooltip.js
+* • data-cnds-toggle="theme"                    app.js (writes data-cnds-theme)
+* • data-cnds-toggle="sidenav-collapse"         category submenus (scaffolded)
+*
+* TOKENS
+* ──────
+* Colour, spacing and z-index values come from the system: --cnds-frame-bg,
+* --cnds-body-bg, --cnds-body-color, --cnds-sidenav-*, --cnds-product-accent,
+* --cnds-primary, --cnds-zindex-*. Page-specific values live under the --ca-*
+* namespace so they can never collide with a system token.
+*
+* LAYOUT  (Nimbus/AppFrame)
+* ─────────────────────────
+* ┌─────────────────────────────────────────────────────────────────┐
+* │ #caHeader  .sticky-top                                          │
+* │   #UtilityNav — Logo · Bell · Theme · Portal · Account          │
+* ├──────────┬──────────────────────────────────────────────────────┤
+* │ ╭──────╮ │                                                      │
+* │ │ ≡    │ │  #main-content .ca-main                              │
+* │ │ Side │ │    └ #caContent — single content slot                │
+* │ │ Nav  │ │                                                      │
+* │ ╰──────╯ │                                                      │
+* └──────────┴──────────────────────────────────────────────────────┘
+* Frame background = --cnds-body-bg; header and sidenav sit on it at
+* --cnds-frame-bg. The sidenav is position:fixed (rounded 12px, inset 16px)
+* and scrolls internally; its top offset tracks the header height via JS
+* because a fixed element cannot read the sticky header's height from flow.
+*
+* WHERE THINGS LIVE
+* ─────────────────
+*   <head><style>   §1 tokens · §2 utility nav · §3 header menus
+*                   §4 frame + content · §5 side nav
+*   <body>          sidenav → header → main, in DOM order
+*   <script>        §0 helpers · §1 layout · §2 overlay registry
+*                   §3 notifications · §4 header menus · §5 theme
+*                   §6 side nav · §7 per-screen hooks
+*
+* HOUSE RULES FOR THIS FILE
+* ─────────────────────────
+* • Never restyle a Nimbus component from scratch. Check components/*.css and
+*   app.css first; add only the delta, and say in a comment what the system
+*   already provides.
+* • Never declare a --cnds-* custom property outside #caSidenav's component
+*   configuration. Page-specific values go under --ca-*.
+* • Never touch a Nimbus component class at parse time — js/nimbus.js loads
+*   components asynchronously. Use the `cnds.ready` event or an event handler.
+* • Animation durations are declared once in DUR (script §0) and mirrored in
+*   the CSS transitions. Change one, change the other.
+*
+* ANGULAR MIGRATION
+* ─────────────────
+* Full component-by-component guide, including the DOM-order and
+* fixed-positioning constraints that survive the port:
+*     casefusion/1.6/pages/tmpl_ca_sidenav.ANGULAR.md
+-->
+<!doctype html>
+<html lang="en" data-cnds-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="CaseFusion — Case Administrator Sidenav Template | Cloudficient Nimbus v1 Portable Design System" />
+    <title>{{Page Title}} — Case Administrator · CaseFusion</title>
+
+    <!-- ═══════════════════ NIMBUS v1 CORE CSS ═══════════════════
+         Matches includes/head-css-core.html. Order matters:
+         nimbus → app → themes (primitives → light → dark).
+
+         Do NOT add per-component <link>s here: css/nimbus.css already
+         @imports every component stylesheet (sidenav, tabs, select,
+         tooltips, forms, …) plus the MDI + FontAwesome icon fonts.
+         Re-linking a component after app.css inverts the cascade and
+         lets the raw component defaults win over the app overrides.
+         ═══════════════════════════════════════════════════════════ -->
+    <link rel="stylesheet" href="../css/nimbus.css" media="all" type="text/css" />
+    <link rel="stylesheet" href="../css/app.css" media="all" type="text/css" />
+    <link rel="stylesheet" href="../css/themes/primitives.css" media="all" type="text/css" />
+    <link rel="stylesheet" href="../css/themes/light.css" media="all" type="text/css" />
+    <link rel="stylesheet" href="../css/themes/dark.css" media="all" type="text/css" />
+
+    <!-- ═══════════════════ FAVICONS ════════════════════════════ -->
+    <link rel="apple-touch-icon" sizes="57x57"   href="../img/favicon/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="60x60"   href="../img/favicon/apple-icon-60x60.png" />
+    <link rel="apple-touch-icon" sizes="72x72"   href="../img/favicon/apple-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76"   href="../img/favicon/apple-icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="../img/favicon/apple-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="../img/favicon/apple-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="../img/favicon/apple-icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="../img/favicon/apple-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="../img/favicon/apple-icon-180x180.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="../img/favicon/android-icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="32x32"   href="../img/favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="96x96"   href="../img/favicon/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="16x16"   href="../img/favicon/favicon-16x16.png" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="msapplication-TileImage" content="../img/favicon/ms-icon-144x144.png" />
+
+    <!-- ═══════════════════ CA TEMPLATE STYLES ══════════════════ -->
+    <style>
+      /* ═══════════════════════════════════════════════════════════════════
+         CA SIDENAV FRAME — page stylesheet
+
+           1 · Page-local tokens     --ca-* namespace
+           2 · Utility nav           #UtilityNav deltas over app.css
+           3 · Header menus          portal / account dropdowns, notif popover
+           4 · Frame + content       body background, .ca-main, placeholder
+           5 · Side nav              #caSidenav deltas over the .sidenav component
+
+         Nothing here restyles a Nimbus component from scratch. Each block
+         lists what the design system already provides and only sets the
+         CaseFusion deltas on top. Before adding a rule, check whether the
+         component or app.css already covers it — a duplicate that drifts is
+         worse than no rule at all.
+         ═══════════════════════════════════════════════════════════════════ */
+
+      /* ───────────────────────────────────────────────────────────────────
+         1 · PAGE-LOCAL TOKENS  (--ca-* namespace)
+
+         The --cnds-* namespace belongs to the design system: declaring
+         --cnds-tooltip-bg / --cnds-btn-tertiary-* / --cnds-list-* here
+         silently retunes every Nimbus component on the page. Anything this
+         template needs that the system does not already publish lives under
+         --ca-*, and every value resolves through a system primitive so the
+         two never drift.
+
+         Tokens the system already publishes — used directly, not redeclared:
+           --cnds-frame-bg      light #ebebeb / dark #171717  (themes/*.css)
+           --cnds-body-color    light #4f4f4f / dark #ebebeb  (themes/*.css)
+           --cnds-body-bg       light #fafafa / dark #252525  (themes/*.css)
+           --cnds-tooltip-bg    light #525252 / dark #4a4a4a  (variables/dark)
+           --cnds-product-accent  CF green, theme-aware (themes/primitives.css)
+         ─────────────────────────────────────────────────────────────────── */
+      :root, [data-cnds-theme="light"] {
+        --ca-border-strong:     var(--cnds-surface-light-500, #cccccc);
+        --ca-menu-bg:           var(--cnds-white, #ffffff);
+        --ca-menu-hover-bg:     var(--cnds-surface-light-300, #e0e0e0);
+        --ca-menu-active-bg:    var(--cnds-product-casefusion-green-700, #2e892a);
+        --ca-menu-active-color: var(--cnds-white, #ffffff);
+      }
+      [data-cnds-theme="dark"] {
+        --ca-border-strong:     var(--cnds-surface-dark-200, #787878);
+        --ca-menu-bg:           var(--cnds-surface-dark-500, #1e1e1e);
+        --ca-menu-hover-bg:     var(--cnds-surface-dark-300, #4a4a4a);
+        --ca-menu-active-bg:    var(--cnds-product-casefusion-green-800, #1d5a1d);
+        --ca-menu-active-color: var(--cnds-product-casefusion-green-400, #7dd67a);
+      }
+
+      /* ───────────────────────────────────────────────────────────────────
+         2 · UTILITY NAV
+
+         app.css .nav-cf-utility already provides display:flex, align-items:center,
+         height (--app-utility-height: 50px), background (--cnds-frame-bg) and the
+         theme-aware foreground colour — for both themes. Only the CA-specific
+         deltas belong here; everything else inherits via currentColor.
+
+         display:flex !important is still required: app.css hides the bar with
+         #UtilityNav:not(:has(li)){display:none} when it contains no <li>, and the
+         Nimbus menus in this frame are built from <div>/<a>, not list items. */
+      #UtilityNav {
+        display: flex !important;
+        flex-wrap: nowrap;
+        /* No overflow clipping here: the portal/account menus are absolutely
+           positioned children that hang below the 50px bar. overflow-x:clip kept
+           overflow-y visible in Chrome, but engines without full `clip` support
+           coerce the other axis to hidden and cut the menus off at the bar. */
+        overflow: visible;
+        padding-top: 0;
+        padding-bottom: 0;
+        gap: 48px;
+      }
+      #UtilityNav .fr_product-name { gap: 0; }
+      #UtilityNav .fr_tools { flex: 1; min-width: 0; justify-content: flex-end; }
+      #UtilityNav .nav-cf-utility-user { flex-shrink: 0; }
+
+      /* Utility divider — app.css .nav-cf-utility-divider supplies the 1×24px rule,
+         0.25 opacity and both theme colours. Nothing to restate here. */
+
+      /* Nav Icon Button — button reset around a .mdi glyph; the badge needs the
+         positioning context, so this is not a plain .nav-cf-utility-icon. */
+      .nav-icon-btn { position: relative; background: none; border: none; cursor: pointer; padding: 4px; display: flex; align-items: center; border-radius: 4px; flex-shrink: 0; color: inherit; }
+      .nav-icon-btn .mdi { font-size: 24px; color: inherit; }
+
+      /* Portal Switcher */
+      .portal-switcher-wrapper { position: relative; display: flex; align-items: center; height: 32px; flex-shrink: 0; white-space: nowrap; }
+      .portal-switcher { display: inline-flex; align-items: center; gap: 4px; font-size: 0.875rem; color: inherit; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
+      /* 24px matches .nav-cf-utility-icon so the switcher's glyphs line up with
+         the bell and the theme button across the tools row. */
+      .portal-switcher .mdi { color: inherit; flex-shrink: 0; font-size: 24px; }
+      /* Labels truncate rather than push the tools row past the logo. */
+      .portal-switcher-label, .user-name-label { overflow: hidden; white-space: nowrap; max-width: 200px; line-height: normal; }
+
+      /* User Info */
+      .user-info-wrapper { position: relative; display: flex; align-items: center; height: 32px; flex-shrink: 0; white-space: nowrap; }
+      .user-info { display: inline-flex; align-items: center; gap: 8px; font-size: 0.875rem; color: inherit; white-space: nowrap; cursor: pointer; flex-shrink: 0; }
+      .user-name-label { flex-shrink: 0; }
+      .user-avatar { width: 24px; height: 24px; border-radius: 12px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: var(--cnds-product-casefusion-green-500, #5ccb59); color: var(--cnds-surface-dark-950, #030303); font-family: var(--cnds-typography-typeface-family-default, "Nunito Sans", sans-serif); font-weight: 700; font-size: 12px; letter-spacing: -0.5px; line-height: 1; box-sizing: border-box; user-select: none; }
+
+      /* ───────────────────────────────────────────────────────────────────
+         3 · HEADER MENUS
+
+         The portal switcher, the account menu and the notification popover
+         share one visual language: rounded 8px panel, --ca-border-strong hair-
+         line, a CSS-triangle arrow drawn with ::before (border) + ::after
+         (fill), and a --cnds-frame-bg header strip.
+
+         The arrow offset is set by JS at open time (--menu-arrow-outer /
+         --menu-arrow-inner for the right-anchored menus, --arrow-left for the
+         body-parented popover) so it always points at its trigger.
+         ─────────────────────────────────────────────────────────────────── */
+
+      /* Account / Portal Dropdown Menu */
+      .account-menu { display: none; position: absolute; top: calc(100% + 12px); right: 0; min-width: 180px; background: var(--ca-menu-bg); border: 1px solid var(--ca-border-strong); border-radius: 8px; box-shadow: 0 2px 15px -3px rgba(0,0,0,.07), 0 10px 20px -2px rgba(0,0,0,.04), 0 0 60px 10px rgba(0,0,0,.2); z-index: var(--cnds-zindex-dropdown, 1000); flex-direction: column; }
+      .account-menu.open { display: flex; }
+      .account-menu::before { content: ""; position: absolute; top: -9px; right: var(--menu-arrow-outer, 12px); width: 0; height: 0; border-style: solid; border-width: 0 8px 9px 8px; border-color: transparent transparent var(--ca-border-strong) transparent; }
+      .account-menu::after  { content: ""; position: absolute; top: -7px; right: var(--menu-arrow-inner, 13px); width: 0; height: 0; border-style: solid; border-width: 0 7px 8px 7px; border-color: transparent transparent var(--cnds-frame-bg) transparent; }
+      .account-menu-header { background: var(--cnds-frame-bg); padding: 12.5px 16px; font-family: var(--cnds-typography-typeface-family-default, "Nunito Sans", sans-serif); font-weight: 700; font-size: 0.875rem; letter-spacing: 1.4px; text-transform: uppercase; color: var(--cnds-body-color); line-height: 1.4; border-radius: 8px 8px 0 0; }
+      .account-menu-item { background: var(--ca-menu-bg) !important; padding: 6px 16px; height: 44px; display: flex; align-items: center; font-family: var(--cnds-typography-typeface-family-default, "Nunito Sans", sans-serif); font-weight: 400; font-size: 0.875rem; color: var(--cnds-body-color) !important; line-height: 1.2; cursor: pointer; text-decoration: none; transition: background 0.15s ease; }
+      .account-menu-item:last-child { border-radius: 0 0 8px 8px; }
+      .account-menu-item:hover { background: var(--ca-menu-hover-bg) !important; }
+      .account-menu-item.active { background: var(--ca-menu-active-bg) !important; color: var(--ca-menu-active-color) !important; }
+
+      /* Nav Alert Popover Wrapper */
+      .nav-alert-popover-wrapper { position: relative; display: flex; align-items: center; }
+
+      /* Notification Popover */
+      .notif-popover { position: fixed; left: 0; bottom: 16px; width: 400px; max-height: 480px; z-index: var(--cnds-zindex-popover, 1060); display: none; flex-direction: column; border: 1px solid var(--ca-border-strong); border-radius: 8px; overflow: visible; background: var(--cnds-body-bg, #fff); box-shadow: 0 2px 15px -3px rgba(0,0,0,.07), 0 10px 20px -2px rgba(0,0,0,.04), 0 0 60px 10px rgba(0,0,0,.2); font-family: var(--cnds-typography-typeface-family-default, "Nunito Sans", sans-serif); color: var(--cnds-body-color, #4f4f4f); }
+      .notif-popover.open { display: flex; }
+      .notif-popover::before { content: ""; position: absolute; top: -9px; left: var(--arrow-left, 12px); width: 0; height: 0; border-style: solid; border-width: 0 8px 9px 8px; border-color: transparent transparent var(--ca-border-strong) transparent; z-index: 1; }
+      .notif-popover::after  { content: ""; position: absolute; top: -7px; left: calc(var(--arrow-left, 12px) + 1px); width: 0; height: 0; border-style: solid; border-width: 0 7px 8px 7px; border-color: transparent transparent var(--cnds-frame-bg) transparent; z-index: 2; }
+      .notif-header { display: flex; align-items: flex-start; justify-content: space-between; padding: 12px 16px; background: var(--cnds-frame-bg); border-radius: 8px 8px 0 0; flex-shrink: 0; position: relative; z-index: 1; }
+      .notif-header.scrolled::after { content: ""; position: absolute; left: 0; right: 0; bottom: -12px; height: 12px; background: linear-gradient(to bottom, rgba(0,0,0,.45), transparent); pointer-events: none; }
+      .notif-header-title { font-weight: 700; font-size: 0.875rem; letter-spacing: 1.4px; text-transform: uppercase; line-height: 1.4; color: var(--cnds-body-color, #4f4f4f); }
+      .notif-header-counts { display: flex; align-items: center; gap: 8px; font-weight: 400; font-size: 12px; line-height: 1.43; color: var(--cnds-body-color, #4f4f4f); }
+      .notif-header-divider { display: inline-block; width: 1px; height: 16px; background: var(--ca-border-strong); }
+      .notif-list { flex: 1 1 auto; overflow-y: auto; overflow-x: hidden; min-height: 0; border-radius: 0 0 8px 8px; }
+      .notif-list::-webkit-scrollbar { width: 8px; }
+      .notif-list::-webkit-scrollbar-track { background: transparent; }
+      .notif-list::-webkit-scrollbar-thumb { background: transparent; border-radius: 4px; }
+      .notif-list:hover::-webkit-scrollbar-thumb { background: var(--ca-border-strong); }
+      .notif-list:hover::-webkit-scrollbar-track { background: var(--cnds-input-bg, #fff); }
+      .notif-item { position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 16px 8px 16px 16px; border-top: 1px solid var(--ca-border-strong); background: var(--cnds-body-bg, #fff); }
+      .notif-unread-dot { display: none; }
+      .notif-item.unread .notif-unread-dot { display: block; position: absolute; left: 5px; top: 4px; width: 8px; height: 8px; border-radius: 999px; background: var(--cnds-primary-red-600, #c23400); pointer-events: none; }
+      .notif-item.unread .notif-subject { font-weight: 700; }
+      .notif-item.unread .notif-timestamp { font-weight: 700; }
+      .notif-item-label { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; }
+      .notif-subject { font-weight: 400; font-size: 0.875rem; line-height: 1.2; color: var(--cnds-body-color, #4f4f4f); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .notif-timestamp { font-weight: 400; font-size: 10px; line-height: 1.43; color: var(--cnds-text-muted, #757575); }
+      .notif-expand, .notif-dismiss { flex-shrink: 0; display: flex; align-items: center; justify-content: center; border: none; background: transparent; cursor: pointer; padding: 0; color: var(--cnds-link-color, #215aab); }
+      .notif-expand { width: 24px; height: 24px; font-size: 24px; }
+      .notif-dismiss { width: 20px; height: 20px; font-size: 18px; }
+      .notif-expand:hover, .notif-dismiss:hover { opacity: 0.75; }
+      .notif-item-message { display: none; flex-basis: 100%; font-size: 12px; line-height: 1.1; color: var(--cnds-body-color, #4f4f4f); padding-right: 52px; }
+      .notif-item.expanded .notif-item-message { display: block; }
+      .notif-item.expanded .notif-expand::before { content: "\F0143"; }
+
+      /* Bell Badge */
+      .nav-bell-badge { position: absolute; top: calc(50% - 1px); left: 50%; transform: translate(-50%,-50%); display: flex; align-items: center; justify-content: center; min-width: 14px; height: 12px; padding: 0 5px; border-radius: 2px; background: var(--cnds-primary-red-600, #c23400); color: var(--cnds-surface-dark-50, #e8e8e8); font-family: var(--cnds-typography-typeface-family-default, "Nunito Sans", sans-serif); font-weight: 700; font-size: 10px; line-height: 1; letter-spacing: 0.2px; text-align: center; white-space: nowrap; pointer-events: none; }
+      .nav-bell-badge:empty, .nav-bell-badge.hidden { display: none; }
+
+      /* Nav tooltips use the Nimbus .tooltip component (data-cnds-toggle="tooltip"). */
+
+      /* ───────────────────────────────────────────────────────────────────
+         4 · FRAME + CONTENT
+
+         No body background rule is needed. Figma surface/frame/background
+         (#252525 dark, #fafafa light) IS --cnds-body-bg in themes/*.css, and
+         core/reset.css already paints <body> with it. Figma
+         surface/frame/nav/main (#171717 dark, #ebebeb light) is --cnds-frame-bg,
+         which the header (via app.css) and the sidenav (§5) both read.
+
+         .ca-main's margin-left — the offset around the fixed sidenav — is set
+         in §5 alongside the widths it depends on.
+         ─────────────────────────────────────────────────────────────────── */
+      .ca-main { padding: 16px 16px 24px; }
+
+      /* PLACEHOLDER — delete this block along with the .ca-placeholder markup
+         once the content slot is filled in. */
+      .ca-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 400px;
+        border: 2px dashed var(--cnds-border-color);
+        border-radius: 8px;
+        color: var(--cnds-secondary-color, #6c757d);
+        font-size: 14px;
+        text-align: center;
+        padding: 40px;
+      }
+      .ca-placeholder-icon  { font-size: 48px; opacity: 0.35; }
+      .ca-placeholder-label { opacity: 0.55; }
+
+      /* ═══════════════════════════════════════════════════════════════════
+         5 · SIDE NAV  — Nimbus `.sidenav` component, floating variant
+
+         This frame styles the component; it does not re-implement it.
+         What comes from css/components/sidenav.css and is NOT restated here:
+           • .sidenav                width from --cnds-sidenav-width, bg from
+                                     --cnds-sidenav-bg, colour from --cnds-sidenav-color
+           • .sidenav.show           transform: translateX(0)  ← the nav is
+                                     permanently open, so the markup carries
+                                     `show` instead of a transform:none override
+           • .sidenav-link           layout, 3rem height, hover tint, dark-theme
+                                     colour (#d4d4d4) and hover (#fff)
+           • .sidenav-slim           --cnds-sidenav-width: 70px, label hiding,
+                                     chevron reset  ← same class the component's
+                                     JS checks in _isSlim()/_expandFromSlim()
+           • .sidenav-divider        dark-theme border colour
+         Only the CaseFusion deltas live below.
+         ═══════════════════════════════════════════════════════════════════ */
+      :root {
+        --ca-sidenav-width: 220px;      /* feeds --cnds-sidenav-width (full) */
+        --ca-sidenav-slim-width: 70px;  /* mirrors .sidenav-slim in components/sidenav.css */
+        --ca-sidenav-inset: 16px;       /* gap from viewport left + bottom edges */
+        --ca-sidenav-gap: 16px;         /* gap between sidenav and content */
+        /* CF green tint = --cnds-product-casefusion-green-500 (#5ccb59) at low alpha.
+           An alpha ramp of a token colour, not a hard-coded colour of its own. */
+        --ca-sidenav-active-tint:       rgba(92, 203, 89, 0.10);
+        --ca-sidenav-active-tint-hover: rgba(92, 203, 89, 0.15);
+      }
+      [data-cnds-theme="dark"] {
+        --ca-sidenav-active-tint:       rgba(92, 203, 89, 0.12);
+        --ca-sidenav-active-tint-hover: rgba(92, 203, 89, 0.18);
+      }
+
+      /* Floating panel: inset from the viewport, pinned below the sticky header */
+      #caSidenav {
+        /* Drive the component's own width token — .sidenav reads it for `width`,
+           so both states animate through the component's width transition. */
+        --cnds-sidenav-width: var(--ca-sidenav-width);
+        /* surface/frame/nav/main — #ebebeb light / #171717 dark, theme-aware */
+        --cnds-sidenav-bg: var(--cnds-frame-bg);
+        position: fixed;
+        top: 0; /* JS: set to header.offsetHeight + --ca-sidenav-gap on load and resize */
+        left: var(--ca-sidenav-inset);
+        bottom: var(--ca-sidenav-inset);
+        height: auto; /* override base height:100vh so top+bottom control the height */
+        border-radius: 12px;
+        /* Deliberately below the header so the header overlaps the panel.
+           app.css puts .sticky-top at 1030; --cnds-zindex-sticky is 1020, so
+           anything derived from it clears the sidenav either way. */
+        z-index: calc(var(--cnds-zindex-sticky, 1020) - 5);
+        overflow-y: auto;
+        overflow-x: hidden;
+        transition: width 0.3s ease-in-out;
+        padding: 0;
+        box-shadow: none; /* suppress the base .sidenav elevation */
+        border: 1px solid var(--cnds-border-color, rgba(0,0,0,0.1));
+      }
+      [data-cnds-theme="dark"] #caSidenav {
+        border-color: rgba(255,255,255,0.08);
+      }
+
+      /* Slim mode — the component's own class, so Sidenav._isSlim() stays truthful.
+         The id-level --cnds-sidenav-width above outranks .sidenav-slim's, so the
+         slim width has to be restated at id specificity. */
+      #caSidenav.sidenav-slim {
+        --cnds-sidenav-width: var(--ca-sidenav-slim-width);
+      }
+
+      /* MAIN CONTENT — offset right of the fixed sidenav (inset + width + gap) */
+      .ca-main {
+        margin-left: calc(var(--ca-sidenav-inset) + var(--ca-sidenav-width) + var(--ca-sidenav-gap));
+        transition: margin-left 0.3s ease-in-out;
+      }
+      .ca-main.ca-main-slim {
+        margin-left: calc(var(--ca-sidenav-inset) + var(--ca-sidenav-slim-width) + var(--ca-sidenav-gap));
+      }
+
+      /* ── Sidebar header (toggle button row) — app.css .sidebar-header already
+            gives position:sticky, top:0 and the sidenav background ── */
+      #caSidenav .sidebar-header {
+        align-items: stretch;
+        height: var(--app-utility-height, 50px);
+        padding: 0;
+        flex-shrink: 0;
+        z-index: 1;
+      }
+
+      /* ── Slim toggle button — full-width, icon pinned to padding-left: 24px ── */
+      #caSidenav .ca-nav-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        width: 100%;
+        height: 100%;
+        padding: 0 0 0 24px;
+        background: none;
+        border: none;
+        border-radius: 0;
+        cursor: pointer;
+        color: var(--cnds-sidenav-color); /* theme-aware, from the component */
+        transition: background 0.15s;
+      }
+      #caSidenav .ca-nav-toggle .mdi { font-size: 20px; line-height: 1; flex-shrink: 0; }
+      /* Matches the app-wide a:focus-visible ring in app.css */
+      #caSidenav .ca-nav-toggle:focus-visible { outline: 2px solid var(--cnds-link-color, #215aab); outline-offset: 2px; }
+
+      /* ── Sidenav section label ── */
+      #caSidenav .sidenav-subheading {
+        color: var(--cnds-text-muted, #757575);
+        white-space: nowrap;
+        overflow: hidden;
+        padding-top: 0.75rem;
+      }
+      /* ── Sidenav link — colour/hover come from the component; only the
+            CA indent and the label collapse transition are set here ── */
+      #caSidenav .sidenav-link {
+        text-decoration: none;
+        white-space: nowrap;
+        padding-left: 22px;
+      }
+      #caSidenav .sidenav-link span:not(.sidenav-chevron),
+      #caSidenav .sidenav-subheading {
+        opacity: 1;
+        max-width: 200px;
+        overflow: hidden;
+        transition: opacity 0.2s ease-in 0.1s, max-width 0s 0s;
+      }
+
+      /* ── Active link — CF green accent bar.
+            --cnds-product-accent is theme-aware (green-700 light / green-400 dark),
+            --cnds-primary is the same colour components/sidenav.css uses for
+            .sidenav-link.active, so the light and dark rules collapse into one. ── */
+      #caSidenav .sidenav-link.active {
+        box-shadow: inset 3px 0 0 var(--cnds-product-accent);
+        background: var(--ca-sidenav-active-tint);
+        color: var(--cnds-primary);
+        font-weight: 600;
+      }
+      [data-cnds-theme="dark"] #caSidenav .sidenav-link.active {
+        /* dark keeps green-400 for text: --cnds-primary stays green-800 for
+           solid-fill contrast and would be unreadable on the tint. */
+        color: var(--cnds-product-accent);
+      }
+      #caSidenav .sidenav-link.active:hover {
+        background: var(--ca-sidenav-active-tint-hover);
+        color: var(--cnds-primary);
+      }
+      [data-cnds-theme="dark"] #caSidenav .sidenav-link.active:hover {
+        color: var(--cnds-product-accent);
+      }
+
+      /* ── Slim mode: hide labels, clear icon margin — no position changes ──
+            Icons stay at padding-left: 22px in both states; 22px left + 24px icon
+            = naturally centered in 70px without any justify-content or padding
+            override. Never change justify-content or padding-left here — the width
+            transition would cause the icon to jump to a new flex position in the
+            full-width container first. That is why the two `.sidenav-slim` link
+            declarations from the component (justify-content:center; padding:0.75rem)
+            are explicitly undone below, and why the labels are animated out with
+            opacity/max-width instead of the component's instant display:none. ── */
+      /* `display` is restated only to beat the component's display:none — the
+         labels are flex items of .sidenav-link, so block is their natural box. */
+      #caSidenav.sidenav-slim .sidenav-link span:not(.sidenav-chevron) { display: block; opacity: 0; max-width: 0; overflow: hidden; transition: opacity 0.2s ease-out, max-width 0s 0.2s; }
+      #caSidenav.sidenav-slim .sidenav-subheading { display: block; opacity: 0; max-width: 0; overflow: hidden; transition: opacity 0.2s ease-out, max-width 0s 0.2s; }
+      #caSidenav.sidenav-slim .sidenav-link { justify-content: flex-start; padding-left: 22px; padding-right: 4px; }
+      #caSidenav.sidenav-slim .sidenav-chevron { transform: translateY(-50%) rotate(0deg) !important; }
+      #caSidenav.sidenav-slim .sidenav-collapse { display: none !important; }
+      #caSidenav.sidenav-slim .sidenav-link i,
+      #caSidenav.sidenav-slim .sidenav-link .mdi { margin-right: 0 !important; }
+
+      /* ── Sub-items (sidenav-collapse children) ── */
+      /* In the Nimbus reference all links (parent + child) carry ps-4 (1.5rem !important),
+         so child icons align with parent icons — not further indented. Match that here. */
+      #caSidenav .sidenav-collapse .sidenav-link {
+        font-size: 0.78rem;
+        height: 2.25rem;
+        padding-left: 22px;
+      }
+
+      /* ── Category toggle with active child — product highlight, no accent bar ── */
+      #caSidenav .sidenav-link[data-cnds-toggle="sidenav-collapse"].active {
+        background: var(--ca-sidenav-active-tint);
+        color: var(--cnds-primary);
+        font-weight: 600;
+        box-shadow: none; /* suppress the accent bar that .sidenav-link.active would add */
+      }
+      [data-cnds-theme="dark"] #caSidenav .sidenav-link[data-cnds-toggle="sidenav-collapse"].active {
+        color: var(--cnds-product-accent);
+        box-shadow: none;
+      }
+
+      /* ── Divider — the id-level rule outranks the component's dark-theme
+            selector, so the dark value has to be restated at id specificity ── */
+      #caSidenav .sidenav-divider {
+        border-top-color: var(--cnds-border-color, rgba(0,0,0,0.1));
+      }
+      [data-cnds-theme="dark"] #caSidenav .sidenav-divider {
+        border-top-color: var(--cnds-sidenav-divider-color, rgba(255,255,255,0.1));
+      }
+
+      /* ── Scrollbar — subtle on hover ── */
+      #caSidenav::-webkit-scrollbar { width: 4px; }
+      #caSidenav::-webkit-scrollbar-track { background: transparent; }
+      #caSidenav::-webkit-scrollbar-thumb { background: transparent; border-radius: 4px; }
+      #caSidenav:hover::-webkit-scrollbar-thumb { background: var(--ca-border-strong, #cccccc); }
+      #caSidenav { scrollbar-width: thin; scrollbar-color: transparent transparent; }
+      #caSidenav:hover { scrollbar-color: var(--ca-border-strong, #cccccc) transparent; }
+    </style>
+  </head>
+
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         SIDE NAV — fixed, below header, left of content; scrolls within
+
+         MARKUP CONTRACT — from the Category Items demo in cnds-sidenav.html.
+         (Described rather than shown, because a nested code sample would close
+         this comment early.)
+
+         LEAF ROW
+           li.sidenav-item        title and data-original-title both set
+             a.sidenav-link       id MUST start "navlink_"; href; add class
+                                  "active" + aria-current="page" on the current
+                                  page
+               i.mdi.mdi-18px.me-2    aria-hidden
+               span                   the visible label
+
+         CATEGORY ROW
+           li.sidenav-item        title and data-original-title both set
+             a.sidenav-link       id MUST start "tog_submenu_"; no href; needs
+                                  data-cnds-toggle="sidenav-collapse" and
+                                  aria-expanded
+               i.mdi.mdi-18px.me-2    aria-hidden
+               span                   the visible label
+               span.mdi.mdi-chevron-down.sidenav-chevron   aria-hidden
+             ul.sidenav-collapse  the leaf rows; add "show" to start open
+
+         Those two id prefixes are how §6 of the page script finds each kind of
+         row, so they are load-bearing, not cosmetic. Every id must be unique
+         across the whole nav. The span label is what becomes the slim-mode
+         tooltip, so it must carry the visible text.
+
+         `show` is the Nimbus open state for .sidenav (transform: translateX(0));
+         this frame's nav is permanently open, so it is set in the markup rather
+         than toggled.
+         ════════════════════════════════════════════════════════════════ -->
+    <nav id="caSidenav" class="sidenav show" aria-label="Application navigation">
+
+      <!-- Slim/expand toggle. .sidebar-header (app.css) makes this row sticky
+           inside the scrolling panel so the control never scrolls away. -->
+      <div class="sidebar-header">
+        <button
+          type="button"
+          id="caSidenavToggle"
+          class="ca-nav-toggle"
+          aria-label="Collapse navigation"
+          aria-expanded="true"
+          aria-controls="caSidenav"
+        >
+          <span class="mdi mdi-menu-open" aria-hidden="true"></span>
+        </button>
+      </div>
+
+      <!-- Navigation menu — generic placeholders. Swap "Menu Item N" for the
+           real Case Administrator sections and give each a meaningful id and
+           icon; add ul.sidenav-collapse children where a section needs them. -->
+      <ul class="sidenav-menu" id="caSidenavMenu">
+
+        <li class="sidenav-item" title="Item 1" data-original-title="Item 1">
+          <a id="navlink_Item1" class="sidenav-link active" href="#" aria-current="page">
+            <i class="mdi mdi-square-rounded-outline mdi-18px me-2" aria-hidden="true"></i>
+            <span>Menu Item 1</span>
+          </a>
+        </li>
+
+        <li class="sidenav-item" title="Item 2" data-original-title="Item 2">
+          <a id="navlink_Item2" class="sidenav-link" href="#">
+            <i class="mdi mdi-square-rounded-outline mdi-18px me-2" aria-hidden="true"></i>
+            <span>Menu Item 2</span>
+          </a>
+        </li>
+
+        <li class="sidenav-item" title="Item 3" data-original-title="Item 3">
+          <a id="navlink_Item3" class="sidenav-link" href="#">
+            <i class="mdi mdi-square-rounded-outline mdi-18px me-2" aria-hidden="true"></i>
+            <span>Menu Item 3</span>
+          </a>
+        </li>
+
+        <li class="sidenav-item" title="Item 4" data-original-title="Item 4">
+          <a id="navlink_Item4" class="sidenav-link" href="#">
+            <i class="mdi mdi-square-rounded-outline mdi-18px me-2" aria-hidden="true"></i>
+            <span>Menu Item 4</span>
+          </a>
+        </li>
+
+        <li class="sidenav-item" title="Item 5" data-original-title="Item 5">
+          <a id="navlink_Item5" class="sidenav-link" href="#">
+            <i class="mdi mdi-square-rounded-outline mdi-18px me-2" aria-hidden="true"></i>
+            <span>Menu Item 5</span>
+          </a>
+        </li>
+
+        <li class="sidenav-item" title="Item 6" data-original-title="Item 6">
+          <a id="navlink_Item6" class="sidenav-link" href="#">
+            <i class="mdi mdi-square-rounded-outline mdi-18px me-2" aria-hidden="true"></i>
+            <span>Menu Item 6</span>
+          </a>
+        </li>
+
+      </ul>
+    </nav><!-- /#caSidenav -->
+
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         STICKY HEADER
+         ════════════════════════════════════════════════════════════════ -->
+    <div class="sticky-top" id="caHeader">
+
+      <!-- ─────────────────────────────────────────────────────────────────
+           UTILITY NAV — app.css .nav-cf-utility, with its .fr_logo (left) /
+           .fr_tools (right) sub-structure. Keep the tool order: notifications,
+           theme, portal, account, each separated by .nav-cf-utility-divider.
+           ───────────────────────────────────────────────────────────────── -->
+      <nav class="nav nav-cf-utility" id="UtilityNav" aria-label="Utility navigation">
+        <div class="fr_logo">
+          <img src="../img/cf/core/logo_casefusion.svg" width="32" height="36" alt="CaseFusion" />
+          <div class="fr_product-name">
+            <span class="product-bold">Case</span>
+            <span class="product-light">Fusion</span>
+          </div>
+        </div>
+        <div class="fr_tools">
+          <!-- NOTIFICATIONS. The popover is re-parented to <body> on init (it is
+               position:fixed and wider than the bar), so #navAlertWrapper is only
+               the pre-init home — outside-click is measured against the popover. -->
+          <div class="nav-alert-popover-wrapper" id="navAlertWrapper">
+            <button type="button" class="nav-icon-btn" id="navBellBtn" aria-label="Notifications" aria-haspopup="dialog" aria-expanded="false" aria-controls="navAlertPopover" data-cnds-toggle="tooltip" data-cnds-placement="bottom" data-cnds-delay="0" title="Notifications">
+              <span class="mdi mdi-bell" id="navBellIcon" aria-hidden="true"></span>
+              <span class="nav-bell-badge" id="navBellBadge" aria-live="polite" aria-atomic="true"></span>
+            </button>
+            <!-- No aria-modal: this is a non-modal popover. Focus is not trapped
+                 and an outside click dismisses it, so claiming modality would
+                 make assistive tech hide the rest of the page for no reason. -->
+            <div class="notif-popover" id="navAlertPopover" role="dialog" aria-label="Notifications" aria-hidden="true">
+              <div class="notif-header">
+                <span class="notif-header-title">Notifications</span>
+                <div class="notif-header-counts">
+                  <span class="notif-count-unread">0 Unread</span>
+                  <span class="notif-header-divider"></span>
+                  <span class="notif-count-total">0 Total</span>
+                </div>
+              </div>
+              <!-- Rows are rendered by §3 of the page script. -->
+              <div class="notif-list" id="notifList"></div>
+            </div>
+          </div>
+
+          <span class="nav-cf-utility-divider" aria-hidden="true"></span>
+
+          <!-- THEME. data-cnds-toggle="theme" is handled by app.js: it flips
+               data-cnds-theme on <html> and persists the choice. §5 of the page
+               script only mirrors the icon and the tooltip label. -->
+          <button type="button" class="nav-icon-btn" id="themeToggle" data-cnds-toggle="theme" aria-label="Toggle theme" title="Switch to light theme">
+            <span class="mdi mdi-weather-night" aria-hidden="true"></span>
+          </button>
+
+          <span class="nav-cf-utility-divider" aria-hidden="true"></span>
+
+          <!-- PORTAL SWITCHER. A span[role="button"] rather than a <button> so
+               the label can truncate mid-flex; the script wires Enter/Space. -->
+          <div class="portal-switcher-wrapper" id="portalSwitcherWrapper">
+            <span class="portal-switcher" id="portalSwitcherToggle" role="button" tabindex="0" aria-haspopup="menu" aria-expanded="false" aria-controls="portalMenu">
+              <span class="mdi mdi-account-switch-outline" aria-hidden="true"></span>
+              <span class="portal-switcher-label">{{Portal Name}}</span>
+              <span id="portalChevron" class="mdi mdi-chevron-down" aria-hidden="true"></span>
+            </span>
+            <div class="account-menu" id="portalMenu" role="menu" aria-hidden="true">
+              <div class="account-menu-header">Portal</div>
+              <a class="account-menu-item active" href="#!" role="menuitem">Tenant/Case Portal</a>
+              <a class="account-menu-item" href="#!" role="menuitem">Custodian Portal</a>
+              <a class="account-menu-item" href="#!" role="menuitem">SME Portal</a>
+            </div>
+          </div>
+          <span class="nav-cf-utility-divider" aria-hidden="true"></span>
+
+          <!-- ACCOUNT. .user-avatar holds the user's initials; aria-hidden
+               because the adjacent label already announces the name. -->
+          <div class="user-info-wrapper" id="userAccountWrapper">
+            <span class="user-info" id="userAccountToggle" role="button" tabindex="0" aria-haspopup="menu" aria-expanded="false" aria-controls="accountMenu">
+              <span class="user-avatar" aria-hidden="true">FL</span>
+              <span class="user-name-label">{{User Name}}</span>
+            </span>
+            <div class="account-menu" id="accountMenu" role="menu" aria-hidden="true">
+              <div class="account-menu-header">Account</div>
+              <a class="account-menu-item" href="#!" role="menuitem">Preferences</a>
+              <a class="account-menu-item" href="#!" role="menuitem">Sign Out</a>
+            </div>
+          </div>
+        </div><!-- /.fr_tools -->
+      </nav><!-- /#UtilityNav -->
+
+    </div><!-- /#caHeader / .sticky-top -->
+
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         MAIN CONTENT — a single slot. .ca-main carries the margin-left that
+         clears the fixed sidenav, and .ca-main-slim is added/removed by the
+         page script in step with the panel's width.
+         ════════════════════════════════════════════════════════════════ -->
+    <main id="main-content" class="ca-main">
+      <!-- Small-screen notice. The frame assumes a fixed 220px sidenav plus a
+           content column, so it is not laid out for phones. d-block d-md-none
+           (core/display.css) shows this below the md breakpoint only. -->
+      <div class="d-block d-md-none mb-3">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>
+          This application is not optimised for small screens. Use a large tablet, laptop, or desktop to continue.
+        </div>
+      </div>
+
+      <!-- CONTENT SLOT — everything below is placeholder. Replace #caContent's
+           children with the screen's markup and delete .ca-placeholder plus its
+           rule in §4 of the stylesheet. -->
+      <div class="ca-content" id="caContent">
+        <div class="ca-placeholder">
+          <div>
+            <i class="mdi mdi-swap-horizontal-bold d-block mb-3 ca-placeholder-icon" aria-hidden="true"></i>
+            <strong class="d-block mb-2 fs-6 ca-placeholder-label">{{Content}}</strong>
+          </div>
+        </div>
+      </div><!-- /#caContent -->
+    </main><!-- /#main-content -->
+
+
+    <!-- ═══════════════════ NIMBUS v1 CORE JS ═══════════════════
+         Matches includes/scripts-core.html, and must come BEFORE the page
+         script below so window.Nimbus exists when it runs.
+
+         Do NOT add per-component <script>s here: js/nimbus.js is a loader that
+         fetches core/*.js and every components/*.js and plugins/*.js in
+         dependency order, runs Nimbus.DataAPI.init() over the data-cnds-*
+         attributes in the DOM, then dispatches `cnds.ready` on document.
+         Loading a component file again re-registers it with the DataAPI and
+         double-binds its handlers.
+
+         Because the components arrive asynchronously, anything that touches a
+         component class (Nimbus.Tooltip, Nimbus.Select, …) must run inside the
+         `cnds.ready` listener or an event handler — never at parse time.
+         ═════════════════════════════════════════════════════════ -->
+    <script type="text/javascript" src="../js/nimbus.js"></script>
+    <script type="text/javascript" src="../js/app.js"></script>
+
+    <script>
+      /* ═══════════════════════════════════════════════════════════════════
+         CA SIDENAV FRAME — page controller
+
+         Plain ES5 in an IIFE so the file drops into any server with no build
+         step. Nothing here re-implements a Nimbus component; it only wires the
+         frame-level behaviour the design system does not ship:
+
+           0 · Constants & helpers
+           1 · Frame layout        sidenav top offset, header scroll shadow
+           2 · Overlay registry    bell popover + portal menu + account menu
+           3 · Notifications       demo data, render, counts, bell state
+           4 · Theme toggle        icon sync, tooltip label sync
+           5 · Sidenav             slim mode, submenu accordion, active state
+           6 · Screen hooks        per-screen config / functionality
+
+         Nimbus components are loaded ASYNCHRONOUSLY by js/nimbus.js. Anything
+         that touches a component class (Nimbus.Tooltip, Nimbus.Select, …) must
+         run inside the `cnds.ready` listener or an event handler — never at
+         parse time. Every reference below is either lazy or guarded.
+         ═══════════════════════════════════════════════════════════════════ */
+      (function () {
+        "use strict";
+
+        /* ═══════════════════════════════════════════════════════════════
+           0 · CONSTANTS & HELPERS
+           ═══════════════════════════════════════════════════════════════ */
+
+        /**
+         * Animation durations in ms. These MIRROR the CSS transitions of the
+         * same name — JS uses them to schedule post-transition work. Change a
+         * CSS duration and you must change its twin here.
+         *   SIDENAV_WIDTH  #caSidenav / .ca-main   transition: … 0.3s
+         *   SUBMENU        .sidenav-collapse height slide (JS-driven, below)
+         *   NOTIF_DISMISS  .notif-item collapse-and-remove
+         */
+        var DUR = { SIDENAV_WIDTH: 300, SUBMENU: 350, NOTIF_DISMISS: 300 };
+
+        /** Grace period added to a duration before a fallback timer fires. */
+        var TRANSITION_SLOP = 20;
+
+        var byId = document.getElementById.bind(document);
+
+        /**
+         * Live reduced-motion query. Read per animation rather than cached at
+         * parse time, so a mid-session OS preference change is honoured.
+         */
+        var motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+        function reducedMotion() { return motionQuery.matches; }
+
+        /** Read a CSS length custom property off :root, in px. */
+        function cssPx(name, fallback) {
+          var n = parseFloat(getComputedStyle(document.documentElement).getPropertyValue(name));
+          return isNaN(n) ? fallback : n;
+        }
+
+        /** createElement + className + textContent, in one call. */
+        function el(tag, className, text) {
+          var node = document.createElement(tag);
+          if (className) node.className = className;
+          if (text != null) node.textContent = text;
+          return node;
+        }
+
+        /**
+         * Run `fn` once: on the first `type` event fired BY `node` itself, or
+         * after `timeoutMs` if the transition never lands (element hidden,
+         * motion reduced, interrupted). The target check matters — transitionend
+         * bubbles, so a child's transition would otherwise settle the parent early.
+         */
+        function once(node, type, fn, timeoutMs) {
+          var done = false;
+          var run = function (e) {
+            if (done || (e && e.target !== node)) return;
+            done = true;
+            node.removeEventListener(type, run);
+            fn();
+          };
+          node.addEventListener(type, run);
+          setTimeout(run, timeoutMs);
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           1 · FRAME LAYOUT
+
+           #caSidenav is position:fixed, so it cannot pick up the sticky
+           header's height from normal flow — JS pins its top edge instead.
+           The gap is read from --ca-sidenav-gap so the CSS stays the single
+           source of truth for the frame's spacing.
+           ═══════════════════════════════════════════════════════════════ */
+
+        var header  = byId("caHeader");
+        var main    = byId("main-content");
+        var sidenav = byId("caSidenav");
+
+        function updateLayout() {
+          if (!sidenav) return;
+          var gap = cssPx("--ca-sidenav-gap", 16);
+          sidenav.style.top = ((header ? header.offsetHeight : 0) + gap) + "px";
+        }
+
+        /* offsetHeight forces a synchronous layout, so coalesce to one per frame. */
+        var layoutQueued = false;
+        function queueLayout() {
+          if (layoutQueued) return;
+          layoutQueued = true;
+          requestAnimationFrame(function () { layoutQueued = false; updateLayout(); });
+        }
+
+        updateLayout();
+        window.addEventListener("resize", queueLayout, { passive: true });
+
+        /* Header elevation on scroll. Guarded on a state change so the handler
+           does no classList work on the vast majority of scroll events. */
+        var headerScrolled = false;
+        window.addEventListener("scroll", function () {
+          var scrolled = window.scrollY > 0;
+          if (!header || scrolled === headerScrolled) return;
+          headerScrolled = scrolled;
+          header.classList.toggle("shadow-sm", scrolled);
+        }, { passive: true });
+
+        /* ═══════════════════════════════════════════════════════════════
+           2 · OVERLAY REGISTRY
+
+           The bell popover, the portal menu and the account menu are mutually
+           exclusive: opening one closes the others. Registering all three in
+           one place buys a single document-click listener instead of three, a
+           single Escape handler, and one roving-focus implementation.
+
+           Each entry is:
+             panel    the element that carries .open
+             trigger  the control that owns aria-expanded
+             root     what an outside-click is measured against. Usually the
+                      trigger's wrapper; the bell popover is re-parented to
+                      <body> (see §3) so it is its own root.
+             roving   true to wire ArrowUp/ArrowDown over [role="menuitem"]
+             onOpen   runs BEFORE .open is applied — position/measure here
+             onClose  runs after .open is removed
+           ═══════════════════════════════════════════════════════════════ */
+
+        var overlays = [];
+
+        function overlayIsOpen(o) { return o.panel.classList.contains("open"); }
+
+        function closeOverlay(o, refocus) {
+          if (!overlayIsOpen(o)) return;
+          o.panel.classList.remove("open");
+          o.panel.setAttribute("aria-hidden", "true");
+          o.trigger.setAttribute("aria-expanded", "false");
+          if (o.onClose) o.onClose();
+          if (refocus) o.trigger.focus();
+        }
+
+        function closeAllOverlays(except) {
+          overlays.forEach(function (o) { if (o !== except) closeOverlay(o, false); });
+        }
+
+        function openOverlay(o) {
+          closeAllOverlays(o);
+          if (o.onOpen) o.onOpen();
+          o.panel.classList.add("open");
+          o.panel.removeAttribute("aria-hidden");
+          o.trigger.setAttribute("aria-expanded", "true");
+          var first = o.panel.querySelector("[role='menuitem'], button, [href], input, [tabindex]");
+          if (first) first.focus();
+        }
+
+        function toggleOverlay(o) {
+          if (overlayIsOpen(o)) { closeOverlay(o, true); } else { openOverlay(o); }
+        }
+
+        /**
+         * Register an overlay and wire its trigger + panel keyboard handling.
+         * Returns the entry, or null when the markup for it is absent.
+         */
+        function registerOverlay(cfg) {
+          if (!cfg.panel || !cfg.trigger) return null;
+          cfg.root = cfg.root || cfg.trigger;
+          overlays.push(cfg);
+
+          cfg.trigger.addEventListener("click", function (e) {
+            e.stopPropagation();
+            toggleOverlay(cfg);
+          });
+
+          /* <button> gets Enter/Space for free; span[role="button"] does not. */
+          if (cfg.trigger.tagName !== "BUTTON") {
+            cfg.trigger.addEventListener("keydown", function (e) {
+              if (e.key !== "Enter" && e.key !== " ") return;
+              e.preventDefault();
+              toggleOverlay(cfg);
+            });
+          }
+
+          cfg.panel.addEventListener("keydown", function (e) {
+            if (e.key === "Escape") { closeOverlay(cfg, true); return; }
+            if (!cfg.roving || (e.key !== "ArrowDown" && e.key !== "ArrowUp")) return;
+            e.preventDefault();
+            var items = [].slice.call(cfg.panel.querySelectorAll("[role='menuitem']"));
+            if (!items.length) return;
+            /* indexOf is -1 when focus is on the panel itself: ArrowDown then
+               lands on the first item, ArrowUp on the last. */
+            var i = items.indexOf(document.activeElement);
+            var next = e.key === "ArrowDown" ? i + 1 : i - 1 + items.length;
+            items[((next % items.length) + items.length) % items.length].focus();
+          });
+
+          return cfg;
+        }
+
+        /* One outside-click listener for every registered overlay. */
+        document.addEventListener("click", function (e) {
+          overlays.forEach(function (o) {
+            if (!overlayIsOpen(o)) return;
+            if (o.root.contains(e.target) || o.trigger.contains(e.target)) return;
+            closeOverlay(o, false);
+          });
+        });
+
+        /* ═══════════════════════════════════════════════════════════════
+           3 · NOTIFICATIONS
+
+           DEMO_NOTIFICATIONS is placeholder data — replace the array with a
+           service call and keep the render contract.
+
+           Rows are built with createElement/textContent, NOT innerHTML.
+           Subjects and messages are user-supplied strings in production, and
+           string-concatenated markup would be a stored-XSS vector.
+           ═══════════════════════════════════════════════════════════════ */
+
+        var DEMO_NOTIFICATIONS = [
+          { subject: "Legal hold violation detected",      timestamp: "Apr 18, 2026 · 2:14 PM",  message: "Legal hold violation detected on custodian mailbox. Immediate review required to prevent spoliation.", unread: true  },
+          { subject: "Preserve in place job completed",    timestamp: "Apr 18, 2026 · 11:05 AM", message: "Preserve in place job for OneDrive has completed in Doe v. Acme Corporation.", unread: true  },
+          { subject: "Custodian response overdue",         timestamp: "Apr 17, 2026 · 2:00 PM",  message: "Custodian response is overdue by 5 days. Escalation notice sent to outside counsel.", unread: true  },
+          { subject: "Expert report deadline approaching", timestamp: "Apr 17, 2026 · 10:45 AM", message: "Expert report deadline is approaching in 3 business days. Draft review recommended.", unread: false },
+          { subject: "Data source sync completed",         timestamp: "Apr 16, 2026 · 4:12 PM",  message: "Data source sync completed for Exchange Online connector.", unread: false }
+        ];
+
+        /** Build one .notif-item row. @param {{subject,timestamp,message,unread}} item */
+        function buildNotifItem(item) {
+          var row = el("div", "notif-item" + (item.unread ? " unread" : ""));
+
+          if (item.unread) row.appendChild(el("span", "notif-unread-dot"));
+
+          var label = el("div", "notif-item-label");
+          label.appendChild(el("div", "notif-subject", item.subject));
+          label.appendChild(el("div", "notif-timestamp", item.timestamp));
+          row.appendChild(label);
+
+          var expand = el("button", "notif-expand mdi mdi-chevron-down");
+          expand.type = "button";
+          expand.setAttribute("aria-label", "Expand notification");
+          expand.setAttribute("aria-expanded", "false");
+          row.appendChild(expand);
+
+          var dismiss = el("button", "notif-dismiss mdi mdi-close");
+          dismiss.type = "button";
+          dismiss.setAttribute("aria-label", "Dismiss notification");
+          row.appendChild(dismiss);
+
+          row.appendChild(el("div", "notif-item-message", item.message));
+          return row;
+        }
+
+        function renderNotifications(listEl, data) {
+          var frag = document.createDocumentFragment();
+          data.forEach(function (item) { frag.appendChild(buildNotifItem(item)); });
+          listEl.textContent = "";
+          listEl.appendChild(frag);
+        }
+
+        function updateCounts(popoverEl, listEl) {
+          var totalEl  = popoverEl.querySelector(".notif-count-total");
+          var unreadEl = popoverEl.querySelector(".notif-count-unread");
+          if (totalEl)  totalEl.textContent  = listEl.querySelectorAll(".notif-item").length + " Total";
+          if (unreadEl) unreadEl.textContent = listEl.querySelectorAll(".notif-item.unread").length + " Unread";
+        }
+
+        /** Filled bell + count badge when unread, outline bell + no badge when clear. */
+        function updateBellState(iconEl, badgeEl, listEl) {
+          var count = listEl ? listEl.querySelectorAll(".notif-item.unread").length : 0;
+          if (iconEl) {
+            iconEl.classList.toggle("mdi-bell", count > 0);
+            iconEl.classList.toggle("mdi-bell-outline", count === 0);
+          }
+          if (badgeEl) badgeEl.textContent = count === 0 ? "" : (count > 99 ? "99+" : String(count));
+        }
+
+        (function initNotifications() {
+          var bellBtn  = byId("navBellBtn");
+          var bellIcon = byId("navBellIcon");
+          var badge    = byId("navBellBadge");
+          var popover  = byId("navAlertPopover");
+          var listEl   = byId("notifList");
+          if (!bellBtn || !popover || !listEl) return;
+
+          renderNotifications(listEl, DEMO_NOTIFICATIONS);
+          updateCounts(popover, listEl);
+          updateBellState(bellIcon, badge, listEl);
+
+          /* Re-parent to <body>. The popover is position:fixed and wider than
+             the utility bar; leaving it inside the header subjects it to the
+             header's stacking context and any future overflow clipping. */
+          document.body.appendChild(popover);
+
+          /** Anchor the popover under the bell and point its arrow at the bell. */
+          function positionPopover() {
+            var r  = bellBtn.getBoundingClientRect();
+            var pw = popover.offsetWidth || 400;
+            var cx = r.left + r.width / 2;
+            var left = Math.max(8, Math.min(cx - 20, window.innerWidth - pw - 8));
+            popover.style.top  = (r.bottom + 10) + "px";
+            popover.style.left = left + "px";
+            popover.style.setProperty("--arrow-left",
+              Math.max(12, Math.min(Math.round(cx - left - 8), pw - 32)) + "px");
+          }
+
+          /* The bell carries data-cnds-toggle="tooltip", which would otherwise
+             sit on top of the open popover — suspend it while open. */
+          function bellTooltip() {
+            return (window.Nimbus && Nimbus.Tooltip)
+              ? Nimbus.Tooltip.getInstance(bellBtn)
+              : null;
+          }
+
+          var bell = registerOverlay({
+            panel: popover,
+            trigger: bellBtn,
+            root: popover,
+            onOpen: function () {
+              positionPopover();
+              var t = bellTooltip();
+              if (t) { t.hide(); t.disable(); }
+            },
+            onClose: function () {
+              var t = bellTooltip();
+              if (t) t.enable();
+            }
+          });
+
+          window.addEventListener("resize", function () {
+            if (overlayIsOpen(bell)) positionPopover();
+          }, { passive: true });
+
+          /* Scrim under the sticky popover header once the list scrolls. */
+          var head = popover.querySelector(".notif-header");
+          if (head) {
+            listEl.addEventListener("scroll", function () {
+              head.classList.toggle("scrolled", this.scrollTop > 0);
+            }, { passive: true });
+          }
+
+          function refreshBell() {
+            updateCounts(popover, listEl);
+            updateBellState(bellIcon, badge, listEl);
+          }
+
+          /* One delegated handler for expand + dismiss across all rows. */
+          popover.addEventListener("click", function (e) {
+            var expand = e.target.closest(".notif-expand");
+            if (expand) {
+              e.preventDefault();
+              e.stopPropagation();
+              var row = expand.closest(".notif-item");
+              if (!row) return;
+              var expanded = row.classList.toggle("expanded");
+              expand.setAttribute("aria-expanded", expanded ? "true" : "false");
+              /* Expanding counts as reading it. */
+              if (expanded && row.classList.contains("unread")) {
+                row.classList.remove("unread");
+                var dot = row.querySelector(".notif-unread-dot");
+                if (dot) dot.remove();
+                refreshBell();
+              }
+              return;
+            }
+
+            var dismiss = e.target.closest(".notif-dismiss");
+            if (!dismiss) return;
+            e.preventDefault();
+            e.stopPropagation();
+            var item = dismiss.closest(".notif-item");
+            if (!item) return;
+
+            var drop = function () { item.remove(); refreshBell(); };
+            if (reducedMotion()) { drop(); return; }
+
+            /* Collapse the row to zero height, then remove it. max-height is
+               seeded from the measured height so the transition has a start. */
+            item.style.transition = "opacity 0.2s ease, max-height 0.3s ease, margin 0.3s ease, padding 0.3s ease";
+            item.style.maxHeight  = item.offsetHeight + "px";
+            item.style.overflow   = "hidden";
+            item.style.opacity    = "0";
+            requestAnimationFrame(function () {
+              item.style.maxHeight = "0";
+              item.style.marginTop = item.style.marginBottom = "0";
+              item.style.paddingTop = item.style.paddingBottom = "0";
+            });
+            setTimeout(drop, DUR.NOTIF_DISMISS);
+          });
+        })();
+
+        /* ═══════════════════════════════════════════════════════════════
+           4 · PORTAL SWITCHER & ACCOUNT MENU
+           ═══════════════════════════════════════════════════════════════ */
+
+        (function initHeaderMenus() {
+          var portalToggle  = byId("portalSwitcherToggle");
+          var portalMenu    = byId("portalMenu");
+          var portalChevron = byId("portalChevron");
+          var accountToggle = byId("userAccountToggle");
+          var accountMenu   = byId("accountMenu");
+
+          /**
+           * Centre the menu's CSS-triangle arrow under its trigger. The arrow is
+           * drawn by ::before/::after at a `right` offset, so it is measured from
+           * the menu's right edge — which is flush with the trigger's right edge.
+           */
+          function setMenuArrow(menu, trigger) {
+            if (!menu || !trigger) return;
+            var half = trigger.offsetWidth / 2;
+            menu.style.setProperty("--menu-arrow-outer", Math.round(half - 8) + "px");
+            menu.style.setProperty("--menu-arrow-inner", Math.round(half - 7) + "px");
+          }
+
+          function setChevron(open) {
+            if (!portalChevron) return;
+            portalChevron.classList.toggle("mdi-chevron-down", !open);
+            portalChevron.classList.toggle("mdi-chevron-up", open);
+          }
+
+          registerOverlay({
+            panel: portalMenu,
+            trigger: portalToggle,
+            root: byId("portalSwitcherWrapper"),
+            roving: true,
+            onOpen: function () { setMenuArrow(portalMenu, portalToggle); setChevron(true); },
+            onClose: function () { setChevron(false); }
+          });
+
+          registerOverlay({
+            panel: accountMenu,
+            trigger: accountToggle,
+            root: byId("userAccountWrapper"),
+            roving: true,
+            onOpen: function () { setMenuArrow(accountMenu, accountToggle); }
+          });
+        })();
+
+        /* ═══════════════════════════════════════════════════════════════
+           5 · THEME TOGGLE
+
+           app.js owns the actual switch: it reads data-cnds-toggle="theme",
+           writes data-cnds-theme on <html> and persists to localStorage. This
+           block only keeps the button's icon and tooltip label in step.
+           ═══════════════════════════════════════════════════════════════ */
+
+        (function initThemeToggle() {
+          var btn = byId("themeToggle");
+
+          /* Observe the attribute rather than the click, so the icon is also
+             correct when app.js restores a saved theme on load. */
+          new MutationObserver(function () {
+            var isDark = document.documentElement.getAttribute("data-cnds-theme") === "dark";
+            document.querySelectorAll('[data-cnds-toggle="theme"] .mdi').forEach(function (icon) {
+              icon.classList.toggle("mdi-weather-night", !isDark);
+              icon.classList.toggle("mdi-weather-sunny", isDark);
+            });
+            if (btn) {
+              var label = isDark ? "Switch to light theme" : "Switch to dark theme";
+              btn.setAttribute("aria-label", "Toggle theme");
+              btn.setAttribute("data-cnds-original-title", label);
+              btn.setAttribute("title", label);
+            }
+          }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-cnds-theme"] });
+
+          /* The button already spends data-cnds-toggle on "theme", so the
+             tooltip cannot be declared via data-cnds-toggle="tooltip" — it has
+             to be constructed once the component class has finished loading. */
+          document.addEventListener("cnds.ready", function () {
+            if (btn && window.Nimbus && Nimbus.Tooltip) {
+              Nimbus.Tooltip.getOrCreateInstance(btn, { placement: "bottom", delay: 0 });
+            }
+          });
+        })();
+
+        /* ═══════════════════════════════════════════════════════════════
+           6 · SIDE NAV
+
+           Markup contract (matches the Category Items demo in cnds-sidenav.html):
+             li.sidenav-item            one row; title + data-original-title match
+             a#navlink_<Topic>          a leaf link
+             a#tog_submenu_<Section>    a category toggle; needs
+                                        data-cnds-toggle="sidenav-collapse" and
+                                        aria-expanded, with a sibling
+                                        ul.sidenav-collapse
+           Identifiers must be unique across the whole nav.
+
+           The slide animation is JS-driven because components/sidenav.css ships
+           .sidenav-collapse as a display:none / .show display:block pair with no
+           height transition.
+           ═══════════════════════════════════════════════════════════════ */
+
+        (function initSidenav() {
+          var sidenavEl = byId("caSidenav");
+          var toggleBtn = byId("caSidenavToggle");
+          if (!sidenavEl) return;
+
+          var categoryToggles = [].slice.call(sidenavEl.querySelectorAll('[id^="tog_submenu_"]'));
+          var navLinks        = [].slice.call(sidenavEl.querySelectorAll('[id^="navlink_"]'));
+
+          function submenuOf(toggle) {
+            return toggle.parentElement
+              ? toggle.parentElement.querySelector(".sidenav-collapse")
+              : null;
+          }
+
+          /* ── Submenu slide ────────────────────────────────────────────
+             One routine for both directions. `.collapsing` holds the element
+             at display:block for the duration (app.css), then `settle()` hands
+             it back to the class-based .show state and clears every inline
+             style so nothing leaks into the next run. */
+          function animateSubmenu(toggle, submenu, open) {
+            toggle.setAttribute("aria-expanded", open ? "true" : "false");
+
+            /* A category stays highlighted while it holds the active leaf. */
+            if (!open && !submenu.querySelector(".sidenav-link.active")) {
+              toggle.classList.remove("active");
+            }
+
+            var settle = function () {
+              submenu.classList.remove("collapsing");
+              submenu.classList.toggle("show", open);
+              submenu.style.height = submenu.style.overflow =
+                submenu.style.transition = submenu.style.display = "";
+            };
+
+            if (reducedMotion()) { settle(); return; }
+
+            submenu.style.display  = "block";
+            submenu.style.overflow = "hidden";
+            submenu.classList.add("collapsing");
+            submenu.classList.remove("show");
+
+            /* Measure only after display:block — scrollHeight is 0 while hidden. */
+            var full = submenu.scrollHeight + "px";
+            submenu.style.height = open ? "0px" : full;
+            void submenu.offsetHeight;                    // commit the start frame
+            submenu.style.transition = "height " + DUR.SUBMENU + "ms ease";
+            submenu.style.height = open ? full : "0px";
+
+            once(submenu, "transitionend", settle, DUR.SUBMENU + TRANSITION_SLOP);
+          }
+
+          /** Accordion: only one category open at a time. */
+          function closeOtherSubmenus(except) {
+            categoryToggles.forEach(function (t) {
+              if (t === except) return;
+              var s = submenuOf(t);
+              if (s && s.classList.contains("show")) animateSubmenu(t, s, false);
+            });
+          }
+
+          function openSubmenu() {
+            for (var i = 0; i < categoryToggles.length; i++) {
+              var s = submenuOf(categoryToggles[i]);
+              if (s && s.classList.contains("show")) {
+                return { toggle: categoryToggles[i], submenu: s };
+              }
+            }
+            return null;
+          }
+
+          /* ── Slim mode ────────────────────────────────────────────────
+             State lives on the element, not in a local boolean: the Nimbus
+             Sidenav component also toggles .sidenav-slim (see _isSlim /
+             _expandFromSlim), so a JS flag can silently desync from the DOM. */
+          function isSlim() { return sidenavEl.classList.contains("sidenav-slim"); }
+
+          function setSlim(on) {
+            if (on === isSlim()) return;
+            sidenavEl.classList.toggle("sidenav-slim", on);
+            if (main) main.classList.toggle("ca-main-slim", on);
+
+            if (toggleBtn) {
+              var icon = toggleBtn.querySelector(".mdi");
+              if (icon) icon.className = "mdi " + (on ? "mdi-menu-close" : "mdi-menu-open");
+              toggleBtn.setAttribute("aria-expanded", on ? "false" : "true");
+              toggleBtn.setAttribute("aria-label", on ? "Expand navigation" : "Collapse navigation");
+            }
+
+            /* Labels are hidden in slim mode, so the icons need tooltips. */
+            if (on) { addSlimTooltips(); } else { removeSlimTooltips(); }
+
+            /* Re-pin the panel once the width transition lands: collapsing the
+               nav can reflow the header, which moves the panel's top edge. */
+            setTimeout(updateLayout, DUR.SIDENAV_WIDTH + TRANSITION_SLOP);
+          }
+
+          function slimTooltipLinks() {
+            return [].slice.call(sidenavEl.querySelectorAll(".sidenav-link"));
+          }
+
+          function addSlimTooltips() {
+            if (!window.Nimbus || !Nimbus.Tooltip) return;
+            slimTooltipLinks().forEach(function (link) {
+              var span  = link.querySelector("span:not(.sidenav-chevron)");
+              var label = span ? span.textContent.trim() : "";
+              if (!label) return;
+              if (!link.getAttribute("data-cnds-original-title")) link.setAttribute("title", label);
+              Nimbus.Tooltip.getOrCreateInstance(link, { placement: "right", trigger: "hover", offset: [0, 12] });
+            });
+          }
+
+          function removeSlimTooltips() {
+            if (!window.Nimbus || !Nimbus.Tooltip) return;
+            slimTooltipLinks().forEach(function (link) {
+              var inst = Nimbus.Tooltip.getInstance(link);
+              if (inst) inst.dispose();
+              link.removeAttribute("title");
+            });
+          }
+
+          /* ── Wiring ─────────────────────────────────────────────────── */
+
+          categoryToggles.forEach(function (toggle) {
+            toggle.addEventListener("click", function (e) {
+              e.preventDefault();
+              var submenu = submenuOf(toggle);
+              if (!submenu || submenu.classList.contains("collapsing")) return;
+
+              /* Clicking a category while slim expands the panel first, then
+                 opens the submenu — mirrors Nimbus Sidenav._toggleSubmenu(). */
+              if (isSlim()) {
+                setSlim(false);
+                requestAnimationFrame(function () {
+                  closeOtherSubmenus(toggle);
+                  animateSubmenu(toggle, submenu, true);
+                });
+                return;
+              }
+
+              closeOtherSubmenus(toggle);
+              animateSubmenu(toggle, submenu, !submenu.classList.contains("show"));
+            });
+          });
+
+          /* Leaf click — owns the active state. In Angular this whole handler
+             is replaced by routerLinkActive; see tmpl_ca_sidenav.ANGULAR.md. */
+          navLinks.forEach(function (link) {
+            link.addEventListener("click", function (e) {
+              e.preventDefault();
+
+              /* Optional hook: data-ca-tab="<id>" clicks a Nimbus tab button,
+                 for frames that swap content via tabs rather than routing. */
+              var tabId  = link.getAttribute("data-ca-tab");
+              var tabBtn = tabId ? byId(tabId) : null;
+              if (tabBtn) tabBtn.click();
+
+              navLinks.forEach(function (l) {
+                l.classList.remove("active");
+                l.removeAttribute("aria-current");
+              });
+              categoryToggles.forEach(function (t) { t.classList.remove("active"); });
+
+              link.classList.add("active");
+              link.setAttribute("aria-current", "page");
+
+              /* Highlight the parent category when the leaf is nested. */
+              var collapse = link.closest(".sidenav-collapse");
+              var parent   = collapse ? collapse.previousElementSibling : null;
+              if (parent) parent.classList.add("active");
+            });
+          });
+
+          if (toggleBtn) {
+            toggleBtn.addEventListener("click", function () {
+              if (!isSlim()) {
+                /* Collapse an open submenu BEFORE shrinking: the two height
+                   animations would otherwise fight over the same box. */
+                var open = openSubmenu();
+                if (!open) { setSlim(true); return; }
+                animateSubmenu(open.toggle, open.submenu, false);
+                setTimeout(function () { setSlim(true); }, DUR.SUBMENU + TRANSITION_SLOP);
+                return;
+              }
+
+              setSlim(false);
+              /* Restore the active category's submenu once the panel is wide. */
+              setTimeout(function () {
+                categoryToggles.forEach(function (t) {
+                  if (!t.classList.contains("active")) return;
+                  var s = submenuOf(t);
+                  if (s && !s.classList.contains("show")) animateSubmenu(t, s, true);
+                });
+                updateLayout();
+              }, DUR.SIDENAV_WIDTH + TRANSITION_SLOP);
+            });
+          }
+        })();
+
+        /* ═══════════════════════════════════════════════════════════════
+           7 · SCREEN HOOKS
+           Per-screen code goes here so the frame above stays reusable.
+           ═══════════════════════════════════════════════════════════════ */
+
+        //*********************************************************************
+        // START: SCREEN CONFIGURATION
+        //*********************************************************************
+        //*********************************************************************
+        // END: SCREEN CONFIGURATION
+        //*********************************************************************
+
+        //*********************************************************************
+        // START: SCREEN FUNCTIONALITY
+        //*********************************************************************
+        //*********************************************************************
+        // END: SCREEN FUNCTIONALITY
+        //*********************************************************************
+      }());
+    </script>
+
+  </body>
+</html>
