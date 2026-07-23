@@ -1,0 +1,460 @@
+/* ============================================================
+   CNDS Carousel
+   Cloudficient Nimbus Design System v1.0.0
+   Migrated from Nimbus v8 (css/nimbus.css)
+   ============================================================ */
+
+/* --- Container --- */
+.carousel {
+  position: relative;
+  max-width: 920px;
+  background-color: transparent;
+}
+
+.carousel.pointer-event {
+  touch-action: pan-y;
+}
+
+/* --- Inner wrapper --- */
+.carousel-inner {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  max-width: 920px;
+  height: 302px;
+  background-color: var(--cnds-body-bg, #fff);
+  border: 1px solid var(--cnds-gray-500) !important;
+  border-radius: 0.5rem !important;
+}
+
+@media (max-width: 768px) {
+  .carousel-inner {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    max-width: 920px;
+    height: inherit;
+  }
+}
+
+.carousel-inner::after {
+  display: block;
+  clear: both;
+  content: "";
+}
+
+/* --- Items --- */
+.carousel-item {
+  position: relative;
+  display: none;
+  float: left;
+  width: 100%;
+  margin-right: -100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transition: transform 0.6s ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .carousel-item {
+    transition: none;
+  }
+}
+
+.carousel-item.active,
+.carousel-item-next,
+.carousel-item-prev {
+  display: block;
+}
+
+.carousel-item-next:not(.carousel-item-start),
+.active.carousel-item-end {
+  transform: translateX(100%);
+}
+
+.carousel-item-prev:not(.carousel-item-end),
+.active.carousel-item-start {
+  transform: translateX(-100%);
+}
+
+/* --- Fade variant --- */
+.carousel-fade .carousel-item {
+  opacity: 0;
+  transition-property: opacity;
+  transform: none;
+}
+
+.carousel-fade .carousel-item.active,
+.carousel-fade .carousel-item-next.carousel-item-start,
+.carousel-fade .carousel-item-prev.carousel-item-end {
+  z-index: 1;
+  opacity: 1;
+}
+
+.carousel-fade .active.carousel-item-start,
+.carousel-fade .active.carousel-item-end {
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 0s 0.6s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .carousel-fade .active.carousel-item-start,
+  .carousel-fade .active.carousel-item-end {
+    transition: none;
+  }
+}
+
+/* --- Controls (prev/next arrows) --- */
+.carousel-control-prev,
+.carousel-control-next {
+  position: absolute;
+  z-index: 1;
+  top: 38%;
+  display: flex;
+  width: fit-content;
+  height: fit-content;
+  padding: 0;
+  transition: opacity 0.15s ease;
+  text-align: center;
+  opacity: 1;
+  color: var(--cnds-gray-800);
+  border: 0;
+  background: none;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .carousel-control-prev,
+  .carousel-control-next {
+    transition: none;
+  }
+}
+
+.carousel-control-prev:hover,
+.carousel-control-prev:focus,
+.carousel-control-next:hover,
+.carousel-control-next:focus {
+  text-decoration: none;
+  outline: 0;
+  opacity: 1;
+}
+
+.carousel-control-prev {
+  left: -24px;
+}
+
+.carousel-control-next {
+  right: -24px;
+}
+
+/* --- Control icons (rounded square with shadow) --- */
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+  display: inline-block;
+  width: 3rem;
+  height: 3rem;
+  background-image: none;
+  background-color: var(--cnds-body-bg, #fff);
+  background-repeat: no-repeat;
+  background-position: 50%;
+  background-size: 100% 100%;
+  line-height: 1;
+  -webkit-box-shadow: 0 6px 20px 2px hsl(0deg 0% 49% / 25%);
+  box-shadow: 0 6px 20px 2px hsl(0deg 0% 49% / 25%);
+  border: none;
+  border-radius: 6px;
+  -webkit-transition: background-image 0.4s ease;
+  transition: background-image 0.4s ease;
+}
+
+/* --- Control icon hover color --- */
+.carousel-control-prev-icon:hover,
+.carousel-control-next-icon:hover {
+  color: var(--cnds-primary);
+}
+
+/* --- Control icon MDI arrow overrides --- */
+.carousel-control-prev-icon::after,
+.carousel-control-next-icon::after {
+  font-family: "Material Design Icons";
+  font-size: 2.25rem;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.carousel-control-prev-icon::after {
+  content: "\F0141";
+}
+
+.carousel-control-next-icon::after {
+  content: "\F0142";
+}
+
+/* --- Indicators (diamond dots below carousel) --- */
+.carousel-indicators {
+  position: relative;
+  z-index: 2;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  margin-right: 15%;
+  margin-bottom: 1rem;
+  margin-left: 15%;
+  margin-top: 2rem;
+  padding: 0;
+  list-style: none;
+  justify-content: center;
+}
+
+.carousel-indicators [data-cnds-target] {
+  box-sizing: content-box;
+  width: 8px;
+  height: 8px;
+  margin-right: 8px;
+  margin-left: 8px;
+  padding: 0;
+  cursor: pointer;
+  transition: opacity 0.6s ease;
+  text-indent: -999px;
+  opacity: 0.5;
+  border: 0;
+  background-color: var(--cnds-gray-700);
+  background-clip: padding-box;
+  border-radius: 4px;
+  flex: 0 1 auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .carousel-indicators [data-cnds-target] {
+    transition: none;
+  }
+}
+
+.carousel-indicators .active {
+  opacity: 1;
+  background-color: var(--cnds-primary);
+  transform: rotate(45deg);
+  height: 12px;
+  width: 12px;
+  position: relative;
+  bottom: 2px;
+  border-radius: 2px;
+}
+
+/* --- Captions --- */
+.carousel-caption {
+  position: absolute;
+  right: 15%;
+  bottom: 1.25rem;
+  left: 15%;
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
+  color: var(--cnds-white);
+  text-align: center;
+}
+
+/* --- Dark variant --- */
+.carousel-dark .carousel-control-prev-icon,
+.carousel-dark .carousel-control-next-icon {
+  filter: none;
+}
+
+.carousel-dark .carousel-indicators [data-cnds-target] {
+  background-color: var(--cnds-gray-700);
+}
+
+.carousel-dark .carousel-caption {
+  color: var(--cnds-white);
+}
+
+/* --- Image sizing --- */
+.carousel-item > img,
+.carousel-item > svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* --- Media Box: Content typography --- */
+.carousel .cf-media-box-content h4 {
+  color: var(--cnds-secondary-color, rgba(79, 79, 79, 0.75));
+  text-transform: uppercase;
+  font-size: 13px;
+  letter-spacing: 0.7px;
+  font-family: "Nunito", Helvetica, Arial, sans-serif;
+  font-weight: 700;
+  padding-bottom: 15px;
+}
+
+.carousel .cf-media-box-content h4.cf-media-box-headline {
+  color: var(--cnds-body-color, #292929);
+  font-family: "Nunito", Helvetica, Arial, sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  padding-bottom: 5px;
+  line-height: normal;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.carousel .cf-media-box-content p {
+  color: var(--cnds-secondary-color, rgba(79, 79, 79, 0.75));
+}
+
+/* --- Media Box: Text button --- */
+.carousel .text-button__red {
+  position: relative;
+  color: var(--cnds-link-color, #215aab);
+  font-family: "Nunito", Helvetica, Arial, sans-serif;
+  font-weight: 700;
+  padding-bottom: 5px;
+  font-size: 1pc;
+  background-image: linear-gradient(
+    var(--cnds-link-color, #215aab),
+    var(--cnds-link-color, #215aab)
+  );
+  background-size:
+    0 1px,
+    auto;
+  background-repeat: no-repeat;
+  background-position: bottom;
+  -webkit-transition: all 0.2s ease-out;
+  transition: all 0.2s ease-out;
+}
+
+.carousel .text-button__red:hover {
+  background-size:
+    100% 1px,
+    auto;
+}
+
+.carousel .text-button__red:after {
+  font-family: "Material Design Icons";
+  content: "\F0142";
+  padding-left: 6px;
+  position: absolute;
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+/* --- Media Box: Image sizing --- */
+.carousel .cf-media-box-img {
+  width: 306px;
+  height: 300px;
+}
+
+@media (max-width: 600px) {
+  .carousel .cf-media-box-img {
+    width: 100%;
+    height: inherit;
+  }
+}
+
+@media (min-width: 768px) {
+  .carousel .cf-media-box-img {
+    width: 672px;
+    height: inherit;
+  }
+}
+
+@media (min-width: 1024px) {
+  .carousel .cf-media-box-img {
+    width: 306px;
+    height: 300px;
+  }
+}
+
+.carousel .carousel-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+
+/* --- Media Box: Content sizing --- */
+.carousel .cf-media-box-content {
+  width: 614px;
+  height: inherit;
+}
+
+@media (max-width: 600px) {
+  .carousel .cf-media-box-content {
+    width: 100%;
+    height: inherit;
+  }
+}
+
+@media (min-width: 768px) {
+  .carousel .cf-media-box-content {
+    width: 100%;
+    height: inherit;
+  }
+}
+
+@media (min-width: 1024px) {
+  .carousel .cf-media-box-content {
+    width: 606px;
+    height: inherit;
+  }
+}
+
+@media (min-width: 1200px) {
+  .carousel .cf-media-box-content {
+    width: 614px;
+    height: inherit;
+  }
+}
+
+/* --- Dark theme overrides --- */
+[data-cnds-theme="dark"] .carousel-inner {
+  background-color: var(--cnds-body-bg, #1e1e1e);
+  border-color: var(--cnds-border-color, #6b6b6b) !important;
+}
+
+[data-cnds-theme="dark"] .carousel .carousel-control-prev-icon,
+[data-cnds-theme="dark"] .carousel .carousel-control-next-icon,
+[data-cnds-theme="dark"].carousel .carousel-control-prev-icon,
+[data-cnds-theme="dark"].carousel .carousel-control-next-icon {
+  background-color: var(--cnds-surface-dark-400, #252525);
+  box-shadow: 0 6px 20px 2px hsl(0deg 0% 10% / 40%);
+  color: var(--cnds-body-color, #ebebeb);
+  filter: none;
+}
+
+[data-cnds-theme="dark"] .carousel .carousel-control-prev,
+[data-cnds-theme="dark"] .carousel .carousel-control-next {
+  color: var(--cnds-body-color, #ebebeb);
+}
+
+[data-cnds-theme="dark"] .carousel .carousel-indicators [data-cnds-target],
+[data-cnds-theme="dark"].carousel .carousel-indicators [data-cnds-target] {
+  background-color: var(--cnds-surface-light-600, #a3a3a3);
+}
+
+[data-cnds-theme="dark"] .carousel .carousel-caption,
+[data-cnds-theme="dark"].carousel .carousel-caption {
+  color: #fff;
+}
+
+[data-cnds-theme="dark"] .carousel .cf-media-box-content h4,
+[data-cnds-theme="dark"] .carousel .cf-media-box-content p {
+  color: var(--cnds-secondary-color, rgba(235, 235, 235, 0.75));
+}
+
+[data-cnds-theme="dark"]
+  .carousel
+  .cf-media-box-content
+  h4.cf-media-box-headline {
+  color: var(--cnds-body-color, #ebebeb);
+}
+
+[data-cnds-theme="dark"] .carousel .text-button__red {
+  color: var(--cnds-link-color, #6790ca);
+  background-image: linear-gradient(
+    var(--cnds-link-color, #6790ca),
+    var(--cnds-link-color, #6790ca)
+  );
+}

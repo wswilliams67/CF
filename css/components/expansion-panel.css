@@ -1,0 +1,219 @@
+/* ============================================================
+   Expansion Panel — Cloudficient Nimbus Design System v1.0.0
+   
+   A CSS-only collapsible panel component that uses hidden radio
+   or checkbox inputs to toggle expanded/collapsed states.
+   
+   Figma tokens
+   --surface/expansion/background : #fff (light) / #1e1e1e (dark)
+   --surface/expansion/border     : #dee2e6 (light) / #4a4a4a (dark)
+   --text/default                 : #4f4f4f (light) / #e8e8e8 (dark)
+   --text/link                    : #6790ca
+   Font: Nunito Sans Medium 16px / line-height 1 / letter-spacing 0.5
+   ============================================================ */
+
+/* ----- Custom properties ----- */
+.expansion-panel {
+  --cnds-expansion-bg: var(--cnds-surface-expansion-bg, #fff);
+  --cnds-expansion-border-color: var(--cnds-surface-expansion-border, #dee2e6);
+  --cnds-expansion-border-width: 1px;
+  --cnds-expansion-border-radius: 7px;
+  --cnds-expansion-color: var(--cnds-body-color, #4f4f4f);
+  --cnds-expansion-header-height: 45px;
+  --cnds-expansion-header-padding-x: 15px;
+  --cnds-expansion-header-padding-y: 0;
+  --cnds-expansion-body-padding-x: 15px;
+  --cnds-expansion-body-padding-y: 15px;
+  --cnds-expansion-font-family: var(
+    --cnds-font-family-base,
+    "Nunito Sans",
+    sans-serif
+  );
+  --cnds-expansion-font-size: 1rem;
+  --cnds-expansion-font-weight: 500;
+  --cnds-expansion-line-height: 1;
+  --cnds-expansion-letter-spacing: 0.08px;
+  --cnds-expansion-icon-color: var(--cnds-body-color, #4f4f4f);
+  --cnds-expansion-icon-size: 24px;
+  --cnds-expansion-icon-gap: 8px;
+  --cnds-expansion-toggle-color: var(--cnds-surface-blue-400, #6790ca);
+  --cnds-expansion-content-bg: var(--cnds-gray-100, #f8f9fa);
+  --cnds-expansion-content-color: var(--cnds-body-color, #4f4f4f);
+  --cnds-expansion-content-font-size: 0.875rem;
+  --cnds-expansion-content-line-height: 1.25rem;
+  --cnds-expansion-expanded-margin-y: 15px;
+  --cnds-expansion-transition: all 0.15s ease-in-out;
+}
+
+/* ----- Base layout ----- */
+.expansion-panel {
+  width: 100%;
+  margin: auto;
+  margin-bottom: 1rem;
+}
+
+.expansion-panel input {
+  display: none;
+}
+
+.expansion-panel label {
+  font-size: var(--cnds-expansion-font-size);
+  font-weight: var(--cnds-expansion-font-weight);
+  margin-bottom: 0;
+}
+
+/* ----- Box (panel item) ----- */
+.expansion-panel .box {
+  position: relative;
+  height: var(--cnds-expansion-header-height);
+  transition: var(--cnds-expansion-transition);
+  background: var(--cnds-expansion-bg);
+  pointer-events: none;
+  border: var(--cnds-expansion-border-width) solid
+    var(--cnds-expansion-border-color);
+  border-radius: var(--cnds-expansion-border-radius);
+}
+
+/* ----- Box title (header) ----- */
+.expansion-panel .box-title {
+  font-family: var(--cnds-expansion-font-family);
+  font-size: var(--cnds-expansion-font-size);
+  font-weight: var(--cnds-expansion-font-weight);
+  line-height: var(--cnds-expansion-header-height);
+  letter-spacing: var(--cnds-expansion-letter-spacing);
+  display: inline-block;
+  overflow-x: hidden;
+  width: 100%;
+  height: var(--cnds-expansion-header-height);
+  padding: 0 var(--cnds-expansion-header-padding-x);
+  padding-right: 55px;
+  cursor: pointer;
+  user-select: none;
+  vertical-align: top;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-transform: capitalize;
+  color: var(--cnds-expansion-color);
+}
+
+/* ----- Box content (body) ----- */
+.expansion-panel .box-content {
+  font-size: var(--cnds-expansion-content-font-size);
+  font-weight: normal;
+  line-height: var(--cnds-expansion-content-line-height);
+  display: none;
+  width: 100%;
+  padding: var(--cnds-expansion-body-padding-y)
+    var(--cnds-expansion-body-padding-x);
+  color: var(--cnds-expansion-content-color);
+  background-color: var(--cnds-expansion-content-bg);
+  pointer-events: auto;
+}
+
+/* ----- Box close (radio deselect overlay) ----- */
+.expansion-panel .box-close {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: none;
+  width: 100%;
+  height: var(--cnds-expansion-header-height);
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.expansion-panel .box > label {
+  pointer-events: auto;
+}
+
+/* ----- Hover state ----- */
+.expansion-panel .box:hover > label.box-title::before {
+  color: var(--cnds-expansion-toggle-color);
+}
+
+/* ----- Expanded (checked) state ----- */
+.expansion-panel input:checked + .box {
+  height: auto;
+  margin: var(--cnds-expansion-expanded-margin-y) 0;
+  border: var(--cnds-expansion-border-width) solid
+    var(--cnds-expansion-border-color);
+  border-radius: var(--cnds-expansion-border-radius);
+}
+
+.expansion-panel input:checked + .box .box-title {
+  border-bottom: 0 solid transparent;
+}
+
+.expansion-panel input:checked + .box .box-content {
+  display: inline-block;
+  border-bottom-left-radius: var(--cnds-expansion-border-radius);
+  border-bottom-right-radius: var(--cnds-expansion-border-radius);
+}
+
+.expansion-panel input[type="radio"]:checked + .box .box-close {
+  display: inline-block;
+}
+
+/* ----- Arrow toggle indicator ----- */
+.expansion-panel.arrows section .box-title {
+  width: 100%;
+  padding-left: var(--cnds-expansion-header-padding-x);
+}
+
+.expansion-panel.arrows section .box-title::before {
+  font-family: "Material Design Icons";
+  font-size: 1.5rem;
+  position: absolute;
+  top: 0;
+  right: 15px;
+  display: block;
+  content: "\F0140";
+  transition: transform 0.15s ease-in-out;
+  color: var(--cnds-expansion-toggle-color);
+  line-height: var(--cnds-expansion-header-height);
+}
+
+.expansion-panel input:checked + section.box .box-title::before {
+  transform: scale(1, -1);
+}
+
+/* ----- Prefix icon ----- */
+.expansion-panel i.popout-list-icon {
+  font-size: var(--cnds-expansion-icon-size);
+  line-height: var(--cnds-expansion-header-height);
+  float: left;
+  width: var(--cnds-expansion-icon-size);
+  height: var(--cnds-expansion-header-height);
+  margin-right: var(--cnds-expansion-icon-gap);
+  color: var(--cnds-expansion-icon-color);
+}
+
+/* ----- Avatar in title ----- */
+.expansion-panel .box-title img {
+  float: left;
+  width: 30px;
+  height: 30px;
+  margin: 7px 10px 7px 0;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* ----- Product theme variants ----- */
+/* Base: reads --cnds-product-accent set by the body class or a component modifier */
+.expansion-panel input:checked + .box .box-title {
+  color: var(--cnds-product-accent, inherit);
+}
+
+/* Component-level modifier classes — set --cnds-product-accent locally,
+   overriding any inherited body-level value */
+.expansion-panel.expansion-casefusion {
+  --cnds-product-accent: var(--cnds-product-casefusion-green-500, #5ccb59);
+}
+
+.expansion-panel.expansion-hyperlize {
+  --cnds-product-accent: var(--cnds-product-hyperlize-orange-500, #f5a623);
+}
+
+.expansion-panel.expansion-expireon {
+  --cnds-product-accent: var(--cnds-product-expireon-blue-300, #938ee6);
+}

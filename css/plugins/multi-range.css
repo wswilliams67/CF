@@ -1,0 +1,155 @@
+/* ============================================================
+   CNDS Multi Range Slider Plugin
+   Cloudficient Nimbus Design System v1.0.0
+
+   Dual-thumb range slider for selecting a value range.
+
+   Figma reference:
+     Track   — Surface/Form/Input/Background  (#4a4a4a), 2 px
+     Thumb   — Surface/Button/Background/Primary/Default (#355d97), 16 px solid fill
+     Fill    — same as thumb (#355d97)
+     Tooltip — #355d97 bg · #edf1f9 text · 10 px font · teardrop/pin shape (30×30 px)
+
+   WCAG AA contrast (text 4.5:1 / non-text 3:1):
+     Light — tooltip text #edf1f9 on #355d97 → 5.88:1 ✓
+             scale text #666666 on #fff      → 5.74:1 ✓
+             thumb/fill #355d97 on #fff      → 6.63:1 ✓
+             track #4a4a4a on #fff           → 8.84:1 ✓
+     Dark  — tooltip text #edf1f9 on #355d97 → 5.88:1 ✓
+             scale text #a3a3a3 on #1e1e1e   → 6.60:1 ✓
+             thumb/fill #6790ca on #1e1e1e   → 5.09:1 ✓
+             track #7a7a7a on #1e1e1e        → 3.88:1 ✓
+   ============================================================ */
+
+.multi-range {
+  /* Light theme defaults — wired to CNDS primitive tokens */
+  --cnds-mr-track-bg:         var(--cnds-surface-dark-300, #4a4a4a);
+  --cnds-mr-track-height:     2px;
+  --cnds-mr-fill-bg:          var(--cnds-surface-blue-500, #355d97);
+  --cnds-mr-thumb-size:       16px;
+  --cnds-mr-thumb-bg:         var(--cnds-surface-blue-500, #355d97);
+  --cnds-mr-thumb-shadow:     0 1px 4px rgba(0, 0, 0, 0.2);
+  --cnds-mr-thumb-ring:       rgba(53, 93, 151, 0.15);
+  --cnds-mr-thumb-ring-active: rgba(53, 93, 151, 0.2);
+  --cnds-mr-label-bg:         var(--cnds-surface-blue-500, #355d97);
+  --cnds-mr-label-color:      var(--cnds-surface-blue-50, #edf1f9);
+  --cnds-mr-label-font-size:  10px;
+  --cnds-mr-scale-color:      var(--cnds-primary-gray-600, #666666);
+  --cnds-mr-radius:           999px;
+
+  position: relative;
+  width: 100%;
+  padding: 2.75rem 0 0.5rem;
+  user-select: none;
+}
+
+/* --- Track --- */
+.multi-range-track {
+  position: relative;
+  width: 100%;
+  height: var(--cnds-mr-track-height);
+  background: var(--cnds-mr-track-bg);
+  border-radius: var(--cnds-mr-radius);
+}
+
+/* --- Fill (between thumbs) --- */
+.multi-range-fill {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background: var(--cnds-mr-fill-bg);
+  border-radius: var(--cnds-mr-radius);
+  pointer-events: none;
+}
+
+/* --- Thumb --- */
+.multi-range-thumb {
+  position: absolute;
+  top: 50%;
+  width: var(--cnds-mr-thumb-size);
+  height: var(--cnds-mr-thumb-size);
+  background: var(--cnds-mr-thumb-bg);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  cursor: grab;
+  box-shadow: var(--cnds-mr-thumb-shadow);
+  z-index: 2;
+  transition:
+    box-shadow 0.15s,
+    transform 0.15s;
+}
+
+.multi-range-thumb:hover {
+  box-shadow: 0 0 0 6px var(--cnds-mr-thumb-ring);
+}
+
+.multi-range-thumb:active,
+.multi-range-thumb.active {
+  cursor: grabbing;
+  transform: translate(-50%, -50%) scale(1.15);
+  box-shadow: 0 0 0 8px var(--cnds-mr-thumb-ring-active);
+  z-index: 3;
+}
+
+/* --- Tooltip Label — teardrop / map-pin shape (Figma: node 800:10692)
+   Shape: circular head (r≈10.5px) tapering to a downward point at y=30.
+   clip-path uses the exact SVG path exported from the Figma asset.
+   Total bounding box: 30×30 px; text center sits at (15, 11). --- */
+.multi-range-label {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30px;
+  height: 30px;
+  background: var(--cnds-mr-label-bg);
+  clip-path: path("M15 0C11.0218 0 7.20644 1.10625 4.3934 3.07538C1.58035 5.04451 0 7.71523 0 10.5C0 18.375 12.3333 27 14.9167 30C17.4167 27 30 18.375 30 10.5C30 7.71523 28.4196 5.04451 25.6066 3.07538C22.7936 1.10625 18.9782 0 15 0Z");
+  color: var(--cnds-mr-label-color);
+  font-size: var(--cnds-mr-label-font-size);
+  font-weight: 500;
+  line-height: 1;
+  text-align: center;
+  padding-top: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+/* No ::after needed — teardrop path already provides the downward point */
+
+.multi-range-thumb:hover .multi-range-label,
+.multi-range-thumb.active .multi-range-label {
+  opacity: 1;
+}
+
+/* --- Scale / Ticks --- */
+.multi-range-scale {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.375rem;
+  font-size: 0.6875rem;
+  color: var(--cnds-mr-scale-color);
+}
+
+/* --- Disabled --- */
+.multi-range.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* --- Dark Theme ---
+   Thumb/fill step up to surface-blue-400 (#6790ca) so non-text contrast
+   against the dark body (#1e1e1e) reaches 5.09:1 (needs ≥ 3:1).
+   Scale steps up to surface-light-600 (#a3a3a3) for 6.60:1 text contrast.
+   Track steps up to surface-light-700 (#7a7a7a) for 3.88:1 non-text contrast.
+   Tooltip bg/text remain unchanged — still 5.88:1. */
+[data-cnds-theme="dark"] .multi-range {
+  --cnds-mr-track-bg:          var(--cnds-surface-light-700, #7a7a7a);
+  --cnds-mr-fill-bg:           var(--cnds-surface-blue-400, #6790ca);
+  --cnds-mr-thumb-bg:          var(--cnds-surface-blue-400, #6790ca);
+  --cnds-mr-thumb-shadow:      0 1px 4px rgba(0, 0, 0, 0.4);
+  --cnds-mr-thumb-ring:        rgba(103, 144, 202, 0.2);
+  --cnds-mr-thumb-ring-active: rgba(103, 144, 202, 0.3);
+  --cnds-mr-scale-color:       var(--cnds-surface-light-600, #a3a3a3);
+}

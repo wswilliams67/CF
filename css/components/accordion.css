@@ -1,0 +1,188 @@
+/* ============================================================
+   CNDS Accordion
+   Cloudficient Nimbus Design System v1.0.0
+   Figma: CmpAccordion (node 710:2181)
+   ============================================================ */
+
+.accordion {
+  --cnds-accordion-color: var(--cnds-body-color, #4f4f4f);
+  --cnds-accordion-bg: var(--cnds-body-bg, #fff);
+  --cnds-accordion-transition:
+    color 0.15s ease-in-out, background-color 0.15s ease-in-out,
+    border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out,
+    border-radius 0.15s ease;
+  --cnds-accordion-border-color: var(--cnds-border-color, #dee2e6);
+  --cnds-accordion-border-width: var(--cnds-border-width, 1px);
+  --cnds-accordion-border-radius: var(--cnds-radius-m, 0.5rem);
+  --cnds-accordion-inner-border-radius: calc(
+    var(--cnds-radius-m, 0.5rem) - var(--cnds-border-width, 1px)
+  );
+  --cnds-accordion-btn-padding-x: 1rem;
+  --cnds-accordion-btn-padding-y: 0.875rem;
+  --cnds-accordion-btn-color: var(--cnds-body-color, #4f4f4f);
+  --cnds-accordion-btn-bg: var(--cnds-accordion-bg);
+  --cnds-accordion-btn-icon-size: 1.5rem;
+  --cnds-accordion-btn-icon-color: var(--cnds-surface-blue-400, #6790ca);
+  --cnds-accordion-btn-focus-border-color: transparent;
+  --cnds-accordion-btn-focus-box-shadow: none;
+  --cnds-accordion-body-padding-x: 1rem;
+  --cnds-accordion-body-padding-y: 1.125rem;
+  --cnds-accordion-active-color: var(--cnds-product-accent, var(--cnds-body-color, #4f4f4f));
+  --cnds-accordion-active-bg: var(--cnds-accordion-bg);
+  --cnds-accordion-icon-size: 1.5rem;
+  --cnds-accordion-icon-gap: 0.5rem;
+}
+
+/* --- Product-themed active colors --- */
+.accordion-casefusion {
+  --cnds-product-accent: var(--cnds-product-casefusion-green-500, #5ccb59);
+  --cnds-accordion-active-color: var(--cnds-product-accent);
+}
+.accordion-hyperlize {
+  --cnds-product-accent: var(--cnds-product-hyperlize-orange-500, #eeb00d);
+  --cnds-accordion-active-color: var(--cnds-product-accent);
+}
+.accordion-expireon {
+  --cnds-product-accent: var(--cnds-product-expireon-blue-300, #938ee6);
+  --cnds-accordion-active-color: var(--cnds-product-accent);
+}
+
+.accordion-button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--cnds-accordion-icon-gap);
+  width: 100%;
+  padding: var(--cnds-accordion-btn-padding-y)
+    var(--cnds-accordion-btn-padding-x);
+  font-size: 1rem;
+  line-height: 1;
+  color: var(--cnds-accordion-btn-color);
+  text-align: left;
+  background-color: var(--cnds-accordion-btn-bg);
+  border: 0;
+  border-radius: 0;
+  overflow-anchor: none;
+  transition: var(--cnds-accordion-transition);
+}
+.accordion-button:not(.collapsed) {
+  color: var(--cnds-accordion-active-color);
+  background-color: var(--cnds-accordion-active-bg);
+  box-shadow: inset 0 calc(-1 * var(--cnds-accordion-border-width)) 0
+    var(--cnds-accordion-border-color);
+}
+.accordion-button:not(.collapsed)::after {
+  content: "\F0143"; /* mdi-chevron-up */
+}
+/* Prefix icon inside accordion button */
+.accordion-button > .accordion-icon {
+  flex-shrink: 0;
+  width: var(--cnds-accordion-icon-size);
+  height: var(--cnds-accordion-icon-size);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.accordion-button::after {
+  flex-shrink: 0;
+  margin-left: auto;
+  font-family: "Material Design Icons";
+  font-size: var(--cnds-accordion-btn-icon-size);
+  line-height: 1;
+  color: var(--cnds-accordion-btn-icon-color);
+  content: "\F0140"; /* mdi-chevron-down */
+  transition: none;
+}
+.accordion-button:hover {
+  z-index: 2;
+}
+.accordion-button:focus {
+  z-index: 3;
+  outline: 0;
+}
+.accordion-button:focus:not(.collapsed) {
+  box-shadow: inset 0 calc(-1 * var(--cnds-accordion-border-width)) 0
+    var(--cnds-accordion-border-color);
+}
+
+/* --- Hide toggle icon --- */
+.accordion-no-icon .accordion-button::after {
+  display: none;
+}
+
+.accordion-header {
+  margin-bottom: 0;
+  font-size: 1rem;
+}
+
+.accordion-item {
+  color: var(--cnds-accordion-color);
+  background-color: var(--cnds-accordion-bg);
+  border: var(--cnds-accordion-border-width) solid
+    var(--cnds-accordion-border-color);
+}
+.accordion-item:first-of-type {
+  border-top-left-radius: var(--cnds-accordion-border-radius);
+  border-top-right-radius: var(--cnds-accordion-border-radius);
+}
+.accordion-item:first-of-type > .accordion-header .accordion-button {
+  border-top-left-radius: var(--cnds-accordion-inner-border-radius);
+  border-top-right-radius: var(--cnds-accordion-inner-border-radius);
+}
+.accordion-item:not(:first-of-type) {
+  border-top: 0;
+}
+.accordion-item:last-of-type {
+  border-bottom-right-radius: var(--cnds-accordion-border-radius);
+  border-bottom-left-radius: var(--cnds-accordion-border-radius);
+}
+.accordion-item:last-of-type > .accordion-header .accordion-button.collapsed {
+  border-bottom-right-radius: var(--cnds-accordion-inner-border-radius);
+  border-bottom-left-radius: var(--cnds-accordion-inner-border-radius);
+}
+.accordion-item:last-of-type > .accordion-collapse {
+  border-bottom-right-radius: var(--cnds-accordion-border-radius);
+  border-bottom-left-radius: var(--cnds-accordion-border-radius);
+}
+
+/* --- Divider between header and body --- */
+.accordion-show-divider .accordion-button:not(.collapsed) {
+  box-shadow: inset 0 calc(-1 * var(--cnds-accordion-border-width)) 0
+    var(--cnds-accordion-border-color);
+}
+.accordion-hide-divider .accordion-button:not(.collapsed) {
+  box-shadow: none;
+}
+
+.accordion-body {
+  padding: var(--cnds-accordion-body-padding-y)
+    var(--cnds-accordion-body-padding-x);
+}
+
+/* --- Flush Accordion --- */
+.accordion-flush > .accordion-item {
+  border-right: 0;
+  border-left: 0;
+  border-radius: 0;
+}
+.accordion-flush > .accordion-item:first-child {
+  border-top: 0;
+}
+.accordion-flush > .accordion-item:last-child {
+  border-bottom: 0;
+}
+.accordion-flush > .accordion-item > .accordion-header .accordion-button,
+.accordion-flush
+  > .accordion-item
+  > .accordion-header
+  .accordion-button.collapsed {
+  border-radius: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .accordion-button {
+    transition: none;
+  }
+}
+
+/* Dark theme overrides → see themes/dark.css */

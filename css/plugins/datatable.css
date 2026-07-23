@@ -1,0 +1,537 @@
+/* ============================================================
+   CNDS DataTable Plugin
+   Cloudficient Nimbus Design System v1.0.0
+
+   Enhanced table with sorting, filtering, pagination,
+   column selection, row selection, and loading states.
+   ============================================================ */
+
+/* --- DataTable Wrapper --- */
+.datatable {
+  --cnds-dt-border-color: var(--cnds-border-color, #dee2e6);
+  --cnds-dt-bg: var(--cnds-body-bg);
+  --cnds-dt-color: var(--cnds-body-color, #4f4f4f);
+  --cnds-dt-header-bg: var(--cnds-gray-100, #f8f9fa);
+  --cnds-dt-header-color: var(--cnds-body-color, #4f4f4f);
+  --cnds-dt-hover-bg: rgba(0, 0, 0, 0.04);
+  --cnds-dt-stripe-bg: rgba(0, 0, 0, 0.02);
+  --cnds-dt-pagination-active-color: #fff;
+  --cnds-dt-radius: var(--cnds-border-radius, 0.375rem);
+  /* Inherits from app-level cnds-product-* class; falls back to CaseFusion green */
+  --cnds-dt-accent-color: var(--cnds-product-accent, var(--cnds-product-casefusion-green-700, #2e892a));
+  --cnds-dt-focus-color: var(--cnds-dt-accent-color);
+  --cnds-dt-selected-bg: color-mix(in srgb, var(--cnds-dt-accent-color) 10%, transparent);
+  --cnds-dt-selected-color: var(--cnds-dt-accent-color);
+  --cnds-dt-sort-active: var(--cnds-dt-accent-color);
+  --cnds-dt-pagination-active-bg: var(--cnds-dt-accent-color);
+
+  position: relative;
+  width: 100%;
+  background: transparent;
+  border-radius: var(--cnds-dt-radius);
+  overflow: hidden;
+  font-size: 0.875rem;
+  color: var(--cnds-dt-color);
+  --cnds-table-bg: var(--cnds-body-bg);
+}
+
+/* --- Toolbar (search + actions) --- */
+.datatable-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  gap: 0.75rem;
+  border-bottom: 1px solid var(--cnds-dt-border-color);
+  flex-wrap: wrap;
+}
+
+.datatable-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.datatable-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* --- Search Input --- */
+.datatable-search {
+  min-width: 220px;
+  --cnds-input-focus-border-color: var(--cnds-dt-focus-color);
+}
+
+.datatable-search .cf-input-field {
+  margin: 0;
+}
+
+/* --- Entries Per Page Select --- */
+.datatable-entries {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+  color: var(--cnds-text-muted, #6c757d);
+  white-space: nowrap;
+}
+
+.datatable-entries select {
+  padding: 0.25rem 1.75rem 0.25rem 0.5rem;
+  border: 1px solid var(--cnds-dt-border-color);
+  border-radius: var(--cnds-dt-radius);
+  font-size: 0.8125rem;
+  color: var(--cnds-dt-color);
+  background-color: var(--cnds-dt-bg);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  background-size: 0.75rem;
+  appearance: none;
+  cursor: pointer;
+}
+
+/* --- Table Container (scrollable) --- */
+.datatable-inner {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* --- Table Element --- */
+.datatable table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: auto;
+  --cnds-table-bg: var(--cnds-body-bg);
+}
+
+.datatable table th,
+.datatable table td {
+  padding: 1rem 1.4rem;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--cnds-dt-border-color);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.datatable table tbody tr:last-child td,
+.datatable table tbody tr:last-child th {
+  border-bottom: none;
+}
+
+/* --- Header Cells --- */
+.datatable table thead th {
+  background: var(--cnds-body-bg);
+  color: var(--cnds-dt-header-color);
+  font-weight: 700;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  position: relative;
+  user-select: none;
+  cursor: default;
+}
+
+.datatable table thead th.sortable {
+  cursor: pointer;
+}
+
+/* --- Sort Indicators --- */
+.datatable table thead th .datatable-sort-icon {
+  opacity: 0;
+  color: var(--cnds-text-muted, #6c757d);
+  position: absolute;
+  left: 0.4rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.85rem;
+  line-height: 1;
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.datatable table thead th.sortable:hover .datatable-sort-icon {
+  opacity: 1;
+}
+
+.datatable table thead th.sort-asc .datatable-sort-icon,
+.datatable table thead th.sort-desc .datatable-sort-icon {
+  opacity: 1;
+  color: var(--cnds-dt-color);
+}
+
+/* --- Body Rows --- */
+.datatable table tbody td {
+  font-size: 0.875rem;
+}
+
+.datatable table tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+.datatable table tbody tr:hover {
+  background-color: var(--cnds-dt-hover-bg);
+}
+
+.datatable table tbody tr.selected {
+  background-color: var(--cnds-dt-selected-bg);
+}
+
+.datatable table tbody tr.selected td {
+  color: var(--cnds-dt-selected-color);
+}
+
+/* --- Striped Variant --- */
+.datatable-striped table tbody tr:nth-child(even) {
+  background-color: var(--cnds-dt-stripe-bg);
+}
+
+.datatable-striped table tbody tr:nth-child(even):hover {
+  background-color: var(--cnds-dt-hover-bg);
+}
+
+/* --- Bordered Variant --- */
+.datatable-bordered table th,
+.datatable-bordered table td {
+  border: 1px solid var(--cnds-dt-border-color);
+}
+
+/* --- Compact / Small Variant --- */
+.datatable-sm table th,
+.datatable-sm table td {
+  padding: 0.5rem 1.4rem;
+  font-size: 0.8125rem;
+}
+
+.datatable-sm .datatable-header,
+.datatable-sm .datatable-footer {
+  padding: 0.5rem 0.75rem;
+}
+
+/* --- Checkbox Column --- */
+.datatable-checkbox {
+  width: 2.5rem;
+  text-align: center !important;
+}
+
+.datatable .form-check-input {
+  --cnds-form-check-input-checked-bg: var(--cnds-dt-accent-color);
+  --cnds-form-check-input-checked-border-color: var(--cnds-dt-accent-color);
+  --cnds-form-check-input-focus-border-color: var(--cnds-dt-accent-color);
+  --cnds-form-check-input-focus-box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--cnds-dt-accent-color) 25%, transparent);
+  cursor: pointer;
+  margin-top: 0;
+  vertical-align: middle;
+}
+
+/* --- No Results --- */
+.datatable-nodata {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--cnds-text-muted, #6c757d);
+  font-style: italic;
+}
+
+.datatable-nodata td {
+  text-align: center !important;
+  padding: 2rem 1rem !important;
+  color: var(--cnds-text-muted, #6c757d) !important;
+  font-style: italic;
+}
+
+/* --- Footer --- */
+.datatable-footer {
+  overflow: hidden;
+}
+
+/* --- Pagination (v8-style: rows-per-page + nav + prev/next) --- */
+.datatable-pagination {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  border-top: 1px solid var(--cnds-dt-border-color);
+}
+
+.datatable-select-wrapper {
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  font-weight: 300;
+  padding: 0 1rem;
+}
+
+.datatable-select-text {
+  margin: 0;
+  margin-right: 0.5rem;
+  white-space: nowrap;
+  color: var(--cnds-dt-color);
+  font-size: 0.9rem;
+  font-weight: 300;
+  line-height: 1;
+}
+
+/* Nimbus Select component overrides — keep it compact inside the footer */
+.datatable-select-wrapper .select-wrapper {
+  --cnds-select-input-padding-v: 5px;
+  --cnds-select-input-padding-l: 10px;
+  --cnds-select-input-padding-r: 1.75rem;
+  --cnds-select-arrow-right:     6px;
+  --cnds-select-arrow-font-size: 1rem;
+
+  margin: 0;
+  gap: 0;
+  width: auto;
+}
+
+.datatable-select-wrapper .select-field {
+  width: auto;
+}
+
+.datatable-select-wrapper .select-input {
+  width: 80px;
+}
+
+.datatable-pagination-nav {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 0.75rem;
+  font-size: 0.9rem;
+  color: var(--cnds-dt-color);
+  white-space: nowrap;
+}
+
+.datatable-pagination-buttons {
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+  margin-left: 0.5rem;
+}
+
+.datatable-pagination-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  color: var(--cnds-dt-color);
+  background: none;
+  border: none;
+  border-radius: var(--cnds-dt-radius);
+  cursor: pointer;
+  font-size: 1.5rem;
+  line-height: 1;
+  transition:
+    color 0.15s,
+    background-color 0.15s;
+}
+
+.datatable-pagination-button:hover:not(:disabled) {
+  color: var(--cnds-dt-accent-color);
+  background-color: rgba(0, 0, 0, 0.06);
+}
+
+.datatable-pagination-button:disabled {
+  color: var(--cnds-text-muted, #6c757d);
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* --- Loading Overlay --- */
+.datatable-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.7);
+  z-index: 10;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.2s,
+    visibility 0.2s;
+}
+
+.datatable-loading.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.datatable-loading-spinner {
+  width: 2rem;
+  height: 2rem;
+  border: 3px solid var(--cnds-dt-border-color);
+  border-top-color: var(--cnds-dt-accent-color);
+  border-radius: 50%;
+  animation: cnds-dt-spin 0.75s linear infinite;
+}
+
+@keyframes cnds-dt-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* --- Column Resize Handle --- */
+.datatable-resize-handle {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  cursor: col-resize;
+  background: transparent;
+  transition: background-color 0.15s;
+}
+
+.datatable-resize-handle:hover,
+.datatable-resize-handle.active {
+  background: var(--cnds-dt-accent-color);
+}
+
+/* --- Fixed Header --- */
+.datatable-fixed-header .datatable-inner {
+  overflow-y: auto;
+}
+
+.datatable-fixed-header .datatable-inner thead th {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: var(--cnds-body-bg);
+  box-shadow: 0 1px 0 var(--cnds-dt-border-color);
+}
+
+/* --- Hover variant (explicit class, mirrors default hover for v8 compat) --- */
+.datatable-hover table tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+.datatable-hover table tbody tr:hover {
+  background-color: var(--cnds-dt-hover-bg) !important;
+}
+
+/* --- Clickable rows --- */
+.datatable-clickable-rows table tbody tr:not(.datatable-nodata) {
+  cursor: pointer;
+}
+
+.datatable-clickable-rows table tbody tr:not(.datatable-nodata):hover {
+  background-color: var(--cnds-dt-hover-bg);
+}
+
+/* --- Fixed Columns --- */
+.datatable table th.fixed-left,
+.datatable table td.fixed-left {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: var(--cnds-body-bg);
+}
+
+.datatable table th.fixed-right,
+.datatable table td.fixed-right {
+  position: sticky;
+  right: 0;
+  z-index: 2;
+  background: var(--cnds-body-bg);
+}
+
+/* Corner cells: sticky top + sticky left/right must beat scrolling header cells (z-index 3) */
+.datatable-fixed-header .datatable-inner thead th.fixed-left,
+.datatable-fixed-header .datatable-inner thead th.fixed-right {
+  z-index: 4;
+}
+
+/* --- Editable Cell --- */
+.datatable-editable {
+  cursor: text;
+}
+
+.datatable-editable:hover {
+  outline: 1px dashed var(--cnds-dt-border-color);
+  outline-offset: -1px;
+}
+
+.datatable-edit-input {
+  width: 100%;
+  padding: 0.25rem 0.375rem;
+  border: 1px solid var(--cnds-dt-accent-color);
+  border-radius: 2px;
+  font-size: inherit;
+  font-family: inherit;
+  outline: none;
+  box-shadow: 0 0 0 0.15rem color-mix(in srgb, var(--cnds-dt-accent-color) 15%, transparent);
+}
+
+/* --- Export Buttons --- */
+.datatable-export-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.375rem 0.75rem;
+  border: 1px solid var(--cnds-dt-border-color);
+  border-radius: var(--cnds-dt-radius);
+  background: var(--cnds-dt-bg);
+  color: var(--cnds-dt-color);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s;
+}
+
+.datatable-export-btn:hover {
+  background-color: var(--cnds-gray-100, #f8f9fa);
+  border-color: #adb5bd;
+}
+
+/* --- Dark Theme --- */
+[data-cnds-theme="dark"] .datatable {
+  --cnds-dt-color:         var(--cnds-body-color,   #ebebeb);
+  --cnds-dt-border-color:  var(--cnds-border-color, #6b6b6b);
+  --cnds-dt-header-color:  var(--cnds-body-color,   #ebebeb);
+  --cnds-dt-hover-bg:      rgba(255, 255, 255, 0.06);
+  --cnds-dt-stripe-bg:     rgba(255, 255, 255, 0.02);
+  --cnds-dt-accent-color:  var(--cnds-product-accent, var(--cnds-product-casefusion-green-400, #7dd67a));
+}
+
+[data-cnds-theme="dark"] .datatable-loading {
+  background: rgba(30, 30, 30, 0.7);
+}
+
+[data-cnds-theme="dark"] .datatable-export-btn {
+  background-color: var(--cnds-secondary-bg,   #252525);
+  color:            var(--cnds-body-color,      #ebebeb);
+  border-color:     var(--cnds-border-color,    #6b6b6b);
+}
+
+/* --- Responsive: Stack pagination on small screens --- */
+@media (max-width: 520px) {
+  .datatable-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .datatable-pagination {
+    flex-direction: column-reverse;
+  }
+
+  .datatable-pagination-nav {
+    margin: 0.8rem 0;
+  }
+
+  .datatable-pagination-buttons {
+    margin: 0.8rem 0;
+  }
+
+  .datatable-search {
+    min-width: 100%;
+  }
+}

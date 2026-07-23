@@ -1,0 +1,258 @@
+/* ============================================================
+   CNDS Autocomplete Component
+   Cloudficient Nimbus Design System v1.0.0
+   ============================================================ */
+
+/* --- Form Outline Wrapper --- */
+.form-outline {
+  position: relative;
+}
+
+/* --- CF Input Field — Autocomplete Override ---
+   The no-icon padding-reduction rule in forms.css shrinks right padding
+   to 1.25rem when .cf-input-icon is absent. Override here so the
+   autocomplete toggle/clear button always has room. */
+.cf-input-field .cf-input-wrapper:not(:has(.cf-input-icon)) .cf-input-control {
+  padding-right: 3.75rem;
+}
+
+.form-outline .form-control {
+  padding: 0.75rem 3.75rem 0.75rem 1.25rem; /* 12px 60px 12px 20px */
+  border-radius: var(--cnds-radius-m, 8px);
+  border: 1px solid var(--cnds-input-border-color, #bdbdbd);
+  background-color: var(--cnds-input-bg, #fff);
+  font-size: 0.875rem; /* 14px */
+  font-weight: 400;
+  line-height: 1.2;
+  color: var(--cnds-input-color, #4f4f4f);
+  transition:
+    border-color 0.15s ease-in-out,
+    box-shadow 0.15s ease-in-out;
+}
+
+.form-outline .form-control:focus {
+  border-color: var(--cnds-input-focus-border-color, #ab2328);
+  box-shadow: var(--cnds-input-focus-box-shadow, inset 0 0 0 1px #ab2328);
+  outline: 0;
+}
+
+.form-outline .form-control::placeholder {
+  color: var(--cnds-input-placeholder-color, #757575);
+  opacity: 0;
+}
+
+.form-outline .form-control.active::placeholder,
+.form-outline .form-control:focus::placeholder {
+  opacity: 1;
+}
+
+.form-outline .form-control:disabled,
+.form-outline .form-control[readonly] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* --- Autocomplete Input Focused State --- */
+.autocomplete-input.focused {
+  color: var(--cnds-input-color, #4f4f4f);
+  outline: 0;
+}
+
+.autocomplete-input.focused::placeholder {
+  opacity: 1;
+}
+
+.autocomplete-input.focused {
+  border-color: var(--cnds-input-focus-border-color, #ab2328);
+  box-shadow: inset 0 0 0 1px var(--cnds-input-focus-border-color, #ab2328);
+}
+
+/* --- Autocomplete Loader --- */
+.autocomplete-loader {
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1.4rem;
+  height: 1.4rem;
+  border-width: 0.15em;
+}
+
+/* --- Autocomplete Dropdown Container --- */
+.autocomplete-dropdown-container {
+  --cnds-autocomplete-dropdown-zindex: 1065;
+  --cnds-autocomplete-dropdown-bg: var(--cnds-input-bg, #fff);
+  --cnds-autocomplete-dropdown-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16),
+    0 2px 10px 0 rgba(0, 0, 0, 0.12);
+  --cnds-autocomplete-dropdown-border-radius: var(--cnds-radius-m, 8px);
+  --cnds-autocomplete-item-color: var(--cnds-body-color, #4f4f4f);
+  --cnds-autocomplete-item-padding: 6.5px 16px;
+  --cnds-autocomplete-item-font-size: 1rem;
+  --cnds-autocomplete-item-font-weight: 400;
+  --cnds-autocomplete-item-hover-bg: rgba(0, 0, 0, 0.05);
+  --cnds-autocomplete-item-disabled-color: rgba(79, 79, 79, 0.5);
+  --cnds-autocomplete-scrollbar-thumb-bg: var(
+    --cnds-scrollbar-thumb-bg,
+    rgba(0, 0, 0, 0.2)
+  );
+
+  z-index: var(--cnds-autocomplete-dropdown-zindex);
+}
+
+/* --- Autocomplete Dropdown --- */
+.autocomplete-dropdown {
+  background-color: var(--cnds-autocomplete-dropdown-bg);
+  box-shadow: var(--cnds-autocomplete-dropdown-shadow);
+  border-radius: var(--cnds-autocomplete-dropdown-border-radius);
+  margin: 0;
+  outline: 0;
+  position: relative;
+  transform: scaleY(0.8);
+  opacity: 0;
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
+  transform-origin: top center;
+}
+
+.autocomplete-dropdown.open {
+  transform: scaleY(1);
+  opacity: 1;
+}
+
+/* --- Autocomplete Items List --- */
+.autocomplete-items-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+}
+
+.autocomplete-items-list::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.autocomplete-items-list::-webkit-scrollbar-button:start:decrement,
+.autocomplete-items-list::-webkit-scrollbar-button:end:increment {
+  display: block;
+  height: 0;
+  background-color: transparent;
+}
+
+.autocomplete-items-list::-webkit-scrollbar-track-piece {
+  background-color: transparent;
+  border-radius: 0;
+  border-bottom-right-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+
+.autocomplete-items-list::-webkit-scrollbar-thumb:vertical {
+  height: 50px;
+  background-color: var(--cnds-autocomplete-scrollbar-thumb-bg);
+  border-radius: 4px;
+}
+
+/* --- Autocomplete Item --- */
+.autocomplete-item {
+  width: 100%;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--cnds-autocomplete-item-color);
+  padding: var(--cnds-autocomplete-item-padding);
+  font-size: var(--cnds-autocomplete-item-font-size);
+  font-weight: var(--cnds-autocomplete-item-font-weight);
+  background-color: transparent;
+  user-select: none;
+}
+
+.autocomplete-item:hover:not(.disabled) {
+  background-color: var(--cnds-autocomplete-item-hover-bg);
+}
+
+.autocomplete-item.active {
+  background-color: var(--cnds-autocomplete-item-hover-bg);
+}
+
+.autocomplete-item.disabled {
+  cursor: default;
+  color: var(--cnds-autocomplete-item-disabled-color);
+}
+
+/* --- Dark Theme Overrides --- */
+[data-cnds-theme="dark"] .form-outline .form-control {
+  background-color: var(--cnds-input-bg, #4a4a4a);
+  border-color: var(--cnds-input-border-color, #787878);
+  color: var(--cnds-input-color, #e8e8e8);
+}
+
+[data-cnds-theme="dark"] .form-outline .form-control:focus {
+  border-color: var(--cnds-input-focus-border-color, #39409d);
+  box-shadow: var(--cnds-input-focus-box-shadow, inset 0 0 0 1px #39409d);
+}
+
+[data-cnds-theme="dark"] .form-outline .form-control::placeholder {
+  color: var(--cnds-input-placeholder-color, #a3a3a3);
+}
+
+[data-cnds-theme="dark"] .autocomplete-input.focused {
+  color: var(--cnds-input-color, #e8e8e8);
+}
+
+[data-cnds-theme="dark"] .autocomplete-dropdown-container {
+  --cnds-autocomplete-dropdown-bg: var(--cnds-surface-dark-300, #4a4a4a);
+  --cnds-autocomplete-item-color: var(--cnds-input-color, #e8e8e8);
+  --cnds-autocomplete-item-hover-bg: rgba(255, 255, 255, 0.08);
+  --cnds-autocomplete-item-disabled-color: rgba(232, 232, 232, 0.4);
+  --cnds-autocomplete-scrollbar-thumb-bg: rgba(255, 255, 255, 0.2);
+}
+
+/* --- Product Theme Modifiers --- */
+
+/* CaseFusion — green focus */
+.form-outline-casefusion {
+  --cnds-input-focus-border-color: var(--cnds-product-casefusion-green-700, #2e892a);
+  --cnds-input-focus-box-shadow: inset 0 0 0 1px var(--cnds-product-casefusion-green-700, #2e892a);
+}
+[data-cnds-theme="dark"] .form-outline-casefusion {
+  --cnds-input-focus-border-color: var(--cnds-product-casefusion-green-400, #7dd67a);
+  --cnds-input-focus-box-shadow: inset 0 0 0 1px var(--cnds-product-casefusion-green-400, #7dd67a);
+}
+
+/* Hyperlize — orange focus */
+.form-outline-hyperlize {
+  --cnds-input-focus-border-color: var(--cnds-product-hyperlize-orange-700, #926a08);
+  --cnds-input-focus-box-shadow: inset 0 0 0 1px var(--cnds-product-hyperlize-orange-700, #926a08);
+}
+[data-cnds-theme="dark"] .form-outline-hyperlize {
+  --cnds-input-focus-border-color: var(--cnds-product-hyperlize-orange-400, #f6bf37);
+  --cnds-input-focus-box-shadow: inset 0 0 0 1px var(--cnds-product-hyperlize-orange-400, #f6bf37);
+}
+
+/* ExpireOn — blue focus */
+.form-outline-expireon {
+  --cnds-input-focus-border-color: var(--cnds-product-expireon-blue-500, #4e45d6);
+  --cnds-input-focus-box-shadow: inset 0 0 0 1px var(--cnds-product-expireon-blue-500, #4e45d6);
+}
+[data-cnds-theme="dark"] .form-outline-expireon {
+  --cnds-input-focus-border-color: var(--cnds-product-expireon-blue-200, #b6b4ee);
+  --cnds-input-focus-box-shadow: inset 0 0 0 1px var(--cnds-product-expireon-blue-200, #b6b4ee);
+}
+
+/* --- Reduced Motion --- */
+@media (prefers-reduced-motion: reduce) {
+  .form-outline .form-control,
+  .cf-input-field .cf-input-control {
+    transition: none;
+  }
+
+  .autocomplete-dropdown {
+    transition: none;
+  }
+}

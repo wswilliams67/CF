@@ -1,0 +1,158 @@
+/* ============================================================
+   CNDS Progress & Spinners
+   Cloudficient Nimbus Design System v1.0.0
+   ============================================================ */
+
+/* --- Progress Bar --- */
+.progress,
+.progress-stacked {
+  --cnds-progress-height: 0.5rem;
+  --cnds-progress-font-size: 0.75rem;
+  --cnds-progress-bg: var(--cnds-gray-200, #e0e0e0);
+  --cnds-progress-border-radius: var(--cnds-border-radius, 0.375rem);
+  --cnds-progress-box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.075);
+  --cnds-progress-bar-color: #fff;
+  --cnds-progress-bar-bg: var(--cnds-primary, #ab2328);
+  --cnds-progress-bar-transition: width 0.6s ease;
+
+  display: flex;
+  height: var(--cnds-progress-height);
+  overflow: hidden;
+  font-size: var(--cnds-progress-font-size);
+  background-color: var(--cnds-progress-bg);
+  border-radius: var(--cnds-progress-border-radius);
+  box-shadow: var(--cnds-progress-box-shadow);
+}
+
+.progress-bar {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+  color: var(--cnds-progress-bar-color);
+  text-align: center;
+  white-space: nowrap;
+  background-color: var(--cnds-progress-bar-bg);
+  transition: var(--cnds-progress-bar-transition);
+}
+
+.progress-bar-striped {
+  background-image: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.15) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(255, 255, 255, 0.15) 75%,
+    transparent 75%,
+    transparent
+  );
+  background-size: var(--cnds-progress-height) var(--cnds-progress-height);
+}
+
+.progress-bar-animated {
+  animation: progress-bar-stripes 1s linear infinite;
+}
+
+@keyframes progress-bar-stripes {
+  0% {
+    background-position-x: var(--cnds-progress-height);
+  }
+}
+
+/* --- Circular Progress --- */
+.progress.progress-circular {
+  --percentage: 0;
+  --progress-fill: var(--cnds-progress-bar-bg, var(--cnds-primary));
+  --size: 80px;
+  --track-width: 10px;
+
+  display: inline-flex;
+  width: var(--size);
+  height: var(--size);
+  overflow: visible;
+  box-shadow: none;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--progress-fill) calc(var(--percentage) * 1%),
+    var(--cnds-progress-bg, #e0e0e0) calc(var(--percentage) * 1%)
+  );
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.progress.progress-circular:has(.progress-bar.bg-success) { --progress-fill: var(--cnds-success); }
+.progress.progress-circular:has(.progress-bar.bg-warning) { --progress-fill: var(--cnds-warning); }
+.progress.progress-circular:has(.progress-bar.bg-danger)  { --progress-fill: var(--cnds-danger); }
+.progress.progress-circular:has(.progress-bar.bg-info)    { --progress-fill: var(--cnds-info); }
+
+.progress.progress-circular::before {
+  content: '';
+  position: absolute;
+  inset: var(--track-width);
+  border-radius: 50%;
+  background: var(--cnds-body-bg, #fff);
+  z-index: 0;
+}
+
+.progress.progress-circular .progress-bar {
+  display: none;
+}
+
+.progress.progress-circular .progress-label {
+  position: relative;
+  z-index: 1;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--cnds-body-color, #333);
+  line-height: 1;
+}
+
+/* --- Spinners --- */
+.spinner-border {
+  display: inline-block;
+  width: var(--cnds-spinner-width, 2rem);
+  height: var(--cnds-spinner-height, 2rem);
+  vertical-align: -0.125em;
+  border: var(--cnds-spinner-border-width, 0.25em) solid currentcolor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: cnds-spinner-border 0.75s linear infinite;
+}
+
+.spinner-border-sm {
+  --cnds-spinner-width: 1rem;
+  --cnds-spinner-height: 1rem;
+  --cnds-spinner-border-width: 0.2em;
+}
+
+.spinner-grow {
+  display: inline-block;
+  width: var(--cnds-spinner-width, 2rem);
+  height: var(--cnds-spinner-height, 2rem);
+  vertical-align: -0.125em;
+  background-color: currentcolor;
+  border-radius: 50%;
+  opacity: 0;
+  animation: cnds-spinner-grow 0.75s linear infinite;
+}
+
+.spinner-grow-sm {
+  --cnds-spinner-width: 1rem;
+  --cnds-spinner-height: 1rem;
+}
+
+/* --- Reduced Motion --- */
+@media (prefers-reduced-motion: reduce) {
+  .progress-bar-animated {
+    animation: none;
+  }
+  .spinner-border {
+    animation-duration: 1.5s;
+  }
+  .spinner-grow {
+    animation-duration: 1.5s;
+  }
+}

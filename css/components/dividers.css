@@ -1,0 +1,98 @@
+/* ============================================================
+   Cloudficient Nimbus Design System v1.0.0
+   Component: Dividers
+   
+   Horizontal (.hr, .hr-blurry) and vertical (.vr, .vr-blurry)
+   divider components. Pure CSS — no JavaScript required.
+   
+   Color tokens use the Surface > Toolbar > Divider path:
+     Solid dividers:
+       Light: --cnds-surface-light-300 (#e0e0e0)
+       Dark:  --cnds-surface-dark-300  (#4a4a4a)
+     Blurry dividers (higher contrast for gradient visibility):
+       Light: --cnds-surface-light-700 (#7a7a7a)
+       Dark:  --cnds-surface-light-600 (#a3a3a3)
+   The blurry effect is achieved via gradient alone
+   (transparent → color → transparent). Blurry variants use a
+   higher-contrast color so the gradient center remains visible
+   after fading to transparent at both ends.
+   ============================================================ */
+
+/* --- Divider Color Tokens (theme-aware) --- */
+:root,
+[data-cnds-theme="light"] {
+  --cnds-divider-color: var(--cnds-surface-light-300, #e0e0e0);
+  --cnds-divider-blurry-color: var(--cnds-surface-light-700, #7a7a7a);
+}
+
+[data-cnds-theme="dark"] {
+  --cnds-divider-color: var(--cnds-surface-dark-300, #4a4a4a);
+  --cnds-divider-blurry-color: var(--cnds-surface-light-600, #a3a3a3);
+}
+
+/* --- Horizontal Divider (.hr) --- */
+hr:not([size]).hr {
+  --cnds-divider-height: 2px;
+  --cnds-divider-bg: var(--cnds-divider-color);
+  --cnds-divider-opacity: 1;
+  --cnds-divider-blurry-bg: transparent;
+  --cnds-divider-blurry-bg-image: linear-gradient(
+    90deg,
+    transparent,
+    var(--cnds-divider-blurry-color),
+    transparent
+  );
+  --cnds-divider-blurry-height: 1px;
+  --cnds-divider-blurry-opacity: 1;
+  height: var(--cnds-divider-height);
+  background-color: var(--cnds-divider-bg);
+  opacity: var(--cnds-divider-opacity);
+}
+
+/* --- Blurry Horizontal Divider (.hr-blurry) --- */
+hr:not([size]).hr.hr-blurry {
+  background-color: var(--cnds-divider-blurry-bg);
+  background-image: var(--cnds-divider-blurry-bg-image);
+  height: var(--cnds-divider-blurry-height);
+  opacity: var(--cnds-divider-blurry-opacity);
+}
+
+/* --- Prevent <hr> used as .vr from showing a top border --- */
+hr:not([size]).vr {
+  height: auto;
+}
+
+/* --- Remove default border-top from styled hr elements --- */
+hr.hr,
+hr.vr {
+  border-top: none !important;
+}
+
+/* --- Vertical Divider (.vr) --- */
+.vr {
+  --cnds-divider-width: 2px;
+  --cnds-divider-bg: var(--cnds-divider-color);
+  --cnds-divider-opacity: 1;
+  display: inline-block;
+  align-self: stretch;
+  width: var(--cnds-divider-width);
+  min-height: 1em;
+  background-color: var(--cnds-divider-bg);
+  opacity: var(--cnds-divider-opacity);
+}
+
+/* --- Blurry Vertical Divider (.vr-blurry) --- */
+.vr-blurry {
+  --cnds-divider-blurry-vr-bg-image: linear-gradient(
+    180deg,
+    transparent,
+    var(--cnds-divider-blurry-color),
+    transparent
+  );
+  --cnds-divider-blurry-vr-width: 1px;
+  --cnds-divider-blurry-opacity: 1;
+  background-color: transparent;
+  background-image: var(--cnds-divider-blurry-vr-bg-image);
+  width: var(--cnds-divider-blurry-vr-width);
+  opacity: var(--cnds-divider-blurry-opacity);
+}
