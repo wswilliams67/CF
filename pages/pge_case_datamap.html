@@ -121,6 +121,7 @@
 *   dmRenderPeople      re-render By People for a window
 *   dmRenderScopes      re-render the Saved Scopes menu
 *   dmClearDateRange    drop the date chip, reset fields to the case window
+*   dmSyncRefinedClear  re-evaluate which refined-results clear buttons apply
 *   dmClearAllFilters   reset every filter + the date range
 *   dmOpenSource(name, row?)     open the View Source drawer; row = fallback descriptor
 *   dmSourceDetail(row)          build/serve a generated source detail
@@ -374,7 +375,7 @@
 *     ink rather than reintroducing theme tokens, or the panel breaks in dark.
 *   • When a control appears and disappears next to static text, hide it with
 *     `visibility` and give the row a min-height, so the text never shifts.
-*     .dm-refined-head + #dmRefinedClearAll are the reference implementation.
+*     .dm-refined-head + .dm-refined-actions .btn are the reference implementation.
 *   • Icon buttons should carry fill="currentColor" and NO colour rule of their
 *     own — .btn.active already applies --cnds-btn-active-color, so the glyph
 *     tracks the button's state for free. A page-level override silently wins
@@ -933,7 +934,7 @@
         .dm-view-stack.is-swapping > div,
         .dm-view-stack.is-sizing,
         .dm-fade-in, .dm-ghost, .dm-card-fade,
-        #dmRefinedClearAll { transition: none !important; animation: none !important; }
+        .dm-refined-actions .btn { transition: none !important; animation: none !important; }
       }
 
       /* ── By People view — totals cards + custodians table ── */
@@ -1089,23 +1090,24 @@
          exact content height (same mechanism as .dm-collapse). The negative
          margin cancels the parent flex `gap: 16px` while collapsed, so a hidden
          banner contributes no space at all. */
-      .dm-excl-slot {
-        display: grid;
-        grid-template-rows: 0fr;
-        margin-bottom: -16px;
-        transition: grid-template-rows 350ms ease-in-out, margin-bottom 350ms ease-in-out;
-      }
-      .dm-excl-slot.show { grid-template-rows: 1fr; margin-bottom: 0; }
-      .dm-excl-slot > .dm-excl-inner { min-height: 0; overflow: hidden; }
+      /* The exclusion banner's space is RESERVED PERMANENTLY, on every tab and
+         every source type — including Exchange/Teams/Participants, which can never
+         exclude anything. The banner then only fades in and out inside that space,
+         so the table below never shifts and all Source Details views line up
+         identically. Previously the slot collapsed (grid 0fr↔1fr), which pushed the
+         table down by 58px whenever an exclusion was staged.
+         42px = 14px line-height + 12px×2 padding + 2px×2 border of the banner. */
+      .dm-excl-slot { min-height: 42px; }
       .dm-exclusion-banner {
         margin: 0; padding: 12px 16px; border-radius: 8px; font-size: 14px;
         background: #fff3cc; border: 2px solid #f3bc00; color: #a65300;
         opacity: 0;
+        pointer-events: none;          /* invisible banner must not swallow clicks */
         transition: opacity 350ms ease-in-out;
       }
-      .dm-excl-slot.show .dm-exclusion-banner { opacity: 1; }
+      .dm-excl-slot.show .dm-exclusion-banner { opacity: 1; pointer-events: auto; }
       @media (prefers-reduced-motion: reduce) {
-        .dm-excl-slot, .dm-exclusion-banner { transition-duration: 0ms; }
+        .dm-exclusion-banner { transition-duration: 0ms; }
       }
       .dm-exclusion-banner b { font-weight: 800; }
 
@@ -1124,6 +1126,17 @@
       .dm-row-excluded .dm-loc-name { color: inherit; }
       .dm-excl-btn { --cnds-btn-color: var(--dm-link); }
       .dm-row-excluded .dm-excl-btn { --cnds-btn-color: var(--cnds-danger-text-emphasis, #ff97aa); }
+      /* Sources-table excluded rows. Unlike the drawer's plain cells, these hold a
+         link (.dm-source-name), a muted path (.dm-source-path), a green progress bar
+         and the .dm-src-excl-btn action — each carries its own colour that beats the
+         `td` inherit, so every one is re-pointed to the danger emphasis here. */
+      .dm-row-excluded .dm-source-name,
+      .dm-row-excluded .dm-source-path { color: var(--cnds-danger-text-emphasis, #ff97aa); }
+      .dm-row-excluded .dm-src-excl-btn { --cnds-btn-color: var(--cnds-danger-text-emphasis, #ff97aa); }
+      .dm-row-excluded .progress { --cnds-progress-bar-bg: var(--cnds-danger-text-emphasis, #ff97aa); }
+      /* The brand glyph is fill="currentColor", so re-pointing color reddens it.
+         Three classes to outrank `.dm-source .dm-tbl-svg`, which is defined later. */
+      .dm-row-excluded .dm-source .dm-tbl-svg { color: var(--cnds-danger-text-emphasis, #ff97aa); }
       .dm-loc-name, .dm-item-link { color: var(--dm-link); text-decoration: none; cursor: pointer; background: none; border: 0; padding: 0; font: inherit; }
       .dm-loc-name:hover, .dm-item-link:hover { text-decoration: underline; }
       .dm-item-name { margin: 0; font-size: 16px; font-weight: 700; }
@@ -1166,15 +1179,23 @@
         display: flex; align-items: center; justify-content: space-between; gap: 16px;
         min-height: 2rem;
       }
-      #dmRefinedClearAll {
-        opacity: 1; visibility: visible;
+      /* Clear Date Ranges + Clear All Exclusions sit side by side, right-aligned.
+         Each shows only when it has something to clear, so either, both or neither
+         may be present — `gap` collapses on its own when one is absent because the
+         hidden one is taken out of flow by display:none (set on .is-gone). */
+      .dm-refined-actions { display: flex; align-items: center; gap: 8px; }
+      .dm-refined-actions .btn {
+        opacity: 1; visibility: visible; white-space: nowrap;
         transition: opacity var(--dm-swap, 220ms) ease, visibility 0s;
       }
-      #dmRefinedClearAll.is-hidden {
+      /* .is-hidden keeps the box (used when the row must not reflow); .is-gone
+         removes it so the remaining button sits flush against the edge. */
+      .dm-refined-actions .btn.is-hidden {
         opacity: 0; visibility: hidden; pointer-events: none;
         /* Hold visibility until the fade finishes, then drop it in one step. */
         transition: opacity var(--dm-swap, 220ms) ease, visibility 0s linear var(--dm-swap, 220ms);
       }
+      .dm-refined-actions .btn.is-gone { display: none; }
       .dm-refined-title { font-size: 11px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
 
       /* ── Add Date Range popover (two Nimbus DatePickers) ── */
@@ -1312,7 +1333,12 @@
       }
       .dm-table tbody tr:last-child td { border-bottom: 0; }
       .dm-col-items  { width: 200px; }
+      /* Data cells only — the class is shared by <th> and <td>, and only the
+         values are right-aligned per the design; the header stays as authored. */
       .dm-col-people { width: 144px; white-space: nowrap; }
+      td.dm-col-people { text-align: right; }
+      /* Trailing Exclude column on the sources tables — matches the drawer's. */
+      #dmViewBySource .dm-col-act { width: 130px; text-align: right; white-space: nowrap; }
 
       .dm-source { display: flex; align-items: center; gap: 12px; }
       .dm-source-body { display: flex; flex-direction: column; min-width: 0; }
@@ -1699,20 +1725,6 @@
           </div>
         </div>
 
-        <!-- Refined results — applied refinements as removable chips -->
-        <div id="dmRefined" class="dm-refined" aria-label="Refined results" hidden>
-          <div class="dm-refined-head">
-            <span class="dm-refined-title">Refined results — applied to the filters above</span>
-            <button type="button" id="dmRefinedClearAll" class="btn btn-tertiary btn-sm">Clear All Filters</button>
-          </div>
-          <div id="dmRefinedChips" class="dm-chip-set">
-            <!-- Refinement chips are injected dynamically:
-                 · Date Range chip — added by the Add Date Range menu (below)
-                 · Excluding chips — added by the Exclusions flow (future)
-                 Angular: *ngFor over refinements; (dismiss)="removeRefinement(r)". -->
-          </div>
-        </div>
-
         <!-- Edit-filters field row — slide toggled by the Edit Filters button (default collapsed) -->
         <div id="dmEditFilters" class="dm-collapse">
           <div class="dm-collapse-inner">
@@ -1752,6 +1764,28 @@
           </div>
         </div>
 
+        <!-- Refined results — applied refinements as removable chips.
+             Sits BELOW #dmEditFilters so refinements read as the outcome of the
+             filter controls above them, including the panel when it is expanded.
+             Its two clears are scoped: date ranges and exclusions only. Clearing
+             the FILTERS themselves belongs to the Edit Filters panel above. Each
+             button shows only when it has something to clear. -->
+        <div id="dmRefined" class="dm-refined" aria-label="Refined results" hidden>
+          <div class="dm-refined-head">
+            <span class="dm-refined-title">Refined results — applied to the filters above</span>
+            <div class="dm-refined-actions">
+              <button type="button" id="dmRefinedClearDates" class="btn btn-tertiary btn-sm">Clear Date Ranges</button>
+              <button type="button" id="dmRefinedClearExclusions" class="btn btn-tertiary btn-sm">Clear All Exclusions</button>
+            </div>
+          </div>
+          <div id="dmRefinedChips" class="dm-chip-set">
+            <!-- Refinement chips are injected dynamically:
+                 · Date Range chip — added by the Add Date Range menu
+                 · Excluding chips — added by the Exclusions flow
+                 Angular: *ngFor over refinements; (dismiss)="removeRefinement(r)". -->
+          </div>
+        </div>
+
         <script>
           // Edit Filters — option data arrays (model a future API fetch); Nimbus Select
           // renders the multi-select UI from these. Populated during parse, before init.
@@ -1771,6 +1805,18 @@
           // Future API: GET /sources/:id/detail returns exactly this shape.
           /** Parse a display number ("1,204") to a float. The one numeric parser. */
           window.dmNum = function (v) { return parseFloat(String(v).replace(/,/g, '')) || 0; };
+
+          /* Exclusion identity. DM_EXCLUSIONS is keyed by this, NOT by source name:
+             All Sources can hold byte-identical rows (five "IT Support"), so name
+             alone would make excluding one exclude them all. The key is
+             name ␁ path ␁ occurrence, where occurrence disambiguates duplicates.
+             Unique sources always get occurrence 0, so the SAME source shares one
+             key across the Top Sources and All Sources tables. Entries carry their
+             display `name` for the chip, since the key itself is not human-readable.
+             Angular: this is the source ID from the API — drop this synthetic key. */
+          window.dmExKey = function (name, path, occ) {
+            return String(name) + '\u0001' + String(path || '') + '\u0001' + (occ || 0);
+          };
 
           window.DM_SOURCE_DETAILS = {
             'Regulatory-Submissions site': {
@@ -2089,58 +2135,89 @@
               { type: 'onedrive', name: 'areyes OneDrive',                 path: 'https://cfdev1-my.sharepoint.com/personal/outlook-user-2_dev1_cflabs_io/',    items: '35',    bar: 25,  people: '10 people' },
               { type: 'teams',    name: 'Vendor Coordination -- Prosearch', path: 'Teams channel · External Collaboration',                                     items: '30',    bar: 25,  people: '10 people' },
               { type: 'teams',    name: 'IT Support',                      path: 'Teams channel · IT Helpdesk',                                                 items: '20',    bar: 25,  people: '10 people' },
-              { type: 'teams',    name: 'IT Support',                      path: 'Teams channel · IT Helpdesk',                                                 items: '20',    bar: 25,  people: '10 people' },
-              { type: 'teams',    name: 'IT Support',                      path: 'Teams channel · IT Helpdesk',                                                 items: '20',    bar: 25,  people: '10 people' },
-              { type: 'teams',    name: 'IT Support',                      path: 'Teams channel · IT Helpdesk',                                                 items: '20',    bar: 25,  people: '10 people' },
-              { type: 'teams',    name: 'IT Support',                      path: 'Teams channel · IT Helpdesk',                                                 items: '20',    bar: 25,  people: '10 people' }
+              { type: 'sharepoint', name: 'Quality-Systems site',         path: 'sharepoint.com/sites/QualitySystems',                                         items: '18',    bar: 25,  people: '10 people' },
+              { type: 'exchange', name: 'Drug Safety Shared Mailbox',      path: 'meridianbiopharma.com/groups/drugsafety',                                     items: '16',    bar: 25,  people: '10 people' },
+              { type: 'teams',    name: 'CMC Working Group',               path: 'Teams channel · Manufacturing Floor',                                         items: '14',    bar: 25,  people: '10 people' },
+              { type: 'onedrive', name: 'jpark OneDrive',                  path: 'cloudficient-my.sharepoint.com/personal/jpark',                               items: '12',    bar: 25,  people: '1 person'  }
             ]
           };
-          // Pad out to `total` with varied, plausible sources across the five types so
-          // paging and the source-type filter behave realistically. Combinations are
-          // derived from the row index (coprime strides) rather than Math.random, so
-          // the list is varied but STABLE across reloads — screenshots and repeat runs
-          // stay comparable. Swap in Math.random if you want fresh data per load.
+          // Pad out to `total` with varied, plausible sources across the five types.
+          // Every generated row has a UNIQUE display name: each type draws from a
+          // two-dimensional vocabulary (enough combinations to cover its share of the
+          // 600), and a `used` set guarantees no collision even if a pool is small —
+          // the rare overflow gets a trailing qualifier rather than a duplicate. This
+          // matters because a source's identity is its name+path, and duplicate names
+          // would be indistinguishable in the UI. Generation is index-derived (not
+          // Math.random) so the list is STABLE across reloads and test runs.
           (function (A) {
             var SITES = ['Regulatory-Submissions', 'Clinical-Trials', 'Quality-Systems', 'Manufacturing-Ops',
                          'Pharmacovigilance', 'Medical-Affairs', 'Drug-Safety', 'Labeling-Artwork',
                          'Site-Contracts', 'Validation-Records', 'Batch-Records', 'Audit-Readiness',
                          'Supplier-Quality', 'Change-Control', 'Stability-Studies', 'Method-Transfer'];
-            var USERS = ['evasquez', 'mtorres', 'areyes', 'jpark', 'pnair', 'dkim', 'schen', 'rellis',
-                         'lwong', 'treid', 'nalvarez', 'kbrooks', 'hcole', 'ohaddad', 'gliu', 'druiz',
-                         'mpatel', 'pnovak', 'abello', 'cdoyle', 'eschultz', 'vchen', 'smarino', 'lfischer'];
+            // A region qualifier turns 16 sites into 16×N unique site names.
+            var REGIONS = ['Global', 'US', 'EU', 'APAC', 'LATAM', 'Japan', 'UK', 'Canada',
+                           'Germany', 'France', 'India', 'Brazil', 'Australia', 'Mexico', 'Italy', 'Spain'];
+            // OneDrive is per-person, so unique users = unique names. Initials × surnames
+            // gives hundreds of plausible usernames.
+            var INITIALS = ['e', 'm', 'a', 'j', 'p', 'd', 's', 'r', 'l', 't', 'n', 'k', 'h', 'o', 'g'];
+            var SURNAMES = ['vasquez', 'torres', 'reyes', 'park', 'nair', 'kim', 'chen', 'ellis', 'wong', 'reid',
+                            'alvarez', 'brooks', 'cole', 'haddad', 'liu', 'ruiz', 'patel', 'novak', 'bello', 'doyle'];
             var TEAM_NAMES = ['Clinical Trial Ops', 'Submission Readiness', 'CMC Working Group', 'Study Startup',
                               'Deviation Triage', 'Label Review', 'Audit Prep', 'Site Activation',
                               'IT Support', 'Vendor Coordination -- Prosearch', 'Protocol Amendments', 'Safety Signal Review'];
             var TEAM_CHANNELS = ['Regulatory Affairs team', 'IT Helpdesk', 'Clinical Operations', 'External Collaboration',
                                  'Quality Council', 'Manufacturing Floor', 'Program Leadership', 'Safety Review Board',
-                                 'Data Management', 'Vendor Management'];
+                                 'Data Management', 'Vendor Management', 'Regulatory Intelligence', 'Clinical Supply'];
             var MAILBOXES = ['Regulatory Affairs', 'Drug Safety', 'Clinical Supply', 'Quality Assurance',
                              'Medical Information', 'Pharmacovigilance Intake', 'Trial Master File', 'Vendor Invoices'];
             var COPILOT = ['WebChat', 'Word', 'Excel', 'PowerPoint', 'Outlook', 'Teams', 'Loop'];
+            var DEPTS = ['Regulatory', 'Clinical', 'Quality', 'Safety', 'Manufacturing', 'Medical Affairs',
+                         'Data Science', 'Program Mgmt', 'Compliance', 'Labeling', 'CMC', 'Pharmacovigilance',
+                         'Biostatistics', 'Supply Chain', 'Legal', 'Operations', 'Validation', 'Audit',
+                         'Submissions', 'Vendor Mgmt'];
             var TYPES = ['sharepoint', 'onedrive', 'teams', 'exchange', 'copilot'];
             var slug = function (s) { return s.replace(/[^A-Za-z0-9]/g, ''); };
 
-            for (var i = A.rows.length; i < A.total; i++) {
-              var type = TYPES[i % TYPES.length], name, path;
+            // Names already taken by the authored seed rows above.
+            var used = {};
+            A.rows.forEach(function (r) { used[r.name] = true; });
+            // Build one {name, path} candidate for a type at sequence position q.
+            function make(type, q) {
               if (type === 'sharepoint') {
-                var site = SITES[(i * 7) % SITES.length];
-                name = site + ' site';            path = 'sharepoint.com/sites/' + slug(site);
-              } else if (type === 'onedrive') {
-                var u = USERS[(i * 5) % USERS.length];
-                name = u + ' OneDrive';           path = 'cloudficient-my.sharepoint.com/personal/' + u;
-              } else if (type === 'teams') {
-                name = TEAM_NAMES[(i * 3) % TEAM_NAMES.length];
-                path = 'Teams channel · ' + TEAM_CHANNELS[(i * 11) % TEAM_CHANNELS.length];
-              } else if (type === 'exchange') {
-                var mb = MAILBOXES[(i * 3) % MAILBOXES.length];
-                name = mb + ' Shared Mailbox';    path = 'meridianbiopharma.com/groups/' + slug(mb).toLowerCase();
-              } else {
-                var sfc = COPILOT[(i * 5) % COPILOT.length];
-                name = 'Copilot for ' + sfc;      path = 'Copilot.M365Copilot.' + sfc;
+                var site = SITES[q % SITES.length], reg = REGIONS[Math.floor(q / SITES.length) % REGIONS.length];
+                return { name: site + (reg === 'Global' ? '' : ' (' + reg + ')') + ' site',
+                         path: 'sharepoint.com/sites/' + slug(site) + (reg === 'Global' ? '' : '-' + slug(reg).toLowerCase()) };
               }
+              if (type === 'onedrive') {
+                var u = INITIALS[q % INITIALS.length] + SURNAMES[Math.floor(q / INITIALS.length) % SURNAMES.length];
+                return { name: u + ' OneDrive', path: 'cloudficient-my.sharepoint.com/personal/' + u };
+              }
+              if (type === 'teams') {
+                var team = TEAM_NAMES[q % TEAM_NAMES.length], ch = TEAM_CHANNELS[Math.floor(q / TEAM_NAMES.length) % TEAM_CHANNELS.length];
+                return { name: team + ' — ' + ch, path: 'Teams channel · ' + ch };
+              }
+              if (type === 'exchange') {
+                var mb = MAILBOXES[q % MAILBOXES.length], mreg = REGIONS[Math.floor(q / MAILBOXES.length) % REGIONS.length];
+                return { name: mb + (mreg === 'Global' ? '' : ' (' + mreg + ')') + ' Shared Mailbox',
+                         path: 'meridianbiopharma.com/groups/' + slug(mb).toLowerCase() + (mreg === 'Global' ? '' : '-' + slug(mreg).toLowerCase()) };
+              }
+              var app = COPILOT[q % COPILOT.length], dept = DEPTS[Math.floor(q / COPILOT.length) % DEPTS.length];
+              return { name: 'Copilot for ' + app + (q < COPILOT.length ? '' : ' — ' + dept),
+                       path: 'Copilot.M365Copilot.' + app };
+            }
+
+            var base = A.rows.length;                 // fixed, so the taper is monotonic
+            var seq = { sharepoint: 0, onedrive: 0, teams: 0, exchange: 0, copilot: 0 };
+            for (var i = base; i < A.total; i++) {
+              var type = TYPES[i % TYPES.length];
+              // Advance through the type's natural combinations until one is unused,
+              // so a collision takes the NEXT real name rather than a numbered dupe.
+              var cand;
+              do { cand = make(type, seq[type]++); } while (used[cand.name]);
+              used[cand.name] = true;
               // Item counts taper down the list, so the table reads as ranked.
-              var n = Math.max(1, 20 - Math.floor((i - A.rows.length) / 30));
-              A.rows.push({ type: type, name: name, path: path, items: String(n),
+              var n = Math.max(1, 20 - Math.floor((i - base) / 30));
+              A.rows.push({ type: type, name: cand.name, path: cand.path, items: String(n),
                             bar: 25, people: (i % 7 === 0 ? '1 person' : '10 people') });
             }
           })(window.DM_ALL_SOURCES);
@@ -2315,7 +2392,7 @@
         <span class="dm-divider" aria-hidden="true"></span>
         <button type="button" class="btn btn-secondary" id="dmExportCsv"
                 data-cnds-toggle="modal" data-cnds-target="#dmExportModal">
-          <i class="mdi mdi-download mdi-18px me-2" aria-hidden="true"></i>Export CSV
+          Export CSV
         </button>
       </div>
 
@@ -2413,6 +2490,7 @@
                 <th scope="col">Source</th>
                 <th scope="col" class="dm-col-items">Items</th>
                 <th scope="col" class="dm-col-people">People Accessed</th>
+                <th scope="col" class="dm-col-act"><span class="visually-hidden">Exclude from scope</span></th>
               </tr>
             </thead>
             <tbody>
@@ -2445,6 +2523,7 @@
                   </div>
                 </td>
                 <td class="dm-col-people">10 people</td>
+              <td class="dm-col-act"><button type="button" class="btn btn-tertiary btn-sm dm-src-excl-btn">Exclude</button></td>
               </tr>
               <!-- Row 2 -->
               <tr data-dm-source="onedrive">
@@ -2470,6 +2549,7 @@
                   </div>
                 </td>
                 <td class="dm-col-people">1 person</td>
+              <td class="dm-col-act"><button type="button" class="btn btn-tertiary btn-sm dm-src-excl-btn">Exclude</button></td>
               </tr>
               <!-- Row 3 -->
               <tr data-dm-source="onedrive">
@@ -2495,6 +2575,7 @@
                   </div>
                 </td>
                 <td class="dm-col-people">10 people</td>
+              <td class="dm-col-act"><button type="button" class="btn btn-tertiary btn-sm dm-src-excl-btn">Exclude</button></td>
               </tr>
               <!-- Row 4 -->
               <tr data-dm-source="teams">
@@ -2520,6 +2601,7 @@
                   </div>
                 </td>
                 <td class="dm-col-people">10 people</td>
+              <td class="dm-col-act"><button type="button" class="btn btn-tertiary btn-sm dm-src-excl-btn">Exclude</button></td>
               </tr>
               <!-- Row 5 -->
               <tr data-dm-source="copilot">
@@ -2545,6 +2627,7 @@
                   </div>
                 </td>
                 <td class="dm-col-people">10 people</td>
+              <td class="dm-col-act"><button type="button" class="btn btn-tertiary btn-sm dm-src-excl-btn">Exclude</button></td>
               </tr>
               <!-- Row 6 -->
               <tr data-dm-source="exchange">
@@ -2575,6 +2658,7 @@
                   </div>
                 </td>
                 <td class="dm-col-people">10 people</td>
+              <td class="dm-col-act"><button type="button" class="btn btn-tertiary btn-sm dm-src-excl-btn">Exclude</button></td>
               </tr>
             </tbody>
           </table>
@@ -2792,11 +2876,12 @@
           <!-- tabs (rendered per source type) -->
           <div class="btn-group dm-drawer-tabs" role="group" aria-label="Source detail view" id="dmDrawerTabs"></div>
           <p class="dm-drawer-hint" id="dmDrawerHint"></p>
-          <!-- staged-exclusion banner -->
+          <!-- Staged-exclusion banner. The slot always reserves its height (see
+               .dm-excl-slot) so the table below never moves; the banner fades in
+               and out inside it. Present on every tab, including those that cannot
+               exclude, so all Source Details views share one layout. -->
           <div class="dm-excl-slot" id="dmExclSlot" aria-hidden="true">
-            <div class="dm-excl-inner">
-              <div class="alert dm-exclusion-banner" id="dmExclBanner" role="status"></div>
-            </div>
+            <div class="alert dm-exclusion-banner" id="dmExclBanner" role="status"></div>
           </div>
           <!-- location chips (Item View only) -->
           <ul class="nav nav-pills nav-pills-nimbus nav-pills-casefusion dm-drawer-locs" aria-label="Location" id="dmDrawerLocs" hidden></ul>
@@ -3728,7 +3813,11 @@
        * @returns {Promise}
        */
       function dmRun(name, args, okMsg, failMsg, onOk) {
-        var fn = (window.DM_API && window.DM_API[name]) || function () { return Promise.resolve(); };
+        // `name` is normally a DM_API key. A function is also accepted so a caller
+        // that fans out over several API calls still surfaces ONE toast.
+        var fn = typeof name === 'function'
+          ? name
+          : ((window.DM_API && window.DM_API[name]) || function () { return Promise.resolve(); });
         return Promise.resolve(fn.apply(null, args || []))
           .then(function () {
             if (onOk) onOk();
@@ -3943,6 +4032,12 @@
               done.className = 'dm-status-done';
               done.textContent = 'Custodian';
               btn.replaceWith(done);
+              // The linked name only exists because this button did — drop the link
+              // with it, so the row matches what personCells() would now render.
+              // Scoped to <tr> so the Notable Non-Custodians panel keeps its links.
+              var tr = done.closest('tr');
+              var link = tr && tr.querySelector('[data-dm-person]');
+              if (link) link.replaceWith(document.createTextNode(link.textContent));
               // Notable Non-Custodians lists only people who are NOT custodians, so a
               // promoted row no longer belongs. Hold the confirmation briefly, then
               // collapse it out; the card itself fades once the last row goes.
@@ -4550,6 +4645,15 @@
           return (S.data.items && S.data.items[S.loc]) || [];
         }
         function isExcluded(path) { return S.staged.indexOf(path) !== -1; }
+        /* True when the whole source is excluded (committed from the sources table).
+           In that state the drawer is read-only: each child exclude button is
+           DISABLED (child rows keep their default look), and an "Entire source
+           excluded" alert stands in for the staged-count banner. Un-excluding is
+           done from the sources table. */
+        function isSourceWhole() {
+          var e = (window.DM_EXCLUSIONS || {})[S.exKey];
+          return !!(e && e.some(function (x) { return x.whole; }));
+        }
         /* What this source excludes. Location-tree sources (SharePoint/OneDrive/Teams)
            get the historical default; Copilot overrides it via `data.exclude`. */
         var EXCL_DEFAULT = { tab: 'location', key: 'path', metricKey: 'items', unit: 'location', units: 'locations', metric: 'items' };
@@ -4584,36 +4688,58 @@
           render: function (start, end) { el.rows.innerHTML = matching.slice(start, end).map(rowHtml).join(''); }
         });
 
+        /**
+         * Name + status cells for the person tabs (Participants / Accessed).
+         * Both are derived from the SAME condition, in one place: a person who can
+         * still be promoted gets MARK AS CUSTODIAN *and* a linked name; once they
+         * are a custodian, both revert to plain text. Deriving them together is
+         * what guarantees a linked name always has a button beside it — the two
+         * cannot drift apart as rows re-render on sort, search or paging.
+         * The Copilot `sessions` tab has no custodian status, so no links there.
+         * Angular: one <ng-container> computing `pending` once, feeding both cells.
+         */
+        function personCells(r) {
+          var pending = r.status === 'Mark as Custodian';
+          return {
+            name: pending
+              ? '<a href="#" class="dm-custodian-name" data-dm-person="' + dmEsc(r.name) + '">' + dmEsc(r.name) + '</a>'
+              : dmEsc(r.name),
+            status: pending
+              ? '<button type="button" class="btn btn-tertiary btn-sm dm-status-mark" data-dm-mark="' + dmEsc(r.name) + '">Mark as Custodian</button>'
+              : dmEsc(r.status)
+          };
+        }
+
         function rowHtml(r) {
+          // When the whole source is excluded the drawer is read-only: the exclude
+          // buttons are DISABLED, but the child rows keep their default (un-red)
+          // state — the "Entire source excluded" alert carries the message instead.
+          var whole = isSourceWhole();
           if (S.tab === 'location') {
             var ex = isExcluded(r.path);
             return '<tr' + (ex ? ' class="dm-row-excluded"' : '') + '>' +
               '<td><button type="button" class="dm-loc-name" data-dm-loc="' + dmEsc(r.path) + '">' + dmEsc(r.path) + '</button></td>' +
               '<td class="dm-col-num">' + dmEsc(r.items) + '</td>' +
               '<td class="dm-col-when">' + dmEsc(r.lastActivity) + '</td>' +
-              '<td class="dm-col-act"><button type="button" class="btn btn-tertiary btn-sm dm-excl-btn" data-dm-excl="' + dmEsc(r.path) + '">' +
+              '<td class="dm-col-act"><button type="button" class="btn btn-tertiary btn-sm dm-excl-btn" data-dm-excl="' + dmEsc(r.path) + '"' + (whole ? ' disabled' : '') + '>' +
                 (ex ? 'Excluded' : 'Exclude') + '</button></td></tr>';
           }
           if (S.tab === 'sessions') {
             var sx = isExcluded(r.name);
             return '<tr' + (sx ? ' class="dm-row-excluded"' : '') + '><td>' + dmEsc(r.name) + '</td>' +
               '<td>' + dmEsc(r.role) + '</td><td class="dm-col-num">' + dmEsc(r.sessions) + '</td>' +
-              '<td class="dm-col-act"><button type="button" class="btn btn-tertiary btn-sm dm-excl-btn" data-dm-excl="' + dmEsc(r.name) + '">' +
+              '<td class="dm-col-act"><button type="button" class="btn btn-tertiary btn-sm dm-excl-btn" data-dm-excl="' + dmEsc(r.name) + '"' + (whole ? ' disabled' : '') + '>' +
                 (sx ? 'Excluded' : 'Exclude') + '</button></td></tr>';
           }
           if (S.tab === 'participants') {
-            var pst = r.status === 'Mark as Custodian'
-              ? '<button type="button" class="btn btn-tertiary btn-sm dm-status-mark" data-dm-mark="' + dmEsc(r.name) + '">Mark as Custodian</button>'
-              : dmEsc(r.status);
-            return '<tr><td>' + dmEsc(r.name) + '</td><td>' + dmEsc(r.role) + '</td>' +
-              '<td class="dm-col-when">' + dmEsc(r.since) + '</td><td class="dm-col-status">' + pst + '</td></tr>';
+            var pc = personCells(r);
+            return '<tr><td>' + pc.name + '</td><td>' + dmEsc(r.role) + '</td>' +
+              '<td class="dm-col-when">' + dmEsc(r.since) + '</td><td class="dm-col-status">' + pc.status + '</td></tr>';
           }
           if (S.tab === 'accessed') {
-            var st = r.status === 'Mark as Custodian'
-              ? '<button type="button" class="btn btn-tertiary btn-sm dm-status-mark" data-dm-mark="' + dmEsc(r.name) + '">Mark as Custodian</button>'
-              : dmEsc(r.status);
-            return '<tr><td>' + dmEsc(r.name) + '</td><td>' + dmEsc(r.role) + '</td>' +
-              '<td class="dm-col-num">' + dmEsc(r.events) + '</td><td class="dm-col-status">' + st + '</td></tr>';
+            var ac = personCells(r);
+            return '<tr><td>' + ac.name + '</td><td>' + dmEsc(r.role) + '</td>' +
+              '<td class="dm-col-num">' + dmEsc(r.events) + '</td><td class="dm-col-status">' + ac.status + '</td></tr>';
           }
           return '<tr><td><button type="button" class="dm-item-link" data-dm-item="' + dmEsc(r.name) + '">' + dmEsc(r.name) + '</button></td>' +
             '<td>' + dmEsc(r.type) + '</td><td class="dm-col-when">' + dmEsc(r.modified) + '</td>' +
@@ -4638,6 +4764,13 @@
           }
         }
         function renderBanner() {
+          // Whole-source exclusion overrides the staged-count message.
+          if (isSourceWhole()) {
+            el.banner.innerHTML = 'Entire source excluded';
+            el.slot.classList.add('show');
+            el.slot.setAttribute('aria-hidden', 'false');
+            return;
+          }
           var n = S.staged.length;
           // Keep the copy while fading out — only rewrite it when there's something
           // to show, so the banner doesn't blank mid-transition.
@@ -4669,8 +4802,9 @@
           }).join('');
         }
         function renderFooter() {
-          // Only the source's designated exclusion tab can exclude; others just close.
-          var canExclude = S.tab === exclCfg().tab;
+          // Only the source's designated exclusion tab can exclude; others just
+          // close. A whole-excluded source is read-only, so no Apply anywhere.
+          var canExclude = S.tab === exclCfg().tab && !isSourceWhole();
           el.apply.hidden = !canExclude;
           el.cancel.textContent = canExclude ? 'Cancel' : 'Close';
           el.apply.disabled = !S.staged.length;
@@ -4695,9 +4829,16 @@
           if (!data && row && window.dmSourceDetail) data = window.dmSourceDetail(row);
           if (!data) return false;          // nothing to show → leave the link inert
           S.source = name; S.data = data; S.tab = (data.tabs || ['location'])[0];
+          // Exclusion key: prefer the clicked row's xid; fall back to occurrence 0
+          // for programmatic opens (unique sources resolve to the same key).
+          S.exKey = (row && row.xid) || window.dmExKey(name, (row && row.path) || (data && data.path) || '', 0);
           // Item View always opens on the first folder in the location list.
           S.loc = (data.locations && data.locations[0]) ? data.locations[0].path : null;
-          S.staged = (window.DM_EXCLUSIONS[name] || []).map(function (e) { return e.path; });
+          // Whole-source exclusions come from the sources table and have no location
+          // to stage — filter them out or the banner would count a phantom row.
+          S.staged = (window.DM_EXCLUSIONS[S.exKey] || [])
+            .filter(function (e) { return !e.whole; })
+            .map(function (e) { return e.path; });
           el.name.textContent = name;
           el.path.textContent = data.path || '';
           el.icon.innerHTML = (window.dmTable && dmTable.icon) ? dmTable.icon(data.type) : '';
@@ -4717,7 +4858,8 @@
             name:   a.textContent.trim(),
             path:   (body && body.querySelector('.dm-source-path').textContent.trim()) || '',
             items:  (tr.querySelector('.dm-col-items b') || {}).textContent || '',
-            people: (tr.querySelector('.dm-col-people') || {}).textContent || ''
+            people: (tr.querySelector('.dm-col-people') || {}).textContent || '',
+            xid:    tr.getAttribute('data-dm-xid') || ''
           };
           if (openSource(a.textContent.trim(), descriptor)) e.preventDefault();
         });
@@ -4770,17 +4912,18 @@
         el.apply.addEventListener('click', function () {
           var srcName = S.source;
           var c = exclCfg();
-          // Entries stay {path, items} so every consumer keeps working; `unit`/`metric`
-          // ride along so chips and counters can name what was actually removed.
+          // Entries stay {path, items} so every consumer keeps working; `name` labels
+          // the chip, and `unit`/`metric` name what was removed. Keyed by S.exKey.
           var picked = S.staged.map(function (p) {
             var l = exclRows().filter(function (x) { return x[c.key] === p; })[0];
-            return { path: p, items: l ? l[c.metricKey] : '0', unit: c.unit, units: c.units, metric: c.metric };
+            return { path: p, items: l ? l[c.metricKey] : '0', name: srcName,
+                     unit: c.unit, units: c.units, metric: c.metric };
           });
           el.apply.disabled = true;
           dmRun('applyExclusions', [srcName, picked], 'Exclusions applied successfully.',
                 'The exclusions could not be applied.', function () {
-            if (picked.length) window.DM_EXCLUSIONS[srcName] = picked;
-            else delete window.DM_EXCLUSIONS[srcName];
+            if (picked.length) window.DM_EXCLUSIONS[S.exKey] = picked;
+            else delete window.DM_EXCLUSIONS[S.exKey];
             if (window.dmSyncExclusions) window.dmSyncExclusions();
             if (window.Nimbus && Nimbus.Offcanvas) Nimbus.Offcanvas.getOrCreateInstance(drawerEl).hide();
           }).then(function () { el.apply.disabled = !S.staged.length; });
@@ -4855,18 +4998,20 @@
           if (chipSet) {
             Array.prototype.forEach.call(chipSet.querySelectorAll('[data-dm-excl-src]'), function (c) { c.remove(); });
             names.forEach(function (k) {
+              var label = (ex[k][0] && ex[k][0].name) || k;   // display name, not the key
               var paths = ex[k].map(function (e) { return e.path; }).join(', ');
               var count = ex[k].reduce(function (m, e) { return m + dmNum(e.items); }, 0);
               var chip = document.createElement('span');
               chip.className = 'chip';
               chip.setAttribute('data-dm-excl-src', k);
-              chip.innerHTML = 'Excluding: ' + dmEsc(k) + ' ' + dmEsc(paths) + ' (' + count.toLocaleString() +
+              chip.innerHTML = 'Excluding: ' + dmEsc(label) + ' ' + dmEsc(paths) + ' (' + count.toLocaleString() +
                 ' ' + dmEsc(ex[k][0].metric || 'items') + ')' +
                 '<i class="close mdi mdi-close-circle" role="button" tabindex="0" aria-label="Remove exclusion"></i>';
               chipSet.appendChild(chip);
             });
           }
           if (window.dmTable && dmTable.refreshBadges) dmTable.refreshBadges();
+          if (window.dmTable && dmTable.refreshExclCells) dmTable.refreshExclCells();
           if (window.dmSyncRefined) window.dmSyncRefined();
           if (footer) {
             /* Exclusions can now mix units (SharePoint folders + Copilot people), so
@@ -4955,6 +5100,7 @@
         function syncRefined() {
           var has = refined.querySelectorAll('.dm-chip-set .chip').length > 0;
           if (window.dmFadeCard) dmFadeCard(refined, has); else refined.hidden = !has;
+          syncRefinedActions();   // each clear shows only while it has work to do
         }
         window.dmSyncRefined = syncRefined;
         // Re-hide once the last refinement chip is dismissed.
@@ -4967,23 +5113,51 @@
           }
         });
 
-        // "Clear All Filters" resets every filter + date range. It is hidden while the
-        // Edit Filters panel is open (that panel has its own Clear All Filters).
-        var clearAll = document.getElementById('dmRefinedClearAll');
-        var editPanel = document.getElementById('dmEditFilters');
-        if (clearAll) clearAll.addEventListener('click', function () {
-          if (window.dmClearAllFilters) window.dmClearAllFilters();
+        /* ── Refined-results actions ─────────────────────────────────────────
+           Two narrowly-scoped clears, each showing ONLY when it has something to
+           clear. They are deliberately NOT "Clear All Filters": the filters
+           themselves are cleared from the Edit Filters panel, which owns that
+           button. Refinements are what has been applied on top of the filters.
+
+             Clear Date Ranges     → drops the date chip + resets the pickers to
+                                     the case window. Touches no filter.
+             Clear All Exclusions  → empties DM_EXCLUSIONS and re-syncs, which
+                                     removes every "Excluding: …" chip, refreshes
+                                     the source-table badges and the scope footer.
+
+           Angular: two buttons with *ngIf="hasDateRange" / *ngIf="hasExclusions",
+           dispatching clearDateRange() / clearExclusions() on the store. ── */
+        var clearDates = document.getElementById('dmRefinedClearDates');
+        var clearExcl  = document.getElementById('dmRefinedClearExclusions');
+
+        if (clearDates) clearDates.addEventListener('click', function () {
+          if (window.dmClearDateRange) window.dmClearDateRange();
         });
-        // Fades rather than unmounting: the head reserves its box either way, so the
-        // "Refined results" title stays put while the button comes and goes.
-        window.dmSyncRefinedClear = function () {
-          if (!clearAll) return;
-          var hide = !!(editPanel && editPanel.classList.contains('open'));
-          clearAll.classList.toggle('is-hidden', hide);
-          clearAll.setAttribute('aria-hidden', String(hide));
-          clearAll.tabIndex = hide ? -1 : 0;
-        };
-        window.dmSyncRefinedClear();
+        if (clearExcl) clearExcl.addEventListener('click', function () {
+          var ex = window.DM_EXCLUSIONS || {};
+          Object.keys(ex).forEach(function (k) { delete ex[k]; });
+          if (window.dmSyncExclusions) window.dmSyncExclusions();   // chips + badges + footer
+          syncRefined();                                            // fade the card out if now empty
+        });
+
+        /**
+         * Show each action only when its own refinement type is present.
+         * Called from syncRefined(), so it re-evaluates on every chip change.
+         */
+        function syncRefinedActions() {
+          var hasDates = !!document.getElementById('dmRefinedDateChip');
+          var hasExcl  = !!refined.querySelector('[data-dm-excl-src]');
+          [[clearDates, hasDates], [clearExcl, hasExcl]].forEach(function (pair) {
+            var btn = pair[0], show = pair[1];
+            if (!btn) return;
+            btn.classList.toggle('is-gone', !show);
+            btn.setAttribute('aria-hidden', String(!show));
+            btn.tabIndex = show ? 0 : -1;
+          });
+        }
+        // Kept for callers that still ping it when the Edit Filters panel toggles.
+        window.dmSyncRefinedClear = syncRefinedActions;
+        syncRefinedActions();
 
         // ── Add Date Range — popover with two Nimbus DatePickers (From / To) ──
         // Nimbus components load asynchronously (nimbus.js dynamic loader), so this
@@ -5199,6 +5373,16 @@
 
         // ── Scope: Top Sources (the designed 6-row set, kept as authored markup)
         //    vs All Sources (rendered from DM_ALL_SOURCES). ──
+        // Give the authored rows an exclusion id too (all occurrence 0, since the
+        // six Top Sources are unique) so a source excluded here matches the same
+        // source in All Sources. Stamp before capturing TOP_HTML so it survives
+        // scope switches, which restore that captured markup.
+        Array.prototype.forEach.call(tbody.querySelectorAll('tr'), function (r) {
+          var a = r.querySelector('.dm-source-name');
+          var pth = r.querySelector('.dm-source-path');
+          if (a) r.setAttribute('data-dm-xid',
+            window.dmExKey(a.textContent.trim(), pth ? pth.textContent.trim() : '', 0));
+        });
         var TOP_HTML = tbody.innerHTML;   // preserve the authored rows to restore later
         var allHTML  = null;              // built once, on first switch to All Sources
         // Brand glyphs are already inline in the authored rows — harvest one per
@@ -5212,8 +5396,12 @@
         function buildAllHTML() {
           var A = window.DM_ALL_SOURCES;
           if (!A) return '';
+          var occ = {};                       // (name+path) → running count, for xid
           return A.rows.map(function (r) {
-            return '<tr data-dm-source="' + esc(r.type) + '">' +
+            var ok = r.name + '\u0001' + (r.path || '');
+            var o = occ[ok] = (occ[ok] === undefined ? 0 : occ[ok] + 1);
+            var xid = window.dmExKey(r.name, r.path, o);
+            return '<tr data-dm-source="' + esc(r.type) + '" data-dm-xid="' + esc(xid) + '">' +
               '<td><div class="dm-source">' + (ICONS[r.type] || '') +
                 '<span class="dm-source-body">' +
                   '<a href="#" class="dm-source-name">' + esc(r.name) + '</a>' +
@@ -5224,6 +5412,7 @@
                 '<b>' + esc(r.items) + '</b>' +
               '</div></td>' +
               '<td class="dm-col-people">' + esc(r.people) + '</td>' +
+              '<td class="dm-col-act"><button type="button" class="btn btn-tertiary btn-sm dm-src-excl-btn">Exclude</button></td>' +
             '</tr>';
           }).join('');
         }
@@ -5239,7 +5428,11 @@
           if (window.dmCrossfade) dmCrossfade(tbody, swap); else swap();
           if (scopeLabel) scopeLabel.textContent = (scope === 'all') ? 'All Sources' : 'Top Sources';
           rows = Array.prototype.slice.call(tbody.querySelectorAll('tr'));
-          clearCard();   // a card filter from the previous scope no longer applies
+          // A selected summary card filters by source TYPE, and both scopes carry
+          // data-dm-source on every row — so the selection survives the swap and is
+          // simply re-applied to the new row set. The cards themselves are not
+          // re-rendered here, so their selected state and the breadcrumb persist.
+          render();
         }
 
         // Pagination runs over the filtered set, so paging and filtering compose.
@@ -5261,6 +5454,7 @@
           });
           if (pager) pager.reset(true);  // filtering returns to page 1
           else rows.forEach(function (r) { r.hidden = matching.indexOf(r) === -1; });
+          syncExclCells();               // rows may have just been rebuilt
         }
         function crumbFor(card) {
           if (card) {
@@ -5281,12 +5475,83 @@
           state.card = card.getAttribute('data-dm-source'); crumbFor(card); render();
         }
 
+        /* ══ WHOLE-SOURCE EXCLUSIONS (sources tables) ═════════════════════════
+           The trailing Exclude column commits ON CLICK — no staging step. One
+           click excludes the whole source (fires DM_API.applyExclusions, adds an
+           Excluding chip, reddens the row, updates badges + scope footer, toasts);
+           clicking an already-excluded row restores it. The drawer keeps its own
+           stage-then-Apply model; only the table is immediate.
+
+           A whole-source entry SUPERSEDES any per-location entries that source
+           already had — committing replaces DM_EXCLUSIONS[name], so the two can
+           never double-count. `whole: true` marks it, and the drawer filters those
+           out when seeding its own staged list.
+
+           Angular: the row action dispatches toggleSourceExclusion(name) on the
+           same ExclusionStore the drawer writes to.
+           ══════════════════════════════════════════════════════════════════════ */
+        function srcNameOf(row) {
+          var a = row.querySelector('.dm-source-name');
+          return a ? a.textContent.trim() : null;
+        }
+        function xidOf(row) { return row.getAttribute('data-dm-xid'); }
+        function itemsOf(row) {
+          var b = row.querySelector('.dm-col-items b');
+          return b ? b.textContent.trim() : '0';
+        }
+        /** A committed whole-source exclusion, in DM_EXCLUSIONS' entry shape.
+            `name` is stored so the chip can label it — the key is the opaque xid. */
+        function wholeEntry(row) {
+          return { path: '— entire source', whole: true, items: itemsOf(row),
+                   name: srcNameOf(row), unit: 'source', units: 'sources', metric: 'items' };
+        }
+        function isWholeExcluded(xid) {
+          var e = (window.DM_EXCLUSIONS || {})[xid];
+          return !!(e && e.some(function (x) { return x.whole; }));
+        }
+
+        /** Paint every row's Exclude cell + red state from committed state. */
+        function syncExclCells() {
+          rows.forEach(function (r) {
+            var btn = r.querySelector('.dm-src-excl-btn');
+            if (!btn) return;
+            var on = isWholeExcluded(xidOf(r));
+            btn.textContent = on ? 'Excluded' : 'Exclude';
+            r.classList.toggle('dm-row-excluded', on);
+          });
+        }
+
+        // Delegated: rows are rebuilt on every scope switch and filter change.
+        tbody.addEventListener('click', function (e) {
+          var btn = e.target.closest('.dm-src-excl-btn');
+          if (!btn) return;
+          var row = btn.closest('tr');
+          var name = srcNameOf(row);
+          var xid = xidOf(row);
+          if (!name || !xid) return;
+          // Toggle: exclude an in-scope source, or restore an excluded one. Both go
+          // through applyExclusions (empty array = restore), matching the drawer.
+          // Keyed by xid so byte-identical rows exclude independently.
+          var entry = isWholeExcluded(xid) ? [] : [wholeEntry(row)];
+          btn.disabled = true;
+          dmRun('applyExclusions', [name, entry],
+                entry.length ? 'Exclusions applied successfully.' : 'Source restored to scope.',
+                'The exclusions could not be applied.', function () {
+            if (entry.length) window.DM_EXCLUSIONS[xid] = entry;   // supersedes locations
+            else delete window.DM_EXCLUSIONS[xid];
+            if (window.dmSyncExclusions) window.dmSyncExclusions();
+            syncExclCells();
+          }).then(function () { btn.disabled = false; });
+        });
+
         // Public API used by the Edit Filters flow.
         window.dmTable = {
           setSourceFilter: function (arr) { state.sources = (arr && arr.length) ? arr.slice() : null; render(); },
           setScope: setScope,
           /** Brand glyph markup for a source type — reused by the View Source drawer. */
           icon: function (type) { return ICONS[type] || ''; },
+          /** Re-paint the trailing Exclude cells from committed exclusion state. */
+          refreshExclCells: function () { syncExclCells(); },
           /** Re-apply the "Exclusions Applied" badge after rows are re-rendered. */
           refreshBadges: function () {
             var ex = window.DM_EXCLUSIONS || {};
@@ -5294,7 +5559,13 @@
               var nameEl = r.querySelector('.dm-source-name');
               if (!nameEl) return;
               var flag = r.querySelector('.dm-source-flag');
-              var on = !!(ex[nameEl.textContent] && ex[nameEl.textContent].length);
+              // "Exclusions Applied" flags PARTIAL exclusion — some children are out
+              // but the source as a whole is still in scope. A whole-source exclusion
+              // is shown by the red row + EXCLUDED button, not this badge. Keyed by
+              // xid so duplicate-named rows are flagged independently.
+              var entries = ex[r.getAttribute('data-dm-xid')] || [];
+              var whole = entries.some(function (e) { return e.whole; });
+              var on = entries.length > 0 && !whole;
               if (on && !flag) {
                 flag = document.createElement('span');
                 flag.className = 'dm-source-flag';
