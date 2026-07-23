@@ -1,0 +1,270 @@
+/* ============================================================
+   CNDS Treeview Plugin
+   Cloudficient Nimbus Design System v1.0.0
+
+   Hierarchical tree view with expand/collapse, checkboxes,
+   icons, search filtering, and keyboard navigation.
+   ============================================================ */
+
+.treeview {
+  --cnds-tv-color: var(--cnds-body-color, #4f4f4f);
+  --cnds-tv-bg: var(--cnds-body-bg, #fff);
+  --cnds-tv-border: var(--cnds-border-color, #dee2e6);
+  --cnds-tv-radius: var(--cnds-border-radius, 0.375rem);
+  --cnds-tv-primary: var(--cnds-primary, #be1a2d);
+  --cnds-tv-hover-bg: rgba(0, 0, 0, 0.04);
+  --cnds-tv-selected-bg: rgba(0, 0, 0, 0.07);
+  --cnds-tv-selected-color: var(--cnds-tv-color);
+  --cnds-tv-indent: 1.25rem;
+  --cnds-tv-line-color: #dee2e6;
+  --cnds-tv-icon-color: var(--cnds-primary-gray-600, #666666);
+  --cnds-tv-toggle-color: var(--cnds-link-color, #215aab);
+  --cnds-tv-muted: #6c757d;
+
+  font-size: 0.875rem;
+  color: var(--cnds-tv-color);
+  user-select: none;
+}
+
+/* --- Tree List --- */
+.treeview-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.treeview-list .treeview-list {
+  padding-left: var(--cnds-tv-indent);
+}
+
+/* --- Tree Node --- */
+.treeview-node {
+  position: relative;
+}
+
+/* --- Node Content Row --- */
+.treeview-content {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--cnds-tv-radius);
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.treeview-content:hover {
+  background-color: var(--cnds-tv-hover-bg);
+}
+
+.treeview-content.selected {
+  background-color: var(--cnds-tv-selected-bg);
+  color: var(--cnds-tv-selected-color);
+}
+
+.treeview-content:focus-visible {
+  outline: 2px solid var(--cnds-tv-border);
+  outline-offset: -2px;
+}
+
+/* --- Toggle Arrow --- */
+.treeview-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+  border: none;
+  background: transparent;
+  color: var(--cnds-tv-toggle-color);
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s;
+}
+
+.treeview-toggle i.mdi {
+  font-size: 1.125rem;
+  line-height: 1;
+  display: block;
+  transition: transform 0.2s ease;
+}
+
+.treeview-toggle.expanded i.mdi {
+  transform: rotate(90deg);
+}
+
+.treeview-toggle:hover {
+  color: var(--cnds-tv-color);
+}
+
+/* Spacer for leaf nodes (no children) */
+.treeview-toggle-spacer {
+  display: inline-block;
+  width: 1.25rem;
+  flex-shrink: 0;
+}
+
+/* --- Checkbox --- */
+.treeview-checkbox {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-right: 0.125rem;
+}
+
+.treeview-checkbox input[type="checkbox"] {
+  cursor: pointer;
+  /* Size and appearance come from the Nimbus .form-check-input class.
+     Override margin-top so the checkbox stays centred in the flex row. */
+  margin-top: 0;
+}
+
+/* --- Icon --- */
+.treeview-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  flex-shrink: 0;
+  color: var(--cnds-tv-icon-color);
+  font-size: 1rem;
+}
+
+.treeview-icon i,
+.treeview-icon svg {
+  font-size: inherit;
+  line-height: 1;
+  width: 1em;
+  height: 1em;
+}
+
+/* --- Label --- */
+.treeview-label {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0.125rem 0;
+}
+
+/* --- Meta text (secondary info beside the label, e.g. file size, item count, date) --- */
+.treeview-content.has-meta .treeview-label {
+  flex: 0 1 auto;
+}
+
+.treeview-meta {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding-left: 0.5rem;
+  color: var(--cnds-tv-muted);
+  font-size: 0.75rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* --- Connection Lines --- */
+.treeview-lines .treeview-list .treeview-list {
+  position: relative;
+}
+
+.treeview-lines .treeview-list .treeview-list::before {
+  content: "";
+  position: absolute;
+  left: 0.625rem;
+  top: 0;
+  bottom: 0.75rem;
+  width: 1px;
+  background: var(--cnds-tv-line-color);
+}
+
+.treeview-lines
+  .treeview-list
+  .treeview-list
+  > .treeview-node
+  > .treeview-content::before {
+  content: "";
+  position: absolute;
+  left: calc(-1 * var(--cnds-tv-indent) + 0.625rem);
+  top: 50%;
+  width: calc(var(--cnds-tv-indent) - 0.625rem);
+  height: 1px;
+  background: var(--cnds-tv-line-color);
+}
+
+/* --- Children Container (collapsible) --- */
+.treeview-children {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.25s ease;
+}
+
+.treeview-children.expanded {
+  max-height: 9999px;
+}
+
+/* No transition for initial render */
+.treeview-children.no-transition {
+  transition: none;
+}
+
+/* --- Search / Filter --- */
+.treeview-search {
+  margin-bottom: 0.5rem;
+}
+
+.treeview-search input {
+  width: 100%;
+  padding: 0.375rem 0.75rem;
+  border: 1px solid var(--cnds-tv-border);
+  border-radius: var(--cnds-tv-radius);
+  font-size: 0.8125rem;
+  color: var(--cnds-tv-color);
+  background: var(--cnds-tv-bg);
+  outline: none;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+}
+
+.treeview-search input:focus {
+  border-color: var(--cnds-tv-icon-color);
+  box-shadow: 0 0 0 0.2rem rgba(102, 102, 102, 0.25);
+}
+
+/* --- Hidden (filtered out) --- */
+.treeview-node.hidden {
+  display: none;
+}
+
+/* --- Disabled --- */
+.treeview-node.disabled > .treeview-content {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* --- Product color variants (background highlight only; text stays theme-compliant) --- */
+.treeview.treeview-casefusion { --cnds-tv-selected-bg: rgba(92, 203, 89, 0.28); }
+.treeview.treeview-expireon   { --cnds-tv-selected-bg: rgba(77, 69, 214, 0.20); }
+.treeview.treeview-hyperlize  { --cnds-tv-selected-bg: rgba(240, 200, 8, 0.30); }
+
+/* --- Dark Theme --- */
+[data-cnds-theme="dark"] .treeview {
+  --cnds-tv-color:       var(--cnds-body-color,   #ebebeb);
+  --cnds-tv-bg:          var(--cnds-body-bg,       #1e1e1e);
+  --cnds-tv-border:      var(--cnds-border-color,  #6b6b6b);
+  --cnds-tv-hover-bg:    rgba(255, 255, 255, 0.06);
+  --cnds-tv-selected-bg: rgba(255, 255, 255, 0.10);
+  --cnds-tv-line-color:  var(--cnds-surface-dark-200, #6b6b6b);
+  --cnds-tv-icon-color:  var(--cnds-surface-light-600, #a3a3a3);
+  --cnds-tv-muted:       var(--cnds-text-muted, #d1d1d1);
+}
+
+/* Product variants in dark theme — must come after the dark base rule to win the cascade */
+[data-cnds-theme="dark"] .treeview.treeview-casefusion { --cnds-tv-selected-bg: rgba(92, 203, 89, 0.38); }
+[data-cnds-theme="dark"] .treeview.treeview-expireon   { --cnds-tv-selected-bg: rgba(77, 69, 214, 0.38); }
+[data-cnds-theme="dark"] .treeview.treeview-hyperlize  { --cnds-tv-selected-bg: rgba(240, 200, 8, 0.42); }

@@ -1,0 +1,254 @@
+/* ============================================================
+   CNDS Organization Chart Plugin
+   Cloudficient Nimbus Design System v1.0.0
+
+   Hierarchical org chart with SVG connectors, zoom/pan,
+   and expandable nodes.
+   ============================================================ */
+
+.org-chart {
+  --cnds-oc-bg: var(--cnds-body-bg, #fff);
+  --cnds-oc-color: var(--cnds-body-color, #4f4f4f);
+  --cnds-oc-muted: #6c757d;
+  --cnds-oc-border: var(--cnds-border-color, #dee2e6);
+  --cnds-oc-radius: var(--cnds-border-radius, 0.375rem);
+  --cnds-oc-primary: var(--cnds-primary, #be1a2d);
+  --cnds-oc-focus: var(--cnds-product-accent, var(--cnds-surface-blue-600, #215aab));
+  --cnds-oc-line: #adb5bd;
+  --cnds-oc-node-bg: #fff;
+  --cnds-oc-node-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  position: relative;
+  overflow: auto;
+  width: 100%;
+  min-height: 300px;
+  padding: 1rem;
+}
+
+.org-chart-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: max-content;
+}
+
+/* --- Node --- */
+.org-chart-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.org-chart-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: var(--cnds-oc-node-bg);
+  border: 1px solid var(--cnds-oc-border);
+  border-radius: var(--cnds-oc-radius);
+  box-shadow: var(--cnds-oc-node-shadow);
+  cursor: pointer;
+  transition:
+    box-shadow 0.15s,
+    border-color 0.15s;
+  white-space: nowrap;
+  min-width: 160px;
+}
+
+.org-chart-card:hover {
+  border-color: var(--cnds-oc-focus);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.org-chart-card.selected {
+  border-color: var(--cnds-oc-focus);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--cnds-oc-focus) 30%, transparent);
+}
+
+.org-chart-avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: var(--cnds-oc-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--cnds-oc-muted);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.org-chart-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.org-chart-info {
+  min-width: 0;
+}
+
+.org-chart-name {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--cnds-oc-color);
+}
+
+.org-chart-title {
+  font-size: 0.75rem;
+  color: var(--cnds-oc-muted);
+}
+
+/* --- Toggle (expand/collapse children) --- */
+.org-chart-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  border: 2px solid var(--cnds-oc-line);
+  background: var(--cnds-oc-node-bg);
+  cursor: pointer;
+  font-size: 1.1rem;
+  color: var(--cnds-surface-blue-600, #215aab);
+  margin-top: -0.75rem;
+  z-index: 1;
+  transition:
+    background-color 0.15s,
+    color 0.15s,
+    border-color 0.15s;
+}
+
+.org-chart-toggle:hover {
+  background: var(--cnds-surface-blue-200, #b4c8e5);
+  color: var(--cnds-surface-blue-700, #1a4480);
+  border-color: var(--cnds-oc-line);
+}
+
+.org-chart-toggle:active {
+  background: var(--cnds-surface-blue-300, #8fadd6);
+  color: var(--cnds-surface-blue-800, #112d56);
+  border-color: var(--cnds-oc-line);
+}
+
+.org-chart-toggle:focus-visible {
+  outline: 2px solid var(--cnds-oc-focus);
+  outline-offset: 2px;
+}
+
+/* --- Children Container --- */
+.org-chart-children {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  padding-top: 1.5rem;
+  position: relative;
+}
+
+.org-chart-children.collapsed {
+  display: none;
+}
+
+/* --- Connector Lines (SVG overlay) --- */
+.org-chart-lines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.org-chart-lines line,
+.org-chart-lines path {
+  stroke: var(--cnds-oc-line);
+  stroke-width: 1.5;
+  fill: none;
+}
+
+/* Simple CSS connectors (fallback) */
+.org-chart-connector {
+  width: 1.5px;
+  height: 1.5rem;
+  background: var(--cnds-oc-line);
+  margin: 0 auto;
+}
+
+.org-chart-children::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 1.5px;
+  height: 0.75rem;
+  background: var(--cnds-oc-line);
+  transform: translateX(-50%);
+}
+
+.org-chart-children > .org-chart-node::before {
+  content: "";
+  position: absolute;
+  top: -0.75rem;
+  left: 50%;
+  width: 1.5px;
+  height: 0.75rem;
+  background: var(--cnds-oc-line);
+  transform: translateX(-50%);
+}
+
+/* Horizontal line connecting siblings */
+.org-chart-children > .org-chart-node:first-child:not(:last-child)::after,
+.org-chart-children > .org-chart-node:last-child:not(:first-child)::after,
+.org-chart-children
+  > .org-chart-node:not(:first-child):not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: -0.75rem;
+  height: 1.5px;
+  background: var(--cnds-oc-line);
+}
+
+.org-chart-children > .org-chart-node:first-child:not(:last-child)::after {
+  left: 50%;
+  right: -0.75rem;
+}
+
+.org-chart-children > .org-chart-node:last-child:not(:first-child)::after {
+  left: -0.75rem;
+  right: 50%;
+}
+
+.org-chart-children
+  > .org-chart-node:not(:first-child):not(:last-child)::after {
+  left: -0.75rem;
+  right: -0.75rem;
+}
+
+/* --- Dark Theme --- */
+[data-cnds-theme="dark"] .org-chart {
+  --cnds-oc-bg: var(--cnds-surface-dark-600, #171717);
+  --cnds-oc-color: var(--cnds-surface-dark-50, #e8e8e8);
+  --cnds-oc-muted: var(--cnds-text-muted, #d1d1d1);
+  --cnds-oc-border: var(--cnds-surface-dark-300, #4a4a4a);
+  --cnds-oc-focus: var(--cnds-product-accent, var(--cnds-surface-blue-400, #6790ca));
+  --cnds-oc-node-bg: var(--cnds-surface-dark-500, #1e1e1e);
+  --cnds-oc-node-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --cnds-oc-line: var(--cnds-surface-dark-300, #4a4a4a);
+}
+
+[data-cnds-theme="dark"] .org-chart-toggle {
+  color: var(--cnds-surface-blue-400, #6790ca);
+}
+
+[data-cnds-theme="dark"] .org-chart-toggle:hover {
+  color: var(--cnds-surface-blue-700, #1a4480);
+}
+
+[data-cnds-theme="dark"] .org-chart-toggle:active {
+  color: var(--cnds-surface-blue-800, #112d56);
+}

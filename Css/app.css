@@ -1,0 +1,1394 @@
+/**
+ * CNDS App Styles — Cloudficient Nimbus Design System v1.0.0
+ * 
+ * Application-specific styles that extend the Nimbus framework.
+ * This file is loaded AFTER nimbus.css and contains project-level
+ * customizations, page layouts, and overrides.
+ *
+ * Layout: Application with SideNav (migrated from Nimbus v8 template)
+ *
+ * Structure:
+ *   1. Custom properties / overrides
+ *   2. Layout styles (v8 app template pattern)
+ *   3. Page-specific styles
+ *   4. Component overrides
+ */
+
+/* =======================================================================
+   1. Custom Properties / Overrides
+   ======================================================================= */
+
+:root {
+  /* App-specific spacing */
+  --app-sidenav-width: 240px;
+  --app-sidenav-slim-width: 77px;
+  --app-navbar-height: 56px;
+  --app-footer-height: 40px;
+  --app-utility-height: 50px;
+  --app-content-padding: 1.5rem;
+}
+
+/* --- Timepicker validation error — mirrors .cf-input-field.is-invalid rule in forms.css --- */
+.timepicker.is-invalid .cf-input-error {
+  display: block;
+}
+
+/* --- Grid gutter extensions (fills gaps in Bootstrap's gy-2/gy-3 step) --- */
+.gy-12 {
+  --cnds-gutter-y: 0.75rem; /* 12px */
+}
+
+/* --- Hyperlinks — uses surface-blue tokens (matches btn-secondary) --- */
+a {
+  color: var(--cnds-link-color, #215aab);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--cnds-link-color, #215aab);
+  text-decoration: underline;
+}
+
+a:focus-visible {
+  color: var(--cnds-link-color, #215aab);
+  outline: 2px solid var(--cnds-link-color, #215aab);
+  outline-offset: 2px;
+}
+
+/* =======================================================================
+   2. Layout Styles — v8 App Template Pattern
+   ======================================================================= */
+
+/* Sticky header (utility nav + main nav) */
+.sticky-top {
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+  background-color: var(--cnds-body-bg, #fafafa);
+}
+
+/* Utility nav — theme-aware (frame-bg light/dark), always visible */
+/* Collapse automatically when the UL has no items (standalone docs pages). */
+#UtilityNav:not(:has(li)) {
+  display: none;
+}
+
+.nav-cf-utility {
+  display: flex;
+  align-items: center;
+  height: var(--app-utility-height, 50px);
+  padding: 8px 12px;
+  background-color: var(--cnds-frame-bg, #ebebeb);
+  color: var(--cnds-surface-light-950, #141414);
+}
+
+.nav-cf-utility a {
+  color: var(--cnds-surface-light-950, #141414);
+  text-decoration: none;
+}
+
+.nav-cf-utility a:hover {
+  color: #000;
+  text-decoration: none;
+}
+
+[data-cnds-theme="dark"] .nav-cf-utility {
+  color: var(--cnds-surface-dark-50, #e8e8e8);
+}
+
+[data-cnds-theme="dark"] .nav-cf-utility a {
+  color: var(--cnds-surface-dark-50, #e8e8e8);
+}
+
+[data-cnds-theme="dark"] .nav-cf-utility a:hover {
+  color: #fff;
+}
+
+/* Left: product logo + name */
+.nav-cf-utility .fr_logo {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  flex-shrink: 0;
+}
+
+.nav-cf-utility .fr_product-name {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: var(--cnds-font-size-product-default, 22px);
+  text-transform: uppercase;
+  color: var(--cnds-surface-light-950, #141414);
+  white-space: nowrap;
+}
+
+[data-cnds-theme="dark"] .nav-cf-utility .fr_product-name {
+  color: var(--cnds-surface-dark-50, #e8e8e8);
+}
+
+.nav-cf-utility .fr_product-name .product-bold {
+  font-family: var(--cnds-typography-typeface-family-product, "Mundial", sans-serif);
+  font-weight: 700;
+  letter-spacing: 11.5px;
+  line-height: 1;
+}
+
+.nav-cf-utility .fr_product-name .product-light {
+  font-family: var(--cnds-typography-typeface-family-product, "Mundial", sans-serif);
+  font-weight: 300;
+  letter-spacing: 9px;
+  line-height: 1;
+}
+
+/* Right: tools area */
+.nav-cf-utility .fr_tools {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-left: auto;
+}
+
+/* Vertical divider between tools */
+.nav-cf-utility-divider {
+  display: inline-block;
+  width: 1px;
+  height: 24px;
+  background-color: var(--cnds-surface-light-950, #141414);
+  opacity: 0.25;
+  flex-shrink: 0;
+}
+
+[data-cnds-theme="dark"] .nav-cf-utility-divider {
+  background-color: var(--cnds-surface-dark-50, #e8e8e8);
+}
+
+/* Tool icons */
+.nav-cf-utility .nav-cf-utility-icon {
+  width: 24px;
+  height: 24px;
+  color: var(--cnds-surface-light-950, #141414);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+[data-cnds-theme="dark"] .nav-cf-utility .nav-cf-utility-icon {
+  color: var(--cnds-surface-dark-50, #e8e8e8);
+}
+
+/* Sign in / username */
+.nav-cf-utility .nav-cf-utility-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--cnds-typography-typeface-family-default, "Nunito Sans", sans-serif);
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--cnds-surface-light-950, #141414);
+  white-space: nowrap;
+}
+
+[data-cnds-theme="dark"] .nav-cf-utility .nav-cf-utility-user {
+  color: var(--cnds-surface-dark-50, #e8e8e8);
+}
+
+/* Portal switcher */
+.nav-cf-utility .nav-cf-portal-switcher {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--cnds-typography-typeface-family-default, "Nunito Sans", sans-serif);
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--cnds-surface-light-950, #141414);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+[data-cnds-theme="dark"] .nav-cf-utility .nav-cf-portal-switcher {
+  color: var(--cnds-surface-dark-50, #e8e8e8);
+}
+
+.nav.nav-cf-utility-ul {
+  height: var(--app-utility-height, 50px);
+  align-items: center;
+}
+
+.nav.nav-cf-utility-ul a {
+  font-size: 0.875rem;
+  color: var(--cnds-surface-light-950, #141414);
+}
+
+[data-cnds-theme="dark"] .nav.nav-cf-utility-ul a {
+  color: var(--cnds-surface-dark-50, #e8e8e8);
+}
+
+.nav.nav-cf-utility-ul li:before {
+  display: none;
+}
+
+/* Main navbar — matches utility nav (frame-bg) */
+.navbar.navbar-cf {
+  background-color: var(--cnds-frame-bg, #ebebeb);
+  border-bottom: none;
+  height: 56px;
+  align-items: center;
+}
+
+/* Page title inside navbar — remove spacing that pushes it down */
+.navbar.navbar-cf .cf-page-title {
+  margin-top: 0;
+  padding-bottom: 0;
+}
+
+/* Navbar nav items — vertically centered */
+.navbar.navbar-cf .navbar-nav {
+  align-items: center;
+}
+
+.navbar.navbar-cf .navbar-nav .nav-item {
+  display: flex;
+  align-items: center;
+}
+
+.navbar.navbar-cf .navbar-nav .nav-link {
+  display: flex;
+  align-items: center;
+}
+
+/* Main app wrapper — content area next to sidenav */
+.cf-main-app {
+  min-height: calc(100vh - var(--app-navbar-height, 56px));
+}
+
+/* Content area next to sidenav */
+.app-content {
+  margin-left: var(--app-sidenav-width);
+  padding: var(--app-content-padding);
+  padding-top: calc(var(--app-navbar-height) + var(--app-content-padding));
+  min-height: 100vh;
+  transition: margin-left 0.3s ease;
+}
+
+/* When sidenav is collapsed/hidden */
+.app-content.sidenav-collapsed {
+  margin-left: 0;
+}
+
+/* Slim content area — pushed by sidenav */
+#slim-content {
+  transition:
+    margin-left 0.3s ease,
+    padding-left 0.3s ease;
+}
+
+/* Slim content box — v8 exact match */
+.slim-content-box {
+  padding-left: 1.5rem;
+  padding-right: 1rem;
+  padding-bottom: calc(1rem + var(--app-footer-height, 40px));
+  max-width: 100%;
+}
+
+/* Align docs content top with right-sidebar column top (margin-top: 16px inline).
+   padding-top on the container brings the first section to 16px, matching the right nav.
+   The :first-child rule cancels the my-4 top margin that would otherwise double the gap. */
+.slim-content-box section.container-fluid {
+  padding-top: 1rem;
+}
+
+.slim-content-box section.container-fluid > section:first-of-type > :first-child {
+  margin-top: 0;
+}
+
+/* Anchor scroll offset — clear sticky header (main nav 56px + 16px breathing room). */
+html {
+  scroll-padding-top: 72px;
+  overscroll-behavior: none; /* prevents Safari elastic bounce from shifting sticky header */
+}
+
+.slim-content-box section[id],
+.slim-content-box [id^="section-"],
+.slim-content-box [id^="subsection-"],
+.slim-content-box [id^="api-section-"] {
+  scroll-margin-top: 72px;
+}
+
+/* Page header area */
+.page-header {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--cnds-border-color);
+}
+
+.page-header h1,
+.page-header .h1 {
+  margin-bottom: 0.25rem;
+}
+
+.page-header .page-subtitle {
+  color: var(--cnds-secondary-color);
+  font-size: 0.95rem;
+}
+
+/* Sidenav — v8 "side" mode: embedded in page flow, not floating overlay */
+.cf-main-app > .d-none.d-md-block {
+  display: flex !important;
+  min-height: calc(100vh - var(--app-navbar-height, 56px) - var(--app-footer-height, 40px));
+}
+
+#sidebar-cf {
+  position: sticky;
+  top: calc(var(--app-navbar-height, 56px) + 16px);
+  left: auto;
+  z-index: 10;
+  transform: none !important;
+  height: calc(100vh - var(--app-navbar-height, 56px) - var(--app-footer-height, 40px) - 32px);
+  max-height: calc(100vh - var(--app-navbar-height, 56px) - var(--app-footer-height, 40px) - 32px);
+  flex-shrink: 0;
+  width: var(--app-sidenav-width, 240px);
+  margin-left: 16px;
+  margin-bottom: 16px;
+  padding: 0;
+  --cnds-sidenav-bg: var(--cnds-frame-bg, #ebebeb);
+  --sidenav-accent:       #2e892a;
+  --sidenav-active-bg:    #beebbd;
+  --sidenav-active-color: #1d5a1d;
+  background-color: var(--cnds-sidenav-bg);
+  border-radius: 12px;
+  border: 1px solid var(--cnds-border-color, rgba(0, 0, 0, 0.1));
+  box-shadow: none !important;
+  overflow-y: auto;
+  overflow-x: hidden;
+  will-change: width;
+  transition: width 350ms ease;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+#sidebar-cf:hover {
+  scrollbar-color: var(--cnds-border-strong, #ccc) transparent;
+}
+
+#sidebar-cf::-webkit-scrollbar { width: 4px; }
+#sidebar-cf::-webkit-scrollbar-track { background: transparent; }
+#sidebar-cf::-webkit-scrollbar-thumb { background: transparent; border-radius: 4px; }
+#sidebar-cf:hover::-webkit-scrollbar-thumb { background: var(--cnds-border-strong, #ccc); }
+
+[data-cnds-theme="dark"] #sidebar-cf {
+  border-color: rgba(255, 255, 255, 0.08);
+  --sidenav-accent:       #5ccb59;
+  --sidenav-active-bg:    #1d5a1d;
+  --sidenav-active-color: #7dd67a;
+}
+
+/* Sidenav collapsed/slim state — class-based (JS fallback) */
+#sidebar-cf.sidenav-slim {
+  width: var(--app-sidenav-slim-width, 77px);
+}
+
+/* Sidenav collapsed/slim state — attribute-based (v8 parity) */
+#sidebar-cf[data-cnds-slim-collapsed="true"] {
+  width: var(--app-sidenav-slim-width, 77px);
+}
+
+/* v8 data-cnds-slim attribute handling:
+   When sidenav is collapsed, hide elements marked slim="false"
+   and show elements marked slim="true" */
+.sidenav [data-cnds-slim="true"] {
+  display: none;
+}
+
+#sidebar-cf[data-cnds-slim-collapsed="true"] [data-cnds-slim="false"] {
+  display: none;
+}
+
+#sidebar-cf[data-cnds-slim-collapsed="true"] [data-cnds-slim="true"] {
+  display: unset;
+}
+
+/* Also handle via .sidenav-slim class for JS fallback */
+#sidebar-cf.sidenav-slim [data-cnds-slim="false"] {
+  display: none;
+}
+
+#sidebar-cf.sidenav-slim [data-cnds-slim="true"] {
+  display: unset;
+}
+
+/* --- Sidenav link dimensions — v8 exact match --- */
+#sidebar-cf .sidenav-link {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  height: var(--cnds-sidenav-link-height, 3rem);
+  font-size: var(--cnds-sidenav-link-font-size, 0.89rem);
+  padding: var(--cnds-sidenav-link-padding-y, 1rem)
+    var(--cnds-sidenav-link-padding-x, 1.5rem);
+  padding-left: 22px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-radius: var(--cnds-sidenav-link-border-radius, 0px);
+  color: var(--cnds-body-color, #4f4f4f);
+  text-decoration: none;
+  /* Override v8 nimbus.css "transition: all 0.3s linear" which causes jitter
+     by transitioning padding/layout during slim toggle. Only animate color/bg. */
+  transition:
+    background-color 0.2s ease-in-out,
+    color 0.2s ease-in-out !important;
+}
+
+[data-cnds-theme="dark"] #sidebar-cf .sidenav-link {
+  color: var(--cnds-surface-light-300, #d4d4d4);
+}
+
+/* Sidenav link states — v8 exact match */
+#sidebar-cf .sidenav-link:hover {
+  color: var(--cnds-body-color, #4f4f4f);
+  background-color: var(
+    --cnds-sidenav-link-hover-background-color,
+    rgba(0, 0, 0, 0.05)
+  );
+  outline: none;
+  text-decoration: none !important;
+}
+
+[data-cnds-theme="dark"] #sidebar-cf .sidenav-link:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--cnds-surface-light-50, #fafafa);
+}
+
+#sidebar-cf .sidenav-link:active,
+#sidebar-cf .sidenav-link:focus {
+  color: inherit;
+  background-color: var(
+    --cnds-sidenav-link-active-focus-background-color,
+    rgba(0, 0, 0, 0.08)
+  );
+  outline: none;
+}
+
+
+/* Submenu link dimensions — v8 exact match */
+#sidebar-cf .sidenav-collapse .sidenav-link {
+  font-size: var(--cnds-sidenav-collapse-sidenav-link-font-size, 0.78rem);
+  height: 2.25rem;
+  padding-left: 22px;
+}
+
+/* Sidenav subheading color */
+#sidebar-cf .sidenav-subheading {
+  color: var(--cnds-text-muted, #757575);
+  padding-top: 0.75rem;
+}
+
+/* Sidenav divider */
+#sidebar-cf .sidenav-divider {
+  border-top-color: var(--cnds-border-color, rgba(0, 0, 0, 0.1));
+}
+[data-cnds-theme="dark"] #sidebar-cf .sidenav-divider {
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Text visible in expanded state — fade in after width starts expanding */
+#sidebar-cf .sidenav-link span,
+#sidebar-cf .sidenav-subheading,
+#sidebar-cf .sidenav-link::after {
+  display: inline !important;
+  opacity: 1;
+  visibility: visible;
+  overflow: hidden;
+  transition:
+    opacity 250ms ease 100ms,
+    visibility 250ms ease 100ms;
+}
+
+/* Collapsed state — fade out text during the 350ms collapse animation.
+   Text fades from 0ms to 300ms so it's gone by the time the width finishes at 350ms.
+   Supports both .sidenav-slim class (JS fallback) and data-cnds-slim-collapsed attribute. */
+#sidebar-cf.sidenav-slim .sidenav-link span:not(.sidenav-chevron),
+#sidebar-cf.sidenav-slim .sidenav-subheading,
+#sidebar-cf.sidenav-slim .sidenav-link::after,
+#sidebar-cf[data-cnds-slim-collapsed="true"] .sidenav-link span:not(.sidenav-chevron),
+#sidebar-cf[data-cnds-slim-collapsed="true"] .sidenav-subheading,
+#sidebar-cf[data-cnds-slim-collapsed="true"] .sidenav-link::after {
+  opacity: 0;
+  visibility: hidden;
+  width: 0;
+  transition:
+    opacity 300ms ease,
+    visibility 300ms ease;
+}
+
+/* Keep link layout consistent during transition — don't shift to center.
+   Height stays fixed at 3rem so items don't change size.
+   Padding-left stays the SAME as expanded state so icons don't shift. */
+#sidebar-cf.sidenav-slim .sidenav-link,
+#sidebar-cf[data-cnds-slim-collapsed="true"] .sidenav-link {
+  justify-content: flex-start;
+  height: var(--cnds-sidenav-link-height, 3rem);
+  padding: var(--cnds-sidenav-link-padding-y, 1rem)
+    var(--cnds-sidenav-link-padding-x, 1.5rem);
+}
+
+/* Hide submenus smoothly when slim */
+#sidebar-cf.sidenav-slim .sidenav-collapse,
+#sidebar-cf[data-cnds-slim-collapsed="true"] .sidenav-collapse {
+  display: none !important;
+}
+
+/* Submenu collapse/expand — v8 exact match:
+   .sidenav-collapse is display:none by default (from nimbus.css line 21959-21961).
+   .show makes it display:block (nimbus.css line 21964-21967).
+   .collapsing is used during height animation. */
+#sidebar-cf .sidenav-collapse.collapsing {
+  display: block;
+  overflow: hidden;
+}
+
+/* Rotate-icon arrow — v8 exact match (nimbus.css line 22030-22036) */
+#sidebar-cf .rotate-icon {
+  position: absolute;
+  right: 0;
+  margin-left: auto;
+  margin-right: var(--cnds-sidenav-rotate-icon-margin-right, 0.8rem);
+  transition: var(--cnds-sidenav-rotate-icon-transition, transform 0.3s);
+  font-size: 0.9rem;
+  color: var(--cnds-secondary-color, #9fa6b2);
+}
+
+/* Slim icon — keep margin consistent so icons don't shift left/right */
+#sidebar-cf.sidenav-slim .sidenav-link i,
+#sidebar-cf.sidenav-slim .sidenav-link .mdi,
+#sidebar-cf[data-cnds-slim-collapsed="true"] .sidenav-link i,
+#sidebar-cf[data-cnds-slim-collapsed="true"] .sidenav-link .mdi {
+  margin-right: 0;
+  margin-left: 0;
+}
+
+/* Sidenav icon color — theme-compliant */
+#sidebar-cf .sidenav-link i {
+  color: var(--cnds-secondary-color, #9fa6b2);
+}
+
+/* Sidenav links — no underline on hover */
+#sidebar-cf .sidenav-link,
+#sidebar-cf .sidenav-link:hover,
+#sidebar-cf .sidenav-link:focus,
+#sidebar-cf .sidenav-link:active,
+#sidebar-cf a {
+  text-decoration: none !important;
+}
+
+/* Submenu list items — v8 exact match: no padding */
+#sidebar-cf ul.sidenav-collapse > li {
+  padding: 0px;
+}
+
+/* Sidenav menu padding — v8 exact match */
+#sidebar-cf .sidenav-menu {
+  padding: 0;
+}
+
+#slim-content {
+  flex: 1;
+  min-width: 0;
+  overflow-x: clip;
+  transition: margin-left 350ms ease;
+}
+
+/* Sidebar header — sticky within sidenav, matches sidenav bg */
+.sidebar-header {
+  position: sticky;
+  top: 0;
+  left: 0;
+  background-color: var(--cnds-sidenav-bg, var(--cnds-frame-bg, #ebebeb));
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+/* Slim toggler — fixed layout identical in both slim and expanded modes so the icon
+   never slides during the width transition. padding-left matches nav link ps-4 (1.5rem). */
+#slim-toggler {
+  padding-left: calc(1.5rem + 4px);
+  width: 100%;
+}
+
+/* Give the glyph the same 1.5rem centered container as .sidenav-link .mdi */
+#slim-toggler .mdi {
+  display: inline-block;
+  width: 1.5rem;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+/* Navbar button — v8 exact match: no border, no shadow, body color */
+#sidebar-cf .navbar-btn {
+  outline: none !important;
+  border: none;
+  box-shadow: none;
+  color: var(--cnds-body-color) !important;
+  font-size: 1rem;
+  min-width: auto;
+  justify-content: start;
+  background: transparent;
+  cursor: pointer;
+}
+
+#sidebar-cf .navbar-btn:hover {
+  background-color: transparent;
+}
+
+#sidebar-cf .navbar-btn:focus {
+  outline: none !important;
+  box-shadow: none;
+}
+
+/* =======================================================================
+   3. Page-Specific Styles
+   ======================================================================= */
+
+/* Dashboard cards grid */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Stat cards */
+.stat-card {
+  text-align: center;
+  padding: 1.5rem;
+}
+
+.stat-card .stat-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--cnds-brand-blue-500, #262a69);
+}
+
+.stat-card .stat-label {
+  font-size: 0.85rem;
+  color: var(--cnds-secondary-color);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 0.25rem;
+}
+
+/* =======================================================================
+   4. Component Overrides
+   ======================================================================= */
+
+/* Custom navbar branding */
+.navbar .navbar-brand img {
+  height: 32px;
+  width: auto;
+}
+
+/* Active link — product accent bar + highlight */
+#sidebar-cf .sidenav-link.active,
+#sidebar-cf .sidenav-link.selected {
+  box-shadow: inset 3px 0 0 var(--sidenav-accent);
+  background-color: var(--sidenav-active-bg);
+  color: var(--sidenav-active-color);
+  font-weight: 500;
+}
+
+/* Active + hovered: keep product bg, not gray */
+#sidebar-cf .sidenav-link.active:hover,
+#sidebar-cf .sidenav-link.selected:hover {
+  background-color: var(--sidenav-active-bg);
+  color: var(--sidenav-active-color);
+}
+
+/* Category toggle with active child — product bg, no accent bar */
+#sidebar-cf .sidenav-link[data-cnds-toggle="sidenav-collapse"].active {
+  background-color: var(--sidenav-active-bg);
+  color: var(--sidenav-active-color);
+  font-weight: 500;
+  box-shadow: none;
+}
+
+/* Chevron — transition only; sidenav.css handles base + open-state transform */
+#sidebar-cf .sidenav-chevron {
+  transition: transform 0.3s ease;
+}
+/* Reset open-category rotation when in slim mode */
+#sidebar-cf.sidenav-slim .sidenav-link[data-cnds-toggle="sidenav-collapse"] .sidenav-chevron {
+  transform: translateY(-50%) rotate(0deg);
+}
+
+/* --- Right Sidebar / Scrollspy Menu — v8 exact match --- */
+.nav-pills.menu-sidebar {
+  margin-left: -0.5rem;
+  background-color: transparent;
+}
+
+/* Right-side nav column and its sticky wrapper — transparent so body-bg shows through */
+.slim-content-box > .row > .d-none.d-lg-block,
+.slim-content-box > .row > .d-none.d-lg-block .sticky {
+  background-color: transparent;
+}
+
+.nav-pills.menu-sidebar .nav-link {
+  --cnds-scrollspy-menu-sidebar-font-size: 0.8rem;
+  --cnds-scrollspy-menu-sidebar-color: var(--cnds-body-color);
+  --cnds-scrollspy-menu-sidebar-line-height: 1.1rem;
+  --cnds-scrollspy-menu-sidebar-padding-x: 5px;
+  --cnds-scrollspy-menu-sidebar-font-weight: 400;
+  --cnds-scrollspy-menu-sidebar-transition: all 0.2s ease-in-out;
+  --cnds-scrollspy-menu-sidebar-margin-y: 3px;
+  font-size: var(--cnds-scrollspy-menu-sidebar-font-size);
+  background-color: transparent;
+  color: var(--cnds-scrollspy-menu-sidebar-color);
+  line-height: var(--cnds-scrollspy-menu-sidebar-line-height);
+  padding: 0 var(--cnds-scrollspy-menu-sidebar-padding-x);
+  font-weight: var(--cnds-scrollspy-menu-sidebar-font-weight);
+  transition: var(--cnds-scrollspy-menu-sidebar-transition);
+  text-transform: initial;
+  margin-top: var(--cnds-scrollspy-menu-sidebar-margin-y);
+  margin-bottom: var(--cnds-scrollspy-menu-sidebar-margin-y);
+  border-radius: 0;
+}
+
+.nav-pills.menu-sidebar .nav-link:hover {
+  text-decoration: none;
+  color: var(--cnds-primary, #ab2328);
+}
+
+.nav-pills.menu-sidebar .nav-link.active,
+.nav-pills.menu-sidebar .show > .nav-link {
+  --cnds-scrollspy-menu-sidebar-active-font-weight: 600;
+  background-color: var(--cnds-brand-green-100, #eaf4e1);
+  box-shadow: inset 3px 0px 0px 0px var(--cnds-brand-green-600, #72b23e);
+  color: var(--cnds-scrollspy-menu-sidebar-color);
+  font-weight: var(--cnds-scrollspy-menu-sidebar-active-font-weight);
+  padding-left: 9px; /* 5px base + 4px breathing room from the green marker */
+  border-left: none;
+  border-radius: 0;
+}
+
+.menu-sidebar li {
+  padding: 2px 0 2px 7px;
+}
+
+/* Right-sidebar column — position:fixed so it never scrolls with the page.
+   #slim-content has overflow-x:clip which forces overflow-y to compute as auto,
+   making it a scroll container that breaks position:sticky on descendants.
+   position:fixed bypasses that entirely. Width approximates 20% of the content
+   area (viewport minus sidenav width minus box padding). */
+.slim-content-box > .row > .d-none.d-lg-block {
+  position: fixed;
+  top: 72px;
+  right: 1rem;
+  width: calc(20vw - 3.5rem);
+  max-height: calc(100vh - 80px - var(--app-footer-height, 40px));
+  overflow-y: auto;
+}
+
+/* .sticky wrapper — no positioning needed; parent column is now fixed. */
+.sticky {
+  /* intentionally no position — see column rule above */
+}
+
+.sticky.animation {
+  animation-duration: 200ms;
+}
+
+/* Themed logo — light theme shows light logo, dark theme shows dark logo */
+.cf-logo-dark { display: none; }
+[data-cnds-theme="dark"] .cf-logo-light { display: none; }
+[data-cnds-theme="dark"] .cf-logo-dark { display: inline; }
+
+/* Footer app styles — theme-aware via frame-bg token */
+footer.page-footer.main-footer {
+  background-color: var(--cnds-frame-bg, #ebebeb);
+  color: var(--cnds-surface-light-950, #141414);
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 6px 0;
+  width: 100%;
+  font-size: 0.875rem;
+}
+
+.cf-footer-app {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1019;
+}
+
+.cf-footer-app .footer-copyright {
+  font-size: 0.875rem;
+  color: var(--cnds-surface-light-950, #141414);
+  white-space: nowrap;
+}
+
+.cf-footer-app .footer-links a {
+  padding: 0 0.75rem;
+  color: var(--cnds-surface-light-950, #141414);
+  text-decoration: none;
+  font-size: 0.875rem;
+}
+
+.cf-footer-app .footer-links a:hover {
+  color: #000;
+}
+
+.cf-footer-app .social-btns-container {
+  border: 1px solid var(--cnds-border-color, #e0e0e0);
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.cf-footer-app .social-btns a.social {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 36px;
+  padding: 4px 8px;
+  color: var(--cnds-surface-light-950, #141414);
+  text-decoration: none;
+  border-right: 1px solid var(--cnds-border-color, #e0e0e0);
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.cf-footer-app .social-btns a.social:last-child {
+  border-right: none;
+}
+
+.cf-footer-app .social-btns a.social:hover {
+  color: #000;
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.footer-fa-fix {
+  padding-top: 6.5px !important;
+  padding-bottom: 6.5px !important;
+}
+
+/* Footer — dark theme text overrides (background handled by --cnds-frame-bg) */
+[data-cnds-theme="dark"] footer.page-footer.main-footer {
+  color: var(--cnds-surface-dark-50, #e8e8e8);
+}
+[data-cnds-theme="dark"] .cf-footer-app .footer-copyright {
+  color: var(--cnds-surface-dark-50, #e8e8e8);
+}
+[data-cnds-theme="dark"] .cf-footer-app .footer-links a {
+  color: var(--cnds-surface-dark-50, #e8e8e8);
+}
+[data-cnds-theme="dark"] .cf-footer-app .footer-links a:hover {
+  color: #fff;
+}
+[data-cnds-theme="dark"] .cf-footer-app .social-btns a.social {
+  color: var(--cnds-surface-dark-50, #e8e8e8);
+}
+[data-cnds-theme="dark"] .cf-footer-app .social-btns a.social:hover {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* -----------------------------------------------------------------------
+   Product footers — CaseFusion, Expireon, Hyperlize
+   Apply alongside .cf-footer-app: class="cf-footer cf-footer-app cf-footer-casefusion"
+   Background and text inherit from .cf-footer-app (fully theme-aware).
+   ----------------------------------------------------------------------- */
+
+/* Product brand — icon + name on the left */
+.footer-product-logo {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.footer-product-icon {
+  height: 20px;
+  width: auto;
+}
+
+.footer-product-name {
+  display: flex;
+  align-items: baseline;
+  gap: 0;
+  text-transform: uppercase;
+  letter-spacing: 11.5px;
+  line-height: 1;
+}
+
+.footer-product-name-bold {
+  font-family: var(--cnds-typography-typeface-family-product);
+  font-size: 18px;
+  font-weight: 700;
+  color: #141414;
+}
+
+.footer-product-name-light {
+  font-family: var(--cnds-typography-typeface-family-product);
+  font-size: 18px;
+  font-weight: 300;
+  color: #141414;
+}
+
+[data-cnds-theme="dark"] .footer-product-name-bold,
+[data-cnds-theme="dark"] .footer-product-name-light {
+  color: #e8e8e8;
+}
+
+/* "Powered By Cloudficient" attribution text in product footers */
+.footer-powered-by {
+  font-family: "Nunito", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: #141414;
+  white-space: nowrap;
+}
+
+[data-cnds-theme="dark"] .footer-powered-by {
+  color: #e8e8e8;
+}
+
+/* -----------------------------------------------------------------------
+   Default footer nav links
+   Light theme: #141414 text, #cccccc left-border separators
+   Dark theme:  #e8e8e8 text, #787878 left-border separators
+   ----------------------------------------------------------------------- */
+
+.footer-nav {
+  display: flex;
+  align-items: center;
+}
+
+.footer-nav .footer-copyright {
+  padding: 0 16px;
+}
+
+.footer-nav a {
+  padding: 0 16px;
+  color: #141414;
+  text-decoration: none;
+  font-family: "Nunito", sans-serif;
+  font-size: 0.875rem;
+  font-weight: 400;
+  white-space: nowrap;
+  border-left: 1px solid #cccccc;
+  transition: color 0.2s ease;
+}
+
+.footer-nav a:hover {
+  color: #000;
+}
+
+[data-cnds-theme="dark"] .footer-nav a {
+  color: #e8e8e8;
+  border-left-color: #787878;
+}
+
+[data-cnds-theme="dark"] .footer-nav a:hover {
+  color: #fff;
+}
+
+/* Monogram (account avatar) */
+.monogram {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: var(--cnds-brand-blue-500, #262a69);
+  color: var(--cnds-emphasis-color, #fff);
+  font-size: 0.65rem;
+  font-weight: 700;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Utility dropdown styling */
+.utility-dropdown {
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Search modal */
+.modal-search .modal-content {
+  border: none;
+  box-shadow: var(--cnds-shadow-4);
+}
+
+/* Drawer (sign-in panel) */
+.drawer {
+  position: fixed;
+  top: 0;
+  right: -400px;
+  width: 400px;
+  max-width: 100vw;
+  height: 100vh;
+  z-index: 1050;
+  transition: right 0.3s ease;
+}
+
+.drawer.open {
+  right: 0;
+}
+
+.drawer__overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.drawer.open .drawer__overlay {
+  opacity: 1;
+}
+
+.drawer__wrapper {
+  position: relative;
+  height: 100%;
+  background: var(--cnds-surface-bg);
+  box-shadow: var(--cnds-shadow-4);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.drawer__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--cnds-border-color);
+}
+
+.drawer__title {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.drawer__close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--cnds-secondary-color);
+  padding: 0;
+  line-height: 1;
+}
+
+.drawer__close:hover {
+  color: var(--cnds-body-color);
+}
+
+.drawer__content {
+  padding: 1.5rem;
+  flex: 1;
+}
+
+/* =======================================================================
+   5. Dark Theme — App-Level Overrides
+   ======================================================================= */
+
+/* Scrollspy sidebar — dark mode */
+[data-cnds-theme="dark"] .nav-pills.menu-sidebar .nav-link {
+  color: var(--cnds-surface-light-300, #d4d4d4);
+}
+[data-cnds-theme="dark"] .nav-pills.menu-sidebar .nav-link:hover {
+  color: var(--cnds-brand-blue-200, #9297d8);
+}
+[data-cnds-theme="dark"] .nav-pills.menu-sidebar .nav-link.active,
+[data-cnds-theme="dark"] .nav-pills.menu-sidebar .show > .nav-link {
+  background-color: var(--cnds-brand-green-800, #3a5b20);
+  box-shadow: inset 3px 0px 0px 0px var(--cnds-brand-green-600, #72b23e);
+  color: var(--cnds-surface-light-300, #d4d4d4);
+}
+
+/* Footer — dark mode (footer is always dark; no overrides needed) */
+
+/* Drawer — dark mode */
+[data-cnds-theme="dark"] .drawer__wrapper {
+  background: var(--cnds-surface-dark-400, #252525);
+}
+
+/* Search modal — dark mode */
+[data-cnds-theme="dark"] .modal-search .modal-content {
+  background-color: var(--cnds-surface-dark-400, #252525);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Slim content box — dark mode */
+[data-cnds-theme="dark"] .slim-content-box {
+  color: var(--cnds-body-color, #ebebeb);
+}
+
+/* Col-example (grid demo) — dark mode */
+[data-cnds-theme="dark"] .col-example {
+  background-color: var(--cnds-surface-dark-300, #4a4a4a);
+  border-color: var(--cnds-border-color, #6b6b6b);
+  color: var(--cnds-body-color, #ebebeb);
+}
+
+/* =======================================================================
+   6. Prism Code Block Overrides
+   ======================================================================= */
+code[class*="language-"],
+pre[class*="language-"] {
+  font-size: 12px !important;
+}
+
+/* Dark Theme — WCAG AA contrast (≥4.5:1) against #141414 background */
+[data-cnds-theme="dark"] code[class*="language-"],
+[data-cnds-theme="dark"] pre[class*="language-"] {
+  color: #d4d4d4; /* 9.6:1 on #141414 */
+  text-shadow: none;
+}
+
+[data-cnds-theme="dark"] pre[class*="language-"],
+[data-cnds-theme="dark"] :not(pre) > code[class*="language-"] {
+  background: #141414;
+}
+
+[data-cnds-theme="dark"] .line-numbers .line-numbers-rows {
+  border-right-color: #333;
+}
+
+[data-cnds-theme="dark"] .line-numbers-rows > span::before {
+  color: #666;
+}
+
+/* Token colors — all ≥4.5:1 contrast on #141414 */
+[data-cnds-theme="dark"] .token.comment,
+[data-cnds-theme="dark"] .token.prolog,
+[data-cnds-theme="dark"] .token.doctype,
+[data-cnds-theme="dark"] .token.cdata {
+  color: #8b949e; /* 4.6:1 */
+}
+
+[data-cnds-theme="dark"] .token.punctuation {
+  color: #b3b3b3; /* 7.5:1 */
+}
+
+[data-cnds-theme="dark"] .token.property,
+[data-cnds-theme="dark"] .token.tag,
+[data-cnds-theme="dark"] .token.boolean,
+[data-cnds-theme="dark"] .token.number,
+[data-cnds-theme="dark"] .token.constant,
+[data-cnds-theme="dark"] .token.symbol,
+[data-cnds-theme="dark"] .token.deleted {
+  color: #f97583; /* 5.2:1 — pink/red */
+}
+
+[data-cnds-theme="dark"] .token.selector,
+[data-cnds-theme="dark"] .token.attr-name,
+[data-cnds-theme="dark"] .token.string,
+[data-cnds-theme="dark"] .token.char,
+[data-cnds-theme="dark"] .token.builtin,
+[data-cnds-theme="dark"] .token.inserted {
+  color: #a5d6a7; /* 8.2:1 — green */
+}
+
+[data-cnds-theme="dark"] .token.operator,
+[data-cnds-theme="dark"] .token.entity,
+[data-cnds-theme="dark"] .token.url,
+[data-cnds-theme="dark"] .language-css .token.string,
+[data-cnds-theme="dark"] .style .token.string {
+  color: #e6b673; /* 7.0:1 — orange */
+  background: none;
+}
+
+[data-cnds-theme="dark"] .token.atrule,
+[data-cnds-theme="dark"] .token.attr-value,
+[data-cnds-theme="dark"] .token.keyword {
+  color: #79b8ff; /* 6.5:1 — blue */
+}
+
+[data-cnds-theme="dark"] .token.function,
+[data-cnds-theme="dark"] .token.class-name {
+  color: #b392f0; /* 5.0:1 — purple */
+}
+
+[data-cnds-theme="dark"] .token.regex,
+[data-cnds-theme="dark"] .token.important,
+[data-cnds-theme="dark"] .token.variable {
+  color: #ffab70; /* 7.8:1 — warm orange */
+}
+
+/* Selection highlight in dark mode */
+[data-cnds-theme="dark"] pre[class*="language-"]::-moz-selection,
+[data-cnds-theme="dark"] pre[class*="language-"] ::-moz-selection,
+[data-cnds-theme="dark"] code[class*="language-"]::-moz-selection,
+[data-cnds-theme="dark"] code[class*="language-"] ::-moz-selection {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+[data-cnds-theme="dark"] pre[class*="language-"]::selection,
+[data-cnds-theme="dark"] pre[class*="language-"] ::selection,
+[data-cnds-theme="dark"] code[class*="language-"]::selection,
+[data-cnds-theme="dark"] code[class*="language-"] ::selection {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* =======================================================================
+   7. Prism Toolbar Copy Button — Readable in Both Themes
+   ======================================================================= */
+
+/* Light theme: dark text + solid background for readability on #f5f2f0 */
+div.code-toolbar > .toolbar > .toolbar-item > a,
+div.code-toolbar > .toolbar > .toolbar-item > button,
+div.code-toolbar > .toolbar > .toolbar-item > span {
+  color: #1a1a1a !important;
+  background: #d5d0cb !important;
+  box-shadow: 0 2px 0 0 rgba(0, 0, 0, 0.2);
+  font-weight: 600;
+}
+
+div.code-toolbar > .toolbar > .toolbar-item > a:hover,
+div.code-toolbar > .toolbar > .toolbar-item > a:focus,
+div.code-toolbar > .toolbar > .toolbar-item > button:hover,
+div.code-toolbar > .toolbar > .toolbar-item > button:focus,
+div.code-toolbar > .toolbar > .toolbar-item > span:hover,
+div.code-toolbar > .toolbar > .toolbar-item > span:focus {
+  color: #000 !important;
+  background: #c0bab5 !important;
+}
+
+/* Dark theme: light text + subtle background for readability on #141414 */
+[data-cnds-theme="dark"] div.code-toolbar > .toolbar > .toolbar-item > a,
+[data-cnds-theme="dark"] div.code-toolbar > .toolbar > .toolbar-item > button,
+[data-cnds-theme="dark"] div.code-toolbar > .toolbar > .toolbar-item > span {
+  color: #ccc;
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 0 0 rgba(0, 0, 0, 0.4);
+}
+
+[data-cnds-theme="dark"] div.code-toolbar > .toolbar > .toolbar-item > a:hover,
+[data-cnds-theme="dark"] div.code-toolbar > .toolbar > .toolbar-item > a:focus,
+[data-cnds-theme="dark"]
+  div.code-toolbar
+  > .toolbar
+  > .toolbar-item
+  > button:hover,
+[data-cnds-theme="dark"]
+  div.code-toolbar
+  > .toolbar
+  > .toolbar-item
+  > button:focus,
+[data-cnds-theme="dark"]
+  div.code-toolbar
+  > .toolbar
+  > .toolbar-item
+  > span:hover,
+[data-cnds-theme="dark"]
+  div.code-toolbar
+  > .toolbar
+  > .toolbar-item
+  > span:focus {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+/* =======================================================================
+   Code Example Badge Colors — WCAG AA compliant
+   Used for Prism code section headings across all documentation pages.
+   ======================================================================= */
+.badge-code-html {
+  background-color: #c4401f; /* 5.12:1 with #fff — WCAG AA */
+  color: #fff;
+}
+.badge-code-css {
+  background-color: #c4401f;
+  color: #fff;
+}
+.badge-code-js {
+  background-color: #c4401f;
+  color: #fff;
+}
+
+/* Dark theme: softer badge backgrounds for visual harmony on dark surfaces */
+[data-cnds-theme="dark"] .badge-code-html {
+  background-color: #c4401f;
+  color: #f5f5f5;
+}
+[data-cnds-theme="dark"] .badge-code-css {
+  background-color: #c4401f;
+  color: #f5f5f5;
+}
+[data-cnds-theme="dark"] .badge-code-js {
+  background-color: #c4401f;
+  color: #f5f5f5;
+}
+.badge-code-scss {
+  background-color: #c4401f; /* 5.12:1 with #fff — WCAG AA */
+  color: #fff;
+}
+[data-cnds-theme="dark"] .badge-code-scss {
+  background-color: #c4401f;
+  color: #f5f5f5;
+}
+
+/* Demo container override — bg-blue-50 has no built-in dark mode variant */
+[data-cnds-theme="dark"] .bg-blue-50 {
+  background-color: var(--cnds-surface-dark-300, #4a4a4a) !important;
+}
+
+/* =======================================================================
+   Contrasting Background — documentation demo container
+   Provides a neutral tinted surface behind demo components so they
+   are visually separated from the plain page background.
+   Light:  --cnds-secondary-bg (#e9ecef) — body text #4f4f4f → 8.86:1  WCAG AA
+   Dark:   surface-dark-700 (#0a0a0a)   — body text #ebebeb → 17.1:1  WCAG AAA
+   ======================================================================= */
+.contrasting-bg {
+  background-color: var(--cnds-secondary-bg, #e9ecef);
+}
+
+[data-cnds-theme="dark"] .contrasting-bg {
+  background-color: var(--cnds-surface-dark-700, #0a0a0a);
+}
+
+/* =======================================================================
+   Theme Transition — smooth crossfade on theme toggle
+   View Transition API (Chrome 111+, Safari 18+): whole-page screenshot
+   crossfade so no individual element boundaries are visible.
+   Fallback (.cnds-theme-fading): per-property transitions for older browsers.
+   ======================================================================= */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root) {
+    animation: 220ms ease both cnds-theme-fade-out;
+  }
+  ::view-transition-new(root) {
+    animation: 220ms ease both cnds-theme-fade-in;
+  }
+}
+
+@keyframes cnds-theme-fade-out {
+  to { opacity: 0; }
+}
+
+@keyframes cnds-theme-fade-in {
+  from { opacity: 0; }
+}
+
+/* Fallback for browsers without View Transition API */
+html.cnds-theme-fading,
+html.cnds-theme-fading *,
+html.cnds-theme-fading *::before,
+html.cnds-theme-fading *::after {
+  transition: color 300ms ease, background-color 300ms ease,
+              border-color 300ms ease, fill 300ms ease,
+              box-shadow 300ms ease !important;
+  transition-delay: 0s !important;
+}

@@ -1,0 +1,286 @@
+/* ============================================================
+   CNDS Charts Plugin
+   Cloudficient Nimbus Design System v1.0.0
+
+   Lightweight SVG-based charts: bar, line, pie, doughnut, polarArea, radar, bubble, scatter.
+   ============================================================ */
+
+.chart {
+  --cnds-chart-bg: var(--cnds-body-bg, #fff);
+  --cnds-chart-color: var(--cnds-body-color, #4f4f4f);
+  --cnds-chart-border: var(--cnds-border-color, #dee2e6);
+  --cnds-chart-grid: #e9ecef;
+  --cnds-chart-label: #6c757d;
+  --cnds-chart-font: 0.75rem;
+  --cnds-chart-tooltip-bg: rgba(0, 0, 0, 0.8);
+  --cnds-chart-tooltip-color: #fff;
+
+  position: relative;
+  width: 100%;
+  font-family: var(--cnds-font-family-base, "Nunito", sans-serif);
+  font-size: var(--cnds-chart-font);
+  color: var(--cnds-chart-color);
+}
+
+.chart svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* --- Legend --- */
+.chart-legend {
+  text-align: center;
+  padding: 0.5rem 0;
+}
+
+.chart-legend-item {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  gap: 0.375rem;
+  margin: 2px 4px;
+  cursor: pointer;
+  user-select: none;
+  transition: opacity 0.15s;
+  vertical-align: middle;
+}
+
+.chart-legend-item--hidden {
+  opacity: 0.38;
+}
+
+.chart-legend-color {
+  display: block;
+  width: 12px;
+  min-height: 12px;
+  height: 12px;
+  border-radius: 2px;
+  flex-shrink: 0;
+  align-self: center;
+  margin-top: -3px;
+}
+
+.chart-legend-label {
+  color: var(--cnds-chart-label);
+  font-size: 0.8125rem;
+  line-height: 1;
+  align-self: center;
+}
+
+/* --- Tooltip --- */
+.chart-tooltip {
+  position: absolute;
+  padding: 6px 8px;
+  background: var(--cnds-chart-tooltip-bg);
+  color: var(--cnds-chart-tooltip-color);
+  font-size: 0.75rem;
+  border-radius: 6px;
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.2s linear;
+}
+
+/* Caret — bottom-center by default (tooltip above element) */
+.chart-tooltip::after {
+  content: "";
+  position: absolute;
+  border: 6px solid transparent;
+  top: 100%; right: auto; bottom: auto; left: 50%;
+  transform: translateX(-50%);
+  border-top-color: var(--cnds-chart-tooltip-bg);
+}
+
+/* Caret top-center (tooltip below cursor) */
+.chart-tooltip.caret-top::after {
+  top: auto; bottom: 100%; left: 50%; right: auto;
+  transform: translateX(-50%);
+  border-top-color: transparent;
+  border-bottom-color: var(--cnds-chart-tooltip-bg);
+}
+
+/* Caret left-center (tooltip to the right of cursor) */
+.chart-tooltip.caret-left::after {
+  top: 50%; bottom: auto; left: auto; right: 100%;
+  transform: translateY(-50%);
+  border-top-color: transparent;
+  border-right-color: var(--cnds-chart-tooltip-bg);
+}
+
+/* Caret right-center (tooltip to the left of cursor) */
+.chart-tooltip.caret-right::after {
+  top: 50%; bottom: auto; left: 100%; right: auto;
+  transform: translateY(-50%);
+  border-top-color: transparent;
+  border-left-color: var(--cnds-chart-tooltip-bg);
+}
+
+.chart-tooltip.show {
+  opacity: 1;
+}
+
+.chart-tooltip-title {
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.chart-tooltip-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chart-tooltip-swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* --- Bar Chart --- */
+.chart-bar rect {
+  transition: opacity 0.15s;
+}
+
+.chart-bar rect:hover {
+  opacity: 0.8;
+}
+
+/* --- Line Chart --- */
+.chart-line path {
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.chart-line circle {
+  transition: r 0.15s;
+}
+
+.chart-line circle:hover {
+  r: 5;
+}
+
+/* --- Pie / Doughnut --- */
+.chart-pie path,
+.chart-doughnut path {
+  transition:
+    opacity 0.15s,
+    transform 0.15s;
+  transform-origin: center;
+}
+
+.chart-pie path:hover,
+.chart-doughnut path:hover {
+  opacity: 0.85;
+  transform: scale(1.03);
+}
+
+/* Pie / doughnut slice borders: match background so they look correct in both themes */
+.chart-pie [data-slice],
+.chart-doughnut [data-slice] {
+  stroke: var(--cnds-chart-bg);
+}
+
+/* --- Polar Area --- */
+.chart-polarArea path {
+  transition: opacity 0.15s;
+}
+
+.chart-polarArea path:hover {
+  opacity: 0.9;
+}
+
+/* --- Radar --- */
+.chart-radar polygon {
+  transition: opacity 0.15s;
+}
+
+.chart-radar polygon:hover {
+  opacity: 0.8;
+}
+
+/* Dot borders (line, radar): match background so they look correct in both themes */
+.chart-line circle,
+.chart-radar circle {
+  stroke: var(--cnds-chart-bg);
+}
+
+/* --- Bubble / Scatter --- */
+.chart-bubble circle,
+.chart-scatter circle {
+  transition: opacity 0.15s;
+}
+
+/* Scatter: dashed horizontal grid lines only (no vertical lines in log mode) */
+.chart-scatter .chart-grid line {
+  stroke-dasharray: 4, 4;
+}
+
+.chart-bubble circle:hover,
+.chart-scatter circle:hover {
+  opacity: 0.8;
+}
+
+/* --- Grid Lines (all element types share the same token) --- */
+.chart-grid line,
+.chart-grid circle,
+.chart-grid polygon {
+  stroke: var(--cnds-chart-grid);
+  stroke-width: 1;
+  fill: none;
+}
+
+/* Polar / radar inline stroke attribute is overridden by this rule in light theme
+   and by the dark-theme override below for dark theme. */
+
+/* --- Axis Labels --- */
+.chart-axis text,
+.chart-grid text {
+  fill: var(--cnds-chart-label);
+  font-size: 0.6875rem;
+}
+
+/* Polar slice separators: match the chart background so they look correct in both themes */
+.chart-polarArea [data-slice] {
+  stroke: var(--cnds-chart-bg);
+}
+
+/* --- Title --- */
+.chart-title {
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  margin-bottom: 0.5rem;
+  color: var(--cnds-chart-color);
+}
+
+/* --- Legend Toggle Animations --- */
+/* Pie / doughnut slices use JS requestAnimationFrame angle interpolation (no CSS transition needed) */
+/* Polar slices use JS requestAnimationFrame radius interpolation (no CSS transition needed) */
+
+/* Dataset groups (bar, line, radar, bubble, scatter): fade in/out */
+.chart svg [data-ds] {
+  transition: opacity 0.25s ease;
+}
+
+/* --- Dark Theme --- */
+[data-cnds-theme="dark"] .chart {
+  --cnds-chart-bg: var(--cnds-dark-bg, #1a1a2e);
+  --cnds-chart-color: var(--cnds-dark-color, #e0e0e0);
+  --cnds-chart-grid: #4d4d4d;
+  --cnds-chart-label: #909090;
+  --cnds-chart-tooltip-bg: rgba(240, 240, 248, 0.95);
+  --cnds-chart-tooltip-color: #1a1a2e;
+}
+
+[data-cnds-theme="dark"] .chart-polarArea,
+[data-cnds-theme="dark"] .chart-radar {
+  --cnds-chart-grid: #6e6e6e;
+  --cnds-chart-label: #b0b0b0;
+}
+
