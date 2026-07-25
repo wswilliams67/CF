@@ -5937,9 +5937,9 @@
                   <i class="mdi mdi-heart-outline" aria-hidden="true"></i><span>Favorite</span>
                 </button>
                 <button type="button" class="btn btn-secondary btn-sm ppf-action" data-ppf-action="custodian">
-                  <i class="mdi mdi-shield-account-outline" aria-hidden="true"></i><span>Mark as Custodian</span>
+                  <i class="mdi mdi-briefcase-account-outline" aria-hidden="true"></i><span>Mark as Custodian</span>
                 </button>
-                <button type="button" class="btn btn-secondary btn-sm ppf-action" data-ppf-action="tags">
+                <button type="button" class="btn btn-secondary btn-sm ppf-action" data-ppf-action="tags" hidden>
                   <i class="mdi mdi-tag-outline" aria-hidden="true"></i><span>Manage Tags</span>
                 </button>
                 <button type="button" class="btn btn-secondary btn-sm ppf-action" data-ppf-action="groups">
@@ -6011,57 +6011,9 @@
                 </div>
               </div>
 
-              <!-- Activity chart -->
-              <!-- Angular: <app-activity-chart [series]="persona.activity" [(mode)]="mode"
-                   (weekSelect)="onWeek($event)">. Bars keyboard-focusable; selection drives breakdown. -->
-              <div class="ppf-card ppf-activity">
-                <div class="ppf-card-head ppf-card-head--row">
-                  <div>
-                    <h3 class="ppf-card-title">Activity Over Case Window</h3>
-                    <p class="ppf-card-sub" data-ppf-el="chartSub">All Sources, Weekly Volume</p>
-                  </div>
-                  <!-- Regular Nimbus dropdown: one toggle button showing the current
-                       selection "View By: {{value}}"; open/close owned by Nimbus
-                       (data-cnds-toggle="dropdown"), init on cnds.ready. -->
-                  <div class="dropdown ppf-viewby">
-                    <button type="button" class="btn btn-tertiary btn-sm dropdown-toggle ppf-viewby-btn"
-                            data-cnds-toggle="dropdown" aria-expanded="false">
-                      <span class="ppf-viewby-lbl">View By: <span data-ppf-el="viewByText">Week</span></span>
-                      <i class="mdi mdi-chevron-down" aria-hidden="true"></i>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-casefusion">
-                      <li><a class="dropdown-item" href="#" data-ppf-mode="year">Year</a></li>
-                      <li><a class="dropdown-item" href="#" data-ppf-mode="month">Month</a></li>
-                      <li><a class="dropdown-item active" href="#" data-ppf-mode="week">Week</a></li>
-                      <li><a class="dropdown-item" href="#" data-ppf-mode="day">Day</a></li>
-                    </ul>
-                  </div>
-                </div>
-
-                <!-- Plot (pager + bars + axis) — crossfaded as a unit on view change -->
-                <div class="ppf-chart-plot">
-                  <div class="ppf-chart-nav">
-                    <button type="button" class="ppf-chart-arrow" data-ppf-nav="prev" aria-label="Previous period"><i class="mdi mdi-chevron-left" aria-hidden="true"></i></button>
-                    <span class="ppf-chart-range" data-ppf-el="chartRange">JAN 15 - MAY 6</span>
-                    <button type="button" class="ppf-chart-arrow" data-ppf-nav="next" aria-label="Next period"><i class="mdi mdi-chevron-right" aria-hidden="true"></i></button>
-                  </div>
-                  <div class="ppf-chart" id="ppfChart" role="group" aria-label="Activity volume, click a bar for the breakdown"><!-- bars injected by JS --></div>
-                  <div class="ppf-chart-axis" data-ppf-el="chartAxis"><!-- axis labels injected --></div>
-                </div>
-
-                <!-- Breakdown: empty prompt → source-type cards on bar select -->
-                <div class="ppf-breakdown" data-ppf-el="chartBreakdown" role="status" aria-live="polite">
-                  <p class="ppf-breakdown-empty">Click a week for the breakdown.</p>
-                  <div class="ppf-breakdown-detail" hidden>
-                    <p class="ppf-breakdown-head" data-ppf-el="bdHead"></p>
-                    <div class="ppf-breakdown-cards" data-ppf-el="bdCards"></div>
-                  </div>
-                </div>
-
-                <div class="ppf-card-foot">
-                  <button type="button" class="btn btn-tertiary btn-sm" data-ppf-goto="sources">View All Data Sources</button>
-                </div>
-              </div>
+              <!-- Activity chart — reusable instance mounted by createActivityChart.
+                   Angular: <app-activity-chart [series]="persona.activity">. -->
+              <div class="ppf-card ppf-activity" data-ppf-chart="overview"></div>
 
               <!-- Profile details -->
               <h4 class="ppf-section-title">Profile Details</h4>
@@ -6110,7 +6062,77 @@
 
             <!-- ══ PLACEHOLDER PANELS (Phase 2+) ════════════════════════════════ -->
             <section class="ppf-panel" role="tabpanel" id="ppfPanel-timeline"   aria-labelledby="ppfTab-timeline"   hidden><div class="ppf-soon"><i class="mdi mdi-timeline-clock-outline" aria-hidden="true"></i><p>Timeline — coming in a later build phase.</p></div></section>
-            <section class="ppf-panel" role="tabpanel" id="ppfPanel-sources"    aria-labelledby="ppfTab-sources"    hidden><div class="ppf-soon"><i class="mdi mdi-database-outline" aria-hidden="true"></i><p>Data Sources — coming in a later build phase.</p></div></section>
+            <!-- ══ DATA SOURCES PANEL ═══════════════════════════════════════════ -->
+            <section class="ppf-panel" role="tabpanel" id="ppfPanel-sources" aria-labelledby="ppfTab-sources" hidden>
+              <div class="ppf-ds-window"><i class="mdi mdi-calendar-blank-outline" aria-hidden="true"></i><span data-ppf-el="dsWindow"></span></div>
+              <!-- Type-filter tiles (rendered from data.dataSources.types) -->
+              <div class="ppf-ds-tiles" data-ppf-el="dsTiles"></div>
+              <!-- Toolbar: search/sort/dir/export live in a Nimbus toolbar bar;
+                   Add Source is a separate primary button beside it. -->
+              <div class="ppf-ds-toolbar">
+                <div class="ppf-ds-bar">
+                  <div class="ppf-ds-search">
+                    <input type="text" class="ppf-ds-search-input" placeholder="Search sources …" data-ppf-el="dsSearch" aria-label="Search sources" autocomplete="off">
+                  </div>
+                  <span class="ppf-ds-divider" aria-hidden="true"></span>
+                  <span class="ppf-ds-sortlbl">Sort By</span>
+                  <div class="dropdown ppf-ds-sort">
+                    <button type="button" class="ppf-ds-selectbtn dropdown-toggle" data-cnds-toggle="dropdown" aria-expanded="false"><span data-ppf-el="dsSortText">Frequency</span><i class="mdi mdi-chevron-down" aria-hidden="true"></i></button>
+                    <ul class="dropdown-menu dropdown-menu-casefusion">
+                      <li><a class="dropdown-item active" href="#" data-ppf-sort="freq">Frequency</a></li>
+                      <li><a class="dropdown-item" href="#" data-ppf-sort="name">Name</a></li>
+                      <li><a class="dropdown-item" href="#" data-ppf-sort="first">First Accessed</a></li>
+                      <li><a class="dropdown-item" href="#" data-ppf-sort="last">Last Accessed</a></li>
+                    </ul>
+                  </div>
+                  <button type="button" class="btn btn-tertiary btn-sm ppf-ds-dir" data-ppf-el="dsDir" data-dir="desc" aria-label="Toggle sort direction"><i class="mdi mdi-arrow-down-circle" aria-hidden="true"></i><span>DSC</span></button>
+                  <button type="button" class="btn btn-secondary btn-sm ppf-ds-export"><span>Export As</span><i class="mdi mdi-chevron-down" aria-hidden="true"></i></button>
+                </div>
+                <button type="button" class="btn btn-primary ppf-ds-add" data-ppf-action="add-source">Add Source</button>
+              </div>
+              <!-- Activity chart — second reusable instance -->
+              <div class="ppf-card ppf-activity" data-ppf-chart="sources"></div>
+              <!-- Active period-filter banner (shown when chart bars are selected) -->
+              <div class="ppf-ds-filternote" data-ppf-el="dsFilterNote" hidden>
+                <i class="mdi mdi-filter-variant" aria-hidden="true"></i>
+                <span data-ppf-el="dsFilterText"></span>
+                <button type="button" class="ppf-ds-filterclear" data-ppf-ds-clearperiods>Clear</button>
+              </div>
+              <!-- Sources table -->
+              <div class="ppf-ds-tablewrap">
+                <table class="ppf-ds-table">
+                  <thead>
+                    <tr>
+                      <th class="ppf-ds-th ppf-ds-th--sort" data-ppf-sortcol="name">Source</th>
+                      <th class="ppf-ds-th ppf-ds-th--sort ppf-ds-th--freq" data-ppf-sortcol="freq">Frequency</th>
+                      <th class="ppf-ds-th ppf-ds-th--sort" data-ppf-sortcol="first">First Accessed</th>
+                      <th class="ppf-ds-th ppf-ds-th--sort" data-ppf-sortcol="last">Last Accessed</th>
+                    </tr>
+                  </thead>
+                  <tbody data-ppf-el="dsRows"><!-- rows rendered by JS --></tbody>
+                </table>
+                <p class="ppf-ds-empty" data-ppf-el="dsEmpty" hidden>No sources match your filters.</p>
+              </div>
+              <!-- Pagination — Nimbus .pagination-toolbar component -->
+              <div class="pagination-toolbar">
+                <span class="pagination-toolbar-label">Results per page</span>
+                <div class="dropdown ppf-ds-perpage">
+                  <button type="button" class="ppf-ds-selectbtn dropdown-toggle" data-cnds-toggle="dropdown" aria-expanded="false"><span data-ppf-el="dsPerPage">10</span><i class="mdi mdi-chevron-down" aria-hidden="true"></i></button>
+                  <ul class="dropdown-menu dropdown-menu-end dropdown-menu-casefusion">
+                    <li><a class="dropdown-item" href="#" data-ppf-perpage="10">10</a></li>
+                    <li><a class="dropdown-item" href="#" data-ppf-perpage="25">25</a></li>
+                    <li><a class="dropdown-item" href="#" data-ppf-perpage="50">50</a></li>
+                  </ul>
+                </div>
+                <span class="pagination-toolbar-range" data-ppf-el="dsRange"></span>
+                <nav class="pagination-toolbar-nav" aria-label="Table pagination">
+                  <button type="button" class="pagination-toolbar-btn" data-ppf-page="first" aria-label="First page"><i class="mdi mdi-skip-previous" aria-hidden="true"></i></button>
+                  <button type="button" class="pagination-toolbar-btn" data-ppf-page="prev" aria-label="Previous page"><i class="mdi mdi-chevron-left" aria-hidden="true"></i></button>
+                  <button type="button" class="pagination-toolbar-btn" data-ppf-page="next" aria-label="Next page"><i class="mdi mdi-chevron-right" aria-hidden="true"></i></button>
+                  <button type="button" class="pagination-toolbar-btn" data-ppf-page="last" aria-label="Last page"><i class="mdi mdi-skip-next" aria-hidden="true"></i></button>
+                </nav>
+              </div>
+            </section>
             <section class="ppf-panel" role="tabpanel" id="ppfPanel-org"        aria-labelledby="ppfTab-org"        hidden><div class="ppf-soon"><i class="mdi mdi-sitemap-outline" aria-hidden="true"></i><p>Org Chart — coming in a later build phase.</p></div></section>
             <section class="ppf-panel" role="tabpanel" id="ppfPanel-interviews" aria-labelledby="ppfTab-interviews" hidden><div class="ppf-soon"><i class="mdi mdi-account-voice" aria-hidden="true"></i><p>Interviews — coming in a later build phase.</p></div></section>
             <section class="ppf-panel" role="tabpanel" id="ppfPanel-notes"      aria-labelledby="ppfTab-notes"      hidden><div class="ppf-soon"><i class="mdi mdi-note-text-outline" aria-hidden="true"></i><p>Notes — coming in a later build phase.</p></div></section>
@@ -6118,7 +6140,58 @@
           </div><!-- /.ppf-body -->
 
           <div class="modal-footer ppf-footer">
-            <button type="button" class="btn btn-primary" data-cnds-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-secondary" data-cnds-dismiss="modal">Close</button>
+          </div>
+
+          <!-- ══ ADD DATA SOURCE — overlay (self-managed, inside .ppf-content) ══ -->
+          <div class="ppf-addsrc" data-ppf-el="addSrc" hidden>
+            <div class="ppf-addsrc-backdrop" data-ppf-addsrc-close></div>
+            <div class="ppf-addsrc-dialog" role="dialog" aria-modal="true" aria-labelledby="ppfAddSrcTitle">
+              <div class="ppf-addsrc-head">
+                <h3 class="ppf-addsrc-title" id="ppfAddSrcTitle">Add Data Source</h3>
+                <button type="button" class="btn-close" data-ppf-addsrc-close aria-label="Close"></button>
+              </div>
+              <div class="ppf-addsrc-body">
+                <p class="ppf-addsrc-lead">Sources not captured by M365 activity logs, added manually</p>
+                <div class="ppf-field">
+                  <label class="ppf-label" for="ppfAddName">Source Name <span class="ppf-req">*</span></label>
+                  <input id="ppfAddName" type="text" class="ppf-input" data-ppf-el="addName" autocomplete="off" aria-required="true" placeholder="e.g. E. Vasquez's laptop, Hardcopy binder — Room 4B">
+                  <p class="ppf-field-err">Enter a name for the source.</p>
+                </div>
+                <div class="ppf-field">
+                  <label class="ppf-label" for="ppfAddType">Source Type <span class="ppf-req">*</span></label>
+                  <select id="ppfAddType" class="ppf-input ppf-select" data-ppf-el="addType" aria-required="true">
+                    <option value="">Select one …</option>
+                    <option value="sharepoint">SharePoint</option>
+                    <option value="teams">Teams</option>
+                    <option value="onedrive">OneDrive</option>
+                    <option value="exchange">Exchange</option>
+                    <option value="copilot">Copilot</option>
+                    <option value="other">Other</option>
+                  </select>
+                  <p class="ppf-field-err">Select a source type.</p>
+                </div>
+                <div class="ppf-field">
+                  <label class="ppf-label" for="ppfAddDesc">Description / Location <span class="ppf-req">*</span></label>
+                  <textarea id="ppfAddDesc" class="ppf-input ppf-textarea" data-ppf-el="addDesc" aria-required="true" placeholder="e.g. Where is this source and how should it be retrieved?"></textarea>
+                  <p class="ppf-field-err">Add a description or location.</p>
+                </div>
+                <div class="ppf-field">
+                  <label class="ppf-label" for="ppfAddAssign">Assign To <span class="ppf-req">*</span></label>
+                  <select id="ppfAddAssign" class="ppf-input ppf-select" data-ppf-el="addAssign" aria-required="true">
+                    <option value="">Select one …</option>
+                    <option>Custodian - Dr. Elena Vasquez</option>
+                    <option>Paralegal</option>
+                    <option>IT / Desktop Support</option>
+                  </select>
+                  <p class="ppf-field-err">Choose who to assign this to.</p>
+                </div>
+              </div>
+              <div class="ppf-addsrc-foot">
+                <button type="button" class="btn btn-secondary" data-ppf-addsrc-close>Cancel</button>
+                <button type="button" class="btn btn-primary" data-ppf-el="addSave" data-ppf-addsrc-save disabled>Save</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -6144,6 +6217,7 @@
         --ppf-card:          #f5f5f5;
         --ppf-card-2:        #cccccc;
         --ppf-track:         #ebebeb;
+        --ppf-sunken:        #ebebeb;  /* toolbar / recessed surface */
         --ppf-border:        #e0e0e0;
         --ppf-border-strong: #cccccc;
         --ppf-text:          #141414;
@@ -6170,6 +6244,7 @@
         --ppf-card:          #1e1e1e;
         --ppf-card-2:        #4a4a4a;
         --ppf-track:         #4a4a4a;
+        --ppf-sunken:        #121212;  /* Surface/Toolbar/Background */
         --ppf-border:        #4a4a4a;
         --ppf-border-strong: #787878;
         --ppf-text:          #e8e8e8;
@@ -6240,8 +6315,6 @@
       .ppf-chip--warn { border-color: var(--ppf-warn-bg); }
       .ppf-identity-actions { display: flex; gap: 8px; flex-wrap: wrap; }
       .ppf-modal .ppf-action { display: inline-flex; align-items: center; gap: 6px; }
-      .ppf-modal .ppf-action.is-on { background: var(--ppf-green-cf); border-color: var(--ppf-green-cf); color: #ffffff; }
-      [data-cnds-theme="dark"] .ppf-modal .ppf-action.is-on { color: #0d260c; }
 
       /* Tabs */
       .ppf-tabs { display: flex; gap: 4px; margin: 16px 0 20px; border-bottom: 1px solid var(--ppf-border); overflow-x: auto; }
@@ -6265,6 +6338,10 @@
       .ppf-quickrow { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
       .ppf-quickactions { display: flex; gap: 8px; flex-wrap: wrap; }
       .ppf-modal .ppf-quick, .ppf-modal .ppf-exportas { display: inline-flex; align-items: center; gap: 6px; }
+      /* Top-of-content action buttons — icons sized to 18×18 */
+      .ppf-modal .ppf-action .mdi,
+      .ppf-modal .ppf-quick .mdi,
+      .ppf-modal .ppf-exportas .mdi { font-size: 18px; width: 18px; height: 18px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; }
 
       /* Stat strip */
       .ppf-stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 20px; }
@@ -6350,8 +6427,8 @@
          auto-shrunk by JS (fitAxis) to fit without wrapping, floored at 10px. */
       .ppf-chart-axis--bars span { flex: 1 1 0; min-width: 1px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-      /* Breakdown area. Empty = prompt box; detail = header + 5 source-type cards
-         (matches the design's selected-week state). */
+      /* Breakdown area (Overview). Empty = prompt box; detail = header + 5
+         source-type cards (matches the design's selected-week state). */
       .ppf-breakdown { margin-top: 14px; }
       .ppf-breakdown-empty { margin: 0; padding: 12px 14px; background: var(--ppf-card); border: 1px solid var(--ppf-border); border-radius: var(--ppf-r-s); font-size: 13px; color: var(--ppf-muted); }
       .ppf-breakdown-detail { padding: 16px; background: var(--ppf-card); border: 1px solid var(--ppf-border); border-radius: var(--ppf-r-m); }
@@ -6361,6 +6438,17 @@
       .ppf-bd-type { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--ppf-muted); }
       .ppf-bd-svg { width: 22px; height: 22px; flex-shrink: 0; }
       .ppf-bd-num { font-size: 24.5px; font-weight: 700; line-height: 1.375; color: var(--ppf-text); }
+      /* Active period-filter banner (Data Sources table) */
+      .ppf-ds-filternote { display: flex; align-items: center; gap: 8px; margin: 14px 0 0; padding: 9px 12px; background: var(--ppf-sunken); border: 1px solid var(--ppf-border); border-radius: var(--ppf-r-s); font-size: 13px; color: var(--ppf-text); }
+      .ppf-ds-filternote[hidden] { display: none; }
+      .ppf-ds-filternote > .mdi { color: var(--ppf-link); font-size: 17px; }
+      .ppf-ds-filterclear { margin-left: auto; appearance: none; background: none; border: 0; padding: 0; color: var(--ppf-link); font-weight: 700; font-size: 12px; letter-spacing: .3px; text-transform: uppercase; cursor: pointer; }
+      .ppf-ds-filterclear:hover { text-decoration: underline; }
+
+      /* Selected-period chips (multiselect) — chips use the Nimbus default .chip */
+      .ppf-chips { margin-top: 14px; }
+      .ppf-chips-empty { margin: 0; padding: 12px 14px; background: var(--ppf-card); border: 1px solid var(--ppf-border); border-radius: var(--ppf-r-s); font-size: 13px; color: var(--ppf-muted); }
+      .ppf-chips-list { display: flex; flex-wrap: wrap; gap: 8px; }
 
       /* Profile details */
       .ppf-detailgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
@@ -6411,6 +6499,124 @@
       }
       @media (prefers-reduced-motion: reduce) {
         .ppf-bar, .ppf-toast { transition: none; }
+      }
+
+      /* ══════════════════ DATA SOURCES TAB ══════════════════ */
+      .ppf-ds-window { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--ppf-text); margin-bottom: 16px; }
+      .ppf-ds-window .mdi { font-size: 18px; color: var(--ppf-muted); letter-spacing: normal; }
+
+      /* Type-filter tiles */
+      .ppf-ds-tiles { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 16px; }
+      .ppf-ds-tile { display: flex; flex-direction: column; align-items: center; gap: 3px; text-align: center; padding: 14px 10px; background: var(--ppf-frame); border: 1px solid var(--ppf-border); border-radius: var(--ppf-r-m); cursor: pointer; color: var(--ppf-text); transition: border-color .12s ease, background .12s ease; }
+      /* Hover / selected states use the secondary-button state colors (fixed in
+         both themes, per Figma): hover = #b4c8e5 / #1a4480, selected = #8fadd6 /
+         #112d56, border #6790ca. All tile text flips to the navy label color. */
+      .ppf-ds-tile:hover { background: #b4c8e5; border-color: #6790ca; }
+      .ppf-ds-tile:hover .ppf-ds-tile-head,
+      .ppf-ds-tile:hover .ppf-ds-tile-num,
+      .ppf-ds-tile:hover .ppf-ds-tile-sub,
+      .ppf-ds-tile:hover .ppf-ds-tile-meta { color: #1a4480; }
+      .ppf-ds-tile.is-active { background: #8fadd6; border-color: #6790ca; }
+      .ppf-ds-tile.is-active .ppf-ds-tile-head,
+      .ppf-ds-tile.is-active .ppf-ds-tile-num,
+      .ppf-ds-tile.is-active .ppf-ds-tile-sub,
+      .ppf-ds-tile.is-active .ppf-ds-tile-meta { color: #112d56; }
+      .ppf-ds-tile-head { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--ppf-muted); }
+      .ppf-ds-tile-head .mdi { font-size: 18px; }
+      .ppf-ds-tile-head .ppf-bd-svg { width: 18px; height: 18px; }
+      .ppf-ds-tile-num { font-size: 24.5px; font-weight: 700; line-height: 1.2; color: var(--ppf-text); }
+      .ppf-ds-tile-sub { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--ppf-muted); }
+      .ppf-ds-tile-meta { font-size: 11px; color: var(--ppf-faint); }
+
+      /* Toolbar */
+      .ppf-ds-toolbar { display: flex; align-items: stretch; gap: 12px; margin-bottom: 16px; }
+      /* Toolbar bar (Nimbus/Toolbars): sunken surface holding search + controls. */
+      .ppf-ds-bar { flex: 1 1 auto; display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--ppf-sunken); border: 1px solid var(--ppf-border); border-radius: var(--ppf-r-m); flex-wrap: wrap; }
+      .ppf-ds-divider { flex-shrink: 0; align-self: center; width: 1px; height: 24px; background: var(--ppf-border); }
+      .ppf-ds-add { flex-shrink: 0; }
+      .ppf-ds-search { flex: 1 1 240px; min-width: 160px; display: flex; align-items: center; padding: 0 12px; background: var(--ppf-card-2); border: 1px solid var(--ppf-border-strong); border-radius: var(--ppf-r-m); }
+      .ppf-ds-search-input { flex: 1; background: none; border: 0; outline: none; color: var(--ppf-text); font-size: 13px; padding: 10px 0; font-family: var(--ppf-font); }
+      .ppf-ds-search-input::placeholder { color: var(--ppf-faint); }
+      .ppf-ds-sortlbl { font-size: 14px; font-weight: 500; color: var(--ppf-text); }
+      /* Select-style dropdown toggle (Sort By / per-page): dark input field, not a button. */
+      .ppf-ds-selectbtn { display: inline-flex; align-items: center; justify-content: space-between; gap: 10px; background: var(--ppf-card-2); border: 1px solid var(--ppf-border-strong); border-radius: var(--ppf-r-m); color: var(--ppf-text); font-size: 13px; padding: 9px 12px; cursor: pointer; font-family: var(--ppf-font); }
+      .ppf-ds-sort .ppf-ds-selectbtn { min-width: 150px; }
+      .ppf-ds-selectbtn .mdi { font-size: 18px; color: var(--ppf-muted); }
+      .ppf-modal .ppf-ds-dir, .ppf-modal .ppf-ds-export { display: inline-flex; align-items: center; gap: 6px; }
+
+      /* Sources table */
+      .ppf-ds-tablewrap { overflow-x: auto; margin-top: 16px; }
+      .ppf-ds-table { width: 100%; border-collapse: collapse; }
+      .ppf-ds-th { text-align: left; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--ppf-muted); padding: 8px 12px; border-bottom: 1px solid var(--ppf-border); white-space: nowrap; }
+      .ppf-ds-th--freq { width: 220px; }
+      .ppf-ds-th--sort { cursor: pointer; user-select: none; }
+      .ppf-ds-th--sort:hover { color: var(--ppf-text); }
+      .ppf-ds-th.is-sorted { color: var(--ppf-text); }
+      .ppf-ds-th.is-sorted::after { content: "▾"; margin-left: 6px; font-size: 10px; }
+      .ppf-ds-th.is-sorted[data-dir="asc"]::after { content: "▴"; }
+      .ppf-ds-row td { padding: 10px 12px; border-bottom: 1px solid var(--ppf-border); font-size: 14px; color: var(--ppf-text); vertical-align: middle; }
+      td.ppf-ds-src { display: flex; align-items: center; gap: 12px; }
+      .ppf-ds-src-ico { flex: 0 0 22px; width: 22px; height: 22px; color: var(--ppf-muted); display: inline-flex; align-items: center; }
+      .ppf-ds-src-ico .ppf-bd-svg { width: 22px; height: 22px; }
+      .ppf-ds-src-ico .mdi { font-size: 22px; }
+      .ppf-ds-src-body { display: flex; flex-direction: column; min-width: 0; }
+      .ppf-ds-src-name { font-size: 14px; color: var(--ppf-text); }
+      .ppf-ds-src-path { font-size: 11px; color: var(--ppf-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 360px; }
+      .ppf-ds-freq { white-space: nowrap; }
+      .ppf-ds-freq .ppf-progress { display: inline-block; width: 120px; vertical-align: middle; }
+      .ppf-ds-freq-num { display: inline-block; font-size: 13px; color: var(--ppf-muted); min-width: 52px; text-align: right; margin-left: 12px; vertical-align: middle; }
+      .ppf-ds-date { font-size: 13px; color: var(--ppf-muted); white-space: nowrap; }
+      .ppf-ds-empty { padding: 24px; text-align: center; color: var(--ppf-faint); font-size: 13px; margin: 0; }
+
+      /* Pagination */
+      /* Nimbus .pagination-toolbar component — remap its exposed custom props to the
+         modal palette so the (fixed light-surface) defaults become theme-aware. */
+      .ppf-modal .pagination-toolbar {
+        --cnds-pagination-toolbar-bg: var(--ppf-sunken);
+        --cnds-pagination-toolbar-border-color: var(--ppf-border);
+        --cnds-pagination-toolbar-color: var(--ppf-text);
+        --cnds-pagination-toolbar-shadow: none;
+        --cnds-pagination-toolbar-btn-color: var(--ppf-link);
+        --cnds-pagination-toolbar-btn-hover-bg: rgba(103, 144, 202, .14);
+        --cnds-pagination-toolbar-focus-color: var(--ppf-link);
+        margin-top: 16px; border-radius: var(--ppf-r-m); flex-wrap: wrap;
+      }
+      .ppf-modal .pagination-toolbar-label, .ppf-modal .pagination-toolbar-range { color: var(--ppf-muted); }
+
+      /* ══ Add Data Source overlay ══ */
+      .ppf-addsrc { position: absolute; inset: 0; z-index: 20; display: flex; align-items: center; justify-content: center; padding: 24px; }
+      .ppf-addsrc[hidden] { display: none; }
+      .ppf-addsrc-backdrop { position: absolute; inset: 0; background: rgba(0, 0, 0, .55); }
+      .ppf-addsrc-dialog { position: relative; width: 100%; max-width: 460px; max-height: calc(100% - 48px); overflow: auto; background: var(--ppf-bg); border: 1px solid var(--ppf-border); border-radius: var(--ppf-r-m); display: flex; flex-direction: column; box-shadow: 0 16px 48px rgba(0, 0, 0, .5); }
+      .ppf-addsrc-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--ppf-border); }
+      .ppf-addsrc-title { font-family: var(--ppf-font-title); font-size: 16px; font-weight: 700; color: var(--ppf-text); margin: 0; }
+      .ppf-addsrc-body { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+      .ppf-addsrc-lead { margin: 0; font-size: 13px; color: var(--ppf-muted); }
+      .ppf-addsrc-foot { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 20px; border-top: 1px solid var(--ppf-border); }
+
+      /* Form fields (shared) */
+      .ppf-field { display: flex; flex-direction: column; gap: 6px; }
+      .ppf-field[hidden] { display: none; }
+      .ppf-label { font-size: 13px; font-weight: 700; color: var(--ppf-text); }
+      .ppf-req { color: var(--ppf-warn-bg); }
+      .ppf-input { width: 100%; background: var(--ppf-card-2); border: 1px solid var(--ppf-border-strong); border-radius: var(--ppf-r-s); color: var(--ppf-text); font-size: 13px; padding: 9px 12px; font-family: var(--ppf-font); outline: none; }
+      .ppf-input:focus { border-color: var(--ppf-link); }
+      .ppf-input::placeholder { color: var(--ppf-faint); }
+      /* Validation */
+      .ppf-field-err { display: none; margin: 0; font-size: 12px; color: #e5484d; }
+      .ppf-field.is-invalid .ppf-field-err { display: block; }
+      .ppf-field.is-invalid .ppf-input { border-color: #e5484d; }
+      .ppf-field.is-invalid .ppf-input:focus { border-color: #e5484d; box-shadow: 0 0 0 1px #e5484d; }
+      .ppf-textarea { min-height: 72px; resize: vertical; }
+      .ppf-select { appearance: none; -webkit-appearance: none; padding-right: 34px;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23949494' stroke-width='2'><path d='M6 9l6 6 6-6'/></svg>");
+        background-repeat: no-repeat; background-position: right 12px center; }
+
+      @media (max-width: 900px) {
+        .ppf-ds-tiles { grid-template-columns: repeat(3, 1fr); }
+      }
+      @media (max-width: 560px) {
+        .ppf-ds-tiles { grid-template-columns: repeat(2, 1fr); }
       }
     </style>
 
@@ -6486,6 +6692,44 @@
           delegate: {
             name: "Victoria Viceroy", role: "${job_title}", avatarInitials: "VV",
             badges: ["Legal Holds", "Surveys"]
+          },
+          /* Data Sources tab: type-filter tiles + the sources table. */
+          dataSources: {
+            windowLabel: "Jan 2024 – Jun 2026 · Case Window",
+            types: [
+              { key: "all",        label: "All Types",  events: 1737, sources: 29 },
+              { key: "sharepoint", label: "SharePoint", events: 841,  sources: 14 },
+              { key: "teams",      label: "Teams",      events: 514,  sources: 8 },
+              { key: "onedrive",   label: "OneDrive",   events: 276,  sources: 5 },
+              { key: "exchange",   label: "Exchange",   events: 62,   sources: 1 },
+              { key: "copilot",    label: "Copilot",    events: 44,   sources: 1 }
+            ],
+            sources: [
+              { type: "sharepoint", name: "Regulatory-Submissions site",     path: "sharepoint.com/sites/RegulatorySubmissions",       freq: 1755, first: "Jan 16, 2026", last: "Jun 30, 2026" },
+              { type: "onedrive",   name: "evasquez OneDrive",               path: "cloudficient-my.sharepoint.com/personal/evasquez", freq: 1090, first: "Jan 20, 2026", last: "Jun 29, 2026" },
+              { type: "sharepoint", name: "Quality-Assurance site",          path: "sharepoint.com/sites/QualityAssurance",            freq: 612,  first: "Jan 18, 2026", last: "Jun 28, 2026" },
+              { type: "onedrive",   name: "mtorres OneDrive",                path: "cloudficient-my.sharepoint.com/personal/mtorres",  freq: 512,  first: "Jan 15, 2026", last: "Jun 30, 2026" },
+              { type: "teams",      name: "Clinical Trial Ops",              path: "Teams channel · Regulatory Affairs team",          freq: 455,  first: "Feb 3, 2026",  last: "Jun 24, 2026" },
+              { type: "sharepoint", name: "Clinical-Data site",              path: "sharepoint.com/sites/ClinicalData",                freq: 430,  first: "Jan 21, 2026", last: "Jun 25, 2026" },
+              { type: "exchange",   name: "Regulatory Affairs Shared Mailbox", path: "meridianbiopharma.com/groups/regaffairs",        freq: 320,  first: "Jan 22, 2026", last: "Jun 26, 2026" },
+              { type: "teams",      name: "Vendor Coordination — Prosearch", path: "Teams channel · External Collaboration",           freq: 315,  first: "Mar 11, 2026", last: "Jun 18, 2026" },
+              { type: "sharepoint", name: "Manufacturing-Ops site",          path: "sharepoint.com/sites/ManufacturingOps",            freq: 288,  first: "Feb 2, 2026",  last: "Jun 20, 2026" },
+              { type: "copilot",    name: "Copilot — M365 Chat",             path: "Copilot.M365Copilot.WebChat",                      freq: 244,  first: "Feb 1, 2026",  last: "Jun 27, 2026" },
+              { type: "onedrive",   name: "areyes OneDrive",                 path: "cloudficient-my.sharepoint.com/personal/areyes",   freq: 210,  first: "Jan 24, 2026", last: "Jun 12, 2026" },
+              { type: "teams",      name: "CMC Working Group",               path: "Teams channel · Manufacturing Floor",              freq: 180,  first: "Jan 27, 2026", last: "Jun 9, 2026" },
+              { type: "sharepoint", name: "Legal-Hold Archive site",         path: "sharepoint.com/sites/LegalHoldArchive",            freq: 145,  first: "Jan 29, 2026", last: "May 30, 2026" },
+              { type: "exchange",   name: "Drug Safety Shared Mailbox",      path: "meridianbiopharma.com/groups/drugsafety",          freq: 140,  first: "Jan 25, 2026", last: "May 28, 2026" },
+              { type: "onedrive",   name: "jpark OneDrive",                  path: "cloudficient-my.sharepoint.com/personal/jpark",    freq: 96,   first: "Feb 5, 2026",  last: "May 22, 2026" },
+              { type: "teams",      name: "IT Support",                      path: "Teams channel · IT Helpdesk",                      freq: 88,   first: "Feb 14, 2026", last: "May 15, 2026" },
+              { type: "sharepoint", name: "Pharmacovigilance site",          path: "sharepoint.com/sites/Pharmacovigilance",           freq: 74,   first: "Feb 9, 2026",  last: "May 12, 2026" },
+              { type: "teams",      name: "Submissions War Room",            path: "Teams channel · Regulatory Submissions",           freq: 61,   first: "Mar 2, 2026",  last: "Jun 5, 2026" },
+              { type: "onedrive",   name: "lwong OneDrive",                  path: "cloudficient-my.sharepoint.com/personal/lwong",    freq: 47,   first: "Feb 18, 2026", last: "Apr 30, 2026" },
+              { type: "sharepoint", name: "Quality-Systems site",            path: "sharepoint.com/sites/QualitySystems",              freq: 42,   first: "Feb 22, 2026", last: "Apr 18, 2026" },
+              { type: "teams",      name: "Change Control Board",            path: "Teams channel · Quality",                          freq: 33,   first: "Mar 6, 2026",  last: "May 3, 2026" },
+              { type: "sharepoint", name: "Regulatory Intelligence site",    path: "sharepoint.com/sites/RegIntel",                    freq: 28,   first: "Mar 15, 2026", last: "Apr 9, 2026" },
+              { type: "teams",      name: "Audit Readiness",                 path: "Teams channel · Compliance",                       freq: 19,   first: "Mar 20, 2026", last: "Apr 2, 2026" },
+              { type: "sharepoint", name: "Deviations & CAPA site",          path: "sharepoint.com/sites/DeviationsCAPA",              freq: 12,   first: "Apr 1, 2026",  last: "Apr 15, 2026" }
+            ]
           }
           /* activity chart data lives in SERIES below (data.activity), overridable
              via open({ activity: … }). */
@@ -6647,7 +6891,20 @@
         };
         DEMO.activity = SERIES;  /* activity card data joins the model (overridable via open) */
 
-        var state = { mode: "week", offset: 0, selected: -1 };
+        /* Calendar range [s,e] (ms) a bucket covers, per view mode — lets the Data
+           Sources chart filter its table to the periods selected on it. */
+        function bucketRange(mode, b) {
+          if (!b) return null;
+          var s, e;
+          if (mode === "week") { s = new Date(b.startFull); e = new Date(b.endFull); }
+          else if (mode === "day") { s = new Date(b.head); e = new Date(b.head); }
+          else if (mode === "month") { var mi = MONTHS.indexOf(b.label); s = new Date(b.year, mi, 1); e = new Date(b.year, mi + 1, 0); }
+          else { var y = parseInt(b.label, 10); if (isNaN(y)) return null; s = new Date(y, 0, 1); e = new Date(y, 11, 31); }
+          if (!s || isNaN(+s) || isNaN(+e)) return null;
+          return { s: +new Date(s.getFullYear(), s.getMonth(), s.getDate()),
+                   e: +new Date(e.getFullYear(), e.getMonth(), e.getDate(), 23, 59, 59) };
+        }
+
 
         /* ── tiny DOM helpers ── */
         function $(sel, ctx) { return (ctx || root).querySelector(sel); }
@@ -6729,13 +6986,6 @@
           var w = d.caseWindow || {};
           return !!(w.start && w.end && String(w.start).slice(0, 4) !== String(w.end).slice(0, 4));
         }
-        function renderViewOptions(d) {
-          var opt = $('[data-ppf-mode="year"]');
-          var li = opt && opt.closest("li");
-          if (li) li.hidden = !isMultiYear(d);
-          /* If Year was the active granularity but is no longer offered, fall back. */
-          if (!isMultiYear(d) && state.mode === "year") setMode("week");
-        }
         /* Merge API payload over the defaults (per-card, top-level) and repaint. */
         function applyData(data) {
           DATA = Object.assign({}, DEMO, data || {});
@@ -6746,7 +6996,8 @@
           renderEmployment(DATA);
           renderGroups(DATA);
           renderDelegate(DATA);
-          renderViewOptions(DATA);
+          renderDataSources();
+          CHARTS.forEach(function (c) { c.applyYearOption(); });
         }
 
         /* ══ Tabs ══ */
@@ -6761,6 +7012,7 @@
             p.classList.toggle("is-active", on);
             if (on) { p.removeAttribute("hidden"); } else { p.setAttribute("hidden", ""); }
           });
+          CHARTS.forEach(function (c) { if (c.el.offsetParent) c.refit(); });
         }
         root.addEventListener("click", function (e) {
           var tab = e.target.closest("[data-ppf-tab]");
@@ -6779,195 +7031,258 @@
         });
 
         /* ══ Activity chart ══ */
-        function visibleBuckets() {
-          var s = (DATA.activity || SERIES)[state.mode];
-          /* Paged modes (Day) have variable-length pages; offset is the page index. */
-          if (s.pages) {
-            var pi = Math.max(0, Math.min(state.offset, s.pages.length - 1)), pg = s.pages[pi];
-            return { s: s, start: pg.start, slice: s.buckets.slice(pg.start, pg.start + pg.count),
-                     pageIndex: pi, pageCount: s.pages.length };
-          }
-          var start = Math.max(0, Math.min(state.offset, s.buckets.length - s.windowSize));
-          return { s: s, start: start, slice: s.buckets.slice(start, start + s.windowSize) };
-        }
-        function renderChart() {
-          var v = visibleBuckets(), chart = $("#ppfChart"), max = 1;
-          v.slice.forEach(function (b) { if (b.value > max) max = b.value; });
-          chart.innerHTML = "";
-          v.slice.forEach(function (b, i) {
-            var globalIdx = v.start + i;
-            var wrap = document.createElement("div");
-            wrap.className = "ppf-bar-wrap"
-              + (globalIdx === state.selected ? " is-selected" : "")
-              + (globalIdx === v.s.current ? " is-current" : "");
-            var bar = document.createElement("button");
-            bar.type = "button";
-            bar.className = "ppf-bar";
-            bar.style.height = Math.max(4, Math.round((b.value / max) * 100)) + "%";
-            bar.setAttribute("aria-label", b.label + ": " + b.value + " items");
-            bar.setAttribute("data-idx", String(globalIdx));
-            /* No data → disabled: 50% opacity, no-access cursor, not clickable. */
-            if (!(b.value > 0)) { bar.classList.add("is-empty"); bar.setAttribute("aria-disabled", "true"); bar.tabIndex = -1; }
-            wrap.appendChild(bar);
-            chart.appendChild(wrap);
-          });
-          /* Axis labels are centered in equal columns. Week supplies a sparse set
-             of range markers; Month/Day/Year use one label per bar. */
-          var axis = el("chartAxis"), perBar = !v.s.axis;
-          var labels = perBar ? v.slice.map(function (b) { return b.label; }) : v.s.axis;
-          axis.innerHTML = "";
-          axis.classList.add("ppf-chart-axis--bars");
-          labels.forEach(function (lbl) {
-            var span = document.createElement("span"); span.textContent = lbl; axis.appendChild(span);
-          });
-          /* Pager: hidden when pager===false (Year); a function computes the label
-             from the visible slice (Week → date range with year); else a fixed
-             string (Month/Day); else the first–last bucket labels. */
-          var nav = $(".ppf-chart-nav");
-          if (v.s.pager === false) {
-            nav.style.display = "none";
-          } else {
-            nav.style.display = "";
-            var first = v.slice[0], last = v.slice[v.slice.length - 1];
-            el("chartRange").textContent = (typeof v.s.pager === "function")
-              ? v.s.pager(v.slice)
-              : (v.s.pager || (first.label + " - " + last.label));
-          }
-          el("chartSub").textContent = "All Sources, " + v.s.unit;
-          /* nav enable/disable — by page for paged modes, by offset otherwise */
-          if (v.pageCount != null) {
-            $('[data-ppf-nav="prev"]').disabled = v.pageIndex <= 0;
-            $('[data-ppf-nav="next"]').disabled = v.pageIndex >= v.pageCount - 1;
-          } else {
-            $('[data-ppf-nav="prev"]').disabled = v.start <= 0;
-            $('[data-ppf-nav="next"]').disabled = v.start + v.s.windowSize >= v.s.buckets.length;
-          }
-          fitAxis();
-        }
-        /* Shrink the axis font (from 14px, floor 10px) until every label fits on
-           one line without wrapping — needed for Week's dense per-bar ranges.
-           No-ops when hidden (measurements are 0) or when labels already fit. */
-        function fitAxis() {
-          var axis = el("chartAxis");
-          if (!axis || !axis.children.length) return;
-          axis.style.fontSize = "";
-          if (!axis.classList.contains("ppf-chart-axis--bars")) return;
-          function overflows() {
-            for (var i = 0; i < axis.children.length; i++) {
-              if (axis.children[i].scrollWidth > axis.children[i].clientWidth + 1) return true;
-            }
-            return false;
-          }
-          var size = 14;
-          while (size > 10 && overflows()) { size -= 0.5; axis.style.fontSize = size + "px"; }
-        }
         var REDUCE_MOTION = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-        /* Smoothly animate the breakdown area's height (350ms) as its content
-           changes — empty prompt ↔ summary cards. The content swaps instantly;
-           only the container height is transitioned (works cross-browser). */
-        var bdTimer = null;
-        function slideBreakdown(updateFn) {
-          var c = el("chartBreakdown");
-          if (REDUCE_MOTION || !c.offsetHeight) { updateFn(); return; }
-          if (bdTimer) { clearTimeout(bdTimer); bdTimer = null; c.style.transition = ""; c.style.height = ""; c.style.overflow = ""; }
-          var start = c.offsetHeight;
-          updateFn();
-          var end = c.offsetHeight;
-          if (start === end) return;
-          c.style.overflow = "hidden";
-          c.style.height = start + "px";
-          void c.offsetHeight;
-          c.style.transition = "height 350ms ease";
-          c.style.height = end + "px";
-          bdTimer = window.setTimeout(function () {
-            c.style.transition = ""; c.style.height = ""; c.style.overflow = ""; bdTimer = null;
-          }, 380);
+        /* ══════════════════════════════════════════════════════════════════
+           REUSABLE ACTIVITY CHART. createActivityChart(rootEl, opts) fills rootEl
+           with the chart markup and wires an independent instance (own state,
+           own scoped element lookups) so Overview and Data Sources can each have
+           one without ID collisions. Shared data comes from getData() (the current
+           persona's activity series). ══════════════════════════════════════════ */
+        var CHARTS = [];
+        function chartInnerHTML(opts) {
+          return ''
+            + '<div class="ppf-card-head ppf-card-head--row">'
+            +   '<div><h3 class="ppf-card-title">Activity Over Case Window</h3>'
+            +   '<p class="ppf-card-sub" data-ppf-el="chartSub">All Sources, Weekly Volume</p></div>'
+            +   '<div class="dropdown ppf-viewby">'
+            +     '<button type="button" class="btn btn-tertiary btn-sm dropdown-toggle ppf-viewby-btn" data-cnds-toggle="dropdown" aria-expanded="false">'
+            +       '<span class="ppf-viewby-lbl">View By: <span data-ppf-el="viewByText">Week</span></span><i class="mdi mdi-chevron-down" aria-hidden="true"></i>'
+            +     '</button>'
+            +     '<ul class="dropdown-menu dropdown-menu-end dropdown-menu-casefusion">'
+            +       '<li><a class="dropdown-item" href="#" data-ppf-mode="year">Year</a></li>'
+            +       '<li><a class="dropdown-item" href="#" data-ppf-mode="month">Month</a></li>'
+            +       '<li><a class="dropdown-item active" href="#" data-ppf-mode="week">Week</a></li>'
+            +       '<li><a class="dropdown-item" href="#" data-ppf-mode="day">Day</a></li>'
+            +     '</ul>'
+            +   '</div>'
+            + '</div>'
+            + '<div class="ppf-chart-plot">'
+            +   '<div class="ppf-chart-nav">'
+            +     '<button type="button" class="ppf-chart-arrow" data-ppf-nav="prev" aria-label="Previous period"><i class="mdi mdi-chevron-left" aria-hidden="true"></i></button>'
+            +     '<span class="ppf-chart-range" data-ppf-el="chartRange"></span>'
+            +     '<button type="button" class="ppf-chart-arrow" data-ppf-nav="next" aria-label="Next period"><i class="mdi mdi-chevron-right" aria-hidden="true"></i></button>'
+            +   '</div>'
+            +   '<div class="ppf-chart" role="group" aria-label="' + (opts.chips ? 'Activity volume, click bars to select periods' : 'Activity volume, click a bar for the breakdown') + '"></div>'
+            +   '<div class="ppf-chart-axis" data-ppf-el="chartAxis"></div>'
+            + '</div>'
+            /* Selection area: multiselect chips (Data Sources) or single-select
+               breakdown summary cards (Overview). */
+            + (opts.chips
+                ? '<div class="ppf-chips" data-ppf-el="chartSelect" role="status" aria-live="polite">'
+                  +   '<p class="ppf-chips-empty">Click one or more bars to tag periods.</p>'
+                  +   '<div class="ppf-chips-list" data-ppf-el="chipList" hidden></div>'
+                  + '</div>'
+                : '<div class="ppf-breakdown" data-ppf-el="chartSelect" role="status" aria-live="polite">'
+                  +   '<p class="ppf-breakdown-empty">Click a week for the breakdown.</p>'
+                  +   '<div class="ppf-breakdown-detail" hidden>'
+                  +     '<p class="ppf-breakdown-head" data-ppf-el="bdHead"></p>'
+                  +     '<div class="ppf-breakdown-cards" data-ppf-el="bdCards"></div>'
+                  +   '</div>'
+                  + '</div>')
+            + (opts.foot || '');
         }
 
-        /* Crossfade the plot (pager + bars + axis) when the granularity changes:
-           snapshot the old plot as an overlaid clone that fades out while the
-           freshly rendered plot fades in. */
-        function crossfadeChart(renderFn) {
-          var plot = $(".ppf-chart-plot");
-          if (REDUCE_MOTION || !plot || !plot.offsetHeight || !plot.offsetParent) { renderFn(); return; }
-          var clone = plot.cloneNode(true);
-          clone.setAttribute("aria-hidden", "true");
-          clone.style.cssText = "position:absolute;pointer-events:none;margin:0;top:" + plot.offsetTop
-            + "px;left:" + plot.offsetLeft + "px;width:" + plot.offsetWidth + "px;transition:opacity 300ms ease;";
-          plot.offsetParent.appendChild(clone);
-          renderFn();
-          plot.style.transition = "none"; plot.style.opacity = "0"; void plot.offsetHeight;
-          plot.style.transition = "opacity 300ms ease"; plot.style.opacity = "1";
-          requestAnimationFrame(function () { clone.style.opacity = "0"; });
-          window.setTimeout(function () {
-            if (clone.parentNode) clone.parentNode.removeChild(clone);
-            plot.style.transition = ""; plot.style.opacity = "";
-          }, 340);
-        }
+        function createActivityChart(rootEl, opts) {
+          opts = opts || {};
+          rootEl.innerHTML = chartInnerHTML(opts);
+          var state = { mode: "week", offset: 0, selected: [] }, bdTimer = null;
+          function q(sel) { return rootEl.querySelector(sel); }
+          function qAll(sel) { return Array.prototype.slice.call(rootEl.querySelectorAll(sel)); }
+          function qEl(name) { return rootEl.querySelector('[data-ppf-el="' + name + '"]'); }
+          function getData() { return DATA.activity || SERIES; }
+          /* Notify the host (e.g. Data Sources table) of the selected periods' date
+             ranges whenever selection changes. No-op if opts.onSelect isn't given. */
+          function notifySelect() {
+            if (typeof opts.onSelect !== "function") return;
+            var buckets = getData()[state.mode].buckets;
+            opts.onSelect(state.selected.map(function (idx) { return bucketRange(state.mode, buckets[idx]); }).filter(Boolean));
+          }
 
-        /* Breakdown: empty prompt by default; on bar-click a header + a row of
-           the five source-type cards (matches the design's selected-week state). */
-        function resetBreakdown() {
-          slideBreakdown(function () {
-            var empty = el("chartBreakdown").querySelector(".ppf-breakdown-empty");
-            empty.textContent = "Click a " + state.mode + " for the breakdown.";
-            empty.hidden = false;
-            el("chartBreakdown").querySelector(".ppf-breakdown-detail").hidden = true;
+          function visibleBuckets() {
+            var s = getData()[state.mode];
+            if (s.pages) {
+              var pi = Math.max(0, Math.min(state.offset, s.pages.length - 1)), pg = s.pages[pi];
+              return { s: s, start: pg.start, slice: s.buckets.slice(pg.start, pg.start + pg.count), pageIndex: pi, pageCount: s.pages.length };
+            }
+            var start = Math.max(0, Math.min(state.offset, s.buckets.length - s.windowSize));
+            return { s: s, start: start, slice: s.buckets.slice(start, start + s.windowSize) };
+          }
+          function render() {
+            var v = visibleBuckets(), chart = q(".ppf-chart"), max = 1;
+            v.slice.forEach(function (b) { if (b.value > max) max = b.value; });
+            chart.innerHTML = "";
+            v.slice.forEach(function (b, i) {
+              var globalIdx = v.start + i;
+              var wrap = document.createElement("div");
+              wrap.className = "ppf-bar-wrap" + (state.selected.indexOf(globalIdx) !== -1 ? " is-selected" : "") + (globalIdx === v.s.current ? " is-current" : "");
+              var bar = document.createElement("button");
+              bar.type = "button"; bar.className = "ppf-bar";
+              bar.style.height = Math.max(4, Math.round((b.value / max) * 100)) + "%";
+              bar.setAttribute("aria-label", b.label + ": " + b.value + " items");
+              bar.setAttribute("data-idx", String(globalIdx));
+              if (!(b.value > 0)) { bar.classList.add("is-empty"); bar.setAttribute("aria-disabled", "true"); bar.tabIndex = -1; }
+              wrap.appendChild(bar); chart.appendChild(wrap);
+            });
+            var axis = qEl("chartAxis"), perBar = !v.s.axis;
+            var labels = perBar ? v.slice.map(function (b) { return b.label; }) : v.s.axis;
+            axis.innerHTML = ""; axis.classList.add("ppf-chart-axis--bars");
+            labels.forEach(function (lbl) { var sp = document.createElement("span"); sp.textContent = lbl; axis.appendChild(sp); });
+            var nav = q(".ppf-chart-nav");
+            if (v.s.pager === false) { nav.style.display = "none"; }
+            else {
+              nav.style.display = "";
+              var first = v.slice[0], last = v.slice[v.slice.length - 1];
+              qEl("chartRange").textContent = (typeof v.s.pager === "function") ? v.s.pager(v.slice) : (v.s.pager || (first.label + " - " + last.label));
+            }
+            qEl("chartSub").textContent = "All Sources, " + v.s.unit;
+            if (v.pageCount != null) {
+              q('[data-ppf-nav="prev"]').disabled = v.pageIndex <= 0;
+              q('[data-ppf-nav="next"]').disabled = v.pageIndex >= v.pageCount - 1;
+            } else {
+              q('[data-ppf-nav="prev"]').disabled = v.start <= 0;
+              q('[data-ppf-nav="next"]').disabled = v.start + v.s.windowSize >= v.s.buckets.length;
+            }
+            fitAxis();
+          }
+          function fitAxis() {
+            var axis = qEl("chartAxis");
+            if (!axis || !axis.children.length) return;
+            axis.style.fontSize = "";
+            if (!axis.classList.contains("ppf-chart-axis--bars")) return;
+            function overflows() {
+              for (var i = 0; i < axis.children.length; i++) { if (axis.children[i].scrollWidth > axis.children[i].clientWidth + 1) return true; }
+              return false;
+            }
+            var size = 14;
+            while (size > 10 && overflows()) { size -= 0.5; axis.style.fontSize = size + "px"; }
+          }
+          function slideBreakdown(updateFn) {
+            var c = qEl("chartSelect");
+            if (REDUCE_MOTION || !c.offsetHeight) { updateFn(); return; }
+            if (bdTimer) { clearTimeout(bdTimer); bdTimer = null; c.style.transition = ""; c.style.height = ""; c.style.overflow = ""; }
+            var startH = c.offsetHeight; updateFn(); var endH = c.offsetHeight;
+            if (startH === endH) return;
+            c.style.overflow = "hidden"; c.style.height = startH + "px"; void c.offsetHeight;
+            c.style.transition = "height 350ms ease"; c.style.height = endH + "px";
+            bdTimer = window.setTimeout(function () { c.style.transition = ""; c.style.height = ""; c.style.overflow = ""; bdTimer = null; }, 380);
+          }
+          function crossfade(renderFn) {
+            var plot = q(".ppf-chart-plot");
+            if (REDUCE_MOTION || !plot || !plot.offsetHeight || !plot.offsetParent) { renderFn(); return; }
+            var clone = plot.cloneNode(true);
+            clone.setAttribute("aria-hidden", "true");
+            clone.style.cssText = "position:absolute;pointer-events:none;margin:0;top:" + plot.offsetTop + "px;left:" + plot.offsetLeft + "px;width:" + plot.offsetWidth + "px;transition:opacity 300ms ease;";
+            plot.offsetParent.appendChild(clone);
+            renderFn();
+            plot.style.transition = "none"; plot.style.opacity = "0"; void plot.offsetHeight;
+            plot.style.transition = "opacity 300ms ease"; plot.style.opacity = "1";
+            requestAnimationFrame(function () { clone.style.opacity = "0"; });
+            window.setTimeout(function () { if (clone.parentNode) clone.parentNode.removeChild(clone); plot.style.transition = ""; plot.style.opacity = ""; }, 340);
+          }
+          /* Dispatch to the mode this instance was built with. */
+          function renderSelection() { if (opts.chips) renderChips(); else renderBreakdown(); }
+          /* Data Sources: one dismissible chip per selected period (multiselect). */
+          function renderChips() {
+            slideBreakdown(function () {
+              var wrap = qEl("chartSelect"), empty = wrap.querySelector(".ppf-chips-empty"), list = qEl("chipList");
+              var sel = state.selected.slice().sort(function (a, b) { return a - b; });
+              if (!sel.length) {
+                empty.textContent = "Click one or more " + state.mode + "s to tag periods.";
+                empty.hidden = false; list.hidden = true; list.innerHTML = ""; return;
+              }
+              empty.hidden = true; list.hidden = false;
+              var buckets = getData()[state.mode].buckets;
+              list.innerHTML = sel.map(function (idx) {
+                var b = buckets[idx]; if (!b) return "";
+                return '<span class="chip">' + esc(b.head + " · " + b.value + " items")
+                  + ' <button type="button" class="close mdi mdi-close-circle" data-ppf-chip-close="' + idx + '" aria-label="Deselect ' + esc(b.head) + '"></button></span>';
+              }).join("");
+            });
+          }
+          /* Overview: single-select breakdown summary cards for the chosen period. */
+          function renderBreakdown() {
+            slideBreakdown(function () {
+              var wrap = qEl("chartSelect"), empty = wrap.querySelector(".ppf-breakdown-empty"), detail = wrap.querySelector(".ppf-breakdown-detail");
+              if (!state.selected.length) {
+                empty.textContent = "Click a " + state.mode + " for the breakdown.";
+                empty.hidden = false; detail.hidden = true; return;
+              }
+              var b = getData()[state.mode].buckets[state.selected[0]];
+              empty.hidden = true; detail.hidden = false;
+              qEl("bdHead").textContent = b.head + " · " + b.value + " items";
+              var cards = qEl("bdCards"); cards.innerHTML = "";
+              SRC_TYPES.forEach(function (t) {
+                var card = document.createElement("div"); card.className = "ppf-bd-card";
+                card.innerHTML = '<span class="ppf-bd-type">' + t.svg + t.label + '</span><span class="ppf-bd-num">' + b.bd[t.key] + '</span>';
+                cards.appendChild(card);
+              });
+            });
+          }
+          function setMode(mode) {
+            state.mode = mode; state.offset = getData()[mode].defaultOffset || 0; state.selected = [];
+            qEl("viewByText").textContent = mode.charAt(0).toUpperCase() + mode.slice(1);
+            qAll(".ppf-viewby [data-ppf-mode]").forEach(function (o) { o.classList.toggle("active", o.getAttribute("data-ppf-mode") === mode); });
+            renderSelection(); crossfade(render); notifySelect();
+          }
+          function applyYearOption() {
+            var li = q('[data-ppf-mode="year"]'); li = li && li.closest("li");
+            var multi = isMultiYear(DATA);
+            if (li) li.hidden = !multi;
+            if (!multi && state.mode === "year") setMode("week");
+          }
+          /* handlers (scoped) */
+          q(".ppf-viewby").addEventListener("click", function (e) {
+            var opt = e.target.closest("[data-ppf-mode]"); if (!opt) return;
+            e.preventDefault();
+            setMode(opt.getAttribute("data-ppf-mode"));
+            /* The chart markup is injected, so Nimbus's auto-close may not be wired
+               to this menu — close it explicitly via the dropdown instance. */
+            var tog = q(".ppf-viewby-btn");
+            if (window.Nimbus && Nimbus.Dropdown && tog) { try { Nimbus.Dropdown.getOrCreateInstance(tog).hide(); } catch (err) {} }
           });
-        }
-        function showBreakdown(b) {
-          slideBreakdown(function () {
-            el("chartBreakdown").querySelector(".ppf-breakdown-empty").hidden = true;
-            el("chartBreakdown").querySelector(".ppf-breakdown-detail").hidden = false;
-            el("bdHead").textContent = b.head + " · " + b.value + " items";
-            var cards = el("bdCards");
-            cards.innerHTML = "";
-            SRC_TYPES.forEach(function (t) {
-              var card = document.createElement("div");
-              card.className = "ppf-bd-card";
-              card.innerHTML = '<span class="ppf-bd-type">' + t.svg + t.label + '</span>'
-                + '<span class="ppf-bd-num">' + b.bd[t.key] + '</span>';
-              cards.appendChild(card);
+          qAll("[data-ppf-nav]").forEach(function (btn) {
+            btn.addEventListener("click", function () {
+              var s = getData()[state.mode], step = s.pages ? 1 : s.windowSize;
+              state.offset += (btn.getAttribute("data-ppf-nav") === "next" ? step : -step);
+              state.selected = []; renderSelection(); render(); notifySelect();
             });
           });
-        }
-        function setMode(mode) {
-          state.mode = mode; state.offset = SERIES[mode].defaultOffset || 0; state.selected = -1;
-          /* Label mirrors the selection: the button reads "VIEW BY: {{value}}". */
-          el("viewByText").textContent = mode.charAt(0).toUpperCase() + mode.slice(1);
-          $all(".ppf-viewby [data-ppf-mode]").forEach(function (o) {
-            o.classList.toggle("active", o.getAttribute("data-ppf-mode") === mode);
+          q(".ppf-chart").addEventListener("click", function (e) {
+            var bar = e.target.closest(".ppf-bar"); if (!bar || bar.classList.contains("is-empty")) return;
+            var idx = parseInt(bar.getAttribute("data-idx"), 10);
+            if (opts.chips) {
+              /* Data Sources: multiselect toggle — each click adds or removes a period. */
+              var pos = state.selected.indexOf(idx);
+              if (pos === -1) state.selected.push(idx); else state.selected.splice(pos, 1);
+            } else {
+              /* Overview: single-select toggle — clicking the selected bar clears it. */
+              state.selected = (state.selected.length === 1 && state.selected[0] === idx) ? [] : [idx];
+            }
+            renderSelection(); render(); notifySelect();
           });
-          resetBreakdown();
-          crossfadeChart(renderChart);   /* view change → crossfade */
-        }
-        /* Split button: Nimbus owns open/close via data-cnds-toggle="dropdown".
-           We only handle item selection; the menu auto-closes on item click. */
-        $(".ppf-viewby").addEventListener("click", function (e) {
-          var opt = e.target.closest("[data-ppf-mode]");
-          if (!opt) return;
-          e.preventDefault();
-          setMode(opt.getAttribute("data-ppf-mode"));
-        });
-        /* nav */
-        $all("[data-ppf-nav]").forEach(function (btn) {
-          btn.addEventListener("click", function () {
-            var s = (DATA.activity || SERIES)[state.mode];
-            var step = s.pages ? 1 : s.windowSize;   /* paged modes move one page at a time */
-            state.offset += (btn.getAttribute("data-ppf-nav") === "next" ? step : -step);
-            state.selected = -1;
-            resetBreakdown();
-            renderChart();
+          /* Dismissing a chip's close button deselects that bar too (chips mode only). */
+          qEl("chartSelect").addEventListener("click", function (e) {
+            var x = e.target.closest("[data-ppf-chip-close]"); if (!x) return;
+            var idx = parseInt(x.getAttribute("data-ppf-chip-close"), 10);
+            var pos = state.selected.indexOf(idx); if (pos !== -1) state.selected.splice(pos, 1);
+            renderSelection(); render(); notifySelect();
           });
-        });
-        /* bar select → render the source-type breakdown for that bucket */
-        $("#ppfChart").addEventListener("click", function (e) {
-          var bar = e.target.closest(".ppf-bar"); if (!bar || bar.classList.contains("is-empty")) return;
-          state.selected = parseInt(bar.getAttribute("data-idx"), 10);
-          showBreakdown((DATA.activity || SERIES)[state.mode].buckets[state.selected]);
-          renderChart();
-        });
+
+          var api = {
+            el: rootEl,
+            reset: function () { state = { mode: "week", offset: 0, selected: [] }; qEl("viewByText").textContent = "Week";
+              qAll(".ppf-viewby [data-ppf-mode]").forEach(function (o) { o.classList.toggle("active", o.getAttribute("data-ppf-mode") === "week"); });
+              applyYearOption();
+              renderSelection();
+              render(); notifySelect(); },
+            refit: function () { render(); },
+            clearSelection: function () { state.selected = []; renderSelection(); render(); notifySelect(); },
+            applyYearOption: applyYearOption
+          };
+          CHARTS.push(api);
+          api.reset();
+          return api;
+        }
 
         /* ══ Header action buttons → self-contained toast ══ */
         var ACTION_MSG = {
@@ -6979,27 +7294,62 @@
         $all("[data-ppf-action]").forEach(function (btn) {
           btn.addEventListener("click", function () {
             var key = btn.getAttribute("data-ppf-action");
-            if (key === "favorite" || key === "custodian") btn.classList.toggle("is-on");
+            /* Toggle only the icon between its outline and filled (non-outline)
+               variant — the button itself stays in its default appearance. */
+            var ic = btn.querySelector(".mdi");
+            if (ic) {
+              var cls = Array.prototype.slice.call(ic.classList).filter(function (c) { return c.indexOf("mdi-") === 0; })[0];
+              if (cls) {
+                var next = cls.slice(-8) === "-outline" ? cls.slice(0, -8) : cls + "-outline";
+                ic.classList.remove(cls); ic.classList.add(next);
+              }
+            }
             var m = ACTION_MSG[key];
             if (m) ppfToast(m[0], m[1]);
           });
         });
 
-        function ppfToast(title, msg) {
+        /* Prefer the Nimbus toast component (same pattern as the page's dmToast);
+           fall back to a self-contained toast only when Nimbus.Toast is absent
+           (e.g. dropped on a page without the framework). variant: success|error|info. */
+        function ppfToast(title, msg, variant) {
+          if (window.Nimbus && Nimbus.Toast) {
+            var color = { success: "success", error: "danger", info: "info" }[variant] || "success";
+            var icon = { success: "mdi-check-circle", error: "mdi-alert-circle", info: "mdi-information" }[variant] || "mdi-check-circle";
+            var t = document.createElement("div");
+            t.className = "toast fade";
+            t.setAttribute("role", variant === "error" ? "alert" : "status");
+            t.setAttribute("aria-live", variant === "error" ? "assertive" : "polite");
+            t.setAttribute("aria-atomic", "true");
+            t.setAttribute("data-cnds-toast-init", "");
+            t.setAttribute("data-cnds-color", color);
+            t.setAttribute("data-cnds-position", "bottom-right");
+            t.setAttribute("data-cnds-append-to-body", "true");
+            t.setAttribute("data-cnds-stacking", "true");
+            t.setAttribute("data-cnds-width", "360px");
+            t.setAttribute("data-cnds-autohide", "true");
+            t.setAttribute("data-cnds-delay", "3500");
+            t.innerHTML = '<div class="toast-header"><i class="mdi ' + icon + ' me-2" aria-hidden="true"></i>'
+              + '<strong class="me-auto">' + esc(title) + '</strong>'
+              + '<button type="button" class="btn-close" data-cnds-dismiss="toast" aria-label="Close"></button></div>'
+              + (msg ? '<div class="toast-body">' + esc(msg) + '</div>' : "");
+            document.body.appendChild(t);
+            var inst = Nimbus.Toast.getOrCreateInstance(t);
+            t.addEventListener("hidden.cnds.toast", function () { t.remove(); });
+            inst.show();
+            return;
+          }
+          /* Fallback (no Nimbus.Toast on this page) */
           var host = document.getElementById("ppfToastHost");
           if (!host) return;
-          var t = document.createElement("div");
-          t.className = "ppf-toast";
-          t.setAttribute("role", "status");
-          t.innerHTML = "<strong></strong><span></span>";
-          t.querySelector("strong").textContent = title;
-          t.querySelector("span").textContent = msg;
-          host.appendChild(t);
-          requestAnimationFrame(function () { t.classList.add("is-shown"); });
-          setTimeout(function () {
-            t.classList.remove("is-shown");
-            setTimeout(function () { t.remove(); }, 300);
-          }, 3200);
+          var el = document.createElement("div");
+          el.className = "ppf-toast"; el.setAttribute("role", "status");
+          el.innerHTML = "<strong></strong><span></span>";
+          el.querySelector("strong").textContent = title;
+          el.querySelector("span").textContent = msg;
+          host.appendChild(el);
+          requestAnimationFrame(function () { el.classList.add("is-shown"); });
+          setTimeout(function () { el.classList.remove("is-shown"); setTimeout(function () { el.remove(); }, 300); }, 3200);
         }
 
         /* ══ Show / hide (Nimbus.Modal when available, else built-in) ══ */
@@ -7022,16 +7372,16 @@
         }
         function open(data) {
           applyData(data);
-          state = { mode: "week", offset: 0, selected: -1 };
-          setMode("week"); selectTab("overview");
+          CHARTS.forEach(function (c) { c.reset(); });
+          selectTab("overview");
           lastFocus = document.activeElement;
           var nb = getNimbus();
           if (nb) nb.show(); else fallbackShow();
-          /* Axis font-fit needs real layout, which only exists once shown. */
-          requestAnimationFrame(fitAxis);
+          /* Charts need real layout (only after shown) to fit their axes. */
+          requestAnimationFrame(function () { CHARTS.forEach(function (c) { if (c.el.offsetParent) c.refit(); }); });
         }
-        /* Re-fit the axis on resize (column width changes with the viewport). */
-        window.addEventListener("resize", fitAxis);
+        /* Re-fit chart axes on resize (column widths change with the viewport). */
+        window.addEventListener("resize", function () { CHARTS.forEach(function (c) { if (c.el.offsetParent) c.refit(); }); });
         function close() {
           var nb = getNimbus();
           if (nb) nb.hide(); else fallbackHide();
@@ -7072,10 +7422,214 @@
           }
         });
 
+        /* ══════════════════════════════════════════════════════════════════
+           DATA SOURCES tab — type-filter tiles + sortable/searchable/paginated
+           sources table, all driven from data.dataSources. ══════════════════ */
+        var dsState = { type: "all", sort: "freq", dir: "desc", search: "", page: 0, perPage: 10, periods: [] };
+        var DS_SORT_LABEL = { freq: "Frequency", name: "Name", first: "First Accessed", last: "Last Accessed" };
+        function dsData() { return DATA.dataSources || { types: [], sources: [], windowLabel: "" }; }
+        function dsTypeIcon(key) {
+          if (key === "all") return '<i class="mdi mdi-infinity" aria-hidden="true"></i>';
+          var t = SRC_TYPES.filter(function (x) { return x.key === key; })[0];
+          return t ? t.svg : '<i class="mdi mdi-database-outline" aria-hidden="true"></i>';
+        }
+        /* A source matches the selected chart periods when its First Accessed OR its
+           Last Accessed date falls within ANY selected period. No periods → no filter. */
+        function dsInPeriods(s) {
+          if (!dsState.periods.length) return true;
+          var f = Date.parse(s.first), l = Date.parse(s.last);
+          return dsState.periods.some(function (p) {
+            return (!isNaN(f) && f >= p.s && f <= p.e) || (!isNaN(l) && l >= p.s && l <= p.e);
+          });
+        }
+        function dsFiltered() {
+          var d = dsData(), q = dsState.search.trim().toLowerCase();
+          var rows = d.sources.filter(function (s) {
+            if (dsState.type !== "all" && s.type !== dsState.type) return false;
+            if (q && (s.name + " " + s.path).toLowerCase().indexOf(q) < 0) return false;
+            if (!dsInPeriods(s)) return false;
+            return true;
+          });
+          var key = dsState.sort, dir = dsState.dir === "asc" ? 1 : -1;
+          rows.sort(function (a, b) {
+            if (key === "name") { var an = a.name.toLowerCase(), bn = b.name.toLowerCase(); return an < bn ? -dir : an > bn ? dir : 0; }
+            var av = (key === "first" || key === "last") ? Date.parse(a[key]) : a.freq;
+            var bv = (key === "first" || key === "last") ? Date.parse(b[key]) : b.freq;
+            return (av - bv) * dir;
+          });
+          return rows;
+        }
+        function renderDsTiles() {
+          fill("dsTiles", dsData().types.map(function (t) {
+            return '<button type="button" class="ppf-ds-tile' + (t.key === dsState.type ? " is-active" : "") + '" data-ppf-type="' + t.key + '">'
+              + '<span class="ppf-ds-tile-head">' + dsTypeIcon(t.key) + '<span class="ppf-ds-tile-label">' + esc(t.label) + '</span></span>'
+              + '<span class="ppf-ds-tile-num">' + t.events.toLocaleString() + '</span>'
+              + '<span class="ppf-ds-tile-sub">Events</span>'
+              + '<span class="ppf-ds-tile-meta">' + t.sources + (t.sources === 1 ? " source" : " sources") + '</span></button>';
+          }).join(""));
+        }
+        function renderDsTable() {
+          var rows = dsFiltered(), total = rows.length, per = dsState.perPage;
+          var pages = Math.max(1, Math.ceil(total / per));
+          if (dsState.page > pages - 1) dsState.page = pages - 1;
+          if (dsState.page < 0) dsState.page = 0;
+          var startIdx = dsState.page * per, pageRows = rows.slice(startIdx, startIdx + per);
+          var maxFreq = 1; dsData().sources.forEach(function (s) { if (s.freq > maxFreq) maxFreq = s.freq; });
+          fill("dsRows", pageRows.map(function (s) {
+            var bar = Math.max(2, Math.round(s.freq / maxFreq * 100));
+            return '<tr class="ppf-ds-row"><td class="ppf-ds-src"><span class="ppf-ds-src-ico">' + dsTypeIcon(s.type) + '</span>'
+              + '<span class="ppf-ds-src-body"><span class="ppf-ds-src-name">' + esc(s.name) + '</span><span class="ppf-ds-src-path">' + esc(s.path) + '</span></span></td>'
+              + '<td class="ppf-ds-freq"><span class="ppf-progress"><span class="ppf-progress-bar" style="width:' + bar + '%"></span></span><span class="ppf-ds-freq-num">' + s.freq.toLocaleString() + '</span></td>'
+              + '<td class="ppf-ds-date">' + esc(s.first) + '</td><td class="ppf-ds-date">' + esc(s.last) + '</td></tr>';
+          }).join(""));
+          el("dsEmpty").hidden = total > 0;
+          var from = total ? startIdx + 1 : 0, to = Math.min(startIdx + per, total);
+          setEl("dsRange", from + "-" + to + " of " + total);
+          $('[data-ppf-page="first"]').disabled = dsState.page <= 0;
+          $('[data-ppf-page="prev"]').disabled = dsState.page <= 0;
+          $('[data-ppf-page="next"]').disabled = dsState.page >= pages - 1;
+          $('[data-ppf-page="last"]').disabled = dsState.page >= pages - 1;
+          updateDsFilterNote();
+        }
+        /* Reflect the chart-driven period filter so the table change is visible even
+           when the frequency-sorted top rows stay on page 1. */
+        function updateDsFilterNote() {
+          var n = el("dsFilterNote"); if (!n) return;
+          var c = dsState.periods.length;
+          n.hidden = c === 0;
+          if (c) setEl("dsFilterText", "Showing sources first or last accessed in " + c + " selected period" + (c === 1 ? "" : "s") + ".");
+        }
+        function renderDataSources() {
+          setEl("dsWindow", dsData().windowLabel);
+          renderDsTiles();
+          setEl("dsSortText", DS_SORT_LABEL[dsState.sort]);
+          $all(".ppf-ds-sort [data-ppf-sort]").forEach(function (o) { o.classList.toggle("active", o.getAttribute("data-ppf-sort") === dsState.sort); });
+          var dir = el("dsDir");
+          if (dir) { dir.querySelector("span").textContent = dsState.dir === "asc" ? "ASC" : "DSC"; dir.querySelector(".mdi").className = "mdi " + (dsState.dir === "asc" ? "mdi-arrow-up-circle" : "mdi-arrow-down-circle"); }
+          setEl("dsPerPage", String(dsState.perPage));
+          $all(".ppf-ds-perpage [data-ppf-perpage]").forEach(function (o) { o.classList.toggle("active", +o.getAttribute("data-ppf-perpage") === dsState.perPage); });
+          $all("[data-ppf-sortcol]").forEach(function (th) { th.classList.toggle("is-sorted", th.getAttribute("data-ppf-sortcol") === dsState.sort); th.setAttribute("data-dir", dsState.dir); });
+          renderDsTable();
+        }
+        /* DS interactions — delegated on the modal root, attached once. */
+        root.addEventListener("click", function (e) {
+          if (e.target.closest("[data-ppf-ds-clearperiods]")) { if (sourcesChart) sourcesChart.clearSelection(); return; }
+          var tile = e.target.closest("[data-ppf-type]");
+          if (tile) { dsState.type = tile.getAttribute("data-ppf-type"); dsState.page = 0; renderDataSources(); return; }
+          var so = e.target.closest("[data-ppf-sort]");
+          if (so) { e.preventDefault(); dsState.sort = so.getAttribute("data-ppf-sort"); dsState.page = 0; renderDataSources(); return; }
+          var col = e.target.closest("[data-ppf-sortcol]");
+          if (col) { var k = col.getAttribute("data-ppf-sortcol"); if (dsState.sort === k) dsState.dir = dsState.dir === "asc" ? "desc" : "asc"; else dsState.sort = k; dsState.page = 0; renderDataSources(); return; }
+          if (e.target.closest('[data-ppf-el="dsDir"]')) { dsState.dir = dsState.dir === "asc" ? "desc" : "asc"; renderDataSources(); return; }
+          var pp = e.target.closest("[data-ppf-perpage]");
+          if (pp) { e.preventDefault(); dsState.perPage = +pp.getAttribute("data-ppf-perpage"); dsState.page = 0; renderDataSources(); return; }
+          var pg = e.target.closest("[data-ppf-page]");
+          if (pg) {
+            var pages = Math.max(1, Math.ceil(dsFiltered().length / dsState.perPage)), a = pg.getAttribute("data-ppf-page");
+            dsState.page = a === "first" ? 0 : a === "last" ? pages - 1 : a === "next" ? dsState.page + 1 : dsState.page - 1;
+            renderDataSources();
+          }
+        });
+        (function () { var s = el("dsSearch"); if (s) s.addEventListener("input", function () { dsState.search = s.value; dsState.page = 0; renderDataSources(); }); })();
+
+        /* The per-page menu sits at the bottom of the modal's scrolling area, just
+           above the footer. Flip it to a drop-up when it wouldn't fit below —
+           _positionMenu() reads the "dropup" class, and show.cnds.dropdown fires
+           right before it, so setting the class here positions the menu correctly. */
+        (function () {
+          var dd = $(".ppf-ds-perpage");
+          if (!dd) return;
+          var toggle = dd.querySelector('[data-cnds-toggle="dropdown"]'), menu = dd.querySelector(".dropdown-menu");
+          if (!toggle || !menu) return;
+          toggle.addEventListener("show.cnds.dropdown", function () {
+            var tRect = toggle.getBoundingClientRect();
+            var menuH = menu.querySelectorAll("li").length * 40 + 14;
+            var footer = $(".ppf-footer");
+            var boundBottom = footer ? footer.getBoundingClientRect().top : window.innerHeight;
+            dd.classList.toggle("dropup", (boundBottom - tRect.bottom) < menuH + 8);
+          });
+        })();
+
+        /* Nimbus dropdowns only auto-close on OUTSIDE clicks, not when a menu item is
+           chosen — close the containing menu when any .dropdown-item inside the modal
+           is clicked (covers the sort and per-page menus). */
+        root.addEventListener("click", function (e) {
+          var item = e.target.closest(".dropdown-menu .dropdown-item");
+          if (!item) return;
+          var tog = item.closest(".dropdown") && item.closest(".dropdown").querySelector('[data-cnds-toggle="dropdown"]');
+          if (window.Nimbus && Nimbus.Dropdown && tog) { try { Nimbus.Dropdown.getOrCreateInstance(tog).hide(); } catch (err) {} }
+        });
+
+        /* ── Add Data Source overlay (open/close, validation, save) ── */
+        (function () {
+          var ov = el("addSrc");
+          if (!ov) return;
+          /* Every field here is required. Keep this the single source of truth so
+             the payload built in save() matches what the future API expects. */
+          var REQUIRED = ["addName", "addType", "addDesc", "addAssign"];
+          function ctrlValid(name) { var c = el(name); return !!(c && String(c.value || "").trim()); }
+          function formValid() { return REQUIRED.every(ctrlValid); }
+          function fieldOf(name) { var c = el(name); return c && c.closest(".ppf-field"); }
+          function markField(name, invalid) { var f = fieldOf(name); if (f) f.classList.toggle("is-invalid", !!invalid); }
+          function clearErrors() { REQUIRED.forEach(function (n) { markField(n, false); }); }
+          function syncSave() { var b = el("addSave"); if (b) b.disabled = !formValid(); }
+          function openAdd() {
+            REQUIRED.forEach(function (n) { var e = el(n); if (e) e.value = ""; });
+            clearErrors(); syncSave(); ov.hidden = false;
+            requestAnimationFrame(function () { el("addName").focus(); });
+          }
+          function closeAdd() { ov.hidden = true; }
+          function save() {
+            /* Re-validate on submit even though Save is gated — the API contract is
+               enforced here, not just by the disabled button. */
+            var firstBad = null;
+            REQUIRED.forEach(function (n) { var ok = ctrlValid(n); markField(n, !ok); if (!ok && !firstBad) firstBad = n; });
+            syncSave();
+            if (firstBad) { el(firstBad).focus(); ppfToast("Missing required fields", "Complete the highlighted fields before saving.", "error"); return; }
+            /* Payload assembled for the future API integration point. */
+            var payload = {
+              name: el("addName").value.trim(),
+              type: el("addType").value,
+              path: el("addDesc").value.trim(),
+              assignedTo: el("addAssign").value
+            };
+            (DATA.dataSources.sources = DATA.dataSources.sources || []).unshift(
+              { type: payload.type, name: payload.name, path: payload.path, freq: 0, first: "—", last: "—" });
+            dsState.type = "all"; dsState.search = ""; el("dsSearch").value = ""; dsState.page = 0;
+            renderDataSources(); closeAdd();
+            ppfToast("Success", "Source added successfully.");
+          }
+          root.addEventListener("click", function (e) {
+            if (e.target.closest('[data-ppf-action="add-source"]')) { openAdd(); return; }
+            if (e.target.closest("[data-ppf-addsrc-close]")) { closeAdd(); return; }
+            if (e.target.closest("[data-ppf-addsrc-save]")) { save(); return; }
+          });
+          /* Live-validate: clear a field's error once it becomes valid, and keep the
+             Save button's enabled state in sync with the whole form. */
+          function onFieldEdit(e) {
+            var c = e.target.closest("[data-ppf-el]"), n = c && c.getAttribute("data-ppf-el");
+            if (n && REQUIRED.indexOf(n) !== -1 && ctrlValid(n)) markField(n, false);
+            syncSave();
+          }
+          ov.addEventListener("input", onFieldEdit);
+          ov.addEventListener("change", onFieldEdit);
+          /* Capture-phase so Escape closes only this overlay, not the whole modal. */
+          document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !ov.hidden) { e.stopPropagation(); closeAdd(); } }, true);
+        })();
+
         /* First paint from the default data so every card is populated before the
            first open() (the markup ships as empty, data-driven containers). */
         applyData(null);
-        setMode("week");
+        /* Mount the two reusable activity chart instances. */
+        createActivityChart(root.querySelector('[data-ppf-chart="overview"]'), {
+          foot: '<div class="ppf-card-foot"><button type="button" class="btn btn-tertiary btn-sm" data-ppf-goto="sources">View All Data Sources</button></div>'
+        });
+        var sourcesChart = createActivityChart(root.querySelector('[data-ppf-chart="sources"]'), {
+          chips: true,
+          /* Selecting/deselecting bars (or dismissing chips) filters the table below
+             to sources active within the chosen periods. */
+          onSelect: function (ranges) { dsState.periods = ranges; dsState.page = 0; renderDataSources(); }
+        });
 
         /* ══ Public API — callable from anywhere ══ */
         window.PersonaProfile = { open: open, close: close, toast: ppfToast };
