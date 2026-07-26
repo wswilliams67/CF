@@ -6451,6 +6451,7 @@
       .ppf-chips { margin-top: 14px; }
       .ppf-chips-empty { margin: 0; padding: 12px 14px; background: var(--ppf-card); border: 1px solid var(--ppf-border); border-radius: var(--ppf-r-s); font-size: 13px; color: var(--ppf-muted); }
       .ppf-chips-list { display: flex; flex-wrap: wrap; gap: 8px; }
+      .ppf-modal .chip[data-ppf-chip-jump] { cursor: pointer; }
 
       /* Profile details */
       .ppf-detailgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
@@ -7105,6 +7106,40 @@
           function selRange(s) { return bucketRange(s.mode, selBucket(s)); }
           /* Granularity rank — a coarser period absorbs finer ones that fall in it. */
           var GRAIN = { day: 0, week: 1, month: 2, year: 3 };
+          /* Re-express selections at a new granularity when the view switches so the
+             chips/bars match the view. A coarser selection expands into the finer
+             buckets that begin within it. A finer selection collapses into a coarser
+             bucket ONLY when every finer period belonging to that bucket is selected;
+             a partial set stays at its own granularity (kept as finer chips). */
+          function projectSelections(newMode) {
+            if (!state.selected.length) return [];
+            var gNew = GRAIN[newMode], newBuckets = getData()[newMode].buckets, out = [], seen = {}, finerByMode = {};
+            function take(mode, idx) { var k = mode + "#" + idx; if (!seen[k]) { seen[k] = 1; out.push({ mode: mode, idx: idx }); } }
+            state.selected.forEach(function (o) {
+              if (o.mode === newMode) { take(newMode, o.idx); return; }
+              if (GRAIN[o.mode] > gNew) {
+                var orr = selRange(o); if (!orr) return;   /* coarser → expand into finer buckets within it */
+                for (var i = 0; i < newBuckets.length; i++) { var br = bucketRange(newMode, newBuckets[i]); if (br && br.s >= orr.s && br.s <= orr.e) take(newMode, i); }
+              } else {
+                (finerByMode[o.mode] = finerByMode[o.mode] || {})[o.idx] = 1;   /* finer → collapse candidate */
+              }
+            });
+            Object.keys(finerByMode).forEach(function (fm) {
+              var selSet = finerByMode[fm], fBuckets = getData()[fm].buckets;
+              newBuckets.forEach(function (nb, j) {
+                var cr = bucketRange(newMode, nb); if (!cr) return;
+                var belong = [], chosen = [];
+                for (var i = 0; i < fBuckets.length; i++) {
+                  var br = bucketRange(fm, fBuckets[i]);
+                  if (br && br.s >= cr.s && br.s <= cr.e) { belong.push(i); if (selSet[i]) chosen.push(i); }
+                }
+                if (!chosen.length) return;
+                if (chosen.length === belong.length) take(newMode, j);        /* all selected → coarser takes over */
+                else chosen.forEach(function (i) { take(fm, i); });            /* partial → keep at finer grain */
+              });
+            });
+            return out;
+          }
           /* Notify the host (e.g. Data Sources table) of ALL selected periods' date
              ranges, across every view they were made in. No-op without opts.onSelect. */
           function notifySelect() {
@@ -7203,8 +7238,9 @@
             return text;
           }
           function chipHTML(s, b) {
-            return '<span class="chip">' + esc(periodLabel(s, b))
-              + ' <button type="button" class="close mdi mdi-close-circle" data-ppf-chip-key="' + s.mode + '#' + s.idx + '" aria-label="Deselect ' + esc(b.head) + '"></button></span>';
+            var key = s.mode + "#" + s.idx;
+            return '<span class="chip" data-ppf-chip-jump="' + key + '" role="button" tabindex="0" title="Show this period in the chart">' + esc(periodLabel(s, b))
+              + ' <button type="button" class="close mdi mdi-close-circle" data-ppf-chip-close="' + key + '" aria-label="Deselect ' + esc(b.head) + '"></button></span>';
           }
           /* Data Sources: one dismissible chip per selected period, across ALL views
              it was made in — chips persist until the user removes them. */
@@ -7252,8 +7288,10 @@
             });
           }
           function setMode(mode) {
+            /* Re-express selections at the new granularity so chips and interactive
+               bars match the view (a selected month expands to its weeks, etc.). */
+            state.selected = projectSelections(mode);
             state.mode = mode; state.offset = getData()[mode].defaultOffset || 0;
-            /* Selections persist across timeline changes (both views). */
             qEl("viewByText").textContent = mode.charAt(0).toUpperCase() + mode.slice(1);
             qAll(".ppf-viewby [data-ppf-mode]").forEach(function (o) { o.classList.toggle("active", o.getAttribute("data-ppf-mode") === mode); });
             renderSelection(); crossfade(render); notifySelect();
@@ -7307,12 +7345,43 @@
             }
             renderSelection(); render(); notifySelect();
           });
-          /* Dismissing a chip's close button deselects that period too (chips mode). */
+          /* Move the pager so bucket `idx` sits inside the visible window. */
+          function revealIndex(idx) {
+            var s = getData()[state.mode];
+            if (s.pages) {
+              for (var p = 0; p < s.pages.length; p++) {
+                if (idx >= s.pages[p].start && idx < s.pages[p].start + s.pages[p].count) { state.offset = p; break; }
+              }
+            } else {
+              var half = Math.floor((s.windowSize || 1) / 2), maxStart = Math.max(0, s.buckets.length - s.windowSize);
+              state.offset = Math.max(0, Math.min(idx - half, maxStart));
+            }
+            render();
+          }
+          function jumpToChip(chipEl) {
+            var parts = chipEl.getAttribute("data-ppf-chip-jump").split("#"), m = parts[0], idx = parseInt(parts[1], 10);
+            /* Switch the View By to the chip's granularity, then bring it into view. */
+            if (m !== state.mode) setMode(m);
+            revealIndex(idx);
+          }
+          /* Chip interactions: the × deselects the period; clicking the chip body
+             jumps the timeline so that period is in view. */
           qEl("chartSelect").addEventListener("click", function (e) {
-            var x = e.target.closest("[data-ppf-chip-key]"); if (!x) return;
-            var parts = x.getAttribute("data-ppf-chip-key").split("#");
-            var pos = selFind(parts[0], parseInt(parts[1], 10)); if (pos !== -1) state.selected.splice(pos, 1);
-            renderSelection(); render(); notifySelect();
+            var closeBtn = e.target.closest("[data-ppf-chip-close]");
+            if (closeBtn) {
+              var parts = closeBtn.getAttribute("data-ppf-chip-close").split("#");
+              var pos = selFind(parts[0], parseInt(parts[1], 10)); if (pos !== -1) state.selected.splice(pos, 1);
+              renderSelection(); render(); notifySelect();
+              return;
+            }
+            var chip = e.target.closest("[data-ppf-chip-jump]");
+            if (chip) jumpToChip(chip);
+          });
+          qEl("chartSelect").addEventListener("keydown", function (e) {
+            if (e.key !== "Enter" && e.key !== " ") return;
+            var chip = e.target.closest("[data-ppf-chip-jump]");
+            if (!chip || e.target.closest("[data-ppf-chip-close]")) return;
+            e.preventDefault(); jumpToChip(chip);
           });
 
           var api = {
