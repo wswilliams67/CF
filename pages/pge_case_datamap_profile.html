@@ -6433,6 +6433,8 @@
       .ppf-breakdown-empty { margin: 0; padding: 12px 14px; background: var(--ppf-card); border: 1px solid var(--ppf-border); border-radius: var(--ppf-r-s); font-size: 13px; color: var(--ppf-muted); }
       .ppf-breakdown-detail { padding: 16px; background: var(--ppf-card); border: 1px solid var(--ppf-border); border-radius: var(--ppf-r-m); }
       .ppf-breakdown-head { margin: 0 0 12px; font-size: 13px; font-weight: 700; color: var(--ppf-text); }
+      .ppf-breakdown-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+      .ppf-breakdown-chips[hidden] { display: none; }
       .ppf-breakdown-cards { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
       .ppf-bd-card { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; padding: 12px 14px; background: var(--ppf-frame); border: 1px solid var(--ppf-border); border-radius: var(--ppf-r-m); min-width: 0; }
       .ppf-bd-type { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--ppf-muted); }
@@ -7076,6 +7078,7 @@
                   +   '<p class="ppf-breakdown-empty">Click a week for the breakdown.</p>'
                   +   '<div class="ppf-breakdown-detail" hidden>'
                   +     '<p class="ppf-breakdown-head" data-ppf-el="bdHead"></p>'
+                  +     '<div class="ppf-breakdown-chips" data-ppf-el="bdChips" hidden></div>'
                   +     '<div class="ppf-breakdown-cards" data-ppf-el="bdCards"></div>'
                   +   '</div>'
                   + '</div>')
@@ -7090,12 +7093,23 @@
           function qAll(sel) { return Array.prototype.slice.call(rootEl.querySelectorAll(sel)); }
           function qEl(name) { return rootEl.querySelector('[data-ppf-el="' + name + '"]'); }
           function getData() { return DATA.activity || SERIES; }
-          /* Notify the host (e.g. Data Sources table) of the selected periods' date
-             ranges whenever selection changes. No-op if opts.onSelect isn't given. */
+          /* Selections are stored as { mode, idx } so they persist across timeline
+             changes (a bare index means a different period in another view). */
+          function selFind(mode, idx) {
+            for (var i = 0; i < state.selected.length; i++) {
+              if (state.selected[i].mode === mode && state.selected[i].idx === idx) return i;
+            }
+            return -1;
+          }
+          function selBucket(s) { var d = getData()[s.mode]; return d && d.buckets[s.idx]; }
+          function selRange(s) { return bucketRange(s.mode, selBucket(s)); }
+          /* Granularity rank — a coarser period absorbs finer ones that fall in it. */
+          var GRAIN = { day: 0, week: 1, month: 2, year: 3 };
+          /* Notify the host (e.g. Data Sources table) of ALL selected periods' date
+             ranges, across every view they were made in. No-op without opts.onSelect. */
           function notifySelect() {
             if (typeof opts.onSelect !== "function") return;
-            var buckets = getData()[state.mode].buckets;
-            opts.onSelect(state.selected.map(function (idx) { return bucketRange(state.mode, buckets[idx]); }).filter(Boolean));
+            opts.onSelect(state.selected.map(function (s) { return bucketRange(s.mode, selBucket(s)); }).filter(Boolean));
           }
 
           function visibleBuckets() {
@@ -7114,7 +7128,7 @@
             v.slice.forEach(function (b, i) {
               var globalIdx = v.start + i;
               var wrap = document.createElement("div");
-              wrap.className = "ppf-bar-wrap" + (state.selected.indexOf(globalIdx) !== -1 ? " is-selected" : "") + (globalIdx === v.s.current ? " is-current" : "");
+              wrap.className = "ppf-bar-wrap" + (selFind(state.mode, globalIdx) !== -1 ? " is-selected" : "") + (globalIdx === v.s.current ? " is-current" : "");
               var bar = document.createElement("button");
               bar.type = "button"; bar.className = "ppf-bar";
               bar.style.height = Math.max(4, Math.round((b.value / max) * 100)) + "%";
@@ -7181,45 +7195,65 @@
           }
           /* Dispatch to the mode this instance was built with. */
           function renderSelection() { if (opts.chips) renderChips(); else renderBreakdown(); }
-          /* Data Sources: one dismissible chip per selected period (multiselect). */
+          /* Period label — week heads carry no year, so prefix it
+             (e.g. "2026 | Week of Feb 10 – 16 · 289 items"). */
+          function periodLabel(s, b) {
+            var text = b.head + " · " + b.value + " items";
+            if (s.mode === "week" && b.startFull) { var y = new Date(b.startFull).getFullYear(); if (!isNaN(y)) text = y + " | " + text; }
+            return text;
+          }
+          function chipHTML(s, b) {
+            return '<span class="chip">' + esc(periodLabel(s, b))
+              + ' <button type="button" class="close mdi mdi-close-circle" data-ppf-chip-key="' + s.mode + '#' + s.idx + '" aria-label="Deselect ' + esc(b.head) + '"></button></span>';
+          }
+          /* Data Sources: one dismissible chip per selected period, across ALL views
+             it was made in — chips persist until the user removes them. */
           function renderChips() {
             slideBreakdown(function () {
               var wrap = qEl("chartSelect"), empty = wrap.querySelector(".ppf-chips-empty"), list = qEl("chipList");
-              var sel = state.selected.slice().sort(function (a, b) { return a - b; });
-              if (!sel.length) {
+              if (!state.selected.length) {
                 empty.textContent = "Click one or more " + state.mode + "s to tag periods.";
                 empty.hidden = false; list.hidden = true; list.innerHTML = ""; return;
               }
               empty.hidden = true; list.hidden = false;
-              var buckets = getData()[state.mode].buckets;
-              list.innerHTML = sel.map(function (idx) {
-                var b = buckets[idx]; if (!b) return "";
-                return '<span class="chip">' + esc(b.head + " · " + b.value + " items")
-                  + ' <button type="button" class="close mdi mdi-close-circle" data-ppf-chip-close="' + idx + '" aria-label="Deselect ' + esc(b.head) + '"></button></span>';
-              }).join("");
+              list.innerHTML = state.selected.map(function (s) { var b = selBucket(s); return b ? chipHTML(s, b) : ""; }).join("");
             });
           }
-          /* Overview: single-select breakdown summary cards for the chosen period. */
+          /* Overview: breakdown summary cards. Selections persist and are multi —
+             one selection shows its date-range header; two or more replace that
+             header with chips, and the cards show the aggregate across all of them. */
           function renderBreakdown() {
             slideBreakdown(function () {
               var wrap = qEl("chartSelect"), empty = wrap.querySelector(".ppf-breakdown-empty"), detail = wrap.querySelector(".ppf-breakdown-detail");
+              var head = qEl("bdHead"), bdChips = qEl("bdChips"), cards = qEl("bdCards");
               if (!state.selected.length) {
                 empty.textContent = "Click a " + state.mode + " for the breakdown.";
                 empty.hidden = false; detail.hidden = true; return;
               }
-              var b = getData()[state.mode].buckets[state.selected[0]];
               empty.hidden = true; detail.hidden = false;
-              qEl("bdHead").textContent = b.head + " · " + b.value + " items";
-              var cards = qEl("bdCards"); cards.innerHTML = "";
+              if (state.selected.length === 1) {
+                var s0 = state.selected[0], b0 = selBucket(s0);
+                head.hidden = false; head.textContent = periodLabel(s0, b0);
+                bdChips.hidden = true; bdChips.innerHTML = "";
+              } else {
+                head.hidden = true;
+                bdChips.hidden = false;
+                bdChips.innerHTML = state.selected.map(function (s) { var b = selBucket(s); return b ? chipHTML(s, b) : ""; }).join("");
+              }
+              /* Cards = aggregate of every selected period (for one, that period). */
+              var agg = {}; SRC_TYPES.forEach(function (t) { agg[t.key] = 0; });
+              state.selected.forEach(function (s) { var b = selBucket(s); if (b && b.bd) SRC_TYPES.forEach(function (t) { agg[t.key] += (b.bd[t.key] || 0); }); });
+              cards.innerHTML = "";
               SRC_TYPES.forEach(function (t) {
                 var card = document.createElement("div"); card.className = "ppf-bd-card";
-                card.innerHTML = '<span class="ppf-bd-type">' + t.svg + t.label + '</span><span class="ppf-bd-num">' + b.bd[t.key] + '</span>';
+                card.innerHTML = '<span class="ppf-bd-type">' + t.svg + t.label + '</span><span class="ppf-bd-num">' + agg[t.key] + '</span>';
                 cards.appendChild(card);
               });
             });
           }
           function setMode(mode) {
-            state.mode = mode; state.offset = getData()[mode].defaultOffset || 0; state.selected = [];
+            state.mode = mode; state.offset = getData()[mode].defaultOffset || 0;
+            /* Selections persist across timeline changes (both views). */
             qEl("viewByText").textContent = mode.charAt(0).toUpperCase() + mode.slice(1);
             qAll(".ppf-viewby [data-ppf-mode]").forEach(function (o) { o.classList.toggle("active", o.getAttribute("data-ppf-mode") === mode); });
             renderSelection(); crossfade(render); notifySelect();
@@ -7244,27 +7278,40 @@
             btn.addEventListener("click", function () {
               var s = getData()[state.mode], step = s.pages ? 1 : s.windowSize;
               state.offset += (btn.getAttribute("data-ppf-nav") === "next" ? step : -step);
-              state.selected = []; renderSelection(); render(); notifySelect();
+              /* Selections persist while paging. */
+              renderSelection(); render(); notifySelect();
             });
           });
           q(".ppf-chart").addEventListener("click", function (e) {
             var bar = e.target.closest(".ppf-bar"); if (!bar || bar.classList.contains("is-empty")) return;
             var idx = parseInt(bar.getAttribute("data-idx"), 10);
-            if (opts.chips) {
-              /* Data Sources: multiselect toggle — each click adds or removes a period. */
-              var pos = state.selected.indexOf(idx);
-              if (pos === -1) state.selected.push(idx); else state.selected.splice(pos, 1);
+            /* Multiselect toggle — each click adds or removes a period; kept across views. */
+            var pos = selFind(state.mode, idx);
+            if (pos !== -1) {
+              state.selected.splice(pos, 1);
             } else {
-              /* Overview: single-select toggle — clicking the selected bar clears it. */
-              state.selected = (state.selected.length === 1 && state.selected[0] === idx) ? [] : [idx];
+              var nSel = { mode: state.mode, idx: idx }, nr = selRange(nSel), gN = GRAIN[state.mode];
+              /* Keep selections non-nesting. Adding a coarser period absorbs finer
+                 ones that begin within it (Apr 2026 / 2026 drops its weeks/days);
+                 adding a finer period that falls within an already-selected coarser
+                 one replaces that coarser selection. */
+              if (nr) {
+                state.selected = state.selected.filter(function (o) {
+                  var g = GRAIN[o.mode], orr = selRange(o); if (!orr) return true;
+                  if (g < gN) return !(orr.s >= nr.s && orr.s <= nr.e);   /* finer o inside new coarser N → drop o */
+                  if (g > gN) return !(nr.s >= orr.s && nr.s <= orr.e);   /* new finer N inside coarser o → drop o */
+                  return true;                                           /* same grain → keep */
+                });
+              }
+              state.selected.push(nSel);
             }
             renderSelection(); render(); notifySelect();
           });
-          /* Dismissing a chip's close button deselects that bar too (chips mode only). */
+          /* Dismissing a chip's close button deselects that period too (chips mode). */
           qEl("chartSelect").addEventListener("click", function (e) {
-            var x = e.target.closest("[data-ppf-chip-close]"); if (!x) return;
-            var idx = parseInt(x.getAttribute("data-ppf-chip-close"), 10);
-            var pos = state.selected.indexOf(idx); if (pos !== -1) state.selected.splice(pos, 1);
+            var x = e.target.closest("[data-ppf-chip-key]"); if (!x) return;
+            var parts = x.getAttribute("data-ppf-chip-key").split("#");
+            var pos = selFind(parts[0], parseInt(parts[1], 10)); if (pos !== -1) state.selected.splice(pos, 1);
             renderSelection(); render(); notifySelect();
           });
 
