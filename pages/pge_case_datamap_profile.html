@@ -7106,39 +7106,24 @@
           function selRange(s) { return bucketRange(s.mode, selBucket(s)); }
           /* Granularity rank — a coarser period absorbs finer ones that fall in it. */
           var GRAIN = { day: 0, week: 1, month: 2, year: 3 };
-          /* Re-express selections at a new granularity when the view switches so the
-             chips/bars match the view. A coarser selection expands into the finer
-             buckets that begin within it. A finer selection collapses into a coarser
-             bucket ONLY when every finer period belonging to that bucket is selected;
-             a partial set stays at its own granularity (kept as finer chips). */
-          function projectSelections(newMode) {
-            if (!state.selected.length) return [];
-            var gNew = GRAIN[newMode], newBuckets = getData()[newMode].buckets, out = [], seen = {}, finerByMode = {};
-            function take(mode, idx) { var k = mode + "#" + idx; if (!seen[k]) { seen[k] = 1; out.push({ mode: mode, idx: idx }); } }
-            state.selected.forEach(function (o) {
-              if (o.mode === newMode) { take(newMode, o.idx); return; }
-              if (GRAIN[o.mode] > gNew) {
-                var orr = selRange(o); if (!orr) return;   /* coarser → expand into finer buckets within it */
-                for (var i = 0; i < newBuckets.length; i++) { var br = bucketRange(newMode, newBuckets[i]); if (br && br.s >= orr.s && br.s <= orr.e) take(newMode, i); }
-              } else {
-                (finerByMode[o.mode] = finerByMode[o.mode] || {})[o.idx] = 1;   /* finer → collapse candidate */
-              }
-            });
-            Object.keys(finerByMode).forEach(function (fm) {
-              var selSet = finerByMode[fm], fBuckets = getData()[fm].buckets;
-              newBuckets.forEach(function (nb, j) {
-                var cr = bucketRange(newMode, nb); if (!cr) return;
-                var belong = [], chosen = [];
-                for (var i = 0; i < fBuckets.length; i++) {
-                  var br = bucketRange(fm, fBuckets[i]);
-                  if (br && br.s >= cr.s && br.s <= cr.e) { belong.push(i); if (selSet[i]) chosen.push(i); }
-                }
-                if (!chosen.length) return;
-                if (chosen.length === belong.length) take(newMode, j);        /* all selected → coarser takes over */
-                else chosen.forEach(function (i) { take(fm, i); });            /* partial → keep at finer grain */
-              });
-            });
-            return out;
+          /* Selections keep the granularity they were made at (chips don't re-form on
+             a view switch). In a finer view, a bar is shown selected if it begins
+             within a selected coarser period — a display-only expansion. Returns the
+             index of the covering coarser selection, or -1. */
+          function coveringSelection(globalIdx) {
+            var br = bucketRange(state.mode, getData()[state.mode].buckets[globalIdx]);
+            if (!br) return -1;
+            var g = GRAIN[state.mode];
+            for (var i = 0; i < state.selected.length; i++) {
+              var o = state.selected[i];
+              if (GRAIN[o.mode] <= g) continue;
+              var orr = selRange(o);
+              if (orr && br.s >= orr.s && br.s <= orr.e) return i;
+            }
+            return -1;
+          }
+          function isBarSelected(globalIdx) {
+            return selFind(state.mode, globalIdx) !== -1 || coveringSelection(globalIdx) !== -1;
           }
           /* Notify the host (e.g. Data Sources table) of ALL selected periods' date
              ranges, across every view they were made in. No-op without opts.onSelect. */
@@ -7163,7 +7148,7 @@
             v.slice.forEach(function (b, i) {
               var globalIdx = v.start + i;
               var wrap = document.createElement("div");
-              wrap.className = "ppf-bar-wrap" + (selFind(state.mode, globalIdx) !== -1 ? " is-selected" : "") + (globalIdx === v.s.current ? " is-current" : "");
+              wrap.className = "ppf-bar-wrap" + (isBarSelected(globalIdx) ? " is-selected" : "") + (globalIdx === v.s.current ? " is-current" : "");
               var bar = document.createElement("button");
               bar.type = "button"; bar.className = "ppf-bar";
               bar.style.height = Math.max(4, Math.round((b.value / max) * 100)) + "%";
@@ -7288,9 +7273,9 @@
             });
           }
           function setMode(mode) {
-            /* Re-express selections at the new granularity so chips and interactive
-               bars match the view (a selected month expands to its weeks, etc.). */
-            state.selected = projectSelections(mode);
+            /* Selections keep their granularity across view switches — the chips don't
+               re-form. A selected coarser period just lights up its finer bars for
+               display; the chip only changes if a finer period is deselected. */
             state.mode = mode; state.offset = getData()[mode].defaultOffset || 0;
             qEl("viewByText").textContent = mode.charAt(0).toUpperCase() + mode.slice(1);
             qAll(".ppf-viewby [data-ppf-mode]").forEach(function (o) { o.classList.toggle("active", o.getAttribute("data-ppf-mode") === mode); });
@@ -7323,25 +7308,34 @@
           q(".ppf-chart").addEventListener("click", function (e) {
             var bar = e.target.closest(".ppf-bar"); if (!bar || bar.classList.contains("is-empty")) return;
             var idx = parseInt(bar.getAttribute("data-idx"), 10);
-            /* Multiselect toggle — each click adds or removes a period; kept across views. */
             var pos = selFind(state.mode, idx);
             if (pos !== -1) {
+              /* Directly selected at this grain → deselect it. */
               state.selected.splice(pos, 1);
             } else {
-              var nSel = { mode: state.mode, idx: idx }, nr = selRange(nSel), gN = GRAIN[state.mode];
-              /* Keep selections non-nesting. Adding a coarser period absorbs finer
-                 ones that begin within it (Apr 2026 / 2026 drops its weeks/days);
-                 adding a finer period that falls within an already-selected coarser
-                 one replaces that coarser selection. */
-              if (nr) {
-                state.selected = state.selected.filter(function (o) {
-                  var g = GRAIN[o.mode], orr = selRange(o); if (!orr) return true;
-                  if (g < gN) return !(orr.s >= nr.s && orr.s <= nr.e);   /* finer o inside new coarser N → drop o */
-                  if (g > gN) return !(nr.s >= orr.s && nr.s <= orr.e);   /* new finer N inside coarser o → drop o */
-                  return true;                                           /* same grain → keep */
-                });
+              var cover = coveringSelection(idx);
+              if (cover !== -1) {
+                /* Bar is shown selected via a coarser selection. Deselecting it peels
+                   that coarser period into its finer periods (this view) minus this
+                   one — the only case where a chip changes on interaction. */
+                var o = state.selected[cover], orr = selRange(o), buckets = getData()[state.mode].buckets;
+                state.selected.splice(cover, 1);
+                for (var k = 0; k < buckets.length; k++) {
+                  if (k === idx) continue;
+                  var kr = bucketRange(state.mode, buckets[k]);
+                  if (kr && kr.s >= orr.s && kr.s <= orr.e) state.selected.push({ mode: state.mode, idx: k });
+                }
+              } else {
+                /* New selection. Adding a coarser period absorbs finer ones within it. */
+                var nSel = { mode: state.mode, idx: idx }, nr = selRange(nSel), gN = GRAIN[state.mode];
+                if (nr) {
+                  state.selected = state.selected.filter(function (o2) {
+                    var orr2 = selRange(o2);
+                    return !(GRAIN[o2.mode] < gN && orr2 && orr2.s >= nr.s && orr2.s <= nr.e);
+                  });
+                }
+                state.selected.push(nSel);
               }
-              state.selected.push(nSel);
             }
             renderSelection(); render(); notifySelect();
           });
@@ -7353,8 +7347,11 @@
                 if (idx >= s.pages[p].start && idx < s.pages[p].start + s.pages[p].count) { state.offset = p; break; }
               }
             } else {
-              var half = Math.floor((s.windowSize || 1) / 2), maxStart = Math.max(0, s.buckets.length - s.windowSize);
-              state.offset = Math.max(0, Math.min(idx - half, maxStart));
+              /* Snap to the same window-aligned page the pager/nav use, so e.g. Month
+                 view shows the target's full calendar year (Jan–Dec) instead of a
+                 window centered on the target that splits across two years. */
+              var win = s.windowSize || 1;
+              state.offset = Math.floor(idx / win) * win;
             }
             render();
           }
