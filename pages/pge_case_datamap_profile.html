@@ -233,8 +233,13 @@
 *   Replace {{tokens}} with bindings. Sticky header → AppHeaderComponent;
 *   #caSidenav → CaSidenavComponent (routerLinkActive for active state);
 *   #caContent → <router-outlet />. Account/portal menus → Auth/PortalService;
-*   notifications → NotificationService; theme toggle → ThemeService setting
-*   data-cnds-theme on <html>.
+*   notifications → NotificationsComponent + NotificationService (custom popover,
+*   no Nimbus equivalent); theme toggle → ThemeService setting data-cnds-theme.
+*   #UtilityNav widgets now sit on Nimbus components — dividers (.vr), bell
+*   counter (.badge), icon buttons (.btn.btn-flat) — with thin page overrides;
+*   map each to the Nimbus Angular divider/badge/button and port the overrides
+*   as component styles (see the .nav-icon-btn/.nav-bell-badge/.utility-divider
+*   rules for exactly which props remain).
 *
 * COMPONENT TREE
 *   DataMapPageComponent                     (route: /case/:id/datamap)
@@ -545,10 +550,15 @@
 
 
       /* Utility Divider */
-      .utility-divider { display: inline-block; width: 1px; height: 24px; background: var(--demo-nav-fg, #e0e0e0); opacity: 0.25; flex-shrink: 0; }
+      /* Override of Nimbus .vr (dividers.css) for the utility nav: thinner (1px vs 2px),
+         fixed 24px height centered on the row (vs .vr's align-self:stretch), faint tint. */
+      .utility-divider { align-self: center; width: 1px; height: 24px; background: var(--demo-nav-fg, #e0e0e0); opacity: 0.25; flex-shrink: 0; }
 
       /* Nav Icon Button */
-      .nav-icon-btn { position: relative; background: none; border: none; cursor: pointer; padding: 4px; display: flex; align-items: center; border-radius: 4px; flex-shrink: 0; }
+      /* Override of Nimbus .btn.btn-flat (buttons.css) for the utility-nav icon buttons:
+         compact 4px padding + 4px radius, position:relative to anchor the bell badge,
+         and hover/active/focus background tints zeroed out (no hover state). */
+      .nav-icon-btn { position: relative; padding: 4px; border-radius: 4px; flex-shrink: 0; --cnds-btn-hover-bg: transparent; --cnds-btn-active-bg: transparent; }
       .nav-icon-btn .mdi { font-size: 24px; color: var(--demo-nav-fg, #4f4f4f); }
 
       /* Portal Switcher */
@@ -610,13 +620,26 @@
       .notif-expand { width: 24px; height: 24px; font-size: 24px; }
       .notif-dismiss { width: 20px; height: 20px; font-size: 18px; }
       .notif-expand:hover, .notif-dismiss:hover { opacity: 0.75; }
+      /* Suppress the browser focus ring on the notification controls + the bell that
+         opens them, across all known browsers (WebKit/Blink outline + Firefox's
+         ::-moz-focus-inner dotted inner border). */
+      .nav-icon-btn:focus, .nav-icon-btn:focus-visible,
+      .notif-expand:focus, .notif-expand:focus-visible,
+      .notif-dismiss:focus, .notif-dismiss:focus-visible { outline: none; box-shadow: none; }
+      .nav-icon-btn::-moz-focus-inner,
+      .notif-expand::-moz-focus-inner,
+      .notif-dismiss::-moz-focus-inner { border: 0; }
       .notif-item-message { display: none; flex-basis: 100%; font-size: 12px; line-height: 1.1; color: var(--cnds-body-color, #4f4f4f); padding-right: 52px; }
       .notif-item.expanded .notif-item-message { display: block; }
       .notif-item.expanded .notif-expand::before { content: "\F0143"; }
 
       /* Bell Badge */
-      .nav-bell-badge { position: absolute; top: calc(50% - 1px); left: 50%; transform: translate(-50%,-50%); display: flex; align-items: center; justify-content: center; min-width: 14px; height: 12px; padding: 0 5px; border-radius: 2px; background: #c23400; color: #e8e8e8; font-family: "Nunito Sans", sans-serif; font-weight: 700; font-size: 10px; line-height: 1; letter-spacing: 0.2px; text-align: center; white-space: nowrap; pointer-events: none; }
-      .nav-bell-badge:empty, .nav-bell-badge.hidden { display: none; }
+      /* Override of Nimbus .badge (badges.css) for the bell counter: centered on the
+         icon (vs .badge-notification's top-right), smaller rounded-rect. The base
+         .badge supplies the red bg (#c23400), text color, weight, and — via
+         .badge:empty:not(.badge-dot) — the hide-when-empty behavior. */
+      .nav-bell-badge { position: absolute; top: calc(50% - 1px); left: 50%; transform: translate(-50%,-50%); min-width: 14px; height: 12px; padding: 0 5px; border-radius: 2px; font-family: "Nunito Sans", sans-serif; font-size: 10px; letter-spacing: 0.2px; pointer-events: none; }
+      .nav-bell-badge.hidden { display: none; }
 
       /* Nav tooltips use the Nimbus 1 .tooltip component (data-cnds-toggle="tooltip"). */
 
@@ -1399,7 +1422,10 @@
       .pagination-toolbar .mdi { font-size: 20px; line-height: 1; }
       /* No elevation on the datamap pagination bars — cleared via the component's
          own custom property rather than overriding box-shadow. */
-      .pagination-toolbar { --cnds-pagination-toolbar-shadow: none; }
+      /* Datamap page tables use flat pagination toolbars (no drop shadow). Scoped to
+         .ca-main so it overrides only this page's toolbars, not every .pagination-toolbar
+         globally (the persona modal sets its own shadow:none in its scoped block). */
+      .ca-main .pagination-toolbar { --cnds-pagination-toolbar-shadow: none; }
 
       /* ── Notable Non-Custodians — warning insight card ──
          Warning-alert surface stays light in both themes (matches Figma). */
@@ -1596,9 +1622,9 @@
         </div>
         <div class="fr_tools">
           <div class="nav-alert-popover-wrapper" id="navAlertWrapper">
-            <button class="nav-icon-btn" id="navBellBtn" aria-label="Notifications" aria-haspopup="dialog" aria-expanded="false" aria-controls="navAlertPopover" data-cnds-toggle="tooltip" data-cnds-placement="bottom" data-cnds-delay="0" title="Notifications">
+            <button class="btn btn-flat nav-icon-btn" id="navBellBtn" aria-label="Notifications" aria-haspopup="dialog" aria-expanded="false" aria-controls="navAlertPopover" data-cnds-toggle="tooltip" data-cnds-placement="bottom" data-cnds-delay="0" title="Notifications">
               <span class="mdi mdi-bell" id="navBellIcon" aria-hidden="true"></span>
-              <span class="nav-bell-badge" id="navBellBadge" aria-live="polite" aria-atomic="true"></span>
+              <span class="badge nav-bell-badge" id="navBellBadge" aria-live="polite" aria-atomic="true"></span>
             </button>
             <div class="notif-popover" id="navAlertPopover" role="dialog" aria-label="Notifications" aria-modal="true" aria-hidden="true">
               <div class="notif-header">
@@ -1612,11 +1638,11 @@
               <div class="notif-list" id="notifList"></div>
             </div>
           </div>
-          <span class="utility-divider" aria-hidden="true"></span>
-          <button class="nav-icon-btn" id="themeToggle" data-cnds-toggle="theme" aria-label="Toggle theme" title="Switch to light theme">
+          <span class="vr utility-divider" aria-hidden="true"></span>
+          <button class="btn btn-flat nav-icon-btn" id="themeToggle" data-cnds-toggle="theme" aria-label="Toggle theme" title="Switch to light theme">
             <span class="mdi mdi-weather-night"></span>
           </button>
-          <span class="utility-divider" aria-hidden="true"></span>
+          <span class="vr utility-divider" aria-hidden="true"></span>
           <div class="portal-switcher-wrapper" id="portalSwitcherWrapper">
             <span class="portal-switcher" id="portalSwitcherToggle" role="button" tabindex="0" aria-haspopup="menu" aria-expanded="false" aria-controls="portalMenu">
               <span class="mdi mdi-account-switch-outline" style="font-size:24px" aria-hidden="true"></span>
@@ -1630,7 +1656,7 @@
               <a class="account-menu-item" href="#!" role="menuitem">SME Portal</a>
             </div>
           </div>
-          <span class="utility-divider" aria-hidden="true"></span>
+          <span class="vr utility-divider" aria-hidden="true"></span>
           <div class="user-info-wrapper" id="userAccountWrapper">
             <span class="user-info" id="userAccountToggle" role="button" tabindex="0" aria-haspopup="menu" aria-expanded="false" aria-controls="accountMenu">
               <span class="user-avatar" aria-hidden="true">FL</span>
@@ -6369,8 +6395,6 @@
       .ppf-card-sub { font-size: 13px; color: var(--ppf-muted); margin: 2px 0 0; }
       .ppf-card-foot { margin-top: 14px; display: flex; justify-content: flex-end; }
       .ppf-card-foot--split { justify-content: space-between; }
-      .ppf-link { color: var(--ppf-link); font-size: 12px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; text-decoration: none; }
-      .ppf-link:hover { text-decoration: underline; }
       .ppf-section-title { font-family: var(--ppf-font-title); font-size: 16px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--ppf-text); margin: 20px 0 16px; }
 
       /* Ranked lists */
