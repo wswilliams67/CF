@@ -5531,6 +5531,10 @@
           if (pager) pager.reset(true);  // filtering returns to page 1
           else rows.forEach(function (r) { r.hidden = matching.indexOf(r) === -1; });
           syncExclCells();               // rows may have just been rebuilt
+          // Rows may have just been rebuilt (scope swap), which drops the amber
+          // "Exclusions Applied" badges — re-derive them from DM_EXCLUSIONS so they
+          // are retained across the Top Sources / All Sources switch and any filter.
+          if (window.dmTable && dmTable.refreshBadges) dmTable.refreshBadges();
         }
         function crumbFor(card) {
           if (card) {
