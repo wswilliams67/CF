@@ -7146,7 +7146,9 @@
               var o = state.selected[i];
               if (GRAIN[o.mode] <= g) continue;
               var orr = selRange(o);
-              if (orr && br.s >= orr.s && br.s <= orr.e) return i;
+              /* Overlap, not "begins within": a week that starts in Jan but runs into
+                 Feb is still part of a selected February (it contains Feb dates). */
+              if (orr && br.s <= orr.e && br.e >= orr.s) return i;
             }
             return -1;
           }
@@ -7300,11 +7302,40 @@
               });
             });
           }
+          /* The time position to keep in view across a mode switch: the earliest
+             selected period's start if anything is selected, else the current
+             window's start. Called BEFORE state.mode changes. */
+          function anchorTime() {
+            if (state.selected.length) {
+              var min = Infinity;
+              state.selected.forEach(function (s) { var r = selRange(s); if (r && r.s < min) min = r.s; });
+              if (min !== Infinity) return min;
+            }
+            var v = visibleBuckets(), first = v.slice[0];
+            if (first) { var r = bucketRange(state.mode, first); if (r) return r.s; }
+            return null;
+          }
+          /* Pager offset that opens `newMode` at the anchor: the bucket containing it
+             becomes the starting point (month snaps to its full Jan–Dec year; day
+             snaps to its month page; week/year land the bucket at the left edge). */
+          function offsetForAnchor(newMode, anchor) {
+            var s = getData()[newMode];
+            if (anchor == null) return s.defaultOffset || 0;
+            var buckets = s.buckets, idx = -1, i, br;
+            for (i = 0; i < buckets.length; i++) { br = bucketRange(newMode, buckets[i]); if (br && anchor >= br.s && anchor <= br.e) { idx = i; break; } }
+            if (idx === -1) for (i = 0; i < buckets.length; i++) { br = bucketRange(newMode, buckets[i]); if (br && br.s >= anchor) { idx = i; break; } }
+            if (idx === -1) idx = buckets.length - 1;
+            if (s.pages) { for (var p = 0; p < s.pages.length; p++) if (idx >= s.pages[p].start && idx < s.pages[p].start + s.pages[p].count) return p; return 0; }
+            if (newMode === "month") { var w = s.windowSize || 1; return Math.floor(idx / w) * w; }
+            return idx;
+          }
           function setMode(mode) {
             /* Selections keep their granularity across view switches — the chips don't
                re-form. A selected coarser period just lights up its finer bars for
-               display; the chip only changes if a finer period is deselected. */
-            state.mode = mode; state.offset = getData()[mode].defaultOffset || 0;
+               display; the chip only changes if a finer period is deselected. The
+               focused time position is carried over so the new view opens there. */
+            var anchor = anchorTime();
+            state.mode = mode; state.offset = offsetForAnchor(mode, anchor);
             qEl("viewByText").textContent = mode.charAt(0).toUpperCase() + mode.slice(1);
             qAll(".ppf-viewby [data-ppf-mode]").forEach(function (o) { o.classList.toggle("active", o.getAttribute("data-ppf-mode") === mode); });
             renderSelection(); crossfade(render); notifySelect();
@@ -7351,7 +7382,8 @@
                 for (var k = 0; k < buckets.length; k++) {
                   if (k === idx) continue;
                   var kr = bucketRange(state.mode, buckets[k]);
-                  if (kr && kr.s >= orr.s && kr.s <= orr.e) state.selected.push({ mode: state.mode, idx: k });
+                  /* Overlap (matches coveringSelection) so straddling weeks stay in the set. */
+                  if (kr && kr.s <= orr.e && kr.e >= orr.s) state.selected.push({ mode: state.mode, idx: k });
                 }
               } else {
                 /* New selection. Adding a coarser period absorbs finer ones within it. */
