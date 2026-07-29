@@ -61,6 +61,7 @@
     doughnutHole: 0.6,
     colors: null,
     animated: true,
+    valueLabels: false,   // horizontal bar: print each value at the bar end
     xAxisColor: null,
     yAxisColor: null,
     y2AxisColor: null,
@@ -84,6 +85,7 @@
     doughnutHole: "number",
     colors: "(array|null)",
     animated: "boolean",
+    valueLabels: "boolean",
     xAxisColor: "(string|null)",
     yAxisColor: "(string|null)",
     y2AxisColor: "(string|null)",
@@ -577,7 +579,10 @@
       this._horizGroups = [];
 
       datasets.forEach(function (ds, dsIdx) {
-        var color   = self._colors[dsIdx % self._colors.length];
+        var dsColor    = self._colors[dsIdx % self._colors.length];
+        // Per-bar colours: a dataset may supply backgroundColor as an array,
+        // one entry per label. Matches the vertical bar branch (_renderBar).
+        var hasBgArray = Array.isArray(ds.backgroundColor);
         var dsG     = document.createElementNS("http://www.w3.org/2000/svg", "g");
         var dsRects = [];
         dsG.setAttribute("data-ds", dsIdx);
@@ -586,6 +591,8 @@
           var bW  = (val / maxVal) * chartW;
           var x   = labelPad;
           var y   = p.top + groupH * idx + (groupH - barH * datasets.length) / 2 + barH * dsIdx;
+          var color = hasBgArray ? (ds.backgroundColor[idx] || dsColor)
+                                 : (ds.backgroundColor || dsColor);
 
           var rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
           rect.setAttribute("x",      x);
@@ -618,11 +625,37 @@
 
           dsRects.push(rect);
           dsG.appendChild(rect);
+
+          // Opt-in value label drawn at the bar end (default off, so existing
+          // charts are unaffected). Sits inside the bar when it is wide enough
+          // to hold the text, otherwise just outside it.
+          if (self._config.valueLabels && val !== 0) {
+            var inside = bW > 24;
+            var t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            t.setAttribute("x", inside ? x + bW - 6 : x + bW + 6);
+            t.setAttribute("y", y + (barH - 2) / 2 + 4);
+            t.setAttribute("text-anchor", inside ? "end" : "start");
+            t.setAttribute("class", "chart-value-label");
+            t.setAttribute("font-size", "12");
+            t.setAttribute("font-weight", "700");
+            t.setAttribute("fill", inside ? self._contrastOn(color) : "currentColor");
+            t.setAttribute("pointer-events", "none");
+            t.textContent = val;
+            dsG.appendChild(t);
+          }
         });
         self._horizRects[dsIdx]  = dsRects;
         self._horizGroups[dsIdx] = dsG;
         self._svg.appendChild(dsG);
       });
+    }
+
+    // Pick black or white for text sitting on top of `bg` (WCAG-ish luminance).
+    _contrastOn(bg) {
+      var m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(String(bg).trim());
+      if (!m) return "#141414";
+      var r = parseInt(m[1], 16), g = parseInt(m[2], 16), b = parseInt(m[3], 16);
+      return (0.299 * r + 0.587 * g + 0.114 * b) > 150 ? "#141414" : "#ffffff";
     }
 
     // ----------------------------------------------------------------

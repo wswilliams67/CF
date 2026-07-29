@@ -172,7 +172,7 @@
 
         self._element.classList.add(self._config.dragOverClass);
 
-        var afterElement = self._getDragAfterElement(e.clientY);
+        var afterElement = self._getDragAfterElement(e.clientX, e.clientY);
         if (afterElement) {
           self._element.insertBefore(
             self._getPlaceholder(dragItem),
@@ -302,27 +302,61 @@
       this._placeholder = null;
     }
 
-    _getDragAfterElement(y) {
-      var self = this;
+    /**
+     * Find the element the placeholder should be inserted before.
+     *
+     * Works for both 1-D lists and 2-D grids. The pointer is matched to the
+     * nearest item centre, then the side is chosen on the dominant axis:
+     * within the same row band the horizontal position decides, otherwise the
+     * vertical one does. A y-only test cannot place an item in a grid, because
+     * every card in a row shares the same top edge — the first cell would
+     * always win.
+     *
+     * @param {number} x - pointer clientX
+     * @param {number} y - pointer clientY
+     * @returns {Element|null} element to insert before, or null to append
+     */
+    _getDragAfterElement(x, y) {
       var items = Array.from(
         this._element.querySelectorAll(
           this._config.items + ":not(." + this._config.ghostClass + ")"
         )
       );
+      if (!items.length) return null;
 
-      var closest = null;
-      var closestOffset = Number.NEGATIVE_INFINITY;
+      var best = null;
+      var bestBox = null;
+      var bestDist = Number.POSITIVE_INFINITY;
 
       items.forEach(function (child) {
         var box = child.getBoundingClientRect();
-        var offset = y - box.top - box.height / 2;
-        if (offset < 0 && offset > closestOffset) {
-          closestOffset = offset;
-          closest = child;
+        var dx = x - (box.left + box.width / 2);
+        var dy = y - (box.top + box.height / 2);
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < bestDist) {
+          bestDist = dist;
+          best = child;
+          bestBox = box;
         }
       });
 
-      return closest;
+      if (!best) return null;
+
+      // Does another item sit on the same row? If so this is a grid row and the
+      // horizontal position decides the side. If not, the container is laid out
+      // as a single column and the vertical position decides — which is also
+      // what a 1-column responsive grid needs.
+      var sharesRow = items.some(function (o) {
+        if (o === best) return false;
+        var ob = o.getBoundingClientRect();
+        return Math.abs(ob.top - bestBox.top) < bestBox.height / 2;
+      });
+
+      var after = sharesRow
+        ? x > bestBox.left + bestBox.width / 2
+        : y > bestBox.top + bestBox.height / 2;
+
+      return after ? best.nextElementSibling : best;
     }
 
     static jQueryInterface(config) {
