@@ -1,68 +1,72 @@
 <!--
-* Nimbus v1 Portable Design System — CaseFusion Application Page
-* Page:       CF Case Administrator — Home
-* File:       cf_ca_home.html
-* Based on:   tmpl_cf_ca_full.html
-* Role:       Case Administrator
-* Layout:     Full-width application with tabbed primary navigation (no sidenav)
-* Figma:      Redwell v2.0 — Case Administrator › Dashboard (6331:118534)
-*
-* DATA
-* ────
-* All dashboard content is rendered from the DASHBOARD_DATA object in the
-* SCREEN CONFIGURATION block below — nothing is hand-written markup. Counts,
-* badges and the "Across N cases" subtitles are DERIVED from the arrays, not
-* literals. To wire the API, replace the DASHBOARD_DATA literal with a fetch()
-* resolving to the same shape and call renderDashboard(). See §5.2 of
-* for-claude/cf_ca_home-dev-plan.md.
-*
-* THEMES
-* ──────
-* Ships dark (per Figma) but is fully specified for light as well; the utility
-* nav #themeToggle switches data-cnds-theme on <html>. All .cfd-* rules resolve
-* colour from Nimbus semantic tokens declared for BOTH themes — no literal hex
-* inside component rules.
-*
-* PORTABLE DESIGN SYSTEM
-* ──────────────────────
-* All CSS and JS assets are self-contained within the redwell/ directory.
-* No external design system URL required. Deploy the entire redwell/ folder
-* to any server and all asset references will resolve correctly.
-* Assets: ../css/  ../js/  ../img/  ../fonts/  ../plugins/
+* ════════════════════════════════════════════════════════════════════════════
+* Nimbus v1 Portable Design System — CaseFusion
+* Page:   CF Case Administrator — Home
+* File:   cf_ca_home.html   (based on tmpl_cf_ca_full.html)
+* Role:   Case Administrator
+* Figma:  Redwell v2.0 — Case Administrator › Dashboard (6331:118534)
+* Docs:   for-claude/cf_ca_home-dev-plan.md
+*         for-claude/cf_ca_home-angular-conversion.md   ← handoff spec
+* ════════════════════════════════════════════════════════════════════════════
 *
 * LAYOUT
 * ──────
-* ┌───────────────────────────────────────────────────────────────────────────┐
-* │ Sticky Header                                                             │
-* │  ├── Utility Nav: Logo · Search · Notifications · Theme · ...            │
-* │  ├── Main Nav:    Overview · Identify · Preserve · Collect · Timeline ·  │
-* │                    Data map                                              │
-* │  └── Page Title Bar: ← Back · Title · Section · stripe                  │
-* ├───────────────────────────────────────────────────────────────────────────┤
-* │ {{Page Content}} — one stub per primary nav item                         │
-* └───────────────────────────────────────────────────────────────────────────┘
+* ┌─────────────────────────────────────────────────────────────────────────┐
+* │ Sticky header                                                           │
+* │  ├── Utility nav: logo · search · home · my cases · bell · theme ·      │
+* │  │                portal switcher · account                             │
+* │  └── Page title bar: "Home" + stripe                                    │
+* ├─────────────────────────────────────────────────────────────────────────┤
+* │ System alert (dismissible)                                              │
+* │ "Requires Action" accordion (collapsed by default)                      │
+* │ 3 × 3 card grid — drag-reorderable, per-user persistent order           │
+* │ Reset layout (only visible when the order differs from default)         │
+* └─────────────────────────────────────────────────────────────────────────┘
 *
-* MAIN NAV BEHAVIOUR
-* ──────────────────
-* The main nav renders as a Nimbus tab bar (.nav-tabs-nimbus) for visual
-* styling only. In this static template each nav item links to a separate
-* HTML page (href="#" as placeholder). Tab panes are present as stubs so
-* the layout is visible in the browser — they are not driven by tab switching.
+* There is NO primary tab nav on this page — it was removed along with the
+* tab panes, so tabs.css / tabs.js are deliberately not loaded.
 *
-* ANGULAR HANDOFF NOTES
-* ─────────────────────
-* • Replace {{tokens}} with Angular bindings / template variables.
-* • Sticky header → AppHeaderComponent (shared across all CA pages).
-* • Main nav items → routerLink directives pointing to child routes.
-*   Remove data-cnds-toggle="tab" and data-cnds-target attributes.
-*   Active class is driven by routerLinkActive, not the Nimbus tab JS.
-*   Replace tab-content / tab-pane stubs with a single <router-outlet />.
-* • Account/portal menus → driven by AuthService / PortalService.
-* • Notifications → driven by NotificationService.
-* • Theme toggle → ThemeService sets data-cnds-theme on <html>.
-* • Page Title Bar → .ca-title-bar styles from css/components/navbar.css;
-*   bind #caPageTitle and #caPageSection via string interpolation;
-*   wire #caBackBtn to Location.back().
+* DATA
+* ────
+* Every card, row, badge, tile, ring and chart series is rendered from the
+* DASHBOARD_DATA object in SCREEN CONFIGURATION. No content is hand-written
+* markup. Badges and the "Across N cases" subtitles are DERIVED from the
+* arrays (deriveCard), so they can never disagree with what is listed.
+* To wire the API: replace the DASHBOARD_DATA literal with a fetch() that
+* resolves to the same shape, then call renderDashboard(data, order).
+*
+* CARD ORDER
+* ──────────
+* Per user, persistent across sessions. LayoutStore is the ONLY place the
+* backing store is decided — localStorage today, cookie or API later. Its
+* load/save/clear are callback-based so an async store swaps in without
+* touching a single caller.
+*
+* THEMES
+* ──────
+* Ships dark (per Figma) but is fully specified for light. #themeToggle in
+* the utility nav flips data-cnds-theme on <html>. Every .cfd-* rule resolves
+* colour from a --cfd-* token declared for BOTH themes — no literal hex lives
+* inside a component rule.
+*
+* PORTABLE
+* ────────
+* All assets are relative and self-contained: ../css ../js ../img ../fonts
+* ../plugins. Deploy the casefusion/2.0 folder anywhere and it resolves.
+*
+* NIMBUS NOTES / GOTCHAS
+* ──────────────────────
+* • nimbus.js loads components ASYNC and fires cnds.ready ONCE. Anything
+*   needing a component must go through whenNimbusReady() — a plain
+*   cnds.ready listener added after boot never fires (this silently killed
+*   the chart on re-render).
+* • Component scripts are cache-busted only by Nimbus.VERSION in nimbus.js.
+*   Editing a component file WITHOUT bumping that version will not reach a
+*   warm browser.
+* • .visually-hidden is position:absolute !important — never place it inside
+*   a scrolling container with no positioned ancestor; it stretches the page.
+* • #UtilityNav sets overflow-x:clip, so dropdowns inside it must be
+*   position:fixed or they get clipped in WebKit.
 -->
 <!doctype html>
 <html lang="en" data-cnds-theme="dark">
@@ -78,7 +82,6 @@
 <link rel="stylesheet" href="../css/themes/primitives.css" media="all" type="text/css" />
 <link rel="stylesheet" href="../css/themes/light.css" media="all" type="text/css" />
 <link rel="stylesheet" href="../css/themes/dark.css" media="all" type="text/css" />
-<link rel="stylesheet" href="../css/components/tabs.css" media="all" type="text/css" />
 <link rel="stylesheet" href="../css/components/select.css" media="all" type="text/css" />
 <link rel="stylesheet" href="../css/components/tooltips.css" media="all" type="text/css" />
 <link rel="stylesheet" href="../css/components/buttons.css" media="all" type="text/css" />
@@ -246,7 +249,12 @@
       .user-avatar { width: 24px; height: 24px; border-radius: 12px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: var(--cnds-product-casefusion-green-500, #5ccb59); color: #030303; font-family: "Nunito Sans", sans-serif; font-weight: 700; font-size: 12px; letter-spacing: -0.5px; line-height: 1; box-sizing: border-box; user-select: none; }
 
       /* Account / Portal Dropdown Menu */
-      .account-menu { display: none; position: absolute; top: calc(100% + 12px); right: 0; min-width: 180px; background: var(--cnds-menu-item-bg); border: 1px solid var(--cnds-border-strong); border-radius: 8px; box-shadow: 0 2px 15px -3px rgba(0,0,0,.07), 0 10px 20px -2px rgba(0,0,0,.04), 0 0 60px 10px rgba(0,0,0,.2); z-index: 1000; flex-direction: column; }
+      /* position:fixed, not absolute. #UtilityNav sets overflow-x:clip, and
+         engines disagree on what the other axis then computes to — WebKit
+         clips the dropdown, Chrome does not. Fixed escapes ancestor overflow
+         entirely (the header sets no transform/filter, so it is not a fixed
+         containing block). Coordinates are set by positionMenu() on open. */
+      .account-menu { display: none; position: fixed; min-width: 180px; background: var(--cnds-menu-item-bg); border: 1px solid var(--cnds-border-strong); border-radius: 8px; box-shadow: 0 2px 15px -3px rgba(0,0,0,.07), 0 10px 20px -2px rgba(0,0,0,.04), 0 0 60px 10px rgba(0,0,0,.2); z-index: 1000; flex-direction: column; }
       .account-menu.open { display: flex; }
       .account-menu::before { content: ""; position: absolute; top: -9px; right: var(--menu-arrow-outer, 12px); width: 0; height: 0; border-style: solid; border-width: 0 8px 9px 8px; border-color: transparent transparent var(--cnds-border-strong) transparent; }
       .account-menu::after  { content: ""; position: absolute; top: -7px; right: var(--menu-arrow-inner, 13px); width: 0; height: 0; border-style: solid; border-width: 0 7px 8px 7px; border-color: transparent transparent var(--cnds-surface-sunken) transparent; }
@@ -298,71 +306,9 @@
       /* Nav tooltips use the Nimbus 1 .tooltip component (data-cnds-toggle="tooltip"). */
 
       /* ───────────────────────────────────────────────────────────────────
-         MAIN NAV  — Nimbus 1 application tab bar
-         Uses .nav-tabs-nimbus + .nav-tabs-casefusion from tabs.css.
-         The wrapper supplies frame-bg; the tab bar is transparent so there
-         is a single background source. Hover states remain via nimbus-tab-hover-bg.
-         ─────────────────────────────────────────────────────────────────── */
-      .ca-main-nav-wrapper {
-        padding: 8px;
-      }
-      .ca-main-nav-wrapper nav {
-        background: var(--cnds-surface-light-200, #ebebeb);
-        border-radius: 8px;
-        overflow: hidden;
-      }
-      [data-cnds-theme="dark"] .ca-main-nav-wrapper nav {
-        background: var(--cnds-surface-dark-600, #171717);
-      }
-      .ca-main-nav-wrapper .nav-item {
-        display: flex;
-        align-items: stretch;
-      }
-      .ca-main-nav-wrapper .nav-link {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      .ca-main-nav-wrapper .nav-tabs-nimbus {
-        --nimbus-tab-bg: transparent;
-        border-radius: 8px;
-        border-bottom: none;
-        padding-left: 8px;
-        padding-right: 8px;
-        overflow: hidden;
-        overflow-x: auto;
-        scrollbar-width: thin;
-      }
-      /* Light-only: transparent tab bar so <nav> background shows through;
-         correct hover, border, text and indicator colours. */
-      :root:not([data-cnds-theme="dark"]) .ca-main-nav-wrapper .nav-tabs-nimbus {
-        --nimbus-tab-bg:       transparent;
-        --nimbus-tab-hover-bg: var(--cnds-surface-light-300, #e0e0e0);
-        --nimbus-tab-border:   var(--cnds-surface-light-300, #e0e0e0);
-        --nimbus-tab-text:     var(--cnds-body-color, #4f4f4f);
-        --nimbus-tab-indicator: #5ccb59;
-      }
-
-      /* ───────────────────────────────────────────────────────────────────
          CONTENT AREA
          ─────────────────────────────────────────────────────────────────── */
       .ca-main { flex: 1; padding: 8px 16px 24px; }
-
-      /* ───────────────────────────────────────────────────────────────────
-         PLACEHOLDER  (remove in production)
-         ─────────────────────────────────────────────────────────────────── */
-      .ca-placeholder {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 400px;
-        border: 2px dashed var(--cnds-border-color);
-        border-radius: 8px;
-        color: var(--cnds-secondary-color, #6c757d);
-        font-size: 14px;
-        text-align: center;
-        padding: 40px;
-      }
 
       /* ═══════════════════════════════════════════════════════════════════
          DASHBOARD  (.cfd-*)
@@ -812,15 +758,6 @@
           if (header) header.classList.toggle("shadow-sm", window.scrollY > 0);
         }, { passive: true });
 
-        /* ── 3. Back button ── */
-        var backBtn = document.getElementById("caBackBtn");
-        if (backBtn) {
-          backBtn.addEventListener("click", function () {
-            if (history.length > 1) { history.back(); }
-            else { window.location.href = "../index.html"; }
-          });
-        }
-
         /* ── 4. Utility Nav ── */
         var DEMO_NOTIFICATIONS = [
           { subject: "Legal hold violation detected",      timestamp: "Apr 18, 2026 · 2:14 PM",  message: "Legal hold violation detected on custodian mailbox. Immediate review required to prevent spoliation.", unread: true  },
@@ -1078,11 +1015,33 @@
             menu.style.setProperty("--menu-arrow-outer", Math.round(tw / 2 - 8) + "px");
             menu.style.setProperty("--menu-arrow-inner", Math.round(tw / 2 - 7) + "px");
           }
+
+          /* The menus are position:fixed to escape #UtilityNav's overflow clip,
+             so their coordinates have to be computed rather than inherited.
+             The menu's RIGHT edge is aligned to the trigger's right edge, which
+             is what keeps setMenuArrow()'s right-anchored arrow offsets correct. */
+          function positionMenu(menu, trigger) {
+            if (!menu || !trigger) return;
+            var r = trigger.getBoundingClientRect();
+            var w = menu.offsetWidth || 180;
+            var left = Math.max(8, Math.min(r.right - w, window.innerWidth - w - 8));
+            menu.style.top = (r.bottom + 12) + "px";
+            menu.style.left = left + "px";
+          }
+
+          /* Keep open menus anchored while the viewport moves */
+          function repositionOpenMenus() {
+            if (portalMenu && portalMenu.classList.contains("open")) positionMenu(portalMenu, portalToggle);
+            if (accountMenu && accountMenu.classList.contains("open")) positionMenu(accountMenu, accountToggle);
+          }
+          window.addEventListener("resize", repositionOpenMenus);
+          window.addEventListener("scroll", repositionOpenMenus, { passive: true });
           function openPortalMenu() {
             if (accountMenu) { accountMenu.classList.remove("open"); accountMenu.setAttribute("aria-hidden", "true"); if (accountToggle) accountToggle.setAttribute("aria-expanded", "false"); }
             if (navAlertPop) { navAlertPop.classList.remove("open"); navAlertPop.setAttribute("aria-hidden", "true"); if (navBellBtn) navBellBtn.setAttribute("aria-expanded", "false"); }
             setMenuArrow(portalMenu, portalToggle);
             portalMenu.classList.add("open"); portalMenu.removeAttribute("aria-hidden");
+            positionMenu(portalMenu, portalToggle);   /* after display:flex so offsetWidth is real */
             portalToggle.setAttribute("aria-expanded", "true"); refreshChevron();
             var first = portalMenu.querySelector("[role='menuitem']"); if (first) first.focus();
           }
@@ -1116,6 +1075,7 @@
             if (navAlertPop) { navAlertPop.classList.remove("open"); navAlertPop.setAttribute("aria-hidden", "true"); if (navBellBtn)    navBellBtn.setAttribute("aria-expanded", "false"); }
             setMenuArrow(accountMenu, accountToggle);
             accountMenu.classList.add("open"); accountMenu.removeAttribute("aria-hidden");
+            positionMenu(accountMenu, accountToggle);   /* after display:flex so offsetWidth is real */
             accountToggle.setAttribute("aria-expanded", "true");
             var first = accountMenu.querySelector("[role='menuitem']"); if (first) first.focus();
           }
@@ -1672,9 +1632,10 @@
             mount.appendChild(el('<div class="cfd-empty">Nothing requires action.</div>'));
             return;
           }
+          var qFrag = document.createDocumentFragment();
           rows.forEach(function (row) {
             var mod = row.severity && row.severity !== "default" ? " cfd-action-row--" + row.severity : "";
-            mount.appendChild(el(
+            qFrag.appendChild(el(
               '<div class="cfd-action-row' + mod + '" data-id="' + esc(row.id) + '">' +
                 '<div class="cfd-action-row-text">' +
                   '<span class="cfd-action-row-title">' + esc(row.title) + '</span>' +
@@ -1685,6 +1646,7 @@
               '</div>'
             ));
           });
+          mount.appendChild(qFrag);
         }
 
         /* ── Shared card chrome ────────────────────────────────────────── */
@@ -2021,13 +1983,18 @@
             ? order
             : (DASHBOARD_DATA.cards || []).map(function (c) { return c.id; });
 
+          /* Moves are batched through a fragment: appending an existing node
+             to a fragment detaches it once, and the grid re-lays out a single
+             time on insert rather than on every move. */
+          var frag = document.createDocumentFragment();
           ids.forEach(function (id) {
-            if (nodes[id]) { grid.appendChild(nodes[id]); delete nodes[id]; }
+            if (nodes[id]) { frag.appendChild(nodes[id]); delete nodes[id]; }
           });
           /* anything the stored order didn't name keeps its default position */
           (DASHBOARD_DATA.cards || []).forEach(function (c) {
-            if (nodes[c.id]) grid.appendChild(nodes[c.id]);
+            if (nodes[c.id]) frag.appendChild(nodes[c.id]);
           });
+          grid.appendChild(frag);
         }
 
         function renderDashboard(data, order) {
@@ -2040,10 +2007,14 @@
 
           var grid = document.getElementById("cfdGrid");
           grid.innerHTML = "";
+          /* Build into a fragment so the grid lays out once instead of
+             re-flowing after each of the nine cards. */
+          var frag = document.createDocumentFragment();
           applyOrder(data.cards || [], order).forEach(function (card) {
             var fn = CARD_RENDERERS[card.type];
-            if (fn) grid.appendChild(fn(card));
+            if (fn) frag.appendChild(fn(card));
           });
+          grid.appendChild(frag);
           syncResetVisibility(data);
         }
 
@@ -2212,7 +2183,6 @@
   <!-- ═══ Nimbus v1 JS — core + components: tabs, select, tooltips ═══ -->
 <script type="text/javascript" src="../js/nimbus.js"></script>
 <script type="text/javascript" src="../js/app.js"></script>
-<script type="text/javascript" src="../js/components/tabs.js"></script>
 <script type="text/javascript" src="../js/components/select.js"></script>
 <script type="text/javascript" src="../js/components/tooltip.js"></script>
 </body>
