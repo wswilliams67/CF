@@ -4287,7 +4287,11 @@
           var holdCls = HOLD_CLASS[c.hold] || '';
           return '<tr>' +
             '<td class="dm-col-rank">' + c.rank + '</td>' +
-            '<td><a href="#" class="dm-custodian-name">' + esc(c.name) + '</a></td>' +
+            /* data-dm-role feeds the persona modal's identity block. Deliberately NO
+               data-dm-person here — the promote flow uses that hook to strip a link,
+               and these grid rows have no promote button; the name comes from the
+               link text instead. */
+            '<td><a href="#" class="dm-custodian-name" data-dm-role="' + esc(c.role) + '">' + esc(c.name) + '</a></td>' +
             '<td>' + esc(c.role) + '</td>' +
             '<td class="dm-col-num">' + esc(c.sources) + '</td>' +
             '<td class="dm-col-num">' + esc(c.events) + '</td>' +
@@ -4778,7 +4782,8 @@
           var pending = r.status === 'Mark as Custodian';
           return {
             name: pending
-              ? '<a href="#" class="dm-custodian-name" data-dm-person="' + dmEsc(r.name) + '">' + dmEsc(r.name) + '</a>'
+              ? '<a href="#" class="dm-custodian-name" data-dm-person="' + dmEsc(r.name) + '"' +
+                ' data-dm-role="' + dmEsc(r.role || '') + '">' + dmEsc(r.name) + '</a>'
               : dmEsc(r.name),
             status: pending
               ? '<button type="button" class="btn btn-tertiary btn-sm dm-status-mark" data-dm-mark="' + dmEsc(r.name) + '">Mark as Custodian</button>'
@@ -5964,6 +5969,13 @@
                 <div class="ppf-identity-name">
                   <h2 class="ppf-name" data-ppf-bind="name">Scott Williams</h2>
                   <p class="ppf-role" data-ppf-bind="role">Senior Principal User Experience Specialist</p>
+                  <!-- Contact line: email + phone, divided. Both are derived from the
+                       persona in renderIdentity() when the payload omits them. -->
+                  <p class="ppf-contact">
+                    <span class="ppf-contact-item" data-ppf-el="email">scott.williams@acme.com</span>
+                    <span class="ppf-contact-divider" aria-hidden="true"></span>
+                    <span class="ppf-contact-item" data-ppf-el="phone">(415) 662-0184</span>
+                  </p>
                 </div>
               </div>
               <div class="ppf-identity-actions">
@@ -6327,7 +6339,9 @@
 
       /* Identity header */
       .ppf-identity { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-      .ppf-identity-who { display: flex; align-items: center; gap: 12px; min-width: 0; }
+      /* Avatar tops out with the name, matching Figma (avatar and fr_titles both at y=0).
+         Centering it against the block would float it down beside the contact line. */
+      .ppf-identity-who { display: flex; align-items: flex-start; gap: 12px; min-width: 0; }
       .ppf-avatar {
         width: 44px; height: 44px; flex: 0 0 44px; border-radius: var(--ppf-r-full);
         background: var(--ppf-card-2); color: var(--ppf-text);
@@ -6338,6 +6352,14 @@
       .ppf-avatar-sm { width: 40px; height: 40px; flex-basis: 40px; font-size: 13px; }
       .ppf-name { font-family: var(--ppf-font-title); font-size: 22px; font-weight: 800; line-height: 1.2; margin: 0; color: var(--ppf-text); }
       .ppf-role { font-size: 14px; font-weight: 300; color: var(--ppf-muted); margin: 2px 0 0; }
+      /* Contact line (email · phone) — sits under the job title in the identity block. */
+      .ppf-contact { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 4px 0 0; font-size: 13px; font-weight: 300; color: var(--ppf-muted); }
+      .ppf-contact-item { white-space: nowrap; }
+      .ppf-contact-item:empty { display: none; }
+      .ppf-contact-divider { width: 1px; height: 14px; background: var(--ppf-border-strong); }
+      /* Drop the divider when either side is missing, so no orphan rule is left. */
+      .ppf-contact-item:empty + .ppf-contact-divider,
+      .ppf-contact-divider:last-child { display: none; }
       .ppf-chips { flex-basis: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; }
       .ppf-chips:empty { display: none; }
       /* Legal-hold badge: gold rectangular badge (not a pill), dark bold text. */
@@ -6678,6 +6700,11 @@
           name: "Scott Williams",
           role: "Senior Principal User Experience Specialist",
           avatarInitials: "SW",
+          /* Contact line. Omit either and renderIdentity() derives it from the
+             name — email as first.last@acme.com, phone as a stable pseudo-random
+             US number. Supply them here (or from the API) to override. */
+          email: null,
+          phone: null,
           legalHold: "Mar 3, 2026",   /* date placed on legal hold; null/"" = not on hold */
           chips: [
             { label: "Remote",    icon: "mdi-web" },
@@ -6951,11 +6978,53 @@
 
         /* ══ Rendering — every card is drawn from DATA (its own array/object). One
               renderAll() repaints the whole modal; API integration = open(json). ══ */
+        /* ── Contact derivation ─────────────────────────────────────────────
+              A payload may carry `email` / `phone`; when it does not (e.g. a
+              custodian opened straight from a table link) both are synthesised
+              from the name. The hash is deterministic, so the same person keeps
+              the same number across opens, sorts and re-renders — a fresh random
+              number on every paint would read as a data bug. ── */
+        var EMAIL_DOMAIN = "acme.com";
+        function nameHash(name) {
+          var h = 2166136261, s = String(name || "");
+          for (var i = 0; i < s.length; i++) { h = ((h ^ s.charCodeAt(i)) * 16777619) >>> 0; }
+          return h >>> 0;
+        }
+        function emailFor(name) {
+          var parts = String(name || "").toLowerCase().replace(/[^a-z\s'-]/g, "")
+            .trim().split(/\s+/).filter(Boolean);
+          if (!parts.length) return "";
+          var local = parts.length > 1 ? parts[0] + "." + parts[parts.length - 1] : parts[0];
+          return local.replace(/['-]/g, "") + "@" + EMAIL_DOMAIN;
+        }
+        /* Real, in-service NANP area codes — a structurally valid NPA (2–9 lead) can
+           still be unassigned (e.g. 892), which reads as fake in a demo. */
+        var US_AREA_CODES = [
+          "212", "213", "215", "312", "313", "404", "415", "469", "503", "512",
+          "602", "617", "619", "703", "713", "720", "737", "781", "801", "813",
+          "857", "919", "925", "972"
+        ];
+        function phoneFor(name) {
+          if (!name) return "";
+          var h = nameHash(name);
+          function d(min, max) {                    /* LCG step → int in [min,max] */
+            h = (Math.imul(h, 1103515245) + 12345) >>> 0;
+            return min + (h % (max - min + 1));
+          }
+          var area = US_AREA_CODES[d(0, US_AREA_CODES.length - 1)];
+          var b = d(0, 9), c = d(0, 9);             /* NXX: 2–9 lead, never N11 */
+          if (b === 1 && c === 1) c = 2;
+          var exch = "" + d(2, 9) + b + c;
+          return "(" + area + ") " + exch + "-" + ("000" + d(0, 9999)).slice(-4);
+        }
+
         function renderIdentity(d) {
           $all("[data-ppf-bind]").forEach(function (node) {
             var v = d[node.getAttribute("data-ppf-bind")];
             if (v != null) node.textContent = v;
           });
+          setEl("email", d.email || emailFor(d.name));
+          setEl("phone", d.phone || phoneFor(d.name));
           var html = "";
           /* On legal hold → a gold "since" badge + divider ahead of the status chips. */
           if (d.legalHold) {
@@ -7595,7 +7664,16 @@
             e.preventDefault();
             var nm = cust.getAttribute("data-dm-person") || cust.textContent.trim();
             var preset = (window.PPF_PERSONAS && window.PPF_PERSONAS[nm]) || null;
-            open(preset || { name: nm, avatarInitials: initialsFrom(nm) });
+            var data = preset ? Object.assign({}, preset)
+                              : { name: nm, avatarInitials: initialsFrom(nm) };
+            /* The job title rides along on the link (data-dm-role) so the identity
+               block shows the clicked person's title instead of inheriting the demo
+               persona's. Empty string — not null — so a missing title CLEARS the
+               previous one rather than leaving the last persona's showing. */
+            if (!data.role) data.role = cust.getAttribute("data-dm-role") || "";
+            /* Email/phone are left to renderIdentity(), which derives both from the
+               name unless the preset supplies them. */
+            open(data);
           }
         });
 
