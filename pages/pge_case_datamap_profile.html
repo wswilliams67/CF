@@ -5948,6 +5948,14 @@
          ║  Angular: extract as <app-persona-case-profile [persona]="p"> with a   ║
          ║  PersonaProfileService.open(). Tab state → internal signal; chart →     ║
          ║  child <app-activity-chart [series]="…" [mode]="week">.                 ║
+         ║                                                                        ║
+         ║  DEMO SCAFFOLDING — DELETE ON API INTEGRATION:                          ║
+         ║    emailFor() / phoneFor() / nameHash() / US_AREA_CODES synthesise a    ║
+         ║    contact line for personas opened from a table link, which carry only ║
+         ║    a name. Persona.email / .phone from the API take precedence today,   ║
+         ║    so wiring the real fields makes these four dead on arrival. Do NOT   ║
+         ║    port them — an Angular pipe regenerating numbers per change-         ║
+         ║    detection cycle is exactly the flicker they exist to avoid here.     ║
          ╚══════════════════════════════════════════════════════════════════════╝ -->
     <div class="modal fade ppf-modal" id="personaProfileModal" tabindex="-1"
          aria-labelledby="ppfModalTitle" aria-hidden="true">
@@ -5970,14 +5978,22 @@
                   <h2 class="ppf-name" data-ppf-bind="name">Scott Williams</h2>
                   <p class="ppf-role" data-ppf-bind="role">Senior Principal User Experience Specialist</p>
                   <!-- Contact line: email + phone, divided. Both are derived from the
-                       persona in renderIdentity() when the payload omits them. -->
+                       persona in renderIdentity() when the payload omits them.
+                       Angular: <app-persona-contact [email]="p.email" [phone]="p.phone">,
+                       divider via @if (p.email && p.phone). -->
                   <p class="ppf-contact">
                     <span class="ppf-contact-item" data-ppf-el="email">scott.williams@acme.com</span>
-                    <span class="ppf-contact-divider" aria-hidden="true"></span>
+                    <span class="ppf-contact-divider" data-ppf-el="contactDivider" aria-hidden="true"></span>
                     <span class="ppf-contact-item" data-ppf-el="phone">(415) 662-0184</span>
                   </p>
                 </div>
               </div>
+              <!-- Header actions. Two kinds, and they must not be collapsed into one
+                   component: favorite/custodian are STATE toggles (icon reflects on/off,
+                   see TOGGLE_ACTIONS); tags is a COMMAND that opens the existing tag
+                   feature and must look identical before and after a click.
+                   Angular: (click)="toggleFavorite()" / "toggleCustodian()" vs
+                   (click)="tagService.open(persona)". -->
               <div class="ppf-identity-actions">
                 <button type="button" class="btn btn-secondary btn-sm ppf-action" data-ppf-action="favorite">
                   <i class="mdi mdi-heart-outline" aria-hidden="true"></i><span>Favorite</span>
@@ -5985,11 +6001,8 @@
                 <button type="button" class="btn btn-secondary btn-sm ppf-action" data-ppf-action="custodian">
                   <i class="mdi mdi-briefcase-account-outline" aria-hidden="true"></i><span>Mark as Custodian</span>
                 </button>
-                <button type="button" class="btn btn-secondary btn-sm ppf-action" data-ppf-action="tags" hidden>
+                <button type="button" class="btn btn-secondary btn-sm ppf-action" data-ppf-action="tags">
                   <i class="mdi mdi-tag-outline" aria-hidden="true"></i><span>Manage Tags</span>
-                </button>
-                <button type="button" class="btn btn-secondary btn-sm ppf-action" data-ppf-action="groups">
-                  <i class="mdi mdi-account-group-outline" aria-hidden="true"></i><span>Manage Groups</span>
                 </button>
               </div>
               <!-- Full-width row below the identity line (legal-hold badge + status chips) -->
@@ -6061,7 +6074,11 @@
                    Angular: <app-activity-chart [series]="persona.activity">. -->
               <div class="ppf-card ppf-activity" data-ppf-chart="overview"></div>
 
-              <!-- Profile details -->
+              <!-- Profile details. The per-card History/Edit action bars were removed
+                   (future-state feature, not in this release) — along with them went
+                   .ppf-card-foot--split and .ppf-detail .ppf-card-foot. The base
+                   .ppf-card-foot rule stays: the Top Sources / Top Collaborators cards
+                   above still use it. Angular: no CardFooter on <app-detail-card>. -->
               <h4 class="ppf-section-title">Profile Details</h4>
               <div class="ppf-detailgrid">
 
@@ -6076,9 +6093,6 @@
                   </div>
                   <!-- rendered from data.employment.roles[] -->
                   <div data-ppf-el="employment"></div>
-                  <div class="ppf-card-foot ppf-card-foot--split">
-                    <button type="button" class="btn btn-tertiary btn-sm">History</button><button type="button" class="btn btn-tertiary btn-sm">Edit</button>
-                  </div>
                 </div>
 
                 <div class="ppf-card ppf-detail">
@@ -6088,9 +6102,6 @@
                   </div>
                   <!-- rendered from data.groups[] -->
                   <div data-ppf-el="groups"></div>
-                  <div class="ppf-card-foot ppf-card-foot--split">
-                    <button type="button" class="btn btn-tertiary btn-sm">History</button><button type="button" class="btn btn-tertiary btn-sm">Edit</button>
-                  </div>
                 </div>
 
                 <div class="ppf-card ppf-detail">
@@ -6099,9 +6110,6 @@
                   </div>
                   <!-- rendered from data.delegate -->
                   <div class="ppf-delegate" data-ppf-el="delegate"></div>
-                  <div class="ppf-card-foot ppf-card-foot--split">
-                    <button type="button" class="btn btn-tertiary btn-sm">History</button><button type="button" class="btn btn-tertiary btn-sm">Edit</button>
-                  </div>
                 </div>
               </div>
             </section>
@@ -6356,10 +6364,10 @@
       .ppf-contact { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 4px 0 0; font-size: 13px; font-weight: 300; color: var(--ppf-muted); }
       .ppf-contact-item { white-space: nowrap; }
       .ppf-contact-item:empty { display: none; }
+      /* The divider is toggled by renderIdentity(), not CSS: a sibling selector
+         cannot express "hide unless BOTH sides are present" (an empty trailing
+         span is still a rendered sibling, so :last-child never matches it). */
       .ppf-contact-divider { width: 1px; height: 14px; background: var(--ppf-border-strong); }
-      /* Drop the divider when either side is missing, so no orphan rule is left. */
-      .ppf-contact-item:empty + .ppf-contact-divider,
-      .ppf-contact-divider:last-child { display: none; }
       .ppf-chips { flex-basis: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; }
       .ppf-chips:empty { display: none; }
       /* Legal-hold badge: gold rectangular badge (not a pill), dark bold text. */
@@ -6403,14 +6411,19 @@
       .ppf-stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 20px; }
       .ppf-stat {
         background: var(--ppf-frame); border: 1px solid var(--ppf-border); border-radius: var(--ppf-r-m);
-        padding: 14px 16px; display: flex; flex-direction: column; gap: 3px; min-width: 0; text-align: center; align-items: center;
+        padding: 14px 16px; display: flex; flex-direction: column; gap: 3px; text-align: center; align-items: center;
+        /* Hug: the track may not shrink below the card's content. Paired with the
+           nowrap on .ppf-stat-value this floors the column at the full date range,
+           so "Jan 15, 2024 – Jun 30, 2026" can neither wrap nor clip. Labels and
+           notes still wrap freely — they only contribute their longest word. */
+        min-width: min-content;
       }
       /* Font sizes verified against the design system's stat card: big value =
          Font Size/fs-3 (24.5px, weight 700, Nunito Sans, lh 1.375); label =
          Font Size/p (14px); sub/note = Font Size/small (12px). Matches the
          project's already-accepted .dm-people-stat-* cards. */
       .ppf-stat-label { font-size: 14px; font-weight: 700; line-height: 1.43; letter-spacing: .2px; text-transform: uppercase; color: var(--ppf-muted); }
-      .ppf-stat-value { font-size: 24.5px; font-weight: 700; line-height: 1.375; color: var(--ppf-text); }
+      .ppf-stat-value { font-size: 24.5px; font-weight: 700; line-height: 1.375; color: var(--ppf-text); white-space: nowrap; }
       .ppf-stat-value-sm { font-size: 18px; }  /* long text values (date range / device) render smaller; not directly readable from Figma (opaque instance) */
       .ppf-stat-value-ok { color: var(--ppf-success-text); }
       .ppf-stat-sub { font-size: 12px; color: var(--ppf-muted); }
@@ -6424,7 +6437,6 @@
       .ppf-card-title { font-family: var(--ppf-font-title); font-size: 20px; font-weight: 600; color: var(--ppf-text); margin: 0; }
       .ppf-card-sub { font-size: 13px; color: var(--ppf-muted); margin: 2px 0 0; }
       .ppf-card-foot { margin-top: 14px; display: flex; justify-content: flex-end; }
-      .ppf-card-foot--split { justify-content: space-between; }
       .ppf-section-title { font-family: var(--ppf-font-title); font-size: 16px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--ppf-text); margin: 20px 0 16px; }
 
       /* Ranked lists */
@@ -6530,7 +6542,6 @@
       .ppf-delegate-name { font-size: 15px; font-weight: 700; color: var(--ppf-text); margin: 0; }
       .ppf-delegate-role { font-size: 12px; color: var(--ppf-muted); margin: 2px 0 8px; }
       .ppf-delegate-badges { display: flex; gap: 6px; flex-wrap: wrap; }
-      .ppf-detail .ppf-card-foot { margin-top: auto; padding-top: 14px; }
 
       /* Self-contained toast host */
       .ppf-toast-host { position: fixed; right: 24px; bottom: 24px; z-index: 1090; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
@@ -6717,7 +6728,10 @@
           stats: [
             { label: "Data Sources", value: "12" },
             { label: "Items", value: "812", sub: "Accessed / interacted with", note: "1,204 UAL events in case window" },
-            { label: "Case Window", value: "Jan 2024 – Jun 2026", small: true, note: "Active period · 30 months" },
+            /* Both ends carry the year — the window spans two calendar years, so a
+               bare "Jan 15 – Jun 30" would read as a single-year range. Days come
+               from caseWindow above; keep the two in step when either changes. */
+            { label: "Case Window", value: "Jan 15, 2024 – Jun 30, 2026", small: true, note: "Active period · 30 months" },
             { label: "Mobile Device Synced", value: "iPhone 15", small: true, note: "OS via Entra sign-in · model via ActiveSync" },
             { label: "Legal Hold Status", value: "Active", ok: true }
           ],
@@ -6976,34 +6990,41 @@
         function setEl(name, v) { var n = el(name); if (n) n.textContent = (v == null ? "" : v); }
         function fill(name, html) { var n = el(name); if (n) n.innerHTML = html; }
 
-        /* ══ Rendering — every card is drawn from DATA (its own array/object). One
-              renderAll() repaints the whole modal; API integration = open(json). ══ */
-        /* ── Contact derivation ─────────────────────────────────────────────
-              A payload may carry `email` / `phone`; when it does not (e.g. a
-              custodian opened straight from a table link) both are synthesised
-              from the name. The hash is deterministic, so the same person keeps
-              the same number across opens, sorts and re-renders — a fresh random
-              number on every paint would read as a data bug. ── */
+        /* ══ Contact derivation — DEMO ONLY, see the block comment at the top of
+              this component. A payload may carry `email` / `phone`; when it does
+              not (a custodian opened straight from a table link supplies only a
+              name) both are synthesised. Derivation is a pure function of the
+              name, so the same person keeps the same number across opens, sorts
+              and re-renders — a number that changed per paint reads as a data
+              bug, and QA would rightly file it as one. ══ */
         var EMAIL_DOMAIN = "acme.com";
-        function nameHash(name) {
-          var h = 2166136261, s = String(name || "");
-          for (var i = 0; i < s.length; i++) { h = ((h ^ s.charCodeAt(i)) * 16777619) >>> 0; }
-          return h >>> 0;
-        }
-        function emailFor(name) {
-          var parts = String(name || "").toLowerCase().replace(/[^a-z\s'-]/g, "")
-            .trim().split(/\s+/).filter(Boolean);
-          if (!parts.length) return "";
-          var local = parts.length > 1 ? parts[0] + "." + parts[parts.length - 1] : parts[0];
-          return local.replace(/['-]/g, "") + "@" + EMAIL_DOMAIN;
-        }
-        /* Real, in-service NANP area codes — a structurally valid NPA (2–9 lead) can
-           still be unassigned (e.g. 892), which reads as fake in a demo. */
+        /* Real, in-service NANP area codes. A structurally valid NPA (2–9 lead) can
+           still be unassigned — 892 and 943 are not dialable — which reads as fake
+           the moment anyone checks one. */
         var US_AREA_CODES = [
           "212", "213", "215", "312", "313", "404", "415", "469", "503", "512",
           "602", "617", "619", "703", "713", "720", "737", "781", "801", "813",
           "857", "919", "925", "972"
         ];
+
+        /* FNV-1a. Math.imul is required, not stylistic: the 16777619 multiply
+           overflows 2^53 for a 32-bit h, so a plain `*` silently drops low bits
+           and collapses the avalanche this relies on for distinct numbers. */
+        function nameHash(name) {
+          var s = String(name || ""), h = 2166136261;
+          for (var i = 0; i < s.length; i++) { h = Math.imul(h ^ s.charCodeAt(i), 16777619); }
+          return h >>> 0;
+        }
+        /* "Elena Vasquez" → elena.vasquez@acme.com. Accents and punctuation are
+           dropped so the local part stays RFC-safe; single-word names use just it. */
+        function emailFor(name) {
+          var parts = String(name || "").toLowerCase().replace(/[^a-z\s]/g, "")
+            .trim().split(/\s+/).filter(Boolean);
+          if (!parts.length) return "";
+          return (parts.length > 1 ? parts[0] + "." + parts[parts.length - 1] : parts[0])
+            + "@" + EMAIL_DOMAIN;
+        }
+        /* (NPA) NXX-XXXX, seeded from the name so it never changes between paints. */
         function phoneFor(name) {
           if (!name) return "";
           var h = nameHash(name);
@@ -7012,19 +7033,27 @@
             return min + (h % (max - min + 1));
           }
           var area = US_AREA_CODES[d(0, US_AREA_CODES.length - 1)];
-          var b = d(0, 9), c = d(0, 9);             /* NXX: 2–9 lead, never N11 */
+          /* NXX: 2–9 lead and never N11, which the NANP reserves for services. */
+          var lead = d(2, 9), b = d(0, 9), c = d(0, 9);
           if (b === 1 && c === 1) c = 2;
-          var exch = "" + d(2, 9) + b + c;
-          return "(" + area + ") " + exch + "-" + ("000" + d(0, 9999)).slice(-4);
+          return "(" + area + ") " + lead + b + c + "-" + ("000" + d(0, 9999)).slice(-4);
         }
 
+        /* ══ Rendering — every card is drawn from DATA (its own array/object). One
+              renderAll() repaints the whole modal; API integration = open(json). ══ */
         function renderIdentity(d) {
           $all("[data-ppf-bind]").forEach(function (node) {
             var v = d[node.getAttribute("data-ppf-bind")];
             if (v != null) node.textContent = v;
           });
-          setEl("email", d.email || emailFor(d.name));
-          setEl("phone", d.phone || phoneFor(d.name));
+          /* Contact line. A supplied value always wins; the generators are demo
+             scaffolding and go away once the API carries email/phone. */
+          var email = d.email || emailFor(d.name);
+          var phone = d.phone || phoneFor(d.name);
+          setEl("email", email);
+          setEl("phone", phone);
+          var divider = el("contactDivider");
+          if (divider) divider.hidden = !(email && phone);
           var html = "";
           /* On legal hold → a gold "since" badge + divider ahead of the status chips. */
           if (d.legalHold) {
@@ -7534,15 +7563,20 @@
         var ACTION_MSG = {
           favorite:  ["Added to Favorites", "This persona is now flagged as a favorite."],
           custodian: ["Marked as Custodian", "Persona added to the case custodian set."],
-          tags:      ["Manage Tags", "Tag management opens here (later phase)."],
-          groups:    ["Manage Groups", "Group management opens here (later phase)."]
+          tags:      ["Manage Tags", "Tag management opens here (later phase)."]
         };
+        /* Which actions represent an on/off state the user sets here. Only these
+           swap their icon between the outline and filled variant. `tags` is NOT
+           one: it is a plain command button that the devs will wire to the
+           existing tag-management feature, so it must look identical after a
+           click as before — it only raises the placeholder toast for now. */
+        var TOGGLE_ACTIONS = { favorite: true, custodian: true };
         $all("[data-ppf-action]").forEach(function (btn) {
           btn.addEventListener("click", function () {
             var key = btn.getAttribute("data-ppf-action");
             /* Toggle only the icon between its outline and filled (non-outline)
                variant — the button itself stays in its default appearance. */
-            var ic = btn.querySelector(".mdi");
+            var ic = TOGGLE_ACTIONS[key] ? btn.querySelector(".mdi") : null;
             if (ic) {
               var cls = Array.prototype.slice.call(ic.classList).filter(function (c) { return c.indexOf("mdi-") === 0; })[0];
               if (cls) {
@@ -7646,7 +7680,14 @@
               renders these as `a.dm-custodian-name` (name in data-dm-person or text).
               We bind by delegation so the existing render code is untouched; those
               links are otherwise inert (href="#"). A matching entry in
-              window.PPF_PERSONAS[name] supplies full data, else we open name-only. ══ */
+              window.PPF_PERSONAS[name] supplies full data, else we open name-only.
+
+              LINK DATA CONTRACT — a custodian link carries what the modal cannot
+              re-derive: data-dm-person (name) and data-dm-role (job title). Without
+              the role the identity block silently inherits the PREVIOUS persona's
+              title, which looks like real data and is why it went unnoticed.
+              Angular: this whole delegation block disappears — the table binds
+              (click)="profile.open(custodian)" and passes the row object. ══ */
         function initialsFrom(name) {
           return (name || "").trim().split(/\s+/).slice(0, 2)
             .map(function (w) { return w.charAt(0).toUpperCase(); }).join("") || "?";
