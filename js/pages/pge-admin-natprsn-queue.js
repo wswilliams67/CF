@@ -1406,13 +1406,27 @@
       }
     }
 
-    /* The two person cards. */
+    /*
+     * The two person cards — CANDIDATE FIRST, established second.
+     *
+     * The arrow between them is not decoration: it states the direction a merge
+     * would run, and a merge folds the candidate INTO the established person.
+     * Source on the left, target on the right, arrow pointing at the target, so
+     * the row reads as the sentence it represents. Drawn the other way it says
+     * the established person is about to be absorbed by a record created days
+     * ago by a refused merge, which is the opposite of what happens.
+     *
+     * Matches the product's direction paradigm — forward is rightward.
+     *
+     * `legalHold` stays with the ESTABLISHED person wherever that card sits;
+     * the hold is a property of the person, not of the position.
+     */
     var persons = byId("npqPersons");
     if (persons) {
       persons.innerHTML =
-        personCard("Established person", pair.established, pair.establishedMeta, pair.legalHold, pair.holdKnown) +
+        personCard("Candidate", pair.candidate, pair.candidateMeta, null, pair.holdKnown) +
         '<div class="np-persons-arrow" aria-hidden="true"><i class="mdi mdi-arrow-right-thick"></i></div>' +
-        personCard("Candidate", pair.candidate, pair.candidateMeta, null, pair.holdKnown);
+        personCard("Established person", pair.established, pair.establishedMeta, pair.legalHold, pair.holdKnown);
     }
 
     /* Field comparison. */
@@ -1425,8 +1439,11 @@
             '<i class="mdi ' + v.icon + '" aria-hidden="true"></i>' +
             '<span class="visually-hidden">' + esc(r.agree || v.label) + "</span></td>" +
           '<td class="np-col-field">' + esc(r.field) + "</td>" +
-          '<td class="np-col-value">' + esc(r.established || "\u2014") + "</td>" +
+          /* Distinct first — the column order follows the person cards, which
+             read candidate → established. The row DATA is untouched; only the
+             two cells swap places. */
           '<td class="np-col-value">' + esc(r.distinct || "\u2014") + "</td>" +
+          '<td class="np-col-value">' + esc(r.established || "\u2014") + "</td>" +
           '<td class="np-col-agree ' + v.cls + '">' + esc(r.agree || v.label) + "</td>" +
         "</tr>";
       }).join("");
