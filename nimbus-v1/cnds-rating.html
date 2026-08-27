@@ -1,0 +1,1502 @@
+<!--
+================================================================================
+  CNDS Nimbus Design System — Rating
+  Version: 9.0.96
+  Layout:  Application shell with left SideNav + right in-page nav
+================================================================================
+  Architecture
+  ─ Pure HTML5 / CSS3 / vanilla JS — no external runtime dependencies
+  ─ Components init via data-cnds-*-init attributes (DataAPI auto-scan on cnds.ready)
+  ─ All Nimbus symbols in window.Nimbus.* (Rating, Popover, etc.)
+  ─ Product theme set via body class: cnds-product-casefusion | hyperlize | expireon
+  ─ Light/dark toggled by [data-cnds-theme] on <html>; theme button wired in app.js
+
+  Page structure
+  ─ <head>              CSS bundles, favicons, design tokens
+  ─ .sticky-top         UtilityNav + MainNav (sticky header)
+  ─ #main-content       Application shell
+    ─ #sidebar-cf       Left SideNav (content loaded by sidenav-loader.js)
+    ─ #slim-content     Main scrollable area
+      ─ col 80%         Docs content (sections + API docs)
+      ─ col 20%         Sticky in-page nav (scrollspy)
+  ─ .cf-footer          Page footer
+  ─ <script>            Page scripts (bottom of body, after Nimbus loads)
+
+  Accessibility (Section 508 / WCAG 2.1 AA)
+  ─ Skip-nav link targets #main-content (WCAG 2.4.1)
+  ─ Rating widget: role="radiogroup", each star role="radio" + aria-checked
+  ─ Readonly rating: role="img" + aria-label describing the displayed value
+  ─ Keyboard: ArrowLeft/Right/Up/Down navigate stars; Enter/Space selects
+  ─ Focus indicator: .rating-star:focus-visible outline in rating.css
+  ─ Decorative icons have aria-hidden="true"
+================================================================================
+-->
+<!doctype html>
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta
+      name="description"
+      content="Rating | Cloudficient Nimbus Design System v1.0.0"
+    />
+    <title>
+      Rating | CNDS v1.0.0 | Cloudficient Nimbus Design System
+    </title>
+    <!-- Nimbus CSS -->
+    <link rel="stylesheet" href="css/nimbus.css" media="all" type="text/css" />
+    <!-- Custom styles -->
+    <link rel="stylesheet" href="css/app.css" media="all" type="text/css" />
+    <!-- Prism syntax highlighting -->
+    <link rel="stylesheet" href="plugins/css/prism.min.css" media="all" type="text/css" />
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="img/favicon/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="60x60" href="img/favicon/apple-icon-60x60.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="img/favicon/apple-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76" href="img/favicon/apple-icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="img/favicon/apple-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="img/favicon/apple-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="img/favicon/apple-icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="img/favicon/apple-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-icon-180x180.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="img/favicon/android-icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="img/favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="img/favicon/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="msapplication-TileImage" content="img/favicon/ms-icon-144x144.png" />
+    <!-- Design Tokens / Primitives & Themes -->
+    <link rel="stylesheet" href="css/themes/primitives.css" />
+    <link rel="stylesheet" href="css/themes/light.css" />
+    <link rel="stylesheet" href="css/themes/dark.css" />
+  </head>
+
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 Bypass Blocks; renders visually hidden until focused -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+    <!-- Header -->
+    <div class="sticky-top">
+      <!-- Utility Navigation -->
+      <nav id="UtilityNav" class="nav nav-cf-utility">
+        <div class="w-100 gx-3 px-sm-0 px-lg-3">
+          <ul class="nav nav-cf-utility-ul"></ul>
+        </div>
+      </nav>
+      <!-- Main Navigation -->
+      <nav id="MainNav" class="navbar navbar-expand-xl navbar-cf">
+        <div class="container-fluid p-0 px-3 d-flex">
+          <div class="d-flex flex-fill align-items-center text-truncate">
+            <div class="text-center d-none d-md-block me-3 border-end">
+              <a href="index.html"><img src="img/cf/core/logo_nimbus.png" class="me-3 mt-n1" alt="Cloudficient Nimbus Design System" /></a>
+            </div>
+            <div class="flex-fill text-truncate">
+              <div class="navbar-cf-title-block">
+                <div class="navbar-cf-title cf-page-title text-truncate" style="padding-bottom: 0;">
+                  <span class="cf-page-title-text cf-page-title-brand">v1</span>
+                  <span class="cf-page-title-divider"></span>
+                  <span class="cf-page-title-text">Rating</span>
+                  </div>
+              </div>
+            </div>
+          </div>
+          <button class="btn btn-sm btn-outline-secondary ms-2" data-cnds-toggle="theme" aria-label="Toggle theme" title="Toggle theme">
+            <i class="mdi mdi-weather-night mdi-18px" aria-hidden="true"></i>
+          </button>
+        </div>
+      </nav>
+    </div>
+    <!-- Content -->
+    <main id="main-content" class="cf-main-app">
+      <div class="d-block d-md-none p-4">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>This application is not optimized for small screens. Please use a large tablet, laptop, or desktop computer to continue.
+        </div>
+      </div>
+      <div class="d-none d-md-block">
+        <nav id="sidebar-cf" class="sidenav" data-cnds-mode="side" data-cnds-slim="false" data-cnds-slim-collapsed="false" data-cnds-content="#slim-content" data-cnds-accordion="true">
+          <!-- Sidenav content loaded by js/sidenav-loader.js -->
+        </nav>
+      <div id="slim-content">
+        <div class="slim-content-box">
+          <div class="row">
+            <div class="col-md-12 col-lg" style="flex: 0 0 80%; max-width: 80%">
+              <!--Section: Docs content-->
+              <section class="container-fluid">
+                <!--Section: Introduction-->
+                <section id="section-introduction">
+
+                  <!-- Description -->
+                  <p class="mb-4">
+                    The Nimbus Rating component is an interactive star-rating widget that gives
+                    users a quick, visual way to express their opinion about a product, document,
+                    or piece of content. It supports stars and any custom symbol — including
+                    emoji face icons (i.e. smiling faces).
+                  </p>
+
+                  <p class="my-4">
+                    Use the Rating component wherever you need to capture or display a score:
+                    product feedback forms, documentation satisfaction surveys, photo galleries,
+                    and more. It can run in interactive mode (user-selectable) or read-only mode
+                    (display-only).
+                  </p>
+
+                  <p class="note note-light">
+                    <strong>Note:</strong> Read the
+                    <a href="#section-api-docs">API Documentation</a> to
+                    find all available options and advanced customization.
+                  </p>
+                
+                    <p class="note note-info"><strong>Note:</strong> To preview components in different themes, click the theme toggle button <i class="mdi mdi-weather-night" aria-hidden="true"></i> / <i class="mdi mdi-weather-sunny" aria-hidden="true"></i> in the header navigation bar.</p>
+                </section>
+                <!--/Section: Introduction-->
+
+                <hr class="my-5" />
+
+                <!--Section: Basic example-->
+                <section id="section-basic-example">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Basic example</h3>
+
+                  <!-- Description -->
+                  <p class="my-4">
+                    Add <code>data-cnds-rating-init</code> to a <code>&lt;ul class="rating"&gt;</code>
+                    element to automatically initialize the rating widget. Each <code>&lt;li&gt;</code>
+                    holds one icon; add a <code>title</code> attribute to display a tooltip label on hover.
+                  </p>
+
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section
+                        class="p-4 d-flex justify-content-center text-center w-100"
+                      >
+                        <ul class="rating" data-cnds-rating-init aria-label="Rating">
+                          <li>
+                            <i
+                              class="far fa-star fa-sm text-primary"
+                              title="Bad"
+                              aria-hidden="true"
+                            ></i>
+                          </li>
+                          <li>
+                            <i
+                              class="far fa-star fa-sm text-primary"
+                              title="Poor"
+                              aria-hidden="true"
+                            ></i>
+                          </li>
+                          <li>
+                            <i
+                              class="far fa-star fa-sm text-primary"
+                              title="OK"
+                              aria-hidden="true"
+                            ></i>
+                          </li>
+                          <li>
+                            <i
+                              class="far fa-star fa-sm text-primary"
+                              title="Good"
+                              aria-hidden="true"
+                            ></i>
+                          </li>
+                          <li>
+                            <i
+                              class="far fa-star fa-sm text-primary"
+                              title="Excellent"
+                              aria-hidden="true"
+                            ></i>
+                          </li>
+                        </ul>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!-- Angular: Initialise the rating widget in ngAfterViewInit by querying the element with data-cnds-rating-init; expose [(ngModel)] or a FormControl for the selected value and emit a (ratingChange) EventEmitter output when the user selects a star.
+                       Example: <ul class="rating" data-cnds-rating-init #ratingEl><li *ngFor="let star of stars"><i class="far fa-star fa-sm text-primary" [attr.title]="star.label" aria-hidden="true"></i></li></ul>
+                       Store the star options array in the component class and use *ngFor to generate <li> elements so the number and labels of stars are data-driven rather than hard-coded in the template. -->
+
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;ul class="rating" data-cnds-rating-init&gt;
+    &lt;li&gt;&lt;i class="far fa-star fa-sm text-primary" title="Bad"&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;i class="far fa-star fa-sm text-primary" title="Poor"&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;i class="far fa-star fa-sm text-primary" title="OK"&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;i class="far fa-star fa-sm text-primary" title="Good"&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;i class="far fa-star fa-sm text-primary" title="Excellent"&gt;&lt;/i&gt;&lt;/li&gt;
+&lt;/ul&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--/Section: Basic example-->
+
+                <hr class="my-5" />
+
+                <!--Section: Read only-->
+                <section id="section-read-only">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Read only</h3>
+                  <p>
+                    Set <code>data-cnds-readonly="true"</code> on the <code>&lt;ul&gt;</code>
+                    to display a fixed score without allowing user interaction. Combine it with
+                    <code>data-cnds-value</code> to pre-fill the displayed rating (e.g.
+                    <code>data-cnds-value="3"</code> fills the first three stars).
+                  </p>
+
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section
+                        class="p-4 d-flex justify-content-center text-center w-100"
+                      >
+                        <ul
+                          class="rating"
+                          data-cnds-rating-init
+                          data-cnds-readonly="true"
+                          data-cnds-value="3"
+                          aria-label="Rating: 3 out of 5"
+                        >
+                          <li><i class="far fa-star fa-sm text-primary" aria-hidden="true"></i></li>
+                          <li><i class="far fa-star fa-sm text-primary" aria-hidden="true"></i></li>
+                          <li><i class="far fa-star fa-sm text-primary" aria-hidden="true"></i></li>
+                          <li><i class="far fa-star fa-sm text-primary" aria-hidden="true"></i></li>
+                          <li><i class="far fa-star fa-sm text-primary" aria-hidden="true"></i></li>
+                        </ul>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!-- Angular: Set the read-only state via [attr.data-cnds-readonly]="isReadonly" and the initial value via [attr.data-cnds-value]="ratingValue" on the <ul> element; re-initialise the Nimbus rating plugin in ngOnChanges when either input changes.
+                       Example: <ul class="rating" data-cnds-rating-init [attr.data-cnds-readonly]="isReadonly ? 'true' : null" [attr.data-cnds-value]="ratingValue"><li *ngFor="let star of stars"><i class="far fa-star fa-sm text-primary" aria-hidden="true"></i></li></ul>
+                       Use isReadonly as an @Input() boolean so parent components can toggle between interactive and display-only modes without recreating the widget. -->
+
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;ul class="rating" data-cnds-rating-init data-cnds-readonly="true" data-cnds-value="3"&gt;
+    &lt;li&gt;&lt;i class="far fa-star fa-sm text-primary"&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;i class="far fa-star fa-sm text-primary"&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;i class="far fa-star fa-sm text-primary"&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;i class="far fa-star fa-sm text-primary"&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;i class="far fa-star fa-sm text-primary"&gt;&lt;/i&gt;&lt;/li&gt;
+&lt;/ul&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--Section: Read only-->
+
+                <hr class="my-5" />
+
+                <!--Section: Events-->
+                <section id="section-events">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Events</h3>
+
+                  <p>
+                    The Rating component emits two custom events: <code>scoreSelect.cnds.rating</code>
+                    fires when a user clicks a star, and <code>scoreHover.cnds.rating</code> fires
+                    as the user hovers over each star. Both events expose the target element and the
+                    numeric value on the event object. Open the browser console to test the examples below.
+                  </p>
+
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section
+                        class="p-4 d-flex flex-column justify-content-center align-items-center text-center w-100"
+                      >
+                        <ul
+                          id="events-example"
+                          class="rating"
+                          data-cnds-rating-init
+                          aria-label="Rating"
+                        >
+                          <li><i class="far fa-star fa-sm text-primary" aria-hidden="true"></i></li>
+                          <li><i class="far fa-star fa-sm text-primary" aria-hidden="true"></i></li>
+                          <li><i class="far fa-star fa-sm text-primary" aria-hidden="true"></i></li>
+                          <li><i class="far fa-star fa-sm text-primary" aria-hidden="true"></i></li>
+                          <li><i class="far fa-star fa-sm text-primary" aria-hidden="true"></i></li>
+                        </ul>
+                        <div class="d-flex gap-4 mt-3">
+                          <span class="text-muted small">Hover: <strong id="events-hover-val">—</strong></span>
+                          <span class="text-muted small">Selected: <strong id="events-select-val">—</strong></span>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!-- Angular: Listen for rating events by adding a host listener for scoreSelect.cnds.rating and scoreHover.cnds.rating in the component's ngAfterViewInit; emit (ratingChange) and (ratingHover) EventEmitter outputs to notify parent components of user interaction.
+                       Example: <ul class="rating" data-cnds-rating-init #ratingEl><li *ngFor="let star of stars"><i class="far fa-star fa-sm text-primary" aria-hidden="true"></i></li></ul>
+                       Use @ViewChild to access the native element and call addEventListener for Nimbus custom events in ngAfterViewInit, then remove the listeners in ngOnDestroy to prevent memory leaks. -->
+
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;ul id="events-example" class="rating" data-cnds-rating-init&gt;
+    &lt;li&gt;&lt;i class="far fa-star fa-sm text-primary"&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;i class="far fa-star fa-sm text-primary"&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;i class="far fa-star fa-sm text-primary"&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;i class="far fa-star fa-sm text-primary"&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;i class="far fa-star fa-sm text-primary"&gt;&lt;/i&gt;&lt;/li&gt;
+&lt;/ul&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-js">
+const ratingEl = document.getElementById('events-example');
+
+ratingEl.addEventListener('scoreHover.cnds.rating', (e) => {
+  console.log('scoreHover', e.detail.value);
+});
+ratingEl.addEventListener('scoreSelect.cnds.rating', (e) => {
+  console.log('scoreSelect', e.detail.value);
+});
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--/Section: Events-->
+
+                <hr class="my-5" />
+
+                <!--Section: Custom text-->
+                <section id="section-custom-text">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Custom text</h3>
+                  <p>
+                    Add a label alongside each rating icon using the <code>data-cnds-after</code>
+                    and <code>data-cnds-before</code> attributes on the <code>&lt;i&gt;</code>
+                    element. The text renders immediately after or before the icon and is useful
+                    for numeric labels or short descriptors.
+                  </p>
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section
+                        class="p-4 d-flex justify-content-center text-center w-100"
+                      >
+                        <ul class="rating" data-cnds-rating-init aria-label="Rating">
+                          <li class="px-2 d-flex align-items-center">
+                            <i class="far fa-star fa-sm text-primary" data-cnds-after="1" data-cnds-before="1" aria-hidden="true"></i>
+                          </li>
+                          <li class="px-2 d-flex align-items-center">
+                            <i class="far fa-star fa-sm text-primary" data-cnds-after="2" data-cnds-before="2" aria-hidden="true"></i>
+                          </li>
+                          <li class="px-2 d-flex align-items-center">
+                            <i class="far fa-star fa-sm text-primary" data-cnds-after="3" data-cnds-before="3" aria-hidden="true"></i>
+                          </li>
+                          <li class="px-2 d-flex align-items-center">
+                            <i class="far fa-star fa-sm text-primary" data-cnds-after="4" data-cnds-before="4" aria-hidden="true"></i>
+                          </li>
+                          <li class="px-2 d-flex align-items-center">
+                            <i class="far fa-star fa-sm text-primary" data-cnds-after="5" data-cnds-before="5" aria-hidden="true"></i>
+                          </li>
+                        </ul>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!-- Angular: Bind the before/after text labels with [attr.data-cnds-after]="star.after" and [attr.data-cnds-before]="star.before" on each <i> element; store both values in the star data model so labels can be localised or changed without touching the template.
+                       Example: <ul class="rating" data-cnds-rating-init><li *ngFor="let star of stars" class="px-2 d-flex align-items-center"><i class="far fa-star fa-sm text-primary" [attr.data-cnds-after]="star.after" [attr.data-cnds-before]="star.before" aria-hidden="true"></i></li></ul>
+                       Place label text in the component's data array rather than hard-coding it in the template so it can be driven from a translation service for i18n support. -->
+
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;ul class="rating" data-cnds-rating-init&gt;
+    &lt;li class="px-2 d-flex align-items-center"&gt;&lt;i class="far fa-star fa-sm text-primary" data-cnds-after="1" data-cnds-before="1"&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li class="px-2 d-flex align-items-center"&gt;&lt;i class="far fa-star fa-sm text-primary" data-cnds-after="2" data-cnds-before="2"&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li class="px-2 d-flex align-items-center"&gt;&lt;i class="far fa-star fa-sm text-primary" data-cnds-after="3" data-cnds-before="3"&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li class="px-2 d-flex align-items-center"&gt;&lt;i class="far fa-star fa-sm text-primary" data-cnds-after="4" data-cnds-before="4"&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li class="px-2 d-flex align-items-center"&gt;&lt;i class="far fa-star fa-sm text-primary" data-cnds-after="5" data-cnds-before="5"&gt;&lt;/i&gt;&lt;/li&gt;
+&lt;/ul&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--/Section: Custom text-->
+
+                <hr class="my-5" />
+
+                <!--Section: Custom icons-->
+                <section id="section-custom-icons">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Custom icons</h3>
+
+                  <p>
+                    Use <code>data-cnds-icon</code> and <code>data-cnds-icon-empty</code> on the
+                    <code>&lt;ul&gt;</code> to swap the icon for any Font Awesome or MDI icon.
+                    <code>data-cnds-icon</code> is the filled (active) state and
+                    <code>data-cnds-icon-empty</code> is the unfilled state. The example below
+                    uses Font Awesome heart icons.
+                  </p>
+
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section
+                        class="p-4 d-flex justify-content-center text-center w-100"
+                      >
+                        <ul class="rating" data-cnds-rating-init
+                            data-cnds-icon="fas fa-heart"
+                            data-cnds-icon-empty="far fa-heart"
+                            aria-label="Rating">
+                          <li><i aria-hidden="true"></i></li>
+                          <li><i aria-hidden="true"></i></li>
+                          <li><i aria-hidden="true"></i></li>
+                          <li><i aria-hidden="true"></i></li>
+                          <li><i aria-hidden="true"></i></li>
+                        </ul>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!-- Angular: Accept an iconClass @Input() string (e.g. 'far fa-heart') on the rating component and bind it with [ngClass]="iconClass" on each <i> element so the icon type can be changed from the parent without modifying the rating template.
+                       Example: <ul class="rating" data-cnds-rating-init><li *ngFor="let star of stars"><i [ngClass]="[iconClass, 'fa-sm', 'text-primary']"></i></li></ul>
+                       Default iconClass to 'far fa-star' in the component so existing usages without an explicit @Input() continue to render the standard star icon. -->
+
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;ul class="rating" data-cnds-rating-init
+    data-cnds-icon="fas fa-heart"
+    data-cnds-icon-empty="far fa-heart"&gt;
+    &lt;li&gt;&lt;i&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;i&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;i&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;i&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;i&gt;&lt;/i&gt;&lt;/li&gt;
+&lt;/ul&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--/Section: Custom icons-->
+
+                <hr class="my-5" />
+
+                <!--Section: Icons number-->
+                <section id="section-number-of-icons">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Number of icons</h3>
+                  <p>
+                    Control the number of rating steps by adding or removing <code>&lt;li&gt;</code>
+                    items inside the <code>&lt;ul&gt;</code>. The widget adapts automatically — use
+                    fewer icons for a simple 3-point scale or more for a 10-point scale.
+                  </p>
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section
+                        class="p-4 d-flex justify-content-center text-center w-100"
+                      >
+                        <ul class="rating" data-cnds-rating-init aria-label="Rating">
+                          <li><i class="far fa-star fa-sm text-primary" aria-hidden="true"></i></li>
+                          <li><i class="far fa-star fa-sm text-primary" aria-hidden="true"></i></li>
+                          <li><i class="far fa-star fa-sm text-primary" aria-hidden="true"></i></li>
+                          <li><i class="far fa-star fa-sm text-primary" aria-hidden="true"></i></li>
+                          <li><i class="far fa-star fa-sm text-primary" aria-hidden="true"></i></li>
+                          <li><i class="far fa-star fa-sm text-primary" aria-hidden="true"></i></li>
+                          <li><i class="far fa-star fa-sm text-primary" aria-hidden="true"></i></li>
+                          <li><i class="far fa-star fa-sm text-primary" aria-hidden="true"></i></li>
+                          <li><i class="far fa-star fa-sm text-primary" aria-hidden="true"></i></li>
+                          <li><i class="far fa-star fa-sm text-primary" aria-hidden="true"></i></li>
+                        </ul>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!-- Angular: Control the number of rating icons with a [max] @Input() that drives the length of the stars array; use Array(max).fill(null) in the component to generate the array dynamically so the template renders the correct number of <li> elements via *ngFor.
+                       Example: <ul class="rating" data-cnds-rating-init><li *ngFor="let _ of stars"><i class="far fa-star fa-sm text-primary" aria-hidden="true"></i></li></ul>
+                       Recompute stars = Array(this.max).fill(null) in ngOnChanges whenever [max] changes so the widget automatically adjusts without requiring the parent to manage the stars array directly. -->
+
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;ul class="rating" data-cnds-rating-init&gt;
+    &lt;li&gt;&lt;i class="far fa-star fa-sm text-primary"&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;i class="far fa-star fa-sm text-primary"&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;i class="far fa-star fa-sm text-primary"&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;i class="far fa-star fa-sm text-primary"&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;i class="far fa-star fa-sm text-primary"&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;i class="far fa-star fa-sm text-primary"&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;i class="far fa-star fa-sm text-primary"&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;i class="far fa-star fa-sm text-primary"&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;i class="far fa-star fa-sm text-primary"&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;i class="far fa-star fa-sm text-primary"&gt;&lt;/i&gt;&lt;/li&gt;
+&lt;/ul&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--/Section: Icons number-->
+
+                <hr class="my-5" />
+
+                <!--Section: Icons color-->
+                <section id="section-icons-custom-color">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Icons custom color</h3>
+                  <p>
+                    Override the icon color for individual stars by adding a <code>data-cnds-color</code>
+                    attribute directly on the <code>&lt;i&gt;</code> element. Each star can have a
+                    distinct color, making it easy to create gradient or spectrum-style rating scales.
+                  </p>
+
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section
+                        class="p-4 d-flex justify-content-center text-center w-100"
+                      >
+                        <ul class="rating" data-cnds-rating-init aria-label="Rating">
+                          <li><i class="far fa-star fa-sm" data-cnds-color="#673ab7" aria-hidden="true"></i></li>
+                          <li><i class="far fa-star fa-sm" data-cnds-color="#3f51b5" aria-hidden="true"></i></li>
+                          <li><i class="far fa-star fa-sm" data-cnds-color="#2196f3" aria-hidden="true"></i></li>
+                          <li><i class="far fa-star fa-sm" data-cnds-color="#03a9f4" aria-hidden="true"></i></li>
+                          <li><i class="far fa-star fa-sm" data-cnds-color="#00bcd4" aria-hidden="true"></i></li>
+                        </ul>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!-- Angular: Bind per-icon colors with [attr.data-cnds-color]="star.color" on each <i> element; store the color value in the star data model array so the palette can be driven by the component's @Input() or theme service.
+                       Example: <ul class="rating" data-cnds-rating-init><li *ngFor="let star of stars"><i class="far fa-star fa-sm" [attr.data-cnds-color]="star.color" aria-hidden="true"></i></li></ul>
+                       Derive star colors from the active product theme (CaseFusion, Hyperlize, Expireon) via a ThemeService so the rating automatically updates when the user switches themes. -->
+
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;ul class="rating" data-cnds-rating-init&gt;
+    &lt;li&gt;&lt;i class="far fa-star fa-sm" data-cnds-color="#673ab7"&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;i class="far fa-star fa-sm" data-cnds-color="#3f51b5"&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;i class="far fa-star fa-sm" data-cnds-color="#2196f3"&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;i class="far fa-star fa-sm" data-cnds-color="#03a9f4"&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;i class="far fa-star fa-sm" data-cnds-color="#00bcd4"&gt;&lt;/i&gt;&lt;/li&gt;
+&lt;/ul&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--/Section: Icons color-->
+
+                <hr class="my-5" />
+
+                <!--Section: Dynamic icons-->
+                <section id="section-dynamic-icons">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Dynamic icons</h3>
+                  <p>
+                    Add <code>data-cnds-dynamic="true"</code> to the <code>&lt;ul&gt;</code> to
+                    enable dynamic icon propagation: when the user hovers or selects a star, all
+                    preceding icons change to match it. This works well with emoji face icons
+                    (angry → frown → meh → smile → grin) to reinforce the sentiment at each level.
+                  </p>
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section
+                        class="p-4 d-flex justify-content-center text-center w-100"
+                      >
+                        <ul
+                          class="rating"
+                          data-cnds-rating-init
+                          data-cnds-dynamic="true"
+                          aria-label="Rating"
+                        >
+                          <li><i class="far fa-angry fa-lg" data-cnds-color="#673ab7" aria-hidden="true"></i></li>
+                          <li><i class="far fa-frown fa-lg" data-cnds-color="#3f51b5" aria-hidden="true"></i></li>
+                          <li><i class="far fa-meh fa-lg" data-cnds-color="#2196f3" aria-hidden="true"></i></li>
+                          <li><i class="far fa-smile fa-lg" data-cnds-color="#03a9f4" aria-hidden="true"></i></li>
+                          <li><i class="far fa-grin-stars fa-lg" data-cnds-color="#00bcd4" aria-hidden="true"></i></li>
+                        </ul>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!-- Angular: Enable dynamic icon switching with [attr.data-cnds-dynamic]="isDynamic ? 'true' : null" bound to a boolean @Input(); each icon in the *ngFor loop can carry a unique class and color from the star data model so the visual state changes as the user hovers.
+                       Example: <ul class="rating" data-cnds-rating-init [attr.data-cnds-dynamic]="isDynamic ? 'true' : null"><li *ngFor="let star of stars"><i [class]="star.iconClass" [attr.data-cnds-color]="star.color"></i></li></ul>
+                       Store isDynamic as an @Input() boolean defaulting to false so the dynamic behaviour is an opt-in feature rather than the default state. -->
+
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;ul class="rating" data-cnds-rating-init data-cnds-dynamic="true"&gt;
+    &lt;li&gt;&lt;i class="far fa-angry fa-lg" data-cnds-color="#673ab7"&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;i class="far fa-frown fa-lg" data-cnds-color="#3f51b5"&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;i class="far fa-meh fa-lg" data-cnds-color="#2196f3"&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;i class="far fa-smile fa-lg" data-cnds-color="#03a9f4"&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;i class="far fa-grin-stars fa-lg" data-cnds-color="#00bcd4"&gt;&lt;/i&gt;&lt;/li&gt;
+&lt;/ul&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--/Section: Dynamic icons-->
+
+                <hr class="my-5" />
+
+                <!--Section: Styling active icons-->
+                <section id="section-styling-active-elements">
+                  <style>
+                    #section-styling-active-elements .rating .active {
+                      color: #00c851 !important;
+                    }
+                  </style>
+                  <!-- Section title -->
+                  <h3 class="mb-4">Styling active elements</h3>
+                  <p>
+                    The widget applies the <code>active</code> class to all selected and hovered
+                    icons. Target <code>.rating .active</code> in your CSS to override the color
+                    of selected stars — for example, to use a brand green for the filled state
+                    rather than the default <code>text-primary</code>.
+                  </p>
+
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section
+                        class="p-4 d-flex justify-content-center text-center w-100"
+                      >
+                        <ul class="rating" data-cnds-rating-init aria-label="Rating">
+                          <li><i class="far fa-star fa-sm text-primary" aria-hidden="true"></i></li>
+                          <li><i class="far fa-star fa-sm text-primary" aria-hidden="true"></i></li>
+                          <li><i class="far fa-star fa-sm text-primary" aria-hidden="true"></i></li>
+                          <li><i class="far fa-star fa-sm text-primary" aria-hidden="true"></i></li>
+                          <li><i class="far fa-star fa-sm text-primary" aria-hidden="true"></i></li>
+                        </ul>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!-- Angular: Override the active star color by adding a host-scoped CSS rule targeting .rating .active; in Angular, add the style in the component's styleUrls or use :host ::ng-deep .rating .active { color: #00c851; } to pierce view encapsulation for the Nimbus widget.
+                       Example: <ul class="rating" data-cnds-rating-init><li *ngFor="let star of stars"><i class="far fa-star fa-sm text-primary" aria-hidden="true"></i></li></ul>
+                       Prefer adding the active color override in the component's styles array rather than in a global stylesheet so the customisation is scoped to the component and does not affect other rating instances on the page. -->
+
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;ul class="rating" data-cnds-rating-init&gt;
+    &lt;li&gt;&lt;i class="far fa-star fa-sm text-primary"&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;i class="far fa-star fa-sm text-primary"&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;i class="far fa-star fa-sm text-primary"&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;i class="far fa-star fa-sm text-primary"&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;i class="far fa-star fa-sm text-primary"&gt;&lt;/i&gt;&lt;/li&gt;
+&lt;/ul&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-css">CSS</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-css">
+.rating .active {
+  color: #00c851;
+}
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--/Section: Styling active icons-->
+
+                <hr class="my-5" />
+
+                <!--Section: Popover-->
+                <section id="section-popover-implementation-example">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Popover implementation example</h3>
+                  <p>
+                    Show a Nimbus Popover when the user selects a star by listening for the
+                    <code>scoreSelect</code> event. Use <code>trigger: 'manual'</code> and call
+                    <code>.show()</code> on the selected <code>.rating-star</code> element — the
+                    rating re-renders on every selection, so the popover must be created fresh
+                    from the event handler, not pre-initialized.
+                  </p>
+
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section
+                        class="p-4 d-flex justify-content-center text-center w-100"
+                      >
+                        <ul
+                          id="popover-example"
+                          class="rating"
+                          data-cnds-rating-init
+                          aria-label="Rating"
+                        >
+                          <li><i class="far fa-star fa-sm text-primary" aria-hidden="true"></i></li>
+                          <li><i class="far fa-star fa-sm text-primary" aria-hidden="true"></i></li>
+                          <li><i class="far fa-star fa-sm text-primary" aria-hidden="true"></i></li>
+                          <li><i class="far fa-star fa-sm text-primary" aria-hidden="true"></i></li>
+                          <li><i class="far fa-star fa-sm text-primary" aria-hidden="true"></i></li>
+                        </ul>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!-- Angular: Integrate a popover with the rating by initialising Nimbus.Popover on each star's <i> element in ngAfterViewInit via @ViewChildren; emit a (ratingSelect) EventEmitter that carries the selected score so the parent can display additional confirmation content.
+                       Example: <ul class="rating" data-cnds-rating-init><li *ngFor="let star of stars; let i = index"><i class="far fa-star fa-sm text-primary" #starIcon [attr.data-cnds-popover-content]="star.popoverText" (click)="onStarSelect(i + 1)" aria-hidden="true"></i></li></ul>
+                       Query star elements with @ViewChildren and initialise Nimbus.Popover in ngAfterViewInit using the native element refs so popovers are created after Angular has rendered the list. -->
+
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;ul id="popover-example" class="rating" data-cnds-rating-init&gt;
+    &lt;li&gt;&lt;i class="far fa-star fa-sm text-primary"&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;i class="far fa-star fa-sm text-primary"&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;i class="far fa-star fa-sm text-primary"&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;i class="far fa-star fa-sm text-primary"&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;i class="far fa-star fa-sm text-primary"&gt;&lt;/i&gt;&lt;/li&gt;
+&lt;/ul&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-js">
+document.addEventListener('cnds.ready', function() {
+  var ul = document.getElementById('popover-example');
+
+  ul.addEventListener('scoreSelect.cnds.rating', function(e) {
+    var star = ul.querySelector('.rating-star[data-value="' + e.detail.value + '"]');
+    if (star) {
+      new Nimbus.Popover(star, {
+        content: 'Example text',
+        trigger: 'manual',
+        placement: 'top'
+      }).show();
+    }
+  });
+});
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--/Section: Popover-->
+
+                <hr class="my-5" />
+
+                <!--Section: Get selected value-->
+                <section id="section-get-selected-value">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Get selected value</h3>
+                  <p>
+                    Listen for the <code>scoreSelect.cnds.rating</code> custom event on the rating
+                    element to capture the value the user selected. The selected score is available
+                    as <code>e.detail.value</code>. Open the browser console and interact
+                    with the widget below to see the selected value logged in real time.
+                  </p>
+
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section
+                        class="p-4 d-flex justify-content-center text-center w-100"
+                      >
+                        <ul id="get-value-example" class="rating" data-cnds-rating-init aria-label="Rating">
+                          <li><i class="far fa-star fa-sm text-primary" aria-hidden="true"></i></li>
+                          <li><i class="far fa-star fa-sm text-primary" aria-hidden="true"></i></li>
+                          <li><i class="far fa-star fa-sm text-primary" aria-hidden="true"></i></li>
+                          <li><i class="far fa-star fa-sm text-primary" aria-hidden="true"></i></li>
+                          <li><i class="far fa-star fa-sm text-primary" aria-hidden="true"></i></li>
+                        </ul>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!-- Angular: Listen for the scoreSelect.cnds.rating custom event in ngAfterViewInit to capture the selected rating value; pipe it into an @Output() (ratingChange) EventEmitter<number> so the parent component can use the value — for example, to pre-fill a feedback form field.
+                       Example: <ul class="rating" data-cnds-rating-init #ratingEl><li *ngFor="let star of stars"><i class="far fa-star fa-sm text-primary" aria-hidden="true"></i></li></ul>
+                       Attach the event listener to the host element rather than individual icons and read e.detail.value from the event object so the implementation stays clean as the number of stars changes. -->
+
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;ul id="get-value-example" class="rating" data-cnds-rating-init&gt;
+    &lt;li&gt;&lt;i class="far fa-star fa-sm text-primary"&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;i class="far fa-star fa-sm text-primary"&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;i class="far fa-star fa-sm text-primary"&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;i class="far fa-star fa-sm text-primary"&gt;&lt;/i&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;i class="far fa-star fa-sm text-primary"&gt;&lt;/i&gt;&lt;/li&gt;
+&lt;/ul&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-js">
+const ratingEl = document.getElementById('get-value-example');
+
+ratingEl.addEventListener('scoreSelect.cnds.rating', (e) => {
+  console.log(e.detail.value);
+});
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--/Section: Get selected value-->
+
+                <hr class="my-5" />
+
+                <!--Section: API content-->
+                <section id="section-api-docs">
+                  <h3 class="mb-3">API Documentation</h3>
+
+                  <!--Section: Introduction-->
+                  <section id="api-section-introduction">
+                    <h4 class="mb-4">Introduction</h4>
+                    <p>
+                      The Nimbus Rating component is an interactive star-rating widget that lets
+                      users select or display a score. It is initialized with
+                      <code>data-cnds-rating-init</code> on any container element, or
+                      programmatically via <code>new Nimbus.Rating(element, options)</code>.
+                      The component supports custom icons, half-star values, per-star labels and
+                      colors, read-only display mode, and emits events on hover and selection.
+                    </p>
+                  </section>
+                  <!--/Section: Introduction-->
+
+                  <!--Section: Usage-->
+                  <section id="api-section-usage">
+                    <!-- Section title -->
+                    <h4 class="mb-4">Usage</h4>
+
+                    <h5 class="mt-4 mb-3">Via data attributes</h5>
+
+                    <p>
+                      Using the Rating component doesn't require any additional
+                      JavaScript code - simply add
+                      <code>data-cnds-rating-init</code> attribute to
+                      <code>.rating</code>
+                      and use other data attributes to set all options.
+                    </p>
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h6><span class="badge badge-code-html">HTML</span></h6>
+                      <!-- snippet -->
+                      <div class="p-0">
+                        <pre class="line-numbers m-0">
+                                    <code class="language-html">
+&lt;ul class="rating" data-cnds-rating-init&gt;
+    &lt;li&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;/li&gt;
+&lt;/ul&gt;
+                                    </code>
+                                    </pre>
+                      </div>
+                      <!-- /.snippet -->
+                    </section>
+                    <!--Section: Code-->
+
+                    <h5 class="mt-4 mb-3">Via JavaScript</h5>
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h6><span class="badge badge-code-js">JAVASCRIPT</span></h6>
+                      <!-- snippet -->
+                      <div class="p-0">
+                        <pre class="line-numbers m-0">
+                                    <code class="language-js">
+const element = document.querySelector('.rating');
+const instance = new Nimbus.Rating(element, options);
+                                    </code>
+                                    </pre>
+                      </div>
+                      <!-- /.snippet -->
+                    </section>
+                  </section>
+                  <!--/Section: Usage-->
+
+                  <!--Section: Options-->
+                  <section id="api-section-options">
+                    <!-- Section title -->
+                    <h4 class="mb-4">Options</h4>
+
+                    <p>
+                      Options can be passed via data attributes or JavaScript.
+                      For data attributes, append the option name to
+                      <code>data-cnds-</code>, as in
+                      <code>data-cnds-stars="10"</code>.
+                    </p>
+
+                    <div class="table-responsive">
+                      <table class="table table-striped table-bordered" aria-label="Options">
+                        <thead>
+                          <tr>
+                            <th class="th-sm">Name</th>
+                            <th class="th-sm">Type</th>
+                            <th class="th-sm">Default</th>
+                            <th class="th-sm">Description</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge">stars</code>
+                            </td>
+                            <td><i>Number</i></td>
+                            <td><code>5</code></td>
+                            <td>Number of rating icons to display. If the element contains <code>&lt;li&gt;</code> children and no <code>data-cnds-stars</code> attribute is present, the count is inferred from the child count.</td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge">value</code>
+                            </td>
+                            <td><i>Number</i></td>
+                            <td><code>0</code></td>
+                            <td>Initial selected rating value. Can also be set via <code>data-cnds-value</code> on the element.</td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge">readonly</code>
+                            </td>
+                            <td><i>Boolean</i></td>
+                            <td><code>false</code></td>
+                            <td>Disables hover and click interaction. Renders the widget in display-only mode.</td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge">half</code>
+                            </td>
+                            <td><i>Boolean</i></td>
+                            <td><code>false</code></td>
+                            <td>Enables half-star display. When <code>true</code>, a non-integer <code>value</code> (e.g. <code>3.5</code>) renders the fractional star as half-filled.</td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge">icon</code>
+                            </td>
+                            <td><i>String</i></td>
+                            <td><code>'fas fa-star'</code></td>
+                            <td>Font Awesome class string for the <strong>filled</strong> (active) icon.</td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge">iconEmpty</code>
+                            </td>
+                            <td><i>String</i></td>
+                            <td><code>'far fa-star'</code></td>
+                            <td>Font Awesome class string for the <strong>empty</strong> (inactive) icon.</td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge">dynamic</code>
+                            </td>
+                            <td><i>Boolean</i></td>
+                            <td><code>false</code></td>
+                            <td>
+                              When <code>true</code>, all icons to the left of the hovered/selected icon adopt that icon's appearance rather than their own per-star icon.
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </section>
+                  <!--/Section: Options-->
+
+                  <!--Section: Methods-->
+                  <section id="api-section-methods">
+                    <!-- Section title -->
+                    <h4 class="mb-4">Methods</h4>
+
+                    <div class="table-responsive">
+                      <table class="table table-striped table-bordered" aria-label="Methods">
+                        <thead>
+                          <tr>
+                            <th class="th-sm">Name</th>
+                            <th class="th-sm">Description</th>
+                            <th class="th-sm">Example</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge">getValue</code>
+                            </td>
+                            <td>Returns the current selected rating value.</td>
+                            <td>
+                              <code>myRating.getValue()</code>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge">setValue(value)</code>
+                            </td>
+                            <td>Programmatically sets the rating to the given numeric value. Clamps between <code>0</code> and <code>stars</code>. Has no effect when <code>readonly</code> is <code>true</code>.</td>
+                            <td>
+                              <code>myRating.setValue(3)</code>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge">dispose</code>
+                            </td>
+                            <td>Destroys the Rating instance and removes all event listeners.</td>
+                            <td>
+                              <code>myRating.dispose()</code>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge">getInstance</code>
+                            </td>
+                            <td>
+                              Static method. Returns the Rating instance associated with a DOM element, or <code>null</code> if none exists.
+                            </td>
+                            <td>
+                              <code>Rating.getInstance(el)</code>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge">getOrCreateInstance</code>
+                            </td>
+                            <td>
+                              Static method. Returns the existing Rating instance for a DOM element, or creates and returns a new one.
+                            </td>
+                            <td>
+                              <code>Rating.getOrCreateInstance(el)</code>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                      <!-- snippet -->
+                      <div class="p-0">
+                        <pre class="line-numbers m-0">
+                                    <code class="language-js">
+const myRatingEl = document.getElementById('myRating');
+const rating = new Nimbus.Rating(myRatingEl);
+
+// Get current value
+const current = rating.getValue();
+
+// Programmatically set value
+rating.setValue(4);
+
+// Destroy the instance
+rating.dispose();
+                                    </code>
+                                    </pre>
+                      </div>
+                      <!-- /.snippet -->
+                    </section>
+                    <!--Section: Code-->
+                  </section>
+                  <!--/Section: Methods-->
+
+                  <!--Section: Events-->
+                  <section id="api-section-events">
+                    <!-- Section title -->
+                    <h4 class="mb-4">Events</h4>
+
+                    <div class="table-responsive">
+                      <table class="table table-striped table-bordered" aria-label="Events">
+                        <thead>
+                          <tr>
+                            <th class="th-sm">Name</th>
+                            <th class="th-sm">Description</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge">scoreSelect.cnds.rating</code>
+                            </td>
+                            <td>
+                              Fires when the user clicks a rating icon. The selected value is
+                              available as <code>event.detail.value</code>.
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge">scoreHover.cnds.rating</code>
+                            </td>
+                            <td>
+                              Fires when the pointer moves over a rating icon. The hovered value is
+                              available as <code>event.detail.value</code>.
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                      <!-- snippet -->
+                      <div class="p-0">
+                        <pre class="line-numbers m-0">
+                                    <code class="language-js">
+const myRatingEl = document.getElementById('myRating');
+myRatingEl.addEventListener('scoreSelect.cnds.rating', (e) => {
+  console.log('Selected:', e.detail.value);
+});
+myRatingEl.addEventListener('scoreHover.cnds.rating', (e) => {
+  console.log('Hovered:', e.detail.value);
+});
+                                    </code>
+                                    </pre>
+                      </div>
+                      <!-- /.snippet -->
+                    </section>
+                    <!--Section: Code-->
+                  </section>
+                  <!--/Section: Events-->
+
+                  <!--Section: CSS Classes-->
+                  <section id="api-section-css-classes">
+                    <h4 class="mb-4">CSS classes</h4>
+                    <p>
+                      The following classes control rating structure and appearance.
+                    </p>
+                    <div class="table-responsive">
+                      <table class="table table-striped table-bordered" aria-label="CSS classes">
+                        <thead>
+                          <tr>
+                            <th class="th-sm">Class</th>
+                            <th class="th-sm">Element</th>
+                            <th class="th-sm">Description</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td><code>.rating</code></td>
+                            <td>container</td>
+                            <td>Base rating wrapper. Renders as <code>inline-flex</code> with gap and pointer cursor.</td>
+                          </tr>
+                          <tr>
+                            <td><code>.rating-sm</code></td>
+                            <td>container</td>
+                            <td>Small size — reduces font-size to <code>0.875rem</code>.</td>
+                          </tr>
+                          <tr>
+                            <td><code>.rating-lg</code></td>
+                            <td>container</td>
+                            <td>Large size — increases font-size to <code>1.75rem</code>.</td>
+                          </tr>
+                          <tr>
+                            <td><code>.rating-xl</code></td>
+                            <td>container</td>
+                            <td>Extra-large size — increases font-size to <code>2.5rem</code>.</td>
+                          </tr>
+                          <tr>
+                            <td><code>.rating-primary</code></td>
+                            <td>container</td>
+                            <td>Active icons use <code>--cnds-primary</code> color.</td>
+                          </tr>
+                          <tr>
+                            <td><code>.rating-danger</code></td>
+                            <td>container</td>
+                            <td>Active icons use <code>--cnds-danger</code> color.</td>
+                          </tr>
+                          <tr>
+                            <td><code>.rating-success</code></td>
+                            <td>container</td>
+                            <td>Active icons use <code>--cnds-success</code> color.</td>
+                          </tr>
+                          <tr>
+                            <td><code>.rating-warning</code></td>
+                            <td>container</td>
+                            <td>Active icons use <code>--cnds-warning</code> color (default active color).</td>
+                          </tr>
+                          <tr>
+                            <td><code>.rating-info</code></td>
+                            <td>container</td>
+                            <td>Active icons use <code>--cnds-info</code> color.</td>
+                          </tr>
+                          <tr>
+                            <td><code>.rating-star</code></td>
+                            <td><code>.rating</code> child</td>
+                            <td>Individual icon wrapper. Scales on hover via CSS transition.</td>
+                          </tr>
+                          <tr>
+                            <td><code>.rating-star.active</code></td>
+                            <td><code>.rating-star</code></td>
+                            <td>Applied to icons at or below the selected/hovered value.</td>
+                          </tr>
+                          <tr>
+                            <td><code>.rating-star.half-active</code></td>
+                            <td><code>.rating-star</code></td>
+                            <td>Applied to the fractional star when <code>half: true</code> and the value has a <code>.5</code> component.</td>
+                          </tr>
+                          <tr>
+                            <td><code>.rating.disabled</code></td>
+                            <td>container</td>
+                            <td>Reduces opacity to 50% and removes pointer events.</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </section>
+                  <!--/Section: CSS Classes-->
+                </section>
+                <!--/Section: API content-->
+              </section>
+              <!--Section: Docs content-->
+            </div>
+
+            <div class="col-lg-2 d-none d-lg-block">
+              <div class="sticky-top" style="top: 100px; z-index: 1">
+                <ul
+                  class="nav flex-column nav-pills menu-sidebar"
+                  id="rightNav"
+                  data-cnds-allow-hashes="true"
+                  aria-label="On this page"
+                >
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-basic-example"
+                      >Basic example</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-read-only">Read only</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-events">Events</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-custom-text"
+                      >Custom text</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-custom-icons"
+                      >Custom icons</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-number-of-icons"
+                      >Number of icons</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-icons-custom-color"
+                      >Icons colors</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-dynamic-icons"
+                      >Dynamic icons</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-styling-active-elements"
+                      >Styling active elements</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a
+                      class="nav-link"
+                      href="#section-popover-implementation-example"
+                      >Popover implementation</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-get-selected-value"
+                      >Get selected value</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-api-docs"
+                      >API Documentation</a
+                    >
+                  </li>
+                  <li class="nav-item ps-3">
+                    <a class="nav-link" href="#api-section-introduction"
+                      >Introduction</a
+                    >
+                  </li>
+                  <li class="nav-item ps-3">
+                    <a class="nav-link" href="#api-section-usage"
+                      >Usage</a
+                    >
+                  </li>
+                  <li class="nav-item ps-3">
+                    <a class="nav-link" href="#api-section-options"
+                      >Options</a
+                    >
+                  </li>
+                  <li class="nav-item ps-3">
+                    <a class="nav-link" href="#api-section-methods"
+                      >Methods</a
+                    >
+                  </li>
+                  <li class="nav-item ps-3">
+                    <a class="nav-link" href="#api-section-events"
+                      >Events</a
+                    >
+                  </li>
+                  <li class="nav-item ps-3">
+                    <a class="nav-link" href="#api-section-css-classes"
+                      >CSS classes</a
+                    >
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Togglers -->
+    </main>
+      <!-- ./Togglers -->
+      </div>
+    </main>
+    <!-- Footer -->
+    <div class="cf-footer cf-footer-app">
+      <footer class="page-footer main-footer" aria-label="Site footer">
+        <div class="w-100 px-3 d-flex align-items-center">
+          <img src="img/cf/core/cloudficient_logo_light.svg" class="cf-logo-light" style="width: 135px;" alt="Cloudficient" />
+          <img src="img/cf/core/cloudficient_logo_dark.svg" class="cf-logo-dark" style="width: 135px;" alt="Cloudficient" />
+          <span class="footer-copyright ms-auto">&copy; <span id="currentYear"></span> Cloudficient</span>
+        </div>
+      </footer>
+    </div>
+    <!-- SCRIPTS -->
+    <script type="text/javascript" src="js/nimbus.js?v=9.0.97"></script>
+    <script type="text/javascript" src="js/app.js?v=9.0.97"></script>
+    <script type="text/javascript" src="plugins/js/prism.min.js"></script>
+    <script type="text/javascript" src="js/sidenav-loader.js"></script>
+    <!-- Page-level scripts
+         ─ currentYear: footer copyright year
+         ─ Events demo: reflects scoreHover / scoreSelect in the UI
+         ─ Get-value demo: logs selected value to the console
+         ─ Popover demo: shows a Nimbus Popover anchored to the clicked star
+         All three demo bindings are deferred to cnds.ready so Nimbus
+         components are fully initialized before we query them. -->
+    <script type="text/javascript">
+      // Footer copyright year
+      var currentYearElement = document.getElementById("currentYear");
+      if (currentYearElement) {
+        currentYearElement.textContent = new Date().getFullYear();
+      }
+
+      document.addEventListener('cnds.ready', function () {
+
+        // ── Events demo ────────────────────────────────────────────────────
+        // Displays hover and selected values in real time below the widget.
+        var eventsRating = document.getElementById('events-example');
+        var hoverVal     = document.getElementById('events-hover-val');
+        var selectVal    = document.getElementById('events-select-val');
+
+        eventsRating.addEventListener('scoreHover.cnds.rating', function (e) {
+          hoverVal.textContent = e.detail.value;
+        });
+        eventsRating.addEventListener('scoreSelect.cnds.rating', function (e) {
+          selectVal.textContent = e.detail.value;
+        });
+        // Clear the hover display when the pointer leaves the widget
+        eventsRating.addEventListener('mouseleave', function () {
+          hoverVal.textContent = '—';
+        });
+
+        // ── Get selected value demo ────────────────────────────────────────
+        // Logs the selected star value to the browser console.
+        var getValueRating = document.getElementById('get-value-example');
+        getValueRating.addEventListener('scoreSelect.cnds.rating', function (e) {
+          console.log('Rating selected:', e.detail.value);
+        });
+
+        // ── Popover demo ───────────────────────────────────────────────────
+        // Creates a fresh Nimbus.Popover on the clicked .rating-star element.
+        // The rating re-renders on every selection (_render replaces innerHTML),
+        // so the popover must be instantiated after the render completes rather
+        // than being pre-attached to individual stars.
+        var popoverRating = document.getElementById('popover-example');
+        popoverRating.addEventListener('scoreSelect.cnds.rating', function (e) {
+          var star = popoverRating.querySelector('.rating-star[data-value="' + e.detail.value + '"]');
+          if (star) {
+            new Nimbus.Popover(star, {
+              content: 'You rated: ' + e.detail.value + ' star' + (e.detail.value !== 1 ? 's' : ''),
+              trigger: 'manual',
+              placement: 'top'
+            }).show();
+          }
+        });
+
+      });
+    </script>
+  </body>
+</html>

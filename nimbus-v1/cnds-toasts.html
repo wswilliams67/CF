@@ -1,0 +1,1863 @@
+<!--
+  CNDS Nimbus Design System — Toasts
+  Version: 1.0.0
+  Layout: Application with SideNav
+
+  DEVELOPER NOTES
+  ───────────────────────────────────────────────────────────────────────────────
+  Architecture:
+  - Pure HTML5 / CSS3 / vanilla JS — zero framework dependencies
+  - Component config via data-cnds-* attributes; JS namespace: Nimbus.*
+  - Auto-init pattern: data-cnds-toast-init on any .toast element at page load
+  - Programmatic init: new Nimbus.Toast(el, options) for dynamic/runtime toasts
+
+  Product themes:
+  - Body class controls product branding: cnds-product-casefusion (default),
+    cnds-product-hyperlize, cnds-product-expireon
+  - Active theme toggled via data-cnds-theme="light|dark" on <html>
+
+  Accessibility (Section 508 / WCAG 2.1):
+  - Urgent toasts (danger, warning): role="alert" aria-live="assertive"
+  - Non-urgent toasts (all others): role="status" aria-live="polite"
+  - All toasts: aria-atomic="true", close button aria-label="Close"
+  - Minimum autohide delay: 5 000 ms (WCAG 2.2.1 Timing Adjustable)
+  - Decorative icons: aria-hidden="true"
+  - See API Documentation → Accessibility for full Section 508 reference
+
+  Angular migration:
+  - Each demo section includes an Angular comment with migration guidance
+  - General pattern: replace data-cnds-* attributes with a ToastService that
+    creates/destroys toast DOM elements and calls Nimbus.Toast programmatically
+  ───────────────────────────────────────────────────────────────────────────────
+-->
+<!doctype html>
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta
+      name="description"
+      content="Toasts | Cloudficient Nimbus Design System v1.0.0"
+    />
+    <title>
+      Toasts | CNDS v1.0.0 | Cloudficient Nimbus Design System
+    </title>
+    <!-- Stylesheets: Nimbus design system + page-level overrides + Prism syntax highlighter -->
+    <link rel="stylesheet" href="css/nimbus.css" media="all" type="text/css" />
+    <link rel="stylesheet" href="css/app.css" media="all" type="text/css" />
+    <link rel="stylesheet" href="plugins/css/prism.min.css" media="all" type="text/css" />
+    <!-- Favicons: full cross-platform set (iOS, Android, Windows tile, standard PNG) -->
+    <link rel="apple-touch-icon" sizes="57x57" href="img/favicon/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="60x60" href="img/favicon/apple-icon-60x60.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="img/favicon/apple-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76" href="img/favicon/apple-icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="img/favicon/apple-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="img/favicon/apple-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="img/favicon/apple-icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="img/favicon/apple-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-icon-180x180.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="img/favicon/android-icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="img/favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="img/favicon/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="msapplication-TileImage" content="img/favicon/ms-icon-144x144.png" />
+    <!-- Design tokens: load order is primitives → light → dark; dark overrides are applied
+         via [data-cnds-theme="dark"] selectors and activated by the theme toggle button -->
+    <link rel="stylesheet" href="css/themes/primitives.css" />
+    <link rel="stylesheet" href="css/themes/light.css" />
+    <link rel="stylesheet" href="css/themes/dark.css" />
+  </head>
+
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 Bypass Blocks; renders visually hidden until focused -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+    <!-- Header -->
+    <div class="sticky-top">
+      <!-- Utility Navigation -->
+      <nav id="UtilityNav" class="nav nav-cf-utility">
+        <div class="w-100 gx-3 px-sm-0 px-lg-3">
+          <ul class="nav nav-cf-utility-ul"></ul>
+        </div>
+      </nav>
+      <!-- ./Utility Navigation -->
+      <!-- Main Navigation -->
+      <nav id="MainNav" class="navbar navbar-expand-xl navbar-cf">
+        <div class="container-fluid p-0 px-3 d-flex">
+          <div class="d-flex flex-fill align-items-center text-truncate">
+            <div class="text-center d-none d-md-block me-3 border-end">
+              <a href="index.html"><img src="img/cf/core/logo_nimbus.png" class="me-3 mt-n1" alt="Cloudficient Nimbus Design System" /></a>
+            </div>
+            <div class="flex-fill text-truncate">
+              <div class="navbar-cf-title-block">
+                <div class="navbar-cf-title cf-page-title text-truncate" style="padding-bottom: 0;">
+                  <span class="cf-page-title-text cf-page-title-brand">v1</span>
+                  <span class="cf-page-title-divider"></span>
+                  <span class="cf-page-title-text">Toasts</span>
+                  </div>
+              </div>
+            </div>
+          </div>
+          <button class="btn btn-sm btn-outline-secondary ms-2" data-cnds-toggle="theme" aria-label="Toggle theme" title="Toggle theme">
+            <i class="mdi mdi-weather-night mdi-18px" aria-hidden="true"></i>
+          </button>
+        </div>
+      </nav>
+      <!-- ./Main Navigation -->
+    </div>
+    <!-- ./Header -->
+    <!-- Content -->
+    <main id="main-content" class="cf-main-app">
+      <div class="d-block d-md-none p-4">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>This application is not optimized for small screens. Please use a large tablet, laptop, or desktop computer to continue.
+        </div>
+      </div>
+      <div class="d-none d-md-block">
+        <nav id="sidebar-cf" class="sidenav" data-cnds-mode="side" data-cnds-slim="false" data-cnds-slim-collapsed="false" data-cnds-content="#slim-content" data-cnds-accordion="true">
+          <!-- Sidenav content loaded by js/sidenav-loader.js -->
+        </nav>
+        <div id="slim-content">
+            <div class="slim-content-box">
+
+                <div class="row">
+
+                    <div class="col-md-12 col-lg" style="flex: 0 0 80%; max-width: 80%">
+
+                        <!--Section: Docs content-->
+                        <section class="container-fluid">
+                            <!--Section: Introduction-->
+                            <section id="section-introduction">
+
+                                <!-- Description -->
+                                <p class="mb-4">The CNDS Toast component delivers lightweight, non-disruptive notifications that appear briefly in the interface and disappear automatically. Toasts are ideal for confirming actions, surfacing status updates, and communicating errors without interrupting the user's workflow.
+                                </p>
+
+                                <p class="my-4">
+                                    CNDS Toasts support nine semantic color variants — <code>primary</code>, <code>secondary</code>, <code>success</code>, <code>danger</code>, <code>warning</code>, <code>caution</code>, <code>info</code>, <code>light</code>, and <code>dark</code> — applied via the <code>data-cnds-color</code> attribute. Each variant uses a distinct background, border, and text color drawn from the CNDS design token system, with all combinations verified WCAG AA compliant.
+                                </p>
+
+                                <p class="note note-light">
+                                    <strong>Note:</strong> Read the <a href="#api-section-introduction">API Documentation</a> to find all available options and advanced customization
+                                </p>
+                            
+                                <p class="note note-info"><strong class="note-label">Note:</strong> To preview components in different themes, click the theme toggle button <i class="mdi mdi-weather-night" aria-hidden="true"></i> / <i class="mdi mdi-weather-sunny" aria-hidden="true"></i> in the header navigation bar.</p>
+                            </section>
+                            <!--/Section: Introduction-->
+
+                            <hr class="my-5">
+
+                            <!--Section: Basic example-->
+                            <section id="section-basic-example">
+                                <!-- Section title -->
+                                <h3 class="mb-4">Basic example</h3>
+
+                                <p>Click a color button to trigger the corresponding toast notification. Each toast auto-dismisses after 2 seconds and stacks in the top-right corner. The toast element is initialized automatically via <code>data-cnds-toast-init</code>; no JavaScript instantiation is required.</p>
+
+                                <!--Section: Demo-->
+                                <section class="pb-4">
+                                    <div class="bg-white border rounded-5">
+
+                                        <section class="p-4 d-flex justify-content-center text-center w-100">
+                                            <div class="container text-center">
+
+                                                <!-- Trigger buttons -->
+                                                <button type="button" class="btn btn-primary" id="basic-primary-trigger">Primary</button>
+                                                <button type="button" class="btn btn-secondary" id="basic-secondary-trigger">Secondary</button>
+                                                <button type="button" class="btn btn-success" id="basic-success-trigger">Success</button>
+                                                <button type="button" class="btn btn-danger" id="basic-danger-trigger">Danger</button>
+                                                <button type="button" class="btn btn-warning" id="basic-warning-trigger">Warning</button>
+                                                <button type="button" class="btn btn-info" id="basic-info-trigger">Info</button>
+                                                <button type="button" class="btn btn-light" id="basic-light-trigger">Light</button>
+                                                <button type="button" class="btn btn-dark" id="basic-dark-trigger">Dark</button>
+
+                                                <!-- Toasts -->
+                                                <div class="toast fade mx-auto" id="basic-primary-example" role="status" aria-live="polite" aria-atomic="true" data-cnds-toast-init data-cnds-autohide="true" data-cnds-delay="5000" data-cnds-position="top-right" data-cnds-append-to-body="true" data-cnds-stacking="true" data-cnds-width="350px" data-cnds-color="primary">
+                                                    <div class="toast-header">
+                                                        <strong class="me-auto lh-1">Nimbus</strong>
+                                                        <small>11 mins ago</small>
+                                                        <button type="button" class="btn-close" data-cnds-dismiss="toast" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="toast-body">Primary Basic Example</div>
+                                                </div>
+
+                                                <div class="toast fade mx-auto" id="basic-secondary-example" role="status" aria-live="polite" aria-atomic="true" data-cnds-toast-init data-cnds-autohide="true" data-cnds-delay="5000" data-cnds-position="top-right" data-cnds-append-to-body="true" data-cnds-stacking="true" data-cnds-width="350px" data-cnds-color="secondary">
+                                                    <div class="toast-header">
+                                                        <strong class="me-auto lh-1">Nimbus</strong>
+                                                        <small>11 mins ago</small>
+                                                        <button type="button" class="btn-close" data-cnds-dismiss="toast" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="toast-body">Secondary Basic Example</div>
+                                                </div>
+
+                                                <div class="toast fade mx-auto" id="basic-success-example" role="status" aria-live="polite" aria-atomic="true" data-cnds-toast-init data-cnds-autohide="true" data-cnds-delay="5000" data-cnds-position="top-right" data-cnds-append-to-body="true" data-cnds-stacking="true" data-cnds-width="350px" data-cnds-color="success">
+                                                    <div class="toast-header">
+                                                        <strong class="me-auto lh-1">Nimbus</strong>
+                                                        <small>11 mins ago</small>
+                                                        <button type="button" class="btn-close" data-cnds-dismiss="toast" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="toast-body">Success Basic Example</div>
+                                                </div>
+
+                                                <div class="toast fade mx-auto" id="basic-danger-example" role="alert" aria-live="assertive" aria-atomic="true" data-cnds-toast-init data-cnds-autohide="true" data-cnds-delay="5000" data-cnds-position="top-right" data-cnds-append-to-body="true" data-cnds-stacking="true" data-cnds-width="350px" data-cnds-color="danger">
+                                                    <div class="toast-header">
+                                                        <strong class="me-auto lh-1">Nimbus</strong>
+                                                        <small>11 mins ago</small>
+                                                        <button type="button" class="btn-close" data-cnds-dismiss="toast" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="toast-body">Danger Basic Example</div>
+                                                </div>
+
+                                                <div class="toast fade mx-auto" id="basic-warning-example" role="alert" aria-live="assertive" aria-atomic="true" data-cnds-toast-init data-cnds-autohide="true" data-cnds-delay="5000" data-cnds-position="top-right" data-cnds-append-to-body="true" data-cnds-stacking="true" data-cnds-width="350px" data-cnds-color="warning">
+                                                    <div class="toast-header">
+                                                        <strong class="me-auto lh-1">Nimbus</strong>
+                                                        <small>11 mins ago</small>
+                                                        <button type="button" class="btn-close" data-cnds-dismiss="toast" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="toast-body">Warning Basic Example</div>
+                                                </div>
+
+                                                <div class="toast fade mx-auto" id="basic-info-example" role="status" aria-live="polite" aria-atomic="true" data-cnds-toast-init data-cnds-autohide="true" data-cnds-delay="5000" data-cnds-position="top-right" data-cnds-append-to-body="true" data-cnds-stacking="true" data-cnds-width="350px" data-cnds-color="info">
+                                                    <div class="toast-header">
+                                                        <strong class="me-auto lh-1">Nimbus</strong>
+                                                        <small>11 mins ago</small>
+                                                        <button type="button" class="btn-close" data-cnds-dismiss="toast" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="toast-body">Info Basic Example</div>
+                                                </div>
+
+                                                <div class="toast fade mx-auto" id="basic-light-example" role="status" aria-live="polite" aria-atomic="true" data-cnds-toast-init data-cnds-autohide="true" data-cnds-delay="5000" data-cnds-position="top-right" data-cnds-append-to-body="true" data-cnds-stacking="true" data-cnds-width="350px" data-cnds-color="light">
+                                                    <div class="toast-header">
+                                                        <strong class="me-auto lh-1">Nimbus</strong>
+                                                        <small>11 mins ago</small>
+                                                        <button type="button" class="btn-close" data-cnds-dismiss="toast" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="toast-body">Light Basic Example</div>
+                                                </div>
+
+                                                <div class="toast fade mx-auto" id="basic-dark-example" role="status" aria-live="polite" aria-atomic="true" data-cnds-toast-init data-cnds-autohide="true" data-cnds-delay="5000" data-cnds-position="top-right" data-cnds-append-to-body="true" data-cnds-stacking="true" data-cnds-width="350px" data-cnds-color="dark">
+                                                    <div class="toast-header">
+                                                        <strong class="me-auto lh-1">Nimbus</strong>
+                                                        <small>11 mins ago</small>
+                                                        <button type="button" class="btn-close btn-close-white" data-cnds-dismiss="toast" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="toast-body">Dark Basic Example</div>
+                                                </div>
+
+                                            </div>
+                                        </section>
+                                    </div>
+                                </section>
+
+                                <!--Section: Demo-->
+                                <!-- Angular: Use a ToastService to trigger toast notifications programmatically rather than relying on data-cnds-toast-init directly.
+                                     Example: this.toastService.show({ message: 'Hello, world!', color: 'info', autohide: true, delay: 3000 });
+                                     The service creates toast elements dynamically, appends them to the body, and removes them after they dismiss. -->
+                                <!--Section: Code-->
+                                <section class="mb-4">
+                                    <h5><span class="badge badge-code-html">HTML</span></h5>
+                                    <div class="p-0">
+                                        <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;!-- Trigger buttons --&gt;
+&lt;button type="button" class="btn btn-primary" id="basic-primary-trigger"&gt;Primary&lt;/button&gt;
+&lt;button type="button" class="btn btn-secondary" id="basic-secondary-trigger"&gt;Secondary&lt;/button&gt;
+&lt;button type="button" class="btn btn-success" id="basic-success-trigger"&gt;Success&lt;/button&gt;
+&lt;button type="button" class="btn btn-danger" id="basic-danger-trigger"&gt;Danger&lt;/button&gt;
+&lt;button type="button" class="btn btn-warning" id="basic-warning-trigger"&gt;Warning&lt;/button&gt;
+&lt;button type="button" class="btn btn-info" id="basic-info-trigger"&gt;Info&lt;/button&gt;
+&lt;button type="button" class="btn btn-light" id="basic-light-trigger"&gt;Light&lt;/button&gt;
+&lt;button type="button" class="btn btn-dark" id="basic-dark-trigger"&gt;Dark&lt;/button&gt;
+
+&lt;!-- Toasts --&gt;
+&lt;div class="toast fade mx-auto" id="basic-primary-example" role="status" aria-live="polite" aria-atomic="true" data-cnds-toast-init data-cnds-autohide="true" data-cnds-delay="5000" data-cnds-position="top-right" data-cnds-append-to-body="true" data-cnds-stacking="true" data-cnds-width="350px" data-cnds-color="primary"&gt;
+    &lt;div class="toast-header"&gt;
+        &lt;strong class="me-auto lh-1"&gt;Nimbus&lt;/strong&gt;
+        &lt;small&gt;11 mins ago&lt;/small&gt;
+        &lt;button type="button" class="btn-close" data-cnds-dismiss="toast" aria-label="Close"&gt;&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class="toast-body"&gt;Primary Basic Example&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="toast fade mx-auto" id="basic-secondary-example" role="status" aria-live="polite" aria-atomic="true" data-cnds-toast-init data-cnds-autohide="true" data-cnds-delay="5000" data-cnds-position="top-right" data-cnds-append-to-body="true" data-cnds-stacking="true" data-cnds-width="350px" data-cnds-color="secondary"&gt;
+    &lt;div class="toast-header"&gt;
+        &lt;strong class="me-auto lh-1"&gt;Nimbus&lt;/strong&gt;
+        &lt;small&gt;11 mins ago&lt;/small&gt;
+        &lt;button type="button" class="btn-close" data-cnds-dismiss="toast" aria-label="Close"&gt;&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class="toast-body"&gt;Secondary Basic Example&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="toast fade mx-auto" id="basic-success-example" role="status" aria-live="polite" aria-atomic="true" data-cnds-toast-init data-cnds-autohide="true" data-cnds-delay="5000" data-cnds-position="top-right" data-cnds-append-to-body="true" data-cnds-stacking="true" data-cnds-width="350px" data-cnds-color="success"&gt;
+    &lt;div class="toast-header"&gt;
+        &lt;strong class="me-auto lh-1"&gt;Nimbus&lt;/strong&gt;
+        &lt;small&gt;11 mins ago&lt;/small&gt;
+        &lt;button type="button" class="btn-close" data-cnds-dismiss="toast" aria-label="Close"&gt;&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class="toast-body"&gt;Success Basic Example&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="toast fade mx-auto" id="basic-danger-example" role="alert" aria-live="assertive" aria-atomic="true" data-cnds-toast-init data-cnds-autohide="true" data-cnds-delay="5000" data-cnds-position="top-right" data-cnds-append-to-body="true" data-cnds-stacking="true" data-cnds-width="350px" data-cnds-color="danger"&gt;
+    &lt;div class="toast-header"&gt;
+        &lt;strong class="me-auto lh-1"&gt;Nimbus&lt;/strong&gt;
+        &lt;small&gt;11 mins ago&lt;/small&gt;
+        &lt;button type="button" class="btn-close" data-cnds-dismiss="toast" aria-label="Close"&gt;&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class="toast-body"&gt;Danger Basic Example&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="toast fade mx-auto" id="basic-warning-example" role="alert" aria-live="assertive" aria-atomic="true" data-cnds-toast-init data-cnds-autohide="true" data-cnds-delay="5000" data-cnds-position="top-right" data-cnds-append-to-body="true" data-cnds-stacking="true" data-cnds-width="350px" data-cnds-color="warning"&gt;
+    &lt;div class="toast-header"&gt;
+        &lt;strong class="me-auto lh-1"&gt;Nimbus&lt;/strong&gt;
+        &lt;small&gt;11 mins ago&lt;/small&gt;
+        &lt;button type="button" class="btn-close" data-cnds-dismiss="toast" aria-label="Close"&gt;&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class="toast-body"&gt;Warning Basic Example&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="toast fade mx-auto" id="basic-info-example" role="status" aria-live="polite" aria-atomic="true" data-cnds-toast-init data-cnds-autohide="true" data-cnds-delay="5000" data-cnds-position="top-right" data-cnds-append-to-body="true" data-cnds-stacking="true" data-cnds-width="350px" data-cnds-color="info"&gt;
+    &lt;div class="toast-header"&gt;
+        &lt;strong class="me-auto lh-1"&gt;Nimbus&lt;/strong&gt;
+        &lt;small&gt;11 mins ago&lt;/small&gt;
+        &lt;button type="button" class="btn-close" data-cnds-dismiss="toast" aria-label="Close"&gt;&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class="toast-body"&gt;Info Basic Example&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="toast fade mx-auto" id="basic-light-example" role="status" aria-live="polite" aria-atomic="true" data-cnds-toast-init data-cnds-autohide="true" data-cnds-delay="5000" data-cnds-position="top-right" data-cnds-append-to-body="true" data-cnds-stacking="true" data-cnds-width="350px" data-cnds-color="light"&gt;
+    &lt;div class="toast-header"&gt;
+        &lt;strong class="me-auto lh-1"&gt;Nimbus&lt;/strong&gt;
+        &lt;small&gt;11 mins ago&lt;/small&gt;
+        &lt;button type="button" class="btn-close" data-cnds-dismiss="toast" aria-label="Close"&gt;&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class="toast-body"&gt;Light Basic Example&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="toast fade mx-auto" id="basic-dark-example" role="status" aria-live="polite" aria-atomic="true" data-cnds-toast-init data-cnds-autohide="true" data-cnds-delay="5000" data-cnds-position="top-right" data-cnds-append-to-body="true" data-cnds-stacking="true" data-cnds-width="350px" data-cnds-color="dark"&gt;
+    &lt;div class="toast-header"&gt;
+        &lt;strong class="me-auto lh-1"&gt;Nimbus&lt;/strong&gt;
+        &lt;small&gt;11 mins ago&lt;/small&gt;
+        &lt;button type="button" class="btn-close btn-close-white" data-cnds-dismiss="toast" aria-label="Close"&gt;&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class="toast-body"&gt;Dark Basic Example&lt;/div&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                                    </div>
+                                </section>
+                                <section class="mb-4">
+                                    <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                                    <div class="p-0">
+                                        <pre class="line-numbers m-0">
+                                            <code class="language-js">
+document.addEventListener('cnds.ready', function () {
+  const toastMap = [
+    ['basic-primary-trigger',   'basic-primary-example'],
+    ['basic-secondary-trigger', 'basic-secondary-example'],
+    ['basic-success-trigger',   'basic-success-example'],
+    ['basic-danger-trigger',    'basic-danger-example'],
+    ['basic-warning-trigger',   'basic-warning-example'],
+    ['basic-info-trigger',      'basic-info-example'],
+    ['basic-light-trigger',     'basic-light-example'],
+    ['basic-dark-trigger',      'basic-dark-example'],
+  ];
+  toastMap.forEach(([triggerId, toastId]) => {
+    const trigger = document.getElementById(triggerId);
+    const instance = Nimbus.Toast.getInstance(document.getElementById(toastId));
+    if (trigger && instance) trigger.addEventListener('click', () => instance.show());
+  });
+});
+                                            </code>
+                                        </pre>
+                                    </div>
+                                </section>
+                                <!--Section: Code-->
+                            </section>
+                            <!--/Section: Basic example-->
+
+                            <hr class="my-5">
+
+                            <!--Section: Static example-->
+                            <section id="section-static-example">
+                                <!-- Section title -->
+                                <h3 class="mb-4">Static example</h3>
+
+                                <p>A static toast is rendered with <code>.show</code> already applied and <code>data-cnds-autohide="false"</code>, so it remains visible until the user dismisses it with the close button. Use this pattern to display persistent status messages or confirmations inline in a layout.</p>
+
+                                <!--Section: Demo-->
+                                <section class="pb-4">
+                                    <div class="bg-white border rounded-5">
+
+                                        <section class="p-4 d-flex justify-content-center text-center w-100">
+                                            <div class="container">
+                                                <div class="toast show fade mx-auto" id="static-example" role="status" aria-live="polite" aria-atomic="true" data-cnds-toast-init data-cnds-autohide="false">
+                                                    <div class="toast-header">
+                                                        <strong class="me-auto lh-1">Nimbus</strong>
+                                                        <small>11 mins ago</small>
+                                                        <button type="button" class="btn-close" data-cnds-dismiss="toast" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="toast-body">Static Example</div>
+                                                </div>
+                                            </div>
+                                        </section>
+                                    </div>
+                                </section>
+                                <!--Section: Demo-->
+                                <!-- Angular: For a static (always visible) toast in Angular, render the toast element in the template with [class.show]="true" and no autohide logic.
+                                     Example: <div class="toast show" role="status" aria-live="polite" aria-atomic="true"><div class="toast-body">{{ message }}</div></div>
+                                     Use role="alert" aria-live="assertive" only for urgent messages (errors, warnings). Bind visibility to a component property to show or hide the toast declaratively. -->
+                                <!--Section: Code-->
+                                <section class="mb-4">
+                                    <h5><span class="badge badge-code-html">HTML</span></h5>
+                                    <div class="p-0">
+                                        <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div class="toast show fade mx-auto" id="static-example" role="status" aria-live="polite" aria-atomic="true" data-cnds-toast-init data-cnds-autohide="false"&gt;
+    &lt;div class="toast-header"&gt;
+        &lt;strong class="me-auto lh-1"&gt;Nimbus&lt;/strong&gt;
+        &lt;small&gt;11 mins ago&lt;/small&gt;
+        &lt;button type="button" class="btn-close" data-cnds-dismiss="toast" aria-label="Close"&gt;&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class="toast-body"&gt;Static Example&lt;/div&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                                    </div>
+                                </section>
+                                <!--Section: Code-->
+                            </section>
+                            <!--/Section: Static example-->
+
+                            <hr class="my-5">
+
+                            <!--Section: Colors-->
+                            <section id="section-colors">
+                                <!-- Section title -->
+                                <h3 class="mb-4">Colors</h3>
+
+                                <div class="note note-info mb-3">
+                                  <strong>Header icon size.</strong> Toast header icons are
+                                  <code>cnds-icon-xl</code> (24px), matching <code>Nimbus/Icon/xl</code> in the
+                                  Figma <code>Nimbus/Toast</code> component: a 24&times;24 box around an
+                                  18&times;18 glyph. Pair it with <code>lh-1</code> so the line box is 24px too.
+                                  <br><br>
+                                  <code>mdi-18px</code> is <em>not</em> the equivalent, even though the Figma
+                                  glyph measures 18. MDI sizes the em box, and the glyph draws inside it with
+                                  padding &mdash; <code>mdi-18px</code> yields 14&times;14 of ink, while
+                                  <code>cnds-icon-xl</code> yields exactly the 18&times;18 the design draws.
+                                  Match the <em>frame</em>, not the vector.
+                                </div>
+
+                                <div class="note note-info mb-3">
+                                  <strong>Caution is not warning.</strong> They are separate color families
+                                  and are routinely swapped by mistake — <code>warning</code> is the yellow
+                                  ramp (<code>#fff3cc</code> / <code>#f3bc00</code>), <code>caution</code> is
+                                  the orange one (<code>#ffd7ad</code> / <code>#ff9933</code>). Use
+                                  <code>warning</code> when something is <em>wrong</em>; use
+                                  <code>caution</code> when something is <em>outstanding</em> — an action
+                                  recorded but not yet executed, a record under a hold, a step that succeeded
+                                  but left work behind it. Neither is <code>danger</code>, which is reserved
+                                  for an operation that failed.
+                                </div>
+
+                                <p>Apply a semantic color variant by adding <code>data-cnds-color="<em>variant</em>"</code> to the toast element. The nine available values — <code>primary</code>, <code>secondary</code>, <code>success</code>, <code>danger</code>, <code>warning</code>, <code>caution</code>, <code>info</code>, <code>light</code>, and <code>dark</code> — each set a distinct background, border color, and text color using CNDS design tokens. The header and body share a unified background with no separator border.</p>
+
+                                <!--Section: Demo-->
+                                <section class="pb-4">
+                                    <div class="bg-white border rounded-5">
+
+                                        <section class="p-4 w-100">
+                                            <div class="row justify-content-center">
+                                                <div class="col-xl-5 col-lg-6 mb-2">
+                                                    <div class="toast show fade" role="status" aria-live="polite" aria-atomic="true" data-cnds-toast-init data-cnds-color="info" data-cnds-autohide="false">
+                                                        <div class="toast-header">
+                                                            <i class="mdi mdi-information cnds-icon-xl lh-1 me-2" aria-hidden="true"></i>
+                                                            <strong class="me-auto lh-1">Nimbus</strong>
+                                                            <small>11 mins ago</small>
+                                                            <button type="button" class="btn-close" data-cnds-dismiss="toast" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="toast-body">Hello, world! This is a toast message.</div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xl-5 col-lg-6 mb-2">
+                                                    <div class="toast show fade" role="alert" aria-live="assertive" aria-atomic="true" data-cnds-toast-init data-cnds-color="warning" data-cnds-autohide="false">
+                                                        <div class="toast-header">
+                                                            <i class="mdi mdi-alert cnds-icon-xl lh-1 me-2" aria-hidden="true"></i>
+                                                            <strong class="me-auto lh-1">Nimbus</strong>
+                                                            <small>11 mins ago</small>
+                                                            <button type="button" class="btn-close" data-cnds-dismiss="toast" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="toast-body">Hello, world! This is a toast message.</div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xl-5 col-lg-6 mb-2">
+                                                    <div class="toast show fade" role="status" aria-live="polite" aria-atomic="true" data-cnds-toast-init data-cnds-color="caution" data-cnds-autohide="false">
+                                                        <div class="toast-header">
+                                                            <i class="mdi mdi-alert-octagon cnds-icon-xl lh-1 me-2" aria-hidden="true"></i>
+                                                            <strong class="me-auto lh-1">Nimbus</strong>
+                                                            <small>11 mins ago</small>
+                                                            <button type="button" class="btn-close" data-cnds-dismiss="toast" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="toast-body">Hello, world! This is a toast message.</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row mb-2 justify-content-center">
+                                                <div class="col-xl-5 col-lg-6 mb-2">
+                                                    <div class="toast show fade" role="status" aria-live="polite" aria-atomic="true" data-cnds-toast-init data-cnds-color="success" data-cnds-autohide="false">
+                                                        <div class="toast-header">
+                                                            <i class="mdi mdi-check-circle cnds-icon-xl lh-1 me-2" aria-hidden="true"></i>
+                                                            <strong class="me-auto lh-1">Nimbus</strong>
+                                                            <small>11 mins ago</small>
+                                                            <button type="button" class="btn-close" data-cnds-dismiss="toast" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="toast-body">Hello, world! This is a toast message.</div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xl-5 col-lg-6 mb-2">
+                                                    <div class="toast show fade" role="alert" aria-live="assertive" aria-atomic="true" data-cnds-toast-init data-cnds-color="danger" data-cnds-autohide="false">
+                                                        <div class="toast-header">
+                                                            <i class="mdi mdi-alert-circle cnds-icon-xl lh-1 me-2" aria-hidden="true"></i>
+                                                            <strong class="me-auto lh-1">Nimbus</strong>
+                                                            <small>11 mins ago</small>
+                                                            <button type="button" class="btn-close" data-cnds-dismiss="toast" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="toast-body">Hello, world! This is a toast message.</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </section>
+                                    </div>
+                                </section>
+                                <!--Section: Demo-->
+                                <!-- Angular: Bind the toast color variant dynamically using [attr.data-cnds-color]="toastColor" where toastColor is a string property in your component.
+                                     Example: <div class="toast show fade" [attr.data-cnds-color]="notification.type" [attr.role]="notification.urgent ? 'alert' : 'status'" [attr.aria-live]="notification.urgent ? 'assertive' : 'polite'" aria-atomic="true"></div>
+                                     Use an enum or union type ('info' | 'success' | 'warning' | 'danger') for toastColor. Set urgent=true only for danger and warning variants. -->
+                                <!--Section: Code-->
+                                <section class="mb-4">
+                                    <h5><span class="badge badge-code-html">HTML</span></h5>
+                                    <div class="p-0">
+                                        <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div class="row justify-content-center"&gt;
+    &lt;div class="col-xl-5 col-lg-6 mb-2"&gt;
+        &lt;div class="toast show fade" role="status" aria-live="polite" aria-atomic="true" data-cnds-toast-init data-cnds-color="info" data-cnds-autohide="false"&gt;
+            &lt;div class="toast-header"&gt;
+                &lt;i class="mdi mdi-information cnds-icon-xl lh-1 me-2"&gt;&lt;/i&gt;
+                &lt;strong class="me-auto lh-1"&gt;Nimbus&lt;/strong&gt;
+                &lt;small&gt;11 mins ago&lt;/small&gt;
+                &lt;button type="button" class="btn-close" data-cnds-dismiss="toast" aria-label="Close"&gt;&lt;/button&gt;
+            &lt;/div&gt;
+            &lt;div class="toast-body"&gt;Hello, world! This is a toast message.&lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="col-xl-5 col-lg-6 mb-2"&gt;
+        &lt;div class="toast show fade" role="alert" aria-live="assertive" aria-atomic="true" data-cnds-toast-init data-cnds-color="warning" data-cnds-autohide="false"&gt;
+            &lt;div class="toast-header"&gt;
+                &lt;i class="mdi mdi-alert cnds-icon-xl lh-1 me-2"&gt;&lt;/i&gt;
+                &lt;strong class="me-auto lh-1"&gt;Nimbus&lt;/strong&gt;
+                &lt;small&gt;11 mins ago&lt;/small&gt;
+                &lt;button type="button" class="btn-close" data-cnds-dismiss="toast" aria-label="Close"&gt;&lt;/button&gt;
+            &lt;/div&gt;
+            &lt;div class="toast-body"&gt;Hello, world! This is a toast message.&lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="row mb-2 justify-content-center"&gt;
+    &lt;div class="col-xl-5 col-lg-6 mb-2"&gt;
+        &lt;div class="toast show fade" role="status" aria-live="polite" aria-atomic="true" data-cnds-toast-init data-cnds-color="success" data-cnds-autohide="false"&gt;
+            &lt;div class="toast-header"&gt;
+                &lt;i class="mdi mdi-check-circle cnds-icon-xl lh-1 me-2"&gt;&lt;/i&gt;
+                &lt;strong class="me-auto lh-1"&gt;Nimbus&lt;/strong&gt;
+                &lt;small&gt;11 mins ago&lt;/small&gt;
+                &lt;button type="button" class="btn-close" data-cnds-dismiss="toast" aria-label="Close"&gt;&lt;/button&gt;
+            &lt;/div&gt;
+            &lt;div class="toast-body"&gt;Hello, world! This is a toast message.&lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="col-xl-5 col-lg-6 mb-2"&gt;
+        &lt;div class="toast show fade" role="alert" aria-live="assertive" aria-atomic="true" data-cnds-toast-init data-cnds-color="danger" data-cnds-autohide="false"&gt;
+            &lt;div class="toast-header"&gt;
+                &lt;i class="mdi mdi-alert-circle cnds-icon-xl lh-1 me-2"&gt;&lt;/i&gt;
+                &lt;strong class="me-auto lh-1"&gt;Nimbus&lt;/strong&gt;
+                &lt;small&gt;11 mins ago&lt;/small&gt;
+                &lt;button type="button" class="btn-close" data-cnds-dismiss="toast" aria-label="Close"&gt;&lt;/button&gt;
+            &lt;/div&gt;
+            &lt;div class="toast-body"&gt;Hello, world! This is a toast message.&lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                                    </div>
+                                </section>
+                                <!--Section: Code-->
+                            </section>
+
+                            <hr class="mt-5">
+
+                            <!--Section: Placement-->
+                            <section id="section-placement">
+                                <!-- Section title -->
+                                <h3 class="mb-4">Placement</h3>
+                                <p>
+                                    Control where toasts appear on screen using the <code>data-cnds-position</code> attribute or the <code>update()</code> method. Six positions are supported: <code>top-left</code>, <code>top-center</code>, <code>top-right</code>, <code>bottom-left</code>, <code>bottom-center</code>, and <code>bottom-right</code>. The default is <code>top-right</code> with a <code>24px</code> gap from the screen edge.
+                                </p>
+
+                                <!--Section: Demo-->
+                                <div class="text-center">
+                                    <h4 class="fw-bold">Select alignment</h4>
+                                </div>
+                                <div class="my-4 text-center">
+                                    <button type="button" class="btn btn-primary" id="top-left">Top Left</button>
+                                    <button type="button" class="btn btn-primary mx-2" id="top-center">Top Center</button>
+                                    <button type="button" class="btn btn-primary" id="top-right">Top Right</button>
+                                </div>
+                                <div class="my-4 text-center">
+                                    <button type="button" class="btn btn-primary" id="bottom-left">Bottom Left</button>
+                                    <button type="button" class="btn btn-primary mx-2" id="bottom-center">Bottom Center</button>
+                                    <button type="button" class="btn btn-primary" id="bottom-right">Bottom Right</button>
+                                </div>
+
+                                <div class="toast mx-auto" id="placement-example-toast" role="status" aria-live="polite" aria-atomic="true" data-cnds-autohide="false" data-cnds-position="top-right" data-cnds-append-to-body="true" data-cnds-stacking="true" data-cnds-width="350px" data-cnds-color="primary">
+                                    <div class="toast-header">
+                                        <strong class="me-auto lh-1">Nimbus</strong>
+                                        <small>11 mins ago</small>
+                                        <button type="button" class="btn-close" data-cnds-dismiss="toast" aria-label="Close"></button>
+                                    </div>
+                                    <div class="toast-body">Position test</div>
+                                </div>
+                            </section>
+                            <!--Section: Demo-->
+                            <!-- Angular: Control toast placement with a service method that accepts a position option and passes it to Nimbus.Toast or your own overlay positioning logic.
+                                 Example: this.toastService.show({ message: 'Toast position', position: 'top-right' });
+                                 Map Angular CDK overlay positions (OverlayPositionBuilder) to the data-cnds-position values for a fully Angular-native approach. -->
+                            <!--Section: Code-->
+                            <section class="mb-4">
+                                <h5><span class="badge badge-code-html">HTML</span></h5>
+                                <div class="p-0">
+                                    <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;!-- Position buttons --&gt;
+&lt;button type="button" class="btn btn-primary" id="top-left"&gt;Top Left&lt;/button&gt;
+&lt;button type="button" class="btn btn-primary mx-2" id="top-center"&gt;Top Center&lt;/button&gt;
+&lt;button type="button" class="btn btn-primary" id="top-right"&gt;Top Right&lt;/button&gt;
+&lt;button type="button" class="btn btn-primary" id="bottom-left"&gt;Bottom Left&lt;/button&gt;
+&lt;button type="button" class="btn btn-primary mx-2" id="bottom-center"&gt;Bottom Center&lt;/button&gt;
+&lt;button type="button" class="btn btn-primary" id="bottom-right"&gt;Bottom Right&lt;/button&gt;
+
+&lt;!-- Toast element --&gt;
+&lt;div class="toast" id="placement-example-toast" role="status" aria-live="polite" aria-atomic="true" data-cnds-autohide="false" data-cnds-position="top-right" data-cnds-append-to-body="true" data-cnds-stacking="true" data-cnds-width="350px" data-cnds-color="primary"&gt;
+    &lt;div class="toast-header"&gt;
+        &lt;strong class="me-auto lh-1"&gt;Nimbus&lt;/strong&gt;
+        &lt;small&gt;11 mins ago&lt;/small&gt;
+        &lt;button type="button" class="btn-close" data-cnds-dismiss="toast" aria-label="Close"&gt;&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class="toast-body"&gt;Position test&lt;/div&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                                </div>
+                            </section>
+                            <section class="mb-4">
+                                <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                                <div class="p-0">
+                                    <pre class="line-numbers m-0">
+                                            <code class="language-js">
+const placementEl = document.getElementById('placement-example-toast');
+const placementInstance = new Nimbus.Toast(placementEl, {
+  autohide: false,
+  appendToBody: true,
+  stacking: true,
+  width: '350px',
+  color: 'primary',
+});
+
+['top-left', 'top-center', 'top-right', 'bottom-left', 'bottom-center', 'bottom-right'].forEach(pos => {
+  const btn = document.getElementById(pos);
+  if (btn) btn.addEventListener('click', () => {
+    placementInstance.update({ position: pos });
+    placementInstance.show();
+  });
+});
+                                            </code>
+                                        </pre>
+                                </div>
+                            </section>
+                            <!--Section: Code-->
+                        </section>
+                        <!--/Section: Placement-->
+
+                        <hr class="mt-5">
+
+                        <!--Section: Offset-->
+                        <section id="section-offset">
+                            <!-- Section title -->
+                            <h3 class="mb-4">Offset</h3>
+                            <p>
+                                Adjust the distance between the toast and the edge of the viewport using <code>data-cnds-offset</code> (accepts a pixel value) or the <code>update()</code> method. The default offset is <code>24</code> pixels. Increasing the offset is useful when a fixed header or footer would otherwise overlap the notification.
+                            </p>
+
+                            <!--Section: Demo-->
+                            <section class="pb-4">
+                                <div class="bg-white border rounded-5">
+                                    <section class="p-4 d-flex justify-content-center text-center w-100">
+                                        <button type="button" class="btn btn-primary" id="offset-trigger">Offset: 50</button>
+                                    </section>
+                                </div>
+
+                                <div class="toast" id="offset-toast" role="status" aria-live="polite" aria-atomic="true" data-cnds-autohide="true" data-cnds-delay="5000" data-cnds-position="top-right" data-cnds-offset="50" data-cnds-append-to-body="true" data-cnds-stacking="false" data-cnds-width="350px" data-cnds-color="info">
+                                    <div class="toast-header">
+                                        <strong class="me-auto lh-1">Nimbus</strong>
+                                        <small>11 mins ago</small>
+                                        <button type="button" class="btn-close" data-cnds-dismiss="toast" aria-label="Close"></button>
+                                    </div>
+                                    <div class="toast-body">Offset: 50</div>
+                                </div>
+                            </section>
+                            <!--Section: Demo-->
+                            <!-- Angular: Pass the offset value dynamically via the ToastService or by calling instance.update({ offset: offsetValue }) after initialization.
+                                 Example: this.toastService.show({ message: 'Offset: 50', position: 'top-right', offset: 50 });
+                                 Store offset as a @Input() or component property to allow parent components to control toast positioning. -->
+                            <!--Section: Code-->
+                            <section class="mb-4">
+                                <h5><span class="badge badge-code-html">HTML</span></h5>
+                                <div class="p-0">
+                                    <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;button type="button" class="btn btn-primary" id="offset-trigger"&gt;Offset: 50&lt;/button&gt;
+
+&lt;div class="toast" id="offset-toast" role="status" aria-live="polite" aria-atomic="true" data-cnds-autohide="true" data-cnds-delay="5000" data-cnds-position="top-right" data-cnds-offset="50" data-cnds-append-to-body="true" data-cnds-stacking="false" data-cnds-width="350px" data-cnds-color="info"&gt;
+    &lt;div class="toast-header"&gt;
+        &lt;strong class="me-auto lh-1"&gt;Nimbus&lt;/strong&gt;
+        &lt;small&gt;11 mins ago&lt;/small&gt;
+        &lt;button type="button" class="btn-close" data-cnds-dismiss="toast" aria-label="Close"&gt;&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class="toast-body"&gt;Offset: 50&lt;/div&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                                </div>
+                            </section>
+
+                            <section class="mb-4">
+                                <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                                <div class="p-0">
+                                    <pre class="line-numbers m-0">
+                                            <code class="language-js">
+const offsetEl = document.getElementById('offset-toast');
+const offsetTrigger = document.getElementById('offset-trigger');
+
+const offsetInstance = new Nimbus.Toast(offsetEl, {
+  autohide: true,
+  delay: 5000,
+  position: 'top-right',
+  offset: 50,
+  appendToBody: true,
+  stacking: false,
+  width: '350px',
+  color: 'info',
+});
+
+offsetTrigger.addEventListener('click', () => offsetInstance.show());
+                                            </code>
+                                        </pre>
+                                </div>
+                            </section>
+                            <!--Section: Code-->
+                        </section>
+                        <!--/Section: Offset-->
+
+                        <hr class="mt-5">
+
+                        <!--Section: Container-->
+                        <section id="section-container">
+                            <!-- Section title -->
+                            <h3 class="mb-4">Container</h3>
+                            <p>
+                                By default, toasts are appended to the <code>&lt;body&gt;</code> and positioned relative to the viewport. To scope a toast inside a specific element instead, set <code>data-cnds-container</code> to a CSS selector targeting the parent element, and add <code>position: relative</code> to that element (via the <code>.parent-toast-relative</code> utility class). Use <code>data-cnds-container</code> with the <code>update()</code> method to reassign the container dynamically.
+                            </p>
+
+                            <!--Section: Demo-->
+                            <section class="pb-4">
+                                <div class="bg-white border rounded-5">
+
+                                    <section class="p-5 d-flex justify-content-center w-100 parent-toast-relative" id="container-example">
+                                        <button type="button" class="btn btn-primary mb-5" id="container-trigger">
+                                            Show toast in this element
+                                        </button>
+
+                                        <div class="toast toast-absolute" id="container-toast" role="status" aria-live="polite" aria-atomic="true" data-cnds-autohide="true" data-cnds-delay="5000" data-cnds-position="bottom-right" data-cnds-container="#container-example" data-cnds-stacking="false" data-cnds-color="dark" data-cnds-width="350px">
+                                            <div class="toast-header">
+                                                <strong class="me-auto lh-1">Nimbus</strong>
+                                                <small>11 mins ago</small>
+                                                <button type="button" class="btn-close" data-cnds-dismiss="toast" aria-label="Close"></button>
+                                            </div>
+                                            <div class="toast-body">Toast inside another element!</div>
+                                        </div>
+                                    </section>
+                                </div>
+                            </section>
+                            <!--Section: Demo-->
+                            <!-- Angular: Use a @ViewChild reference to pass a container element selector to the ToastService, constraining toast placement within a specific DOM region.
+                                 Example: this.toastService.show({ message: 'Toast container', container: '#parent' });
+                                 This is useful for scoping notifications to a panel or card rather than the full viewport. -->
+                            <!--Section: Code-->
+                            <section class="mb-4">
+                                <h5><span class="badge badge-code-html">HTML</span></h5>
+                                <div class="p-0">
+                                    <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div class="parent-toast-relative" id="container-example"&gt;
+    &lt;button type="button" class="btn btn-primary" id="container-trigger"&gt;Show toast in this element&lt;/button&gt;
+
+    &lt;div class="toast toast-absolute" id="container-toast" role="status" aria-live="polite" aria-atomic="true" data-cnds-autohide="true" data-cnds-delay="5000" data-cnds-position="bottom-right" data-cnds-container="#container-example" data-cnds-stacking="false" data-cnds-color="dark" data-cnds-width="350px"&gt;
+        &lt;div class="toast-header"&gt;
+            &lt;strong class="me-auto lh-1"&gt;Nimbus&lt;/strong&gt;
+            &lt;small&gt;11 mins ago&lt;/small&gt;
+            &lt;button type="button" class="btn-close" data-cnds-dismiss="toast" aria-label="Close"&gt;&lt;/button&gt;
+        &lt;/div&gt;
+        &lt;div class="toast-body"&gt;Toast inside another element!&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                                </div>
+                            </section>
+                            <section class="mb-4">
+                                <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                                <div class="p-0">
+                                    <pre class="line-numbers m-0">
+                                            <code class="language-js">
+const containerEl = document.getElementById('container-toast');
+const containerTrigger = document.getElementById('container-trigger');
+
+const containerInstance = new Nimbus.Toast(containerEl, {
+  autohide: true,
+  delay: 5000,
+  position: 'bottom-right',
+  container: '#container-example',
+  stacking: false,
+  color: 'dark',
+  width: '350px',
+});
+
+containerTrigger.addEventListener('click', () => containerInstance.show());
+                                            </code>
+                                        </pre>
+                                </div>
+                            </section>
+                            <!--Section: Code-->
+                        </section>
+                        <!--/Section: Container-->
+
+                        <hr class="mt-5">
+
+                        <!--Section: Stacking-->
+                        <section id="section-stacking">
+                            <!-- Section title -->
+                            <h3 class="mb-4">Stacking</h3>
+                            <p>
+                                When <code>data-cnds-stacking="true"</code>, each new toast is queued below the previous one at the configured position, so multiple notifications remain visible simultaneously. Set <code>data-cnds-stacking="false"</code> to replace the current toast with the new one instead of stacking. Stacking state can also be changed at runtime via the <code>update()</code> method.
+                            </p>
+
+                            <!--Section: Demo-->
+                            <section class="pb-4">
+                                <div class="bg-white border rounded-5">
+
+                                    <section class="p-5 d-flex justify-content-center w-100">
+                                        <button type="button" class="btn btn-primary me-3" id="stacking-trigger">
+                                            Show toast notification
+                                        </button>
+                                    </section>
+                                </div>
+                            </section>
+                            <!--Section: Demo-->
+                            <!-- Angular: Use the ToastService to emit multiple notifications in sequence; the service manages stacking order automatically when data-cnds-stacking is enabled.
+                                 Example: @for (msg of messages; track msg) { this.toastService.show({ message: msg, stacking: true }); }
+                                 Set stacking: false on the service config to collapse all toasts into a single notification slot. -->
+                            <!--Section: Code-->
+                            <section class="mb-4">
+                                <h5><span class="badge badge-code-html">HTML</span></h5>
+                                <div class="p-0">
+                                    <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;button type="button" class="btn btn-primary me-3" id="stacking-trigger"&gt;Show toast notification&lt;/button&gt;
+                                            </code>
+                                        </pre>
+                                </div>
+                            </section>
+                            <section class="mb-4">
+                                <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                                <div class="p-0">
+                                    <pre class="line-numbers m-0">
+                                            <code class="language-js">
+let stackCount = 0;
+
+document.getElementById('stacking-trigger').addEventListener('click', () =&gt; {
+  stackCount++;
+
+  const toast = document.createElement('div');
+  toast.innerHTML = `
+    &lt;div class="toast-header"&gt;
+      &lt;strong class="me-auto lh-1"&gt;${stackCount}&lt;/strong&gt;
+      &lt;small&gt;11 mins ago&lt;/small&gt;
+      &lt;button type="button" class="btn-close" data-cnds-dismiss="toast" aria-label="Close"&gt;&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class="toast-body"&gt;
+      Stacking element
+    &lt;/div&gt;
+  `;
+
+  toast.classList.add('toast', 'fade');
+  toast.setAttribute('role', 'status');
+  toast.setAttribute('aria-live', 'polite');
+  toast.setAttribute('aria-atomic', 'true');
+
+  const toastInstance = new Nimbus.Toast(toast, {
+    appendToBody: true,
+    stacking: true,
+    width: '450px',
+    position: 'top-right',
+    autohide: true,
+    delay: 5000,
+    color: 'dark',
+  });
+
+  toastInstance.show();
+});
+                                            </code>
+                                        </pre>
+                                </div>
+                            </section>
+                            <!--Section: Code-->
+                        </section>
+                        <!--/Section: Stacking-->
+
+                        <hr class="mt-5">
+
+                        <!--Section: Stacking (container)-->
+                        <section id="section-stacking-container">
+                            <!-- Section title -->
+                            <h3 class="mb-4">Stacking (container)</h3>
+                            <p>
+                                Stacking also works when toasts are scoped to a container element. Set <code>data-cnds-container</code> to a CSS selector and <code>data-cnds-stacking="true"</code> together to stack multiple toasts inside a bounded region — useful for notification panels, sidebars, or scrollable areas where viewport-level positioning is undesirable.
+                            </p>
+
+                            <!--Section: Demo-->
+                            <section class="pb-4">
+                                <div class="bg-white border rounded-5">
+
+                                    <section class="p-5 d-flex justify-content-center w-100" style="height: 400px; overflow: scroll;">
+                                        <div class="container text-center" id="stacking-container">
+                                            <button type="button" class="btn btn-primary me-3" id="stacking-container-trigger">
+                                                Show toast notification
+                                            </button>
+                                        </div>
+                                    </section>
+                                </div>
+                            </section>
+                            <!--Section: Demo-->
+                            <!-- Angular: Create a ToastContainerService that accepts a container selector and appends toast elements within a scoped DOM region instead of the viewport.
+                                 Example: this.toastService.show({ message: msg, container: '#notification-panel', stacking: true });
+                                 Use @ViewChild with a template ref to pass the native element, then call renderer.appendChild(containerRef.nativeElement, toastEl) for Angular-idiomatic DOM management. -->
+                            <!--Section: Code-->
+                            <section class="mb-4">
+                                <h5><span class="badge badge-code-html">HTML</span></h5>
+                                <div class="p-0">
+                                    <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div style="height: 400px; overflow: scroll;"&gt;
+    &lt;div class="container text-center" id="stacking-container"&gt;
+        &lt;button type="button" class="btn btn-primary me-3" id="stacking-container-trigger"&gt;Show toast notification&lt;/button&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                                </div>
+                            </section>
+                            <section class="mb-4">
+                                <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                                <div class="p-0">
+                                    <pre class="line-numbers m-0">
+                                            <code class="language-js">
+let stackCount = 0;
+
+document.getElementById('stacking-container-trigger').addEventListener('click', () =&gt; {
+  stackCount++;
+
+  const toast = document.createElement('div');
+  toast.innerHTML = `
+    &lt;div class="toast-header"&gt;
+      &lt;strong class="me-auto lh-1"&gt;${stackCount}&lt;/strong&gt;
+      &lt;small&gt;11 mins ago&lt;/small&gt;
+      &lt;button type="button" class="btn-close" data-cnds-dismiss="toast" aria-label="Close"&gt;&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class="toast-body text-start"&gt;
+      Stacking element
+    &lt;/div&gt;
+  `;
+
+  toast.classList.add('toast', 'fade');
+  toast.setAttribute('role', 'status');
+  toast.setAttribute('aria-live', 'polite');
+  toast.setAttribute('aria-atomic', 'true');
+
+  document.getElementById('stacking-container').appendChild(toast);
+
+  const toastInstance = new Nimbus.Toast(toast, {
+    stacking: true,
+    width: '450px',
+    position: 'top-right',
+    container: '#stacking-container',
+    autohide: true,
+    delay: 5000,
+    color: 'dark',
+  });
+
+  toastInstance.show();
+});
+                                            </code>
+                                        </pre>
+                                </div>
+                            </section>
+                            <!--Section: Code-->
+                        </section>
+                        <!--/Section: Stacking (container)-->
+
+                        <hr class="mt-5">
+
+                        <!--Section: API Documentation-->
+                        <section id="section-api-docs">
+                          <h3 class="mb-3">API Documentation</h3>
+
+                          <!--Section: API Introduction-->
+                          <section id="api-section-introduction">
+                            <h4 class="mb-4">Introduction</h4>
+                            <p>
+                              The CNDS Toast component requires JavaScript initialisation. Toasts can be
+                              initialised automatically via the <code>data-cnds-toast-init</code> attribute, or
+                              programmatically using <code>new Nimbus.Toast(element, options)</code>. Both paths
+                              support the full option set including positioning, auto-hide, stacking, and color variants.
+                            </p>
+                            <p>
+                              When <code>appendToBody</code> is <code>true</code> or <code>data-cnds-position</code>
+                              is set on the element, the toast is positioned fixed to the viewport at the configured
+                              position with the configured offset. Multiple toasts at the same position stack
+                              automatically when <code>stacking</code> is enabled. Container-scoped toasts are
+                              positioned absolutely inside the target element, which must have
+                              <code>position: relative</code> (use the <code>.parent-toast-relative</code> utility class).
+                            </p>
+                          </section>
+                          <!--/Section: API Introduction-->
+
+                          <!--Section: API Usage-->
+                          <section id="api-section-usage">
+                            <h4 class="mb-4">Usage</h4>
+
+                            <h5 class="mb-3">Via data attributes</h5>
+                            <p>
+                              Add <code>data-cnds-toast-init</code> to any <code>.toast</code> element to
+                              initialise it automatically on page load. All options can be set via
+                              <code>data-cnds-*</code> attributes — no additional JavaScript required.
+                            </p>
+                            <section class="mb-4">
+                              <h6><span class="badge badge-code-html">HTML</span></h6>
+                              <div class="p-0">
+                                <pre class="line-numbers m-0"><code class="language-html">&lt;div class="toast fade" data-cnds-toast-init
+     role="status" aria-live="polite" aria-atomic="true"
+     data-cnds-autohide="true" data-cnds-delay="5000"
+     data-cnds-position="top-right" data-cnds-append-to-body="true"
+     data-cnds-stacking="true" data-cnds-color="info"&gt;
+    &lt;div class="toast-header"&gt;
+        &lt;strong class="me-auto lh-1"&gt;Nimbus&lt;/strong&gt;
+        &lt;small&gt;just now&lt;/small&gt;
+        &lt;button type="button" class="btn-close" data-cnds-dismiss="toast" aria-label="Close"&gt;&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class="toast-body"&gt;Example toast&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                              </div>
+                            </section>
+
+                            <h5 class="mb-3">Via JavaScript</h5>
+                            <p>
+                              Initialise a toast programmatically and call <code>show()</code> to display it.
+                              Useful for dynamically created toasts or when options must be set at runtime.
+                            </p>
+                            <section class="mb-4">
+                              <h6><span class="badge badge-code-js">JAVASCRIPT</span></h6>
+                              <div class="p-0">
+                                <pre class="line-numbers m-0"><code class="language-js">const toastEl = document.getElementById('example-toast');
+const instance = new Nimbus.Toast(toastEl, {
+  autohide: true,
+  delay: 5000,
+  position: 'top-right',
+  appendToBody: true,
+  stacking: true,
+  color: 'info',
+});
+instance.show();</code></pre>
+                              </div>
+                            </section>
+
+                            <h5 class="mb-3">Dismiss</h5>
+                            <p>
+                              Add <code>data-cnds-dismiss="toast"</code> to a button <strong>inside</strong> the
+                              toast to wire up automatic dismissal on click:
+                            </p>
+                            <section class="mb-3">
+                              <h6><span class="badge badge-code-html">HTML</span></h6>
+                              <div class="p-0">
+                                <pre class="line-numbers m-0"><code class="language-html">&lt;button type="button" class="btn-close" data-cnds-dismiss="toast" aria-label="Close"&gt;&lt;/button&gt;</code></pre>
+                              </div>
+                            </section>
+                            <p>Or trigger a toast from a button <strong>outside</strong> it using <code>data-cnds-toggle</code> and <code>data-cnds-target</code>:</p>
+                            <section class="mb-4">
+                              <h6><span class="badge badge-code-html">HTML</span></h6>
+                              <div class="p-0">
+                                <pre class="line-numbers m-0"><code class="language-html">&lt;button type="button" class="btn btn-primary" data-cnds-toggle="toast" data-cnds-target="#my-toast"&gt;Show toast&lt;/button&gt;</code></pre>
+                              </div>
+                            </section>
+                          </section>
+                          <!--/Section: API Usage-->
+
+                          <!--Section: API Options-->
+                          <section id="api-section-options">
+                            <h4 class="mb-4">Options</h4>
+                            <p>
+                              Options can be passed via data attributes or JavaScript. For data attributes,
+                              append the option name to <code>data-cnds-</code>. camelCase options are
+                              kebab-cased — <code>appendToBody</code> becomes <code>data-cnds-append-to-body</code>.
+                            </p>
+                            <div class="table-responsive">
+                              <table class="table table-striped table-bordered" aria-label="Options">
+                                <thead>
+                                  <tr>
+                                    <th class="th-sm">Name</th>
+                                    <th class="th-sm">Type</th>
+                                    <th class="th-sm">Default</th>
+                                    <th class="th-sm">Description</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <tr>
+                                    <td class="text-nowrap"><code>animation</code></td>
+                                    <td><i>Boolean</i></td>
+                                    <td><code>true</code></td>
+                                    <td>Apply a CSS fade transition when showing and hiding the toast.</td>
+                                  </tr>
+                                  <tr>
+                                    <td class="text-nowrap"><code>autohide</code></td>
+                                    <td><i>Boolean</i></td>
+                                    <td><code>true</code></td>
+                                    <td>Automatically dismiss the toast after <code>delay</code> milliseconds. The timer pauses while the cursor or focus is inside the toast.</td>
+                                  </tr>
+                                  <tr>
+                                    <td class="text-nowrap"><code>delay</code></td>
+                                    <td><i>Number</i></td>
+                                    <td><code>5000</code></td>
+                                    <td>Milliseconds before the toast auto-hides. Only applies when <code>autohide</code> is <code>true</code>.</td>
+                                  </tr>
+                                  <tr>
+                                    <td class="text-nowrap"><code>position</code></td>
+                                    <td><i>String</i></td>
+                                    <td><code>'top-right'</code></td>
+                                    <td>Viewport position. Accepts: <code>top-left</code>, <code>top-center</code>, <code>top-right</code>, <code>bottom-left</code>, <code>bottom-center</code>, <code>bottom-right</code>. Positioning CSS is only applied when <code>data-cnds-position</code> is set on the element, <code>appendToBody</code> is <code>true</code>, or <code>container</code> is configured.</td>
+                                  </tr>
+                                  <tr>
+                                    <td class="text-nowrap"><code>offset</code></td>
+                                    <td><i>Number</i></td>
+                                    <td><code>24</code></td>
+                                    <td>Distance in pixels between the toast and the nearest viewport or container edge. Applies when <code>position</code> is active.</td>
+                                  </tr>
+                                  <tr>
+                                    <td class="text-nowrap"><code>color</code></td>
+                                    <td><i>String / null</i></td>
+                                    <td><code>null</code></td>
+                                    <td>Sets the <code>data-cnds-color</code> attribute on the element. Accepts: <code>primary</code>, <code>secondary</code>, <code>success</code>, <code>danger</code>, <code>warning</code>, <code>caution</code>, <code>info</code>, <code>light</code>, or <code>dark</code>.</td>
+                                  </tr>
+                                  <tr>
+                                    <td class="text-nowrap"><code>width</code></td>
+                                    <td><i>String / null</i></td>
+                                    <td><code>null</code></td>
+                                    <td>Sets an explicit inline width on the toast element, e.g. <code>'350px'</code>. When <code>null</code>, width is controlled by <code>--cnds-toast-max-width</code>.</td>
+                                  </tr>
+                                  <tr>
+                                    <td class="text-nowrap"><code>appendToBody</code></td>
+                                    <td><i>Boolean</i></td>
+                                    <td><code>false</code></td>
+                                    <td>Moves the toast element to <code>&lt;body&gt;</code> when shown. Enables <code>position: fixed</code> viewport placement and resolves stacking context issues caused by transformed ancestors.</td>
+                                  </tr>
+                                  <tr>
+                                    <td class="text-nowrap"><code>container</code></td>
+                                    <td><i>String / null</i></td>
+                                    <td><code>null</code></td>
+                                    <td>CSS selector of a parent element to scope the toast inside. The container receives <code>position: relative</code> automatically. Use with the <code>.parent-toast-relative</code> utility class.</td>
+                                  </tr>
+                                  <tr>
+                                    <td class="text-nowrap"><code>stacking</code></td>
+                                    <td><i>Boolean</i></td>
+                                    <td><code>true</code></td>
+                                    <td>When <code>true</code>, each new toast at the same position queues below (or above) the previous one. When <code>false</code>, toasts replace each other in the same slot.</td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+                          </section>
+                          <!--/Section: API Options-->
+
+                          <!--Section: API Methods-->
+                          <section id="api-section-methods">
+                            <h4 class="mb-4">Methods</h4>
+                            <div class="table-responsive">
+                              <table class="table table-striped table-bordered" aria-label="Methods">
+                                <thead>
+                                  <tr>
+                                    <th class="th-sm">Name</th>
+                                    <th class="th-sm">Description</th>
+                                    <th class="th-sm">Example</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <tr>
+                                    <td class="text-nowrap"><code>show()</code></td>
+                                    <td>Shows the toast. Fires <code>show.cnds.toast</code> immediately and <code>shown.cnds.toast</code> after the transition completes.</td>
+                                    <td><code>instance.show()</code></td>
+                                  </tr>
+                                  <tr>
+                                    <td class="text-nowrap"><code>hide()</code></td>
+                                    <td>Hides the toast. Fires <code>hide.cnds.toast</code> immediately and <code>hidden.cnds.toast</code> after the transition completes.</td>
+                                    <td><code>instance.hide()</code></td>
+                                  </tr>
+                                  <tr>
+                                    <td class="text-nowrap"><code>update(options)</code></td>
+                                    <td>Merges new options into the instance config. If <code>position</code> is included, positional styles are updated immediately.</td>
+                                    <td><code>instance.update({ position: 'bottom-right' })</code></td>
+                                  </tr>
+                                  <tr>
+                                    <td class="text-nowrap"><code>dispose()</code></td>
+                                    <td>Destroys the instance, removes event listeners, and unregisters the toast from the stacking registry.</td>
+                                    <td><code>instance.dispose()</code></td>
+                                  </tr>
+                                  <tr>
+                                    <td class="text-nowrap"><code>getInstance(el)</code></td>
+                                    <td>Static. Returns the <code>Toast</code> instance associated with a DOM element, or <code>null</code> if none exists.</td>
+                                    <td><code>Nimbus.Toast.getInstance(el)</code></td>
+                                  </tr>
+                                  <tr>
+                                    <td class="text-nowrap"><code>getOrCreateInstance(el)</code></td>
+                                    <td>Static. Returns the existing instance or creates a new one with default options.</td>
+                                    <td><code>Nimbus.Toast.getOrCreateInstance(el)</code></td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+                            <section class="mb-4">
+                              <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                              <div class="p-0">
+                                <pre class="line-numbers m-0"><code class="language-js">const toastEl = document.getElementById('my-toast');
+const instance = new Nimbus.Toast(toastEl, { autohide: true, delay: 3000 });
+instance.show();
+
+// Update position at runtime
+instance.update({ position: 'bottom-center' });
+
+// Listen for hidden event, then clean up
+toastEl.addEventListener('hidden.cnds.toast', () => instance.dispose());</code></pre>
+                              </div>
+                            </section>
+                          </section>
+                          <!--/Section: API Methods-->
+
+                          <!--Section: API Events-->
+                          <section id="api-section-events">
+                            <h4 class="mb-4">Events</h4>
+                            <p>
+                              All toast events fire on the toast element and bubble. Attach listeners before
+                              calling <code>show()</code> to capture the opening events.
+                            </p>
+                            <div class="table-responsive">
+                              <table class="table table-striped table-bordered" aria-label="Events">
+                                <thead>
+                                  <tr>
+                                    <th class="th-sm">Event</th>
+                                    <th class="th-sm">Trigger</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <tr>
+                                    <td class="text-nowrap"><code>show.cnds.toast</code></td>
+                                    <td>Fires immediately when <code>show()</code> is called. Calling <code>event.preventDefault()</code> cancels the show.</td>
+                                  </tr>
+                                  <tr>
+                                    <td class="text-nowrap"><code>shown.cnds.toast</code></td>
+                                    <td>Fires after the toast becomes fully visible and the CSS transition has completed.</td>
+                                  </tr>
+                                  <tr>
+                                    <td class="text-nowrap"><code>hide.cnds.toast</code></td>
+                                    <td>Fires immediately when <code>hide()</code> is called (by auto-hide timer, dismiss button, or direct call). Calling <code>event.preventDefault()</code> cancels the hide.</td>
+                                  </tr>
+                                  <tr>
+                                    <td class="text-nowrap"><code>hidden.cnds.toast</code></td>
+                                    <td>Fires after the toast is fully hidden and the CSS transition has completed.</td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+                            <section class="mb-4">
+                              <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                              <div class="p-0">
+                                <pre class="line-numbers m-0"><code class="language-js">const toastEl = document.getElementById('my-toast');
+
+toastEl.addEventListener('show.cnds.toast', event => {
+  // cancel the show if a condition is not met
+  if (!canShow) event.preventDefault();
+});
+
+toastEl.addEventListener('hidden.cnds.toast', () => {
+  // toast has finished hiding — clean up or update UI
+});</code></pre>
+                              </div>
+                            </section>
+                          </section>
+                          <!--/Section: API Events-->
+
+                          <!--Section: API CSS Classes-->
+                          <section id="api-section-css-classes">
+                            <h4 class="mb-4">CSS classes</h4>
+                            <p>
+                              The following classes control toast structure and appearance. Color variants are
+                              applied via the <code>data-cnds-color</code> attribute rather than additional class names.
+                            </p>
+                            <div class="table-responsive">
+                              <table class="table table-striped table-bordered" aria-label="CSS classes">
+                                <thead>
+                                  <tr>
+                                    <th class="th-sm">Class</th>
+                                    <th class="th-sm">Element</th>
+                                    <th class="th-sm">Description</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <tr>
+                                    <td class="text-nowrap"><code>.toast</code></td>
+                                    <td><code>&lt;div&gt;</code></td>
+                                    <td>Main toast container. Hosts all CSS custom properties. Hidden via <code>display: none</code> until shown; receives <code>.show</code> and <code>.showing</code> during transitions.</td>
+                                  </tr>
+                                  <tr>
+                                    <td class="text-nowrap"><code>.toast-header</code></td>
+                                    <td><code>&lt;div&gt;</code></td>
+                                    <td>Optional header area. Renders as a flex row for icon, title, timestamp, and close button. Separated from the body by a bottom border (suppressed for color variants).</td>
+                                  </tr>
+                                  <tr>
+                                    <td class="text-nowrap"><code>.toast-body</code></td>
+                                    <td><code>&lt;div&gt;</code></td>
+                                    <td>Content area of the toast. Accepts arbitrary HTML including links and formatted text.</td>
+                                  </tr>
+                                  <tr>
+                                    <td class="text-nowrap"><code>.toast-container</code></td>
+                                    <td><code>&lt;div&gt;</code></td>
+                                    <td>Optional wrapper for a group of static inline toasts. Sets <code>pointer-events: none</code> on the container with <code>pointer-events: auto</code> restored on each toast. Applies <code>--cnds-toast-spacing</code> between items.</td>
+                                  </tr>
+                                  <tr>
+                                    <td class="text-nowrap"><code>.toast-absolute</code></td>
+                                    <td><code>&lt;div&gt;</code></td>
+                                    <td>Sets <code>position: absolute</code> on the toast. Use with a <code>position: relative</code> parent when scoping via the <code>container</code> option.</td>
+                                  </tr>
+                                  <tr>
+                                    <td class="text-nowrap"><code>.parent-toast-relative</code></td>
+                                    <td>any</td>
+                                    <td>Utility that sets <code>position: relative</code> on a container element. Required when scoping a toast inside a parent via <code>data-cnds-container</code>.</td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+                          </section>
+                          <!--/Section: API CSS Classes-->
+
+                          <!--Section: API CSS Custom Properties-->
+                          <section id="api-section-css-variables">
+                            <h4 class="mb-4">CSS custom properties</h4>
+                            <p>
+                              All custom properties are defined on <code>.toast</code> in <code>toasts.css</code>.
+                              Override them per-instance with an inline <code>style</code> attribute, or globally
+                              by targeting <code>.toast</code> in your own stylesheet.
+                            </p>
+                            <div class="table-responsive">
+                              <table class="table table-striped table-bordered" aria-label="CSS custom properties">
+                                <thead>
+                                  <tr>
+                                    <th class="th-sm">Property</th>
+                                    <th class="th-sm">Default</th>
+                                    <th class="th-sm">Description</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <tr>
+                                    <td class="text-nowrap"><code>--cnds-toast-zindex</code></td>
+                                    <td><code>1090</code></td>
+                                    <td>Stack order of positioned toasts. Inherits from <code>--cnds-zindex-toast</code>.</td>
+                                  </tr>
+                                  <tr>
+                                    <td class="text-nowrap"><code>--cnds-toast-max-width</code></td>
+                                    <td><code>350px</code></td>
+                                    <td>Default width. Can be overridden per-instance via the <code>width</code> option or <code>data-cnds-width</code>.</td>
+                                  </tr>
+                                  <tr>
+                                    <td class="text-nowrap"><code>--cnds-toast-font-size</code></td>
+                                    <td><code>0.875rem</code></td>
+                                    <td>Font size for all toast text (14 px at default root size).</td>
+                                  </tr>
+                                  <tr>
+                                    <td class="text-nowrap"><code>--cnds-toast-bg</code></td>
+                                    <td><code>rgba(255,255,255,0.85)</code></td>
+                                    <td>Background color. Overridden per color variant and in dark mode.</td>
+                                  </tr>
+                                  <tr>
+                                    <td class="text-nowrap"><code>--cnds-toast-color</code></td>
+                                    <td>inherited</td>
+                                    <td>Text color. Unset by default (inherits from parent). Overridden per color variant.</td>
+                                  </tr>
+                                  <tr>
+                                    <td class="text-nowrap"><code>--cnds-toast-border-width</code></td>
+                                    <td><code>1px</code></td>
+                                    <td>Border width. Color variants use <code>2px</code>.</td>
+                                  </tr>
+                                  <tr>
+                                    <td class="text-nowrap"><code>--cnds-toast-border-color</code></td>
+                                    <td><code>rgba(0,0,0,0.1)</code></td>
+                                    <td>Border color. Overridden per color variant and in dark mode.</td>
+                                  </tr>
+                                  <tr>
+                                    <td class="text-nowrap"><code>--cnds-toast-border-radius</code></td>
+                                    <td><code>0.375rem</code></td>
+                                    <td>Corner radius. Color variants use <code>0.5rem</code> (8 px).</td>
+                                  </tr>
+                                  <tr>
+                                    <td class="text-nowrap"><code>--cnds-toast-box-shadow</code></td>
+                                    <td><code>var(--cnds-shadow-2)</code></td>
+                                    <td>Drop shadow applied to the toast container.</td>
+                                  </tr>
+                                  <tr>
+                                    <td class="text-nowrap"><code>--cnds-toast-padding-x</code></td>
+                                    <td><code>0.75rem</code></td>
+                                    <td>Horizontal padding for the header and body.</td>
+                                  </tr>
+                                  <tr>
+                                    <td class="text-nowrap"><code>--cnds-toast-padding-y</code></td>
+                                    <td><code>0.5rem</code></td>
+                                    <td>Vertical padding for the header.</td>
+                                  </tr>
+                                  <tr>
+                                    <td class="text-nowrap"><code>--cnds-toast-spacing</code></td>
+                                    <td><code>1.5rem</code></td>
+                                    <td>Bottom margin between toasts inside a <code>.toast-container</code>.</td>
+                                  </tr>
+                                  <tr>
+                                    <td class="text-nowrap"><code>--cnds-toast-header-color</code></td>
+                                    <td><code>#6c757d</code></td>
+                                    <td>Text color for the header. Overridden per color variant and in dark mode.</td>
+                                  </tr>
+                                  <tr>
+                                    <td class="text-nowrap"><code>--cnds-toast-header-bg</code></td>
+                                    <td><code>rgba(255,255,255,0.85)</code></td>
+                                    <td>Background of the header. Overridden per color variant and in dark mode.</td>
+                                  </tr>
+                                  <tr>
+                                    <td class="text-nowrap"><code>--cnds-toast-header-border-color</code></td>
+                                    <td><code>rgba(0,0,0,0.05)</code></td>
+                                    <td>Color of the border below the header. Set to <code>transparent</code> for all color variants.</td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+                          </section>
+                          <!--/Section: API CSS Custom Properties-->
+
+                          <!--Section: API Theme Variables-->
+                          <section id="api-section-theme-variables">
+                            <h4 class="mb-4">Theme variables</h4>
+                            <p>
+                              The default (unstyled) toast adapts to the active theme via custom properties
+                              overridden in <code>dark.css</code> on the
+                              <code>[data-cnds-theme="dark"] .toast:not([data-cnds-color])</code> selector.
+                              Color variant toasts maintain their defined light-mode colors in both themes.
+                            </p>
+                            <div class="table-responsive">
+                              <table class="table table-striped table-bordered" aria-label="Theme variables">
+                                <thead>
+                                  <tr>
+                                    <th class="th-sm">Property</th>
+                                    <th class="th-sm">Light value</th>
+                                    <th class="th-sm">Dark value</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <tr>
+                                    <td class="text-nowrap"><code>--cnds-toast-bg</code></td>
+                                    <td><code>rgba(255, 255, 255, 0.85)</code></td>
+                                    <td><code>rgba(37, 37, 37, 0.95)</code></td>
+                                  </tr>
+                                  <tr>
+                                    <td class="text-nowrap"><code>--cnds-toast-color</code></td>
+                                    <td>inherited</td>
+                                    <td><code>var(--cnds-body-color, #ebebeb)</code></td>
+                                  </tr>
+                                  <tr>
+                                    <td class="text-nowrap"><code>--cnds-toast-border-color</code></td>
+                                    <td><code>rgba(0, 0, 0, 0.1)</code></td>
+                                    <td><code>rgba(255, 255, 255, 0.1)</code></td>
+                                  </tr>
+                                  <tr>
+                                    <td class="text-nowrap"><code>--cnds-toast-header-color</code></td>
+                                    <td><code>#6c757d</code></td>
+                                    <td><code>var(--cnds-surface-light-300, #d4d4d4)</code></td>
+                                  </tr>
+                                  <tr>
+                                    <td class="text-nowrap"><code>--cnds-toast-header-bg</code></td>
+                                    <td><code>rgba(255, 255, 255, 0.85)</code></td>
+                                    <td><code>rgba(37, 37, 37, 0.95)</code></td>
+                                  </tr>
+                                  <tr>
+                                    <td class="text-nowrap"><code>--cnds-toast-header-border-color</code></td>
+                                    <td><code>rgba(0, 0, 0, 0.05)</code></td>
+                                    <td><code>rgba(255, 255, 255, 0.05)</code></td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+                          </section>
+                          <!--/Section: API Theme Variables-->
+
+                          <!--Section: API Accessibility-->
+                          <section id="api-section-accessibility">
+                            <h4 class="mb-4">Accessibility</h4>
+                            <p>
+                              Toasts are transient notifications that must be announced to assistive technologies
+                              without interrupting the user's current task. The following requirements apply to all
+                              CNDS Toast implementations and are aligned with
+                              <a rel="nofollow" target="_blank" href="https://www.section508.gov/">Section 508</a>
+                              of the Rehabilitation Act and
+                              <a rel="nofollow" target="_blank" href="https://www.w3.org/TR/WCAG21/">WCAG 2.1</a>
+                              success criteria 1.4.3, 2.2.1, 2.4.1, and 4.1.3.
+                            </p>
+
+                            <h5 class="mb-2">Live region role</h5>
+                            <p>
+                              Choose the correct ARIA role based on urgency. Using <code>role="alert"</code> on a
+                              non-urgent toast is a Section 508 violation because it interrupts the screen reader
+                              mid-sentence.
+                            </p>
+                            <div class="table-responsive mb-3">
+                              <table class="table table-striped table-bordered" aria-label="Accessibility">
+                                <thead>
+                                  <tr>
+                                    <th class="th-sm">Role</th>
+                                    <th class="th-sm"><code>aria-live</code></th>
+                                    <th class="th-sm">Use for</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <tr>
+                                    <td><code>role="alert"</code></td>
+                                    <td><code>assertive</code></td>
+                                    <td>Errors, destructive action confirmations, security warnings — messages that require immediate attention.</td>
+                                  </tr>
+                                  <tr>
+                                    <td><code>role="status"</code></td>
+                                    <td><code>polite</code></td>
+                                    <td>Success confirmations, informational notices, progress updates — messages that can wait for a natural pause.</td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+
+                            <h5 class="mb-2">Required attributes</h5>
+                            <ul>
+                              <li>
+                                <code>aria-atomic="true"</code> — ensures the entire toast content is announced
+                                as a single unit, not as individual node changes.
+                              </li>
+                              <li>
+                                <code>aria-label="Close"</code> on the <code>.btn-close</code> element — provides
+                                an accessible name for the dismiss button (required by WCAG 4.1.2).
+                              </li>
+                              <li>
+                                Decorative icons inside the toast header must have <code>aria-hidden="true"</code>
+                                to prevent duplicate announcements.
+                              </li>
+                            </ul>
+
+                            <h5 class="mb-2">Timing (WCAG 2.2.1 / Section 508 §1194.31)</h5>
+                            <ul>
+                              <li>
+                                Set <code>autohide: true</code> with a minimum <code>delay</code> of
+                                <strong>5 000 ms</strong>. Screen readers need time to finish their current
+                                speech queue before announcing the new live region.
+                              </li>
+                              <li>
+                                Use <code>autohide: false</code> for errors and destructive-action confirmations
+                                so the user can read and act before the toast disappears.
+                              </li>
+                              <li>
+                                Mouse hover and keyboard focus both pause the auto-hide timer automatically.
+                              </li>
+                            </ul>
+
+                            <h5 class="mb-2">Color contrast (WCAG 1.4.3)</h5>
+                            <p>
+                              All nine color variants — <code>primary</code>, <code>secondary</code>,
+                              <code>success</code>, <code>danger</code>, <code>warning</code>, <code>caution</code>,
+                              <code>info</code>, <code>light</code>, and <code>dark</code> — have been verified to
+                              meet WCAG AA contrast ratios (minimum 4.5:1 for normal text, 3:1 for large text)
+                              using CNDS design tokens. Do not override the variant colors with custom values
+                              without re-verifying contrast.
+                            </p>
+                            <p>
+                              <code>caution</code> pairs Caution/900 <code>#3d1e00</code> on
+                              Caution/200 <code>#ffd7ad</code> for <strong>11.25:1</strong>. It deliberately does
+                              <em>not</em> use <code>--cnds-caution-text-emphasis</code> (<code>#b35900</code>),
+                              which is the correct caution text color on a page ground but reaches only 3.58:1 on
+                              this surface and fails AA for body text.
+                            </p>
+
+                            <h5 class="mb-2">Skip navigation (WCAG 2.4.1)</h5>
+                            <p>
+                              The page-level skip link (<code>&lt;a class="visually-hidden-focusable" href="#main-content"&gt;</code>)
+                              ensures keyboard users can bypass repeated navigation blocks. This is required for
+                              any page that hosts toasts alongside a persistent header or sidenav.
+                            </p>
+                          </section>
+                          <!--/Section: API Accessibility-->
+
+                        </section>
+                        <!--/Section: API Documentation-->
+                        </section>
+                        <!--/Section: Docs content-->
+                    </div>
+
+                    <div class="col-lg-2 d-none d-lg-block">
+                        <div class="sticky-top" style="top: 100px; z-index: 1">
+                            <ul class="nav flex-column nav-pills menu-sidebar" id="rightNav" data-cnds-allow-hashes="true">
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#section-introduction">Introduction</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#section-basic-example">Basic example</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#section-static-example">Static example</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#section-colors">Colors</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#section-placement">Placement</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#section-offset">Offset</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#section-container">Container</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#section-stacking">Stacking</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#section-stacking-container">Stacking (container)</a>
+                                </li>
+                                <li class="nav-item"><a class="nav-link" href="#section-api-docs">API Documentation</a></li>
+                                <li class="nav-item ms-3"><a class="nav-link" href="#api-section-introduction">Introduction</a></li>
+                                <li class="nav-item ms-3"><a class="nav-link" href="#api-section-usage">Usage</a></li>
+                                <li class="nav-item ms-3"><a class="nav-link" href="#api-section-options">Options</a></li>
+                                <li class="nav-item ms-3"><a class="nav-link" href="#api-section-methods">Methods</a></li>
+                                <li class="nav-item ms-3"><a class="nav-link" href="#api-section-events">Events</a></li>
+                                <li class="nav-item ms-3"><a class="nav-link" href="#api-section-css-classes">CSS classes</a></li>
+                                <li class="nav-item ms-3"><a class="nav-link" href="#api-section-css-variables">CSS custom properties</a></li>
+                                <li class="nav-item ms-3"><a class="nav-link" href="#api-section-theme-variables">Theme variables</a></li>
+                                <li class="nav-item ms-3"><a class="nav-link" href="#api-section-accessibility">Accessibility</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <!-- ./Content -->
+    <!-- Footer -->
+    <div class="cf-footer cf-footer-app">
+      <footer class="page-footer main-footer" aria-label="Site footer">
+        <div class="w-100 px-3 d-flex align-items-center">
+          <img src="img/cf/core/cloudficient_logo_light.svg" class="cf-logo-light" style="width: 135px;" alt="Cloudficient" />
+          <img src="img/cf/core/cloudficient_logo_dark.svg" class="cf-logo-dark" style="width: 135px;" alt="Cloudficient" />
+          <span class="footer-copyright ms-auto">&copy; <span id="currentYear"></span> Cloudficient</span>
+        </div>
+      </footer>
+    </div>
+    <!-- Scripts: load order matters
+         1. nimbus.js  — core design system (components, utils, event handler)
+         2. app.js     — page shell (theme toggle, sticky nav, sidenav interactions)
+         3. prism.min  — Prism.js syntax highlighting for code blocks
+         4. sidenav-loader.js — fetches and injects the shared sidenav HTML fragment -->
+    <script type="text/javascript" src="js/nimbus.js?v=9.0.4"></script>
+    <script type="text/javascript" src="js/app.js?v=9.0.4"></script>
+    <script type="text/javascript" src="plugins/js/prism.min.js"></script>
+    <script type="text/javascript" src="js/sidenav-loader.js"></script>
+    <!-- Utility: populate copyright year so the footer never needs manual updates -->
+    <script type="text/javascript">
+      var currentYearElement = document.getElementById("currentYear");
+      if (currentYearElement) {
+        currentYearElement.textContent = new Date().getFullYear();
+      }
+    </script>
+    <!-- Page demos: all demo wiring runs inside cnds.ready to guarantee Nimbus
+         has finished auto-initializing data-cnds-toast-init elements first.
+         Instances created by data-cnds-toast-init are retrieved via getInstance();
+         dynamically created toasts use new Nimbus.Toast(el, options) directly. -->
+    <script type="text/javascript">
+      document.addEventListener('cnds.ready', function () {
+
+        // Basic example — wire trigger buttons to auto-initialized toasts
+        var basicMap = [
+          ['basic-primary-trigger',   'basic-primary-example'],
+          ['basic-secondary-trigger', 'basic-secondary-example'],
+          ['basic-success-trigger',   'basic-success-example'],
+          ['basic-danger-trigger',    'basic-danger-example'],
+          ['basic-warning-trigger',   'basic-warning-example'],
+          ['basic-info-trigger',      'basic-info-example'],
+          ['basic-light-trigger',     'basic-light-example'],
+          ['basic-dark-trigger',      'basic-dark-example'],
+        ];
+        basicMap.forEach(function (pair) {
+          var trigger = document.getElementById(pair[0]);
+          var toastEl = document.getElementById(pair[1]);
+          if (!trigger || !toastEl) return;
+          var instance = Nimbus.Toast.getInstance(toastEl);
+          if (instance) trigger.addEventListener('click', function () { instance.show(); });
+        });
+
+        // Placement — initialize toast and wire each position button
+        var placementEl = document.getElementById('placement-example-toast');
+        if (placementEl) {
+          var placementInstance = new Nimbus.Toast(placementEl, {
+            autohide: false,
+            appendToBody: true,
+            stacking: true,
+            width: '350px',
+            color: 'primary',
+          });
+          ['top-left', 'top-center', 'top-right', 'bottom-left', 'bottom-center', 'bottom-right'].forEach(function (pos) {
+            var btn = document.getElementById(pos);
+            if (btn) btn.addEventListener('click', function () {
+              placementInstance.update({ position: pos });
+              placementInstance.show();
+            });
+          });
+        }
+
+        // Offset — initialize toast and wire trigger button
+        var offsetEl = document.getElementById('offset-toast');
+        var offsetTrigger = document.getElementById('offset-trigger');
+        if (offsetEl && offsetTrigger) {
+          var offsetInstance = new Nimbus.Toast(offsetEl, {
+            autohide: true,
+            delay: 5000,
+            position: 'top-right',
+            offset: 50,
+            appendToBody: true,
+            stacking: false,
+            width: '350px',
+            color: 'info',
+          });
+          offsetTrigger.addEventListener('click', function () { offsetInstance.show(); });
+        }
+
+        // Container — initialize toast and wire trigger button
+        var containerEl = document.getElementById('container-toast');
+        var containerTrigger = document.getElementById('container-trigger');
+        if (containerEl && containerTrigger) {
+          var containerInstance = new Nimbus.Toast(containerEl, {
+            autohide: true,
+            delay: 5000,
+            position: 'bottom-right',
+            container: '#container-example',
+            stacking: false,
+            color: 'dark',
+            width: '350px',
+          });
+          containerTrigger.addEventListener('click', function () { containerInstance.show(); });
+        }
+
+        // Stacking — create a new toast element on each button click
+        var stackCount = 0;
+        var stackingTrigger = document.getElementById('stacking-trigger');
+        if (stackingTrigger) {
+          stackingTrigger.addEventListener('click', function () {
+            stackCount++;
+            var toastEl = document.createElement('div');
+            toastEl.className = 'toast fade';
+            // ARIA: role="status" + aria-live="polite" for non-urgent notifications
+            toastEl.setAttribute('role', 'status');
+            toastEl.setAttribute('aria-live', 'polite');
+            toastEl.setAttribute('aria-atomic', 'true');
+            toastEl.innerHTML =
+              '<div class="toast-header">' +
+              '<strong class="me-auto lh-1">' + stackCount + '</strong>' +
+              '<small>11 mins ago</small>' +
+              '<button type="button" class="btn-close" data-cnds-dismiss="toast" aria-label="Close"></button>' +
+              '</div>' +
+              '<div class="toast-body">Stacking element</div>';
+            var toastInstance = new Nimbus.Toast(toastEl, {
+              appendToBody: true,
+              stacking: true,
+              width: '450px',
+              position: 'top-right',
+              autohide: true,
+              delay: 5000,
+              color: 'dark',
+            });
+            toastInstance.show();
+          });
+        }
+
+        // Stacking (container) — create a new toast inside a scoped container
+        var stackContainerCount = 0;
+        var stackContainerTrigger = document.getElementById('stacking-container-trigger');
+        if (stackContainerTrigger) {
+          stackContainerTrigger.addEventListener('click', function () {
+            stackContainerCount++;
+            var toastEl = document.createElement('div');
+            toastEl.className = 'toast fade';
+            // ARIA: role="status" + aria-live="polite" for non-urgent notifications
+            toastEl.setAttribute('role', 'status');
+            toastEl.setAttribute('aria-live', 'polite');
+            toastEl.setAttribute('aria-atomic', 'true');
+            toastEl.innerHTML =
+              '<div class="toast-header">' +
+              '<strong class="me-auto lh-1">' + stackContainerCount + '</strong>' +
+              '<small>11 mins ago</small>' +
+              '<button type="button" class="btn-close" data-cnds-dismiss="toast" aria-label="Close"></button>' +
+              '</div>' +
+              '<div class="toast-body text-start">Stacking element</div>';
+            var container = document.getElementById('stacking-container');
+            if (container) container.appendChild(toastEl);
+            var toastInstance = new Nimbus.Toast(toastEl, {
+              stacking: true,
+              width: '450px',
+              position: 'top-right',
+              container: '#stacking-container',
+              autohide: true,
+              delay: 5000,
+              color: 'dark',
+            });
+            toastInstance.show();
+          });
+        }
+
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,1718 @@
+<!--
+* Nimbus Design System v1.0.0 — CaseFusion Application Template
+* Template:   CF Case Administrator — Sidenav Layout
+* File:       tmpl_cf_ca_sidenav.html
+* Role:       Case Administrator
+* Layout:     Fixed sidenav (left) + scrollable content area (right)
+*
+* LAYOUT
+* ──────
+* ┌─────────────────────────────────────────────────────────────────┐
+* │ Sticky Header  (full-width)                                     │
+* │  ├── Utility Nav: Logo · Search · Notifications · Theme · ...  │
+* │  ├── Main Nav:    Dashboard · My Cases · Tenants · Admin        │
+* │  └── Page Title Bar: ← Back · Title · Section · stripe         │
+* ├──────────┬──────────────────────────────────────────────────────┤
+* │  Fixed   │ {{Page Content}} — tab-pane per primary nav item     │
+* │  Side    │ scrolls independently of the sidenav                 │
+* │  Nav     │                                                      │
+* │ (scrolls │                                                      │
+* │ within)  │                                                      │
+* └──────────┴──────────────────────────────────────────────────────┘
+*
+* ANGULAR HANDOFF NOTES
+* ─────────────────────
+* • Replace {{tokens}} with Angular bindings / template variables.
+* • #caSidenav → CaSidenavComponent; drive active state from router.
+* • Sticky header → AppHeaderComponent (shared across all CA pages).
+* • main.ca-main → receives margin-left offset; RouterOutlet lives here.
+* • Account/portal menus → driven by AuthService / PortalService.
+* • Notifications → driven by NotificationService.
+* • Theme toggle → ThemeService sets data-cnds-theme on <html>.
+* • Page Title Bar → .ca-title-bar styles from css/components/navbar.css; bind #caPageTitle and #caPageSection via string interpolation; wire #caBackBtn to Location.back().
+-->
+<!doctype html>
+<html lang="en" data-cnds-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="CaseFusion — Case Administrator Sidenav Template | Cloudficient Nimbus Design System v1.0.0" />
+    <title>{{Page Title}} — Case Administrator · CaseFusion</title>
+
+    <!-- ═══════════════════ NIMBUS v9 STYLES ═══════════════════ -->
+    <link rel="stylesheet" href="../css/nimbus.css" media="all" type="text/css" />
+    <link rel="stylesheet" href="../css/app.css" media="all" type="text/css" />
+    <!-- Theme tokens — order matters: primitives → light → dark -->
+    <link rel="stylesheet" href="../css/themes/primitives.css" />
+    <link rel="stylesheet" href="../css/themes/light.css" />
+    <link rel="stylesheet" href="../css/themes/dark.css" />
+
+    <!-- ═══════════════════ FAVICONS ════════════════════════════ -->
+    <link rel="apple-touch-icon" sizes="57x57"   href="../img/favicon/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="60x60"   href="../img/favicon/apple-icon-60x60.png" />
+    <link rel="apple-touch-icon" sizes="72x72"   href="../img/favicon/apple-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76"   href="../img/favicon/apple-icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="../img/favicon/apple-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="../img/favicon/apple-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="../img/favicon/apple-icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="../img/favicon/apple-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="../img/favicon/apple-icon-180x180.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="../img/favicon/android-icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="32x32"   href="../img/favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="96x96"   href="../img/favicon/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="16x16"   href="../img/favicon/favicon-16x16.png" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="msapplication-TileImage" content="../img/favicon/ms-icon-144x144.png" />
+
+    <!-- ═══════════════════ CA TEMPLATE STYLES ══════════════════ -->
+    <style>
+      /* ───────────────────────────────────────────────────────────────────
+         UTILITY NAV — Nimbus Header component styles
+         (adapted from cnds-header.html; scoped to #UtilityNav)
+         ─────────────────────────────────────────────────────────────────── */
+
+      /* Semantic tokens shared by nav components */
+      :root {
+        --cnds-tooltip-bg: #525252;
+        --cnds-tooltip-color: #e8e8e8;
+        --cnds-btn-tertiary-hover-bg: #b4c8e5;
+        --cnds-btn-tertiary-hover-color: #1a4480;
+        --cnds-btn-tertiary-active-bg: #8fadd6;
+        --cnds-btn-tertiary-active-color: #112d56;
+        --cnds-btn-tertiary-focused-bg: #b4c8e5;
+        --cnds-btn-tertiary-focused-border: #112d56;
+        --cnds-btn-tertiary-focused-color: #1a4480;
+      }
+      :root, [data-cnds-theme="light"] {
+        --cnds-surface-sunken: #ebebeb;
+        --cnds-border-strong: #cccccc;
+        --cnds-list-hover-bg: #e0e0e0;
+        --cnds-list-active-bg: #2e892a;
+        --cnds-list-active-color: #fff;
+        --cnds-btn-tertiary-color: #215aab;
+        --cnds-menu-item-bg: #ffffff;
+        --cnds-menu-item-color: #4f4f4f;
+      }
+      [data-cnds-theme="dark"] {
+        --cnds-surface-sunken: #171717;
+        --cnds-border-strong: #787878;
+        --cnds-list-hover-bg: #4a4a4a;
+        --cnds-list-active-bg: #1d5a1d;
+        --cnds-list-active-color: #7dd67a;
+        --cnds-btn-tertiary-color: #6790ca;
+        --cnds-menu-item-bg: #1e1e1e;
+        --cnds-menu-item-color: #ebebeb;
+      }
+
+      /* display:flex !important overrides app.css #UtilityNav:not(:has(li)){display:none}
+         which hides the nav when there are no <li> elements (Nimbus menus use <div><a>) */
+      #UtilityNav {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        overflow-x: clip;
+        align-items: center;
+        height: 50px;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        --demo-nav-bg: var(--cnds-surface-light-200, #ebebeb);
+        --demo-nav-fg: var(--cnds-surface-light-950, #141414);
+        background-color: var(--demo-nav-bg) !important;
+        color: var(--demo-nav-fg) !important;
+        gap: 48px;
+      }
+      [data-cnds-theme="dark"] #UtilityNav {
+        --demo-nav-bg: var(--cnds-surface-dark-600, #171717);
+        --demo-nav-fg: var(--cnds-surface-dark-50, #e8e8e8);
+      }
+      #UtilityNav .fr_product-name { gap: 0; }
+      #UtilityNav .fr_product-name,
+      #UtilityNav .product-bold,
+      #UtilityNav .product-light,
+      #UtilityNav .nav-cf-utility-user,
+      #UtilityNav .user-name-label,
+      #UtilityNav .portal-switcher-label { color: var(--demo-nav-fg) !important; }
+      #UtilityNav .fr_tools { flex: 1; min-width: 0; justify-content: flex-end; }
+      #UtilityNav .nav-cf-utility-user { flex-shrink: 0; }
+
+      /* Nav Search */
+      .nav-search-wrapper { flex: 1; display: flex; align-items: center; justify-content: flex-end; gap: 8px; min-width: 0; }
+      .nav-search-panel { flex: 1; min-width: 0; overflow: hidden; max-width: 0; transition: none; display: flex; align-items: center; }
+      .nav-search-panel.open { max-width: 9999px; }
+      .nav-search-fields { display: flex; align-items: center; gap: 8px; padding-right: 4px; flex: 1; min-width: 0; }
+      .nav-search-input-wrapper { flex: 1; min-width: 0; position: relative; }
+      .form-outline-casefusion {
+        --cnds-input-focus-border-color: var(--cnds-product-casefusion-green-700, #2e892a);
+        --cnds-input-focus-box-shadow: inset 0 0 0 1px var(--cnds-product-casefusion-green-700, #2e892a);
+      }
+      [data-cnds-theme="dark"] .form-outline-casefusion {
+        --cnds-input-focus-border-color: var(--cnds-product-casefusion-green-400, #7dd67a);
+        --cnds-input-focus-box-shadow: inset 0 0 0 1px var(--cnds-product-casefusion-green-400, #7dd67a);
+      }
+      .nav-search-input::-webkit-search-cancel-button { display: none; }
+      .nav-search-clear-btn { position: absolute; top: 50%; transform: translateY(-50%); right: 6px; background: none; border: none; padding: 0; cursor: pointer; z-index: 99; line-height: 1; font-size: 1rem; display: none; align-items: center; justify-content: center; color: var(--demo-nav-fg, #4f4f4f); opacity: 0.53; }
+      .nav-search-clear-btn:hover { opacity: 0.8; }
+      .nav-search-clear-btn.visible { display: flex; }
+      .nav-search-input { height: 38px !important; padding: 0.375rem 0.75rem; font-size: 13px; color: var(--cnds-input-color, #4f4f4f); background-color: var(--cnds-input-bg, #fff); border-color: var(--cnds-input-border-color, #bdbdbd); border-radius: var(--cnds-input-border-radius, 0.25rem); }
+      .nav-search-input:focus { border-color: var(--cnds-input-focus-border-color, #2e892a); box-shadow: var(--cnds-input-focus-box-shadow, inset 0 0 0 1px #2e892a); outline: none; }
+      .nav-search-input::placeholder { color: var(--cnds-input-placeholder-color, #757575); opacity: 1; }
+      [data-cnds-theme="dark"] .nav-search-input::placeholder { color: var(--cnds-input-placeholder-color, #bebebe); }
+      .nav-search-category { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+      .nav-search-cat-label { font-size: 0.875rem; font-weight: 500; color: var(--cnds-body-color); white-space: nowrap; }
+      .nav-search-category .select-wrapper { --cnds-select-input-bg: var(--cnds-input-bg); --cnds-select-input-border-color: var(--cnds-input-border-color, #bdbdbd); --cnds-select-input-color: var(--cnds-input-color); flex-shrink: 0; }
+      .nav-search-category .select-input { height: 38px !important; padding-top: 0 !important; padding-bottom: 0 !important; padding-left: 12px !important; font-size: 13px; }
+      .nav-search-submit { height: 34px; padding: 0 12px; background: transparent; border: none; border-radius: 8px; color: var(--cnds-btn-tertiary-color, #215aab); font-size: 12px; font-weight: 800; font-family: "Nunito Sans", sans-serif; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: background 0.15s, color 0.15s; }
+      .nav-search-submit:hover { background: var(--cnds-btn-tertiary-hover-bg); color: var(--cnds-btn-tertiary-hover-color); }
+      .nav-search-submit:active { background: var(--cnds-btn-tertiary-active-bg); color: var(--cnds-btn-tertiary-active-color); }
+      .nav-search-submit:focus-visible { background: var(--cnds-btn-tertiary-focused-bg); outline: 2px solid var(--cnds-btn-tertiary-focused-border); color: var(--cnds-btn-tertiary-focused-color); }
+      .nav-search-filter-btn { width: 34px; height: 34px; padding: 0; background: transparent; border: none; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: background 0.15s; }
+      .nav-search-filter-btn .mdi { font-size: 16px; color: var(--cnds-btn-tertiary-color, #215aab); transition: color 0.15s; }
+      .nav-search-filter-btn:hover { background: var(--cnds-btn-tertiary-hover-bg); }
+      .nav-search-filter-btn:hover .mdi { color: var(--cnds-btn-tertiary-hover-color); }
+      .nav-search-filter-btn:active { background: var(--cnds-btn-tertiary-active-bg); }
+      .nav-search-filter-btn:active .mdi { color: var(--cnds-btn-tertiary-active-color); }
+      .nav-search-filter-btn:focus-visible { background: var(--cnds-btn-tertiary-focused-bg); outline: 2px solid var(--cnds-btn-tertiary-focused-border); }
+      .nav-search-toggle { width: 32px; height: 32px; padding: 0; background: none; border: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: background 0.2s; }
+      .nav-search-toggle .mdi { font-size: 24px; color: var(--demo-nav-fg, #4f4f4f); transition: color 0.2s; }
+      .nav-search-toggle.active { background: var(--cnds-link-color, #215aab); }
+      .nav-search-toggle.active .mdi { color: #fff; }
+
+      /* Utility Divider */
+      .utility-divider { display: inline-block; width: 1px; height: 24px; background: var(--demo-nav-fg, #e0e0e0); opacity: 0.25; flex-shrink: 0; }
+
+      /* Nav Icon Button */
+      .nav-icon-btn { position: relative; background: none; border: none; cursor: pointer; padding: 4px; display: flex; align-items: center; border-radius: 4px; flex-shrink: 0; }
+      .nav-icon-btn .mdi { font-size: 24px; color: var(--demo-nav-fg, #4f4f4f); }
+
+      /* Portal Switcher */
+      .portal-switcher-wrapper { position: relative; display: flex; align-items: center; height: 32px; flex-shrink: 0; white-space: nowrap; }
+      .portal-switcher { display: inline-flex; align-items: center; gap: 4px; font-size: 0.875rem; color: var(--demo-nav-fg, #4f4f4f); cursor: pointer; flex-shrink: 0; white-space: nowrap; }
+      .portal-switcher .mdi { color: var(--demo-nav-fg, #4f4f4f); flex-shrink: 0; }
+      .portal-switcher-label, .user-name-label { overflow: hidden; white-space: nowrap; max-width: 200px; line-height: normal; }
+      .nav-labels-collapsed .portal-switcher-label, .nav-labels-collapsed .user-name-label { max-width: 0; }
+      .nav-labels-collapsing .portal-switcher-label, .nav-labels-collapsing .user-name-label { transition: max-width 0.4s ease-in; }
+      @media (prefers-reduced-motion: reduce) {
+        .nav-labels-collapsing .portal-switcher-label, .nav-labels-collapsing .user-name-label { transition: none; }
+      }
+
+      /* User Info */
+      .user-info-wrapper { position: relative; display: flex; align-items: center; height: 32px; flex-shrink: 0; white-space: nowrap; }
+      .user-info { display: inline-flex; align-items: center; gap: 8px; font-size: 0.875rem; color: var(--demo-nav-fg, #4f4f4f); white-space: nowrap; cursor: pointer; flex-shrink: 0; }
+      .user-name-label { flex-shrink: 0; }
+      .user-avatar { width: 24px; height: 24px; border-radius: 12px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: var(--cnds-product-casefusion-green-500, #5ccb59); color: #030303; font-family: "Nunito Sans", sans-serif; font-weight: 700; font-size: 12px; letter-spacing: -0.5px; line-height: 1; box-sizing: border-box; user-select: none; }
+
+      /* Account / Portal Dropdown Menu */
+      .account-menu { display: none; position: absolute; top: calc(100% + 12px); right: 0; min-width: 180px; background: var(--cnds-menu-item-bg); border: 1px solid var(--cnds-border-strong); border-radius: 8px; box-shadow: 0 2px 15px -3px rgba(0,0,0,.07), 0 10px 20px -2px rgba(0,0,0,.04), 0 0 60px 10px rgba(0,0,0,.2); z-index: 1000; flex-direction: column; }
+      .account-menu.open { display: flex; }
+      .account-menu::before { content: ""; position: absolute; top: -9px; right: var(--menu-arrow-outer, 12px); width: 0; height: 0; border-style: solid; border-width: 0 8px 9px 8px; border-color: transparent transparent var(--cnds-border-strong) transparent; }
+      .account-menu::after  { content: ""; position: absolute; top: -7px; right: var(--menu-arrow-inner, 13px); width: 0; height: 0; border-style: solid; border-width: 0 7px 8px 7px; border-color: transparent transparent var(--cnds-surface-sunken) transparent; }
+      .account-menu-header { background: var(--cnds-surface-sunken); padding: 12.5px 16px; font-family: "Nunito Sans", sans-serif; font-weight: 700; font-size: 0.875rem; letter-spacing: 1.4px; text-transform: uppercase; color: var(--cnds-body-color); line-height: 1.4; border-radius: 8px 8px 0 0; }
+      .account-menu-item { background: var(--cnds-menu-item-bg) !important; padding: 6px 16px; height: 44px; display: flex; align-items: center; font-family: "Nunito Sans", sans-serif; font-weight: 400; font-size: 0.875rem; color: var(--cnds-menu-item-color) !important; line-height: 1.2; cursor: pointer; text-decoration: none; transition: background 0.15s ease; }
+      .account-menu-item:last-child { border-radius: 0 0 8px 8px; }
+      .account-menu-item:hover { background: var(--cnds-list-hover-bg) !important; }
+      .account-menu-item.active { background: var(--cnds-list-active-bg) !important; color: var(--cnds-list-active-color) !important; }
+
+      /* Nav Alert Popover Wrapper */
+      .nav-alert-popover-wrapper { position: relative; display: flex; align-items: center; }
+
+      /* Notification Popover */
+      .notif-popover { position: fixed; left: 0; bottom: 16px; width: 400px; max-height: 480px; z-index: 1060; display: none; flex-direction: column; border: 1px solid var(--cnds-border-strong); border-radius: 8px; overflow: visible; background: var(--cnds-body-bg, #fff); box-shadow: 0 2px 15px -3px rgba(0,0,0,.07), 0 10px 20px -2px rgba(0,0,0,.04), 0 0 60px 10px rgba(0,0,0,.2); font-family: "Nunito Sans", sans-serif; color: var(--cnds-body-color, #4f4f4f); }
+      .notif-popover.open { display: flex; }
+      .notif-popover::before { content: ""; position: absolute; top: -9px; left: var(--arrow-left, 12px); width: 0; height: 0; border-style: solid; border-width: 0 8px 9px 8px; border-color: transparent transparent var(--cnds-border-strong) transparent; z-index: 1; }
+      .notif-popover::after  { content: ""; position: absolute; top: -7px; left: calc(var(--arrow-left, 12px) + 1px); width: 0; height: 0; border-style: solid; border-width: 0 7px 8px 7px; border-color: transparent transparent var(--cnds-surface-sunken) transparent; z-index: 2; }
+      .notif-header { display: flex; align-items: flex-start; justify-content: space-between; padding: 12px 16px; background: var(--cnds-surface-sunken); border-radius: 8px 8px 0 0; flex-shrink: 0; position: relative; z-index: 1; }
+      .notif-header.scrolled::after { content: ""; position: absolute; left: 0; right: 0; bottom: -12px; height: 12px; background: linear-gradient(to bottom, rgba(0,0,0,.45), transparent); pointer-events: none; }
+      .notif-header-title { font-weight: 700; font-size: 0.875rem; letter-spacing: 1.4px; text-transform: uppercase; line-height: 1.4; color: var(--cnds-body-color, #4f4f4f); }
+      .notif-header-counts { display: flex; align-items: center; gap: 8px; font-weight: 400; font-size: 12px; line-height: 1.43; color: var(--cnds-body-color, #4f4f4f); }
+      .notif-header-divider { display: inline-block; width: 1px; height: 16px; background: var(--cnds-border-strong); }
+      .notif-list { flex: 1 1 auto; overflow-y: auto; overflow-x: hidden; min-height: 0; border-radius: 0 0 8px 8px; }
+      .notif-list::-webkit-scrollbar { width: 8px; }
+      .notif-list::-webkit-scrollbar-track { background: transparent; }
+      .notif-list::-webkit-scrollbar-thumb { background: transparent; border-radius: 4px; }
+      .notif-list:hover::-webkit-scrollbar-thumb { background: var(--cnds-border-strong); }
+      .notif-list:hover::-webkit-scrollbar-track { background: var(--cnds-input-bg, #fff); }
+      .notif-item { position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 16px 8px 16px 16px; border-top: 1px solid var(--cnds-border-strong); background: var(--cnds-body-bg, #fff); }
+      .notif-unread-dot { display: none; }
+      .notif-item.unread .notif-unread-dot { display: block; position: absolute; left: 5px; top: 4px; width: 8px; height: 8px; border-radius: 999px; background: #c23400; pointer-events: none; }
+      .notif-item.unread .notif-subject { font-weight: 700; }
+      .notif-item.unread .notif-timestamp { font-weight: 700; }
+      .notif-item-label { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; }
+      .notif-subject { font-weight: 400; font-size: 0.875rem; line-height: 1.2; color: var(--cnds-body-color, #4f4f4f); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .notif-timestamp { font-weight: 400; font-size: 10px; line-height: 1.43; color: var(--cnds-text-muted, #757575); }
+      .notif-expand, .notif-dismiss { flex-shrink: 0; display: flex; align-items: center; justify-content: center; border: none; background: transparent; cursor: pointer; padding: 0; color: var(--cnds-link-color, #215aab); }
+      .notif-expand { width: 24px; height: 24px; font-size: 24px; }
+      .notif-dismiss { width: 20px; height: 20px; font-size: 18px; }
+      .notif-expand:hover, .notif-dismiss:hover { opacity: 0.75; }
+      .notif-item-message { display: none; flex-basis: 100%; font-size: 12px; line-height: 1.1; color: var(--cnds-body-color, #4f4f4f); padding-right: 52px; }
+      .notif-item.expanded .notif-item-message { display: block; }
+      .notif-item.expanded .notif-expand::before { content: "\F0143"; }
+
+      /* Bell Badge */
+      .nav-bell-badge { position: absolute; top: calc(50% - 1px); left: 50%; transform: translate(-50%,-50%); display: flex; align-items: center; justify-content: center; min-width: 14px; height: 12px; padding: 0 5px; border-radius: 2px; background: #c23400; color: #e8e8e8; font-family: "Nunito Sans", sans-serif; font-weight: 700; font-size: 10px; line-height: 1; letter-spacing: 0.2px; text-align: center; white-space: nowrap; pointer-events: none; }
+      .nav-bell-badge:empty, .nav-bell-badge.hidden { display: none; }
+
+      /* Nav tooltips use the Nimbus 1 .tooltip component (data-cnds-toggle="tooltip"). */
+
+      /* ───────────────────────────────────────────────────────────────────
+         MAIN NAV  — Nimbus 1 application tab bar
+         The <nav> element gets frame-bg + border-radius; the wrapper has no background.
+         The tab bar is transparent so the nav fill is the single background source.
+         ─────────────────────────────────────────────────────────────────── */
+      .ca-main-nav-wrapper {
+        padding: 8px;
+      }
+      .ca-main-nav-wrapper nav {
+        background: var(--cnds-surface-light-200, #ebebeb);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      [data-cnds-theme="dark"] .ca-main-nav-wrapper nav {
+        background: var(--cnds-surface-dark-600, #171717);
+      }
+      .ca-main-nav-wrapper .nav-item {
+        display: flex;
+        align-items: stretch;
+      }
+      .ca-main-nav-wrapper .nav-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .ca-main-nav-wrapper .nav-tabs-nimbus {
+        --nimbus-tab-bg: transparent;
+        border-radius: 8px;
+        border-bottom: none;
+        padding-left: 8px;
+        padding-right: 8px;
+        overflow: hidden;
+        overflow-x: auto;
+        scrollbar-width: thin;
+      }
+      /* Light-only: transparent tab bar so <nav> background shows through;
+         correct hover, border, text and indicator colours. */
+      :root:not([data-cnds-theme="dark"]) .ca-main-nav-wrapper .nav-tabs-nimbus {
+        --nimbus-tab-bg:       transparent;
+        --nimbus-tab-hover-bg: var(--cnds-surface-light-300, #e0e0e0);
+        --nimbus-tab-border:   var(--cnds-surface-light-300, #e0e0e0);
+        --nimbus-tab-text:     var(--cnds-body-color, #4f4f4f);
+        --nimbus-tab-indicator: #5ccb59;
+      }
+
+      /* ───────────────────────────────────────────────────────────────────
+         CONTENT AREA  — margin-left offset is set in the sidenav section
+         ─────────────────────────────────────────────────────────────────── */
+      .ca-main { padding: 16px 16px 24px; }
+
+      /* ───────────────────────────────────────────────────────────────────
+         PLACEHOLDER  (remove in production)
+         ─────────────────────────────────────────────────────────────────── */
+      .ca-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 400px;
+        border: 2px dashed var(--cnds-border-color);
+        border-radius: 8px;
+        color: var(--cnds-secondary-color, #6c757d);
+        font-size: 14px;
+        text-align: center;
+        padding: 40px;
+      }
+
+      /* ───────────────────────────────────────────────────────────────────
+         SIDE NAV  — Fixed left panel (always visible, viewport height)
+         ─────────────────────────────────────────────────────────────────── */
+      :root {
+        --ca-sidenav-width: 240px;
+        --ca-sidenav-slim-width: 70px;
+        --ca-sidenav-inset: 16px;   /* gap from viewport left + bottom edges */
+      }
+
+      /* Override the base .sidenav transform — this nav is always open */
+      #caSidenav {
+        transform: none !important;
+        position: fixed;
+        top: 0; /* JS: set to header.offsetHeight + 16px gap on load and resize */
+        left: var(--ca-sidenav-inset);
+        bottom: var(--ca-sidenav-inset);
+        height: auto; /* override base height:100vh so top+bottom control the height */
+        width: var(--ca-sidenav-width);
+        border-radius: 12px;
+        z-index: 1015; /* below sticky header (1020) so header sits above it */
+        overflow-y: auto;
+        overflow-x: hidden;
+        transition: width 0.3s ease-in-out;
+        padding: 0;
+        box-shadow: none; /* suppress base .sidenav shadow from sidenav.css */
+        --cnds-sidenav-bg: var(--cnds-frame-bg, #ebebeb);
+        background-color: var(--cnds-sidenav-bg);
+        border: 1px solid var(--cnds-border-color, rgba(0,0,0,0.1));
+      }
+      [data-cnds-theme="dark"] #caSidenav {
+        border-color: rgba(255,255,255,0.08);
+      }
+
+      /* Slim mode — icon-only ribbon */
+      #caSidenav.ca-sidenav-slim {
+        width: var(--ca-sidenav-slim-width);
+      }
+
+      /* MAIN CONTENT — offset right of the fixed sidenav (inset + width + 16px gap) */
+      .ca-main {
+        margin-left: calc(var(--ca-sidenav-inset) + var(--ca-sidenav-width) + 16px);
+        transition: margin-left 0.3s ease-in-out;
+      }
+      .ca-main.ca-sidenav-slim {
+        margin-left: calc(var(--ca-sidenav-inset) + var(--ca-sidenav-slim-width) + 16px);
+      }
+
+      /* ── Sidebar header (toggle button row) ── */
+      #caSidenav .sidebar-header {
+        display: flex;
+        align-items: stretch;
+        height: 50px;
+        padding: 0;
+        background-color: var(--cnds-sidenav-bg);
+        flex-shrink: 0;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+      }
+
+      /* ── Slim toggle button — full-width, icon pinned to padding-left: 1rem ── */
+      #caSidenav .ca-nav-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        width: 100%;
+        height: 100%;
+        padding: 0 0 0 24px;
+        background: none;
+        border: none;
+        border-radius: 0;
+        cursor: pointer;
+        color: var(--cnds-body-color, #4f4f4f);
+        transition: background 0.15s;
+      }
+      #caSidenav .ca-nav-toggle .mdi { font-size: 20px; line-height: 1; flex-shrink: 0; }
+      [data-cnds-theme="dark"] #caSidenav .ca-nav-toggle { color: var(--cnds-surface-light-200, #ebebeb); }
+      #caSidenav .ca-nav-toggle:focus-visible { outline: 2px solid var(--cnds-focus-ring-color, #005fcc); outline-offset: 2px; }
+
+      /* ── Sidenav section label ── */
+      #caSidenav .sidenav-subheading {
+        color: var(--cnds-text-muted, #757575);
+        white-space: nowrap;
+        overflow: hidden;
+        padding-top: 0.75rem;
+      }
+      /* ── Sidenav link base ── */
+      #caSidenav .sidenav-link {
+        color: var(--cnds-body-color, #4f4f4f);
+        text-decoration: none;
+        white-space: nowrap;
+        padding-left: 22px;
+      }
+      #caSidenav .sidenav-link span:not(.sidenav-chevron),
+      #caSidenav .sidenav-subheading {
+        opacity: 1;
+        max-width: 200px;
+        overflow: hidden;
+        transition: opacity 0.2s ease-in 0.1s, max-width 0s 0s;
+      }
+      [data-cnds-theme="dark"] #caSidenav .sidenav-link {
+        color: var(--cnds-surface-light-300, #d4d4d4);
+      }
+      #caSidenav .sidenav-link:hover {
+        background: rgba(0,0,0,0.05);
+        color: var(--cnds-body-color, #4f4f4f);
+      }
+      [data-cnds-theme="dark"] #caSidenav .sidenav-link:hover {
+        background: rgba(255,255,255,0.06);
+        color: #fff;
+      }
+
+      /* ── Active link — CF green accent bar ── */
+      #caSidenav .sidenav-link.active {
+        box-shadow: inset 3px 0 0 #5ccb59;
+        background: rgba(92,203,89,0.1);
+        color: #236e21;
+        font-weight: 600;
+      }
+      [data-cnds-theme="dark"] #caSidenav .sidenav-link.active {
+        box-shadow: inset 3px 0 0 #7dd67a;
+        background: rgba(92,203,89,0.12);
+        color: #7dd67a;
+      }
+      #caSidenav .sidenav-link.active:hover {
+        background: rgba(92,203,89,0.15);
+        color: #236e21;
+      }
+      [data-cnds-theme="dark"] #caSidenav .sidenav-link.active:hover {
+        background: rgba(92,203,89,0.18);
+        color: #7dd67a;
+      }
+
+      /* ── Slim mode: hide labels, clear icon margin — no position changes ── */
+      /* Icons stay at padding-left: 1rem in both states; 16px left + 24px icon + 16px right
+         = naturally centered in 70px without any justify-content or padding override.
+         Never change justify-content or padding-left here — the width transition would
+         cause the icon to jump to a new flex position in the full-width container first. */
+      #caSidenav.ca-sidenav-slim .sidenav-link span:not(.sidenav-chevron),
+      #caSidenav.ca-sidenav-slim .sidenav-subheading { opacity: 0; max-width: 0; overflow: hidden; transition: opacity 0.2s ease-out, max-width 0s 0.2s; }
+      #caSidenav.ca-sidenav-slim .sidenav-link { padding-left: 22px; padding-right: 4px; }
+      #caSidenav.ca-sidenav-slim .sidenav-chevron { transform: translateY(-50%) rotate(0deg) !important; }
+      #caSidenav.ca-sidenav-slim .sidenav-collapse { display: none !important; }
+      #caSidenav.ca-sidenav-slim .sidenav-link i,
+      #caSidenav.ca-sidenav-slim .sidenav-link .mdi { margin-right: 0 !important; }
+
+      /* ── Sub-items (sidenav-collapse children) ── */
+      /* In the Nimbus reference all links (parent + child) carry ps-4 (1.5rem !important),
+         so child icons align with parent icons — not further indented. Match that here. */
+      #caSidenav .sidenav-collapse .sidenav-link {
+        font-size: 0.78rem;
+        height: 2.25rem;
+        padding-left: 22px;
+      }
+
+      /* ── Category toggle with active child — product highlight, no accent bar ── */
+      #caSidenav .sidenav-link[data-cnds-toggle="sidenav-collapse"].active {
+        background: rgba(92,203,89,0.1);
+        color: #236e21;
+        font-weight: 600;
+        box-shadow: none; /* suppress the accent bar that .sidenav-link.active would add */
+      }
+      [data-cnds-theme="dark"] #caSidenav .sidenav-link[data-cnds-toggle="sidenav-collapse"].active {
+        background: rgba(92,203,89,0.12);
+        color: #7dd67a;
+        box-shadow: none;
+      }
+
+      /* ── Divider ── */
+      #caSidenav .sidenav-divider {
+        border-top-color: var(--cnds-border-color, rgba(0,0,0,0.1));
+      }
+      [data-cnds-theme="dark"] #caSidenav .sidenav-divider {
+        border-top-color: rgba(255,255,255,0.1);
+      }
+
+      /* ── Scrollbar — subtle on hover ── */
+      #caSidenav::-webkit-scrollbar { width: 4px; }
+      #caSidenav::-webkit-scrollbar-track { background: transparent; }
+      #caSidenav::-webkit-scrollbar-thumb { background: transparent; border-radius: 4px; }
+      #caSidenav:hover::-webkit-scrollbar-thumb { background: var(--cnds-border-strong, #ccc); }
+      #caSidenav { scrollbar-width: thin; scrollbar-color: transparent transparent; }
+      #caSidenav:hover { scrollbar-color: var(--cnds-border-strong, #ccc) transparent; }
+
+      /* ───────────────────────────────────────────────────────────────────
+         STICKY FOOTER — pins the Nimbus 1 .cf-footer to the viewport bottom
+         ─────────────────────────────────────────────────────────────────── */
+      #caFooter {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 1020;
+      }
+    </style>
+  </head>
+
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         SIDE NAV — fixed, below header, left of content; scrolls within
+         ════════════════════════════════════════════════════════════════ -->
+    <nav id="caSidenav" class="sidenav" aria-label="Application navigation">
+
+      <!-- Header: slim/expand toggle -->
+      <div class="sidebar-header">
+        <button
+          type="button"
+          id="caSidenavToggle"
+          class="ca-nav-toggle"
+          aria-label="Collapse navigation"
+          aria-expanded="true"
+          aria-controls="caSidenav"
+        >
+          <span class="mdi mdi-menu-open" aria-hidden="true"></span>
+        </button>
+      </div>
+
+      <!-- Navigation menu -->
+      <ul class="sidenav-menu" id="caSidenavMenu">
+
+        <li class="sidenav-item" title="CaseCategories" data-original-title="CaseCategories">
+          <a id="navlink_CaseCategories" class="sidenav-link active"
+             data-ca-tab="tab-case-categories-btn" href="#" aria-current="page">
+            <i class="mdi mdi-folder-multiple mdi-18px me-2" aria-hidden="true"></i>
+            <span>Case Categories</span>
+          </a>
+        </li>
+
+        <li class="sidenav-item" title="CustodianGroups" data-original-title="CustodianGroups">
+          <a id="navlink_CustodianGroups" class="sidenav-link"
+             data-ca-tab="tab-custodian-groups-btn" href="#">
+            <i class="mdi mdi-account-group mdi-18px me-2" aria-hidden="true"></i>
+            <span>Custodian Groups</span>
+          </a>
+        </li>
+
+        <li class="sidenav-item" title="EscalationSettings" data-original-title="EscalationSettings">
+          <a id="navlink_EscalationSettings" class="sidenav-link"
+             data-ca-tab="tab-escalation-settings-btn" href="#">
+            <i class="mdi mdi-alert-octagon mdi-18px me-2" aria-hidden="true"></i>
+            <span>Escalation Settings</span>
+          </a>
+        </li>
+
+        <li class="sidenav-item" title="LanguageManagement" data-original-title="LanguageManagement">
+          <a id="tog_submenu_LanguageManagement" class="sidenav-link"
+             data-cnds-toggle="sidenav-collapse" aria-expanded="false">
+            <i class="mdi mdi-translate mdi-18px me-2" aria-hidden="true"></i>
+            <span>Language Management</span>
+            <span class="mdi mdi-chevron-down sidenav-chevron" aria-hidden="true"></span>
+          </a>
+          <ul class="sidenav-collapse">
+            <li class="sidenav-item" title="Languages" data-original-title="Languages">
+              <a id="navlink_Languages" class="sidenav-link"
+                 data-ca-tab="tab-languages-btn" href="#">
+                <i class="mdi mdi-translate-variant mdi-18px me-2" aria-hidden="true"></i>
+                <span>Languages</span>
+              </a>
+            </li>
+            <li class="sidenav-item" title="LanguageTexts" data-original-title="LanguageTexts">
+              <a id="navlink_LanguageTexts" class="sidenav-link"
+                 data-ca-tab="tab-language-texts-btn" href="#">
+                <i class="mdi mdi-google-translate mdi-18px me-2" aria-hidden="true"></i>
+                <span>Language Texts</span>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <li class="sidenav-item" title="Properties" data-original-title="Properties">
+          <a id="navlink_Properties" class="sidenav-link"
+             data-ca-tab="tab-properties-btn" href="#">
+            <i class="mdi mdi-tune-variant mdi-18px me-2" aria-hidden="true"></i>
+            <span>Properties</span>
+          </a>
+        </li>
+
+        <li class="sidenav-item" title="Surveys" data-original-title="Surveys">
+          <a id="navlink_Surveys" class="sidenav-link"
+             data-ca-tab="tab-surveys-btn" href="#">
+            <i class="mdi mdi-clipboard-check-multiple mdi-18px me-2" aria-hidden="true"></i>
+            <span>Surveys</span>
+          </a>
+        </li>
+
+        <li class="sidenav-item" title="Tags" data-original-title="Tags">
+          <a id="navlink_Tags" class="sidenav-link"
+             data-ca-tab="tab-tags-btn" href="#">
+            <i class="mdi mdi-tag-multiple mdi-18px me-2" aria-hidden="true"></i>
+            <span>Tags</span>
+          </a>
+        </li>
+
+        <li class="sidenav-item" title="TextTemplates" data-original-title="TextTemplates">
+          <a id="navlink_TextTemplates" class="sidenav-link"
+             data-ca-tab="tab-text-templates-btn" href="#">
+            <i class="mdi mdi-receipt-text-edit mdi-18px me-2" aria-hidden="true"></i>
+            <span>Text Templates</span>
+          </a>
+        </li>
+
+      </ul>
+    </nav><!-- /#caSidenav -->
+
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         STICKY HEADER
+         ════════════════════════════════════════════════════════════════ -->
+    <div class="sticky-top" id="caHeader">
+
+      <!-- ─────────────────────────────────────────────────────────────────
+           UTILITY NAV
+           Using .nav-cf-utility from app.css with its .fr_logo / .fr_tools
+           sub-structure.
+           ───────────────────────────────────────────────────────────────── -->
+      <nav class="nav nav-cf-utility" id="UtilityNav" aria-label="Utility navigation">
+        <div class="fr_logo">
+          <div style="width:36px;height:36px;border-radius:50%;background:#5ccb59;display:flex;align-items:center;justify-content:center;font-family:'Nunito Sans',sans-serif;font-size:9px;font-weight:800;color:#030303;letter-spacing:0.5px;line-height:1;text-align:center;flex-shrink:0;" aria-hidden="true">LOGO</div>
+          <div class="fr_product-name">
+            <span class="product-bold">CLIENT</span>
+            <span class="product-light">NAME</span>
+          </div>
+        </div>
+        <div class="fr_tools">
+          <div class="nav-search-wrapper" id="navSearchWrapper">
+            <div class="nav-search-panel" id="navSearchPanel" aria-hidden="true">
+              <div class="nav-search-fields">
+                <div class="form-outline-casefusion nav-search-input-wrapper">
+                  <input type="search" class="form-control nav-search-input" id="navSearchInput" placeholder="Search …" aria-label="Search" />
+                  <button type="button" class="nav-search-clear-btn" id="navSearchClearBtn" aria-label="Clear search" tabindex="-1"><i class="mdi mdi-close-circle mdi-18px" aria-hidden="true"></i></button>
+                </div>
+                <div class="nav-search-category">
+                  <span class="nav-search-cat-label">Topic</span>
+                  <select id="navSearchCategory"
+                    multiple
+                    aria-label="Topic"
+                    data-cnds-select-init
+                    data-cnds-placeholder="All"
+                    data-cnds-clear-button="true"
+                    data-cnds-count-label="topics">
+                    <option value="" data-cnds-all-option selected>All</option>
+                    <option value="cases">Cases</option>
+                    <option value="documents">Documents</option>
+                    <option value="parties">Parties</option>
+                  </select>
+                </div>
+                <button class="nav-search-submit" id="navSearchSubmit">Search</button>
+                <button class="nav-search-filter-btn" id="navSearchFilter" aria-label="Advanced Search" data-cnds-toggle="tooltip" data-cnds-placement="bottom" data-cnds-delay="0" title="Advanced Search"><span class="mdi mdi-tune" aria-hidden="true"></span></button>
+              </div>
+            </div>
+            <button class="nav-search-toggle" id="globalSearchBtn" aria-label="Open search" aria-expanded="false" aria-controls="navSearchPanel" data-cnds-toggle="tooltip" data-cnds-placement="bottom" data-cnds-delay="0" title="Open search"><span class="mdi mdi-magnify" aria-hidden="true"></span></button>
+          </div>
+          <span class="utility-divider" aria-hidden="true"></span>
+          <div class="nav-alert-popover-wrapper" id="navAlertWrapper">
+            <button class="nav-icon-btn" id="navBellBtn" aria-label="Notifications" aria-haspopup="dialog" aria-expanded="false" aria-controls="navAlertPopover" data-cnds-toggle="tooltip" data-cnds-placement="bottom" data-cnds-delay="0" title="Notifications">
+              <span class="mdi mdi-bell" id="navBellIcon" aria-hidden="true"></span>
+              <span class="nav-bell-badge" id="navBellBadge" aria-live="polite" aria-atomic="true"></span>
+            </button>
+            <div class="notif-popover" id="navAlertPopover" role="dialog" aria-label="Notifications" aria-modal="true" aria-hidden="true">
+              <div class="notif-header">
+                <span class="notif-header-title">Notifications</span>
+                <div class="notif-header-counts">
+                  <span class="notif-count-unread">0 Unread</span>
+                  <span class="notif-header-divider"></span>
+                  <span class="notif-count-total">0 Total</span>
+                </div>
+              </div>
+              <div class="notif-list" id="notifList"></div>
+            </div>
+          </div>
+          <span class="utility-divider" aria-hidden="true"></span>
+          <button class="nav-icon-btn" id="themeToggle" data-cnds-toggle="theme" aria-label="Toggle theme" title="Switch to light theme">
+            <span class="mdi mdi-weather-night"></span>
+          </button>
+          <span class="utility-divider" aria-hidden="true"></span>
+          <div class="portal-switcher-wrapper" id="portalSwitcherWrapper">
+            <span class="portal-switcher" id="portalSwitcherToggle" role="button" tabindex="0" aria-haspopup="menu" aria-expanded="false" aria-controls="portalMenu">
+              <span class="mdi mdi-account-switch-outline" style="font-size:24px" aria-hidden="true"></span>
+              <span class="portal-switcher-label">{{Portal Name}}</span>
+              <span id="portalChevron" class="mdi mdi-chevron-down" style="font-size:24px" aria-hidden="true"></span>
+            </span>
+            <div class="account-menu" id="portalMenu" role="menu" aria-hidden="true">
+              <div class="account-menu-header">Portal</div>
+              <a class="account-menu-item active" href="#!" role="menuitem">Tenant/Case Portal</a>
+              <a class="account-menu-item" href="#!" role="menuitem">Custodian Portal</a>
+              <a class="account-menu-item" href="#!" role="menuitem">SME Portal</a>
+            </div>
+          </div>
+          <span class="utility-divider" aria-hidden="true"></span>
+          <div class="user-info-wrapper" id="userAccountWrapper">
+            <span class="user-info" id="userAccountToggle" role="button" tabindex="0" aria-haspopup="menu" aria-expanded="false" aria-controls="accountMenu">
+              <span class="user-avatar" aria-hidden="true">FL</span>
+              <span class="user-name-label">{{User Name}}</span>
+            </span>
+            <div class="account-menu" id="accountMenu" role="menu" aria-hidden="true">
+              <div class="account-menu-header">Account</div>
+              <a class="account-menu-item" href="#!" role="menuitem">Preferences</a>
+              <a class="account-menu-item" href="#!" role="menuitem">Sign Out</a>
+            </div>
+          </div>
+        </div><!-- /.fr_tools -->
+      </nav><!-- /#UtilityNav -->
+
+      <!-- ─────────────────────────────────────────────────────────────────
+           MAIN NAV  (tabbed primary navigation)
+           ───────────────────────────────────────────────────────────────── -->
+      <div class="ca-main-nav-wrapper">
+        <nav aria-label="Primary navigation">
+          <ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-casefusion" id="caMainNav" role="tablist">
+
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link"
+                id="tab-dashboard-btn"
+                type="button"
+                role="tab"
+                data-cnds-toggle="tab"
+                data-cnds-target="#tab-dashboard"
+                aria-controls="tab-dashboard"
+                aria-selected="false"
+                tabindex="-1"
+              >
+                <i class="mdi mdi-view-dashboard" aria-hidden="true"></i>Dashboard
+              </button>
+            </li>
+
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link"
+                id="tab-my-cases-btn"
+                type="button"
+                role="tab"
+                data-cnds-toggle="tab"
+                data-cnds-target="#tab-my-cases"
+                aria-controls="tab-my-cases"
+                aria-selected="false"
+                tabindex="-1"
+              >
+                <i class="mdi mdi-folder-account" aria-hidden="true"></i>My Cases
+              </button>
+            </li>
+
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link"
+                id="tab-tenants-btn"
+                type="button"
+                role="tab"
+                data-cnds-toggle="tab"
+                data-cnds-target="#tab-tenants"
+                aria-controls="tab-tenants"
+                aria-selected="false"
+                tabindex="-1"
+              >
+                <i class="mdi mdi-home-account" aria-hidden="true"></i>Tenants
+              </button>
+            </li>
+
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link active"
+                id="tab-admin-btn"
+                type="button"
+                role="tab"
+                data-cnds-toggle="tab"
+                data-cnds-target="#tab-admin"
+                aria-controls="tab-admin"
+                aria-selected="true"
+              >
+                <i class="mdi mdi-key-chain-variant" aria-hidden="true"></i>Admin
+              </button>
+            </li>
+
+          </ul>
+        </nav>
+      </div>
+
+      <!-- ─────────────────────────────────────────────────────────────────
+           PAGE TITLE BAR
+           ───────────────────────────────────────────────────────────────── -->
+      <div class="ca-title-bar">
+        <button
+          class="btn btn-link p-0 lh-1"
+          id="caBackBtn"
+          aria-label="Go back"
+          style="color: var(--cnds-link-color, #6790ca);"
+        >
+          <i class="mdi mdi-arrow-left-circle mdi-20px" aria-hidden="true"></i>
+        </button>
+        <span class="ca-page-title" id="caPageTitle">{{Page Title}}</span>
+        <div class="ca-title-divider" aria-hidden="true"></div>
+        <span class="ca-page-section" id="caPageSection">{{Section}}</span>
+        <div class="ca-title-stripe" aria-hidden="true">
+          <div class="ca-title-stripe-line"></div>
+        </div>
+      </div>
+
+    </div><!-- /#caHeader / .sticky-top -->
+
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         MAIN CONTENT  — tab-pane per primary nav item
+         Angular: replace tab-content with <router-outlet />
+         ════════════════════════════════════════════════════════════════ -->
+    <main id="main-content" class="ca-main">
+      <div class="d-block d-md-none mb-3">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>
+          This application is not optimised for small screens. Use a large tablet, laptop, or desktop to continue.
+        </div>
+      </div>
+
+      <div class="tab-content">
+
+        <!-- ── Dashboard ── -->
+        <div
+          class="tab-pane fade"
+          id="tab-dashboard"
+          role="tabpanel"
+          aria-labelledby="tab-dashboard-btn"
+        >
+
+          <!-- Stat cards row -->
+          <div class="row g-3 mb-4">
+            <div class="col-12 col-md-3">
+              <div class="card h-100">
+                <div class="card-body">
+                  <div class="text-muted small mb-1">Active Cases</div>
+                  <div class="fs-3 fw-bold">142</div>
+                  <div class="text-muted small mt-1"><i class="mdi mdi-arrow-up text-success"></i> 8 this week</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-md-3">
+              <div class="card h-100">
+                <div class="card-body">
+                  <div class="text-muted small mb-1">Pending Reviews</div>
+                  <div class="fs-3 fw-bold">37</div>
+                  <div class="text-muted small mt-1"><i class="mdi mdi-arrow-down text-danger"></i> 3 overdue</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-md-3">
+              <div class="card h-100">
+                <div class="card-body">
+                  <div class="text-muted small mb-1">Custodians on Hold</div>
+                  <div class="fs-3 fw-bold">289</div>
+                  <div class="text-muted small mt-1"><i class="mdi mdi-minus text-muted"></i> No change</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-md-3">
+              <div class="card h-100">
+                <div class="card-body">
+                  <div class="text-muted small mb-1">Collections in Progress</div>
+                  <div class="fs-3 fw-bold">14</div>
+                  <div class="text-muted small mt-1"><i class="mdi mdi-arrow-up text-success"></i> 2 started today</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent cases table -->
+          <div class="card mb-4">
+            <div class="card-header fw-bold">Recent Cases</div>
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead>
+                  <tr>
+                    <th>Case ID</th>
+                    <th>Case Name</th>
+                    <th>Tenant</th>
+                    <th>Status</th>
+                    <th>Assigned To</th>
+                    <th>Last Modified</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>CF-2026-0441</td><td>Doe v. Acme Corporation</td><td>Acme Corp</td><td><span class="badge bg-success">Active</span></td><td>J. Rivera</td><td>May 7, 2026</td></tr>
+                  <tr><td>CF-2026-0438</td><td>SEC Investigation — Q1 2026</td><td>Meridian Financial</td><td><span class="badge bg-warning text-dark">Under Review</span></td><td>S. Patel</td><td>May 6, 2026</td></tr>
+                  <tr><td>CF-2026-0435</td><td>Employment Dispute — Chen</td><td>Vertex Holdings</td><td><span class="badge bg-success">Active</span></td><td>A. Kowalski</td><td>May 6, 2026</td></tr>
+                  <tr><td>CF-2026-0429</td><td>IP Theft — Internal</td><td>NovaTech Solutions</td><td><span class="badge bg-danger">Escalated</span></td><td>M. Thompson</td><td>May 5, 2026</td></tr>
+                  <tr><td>CF-2026-0421</td><td>Regulatory Audit — GDPR</td><td>EuroLink GmbH</td><td><span class="badge bg-secondary">On Hold</span></td><td>L. Nguyen</td><td>May 4, 2026</td></tr>
+                  <tr><td>CF-2026-0418</td><td>Contract Dispute — Phase II</td><td>Pinnacle Group</td><td><span class="badge bg-success">Active</span></td><td>J. Rivera</td><td>May 4, 2026</td></tr>
+                  <tr><td>CF-2026-0412</td><td>Whistleblower — Finance Dept</td><td>Acme Corp</td><td><span class="badge bg-warning text-dark">Under Review</span></td><td>S. Patel</td><td>May 3, 2026</td></tr>
+                  <tr><td>CF-2026-0409</td><td>Data Breach Investigation</td><td>ClearPath Insurance</td><td><span class="badge bg-danger">Escalated</span></td><td>A. Kowalski</td><td>May 2, 2026</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Activity feed + upcoming deadlines -->
+          <div class="row g-3 mb-4">
+            <div class="col-12 col-md-7">
+              <div class="card h-100">
+                <div class="card-header fw-bold">Recent Activity</div>
+                <ul class="list-group list-group-flush">
+                  <li class="list-group-item small"><i class="mdi mdi-file-upload-outline me-2 text-primary"></i><strong>S. Patel</strong> uploaded 3 documents to <em>SEC Investigation — Q1 2026</em> &mdash; <span class="text-muted">2h ago</span></li>
+                  <li class="list-group-item small"><i class="mdi mdi-account-plus-outline me-2 text-success"></i><strong>J. Rivera</strong> added custodian <em>T. Brooks</em> to legal hold &mdash; <span class="text-muted">3h ago</span></li>
+                  <li class="list-group-item small"><i class="mdi mdi-bell-ring-outline me-2 text-danger"></i>Legal hold violation flagged on <em>IP Theft — Internal</em> &mdash; <span class="text-muted">5h ago</span></li>
+                  <li class="list-group-item small"><i class="mdi mdi-check-circle-outline me-2 text-success"></i>Collection job completed for <em>Employment Dispute — Chen</em> &mdash; <span class="text-muted">Yesterday</span></li>
+                  <li class="list-group-item small"><i class="mdi mdi-email-outline me-2 text-primary"></i><strong>A. Kowalski</strong> sent hold notice to 12 custodians &mdash; <span class="text-muted">Yesterday</span></li>
+                  <li class="list-group-item small"><i class="mdi mdi-sync me-2 text-warning"></i>OneDrive connector sync started for <em>Regulatory Audit — GDPR</em> &mdash; <span class="text-muted">May 5</span></li>
+                  <li class="list-group-item small"><i class="mdi mdi-lock-outline me-2 text-secondary"></i><em>Contract Dispute — Phase II</em> placed on hold pending outside counsel review &mdash; <span class="text-muted">May 4</span></li>
+                </ul>
+              </div>
+            </div>
+            <div class="col-12 col-md-5">
+              <div class="card h-100">
+                <div class="card-header fw-bold">Upcoming Deadlines</div>
+                <ul class="list-group list-group-flush">
+                  <li class="list-group-item small d-flex justify-content-between align-items-center"><span><i class="mdi mdi-calendar-alert me-2 text-danger"></i>Expert report due — <em>Doe v. Acme</em></span><span class="badge bg-danger">2 days</span></li>
+                  <li class="list-group-item small d-flex justify-content-between align-items-center"><span><i class="mdi mdi-calendar-clock me-2 text-warning"></i>Custodian response — <em>SEC Investigation</em></span><span class="badge bg-warning text-dark">4 days</span></li>
+                  <li class="list-group-item small d-flex justify-content-between align-items-center"><span><i class="mdi mdi-calendar-outline me-2 text-primary"></i>Production deadline — <em>IP Theft</em></span><span class="badge bg-primary">9 days</span></li>
+                  <li class="list-group-item small d-flex justify-content-between align-items-center"><span><i class="mdi mdi-calendar-outline me-2 text-primary"></i>Hold review — <em>GDPR Audit</em></span><span class="badge bg-primary">12 days</span></li>
+                  <li class="list-group-item small d-flex justify-content-between align-items-center"><span><i class="mdi mdi-calendar-outline me-2 text-secondary"></i>Deposition prep — <em>Chen Dispute</em></span><span class="badge bg-secondary">18 days</span></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Second cases table for extra scroll depth -->
+          <div class="card mb-4">
+            <div class="card-header fw-bold">All Open Cases</div>
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead>
+                  <tr>
+                    <th>Case ID</th>
+                    <th>Case Name</th>
+                    <th>Tenant</th>
+                    <th>Status</th>
+                    <th>Custodians</th>
+                    <th>Data Sources</th>
+                    <th>Assigned To</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>CF-2026-0441</td><td>Doe v. Acme Corporation</td><td>Acme Corp</td><td><span class="badge bg-success">Active</span></td><td>24</td><td>Exchange, OneDrive</td><td>J. Rivera</td></tr>
+                  <tr><td>CF-2026-0438</td><td>SEC Investigation — Q1 2026</td><td>Meridian Financial</td><td><span class="badge bg-warning text-dark">Under Review</span></td><td>11</td><td>Exchange, SharePoint</td><td>S. Patel</td></tr>
+                  <tr><td>CF-2026-0435</td><td>Employment Dispute — Chen</td><td>Vertex Holdings</td><td><span class="badge bg-success">Active</span></td><td>6</td><td>Exchange</td><td>A. Kowalski</td></tr>
+                  <tr><td>CF-2026-0429</td><td>IP Theft — Internal</td><td>NovaTech Solutions</td><td><span class="badge bg-danger">Escalated</span></td><td>19</td><td>Exchange, OneDrive, Teams</td><td>M. Thompson</td></tr>
+                  <tr><td>CF-2026-0421</td><td>Regulatory Audit — GDPR</td><td>EuroLink GmbH</td><td><span class="badge bg-secondary">On Hold</span></td><td>43</td><td>Exchange, SharePoint, OneDrive</td><td>L. Nguyen</td></tr>
+                  <tr><td>CF-2026-0418</td><td>Contract Dispute — Phase II</td><td>Pinnacle Group</td><td><span class="badge bg-success">Active</span></td><td>8</td><td>Exchange</td><td>J. Rivera</td></tr>
+                  <tr><td>CF-2026-0412</td><td>Whistleblower — Finance Dept</td><td>Acme Corp</td><td><span class="badge bg-warning text-dark">Under Review</span></td><td>5</td><td>Exchange, Teams</td><td>S. Patel</td></tr>
+                  <tr><td>CF-2026-0409</td><td>Data Breach Investigation</td><td>ClearPath Insurance</td><td><span class="badge bg-danger">Escalated</span></td><td>31</td><td>Exchange, OneDrive, SharePoint</td><td>A. Kowalski</td></tr>
+                  <tr><td>CF-2026-0402</td><td>Trade Secret — Vendor Dispute</td><td>Solaris Manufacturing</td><td><span class="badge bg-success">Active</span></td><td>9</td><td>Exchange</td><td>M. Thompson</td></tr>
+                  <tr><td>CF-2026-0398</td><td>Harassment Complaint — HR</td><td>Vertex Holdings</td><td><span class="badge bg-success">Active</span></td><td>4</td><td>Exchange, Teams</td><td>L. Nguyen</td></tr>
+                  <tr><td>CF-2026-0391</td><td>Antitrust Review</td><td>Meridian Financial</td><td><span class="badge bg-secondary">On Hold</span></td><td>17</td><td>Exchange, SharePoint</td><td>J. Rivera</td></tr>
+                  <tr><td>CF-2026-0384</td><td>Insurance Fraud — Q4 2025</td><td>ClearPath Insurance</td><td><span class="badge bg-success">Active</span></td><td>22</td><td>Exchange, OneDrive</td><td>S. Patel</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ── My Cases ── -->
+        <div
+          class="tab-pane fade"
+          id="tab-my-cases"
+          role="tabpanel"
+          aria-labelledby="tab-my-cases-btn"
+        >
+          <!-- PLACEHOLDER — replace with MyCasesComponent content -->
+          <div class="ca-placeholder">
+            <div>
+              <i class="mdi mdi-folder-account-outline d-block mb-3" style="font-size:48px;opacity:0.35;" aria-hidden="true"></i>
+              <strong class="d-block mb-2 fs-6" style="opacity:0.55;">{{MyCasesComponent}}</strong>
+            </div>
+          </div>
+          <!-- /PLACEHOLDER -->
+        </div>
+
+        <!-- ── Tenants ── -->
+        <div
+          class="tab-pane fade"
+          id="tab-tenants"
+          role="tabpanel"
+          aria-labelledby="tab-tenants-btn"
+        >
+          <!-- PLACEHOLDER — replace with TenantsComponent content -->
+          <div class="ca-placeholder">
+            <div>
+              <i class="mdi mdi-home-account d-block mb-3" style="font-size:48px;opacity:0.35;" aria-hidden="true"></i>
+              <strong class="d-block mb-2 fs-6" style="opacity:0.55;">{{TenantsComponent}}</strong>
+            </div>
+          </div>
+          <!-- /PLACEHOLDER -->
+        </div>
+
+        <!-- ── Admin ── -->
+        <div
+          class="tab-pane fade show active"
+          id="tab-admin"
+          role="tabpanel"
+          aria-labelledby="tab-admin-btn"
+        >
+          <!-- PLACEHOLDER — replace with AdminComponent content -->
+          <div class="ca-placeholder">
+            <div>
+              <i class="mdi mdi-key-chain-variant d-block mb-3" style="font-size:48px;opacity:0.35;" aria-hidden="true"></i>
+              <strong class="d-block mb-2 fs-6" style="opacity:0.55;">{{AdminComponent}}</strong>
+            </div>
+          </div>
+          <!-- /PLACEHOLDER -->
+        </div>
+
+      </div><!-- /.tab-content -->
+    </main><!-- /#main-content -->
+
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         STICKY FOOTER
+         ════════════════════════════════════════════════════════════════ -->
+    <div class="cf-footer cf-footer-app cf-footer-casefusion" id="caFooter">
+      <footer class="page-footer main-footer" aria-label="CaseFusion site footer">
+        <div class="w-100 px-2 d-flex align-items-center gap-3">
+          <div class="footer-product-logo">
+            <img src="../img/cf/core/logo_casefusion.svg" class="footer-product-icon" alt="" aria-hidden="true" />
+            <div class="footer-product-name">
+              <span class="footer-product-name-bold">Case</span><span class="footer-product-name-light">Fusion</span>
+            </div>
+          </div>
+          <span class="footer-powered-by">Powered By Cloudficient</span>
+          <div class="flex-fill" aria-hidden="true"></div>
+          <span class="footer-copyright">&copy; <span id="currentYear"></span> Cloudficient Global Inc.</span>
+        </div>
+      </footer>
+    </div><!-- /#caFooter -->
+
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         SCRIPTS
+         ════════════════════════════════════════════════════════════════ -->
+    <script type="text/javascript" src="../js/nimbus.js"></script>
+    <script type="text/javascript" src="../js/app.js"></script>
+
+    <script>
+      (function () {
+        "use strict";
+
+        /* ── 1. Pin sidenav top to header bottom + 16px gap ── */
+        /* Header is position:sticky so it's in flow — no paddingTop needed on main.
+           Content top padding is handled by CSS (.ca-main padding-top: 16px). */
+        var header  = document.getElementById("caHeader");
+        var main    = document.getElementById("main-content");
+        var sidenav = document.getElementById("caSidenav");
+        var footer  = document.getElementById("caFooter");
+
+        function updateLayout() {
+          var headerH = header ? header.offsetHeight : 0;
+          var footerH = footer ? footer.offsetHeight : 0;
+          if (sidenav) sidenav.style.top    = (headerH + 16) + "px";
+          if (sidenav) sidenav.style.bottom = (footerH + 16) + "px";
+          if (main) {
+            main.style.paddingBottom = footer ? (footerH + 8) + "px" : "";
+          }
+        }
+        updateLayout();
+        window.addEventListener("resize", updateLayout, { passive: true });
+
+        /* ── Copyright year ── */
+        var yearEl = document.getElementById("currentYear");
+        if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+        /* ── 2. Scroll shadow ── */
+        window.addEventListener("scroll", function () {
+          if (header) header.classList.toggle("shadow-sm", window.scrollY > 0);
+        }, { passive: true });
+
+        /* ── 3. Back button ── */
+        var backBtn = document.getElementById("caBackBtn");
+        if (backBtn) {
+          backBtn.addEventListener("click", function () {
+            if (history.length > 1) { history.back(); }
+            else { window.location.href = "../index.html"; }
+          });
+        }
+
+        /* ── 4. Utility Nav ── */
+        var DEMO_NOTIFICATIONS = [
+          { subject: "Legal hold violation detected",      timestamp: "Apr 18, 2026 · 2:14 PM",  message: "Legal hold violation detected on custodian mailbox. Immediate review required to prevent spoliation.", unread: true  },
+          { subject: "Preserve in place job completed",    timestamp: "Apr 18, 2026 · 11:05 AM", message: "Preserve in place job for OneDrive has completed in Doe v. Acme Corporation.", unread: true  },
+          { subject: "Custodian response overdue",         timestamp: "Apr 17, 2026 · 2:00 PM",  message: "Custodian response is overdue by 5 days. Escalation notice sent to outside counsel.", unread: true  },
+          { subject: "Expert report deadline approaching", timestamp: "Apr 17, 2026 · 10:45 AM", message: "Expert report deadline is approaching in 3 business days. Draft review recommended.", unread: false },
+          { subject: "Data source sync completed",         timestamp: "Apr 16, 2026 · 4:12 PM",  message: "Data source sync completed for Exchange Online connector.", unread: false }
+        ];
+
+        function renderDemoNotifications(listEl, data) {
+          listEl.innerHTML = "";
+          data.forEach(function (item) {
+            var div = document.createElement("div");
+            div.className = "notif-item" + (item.unread ? " unread" : "");
+            var html = item.unread ? '<span class="notif-unread-dot"></span>' : "";
+            html += '<div class="notif-item-label"><div class="notif-subject">' + item.subject + '</div><div class="notif-timestamp">' + item.timestamp + '</div></div>';
+            html += '<button class="notif-expand mdi mdi-chevron-down" aria-label="Expand notification" aria-expanded="false"></button>';
+            html += '<button class="notif-dismiss mdi mdi-close" aria-label="Dismiss notification"></button>';
+            html += '<div class="notif-item-message">' + item.message + '</div>';
+            div.innerHTML = html;
+            listEl.appendChild(div);
+          });
+        }
+
+        function updateCounts(popoverEl, listEl) {
+          var all     = listEl.querySelectorAll(".notif-item");
+          var unread  = listEl.querySelectorAll(".notif-item.unread");
+          var totalEl  = popoverEl.querySelector(".notif-count-total");
+          var unreadEl = popoverEl.querySelector(".notif-count-unread");
+          if (totalEl)  totalEl.textContent  = all.length    + " Total";
+          if (unreadEl) unreadEl.textContent = unread.length + " Unread";
+        }
+
+        function updateBellState(bellIconEl, bellBadgeEl, listEl) {
+          var count = listEl ? listEl.querySelectorAll(".notif-item.unread").length : 0;
+          if (count === 0) {
+            if (bellIconEl)  { bellIconEl.classList.remove("mdi-bell"); bellIconEl.classList.add("mdi-bell-outline"); }
+            if (bellBadgeEl) bellBadgeEl.textContent = "";
+          } else {
+            if (bellIconEl)  { bellIconEl.classList.remove("mdi-bell-outline"); bellIconEl.classList.add("mdi-bell"); }
+            if (bellBadgeEl) bellBadgeEl.textContent = count > 99 ? "99+" : String(count);
+          }
+        }
+
+        function _bellTooltip() {
+          return window.Nimbus && Nimbus.Tooltip ? Nimbus.Tooltip.getInstance(document.getElementById("navBellBtn")) : null;
+        }
+
+        (function initUtilityNav() {
+          var navEl          = document.getElementById("UtilityNav");
+          var navBellBtn     = document.getElementById("navBellBtn");
+          var navBellIcon    = document.getElementById("navBellIcon");
+          var navBellBadge   = document.getElementById("navBellBadge");
+          var navAlertPop    = document.getElementById("navAlertPopover");
+          var notifListEl    = document.getElementById("notifList");
+          var searchWrap     = document.getElementById("navSearchWrapper");
+          var searchPanel    = document.getElementById("navSearchPanel");
+          var searchInput    = document.getElementById("navSearchInput");
+          var searchClearBtn = document.getElementById("navSearchClearBtn");
+          var searchToggle   = document.getElementById("globalSearchBtn");
+          var portalWrapper  = document.getElementById("portalSwitcherWrapper");
+          var portalToggle   = document.getElementById("portalSwitcherToggle");
+          var portalMenu     = document.getElementById("portalMenu");
+          var portalChevron  = document.getElementById("portalChevron");
+          var accountWrapper = document.getElementById("userAccountWrapper");
+          var accountToggle  = document.getElementById("userAccountToggle");
+          var accountMenu    = document.getElementById("accountMenu");
+          var themeToggleBtn = document.getElementById("themeToggle");
+          var filterBtn      = document.getElementById("navSearchFilter");
+
+          var NAV_FIELDS_MIN_WIDTH = 435;
+          var RESTORE_BUFFER = 24;
+          var collapseNavWidth = 0;
+
+          /* --- Notifications --- */
+          if (notifListEl && navAlertPop) {
+            renderDemoNotifications(notifListEl, DEMO_NOTIFICATIONS);
+            updateCounts(navAlertPop, notifListEl);
+            updateBellState(navBellIcon, navBellBadge, notifListEl);
+          }
+
+          /* --- Search panel --- */
+          function animatePanel(fromPx, toPx, dur, cb) {
+            searchPanel.style.transition = "none";
+            searchPanel.style.maxWidth = fromPx + "px";
+            requestAnimationFrame(function () {
+              requestAnimationFrame(function () {
+                searchPanel.style.transition = "max-width " + dur + "ms linear";
+                searchPanel.style.maxWidth = toPx + "px";
+                setTimeout(function () { searchPanel.style.transition = ""; searchPanel.style.maxWidth = ""; if (cb) cb(); }, dur);
+              });
+            });
+          }
+
+          function revealNavLabels() {
+            if (!navEl) return;
+            var labels = navEl.querySelectorAll(".portal-switcher-label, .user-name-label");
+            [].forEach.call(labels, function (el) { el.style.maxWidth = "0"; el.style.overflow = "hidden"; });
+            navEl.classList.remove("nav-labels-collapsed");
+            collapseNavWidth = 0;
+            void navEl.offsetWidth;
+            [].forEach.call(labels, function (el) { el.style.transition = "max-width 0.4s ease-out"; el.style.maxWidth = "200px"; });
+            setTimeout(function () { [].forEach.call(labels, function (el) { el.style.transition = ""; el.style.maxWidth = ""; el.style.overflow = ""; }); }, 400);
+          }
+
+          var prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+          function openPanel() {
+            var target = searchWrap ? Math.max(searchWrap.offsetWidth - 40, NAV_FIELDS_MIN_WIDTH) : 600;
+            searchPanel.classList.add("open");
+            searchPanel.removeAttribute("aria-hidden");
+            searchToggle.classList.add("active");
+            searchToggle.setAttribute("aria-expanded", "true");
+            searchToggle.setAttribute("aria-label", "Close search");
+            searchToggle.setAttribute("data-cnds-original-title", "Close search");
+            animatePanel(0, target, prefersReducedMotion ? 0 : 350, function () { if (searchInput) searchInput.focus(); });
+          }
+
+          function closePanel() {
+            var cur = searchPanel.offsetWidth;
+            searchPanel.classList.remove("open");
+            searchPanel.setAttribute("aria-hidden", "true");
+            searchToggle.setAttribute("aria-expanded", "false");
+            searchToggle.setAttribute("aria-label", "Open search");
+            searchToggle.setAttribute("data-cnds-original-title", "Open search");
+            animatePanel(cur, 0, prefersReducedMotion ? 0 : 350, function () {
+              searchToggle.classList.remove("active");
+              if (searchToggle) searchToggle.focus();
+              if (navEl && navEl.classList.contains("nav-labels-collapsed")) revealNavLabels();
+              else collapseNavWidth = 0;
+            });
+          }
+
+          if (searchToggle && searchPanel) {
+            searchToggle.addEventListener("click", function () {
+              if (searchPanel.classList.contains("open")) {
+                closePanel();
+              } else {
+                var needsCollapse = navEl && searchWrap && (searchWrap.offsetWidth - 40) <= NAV_FIELDS_MIN_WIDTH;
+                if (needsCollapse) {
+                  collapseNavWidth = navEl.offsetWidth;
+                  navEl.classList.add("nav-labels-collapsing", "nav-labels-collapsed");
+                  setTimeout(function () { navEl.classList.remove("nav-labels-collapsing"); setTimeout(openPanel, 200); }, 400);
+                } else {
+                  openPanel();
+                }
+              }
+            });
+            if (window.ResizeObserver && navEl) {
+              new ResizeObserver(function () {
+                if (!searchPanel.classList.contains("open")) return;
+                var fields = searchPanel.querySelector(".nav-search-fields");
+                var nw = navEl.offsetWidth;
+                if (!navEl.classList.contains("nav-labels-collapsed")) {
+                  if (fields && fields.offsetWidth <= NAV_FIELDS_MIN_WIDTH) { collapseNavWidth = nw; navEl.classList.add("nav-labels-collapsed"); }
+                } else if (nw > collapseNavWidth + RESTORE_BUFFER) {
+                  navEl.classList.remove("nav-labels-collapsed"); collapseNavWidth = 0;
+                }
+              }).observe(navEl);
+            }
+          }
+
+          if (searchPanel) {
+            searchPanel.addEventListener("keydown", function (e) { if (e.key === "Escape") closePanel(); });
+          }
+
+          if (searchInput && searchClearBtn) {
+            function syncClear() { searchClearBtn.classList.toggle("visible", searchInput.value.length > 0); }
+            searchInput.addEventListener("input", syncClear);
+            searchClearBtn.addEventListener("mousedown", function (e) { e.preventDefault(); searchInput.value = ""; syncClear(); searchInput.focus(); });
+          }
+
+          /* --- Bell popover --- */
+          if (navBellBtn && navAlertPop) {
+            document.body.appendChild(navAlertPop);
+
+            function positionPopover() {
+              var r  = navBellBtn.getBoundingClientRect();
+              var pw = navAlertPop.offsetWidth || 400;
+              navAlertPop.style.top = (r.bottom + 10) + "px";
+              var cx   = r.left + r.width / 2;
+              var left = Math.max(8, Math.min(cx - 20, window.innerWidth - pw - 8));
+              navAlertPop.style.left = left + "px";
+              navAlertPop.style.setProperty("--arrow-left", Math.max(12, Math.min(Math.round(cx - left - 8), pw - 32)) + "px");
+            }
+            function openPopover() {
+              positionPopover();
+              navAlertPop.classList.add("open");
+              navAlertPop.removeAttribute("aria-hidden");
+              navBellBtn.setAttribute("aria-expanded", "true");
+              var bt = _bellTooltip(); if (bt) { bt.hide(); bt.disable(); }
+              var firstFocusable = navAlertPop.querySelector("button, [href], input, [tabindex]");
+              if (firstFocusable) firstFocusable.focus();
+            }
+            function closePopover() {
+              navAlertPop.classList.remove("open");
+              navAlertPop.setAttribute("aria-hidden", "true");
+              navBellBtn.setAttribute("aria-expanded", "false");
+              navBellBtn.focus();
+              var bt = _bellTooltip(); if (bt) bt.enable();
+            }
+
+            navBellBtn.addEventListener("click", function (e) {
+              e.stopPropagation();
+              if (portalMenu)  { portalMenu.classList.remove("open");  if (portalToggle)  portalToggle.setAttribute("aria-expanded", "false"); }
+              if (accountMenu) { accountMenu.classList.remove("open"); if (accountToggle) accountToggle.setAttribute("aria-expanded", "false"); }
+              if (portalChevron) { portalChevron.classList.remove("mdi-chevron-up"); portalChevron.classList.add("mdi-chevron-down"); }
+              if (navAlertPop.classList.contains("open")) { closePopover(); } else { openPopover(); }
+            });
+            navAlertPop.addEventListener("keydown", function (e) { if (e.key === "Escape") closePopover(); });
+            window.addEventListener("resize", function () { if (navAlertPop.classList.contains("open")) positionPopover(); });
+            document.addEventListener("click", function (e) {
+              if (navAlertPop.classList.contains("open") && !navAlertPop.contains(e.target) && !navBellBtn.contains(e.target)) closePopover();
+            });
+
+            var nh = navAlertPop.querySelector(".notif-header");
+            if (notifListEl && nh) notifListEl.addEventListener("scroll", function () { nh.classList.toggle("scrolled", this.scrollTop > 0); });
+
+            navAlertPop.addEventListener("click", function (e) {
+              var exp = e.target.closest(".notif-expand");
+              if (exp) {
+                e.preventDefault(); e.stopPropagation();
+                var item = exp.closest(".notif-item"); if (!item) return;
+                item.classList.toggle("expanded");
+                exp.setAttribute("aria-expanded", item.classList.contains("expanded") ? "true" : "false");
+                if (item.classList.contains("expanded") && item.classList.contains("unread")) {
+                  item.classList.remove("unread");
+                  var dot = item.querySelector(".notif-unread-dot"); if (dot) dot.remove();
+                  updateCounts(navAlertPop, notifListEl);
+                  updateBellState(navBellIcon, navBellBadge, notifListEl);
+                }
+                return;
+              }
+              var dis = e.target.closest(".notif-dismiss");
+              if (!dis) return;
+              e.preventDefault(); e.stopPropagation();
+              var item = dis.closest(".notif-item"); if (!item) return;
+              item.style.transition = "opacity 0.2s ease, max-height 0.3s ease, margin 0.3s ease, padding 0.3s ease";
+              item.style.opacity = "0"; item.style.maxHeight = item.offsetHeight + "px"; item.style.overflow = "hidden";
+              requestAnimationFrame(function () { item.style.maxHeight = "0"; item.style.marginTop = "0"; item.style.marginBottom = "0"; item.style.paddingTop = "0"; item.style.paddingBottom = "0"; });
+              setTimeout(function () { item.remove(); updateCounts(navAlertPop, notifListEl); updateBellState(navBellIcon, navBellBadge, notifListEl); }, 300);
+            });
+          }
+
+          /* --- Portal switcher --- */
+          function refreshChevron() {
+            if (!portalChevron) return;
+            var open = portalMenu && portalMenu.classList.contains("open");
+            portalChevron.classList.toggle("mdi-chevron-down", !open);
+            portalChevron.classList.toggle("mdi-chevron-up", open);
+          }
+          function setMenuArrow(menu, trigger) {
+            if (!menu || !trigger) return;
+            var tw = trigger.offsetWidth;
+            menu.style.setProperty("--menu-arrow-outer", Math.round(tw / 2 - 8) + "px");
+            menu.style.setProperty("--menu-arrow-inner", Math.round(tw / 2 - 7) + "px");
+          }
+          function openPortalMenu() {
+            if (accountMenu) { accountMenu.classList.remove("open"); accountMenu.setAttribute("aria-hidden", "true"); if (accountToggle) accountToggle.setAttribute("aria-expanded", "false"); }
+            if (navAlertPop) { navAlertPop.classList.remove("open"); navAlertPop.setAttribute("aria-hidden", "true"); if (navBellBtn) navBellBtn.setAttribute("aria-expanded", "false"); }
+            setMenuArrow(portalMenu, portalToggle);
+            portalMenu.classList.add("open"); portalMenu.removeAttribute("aria-hidden");
+            portalToggle.setAttribute("aria-expanded", "true"); refreshChevron();
+            var first = portalMenu.querySelector("[role='menuitem']"); if (first) first.focus();
+          }
+          function closePortalMenu() {
+            portalMenu.classList.remove("open"); portalMenu.setAttribute("aria-hidden", "true");
+            portalToggle.setAttribute("aria-expanded", "false"); refreshChevron(); portalToggle.focus();
+          }
+          if (portalToggle && portalMenu) {
+            portalToggle.addEventListener("click", function (e) { e.stopPropagation(); portalMenu.classList.contains("open") ? closePortalMenu() : openPortalMenu(); });
+            portalToggle.addEventListener("keydown", function (e) {
+              if (e.key === "Enter" || e.key === " ") { e.preventDefault(); portalMenu.classList.contains("open") ? closePortalMenu() : openPortalMenu(); }
+              if (e.key === "Escape") closePortalMenu();
+            });
+            portalMenu.addEventListener("keydown", function (e) {
+              if (e.key === "Escape") { closePortalMenu(); return; }
+              if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+                e.preventDefault();
+                var items = [].slice.call(portalMenu.querySelectorAll("[role='menuitem']"));
+                var idx = items.indexOf(document.activeElement);
+                items[(e.key === "ArrowDown" ? idx + 1 : idx - 1 + items.length) % items.length].focus();
+              }
+            });
+            document.addEventListener("click", function (e) {
+              if (portalMenu.classList.contains("open") && portalWrapper && !portalWrapper.contains(e.target)) closePortalMenu();
+            });
+          }
+
+          /* --- User account --- */
+          function openAccountMenu() {
+            if (portalMenu)  { portalMenu.classList.remove("open");  portalMenu.setAttribute("aria-hidden", "true");  if (portalToggle)  { portalToggle.setAttribute("aria-expanded", "false");  refreshChevron(); } }
+            if (navAlertPop) { navAlertPop.classList.remove("open"); navAlertPop.setAttribute("aria-hidden", "true"); if (navBellBtn)    navBellBtn.setAttribute("aria-expanded", "false"); }
+            setMenuArrow(accountMenu, accountToggle);
+            accountMenu.classList.add("open"); accountMenu.removeAttribute("aria-hidden");
+            accountToggle.setAttribute("aria-expanded", "true");
+            var first = accountMenu.querySelector("[role='menuitem']"); if (first) first.focus();
+          }
+          function closeAccountMenu() {
+            accountMenu.classList.remove("open"); accountMenu.setAttribute("aria-hidden", "true");
+            accountToggle.setAttribute("aria-expanded", "false"); accountToggle.focus();
+          }
+          if (accountToggle && accountMenu && accountWrapper) {
+            accountToggle.addEventListener("click", function (e) { e.stopPropagation(); accountMenu.classList.contains("open") ? closeAccountMenu() : openAccountMenu(); });
+            accountToggle.addEventListener("keydown", function (e) {
+              if (e.key === "Enter" || e.key === " ") { e.preventDefault(); accountMenu.classList.contains("open") ? closeAccountMenu() : openAccountMenu(); }
+              if (e.key === "Escape") closeAccountMenu();
+            });
+            accountMenu.addEventListener("keydown", function (e) {
+              if (e.key === "Escape") { closeAccountMenu(); return; }
+              if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+                e.preventDefault();
+                var items = [].slice.call(accountMenu.querySelectorAll("[role='menuitem']"));
+                var idx = items.indexOf(document.activeElement);
+                items[(e.key === "ArrowDown" ? idx + 1 : idx - 1 + items.length) % items.length].focus();
+              }
+            });
+            document.addEventListener("click", function (e) {
+              if (accountMenu.classList.contains("open") && !accountWrapper.contains(e.target)) closeAccountMenu();
+            });
+          }
+
+          /* --- Theme toggle tooltip text sync (tooltip initialized in cnds.ready) --- */
+          if (themeToggleBtn) {
+            themeToggleBtn.addEventListener("click", function () {
+              var next   = document.documentElement.getAttribute("data-cnds-theme") === "dark" ? "light" : "dark";
+              var newTip = next === "dark" ? "Switch to light theme" : "Switch to dark theme";
+              themeToggleBtn.setAttribute("data-cnds-original-title", newTip);
+            });
+          }
+        })();
+
+        /* ── 5. Theme icon sync ── */
+        if (window.MutationObserver) {
+          new MutationObserver(function () {
+            var isDark = document.documentElement.getAttribute("data-cnds-theme") === "dark";
+            document.querySelectorAll("[data-cnds-toggle='theme'] .mdi").forEach(function (icon) {
+              icon.classList.toggle("mdi-weather-night", !isDark);
+              icon.classList.toggle("mdi-weather-sunny", isDark);
+            });
+          }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-cnds-theme"] });
+        }
+
+        /* ── 6. Topic select sizing ── */
+        function fitSelectToLongestOption(id) {
+          var el = document.getElementById(id);
+          if (!el) return;
+          var inst = Nimbus.Select.getInstance(el);
+          if (!inst || !inst._wrapper || !inst._trigger) return;
+          var cs = getComputedStyle(inst._trigger);
+          var canvas = document.createElement("canvas");
+          var ctx = canvas.getContext("2d");
+          ctx.font = cs.font || '13px "Nunito Sans", sans-serif';
+          var pl = parseFloat(cs.paddingLeft) || 12;
+          var pr = parseFloat(cs.paddingRight) || 52;
+          var maxTextW = Array.from(el.options).reduce(function (w, o) { return Math.max(w, ctx.measureText(o.text).width); }, 0);
+          var fitW = Math.ceil(maxTextW + pl + pr + 2);
+          inst._wrapper.style.width = fitW + "px";
+          var origPosition = inst._positionDropdown.bind(inst);
+          inst._positionDropdown = function () { origPosition(); inst._dropCont.style.width = fitW + "px"; };
+          var countLabel = el.getAttribute("data-cnds-count-label") || "";
+          if (countLabel && inst._isMultiple) {
+            var origUpdate = inst._updateDisplay.bind(inst);
+            inst._updateDisplay = function () {
+              origUpdate();
+              var selected = Array.from(el.options).filter(function (o) { return o.selected && o.value !== "" && !o.disabled; });
+              if (selected.length > 1) inst._trigger.value = selected.length + " " + countLabel;
+            };
+          }
+          if (inst._isMultiple) {
+            inst._optList.addEventListener("click", function (e) {
+              var li = e.target.closest(".select-option");
+              if (!li || li.classList.contains("disabled")) return;
+              var opt = li._selectOpt; if (!opt) return;
+              e.stopPropagation(); e.stopImmediatePropagation();
+              var allOpt = Array.from(el.options).find(function (o) { return o.hasAttribute("data-cnds-all-option"); });
+              if (opt.hasAttribute("data-cnds-all-option")) {
+                Array.from(el.options).forEach(function (o) { o.selected = false; });
+                opt.selected = true; inst._syncOptionUI(); inst._dispatch("optionSelected.cnds.select"); inst.close();
+              } else {
+                if (allOpt) allOpt.selected = false;
+                opt.selected = !opt.selected;
+                li.classList.toggle("selected", opt.selected);
+                li.setAttribute("aria-selected", opt.selected ? "true" : "false");
+                var cb = li.querySelector(".form-check-input"); if (cb) cb.checked = opt.selected;
+                var anySelected = Array.from(el.options).some(function (o) { return o.selected && !o.hasAttribute("data-cnds-all-option"); });
+                if (!anySelected && allOpt) allOpt.selected = true;
+                inst._syncOptionUI();
+                inst._dispatch(opt.selected ? "optionSelected.cnds.select" : "optionDeselected.cnds.select");
+              }
+              inst._updateDisplay(); inst._dispatch("valueChanged.cnds.select");
+            }, true);
+            el.addEventListener("valueChanged.cnds.select", function () {
+              var allOpt = Array.from(el.options).find(function (o) { return o.hasAttribute("data-cnds-all-option"); });
+              if (!allOpt) return;
+              var anySelected = Array.from(el.options).some(function (o) { return o.selected && !o.hasAttribute("data-cnds-all-option"); });
+              if (!anySelected && !allOpt.selected) { allOpt.selected = true; inst._syncOptionUI(); inst._updateDisplay(); }
+            });
+          }
+        }
+        document.addEventListener("cnds.ready", function () {
+          fitSelectToLongestOption("navSearchCategory");
+          /* Theme toggle can't use data-cnds-toggle="tooltip" (conflicts with "theme"); init programmatically */
+          var themeBtn = document.getElementById("themeToggle");
+          if (themeBtn && window.Nimbus && Nimbus.Tooltip) {
+            new Nimbus.Tooltip(themeBtn, { placement: "bottom", delay: 0 });
+          }
+        });
+
+        /* ── 7. Side Nav — matches cnds-sidenav.html Category Items pattern ── */
+        (function initSidenav() {
+          var sidenavEl      = document.getElementById("caSidenav");
+          var toggleBtn      = document.getElementById("caSidenavToggle");
+          var categoryToggles = sidenavEl ? [].slice.call(sidenavEl.querySelectorAll('[id^="tog_submenu_"]')) : [];
+          var navLinks        = sidenavEl ? [].slice.call(sidenavEl.querySelectorAll('[id^="navlink_"]')) : [];
+          var isSlim          = false;
+
+          /* Slide-open: height 0 → scrollHeight */
+          function expandSubmenu(toggle, submenu) {
+            toggle.setAttribute("aria-expanded", "true");
+            submenu.style.display  = "block";
+            submenu.style.overflow = "hidden";
+            submenu.style.height   = "0px";
+            submenu.classList.add("collapsing");
+            submenu.classList.remove("show");
+            void submenu.offsetHeight;
+            submenu.style.height     = submenu.scrollHeight + "px";
+            submenu.style.transition = "height 0.35s ease";
+            var done = false;
+            var onEnd = function () {
+              if (done) return; done = true;
+              submenu.removeEventListener("transitionend", onEnd);
+              submenu.classList.remove("collapsing");
+              submenu.classList.add("show");
+              submenu.style.height = submenu.style.overflow =
+                submenu.style.transition = submenu.style.display = "";
+            };
+            submenu.addEventListener("transitionend", onEnd);
+            setTimeout(onEnd, 400);
+          }
+
+          /* Slide-close: scrollHeight → 0 */
+          function collapseSubmenu(toggle, submenu) {
+            toggle.setAttribute("aria-expanded", "false");
+            if (!submenu.querySelector(".sidenav-link.active")) {
+              toggle.classList.remove("active");
+            }
+            submenu.style.height     = submenu.scrollHeight + "px";
+            submenu.style.overflow   = "hidden";
+            submenu.style.transition = "height 0.35s ease";
+            submenu.classList.add("collapsing");
+            void submenu.offsetHeight;
+            submenu.style.height = "0px";
+            var done = false;
+            var onEnd = function () {
+              if (done) return; done = true;
+              submenu.removeEventListener("transitionend", onEnd);
+              submenu.classList.remove("collapsing");
+              submenu.classList.remove("show");
+              submenu.style.height = submenu.style.overflow =
+                submenu.style.transition = submenu.style.display = "";
+            };
+            submenu.addEventListener("transitionend", onEnd);
+            setTimeout(onEnd, 400);
+          }
+
+          /* Accordion: close all other open submenus */
+          function closeOthers(exceptToggle) {
+            categoryToggles.forEach(function (t) {
+              if (t === exceptToggle) return;
+              var s = t.parentElement.querySelector(".sidenav-collapse");
+              if (s && s.classList.contains("show")) collapseSubmenu(t, s);
+            });
+          }
+
+          /* Category toggle click */
+          categoryToggles.forEach(function (toggle) {
+            toggle.addEventListener("click", function (e) {
+              e.preventDefault();
+              var submenu = toggle.parentElement.querySelector(".sidenav-collapse");
+              if (!submenu || submenu.classList.contains("collapsing")) return;
+              var isOpen = submenu.classList.contains("show");
+              if (isSlim) {
+                /* Exit slim first, then expand the submenu */
+                disposeSlimTooltips();
+                isSlim = false;
+                sidenavEl.classList.remove("ca-sidenav-slim");
+                if (main) main.classList.remove("ca-sidenav-slim");
+                var icon = toggleBtn ? toggleBtn.querySelector(".mdi") : null;
+                if (icon) icon.className = "mdi mdi-menu-open";
+                if (toggleBtn) {
+                  toggleBtn.setAttribute("aria-expanded", "true");
+                  toggleBtn.setAttribute("aria-label", "Collapse navigation");
+                }
+                setTimeout(updateLayout, 310);
+                requestAnimationFrame(function () {
+                  closeOthers(toggle);
+                  expandSubmenu(toggle, submenu);
+                });
+                return;
+              }
+              closeOthers(toggle);
+              if (isOpen) { collapseSubmenu(toggle, submenu); }
+              else         { expandSubmenu(toggle, submenu); }
+            });
+          });
+
+          /* Nav link click — drive tab + update active states */
+          navLinks.forEach(function (link) {
+            link.addEventListener("click", function (e) {
+              e.preventDefault();
+              var tabBtnId = link.getAttribute("data-ca-tab");
+              var tabBtn   = tabBtnId ? document.getElementById(tabBtnId) : null;
+              if (tabBtn) tabBtn.click();
+              navLinks.forEach(function (l) { l.classList.remove("active"); l.removeAttribute("aria-current"); });
+              categoryToggles.forEach(function (t) { t.classList.remove("active"); });
+              link.classList.add("active");
+              link.setAttribute("aria-current", "page");
+              /* Mark parent category toggle active if link is inside a collapse */
+              var parentCollapse = link.closest(".sidenav-collapse");
+              if (parentCollapse) {
+                var parentToggle = parentCollapse.previousElementSibling;
+                if (parentToggle) parentToggle.classList.add("active");
+              }
+            });
+          });
+
+          /* Slim tooltips */
+          function initSlimTooltips() {
+            if (!window.Nimbus || !window.Nimbus.Tooltip) return;
+            var links = sidenavEl.querySelectorAll(".sidenav-link");
+            for (var i = 0; i < links.length; i++) {
+              var link = links[i], span = link.querySelector("span");
+              var label = span ? span.textContent.trim() : "";
+              if (!label) continue;
+              if (!link.getAttribute("data-cnds-original-title")) link.setAttribute("title", label);
+              window.Nimbus.Tooltip.getOrCreateInstance(link, { placement: "right", trigger: "hover", offset: [0, 12] });
+            }
+          }
+          function disposeSlimTooltips() {
+            if (!window.Nimbus || !window.Nimbus.Tooltip) return;
+            var links = sidenavEl.querySelectorAll(".sidenav-link");
+            for (var i = 0; i < links.length; i++) {
+              var inst = window.Nimbus.Tooltip.getInstance(links[i]);
+              if (inst) inst.dispose();
+              links[i].removeAttribute("title");
+            }
+          }
+
+          /* Slim toggle — close open submenus first, then shrink; re-open on expand */
+          if (toggleBtn && sidenavEl && main) {
+            toggleBtn.addEventListener("click", function () {
+              var goingSlim = !isSlim;
+              if (goingSlim) {
+                var openToggle = null, openSubmenu = null;
+                categoryToggles.forEach(function (t) {
+                  var s = t.parentElement.querySelector(".sidenav-collapse");
+                  if (s && s.classList.contains("show")) { openToggle = t; openSubmenu = s; }
+                });
+                var doSlim = function () {
+                  isSlim = true;
+                  sidenavEl.classList.add("ca-sidenav-slim");
+                  main.classList.add("ca-sidenav-slim");
+                  var icon = toggleBtn.querySelector(".mdi");
+                  if (icon) icon.className = "mdi mdi-menu-close";
+                  toggleBtn.setAttribute("aria-expanded", "false");
+                  toggleBtn.setAttribute("aria-label", "Expand navigation");
+                  initSlimTooltips();
+                  setTimeout(updateLayout, 310);
+                };
+                if (openSubmenu) { collapseSubmenu(openToggle, openSubmenu); setTimeout(doSlim, 380); }
+                else { doSlim(); }
+              } else {
+                disposeSlimTooltips();
+                isSlim = false;
+                sidenavEl.classList.remove("ca-sidenav-slim");
+                main.classList.remove("ca-sidenav-slim");
+                var icon = toggleBtn.querySelector(".mdi");
+                if (icon) icon.className = "mdi mdi-menu-open";
+                toggleBtn.setAttribute("aria-expanded", "true");
+                toggleBtn.setAttribute("aria-label", "Collapse navigation");
+                /* After width transition, re-open active category's submenu */
+                setTimeout(function () {
+                  categoryToggles.forEach(function (t) {
+                    if (t.classList.contains("active")) {
+                      var s = t.parentElement.querySelector(".sidenav-collapse");
+                      if (s && !s.classList.contains("show")) expandSubmenu(t, s);
+                    }
+                  });
+                  updateLayout();
+                }, 320);
+              }
+            });
+          }
+        })();
+
+        //*********************************************************************
+        // START: SCREEN CONFIGURATION
+        //*********************************************************************
+        //*********************************************************************
+        // END: SCREEN CONFIGURATION
+        //*********************************************************************
+
+        //*********************************************************************
+        // START: SCREEN FUNCTIONALITY
+        //*********************************************************************
+        //*********************************************************************
+        // END: SCREEN FUNCTIONALITY
+        //*********************************************************************
+
+      }());
+    </script>
+
+  </body>
+</html>

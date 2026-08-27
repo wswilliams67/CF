@@ -1,0 +1,2773 @@
+<!--
+* CNDS Nimbus Design System — Select
+* Version: 1.0.0
+* Layout: Application with SideNav
+*
+* Component CSS:  css/nimbus.css
+* Theme overrides: css/themes/light.css | css/themes/dark.css
+*
+* SECTIONS (in document order)
+*   #section-introduction              — Overview and when to use
+*   #section-basic-example             — Basic select component
+*   #section-sizing                    — sm / default / lg size variants
+*   #section-product-themes            — CaseFusion, ExpireOn, Hyperlize focus-color and selected-state color demos
+*   #section-multiselect               — Multiple selection mode
+*   #section-select-with-label         — Select with floating label
+*   #section-select-with-placeholder   — Select with placeholder text
+*   #section-disabled-select           — Disabled state
+*   #section-disabled-options          — Individual disabled options
+*   #section-clear-button              — Clear button option
+*   #section-custom-content            — Custom content in dropdown
+*   #section-visible-options           — Controlling visible options count
+*   #section-secondary-text            — Options with secondary text
+*   #section-search                    — Search/filter within select
+*   #section-search-inside-modal       — Select with search in a modal
+*   #section-option-groups             — Grouping options with optgroup
+*   #section-icons                     — Options with icons
+*   #section-validation                — Form validation
+*   #section-set-value                 — Programmatic value setting
+*     #subsection-single-selection     — Single selection setValue
+*     #subsection-multi-selection      — Multi selection setValue
+*   #select-with-toggle-element        — Select with toggle button
+*   #section-auto-select               — Auto select on Tab press
+*   #section-hidden-selected           — Hidden initial selected option
+*   #section-with-CSS-classes          — Select with CSS class wrapper
+*   #api-section-introduction          — Component model overview
+*   #api-section-usage                 — Via data attributes and JavaScript
+*   #api-section-options               — Options reference table
+*   #api-section-methods               — Methods reference table
+*   #api-section-events                — Events reference table
+*
+* NOTES
+* - Pure HTML5, CSS3, vanilla JavaScript — zero external dependencies
+* - All data-cnds-* attributes are processed by nimbus.js / app.js
+* - Uses Nimbus.* namespace
+* - Default product theme: CaseFusion (cnds-product-casefusion on <body>; change to cnds-product-hyperlize or cnds-product-expireon)
+-->
+<!doctype html>
+<!-- data-cnds-theme: sets the initial theme ("light" | "dark"). nimbus.js syncs this attribute when the user toggles. -->
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta
+      name="description"
+      content="Select | Cloudficient Nimbus Design System v1.0.0"
+    />
+    <title>Select | CNDS v1.0.0 | Cloudficient Nimbus Design System</title>
+    <!-- Nimbus CSS -->
+    <link rel="stylesheet" href="css/nimbus.css" media="all" type="text/css" />
+    <!-- Custom styles -->
+    <link rel="stylesheet" href="css/app.css" media="all" type="text/css" />
+    <!-- Prism syntax highlighting -->
+    <link
+      rel="stylesheet"
+      href="plugins/css/prism.min.css"
+      media="all"
+      type="text/css"
+    />
+    <!-- Favicons -->
+    <link
+      rel="apple-touch-icon"
+      sizes="57x57"
+      href="img/favicon/apple-icon-57x57.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="60x60"
+      href="img/favicon/apple-icon-60x60.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="72x72"
+      href="img/favicon/apple-icon-72x72.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="76x76"
+      href="img/favicon/apple-icon-76x76.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="114x114"
+      href="img/favicon/apple-icon-114x114.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="120x120"
+      href="img/favicon/apple-icon-120x120.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="144x144"
+      href="img/favicon/apple-icon-144x144.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="152x152"
+      href="img/favicon/apple-icon-152x152.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="img/favicon/apple-icon-180x180.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="192x192"
+      href="img/favicon/android-icon-192x192.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="img/favicon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="96x96"
+      href="img/favicon/favicon-96x96.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="img/favicon/favicon-16x16.png"
+    />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta
+      name="msapplication-TileImage"
+      content="img/favicon/ms-icon-144x144.png"
+    />
+    <!-- ./Favicons -->
+    <!-- Design tokens — load order matters:
+         1. primitives.css  — raw color/spacing values (no theming)
+         2. light.css       — semantic tokens for [data-cnds-theme="light"] / :root
+         3. dark.css        — semantic token overrides for [data-cnds-theme="dark"]
+         All three must appear AFTER nimbus.css so component variables resolve correctly. -->
+    <link rel="stylesheet" href="css/themes/primitives.css" />
+    <link rel="stylesheet" href="css/themes/light.css" />
+    <link rel="stylesheet" href="css/themes/dark.css" />
+  </head>
+
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 Bypass Blocks; renders visually hidden until focused -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+    <!-- Header -->
+    <div class="sticky-top">
+      <!-- Utility Navigation -->
+      <nav id="UtilityNav" class="nav nav-cf-utility">
+        <div class="w-100 gx-3 px-sm-0 px-lg-3">
+          <ul class="nav nav-cf-utility-ul"></ul>
+        </div>
+      </nav>
+      <!-- ./Utility Navigation -->
+      <!-- Main Navigation -->
+      <nav id="MainNav" class="navbar navbar-expand-xl navbar-cf">
+        <div class="container-fluid p-0 px-3 d-flex">
+          <div class="d-flex flex-fill align-items-center text-truncate">
+            <div class="text-center d-none d-md-block me-3 border-end">
+              <a href="index.html"
+                ><img src="img/cf/core/logo_nimbus.png" class="me-3 mt-n1"
+              alt="Cloudficient Nimbus Design System" /></a>
+            </div>
+            <div class="flex-fill text-truncate">
+              <div class="navbar-cf-title-block">
+                <div
+                  class="navbar-cf-title cf-page-title text-truncate"
+                  style="padding-bottom: 0"
+                >
+                  <span class="cf-page-title-text cf-page-title-brand">v1</span
+                  ><span class="cf-page-title-divider"></span
+                  ><span class="cf-page-title-text">Select</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- data-cnds-toggle="theme": wired by nimbus.js — flips data-cnds-theme on <html> between "light" and "dark" -->
+          <button
+            class="btn btn-sm btn-outline-secondary ms-2"
+            data-cnds-toggle="theme"
+            aria-label="Toggle theme"
+            title="Toggle theme"
+          >
+            <i class="mdi mdi-weather-night mdi-18px" aria-hidden="true"></i>
+          </button>
+        </div>
+      </nav>
+      <!-- ./Main Navigation -->
+    </div>
+    <!-- ./Header -->
+    <!-- Content -->
+    <main id="main-content" class="cf-main-app">
+      <!-- Mobile viewport warning -->
+      <div class="d-block d-md-none p-4">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>This application is not
+          optimized for small screens. Please use a large tablet, laptop, or
+          desktop computer to continue.
+        </div>
+      </div>
+      <div class="d-none d-md-block">
+        <!-- Sidenav — markup is intentionally empty; sidenav-loader.js fetches and injects the shared nav HTML.
+             data-cnds-mode="side"           : renders as a persistent side panel (not an overlay/drawer)
+             data-cnds-slim / slim-collapsed : controls compact/icon-only collapsed state
+             data-cnds-content="#slim-content": the sibling panel that shrinks/expands as the nav opens/closes
+             data-cnds-accordion="true"      : collapses other open nav groups when a new one is expanded -->
+        <nav
+          id="sidebar-cf"
+          class="sidenav"
+          data-cnds-mode="side"
+          data-cnds-slim="false"
+          data-cnds-slim-collapsed="false"
+          data-cnds-content="#slim-content"
+          data-cnds-accordion="true"
+        ></nav>
+        <div id="slim-content">
+          <div class="slim-content-box">
+            <!-- Content Row -->
+            <div class="row">
+              <!-- Main column — 80 % of the row width; the remaining 20 % is the right sidebar.
+                   The inline flex overrides are intentional: they pin the ratio regardless of Bootstrap's
+                   grid breakpoints so the sidebar never wraps on large viewports. -->
+              <div class="col-12 col-lg" style="flex: 0 0 80%; max-width: 80%">
+
+                        <!--Section: Docs content-->
+                        <section class="container-fluid">
+                            <!--Section: Introduction-->
+                            <section id="section-introduction">
+
+                                <!-- Description -->
+                                <p class="mb-4">
+                                    The Select component replaces the browser-native
+                                    <code>&lt;select&gt;</code> element with a fully styled,
+                                    keyboard-accessible dropdown that matches the Nimbus design
+                                    language. It supports single and multiple selection, option
+                                    grouping, search filtering, placeholder text, and programmatic
+                                    control through a JavaScript API.
+                                </p>
+                                <p class="mb-4">
+                                    Use the Select component when users must choose from a fixed
+                                    list of options. For free-form input with suggestions, use
+                                    <a href="cnds-autocomplete.html">Autocomplete</a> instead.
+                                    All options are configurable via <code>data-cnds-*</code>
+                                    attributes or a JavaScript options object passed to
+                                    <code>new Nimbus.Select(element, options)</code>.
+                                </p>
+
+                                <p class="note note-light">
+                                    <strong>Note:</strong> Read the <a href="#api-section-introduction">API Documentation</a> to find all available options and advanced customization
+                                </p>
+                            
+                                <p class="note note-info"><strong>Note:</strong> To preview components in different themes, click the theme toggle button <i class="mdi mdi-weather-night" aria-hidden="true"></i> / <i class="mdi mdi-weather-sunny" aria-hidden="true"></i> in the header navigation bar.</p>
+                            </section>
+                            <!--/Section: Introduction-->
+
+                            <hr class="my-5">
+
+                            <!--Section: Basic example-->
+                            <section id="section-basic-example">
+                                <!-- Section title -->
+                                <h3 class="mb-4">Basic example</h3>
+
+                                <p>Add <code>data-cnds-select-init</code> to a plain <code>&lt;select&gt;</code> element to replace it with the Nimbus-styled dropdown. The component inherits existing <code>&lt;option&gt;</code> and <code>&lt;optgroup&gt;</code> elements, so no markup changes to the options are required.</p>
+
+                                <!--Section: Demo-->
+                                <section class="pb-4">
+                                    <div class="border rounded-5">
+
+                                        <section class="w-100 p-4 pb-4 d-flex justify-content-center">
+                                            <div class="w-25">
+                                                <select data-cnds-select-init>
+                                                    <option value="1">One</option>
+                                                    <option value="2">Two</option>
+                                                    <option value="3">Three</option>
+                                                    <option value="4">Four</option>
+                                                    <option value="5">Five</option>
+                                                    <option value="6">Six</option>
+                                                    <option value="7">Seven</option>
+                                                    <option value="8">Eight</option>
+                                                </select>
+                                            </div>
+                                        </section>
+
+                                    </div>
+                                </section>
+                                <!--/Section: Demo-->
+                                <!-- Angular: Bind the select to a FormControl using the formControl directive; populate options with *ngFor over a component array and bind each value with [value]; listen for (selectionChange) to respond when the user picks an option.
+                                     Example: <select data-cnds-select-init [formControl]="mySelect"><option *ngFor="let opt of options" [value]="opt.value">{{ opt.label }}</option></select>
+                                     Use Validators.required on the FormControl and check mySelect.invalid && mySelect.touched to display a validation message without extra JavaScript. -->
+
+                                <!--Section: Code-->
+                                <section class="mb-4">
+                                    <h5><span class="badge badge-code-html">HTML</span></h5>
+                                    <!-- snippet -->
+                                    <div class="p-0">
+                                        <pre class="line-numbers m-0">
+                                <code class="language-html">
+&lt;select data-cnds-select-init&gt;
+    &lt;option value="1"&gt;One&lt;/option&gt;
+    &lt;option value="2"&gt;Two&lt;/option&gt;
+    &lt;option value="3"&gt;Three&lt;/option&gt;
+    &lt;option value="4"&gt;Four&lt;/option&gt;
+    &lt;option value="5"&gt;Five&lt;/option&gt;
+    &lt;option value="6"&gt;Six&lt;/option&gt;
+    &lt;option value="7"&gt;Seven&lt;/option&gt;
+    &lt;option value="8"&gt;Eight&lt;/option&gt;
+&lt;/select&gt;
+                                </code>
+                                </pre>
+                                    </div>
+                                    <!-- /.snippet -->
+                                </section>
+                                <!--Section: Code-->
+
+                            </section>
+                            <!--/Section: Basic example-->
+
+                            <hr class="my-5">
+
+                            <!--Section: Sizing-->
+                            <section id="section-sizing">
+                                <!-- Section title -->
+                                <h3 class="mb-3">Sizing</h3>
+
+                                <p>
+                                  Add <code>class="form-control-sm"</code> or <code>class="form-control-lg"</code>
+                                  to the native <code>&lt;select&gt;</code> element. The plugin transfers the size
+                                  to the generated wrapper and trigger so the label, control padding, and arrow
+                                  all scale together.
+                                </p>
+
+                                <div class="table-responsive mb-4">
+                                  <table class="table table-sm" aria-label="Sizing">
+                                    <thead>
+                                      <tr>
+                                        <th>Class on <code>&lt;select&gt;</code></th>
+                                        <th>Label</th>
+                                        <th>Input font</th>
+                                        <th>Vertical padding</th>
+                                        <th>Horizontal padding</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      <tr><td><code>form-control-sm</code></td><td>13px / 700</td><td>13px</td><td>10px</td><td>12px</td></tr>
+                                      <tr><td><em>(default)</em></td><td>14px / 800</td><td>14px</td><td>12px</td><td>20px</td></tr>
+                                      <tr><td><code>form-control-lg</code></td><td>16px / 700</td><td>16px</td><td>14px</td><td>24px</td></tr>
+                                    </tbody>
+                                  </table>
+                                </div>
+
+                                <!--Section: Demo-->
+                                <section class="pb-4">
+                                  <div class="border rounded-5">
+                                    <section class="w-100 p-4 d-flex justify-content-center align-items-end gap-4 pb-4">
+                                      <div style="width: 200px;">
+                                        <select class="form-control-lg" data-cnds-select-init data-cnds-placeholder="Select ..." id="slSizeLg">
+                                          <option value="" disabled selected></option>
+                                          <option value="1">One</option>
+                                          <option value="2">Two</option>
+                                          <option value="3">Three</option>
+                                        </select>
+                                        <label class="form-label select-label" for="slSizeLg">Large</label>
+                                      </div>
+
+                                      <div style="width: 200px;">
+                                        <select data-cnds-select-init data-cnds-placeholder="Select ..." id="slSizeDf">
+                                          <option value="" disabled selected></option>
+                                          <option value="1">One</option>
+                                          <option value="2">Two</option>
+                                          <option value="3">Three</option>
+                                        </select>
+                                        <label class="form-label select-label" for="slSizeDf">Default</label>
+                                      </div>
+
+                                      <div style="width: 200px;">
+                                        <select class="form-control-sm" data-cnds-select-init data-cnds-placeholder="Select ..." id="slSizeSm">
+                                          <option value="" disabled selected></option>
+                                          <option value="1">One</option>
+                                          <option value="2">Two</option>
+                                          <option value="3">Three</option>
+                                        </select>
+                                        <label class="form-label select-label" for="slSizeSm">Small</label>
+                                      </div>
+                                    </section>
+                                  </div>
+                                </section>
+                                <!--/Section: Demo-->
+                                <!-- Angular: Bind the size class dynamically with [ngClass]="{'form-control-lg': size === 'lg', 'form-control-sm': size === 'sm'}" driven by a [size] @Input() accepting 'lg' | 'default' | 'sm' so parent components can control the select size declaratively.
+                                     Example: <select data-cnds-select-init [ngClass]="sizeClass" [formControl]="mySelect"><option *ngFor="let opt of options" [value]="opt.value">{{ opt.label }}</option></select>
+                                     Default size to 'default' and map it to an empty class string so a select without an explicit size renders the standard height without extra markup. -->
+
+                                <!--Section: Code-->
+                                <section class="mb-4">
+                                  <h4><span class="badge badge-code-html">HTML</span></h4>
+                                  <div class="p-0">
+                                    <pre class="line-numbers m-0"><code class="language-html">&lt;!-- Large --&gt;
+&lt;select class="form-control-lg" data-cnds-select-init&gt;
+    &lt;option value="1"&gt;One&lt;/option&gt;
+    &lt;option value="2"&gt;Two&lt;/option&gt;
+    &lt;option value="3"&gt;Three&lt;/option&gt;
+&lt;/select&gt;
+&lt;label class="form-label select-label"&gt;Large&lt;/label&gt;
+
+&lt;!-- Default --&gt;
+&lt;select data-cnds-select-init&gt;
+    &lt;option value="1"&gt;One&lt;/option&gt;
+    &lt;option value="2"&gt;Two&lt;/option&gt;
+    &lt;option value="3"&gt;Three&lt;/option&gt;
+&lt;/select&gt;
+&lt;label class="form-label select-label"&gt;Default&lt;/label&gt;
+
+&lt;!-- Small --&gt;
+&lt;select class="form-control-sm" data-cnds-select-init&gt;
+    &lt;option value="1"&gt;One&lt;/option&gt;
+    &lt;option value="2"&gt;Two&lt;/option&gt;
+    &lt;option value="3"&gt;Three&lt;/option&gt;
+&lt;/select&gt;
+&lt;label class="form-label select-label"&gt;Small&lt;/label&gt;</code></pre>
+                                  </div>
+                                </section>
+                                <!--/Section: Code-->
+
+                            </section>
+                            <!--/Section: Sizing-->
+
+                            <hr class="my-5">
+
+                            <!--Section: Product themes-->
+                            <section id="section-product-themes">
+                                <!-- Section title -->
+                                <h3 class="mb-4">Product themes</h3>
+
+                                <p>
+                                  Each Cloudficient product has a designated accent color defined in the design
+                                  system. Setting a product class on <code>&lt;body&gt;</code> activates that
+                                  color for the focus ring on all selects at once:
+                                </p>
+                                <ul>
+                                  <li><code>&lt;body class="cnds-product-casefusion"&gt;</code> — CaseFusion green</li>
+                                  <li><code>&lt;body class="cnds-product-hyperlize"&gt;</code> — Hyperlize gold</li>
+                                  <li><code>&lt;body class="cnds-product-expireon"&gt;</code> — Expireon indigo</li>
+                                </ul>
+                                <p>
+                                  The dropdown's selected-state color requires a <code>select-wrapper-{product}</code>
+                                  class on the parent wrapper. The JavaScript component reads this class at
+                                  initialisation time and adds the matching <code>select-product-{product}</code>
+                                  class to the dropdown container (which is appended to <code>body</code>), so
+                                  selected-state colors always match the active product theme:
+                                </p>
+                                <ul>
+                                  <li><code>.select-wrapper-casefusion</code> — CaseFusion green selected state</li>
+                                  <li><code>.select-wrapper-hyperlize</code> — Hyperlize gold selected state</li>
+                                  <li><code>.select-wrapper-expireon</code> — Expireon indigo selected state</li>
+                                </ul>
+
+                                <!--Section: Demo-->
+                                <section class="pb-4">
+                                  <div class="bg-white border rounded-5">
+                                    <section class="w-100 p-4 d-flex justify-content-center gap-5 pb-4">
+                                      <!-- CaseFusion -->
+                                      <div style="width: 220px;">
+                                        <div class="select-wrapper-casefusion">
+                                          <select data-cnds-select-init data-cnds-placeholder="Select ..." id="ptSelCf">
+                                            <option value="" disabled selected></option>
+                                            <option value="1">One</option>
+                                            <option value="2">Two</option>
+                                            <option value="3">Three</option>
+                                          </select>
+                                          <label class="form-label select-label" for="ptSelCf">CaseFusion</label>
+                                        </div>
+                                      </div>
+                                      <!-- ExpireOn -->
+                                      <div style="width: 220px;">
+                                        <div class="select-wrapper-expireon">
+                                          <select data-cnds-select-init data-cnds-placeholder="Select ..." id="ptSelEo">
+                                            <option value="" disabled selected></option>
+                                            <option value="1">One</option>
+                                            <option value="2">Two</option>
+                                            <option value="3">Three</option>
+                                          </select>
+                                          <label class="form-label select-label" for="ptSelEo">ExpireOn</label>
+                                        </div>
+                                      </div>
+                                      <!-- Hyperlize -->
+                                      <div style="width: 220px;">
+                                        <div class="select-wrapper-hyperlize">
+                                          <select data-cnds-select-init data-cnds-placeholder="Select ..." id="ptSelHy">
+                                            <option value="" disabled selected></option>
+                                            <option value="1">One</option>
+                                            <option value="2">Two</option>
+                                            <option value="3">Three</option>
+                                          </select>
+                                          <label class="form-label select-label" for="ptSelHy">Hyperlize</label>
+                                        </div>
+                                      </div>
+                                    </section>
+                                  </div>
+                                </section>
+                                <!--/Section: Demo-->
+                                <!-- Angular: Always bind the product wrapper class via [ngClass]="'select-wrapper-' + productTheme" on the parent div — the body class alone is not sufficient because the JS component reads the wrapper class at initialisation time to style the detached dropdown container.
+                                     Example: <div [ngClass]="'select-wrapper-' + productTheme"><select data-cnds-select-init [attr.data-cnds-placeholder]="placeholder" [formControl]="mySelect"><option *ngFor="let opt of options" [value]="opt.value">{{ opt.label }}</option></select></div>
+                                     Inject a ThemeService and derive productTheme from the active theme Observable so the select wrapper updates automatically when the product switches. -->
+
+                                <!--Section: Code-->
+                                <section class="mb-4">
+                                  <h4><span class="badge badge-code-html">HTML</span></h4>
+                                  <div class="p-0">
+                                    <pre class="line-numbers m-0"><code class="language-html">&lt;!-- CaseFusion --&gt;
+&lt;div class="select-wrapper-casefusion"&gt;
+    &lt;select data-cnds-select-init data-cnds-placeholder="Select ..."&gt;
+        &lt;option value="" disabled selected&gt;&lt;/option&gt;
+        &lt;option value="1"&gt;One&lt;/option&gt;
+        &lt;option value="2"&gt;Two&lt;/option&gt;
+        &lt;option value="3"&gt;Three&lt;/option&gt;
+    &lt;/select&gt;
+    &lt;label class="form-label select-label"&gt;CaseFusion&lt;/label&gt;
+&lt;/div&gt;
+
+&lt;!-- ExpireOn --&gt;
+&lt;div class="select-wrapper-expireon"&gt;
+    &lt;select data-cnds-select-init data-cnds-placeholder="Select ..."&gt;
+        &lt;option value="" disabled selected&gt;&lt;/option&gt;
+        &lt;option value="1"&gt;One&lt;/option&gt;
+        &lt;option value="2"&gt;Two&lt;/option&gt;
+        &lt;option value="3"&gt;Three&lt;/option&gt;
+    &lt;/select&gt;
+    &lt;label class="form-label select-label"&gt;ExpireOn&lt;/label&gt;
+&lt;/div&gt;
+
+&lt;!-- Hyperlize --&gt;
+&lt;div class="select-wrapper-hyperlize"&gt;
+    &lt;select data-cnds-select-init data-cnds-placeholder="Select ..."&gt;
+        &lt;option value="" disabled selected&gt;&lt;/option&gt;
+        &lt;option value="1"&gt;One&lt;/option&gt;
+        &lt;option value="2"&gt;Two&lt;/option&gt;
+        &lt;option value="3"&gt;Three&lt;/option&gt;
+    &lt;/select&gt;
+    &lt;label class="form-label select-label"&gt;Hyperlize&lt;/label&gt;
+&lt;/div&gt;</code></pre>
+                                  </div>
+                                </section>
+                                <!--/Section: Code-->
+
+                            </section>
+                            <!--/Section: Product themes-->
+
+                            <hr class="my-5">
+
+                            <!--Section: Multiselect-->
+                            <section id="section-multiselect">
+                                <!-- Section title -->
+                                <h3 class="mb-4">Multiselect</h3>
+
+                                <p>Add <code>multiple</code> attribute to the select element to activate multiple mode.</p>
+
+                                <!--Section: Demo-->
+                                <section class="pb-4">
+                                    <div class="border rounded-5">
+
+                                        <section class="w-100 p-4 pb-4 d-flex justify-content-center">
+                                            <div class="w-25">
+                                                <select data-cnds-select-init multiple>
+                                                    <option value="1">One</option>
+                                                    <option value="2">Two</option>
+                                                    <option value="3">Three</option>
+                                                    <option value="4">Four</option>
+                                                    <option value="5">Five</option>
+                                                    <option value="6">Six</option>
+                                                    <option value="7">Seven</option>
+                                                    <option value="8">Eight</option>
+                                                </select>
+                                                <label class="form-label select-label">Example label</label>
+
+                                            </div>
+                                        </section>
+
+                                    </div>
+                                </section>
+                                <!--/Section: Demo-->
+                                <!-- Angular: Enable multi-select with the multiple attribute and bind to a FormControl whose value is an array; use (selectionChange) or subscribe to valueChanges to capture the array of selected values.
+                                     Example: <select data-cnds-select-init multiple [formControl]="multiSelect"><option *ngFor="let opt of options" [value]="opt.value">{{ opt.label }}</option></select><label class="form-label select-label">{{ label }}</label>
+                                     Initialise the FormControl with an empty array [] and use myForm.get('multiSelect').value to access the selected values array when the form is submitted. -->
+
+                                <!--Section: Code-->
+                                <section class="mb-4">
+                                    <h5><span class="badge badge-code-html">HTML</span></h5>
+                                    <!-- snippet -->
+                                    <div class="p-0">
+                                        <pre class="line-numbers m-0">
+                                <code class="language-html">
+&lt;select data-cnds-select-init multiple&gt;
+    &lt;option value="1"&gt;One&lt;/option&gt;
+    &lt;option value="2"&gt;Two&lt;/option&gt;
+    &lt;option value="3"&gt;Three&lt;/option&gt;
+    &lt;option value="4"&gt;Four&lt;/option&gt;
+    &lt;option value="5"&gt;Five&lt;/option&gt;
+    &lt;option value="6"&gt;Six&lt;/option&gt;
+    &lt;option value="7"&gt;Seven&lt;/option&gt;
+    &lt;option value="8"&gt;Eight&lt;/option&gt;
+&lt;/select&gt;
+&lt;label class="form-label select-label"&gt;Example label&lt;/label&gt;
+                                </code>
+                                </pre>
+                                    </div>
+                                    <!-- /.snippet -->
+                                </section>
+                                <!--Section: Code-->
+
+
+                                <!-- Subsection: "All" option count badge -->
+                                <h5 class="mt-4 mb-3">Count badge on the &ldquo;All&rdquo; option</h5>
+
+                                <p>
+                                    Mark the empty-value option with
+                                    <code>data-cnds-all-option</code> and the component appends a
+                                    <code>.badge</code> showing how many selectable options the list
+                                    holds &mdash; every option except the placeholder and the
+                                    &ldquo;all&rdquo; option itself. The count is computed on render,
+                                    so an option list that arrives from an API stays accurate without
+                                    the markup restating the number.
+                                </p>
+
+                                <p>
+                                    The attribute is a <em>marker</em>, not a behaviour: it styles and
+                                    counts, it does not wire select-all. Handle the toggle in your own
+                                    change handler when you need it.
+                                </p>
+
+                                <!--Section: Code-->
+                                <section class="pb-4">
+                                    <div class="border rounded-5">
+                                        <!-- Angular: bind the marker with [attr.data-cnds-all-option]="'' " on the option that carries the empty value. Because the badge is rendered from the live option list, an *ngFor fed by an async pipe needs no extra count binding; re-running change detection over the options is enough. Wire the select-all behaviour in the component's (change) handler, not in the template.
+                                             Example: <option value="" [attr.data-cnds-all-option]="''">All {{ label }}</option> -->
+                                        <pre class="line-numbers m-0">
+                                <code class="language-html">
+&lt;select data-cnds-select-init multiple data-cnds-placeholder="All"&gt;
+    &lt;option value="" data-cnds-all-option selected&gt;All Custodians&lt;/option&gt;
+    &lt;option value="1"&gt;Alvarez, Marta&lt;/option&gt;
+    &lt;option value="2"&gt;Chen, Wei&lt;/option&gt;
+    &lt;option value="3"&gt;Okafor, Ada&lt;/option&gt;
+&lt;/select&gt;
+                                </code>
+                                </pre>
+                                    </div>
+                                    <!-- /.snippet -->
+                                </section>
+                                <!--Section: Code-->
+
+                            </section>
+                            <!--/Section: Multiselect-->
+
+                            <hr class="my-5">
+
+                            <!--Section: Select with label-->
+                            <section id="section-select-with-label">
+                                <!-- Section title -->
+                                <h3 class="mb-4">Select with label</h3>
+
+                                <p>
+                                    It is possible to add select label by creating element with
+                                    <code>.form-label</code> and <code>.select-label</code> classes.
+                                </p>
+
+                                <!--Section: Demo-->
+                                <section class="pb-4">
+                                    <div class="border rounded-5">
+
+                                        <section class="w-100 p-4 pb-4 d-flex justify-content-center">
+                                            <div class="w-25">
+                                                <select data-cnds-select-init>
+                                                    <option value="1">One</option>
+                                                    <option value="2">Two</option>
+                                                    <option value="3">Three</option>
+                                                    <option value="4">Four</option>
+                                                    <option value="5">Five</option>
+                                                </select>
+                                                <label class="form-label select-label">Example label</label>
+
+                                            </div>
+                                        </section>
+
+                                    </div>
+                                </section>
+                                <!--/Section: Demo-->
+                                <!-- Angular: Pass the visible label text via an @Input() and bind it to the <label> with {{ label }}; pair each select/label combination with a unique [id] and [for] derived from the component instance to avoid duplicate IDs on pages with multiple selects.
+                                     Example: <select data-cnds-select-init [id]="selectId" [formControl]="mySelect"><option *ngFor="let opt of options" [value]="opt.value">{{ opt.label }}</option></select><label class="form-label select-label" [for]="selectId">{{ label }}</label>
+                                     Generate selectId in the constructor as 'select-' + uuid() so the pairing is always unique regardless of how many instances exist on the page. -->
+
+                                <!--Section: Code-->
+                                <section class="mb-4">
+                                    <h5><span class="badge badge-code-html">HTML</span></h5>
+                                    <!-- snippet -->
+                                    <div class="p-0">
+                                        <pre class="line-numbers m-0">
+                                <code class="language-html">
+&lt;select data-cnds-select-init&gt;
+    &lt;option value="1"&gt;One&lt;/option&gt;
+    &lt;option value="2"&gt;Two&lt;/option&gt;
+    &lt;option value="3"&gt;Three&lt;/option&gt;
+    &lt;option value="4"&gt;Four&lt;/option&gt;
+    &lt;option value="5"&gt;Five&lt;/option&gt;
+&lt;/select&gt;
+&lt;label class="form-label select-label"&gt;Example label&lt;/label&gt;
+                                </code>
+                                </pre>
+                                    </div>
+                                    <!-- /.snippet -->
+                                </section>
+                                <!--Section: Code-->
+
+                            </section>
+                            <!--/Section: Select with label-->
+
+                            <hr class="my-5">
+
+                            <!--Section: Select with placeholder-->
+                            <section id="section-select-with-placeholder">
+                                <!-- Section title -->
+                                <h3 class="mb-4">Select with placeholder</h3>
+
+                                <p>
+                                    Use <code>placeholder</code> option to set placeholder for select input. The placeholder will
+                                    be displayed when input is focused and no option is selected.
+                                </p>
+
+                                <!--Section: Demo-->
+                                <section class="pb-4">
+                                    <div class="border rounded-5">
+
+                                        <section class="w-100 p-4 pb-4 d-flex justify-content-center">
+                                            <div class="w-25">
+                                                <select data-cnds-select-init data-cnds-placeholder="Example placeholder" multiple>
+                                                    <option value="1">One</option>
+                                                    <option value="2">Two</option>
+                                                    <option value="3">Three</option>
+                                                    <option value="4">Four</option>
+                                                    <option value="5">Five</option>
+                                                </select>
+                                            </div>
+                                        </section>
+
+                                    </div>
+                                </section>
+                                <!--/Section: Demo-->
+                                <!-- Angular: Bind the placeholder text with [attr.data-cnds-placeholder]="placeholder" driven by a [placeholder] @Input() so the placeholder can be localised or overridden per instance without touching the template.
+                                     Example: <select data-cnds-select-init [attr.data-cnds-placeholder]="placeholder" multiple [formControl]="mySelect"><option *ngFor="let opt of options" [value]="opt.value">{{ opt.label }}</option></select>
+                                     Set the placeholder to an empty string or null when no placeholder is desired rather than omitting the binding, to avoid the attribute retaining a stale value from a previous render. -->
+
+                                <!--Section: Code-->
+                                <section class="mb-4">
+                                    <h5><span class="badge badge-code-html">HTML</span></h5>
+                                    <!-- snippet -->
+                                    <div class="p-0">
+                                        <pre class="line-numbers m-0">
+                                <code class="language-html">
+&lt;select data-cnds-select-init data-cnds-placeholder="Example placeholder" multiple&gt;
+    &lt;option value="1"&gt;One&lt;/option&gt;
+    &lt;option value="2"&gt;Two&lt;/option&gt;
+    &lt;option value="3"&gt;Three&lt;/option&gt;
+    &lt;option value="4"&gt;Four&lt;/option&gt;
+    &lt;option value="5"&gt;Five&lt;/option&gt;
+&lt;/select&gt;
+                                </code>
+                                </pre>
+                                    </div>
+                                    <!-- /.snippet -->
+                                </section>
+                                <!--Section: Code-->
+
+                            </section>
+                            <!--/Section: Select with label-->
+
+                            <hr class="my-5">
+
+                            <!--Section: Disabled select-->
+                            <section id="section-disabled-select">
+                                <!-- Section title -->
+                                <h3 class="mb-4">Disabled select</h3>
+
+                                <p>Add <code>disabled</code> attribute to the select element to disable select input.</p>
+
+                                <!--Section: Demo-->
+                                <section class="pb-4">
+                                    <div class="border rounded-5">
+
+                                        <section class="w-100 p-4 pb-4 d-flex justify-content-center">
+                                            <div class="w-25">
+                                                <select data-cnds-select-init disabled>
+                                                    <option value="1">One</option>
+                                                    <option value="2">Two</option>
+                                                    <option value="3">Three</option>
+                                                    <option value="4">Four</option>
+                                                    <option value="5">Five</option>
+                                                </select>
+                                            </div>
+                                        </section>
+
+                                    </div>
+                                </section>
+                                <!--/Section: Demo-->
+                                <!-- Angular: Bind the disabled state with [disabled]="isDisabled" on the select element; when using reactive forms prefer calling myControl.disable() / myControl.enable() so the form model and UI stay in sync without extra template bindings.
+                                     Example: <select data-cnds-select-init [formControl]="mySelect" [attr.disabled]="isDisabled ? '' : null"><option *ngFor="let opt of options" [value]="opt.value">{{ opt.label }}</option></select>
+                                     Do not use [disabled]="true" directly in templates with reactive forms — always use the FormControl API to disable, otherwise Angular will log a warning about conflicting disabled state. -->
+
+                                <!--Section: Code-->
+                                <section class="mb-4">
+                                    <h5><span class="badge badge-code-html">HTML</span></h5>
+                                    <!-- snippet -->
+                                    <div class="p-0">
+                                        <pre class="line-numbers m-0">
+                                <code class="language-html">
+&lt;select data-cnds-select-init disabled&gt;
+    &lt;option value="1"&gt;One&lt;/option&gt;
+    &lt;option value="2"&gt;Two&lt;/option&gt;
+    &lt;option value="3"&gt;Three&lt;/option&gt;
+    &lt;option value="4"&gt;Four&lt;/option&gt;
+    &lt;option value="5"&gt;Five&lt;/option&gt;
+&lt;/select&gt;
+                                </code>
+                                </pre>
+                                    </div>
+                                    <!-- /.snippet -->
+                                </section>
+                                <!--Section: Code-->
+
+                            </section>
+                            <!--/Section: Disabled select-->
+
+                            <hr class="my-5">
+
+                            <!--Section: Basic example-->
+                            <section id="section-disabled-options">
+                                <!-- Section title -->
+                                <h3 class="mb-4">Disabled options</h3>
+
+                                <p>Use <code>disabled</code> attribute on option element to disable specific option.</p>
+
+                                <!--Section: Demo-->
+                                <section class="pb-4">
+                                    <div class="border rounded-5">
+
+                                        <section class="w-100 p-4 pb-4 d-flex justify-content-center">
+                                            <div class="w-25">
+                                                <select data-cnds-select-init>
+                                                    <option value="1">One</option>
+                                                    <option value="2" disabled>Two</option>
+                                                    <option value="3" disabled>Three</option>
+                                                    <option value="4">Four</option>
+                                                    <option value="5">Five</option>
+                                                </select>
+                                            </div>
+                                        </section>
+
+                                    </div>
+                                </section>
+                                <!--/Section: Demo-->
+                                <!-- Angular: Add a disabled property to the option data model and bind it with [disabled]="opt.disabled" on each <option> element so disabled options are driven by data rather than hard-coded in the template.
+                                     Example: <select data-cnds-select-init [formControl]="mySelect"><option *ngFor="let opt of options" [value]="opt.value" [disabled]="opt.disabled">{{ opt.label }}</option></select>
+                                     Derive the opt.disabled flag from business logic (e.g. unavailable items, permissions) in the component so the template stays free of conditional logic. -->
+
+                                <!--Section: Code-->
+                                <section class="mb-4">
+                                    <h5><span class="badge badge-code-html">HTML</span></h5>
+                                    <!-- snippet -->
+                                    <div class="p-0">
+                                        <pre class="line-numbers m-0">
+                                <code class="language-html">
+&lt;select data-cnds-select-init&gt;
+    &lt;option value="1"&gt;One&lt;/option&gt;
+    &lt;option value="2" disabled&gt;Two&lt;/option&gt;
+    &lt;option value="3" disabled&gt;Three&lt;/option&gt;
+    &lt;option value="4"&gt;Four&lt;/option&gt;
+    &lt;option value="5"&gt;Five&lt;/option&gt;
+&lt;/select&gt;
+                                </code>
+                                </pre>
+                                    </div>
+                                    <!-- /.snippet -->
+                                </section>
+                                <!--Section: Code-->
+
+                            </section>
+                            <!--/Section: Disabled options-->
+
+                            <hr class="my-5">
+
+                            <!--Section: Clear button-->
+                            <section id="section-clear-button">
+                                <!-- Section title -->
+                                <h3 class="mb-4">Clear button</h3>
+
+                                <p>
+                                    Set <code>clearButton</code> option to <code>true</code> to display the button that will allow
+                                    to clear current selections.
+                                </p>
+
+                                <!--Section: Demo-->
+                                <section class="pb-4">
+                                    <div class="border rounded-5">
+
+                                        <section class="w-100 p-4 pb-4 d-flex justify-content-center">
+                                            <div class="w-25">
+                                                <select data-cnds-select-init data-cnds-clear-button="true">
+                                                    <option value="1">One</option>
+                                                    <option value="2">Two</option>
+                                                    <option value="3">Three</option>
+                                                    <option value="4">Four</option>
+                                                    <option value="5">Five</option>
+                                                </select>
+                                            </div>
+                                        </section>
+
+                                    </div>
+                                </section>
+                                <!--/Section: Demo-->
+                                <!-- Angular: Enable the clear button with [attr.data-cnds-clear-button]="showClearButton ? 'true' : null" driven by a [clearable] @Input() boolean; wire a (clear) EventEmitter so parent components can react when the user clears the selection.
+                                     Example: <select data-cnds-select-init [attr.data-cnds-clear-button]="clearable ? 'true' : null" [formControl]="mySelect"><option *ngFor="let opt of options" [value]="opt.value">{{ opt.label }}</option></select>
+                                     After the user clears the selection, call myControl.reset() on the FormControl so the form validation state resets correctly alongside the visual clear. -->
+
+                                <!--Section: Code-->
+                                <section class="mb-4">
+                                    <h5><span class="badge badge-code-html">HTML</span></h5>
+                                    <!-- snippet -->
+                                    <div class="p-0">
+                                        <pre class="line-numbers m-0">
+                                <code class="language-html">
+&lt;select data-cnds-select-init data-cnds-clear-button="true"&gt;
+    &lt;option value="1"&gt;One&lt;/option&gt;
+    &lt;option value="2"&gt;Two&lt;/option&gt;
+    &lt;option value="3"&gt;Three&lt;/option&gt;
+    &lt;option value="4"&gt;Four&lt;/option&gt;
+    &lt;option value="5"&gt;Five&lt;/option&gt;
+&lt;/select&gt;
+                                </code>
+                                </pre>
+                                    </div>
+                                    <!-- /.snippet -->
+                                </section>
+                                <!--Section: Code-->
+
+                            </section>
+                            <!--/Section: Clear button-->
+
+                            <hr class="my-5">
+
+                            <!--Section: Custom content-->
+                            <section id="section-custom-content">
+                                <!-- Section title -->
+                                <h3 class="mb-4">Custom content</h3>
+
+                                <p>
+                                    A custom content container with a class <code>.select-custom-content</code> will be displayed
+                                    at the end of the select dropdown.
+                                </p>
+
+                                <!--Section: Demo-->
+                                <section class="pb-4">
+                                    <div class="border rounded-5">
+
+                                        <section class="w-100 p-4 pb-4 d-flex justify-content-center">
+                                            <div class="w-25">
+                                                <select data-cnds-select-init>
+                                                    <option value="1">One</option>
+                                                    <option value="2">Two</option>
+                                                    <option value="3">Three</option>
+                                                    <option value="4">Four</option>
+                                                    <option value="5">Five</option>
+                                                </select>
+                                                <div class="select-custom-content">
+                                                    <button class="btn-save btn btn-primary btn-sm">Save</button>
+                                                </div>
+
+                                            </div>
+                                        </section>
+
+                                    </div>
+                                </section>
+                                <!--/Section: Demo-->
+                                <!-- Angular: Project custom footer content into the .select-custom-content div using ng-content so the parent component can provide its own save/cancel actions without coupling them to the select widget.
+                                     Example: <select data-cnds-select-init [formControl]="mySelect"><option *ngFor="let opt of options" [value]="opt.value">{{ opt.label }}</option></select><div class="select-custom-content"><ng-content></ng-content></div>
+                                     Emit an @Output() (save) EventEmitter from the component when the Save button is clicked so the parent decides what to do with the current selection value. -->
+
+                                <!--Section: Code-->
+                                <section class="mb-4">
+                                    <h5><span class="badge badge-code-html">HTML</span></h5>
+                                    <!-- snippet -->
+                                    <div class="p-0">
+                                        <pre class="line-numbers m-0">
+                                <code class="language-html">
+&lt;select data-cnds-select-init&gt;
+    &lt;option value="1"&gt;One&lt;/option&gt;
+    &lt;option value="2"&gt;Two&lt;/option&gt;
+    &lt;option value="3"&gt;Three&lt;/option&gt;
+    &lt;option value="4"&gt;Four&lt;/option&gt;
+    &lt;option value="5"&gt;Five&lt;/option&gt;
+&lt;/select&gt;
+&lt;div class="select-custom-content"&gt;
+    &lt;button class="btn-save btn btn-primary btn-sm"&gt;Save&lt;/button&gt;
+&lt;/div&gt;
+                                </code>
+                                </pre>
+                                    </div>
+                                    <!-- /.snippet -->
+                                </section>
+                                <!--Section: Code-->
+
+                            </section>
+                            <!--/Section: Custom content-->
+
+                            <hr class="my-5">
+
+                            <!--Section: Visible options-->
+                            <section id="section-visible-options">
+                                <!-- Section title -->
+                                <h3 class="mb-4">Visible options</h3>
+
+                                <p>
+                                    Use <code>visibleOptions</code> option to change the number of options that will be displayed
+                                    in the select dropdown without scrolling.
+                                </p>
+
+                                <!--Section: Demo-->
+                                <section class="pb-4">
+                                    <div class="border rounded-5">
+
+                                        <section class="w-100 p-4 pb-4 d-flex justify-content-center">
+                                            <div class="w-25">
+                                                <select data-cnds-select-init data-cnds-visible-options="3">
+                                                    <option value="1">One</option>
+                                                    <option value="2">Two</option>
+                                                    <option value="3">Three</option>
+                                                    <option value="4">Four</option>
+                                                    <option value="5">Five</option>
+                                                </select>
+                                            </div>
+                                        </section>
+
+                                    </div>
+                                </section>
+                                <!--/Section: Demo-->
+                                <!-- Angular: Bind the visible options count with [attr.data-cnds-visible-options]="visibleOptions" driven by a [visibleOptions] @Input() number so the dropdown height can be controlled from the parent without modifying the widget template.
+                                     Example: <select data-cnds-select-init [attr.data-cnds-visible-options]="visibleOptions" [formControl]="mySelect"><option *ngFor="let opt of options" [value]="opt.value">{{ opt.label }}</option></select>
+                                     Default visibleOptions to 5 in the component so existing uses without an explicit @Input() show a consistent number of options before scrolling. -->
+
+                                <!--Section: Code-->
+                                <section class="mb-4">
+                                    <h5><span class="badge badge-code-html">HTML</span></h5>
+                                    <!-- snippet -->
+                                    <div class="p-0">
+                                        <pre class="line-numbers m-0">
+                                <code class="language-html">
+&lt;select data-cnds-select-init data-cnds-visible-options="3"&gt;
+    &lt;option value="1"&gt;One&lt;/option&gt;
+    &lt;option value="2"&gt;Two&lt;/option&gt;
+    &lt;option value="3"&gt;Three&lt;/option&gt;
+    &lt;option value="4"&gt;Four&lt;/option&gt;
+    &lt;option value="5"&gt;Five&lt;/option&gt;
+&lt;/select&gt;
+                                </code>
+                                </pre>
+                                    </div>
+                                    <!-- /.snippet -->
+                                </section>
+                                <!--Section: Code-->
+
+                            </section>
+                            <!--/Section: Visible options-->
+
+                            <hr class="my-5">
+
+                            <!--Section: Secondary text-->
+                            <section id="section-secondary-text">
+                                <!-- Section title -->
+                                <h3 class="mb-4">Secondary text</h3>
+
+                                <p>
+                                    Add <code>secondary-text</code> data attribute to the specific options to display secondary
+                                    text.
+                                </p>
+
+                                <!--Section: Demo-->
+                                <section class="pb-4">
+                                    <div class="border rounded-5">
+
+                                        <section class="w-100 p-4 pb-4 d-flex justify-content-center">
+                                            <div class="w-25">
+                                                <select data-cnds-select-init data-cnds-option-height="44">
+                                                    <option value="1" data-cnds-secondary-text="Secondary text">One</option>
+                                                    <option value="2" data-cnds-secondary-text="Secondary text">Two</option>
+                                                    <option value="3" data-cnds-secondary-text="Secondary text">Three</option>
+                                                    <option value="4" data-cnds-secondary-text="Secondary text">Four</option>
+                                                    <option value="5" data-cnds-secondary-text="Secondary text">Five</option>
+                                                </select>
+                                            </div>
+                                        </section>
+
+                                    </div>
+                                </section>
+                                <!--/Section: Demo-->
+                                <!-- Angular: Bind secondary text with [attr.data-cnds-secondary-text]="opt.secondaryText" on each <option> element and increase the option height via [attr.data-cnds-option-height]="optionHeight" on the <select> to accommodate the extra line.
+                                     Example: <select data-cnds-select-init [attr.data-cnds-option-height]="44" [formControl]="mySelect"><option *ngFor="let opt of options" [value]="opt.value" [attr.data-cnds-secondary-text]="opt.secondaryText">{{ opt.label }}</option></select>
+                                     Include secondaryText in the option data model as an optional string so options without secondary text simply omit the attribute. -->
+
+                                <!--Section: Code-->
+                                <section class="mb-4">
+                                    <h5><span class="badge badge-code-html">HTML</span></h5>
+                                    <!-- snippet -->
+                                    <div class="p-0">
+                                        <pre class="line-numbers m-0">
+                                <code class="language-html">
+&lt;select data-cnds-select-init data-cnds-option-height="44"&gt;
+    &lt;option value="1" data-cnds-secondary-text="Secondary text"&gt;One&lt;/option&gt;
+    &lt;option value="2" data-cnds-secondary-text="Secondary text"&gt;Two&lt;/option&gt;
+    &lt;option value="3" data-cnds-secondary-text="Secondary text"&gt;Three&lt;/option&gt;
+    &lt;option value="4" data-cnds-secondary-text="Secondary text"&gt;Four&lt;/option&gt;
+    &lt;option value="5" data-cnds-secondary-text="Secondary text"&gt;Five&lt;/option&gt;
+&lt;/select&gt;
+                                </code>
+                                </pre>
+                                    </div>
+                                    <!-- /.snippet -->
+                                </section>
+                                <!--Section: Code-->
+
+
+
+                            </section>
+                            <!--/Section: Secondary text-->
+
+                            <hr class="my-5">
+
+                            <!--Section: Search-->
+                            <section id="section-search">
+                                <!-- Section title -->
+                                <h3 class="mb-4">Search</h3>
+
+                                <p>Set <code>filter</code> option to <code>true</code> to enable options filtering.</p>
+
+                                <p>
+                                    The filter field carries its own clear button. It appears only
+                                    while the field has text, and clicking it empties the search,
+                                    re-renders the full option list, returns focus to the field and
+                                    fires <code>search.cnds.select</code> with an empty value &mdash;
+                                    so a consumer listening for typing needs no second listener for
+                                    the clear. Nothing to opt into; it ships with
+                                    <code>data-cnds-filter="true"</code>.
+                                </p>
+
+                                <!--Section: Demo-->
+                                <section class="pb-4">
+                                    <div class="border rounded-5">
+
+                                        <section class="w-100 p-4 pb-4 d-flex justify-content-center">
+                                            <div class="w-25">
+                                                <select data-cnds-select-init data-cnds-filter="true">
+                                                    <option value="1">One</option>
+                                                    <option value="2">Two</option>
+                                                    <option value="3">Three</option>
+                                                    <option value="4">Four</option>
+                                                    <option value="5">Five</option>
+                                                    <option value="6">Six</option>
+                                                    <option value="7">Seven</option>
+                                                    <option value="8">Eight</option>
+                                                    <option value="9">Nine</option>
+                                                    <option value="10">Ten</option>
+                                                </select>
+                                            </div>
+                                        </section>
+
+                                    </div>
+                                </section>
+                                <!--/Section: Demo-->
+                                <!-- Angular: Enable option filtering with [attr.data-cnds-filter]="filter ? 'true' : null" driven by a [filterable] @Input() boolean; for large option lists loaded from an API, combine with a debounced search FormControl and filter the options array in the component.
+                                     Example: <select data-cnds-select-init [attr.data-cnds-filter]="filterable ? 'true' : null" [formControl]="mySelect"><option *ngFor="let opt of filteredOptions" [value]="opt.value">{{ opt.label }}</option></select>
+                                     Pipe the search term through debounceTime(300) and distinctUntilChanged() when filtering a large server-side dataset to avoid redundant API requests on every keystroke. -->
+
+                                <!--Section: Code-->
+                                <section class="mb-4">
+                                    <h5><span class="badge badge-code-html">HTML</span></h5>
+                                    <!-- snippet -->
+                                    <div class="p-0">
+                                        <pre class="line-numbers m-0">
+                                <code class="language-html">
+&lt;select data-cnds-select-init data-cnds-filter="true"&gt;
+    &lt;option value="1"&gt;One&lt;/option&gt;
+    &lt;option value="2"&gt;Two&lt;/option&gt;
+    &lt;option value="3"&gt;Three&lt;/option&gt;
+    &lt;option value="4"&gt;Four&lt;/option&gt;
+    &lt;option value="5"&gt;Five&lt;/option&gt;
+    &lt;option value="6"&gt;Six&lt;/option&gt;
+    &lt;option value="7"&gt;Seven&lt;/option&gt;
+    &lt;option value="8"&gt;Eight&lt;/option&gt;
+    &lt;option value="9"&gt;Nine&lt;/option&gt;
+    &lt;option value="10"&gt;Ten&lt;/option&gt;
+&lt;/select&gt;
+                                </code>
+                                </pre>
+                                    </div>
+                                    <!-- /.snippet -->
+                                </section>
+                                <!--Section: Code-->
+
+                            </section>
+                            <!--/Section: Search-->
+
+                            <hr class="my-5">
+
+                            <!--Section: Search-->
+                            <section id="section-search-inside-modal">
+                                <!-- Section title -->
+                                <h3 class="mb-4">Select with search inside a modal</h3>
+
+                                <p>
+                                    Due to a focus trap in modals, it is not possible to focus the outer elements (like select
+                                    dropdown). You can use select <code>data-cnds-container</code> option to resolve this problem.
+                                </p>
+                                <p>
+                                    The <code>data-cnds-container</code> accepts selector of the element inside of wich select
+                                    dropdown will be rendered. In this case, the selector should point to the modal container (the
+                                    element with class <code>.modal</code>). It is important to use a unique selector to assign
+                                    select to a specific modal.
+                                </p>
+
+                                <!--Section: Demo-->
+                                <section class="pb-4">
+                                    <div class="border rounded-5">
+
+                                        <section class="w-100 p-4 pb-4 d-flex justify-content-center">
+                                            <!-- Button trigger modal -->
+                                            <button type="button" class="btn btn-primary" data-cnds-toggle="modal" data-cnds-target="#exampleModal">
+                                                Launch demo modal
+                                            </button>
+
+                                            <!-- Modal -->
+                                            <!-- See MODALS section at the bottom of the MAIN tag -->
+
+                                    </div>
+                                </section>
+                                <!--/Section: Demo-->
+                                <!-- Angular: Open the select inside a modal by setting [attr.data-cnds-container]="'#' + modalId" on the select element so the dropdown portal renders inside the modal and is not clipped by the modal's focus trap or z-index.
+                                     Example: <select data-cnds-select-init [attr.data-cnds-container]="'#' + modalId" [attr.data-cnds-filter]="'true'" [formControl]="mySelect"><option *ngFor="let opt of options" [value]="opt.value">{{ opt.label }}</option></select>
+                                     Bind modalId as an @Input() string so the same select component can be reused inside different modals without hard-coding the selector. -->
+                                <div class="note note-info">
+                                    <strong>Note:</strong> To avoid modal display issues it is best to place the modal code outside of the parent UI. In the Nimbus templates there is a section commented after the footer sectionn where all modals should be placed.
+                                </div>
+                                <!--Section: Code-->
+                                <section class="mb-4">
+                                    <h5><span class="badge badge-code-html">HTML</span></h5>
+                                    <!-- snippet -->
+                                    <div class="p-0">
+                                        <pre class="line-numbers m-0">
+                                <code class="language-html">
+&lt;!-- Button trigger modal --&gt;
+&lt;button type="button" class="btn btn-primary" data-cnds-toggle="modal" data-cnds-target="#exampleModal"&gt;
+    Launch demo modal
+&lt;/button&gt;
+
+&lt;!-- Modal --&gt;
+&lt;div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true"&gt;
+    &lt;div class="modal-dialog"&gt;
+        &lt;div class="modal-content"&gt;
+            &lt;div class="modal-header"&gt;
+                &lt;h5 class="modal-title" id="exampleModalLabel"&gt;Modal title&lt;/h5&gt;
+                &lt;button type="button" class="btn-close" data-cnds-dismiss="modal" aria-label="Close"&gt;&lt;/button&gt;
+            &lt;/div&gt;
+            &lt;form&gt;
+                &lt;div class="modal-body"&gt;
+                    &lt;select data-cnds-select-init data-cnds-container="#exampleModal" data-cnds-filter="true"&gt;
+                        &lt;option value="1"&gt;One&lt;/option&gt;
+                        &lt;option value="2"&gt;Two&lt;/option&gt;
+                        &lt;option value="3"&gt;Three&lt;/option&gt;
+                        &lt;option value="4"&gt;Four&lt;/option&gt;
+                        &lt;option value="5"&gt;Five&lt;/option&gt;
+                        &lt;option value="6"&gt;Six&lt;/option&gt;
+                        &lt;option value="7"&gt;Seven&lt;/option&gt;
+                        &lt;option value="8"&gt;Eight&lt;/option&gt;
+                        &lt;option value="9"&gt;Nine&lt;/option&gt;
+                        &lt;option value="10"&gt;Ten&lt;/option&gt;
+                    &lt;/select&gt;
+                &lt;/div&gt;
+                &lt;div class="modal-footer"&gt;
+                    &lt;button type="button" class="btn btn-secondary" data-cnds-dismiss="modal"&gt;
+                        Close
+                    &lt;/button&gt;
+                    &lt;button type="submit" class="btn btn-primary"&gt;Save changes&lt;/button&gt;
+                &lt;/div&gt;
+            &lt;/form&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+                                </code>
+                                </pre>
+                                    </div>
+                                    <!-- /.snippet -->
+                                </section>
+                                <!--Section: Code-->
+
+                            </section>
+                            <!--/Section: Search inside modal-->
+
+                            <hr class="my-5">
+
+                            <!--Section: Option groups-->
+                            <section id="section-option-groups">
+                                <!-- Section title -->
+                                <h3 class="mb-4">Option groups</h3>
+
+                                <p>It is possible to group options by using <code>optgroup</code> element.</p>
+
+                                <!--Section: Demo-->
+                                <section class="pb-4">
+                                    <div class="border rounded-5">
+
+                                        <section class="w-100 p-4 pb-4 d-flex justify-content-center">
+                                            <div class="w-25">
+                                                <select data-cnds-select-init>
+                                                    <optgroup label="Label 1">
+                                                        <option value="1">One</option>
+                                                        <option value="2">Two</option>
+                                                        <option value="3">Three</option>
+                                                    </optgroup>
+                                                    <optgroup label="Label 2">
+                                                        <option value="4">Four</option>
+                                                        <option value="5">Five</option>
+                                                        <option value="6">Six</option>
+                                                    </optgroup>
+                                                </select>
+                                            </div>
+                                        </section>
+
+                                    </div>
+                                </section>
+                                <!--/Section: Demo-->
+                                <!-- Angular: Group options using <optgroup> elements driven by a nested data model; iterate over groups with *ngFor and render nested options with a second *ngFor inside each group.
+                                     Example: <select data-cnds-select-init [formControl]="mySelect"><optgroup *ngFor="let group of optionGroups" [label]="group.label"><option *ngFor="let opt of group.options" [value]="opt.value">{{ opt.label }}</option></optgroup></select>
+                                     Model each group as { label: string; options: SelectOption[] } so the groups array can be loaded from an API response and rendered without any template changes. -->
+
+                                <!--Section: Code-->
+                                <section class="mb-4">
+                                    <h5><span class="badge badge-code-html">HTML</span></h5>
+                                    <!-- snippet -->
+                                    <div class="p-0">
+                                        <pre class="line-numbers m-0">
+                                <code class="language-html">
+&lt;select data-cnds-select-init&gt;
+    &lt;optgroup label="Label 1"&gt;
+        &lt;option value="1"&gt;One&lt;/option&gt;
+        &lt;option value="2"&gt;Two&lt;/option&gt;
+        &lt;option value="3"&gt;Three&lt;/option&gt;
+    &lt;/optgroup&gt;
+    &lt;optgroup label="Label 2"&gt;
+        &lt;option value="4"&gt;Four&lt;/option&gt;
+        &lt;option value="5"&gt;Five&lt;/option&gt;
+        &lt;option value="6"&gt;Six&lt;/option&gt;
+    &lt;/optgroup&gt;
+&lt;/select&gt;
+                                </code>
+                                </pre>
+                                    </div>
+                                    <!-- /.snippet -->
+                                </section>
+                                <!--Section: Code-->
+
+                            </section>
+                            <!--/Section: Option groups-->
+
+                            <hr class="my-5">
+
+                            <!--Section: Select with icons-->
+                            <section id="section-icons">
+                                <!-- Section title -->
+                                <h3 class="mb-4">Select with images</h3>
+
+                                <p>Add the <code>data-cnds-icon</code> attribute to individual options with a path to an image. The image is displayed as a circular thumbnail alongside the option label.</p>
+
+                                <!--Section: Demo-->
+                                <section class="pb-4">
+                                    <div class="border rounded-5">
+
+                                        <section class="w-100 p-4 pb-4 d-flex justify-content-center">
+                                            <div class="w-25">
+                                                <select data-cnds-select-init>
+                                                    <option value="1" data-cnds-icon="img/cf/styleguide/avatar.jpg">One</option>
+                                                    <option value="2" data-cnds-icon="img/cf/styleguide/llama.jpg">Two</option>
+                                                    <option value="3" data-cnds-icon="img/cf/styleguide/184.webp">Three</option>
+                                                    <option value="4" data-cnds-icon="img/cf/styleguide/041-1.webp">Four</option>
+                                                    <option value="5" data-cnds-icon="img/cf/styleguide/111.webp">Five</option>
+                                                </select>
+                                            </div>
+                                        </section>
+
+                                    </div>
+                                </section>
+                                <!--/Section: Demo-->
+                                <!-- Angular: Bind the icon image path with [attr.data-cnds-icon]="opt.iconUrl" on each <option> element so image paths come from the data model and can point to dynamic URLs (e.g. user avatar URLs from an API response).
+                                     Example: <select data-cnds-select-init [formControl]="mySelect"><option *ngFor="let opt of options" [value]="opt.value" [attr.data-cnds-icon]="opt.iconUrl">{{ opt.label }}</option></select>
+                                     Store iconUrl as a component-level base path combined with opt.filename so changing image hosting requires updating only one property. -->
+
+                                <h4 class="mt-2 mb-3">Image left (default)</h4>
+
+                                <!--Section: Code-->
+                                <section class="mb-5">
+                                    <h5><span class="badge badge-code-html">HTML</span></h5>
+                                    <!-- snippet -->
+                                    <div class="p-0">
+                                        <pre class="line-numbers m-0">
+                                <code class="language-html">
+&lt;select data-cnds-select-init&gt;
+    &lt;option value="1" data-cnds-icon="img/cf/styleguide/avatar.jpg"&gt;One&lt;/option&gt;
+    &lt;option value="2" data-cnds-icon="img/cf/styleguide/llama.jpg"&gt;Two&lt;/option&gt;
+    &lt;option value="3" data-cnds-icon="img/cf/styleguide/184.webp"&gt;Three&lt;/option&gt;
+    &lt;option value="4" data-cnds-icon="img/cf/styleguide/041-1.webp"&gt;Four&lt;/option&gt;
+    &lt;option value="5" data-cnds-icon="img/cf/styleguide/111.webp"&gt;Five&lt;/option&gt;
+&lt;/select&gt;
+                                </code>
+                                </pre>
+                                    </div>
+                                    <!-- /.snippet -->
+                                </section>
+                                <!--Section: Code-->
+
+                                <h3 class="mb-3">Image right</h3>
+
+                                <!--Section: Demo-->
+                                <section class="pb-4">
+                                    <div class="border rounded-5">
+                                        <section class="w-100 p-4 pb-4 d-flex justify-content-center">
+                                            <div class="w-25">
+                                                <select data-cnds-select-init data-cnds-icon-position="right">
+                                                    <option value="1" data-cnds-icon="img/cf/styleguide/avatar.jpg">One</option>
+                                                    <option value="2" data-cnds-icon="img/cf/styleguide/llama.jpg">Two</option>
+                                                    <option value="3" data-cnds-icon="img/cf/styleguide/184.webp">Three</option>
+                                                    <option value="4" data-cnds-icon="img/cf/styleguide/041-1.webp">Four</option>
+                                                    <option value="5" data-cnds-icon="img/cf/styleguide/111.webp">Five</option>
+                                                </select>
+                                            </div>
+                                        </section>
+                                    </div>
+                                </section>
+                                <!--/Section: Demo-->
+                                <!-- Angular: Control icon placement with [attr.data-cnds-icon-position]="iconPosition" driven by a [iconPosition] @Input() accepting 'left' | 'right'; default to 'left' to match the Nimbus default without requiring an explicit attribute.
+                                     Example: <select data-cnds-select-init [attr.data-cnds-icon-position]="iconPosition" [formControl]="mySelect"><option *ngFor="let opt of options" [value]="opt.value" [attr.data-cnds-icon]="opt.iconUrl">{{ opt.label }}</option></select>
+                                     When iconPosition is 'left' (the default), omit the attribute binding with [attr.data-cnds-icon-position]="iconPosition !== 'left' ? iconPosition : null" to keep the rendered HTML clean. -->
+
+                                <!--Section: Code-->
+                                <section class="mb-4">
+                                    <h5><span class="badge badge-code-html">HTML</span></h5>
+                                    <!-- snippet -->
+                                    <div class="p-0">
+                                        <pre class="line-numbers m-0">
+                                <code class="language-html">
+&lt;select data-cnds-select-init data-cnds-icon-position="right"&gt;
+    &lt;option value="1" data-cnds-icon="img/cf/styleguide/avatar.jpg"&gt;One&lt;/option&gt;
+    &lt;option value="2" data-cnds-icon="img/cf/styleguide/llama.jpg"&gt;Two&lt;/option&gt;
+    &lt;option value="3" data-cnds-icon="img/cf/styleguide/184.webp"&gt;Three&lt;/option&gt;
+    &lt;option value="4" data-cnds-icon="img/cf/styleguide/041-1.webp"&gt;Four&lt;/option&gt;
+    &lt;option value="5" data-cnds-icon="img/cf/styleguide/111.webp"&gt;Five&lt;/option&gt;
+&lt;/select&gt;
+                                </code>
+                                </pre>
+                                    </div>
+                                    <!-- /.snippet -->
+                                </section>
+                                <!--Section: Code-->
+
+                            </section>
+                            <!--/Section: Select with icons-->
+
+                            <hr class="my-5">
+
+                            <!--Section: Validation-->
+                            <section id="section-validation">
+                                <!-- Section title -->
+                                <h3 class="mb-4">Validation</h3>
+
+                                <p>
+                                    Set <code>validation</code> option to <code>true</code> to enable component validation. The
+                                    <code>validFeedback</code> and <code>invalidFeedback</code> options allow to modify the
+                                    validation messages.
+                                </p>
+
+                                <!--Section: Demo-->
+                                <section class="pb-4">
+                                    <div class="border rounded-5">
+
+                                        <section class="w-100 p-4 pb-4 d-flex justify-content-center">
+                                            <div class="w-25">
+                                                <select data-cnds-select-init id="select-with-validation" data-cnds-validation="true" data-cnds-invalid-feedback="Please select an option." required>
+                                                    <option value="" disabled selected></option>
+                                                    <option value="1">One</option>
+                                                    <option value="2">Two</option>
+                                                    <option value="3">Three</option>
+                                                    <option value="4">Four</option>
+                                                    <option value="5">Five</option>
+                                                    <option value="6">Six</option>
+                                                    <option value="7">Seven</option>
+                                                    <option value="8">Eight</option>
+                                                </select>
+                                                <label class="form-label select-label">Example label</label>
+                                            </div>
+                                        </section>
+
+                                    </div>
+                                </section>
+                                <!--/Section: Demo-->
+                                <!-- Angular: Integrate Nimbus select validation with a reactive form by applying Validators.required on the FormControl; show invalid feedback using *ngIf="mySelect.invalid && mySelect.touched" bound to a message @Input() rather than relying on data-cnds-invalid-feedback alone.
+                                     Example: <select data-cnds-select-init [attr.data-cnds-validation]="'true'" [formControl]="mySelect" required><option *ngFor="let opt of options" [value]="opt.value">{{ opt.label }}</option></select><div *ngIf="mySelect.invalid && mySelect.touched" class="invalid-feedback d-block">{{ invalidFeedback }}</div>
+                                     Call myForm.markAllAsTouched() on form submit so all validation messages appear simultaneously rather than only when each field is individually blurred. -->
+
+                                <!--Section: Code-->
+                                <section class="mb-4">
+                                    <h5><span class="badge badge-code-html">HTML</span></h5>
+                                    <!-- snippet -->
+                                    <div class="p-0">
+                                        <pre class="line-numbers m-0">
+                                <code class="language-html">
+&lt;form class="needs-validation" novalidate&gt;
+    &lt;select data-cnds-select-init id="select-with-validation" data-cnds-validation="true" data-cnds-valid-feedback="This value is valid" data-cnds-invalid-feedback="This value is invalid" data-cnds-clear-button="true"&gt;
+        &lt;option value="1"&gt;One&lt;/option&gt;
+        &lt;option value="2"&gt;Two&lt;/option&gt;
+        &lt;option value="3"&gt;Three&lt;/option&gt;
+        &lt;option value="4"&gt;Four&lt;/option&gt;
+        &lt;option value="5"&gt;Five&lt;/option&gt;
+        &lt;option value="6"&gt;Six&lt;/option&gt;
+        &lt;option value="7"&gt;Seven&lt;/option&gt;
+        &lt;option value="8"&gt;Eight&lt;/option&gt;
+    &lt;/select&gt;
+    &lt;button type="submit" id="submit" class="btn btn-primary btn-sm mt-3"&gt;
+        Submit
+    &lt;/button&gt;
+&lt;/form&gt;
+                                </code>
+                                </pre>
+                                    </div>
+                                    <!-- /.snippet -->
+                                </section>
+                                <!--Section: Code-->
+                                <!--Section: Code-->
+                                <section class="mb-4">
+                                    <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                                    <!-- snippet -->
+                                    <div class="p-0">
+                                        <pre class="line-numbers m-0">
+                                <code class="language-js">
+// No additional JavaScript required.
+// The select component handles validation automatically when
+// data-cnds-validation="true" is set. On form submit it applies
+// is-valid or is-invalid to the wrapper and shows feedback text.
+                                </code>
+                                </pre>
+                                    </div>
+                                    <!-- /.snippet -->
+                                </section>
+                                <!--Section: Code-->
+                            </section>
+                            <!--/Section: Validation-->
+
+                            <hr class="my-5">
+
+                            <!--Section: Set value-->
+                            <section id="section-set-value">
+                                <!-- Section title -->
+                                <h3 class="mb-4">Set value</h3>
+
+                                <p>The <code>setValue</code> method allows to programatically set the component selections.</p>
+
+                                <!--Section: Single Selection-->
+                                <section id="subsection-single-selection">
+                                    <h4 class="my-3"><strong>Single selection</strong></h4>
+
+                                    <p>
+                                        Add single value string to the arguments list to correctly select option with corresponding
+                                        value in single selection mode.
+                                    </p>
+
+                                    <!--Section: Demo-->
+                                    <section class="pb-4">
+                                        <div class="border rounded-5">
+
+                                            <section class="w-100 p-4 pb-4 d-flex justify-content-center">
+                                                <div class="w-25">
+                                                    <select id="singleSelection" data-cnds-select-init>
+                                                        <option value="1">One</option>
+                                                        <option value="2">Two</option>
+                                                        <option value="3">Three</option>
+                                                        <option value="4">Four</option>
+                                                        <option value="5">Five</option>
+                                                    </select>
+                                                </div>
+                                            </section>
+
+                                        </div>
+                                    </section>
+                                    <!--/Section: Demo-->
+                                    <!-- Angular: Set a programmatic value on a single-select FormControl with myControl.setValue('4'); to pre-select an option; this is equivalent to calling Nimbus.Select.getInstance(el).setValue('4') but integrates with Angular's reactive form model.
+                                         Example: <select id="singleSelection" data-cnds-select-init [formControl]="singleSelect"><option *ngFor="let opt of options" [value]="opt.value">{{ opt.label }}</option></select>
+                                         Call setValue() inside ngOnInit or after data loads from a service so the initial selection reflects the persisted user preference. -->
+
+                                    <!--Section: Code-->
+                                    <section class="mb-4">
+                                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                                        <!-- snippet -->
+                                        <div class="p-0">
+                                            <pre class="line-numbers m-0">
+                                    <code class="language-html">
+&lt;select id="singleSelection" data-cnds-select-init&gt;
+    &lt;option value="1"&gt;One&lt;/option&gt;
+    &lt;option value="2"&gt;Two&lt;/option&gt;
+    &lt;option value="3"&gt;Three&lt;/option&gt;
+    &lt;option value="4"&gt;Four&lt;/option&gt;
+    &lt;option value="5"&gt;Five&lt;/option&gt;
+&lt;/select&gt;
+                                    </code>
+                                    </pre>
+                                        </div>
+                                        <!-- /.snippet -->
+                                    </section>
+                                    <!--Section: Code-->
+                                    <!--Section: Code-->
+                                    <section class="mb-4">
+                                        <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                                        <!-- snippet -->
+                                        <div class="p-0">
+                                            <pre class="line-numbers m-0">
+                                    <code class="language-js">
+const singleSelect = document.querySelector('#singleSelection');
+const singleSelectInstance = Nimbus.Select.getInstance(singleSelect);
+singleSelectInstance.setValue('4');
+                                    </code>
+                                    </pre>
+                                        </div>
+                                        <!-- /.snippet -->
+                                    </section>
+                                    <!--Section: Code-->
+                                </section>
+                                <!--/Section: Single Selection-->
+
+                                <!--Section: Multi Selection-->
+                                <section id="subsection-multi-selection">
+                                    <h4 class="my-3"><strong>Multi selection</strong></h4>
+
+                                    <p>
+                                        Add array of string values to the arguments list to correctly select option with
+                                        corresponding value in multi selection mode.
+                                    </p>
+
+                                    <!--Section: Demo-->
+                                    <section class="pb-4">
+                                        <div class="border rounded-5">
+
+                                            <section class="w-100 p-4 pb-4 d-flex justify-content-center">
+                                                <div class="w-25">
+                                                    <select id="multiSelection" data-cnds-select-init multiple>
+                                                        <option value="1">One</option>
+                                                        <option value="2">Two</option>
+                                                        <option value="3">Three</option>
+                                                        <option value="4">Four</option>
+                                                        <option value="5">Five</option>
+                                                    </select>
+                                                </div>
+                                            </section>
+
+                                        </div>
+                                    </section>
+                                    <!--/Section: Demo-->
+                                    <!-- Angular: Pre-select multiple options by initialising the FormControl with an array of values: new FormControl(['1', '3']); to achieve what Nimbus's setValue(['1','3']) does, keeping the reactive form as the single source of truth.
+                                         Example: <select id="multiSelection" data-cnds-select-init multiple [formControl]="multiSelect"><option *ngFor="let opt of options" [value]="opt.value">{{ opt.label }}</option></select>
+                                         Use patchValue(['1','3']) instead of setValue(['1','3']) when updating only part of a larger FormGroup so sibling controls are not reset. -->
+
+                                    <!--Section: Code-->
+                                    <section class="mb-4">
+                                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                                        <!-- snippet -->
+                                        <div class="p-0">
+                                            <pre class="line-numbers m-0">
+                                    <code class="language-html">
+&lt;select id="multiSelection" data-cnds-select-init multiple&gt;
+    &lt;option value="1"&gt;One&lt;/option&gt;
+    &lt;option value="2"&gt;Two&lt;/option&gt;
+    &lt;option value="3"&gt;Three&lt;/option&gt;
+    &lt;option value="4"&gt;Four&lt;/option&gt;
+    &lt;option value="5"&gt;Five&lt;/option&gt;
+&lt;/select&gt;
+                                    </code>
+                                    </pre>
+                                        </div>
+                                        <!-- /.snippet -->
+                                    </section>
+                                    <!--Section: Code-->
+                                    <!--Section: Code-->
+                                    <section class="mb-4">
+                                        <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                                        <!-- snippet -->
+                                        <div class="p-0">
+                                            <pre class="line-numbers m-0">
+                                    <code class="language-js">
+const multiSelect = document.querySelector('#multiSelection');
+const multiSelectInstance = Nimbus.Select.getInstance(multiSelect);
+multiSelectInstance.setValue(['3', '4', '5']);
+                                    </code>
+                                    </pre>
+                                        </div>
+                                        <!-- /.snippet -->
+                                    </section>
+                                    <!--Section: Code-->
+                                </section>
+                                <!--/Section: Multi Selection-->
+                            </section>
+                            <!--/Section: Set value-->
+
+                            <hr class="my-5">
+
+                            <!--Section: Select with Toggle Button-->
+                            <section id="select-with-toggle-element">
+                                <h3 class="my-3">Select with toggle element</h3>
+
+                                <p>
+                                    If you want to toggle Select via button, you have to add <code>data-cnds-toggle</code> attribute to this button with
+                                    <code>ID</code> of the Select element.
+                                </p>
+
+                                <!--Section: Demo-->
+                                <section class="pb-4">
+                                    <div class="border rounded-5">
+
+                                        <section class="w-100 p-4 pb-4 d-flex justify-content-center">
+                                            <div class="w-25">
+                                                <select data-cnds-select-init id="mySelect">
+                                                    <option value="1">One</option>
+                                                    <option value="2">Two</option>
+                                                    <option value="3">Three</option>
+                                                    <option value="4">Four</option>
+                                                    <option value="5">Five</option>
+                                                </select>
+
+                                                <button id="toggleMySelect" class="btn btn-primary mt-3" data-cnds-toggle="mySelect">
+                                                    Toggle Select
+                                                </button>
+                                            </div>
+                                        </section>
+
+                                    </div>
+                                </section>
+                                <!--/Section: Demo-->
+                                <!-- Angular: Trigger the Nimbus select programmatically in response to a button click by calling Nimbus.Select.getInstance(el).open() in a method; bind the button's (click) to that method and get the native element via @ViewChild.
+                                     Example: <select data-cnds-select-init id="mySelect" [formControl]="mySelect" #selectEl><option *ngFor="let opt of options" [value]="opt.value">{{ opt.label }}</option></select><button class="btn btn-primary mt-3" (click)="openSelect()">Toggle Select</button>
+                                     In the component, use @ViewChild('selectEl') selectEl: ElementRef and call Nimbus.Select.getInstance(this.selectEl.nativeElement).open() inside openSelect() to keep DOM access isolated from the template. -->
+
+                                <!--Section: Code-->
+                                <section class="mb-4">
+                                    <h5><span class="badge badge-code-html">HTML</span></h5>
+                                    <!-- snippet -->
+                                    <div class="p-0">
+                                        <pre class="line-numbers m-0">
+                                <code class="language-html">
+&lt;select data-cnds-select-init id="mySelect"&gt;
+    &lt;option value="1"&gt;One&lt;/option&gt;
+    &lt;option value="2"&gt;Two&lt;/option&gt;
+    &lt;option value="3"&gt;Three&lt;/option&gt;
+    &lt;option value="4"&gt;Four&lt;/option&gt;
+    &lt;option value="5"&gt;Five&lt;/option&gt;
+&lt;/select&gt;
+
+&lt;button id="toggleMySelect" class="btn btn-primary" data-cnds-toggle="mySelect"&gt;
+    Toggle Select
+&lt;/button&gt;
+                                </code>
+                                </pre>
+                                    </div>
+                                    <!-- /.snippet -->
+                                </section>
+                                <!--Section: Code-->
+                                <!--Section: Code-->
+                                <section class="mb-4">
+                                    <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                                    <!-- snippet -->
+                                    <div class="p-0">
+                                        <pre class="line-numbers m-0">
+                                <code class="language-js">
+const selectEl = document.getElementById('mySelect')
+const select = Nimbus.Select.getInstance(selectEl)
+
+document.getElementById("toggleMySelect").onclick = function () {
+  select.open()
+};
+                                </code>
+                                </pre>
+                                    </div>
+                                    <!-- /.snippet -->
+                                </section>
+                                <!--Section: Code-->
+                            </section>
+                            <!--/Section: Select with Toggle Button-->
+
+                            <hr class="my-5">
+
+                            <!--Section: Auto select-->
+                            <section id="section-auto-select">
+                                <h3 class="my-3">Auto select</h3>
+
+                                <p>
+                                    Set <code>autoSelect</code> option to <code>true</code> to enable selecting on Tab press.
+                                </p>
+
+                                <!--Section: Demo-->
+                                <section class="pb-4">
+                                    <div class="border rounded-5">
+
+                                        <section class="w-100 p-4 pb-4 d-flex justify-content-center">
+                                            <div class="w-25">
+                                                <select data-cnds-select-init data-cnds-auto-select="true">
+                                                    <option value="1">One</option>
+                                                    <option value="2">Two</option>
+                                                    <option value="3">Three</option>
+                                                    <option value="4">Four</option>
+                                                    <option value="5">Five</option>
+                                                    <option value="6">Six</option>
+                                                    <option value="7">Seven</option>
+                                                    <option value="8">Eight</option>
+                                                </select>
+                                            </div>
+                                        </section>
+
+                                    </div>
+                                </section>
+                                <!--/Section: Demo-->
+                                <!-- Angular: Enable auto-select on Tab with [attr.data-cnds-auto-select]="autoSelect ? 'true' : null" driven by a [autoSelect] @Input() boolean; combine with keyboard navigation in a form by hooking (keydown.tab) on the wrapper to advance focus predictably.
+                                     Example: <select data-cnds-select-init [attr.data-cnds-auto-select]="autoSelect ? 'true' : null" [formControl]="mySelect"><option *ngFor="let opt of options" [value]="opt.value">{{ opt.label }}</option></select>
+                                     Only enable autoSelect in contexts where Tab-to-confirm is the expected keyboard UX — avoid it in filter dropdowns where Tab should move focus to the next field. -->
+
+                                <!--Section: Code-->
+                                <section class="mb-4">
+                                    <h5><span class="badge badge-code-html">HTML</span></h5>
+                                    <!-- snippet -->
+                                    <div class="p-0">
+                                        <pre class="line-numbers m-0">
+                                <code class="language-html">
+&lt;select data-cnds-select-init data-cnds-auto-select="true"&gt;
+    &lt;option value="1"&gt;One&lt;/option&gt;
+    &lt;option value="2"&gt;Two&lt;/option&gt;
+    &lt;option value="3"&gt;Three&lt;/option&gt;
+    &lt;option value="4"&gt;Four&lt;/option&gt;
+    &lt;option value="5"&gt;Five&lt;/option&gt;
+    &lt;option value="6"&gt;Six&lt;/option&gt;
+    &lt;option value="7"&gt;Seven&lt;/option&gt;
+    &lt;option value="8"&gt;Eight&lt;/option&gt;
+&lt;/select&gt;
+                                </code>
+                                </pre>
+                                    </div>
+                                    <!-- /.snippet -->
+                                </section>
+                                <!--Section: Code-->
+
+                            </section>
+                            <!--/Section: Auto select-->
+
+                            <hr class="my-5">
+
+                            <!--Section: Hidden selected option-->
+                            <section id="section-hidden-selected">
+                                <!-- Section title -->
+                                <h3 class="mb-4">Hidden selected option</h3>
+
+                                <p>Add the first option with the <code>hidden</code> and <code>selected</code> attributes and an empty value to leave select with no selection.</p>
+
+                                <!--Section: Demo-->
+                                <section class="pb-4">
+                                    <div class="border rounded-5">
+
+                                        <section class="w-100 p-4 pb-4 d-flex justify-content-center">
+                                            <div class="w-25">
+                                                <select data-cnds-select-init>
+                                                    <option value="" hidden selected></option>
+                                                    <option value="1">One</option>
+                                                    <option value="2">Two</option>
+                                                    <option value="3">Three</option>
+                                                    <option value="4">Four</option>
+                                                    <option value="5">Five</option>
+                                                    <option value="6">Six</option>
+                                                    <option value="7">Seven</option>
+                                                    <option value="8">Eight</option>
+                                                </select>
+                                                <label class="form-label select-label">Example label</label>
+
+                                            </div>
+                                        </section>
+
+                                    </div>
+                                </section>
+                                <!--/Section: Demo-->
+                                <!-- Angular: Render a hidden initial placeholder option by adding a first <option> with value="" and the hidden and selected attributes; the FormControl should be initialised with new FormControl('') so the placeholder is selected but the hidden option prevents it from appearing in the dropdown.
+                                     Example: <select data-cnds-select-init [formControl]="mySelect"><option value="" hidden selected></option><option *ngFor="let opt of options" [value]="opt.value">{{ opt.label }}</option></select><label class="form-label select-label">{{ label }}</label>
+                                     Pair this with Validators.required so the form stays invalid while the empty placeholder is selected, forcing the user to choose a real option before submitting. -->
+
+                                <!--Section: Code-->
+                                <section class="mb-4">
+                                    <h5><span class="badge badge-code-html">HTML</span></h5>
+                                    <!-- snippet -->
+                                    <div class="p-0">
+                                        <pre class="line-numbers m-0">
+                                <code class="language-html">
+&lt;select data-cnds-select-init&gt;
+    &lt;option value="" hidden selected&gt;&lt;/option&gt;
+    &lt;option value="1"&gt;One&lt;/option&gt;
+    &lt;option value="2"&gt;Two&lt;/option&gt;
+    &lt;option value="3"&gt;Three&lt;/option&gt;
+    &lt;option value="4"&gt;Four&lt;/option&gt;
+    &lt;option value="5"&gt;Five&lt;/option&gt;
+    &lt;option value="6"&gt;Six&lt;/option&gt;
+    &lt;option value="7"&gt;Seven&lt;/option&gt;
+    &lt;option value="8"&gt;Eight&lt;/option&gt;
+&lt;/select&gt;
+&lt;label class="form-label select-label"&gt;Example label&lt;/label&gt;
+                                </code>
+                                </pre>
+                                    </div>
+                                    <!-- /.snippet -->
+                                </section>
+                                <!--Section: Code-->
+
+                            </section>
+                            <!--/Section: Hidden selected option-->
+
+                            <hr class="my-5">
+
+                            <!--Section: Select with CSS classes-->
+                            <section id="section-with-CSS-classes">
+                                <!-- Section title -->
+                                <h3 class="mb-4">Select with CSS classes</h3>
+
+                                <p>
+                                    In order to use select with additional CSS classes you need to place it in a <code>div</code> wrapper and apply the CSS classes to that div.
+                                </p>
+
+                                <!--Section: Demo-->
+                                <section class="pb-4">
+                                    <div class="border rounded-5">
+
+                                        <section class="w-100 p-4 pb-4 d-flex justify-content-center">
+                                            <div class="w-25 shadow-2">
+                                                <div class="shadow-2 p-5">
+                                                    <select data-cnds-select-init>
+                                                        <option value="1">One</option>
+                                                        <option value="2">Two</option>
+                                                        <option value="3">Three</option>
+                                                        <option value="4">Four</option>
+                                                        <option value="5">Five</option>
+                                                        <option value="6">Six</option>
+                                                        <option value="7">Seven</option>
+                                                        <option value="8">Eight</option>
+                                                    </select>
+                                                    <label class="form-label select-label">Example label</label>
+                                                </div>
+
+                                            </div>
+                                        </section>
+
+                                    </div>
+                                </section>
+                                <!--/Section: Demo-->
+                                <!-- Angular: Apply utility classes to the wrapper div with [ngClass]="wrapperClasses" driven by a [wrapperClass] @Input() string so parent components can add shadow, padding, or border classes without modifying the select component template.
+                                     Example: <div [ngClass]="wrapperClass"><select data-cnds-select-init [formControl]="mySelect"><option *ngFor="let opt of options" [value]="opt.value">{{ opt.label }}</option></select><label class="form-label select-label">{{ label }}</label></div>
+                                     Keep wrapperClass as a plain string @Input() rather than an object so single-class overrides remain concise at the usage site. -->
+
+                                <!--Section: Code-->
+                                <section class="mb-4">
+                                    <h5><span class="badge badge-code-html">HTML</span></h5>
+                                    <!-- snippet -->
+                                    <div class="p-0">
+                                        <pre class="line-numbers m-0">
+                                <code class="language-html">
+&lt;div class="shadow-2 p-5"&gt;
+    &lt;select data-cnds-select-init&gt;
+        &lt;option value="1"&gt;One&lt;/option&gt;
+        &lt;option value="2"&gt;Two&lt;/option&gt;
+        &lt;option value="3"&gt;Three&lt;/option&gt;
+        &lt;option value="4"&gt;Four&lt;/option&gt;
+        &lt;option value="5"&gt;Five&lt;/option&gt;
+        &lt;option value="6"&gt;Six&lt;/option&gt;
+        &lt;option value="7"&gt;Seven&lt;/option&gt;
+        &lt;option value="8"&gt;Eight&lt;/option&gt;
+    &lt;/select&gt;
+    &lt;label class="form-label select-label"&gt;Example label&lt;/label&gt;
+&lt;/div&gt;
+                                </code>
+                                </pre>
+                                    </div>
+                                    <!-- /.snippet -->
+                                </section>
+                                <!--Section: Code-->
+
+                            </section>
+                            <!--/Section: Select with CSS classes-->
+
+                            <hr class="my-5">
+
+                            <!--Section: API Documentation-->
+                            <section id="section-api-docs">
+                              <h3 class="mb-3">API Documentation</h3>
+
+                              <!--Section: API Introduction-->
+                              <section id="api-section-introduction">
+                                <h4 class="mb-4">Introduction</h4>
+                                <p>
+                                  The Nimbus Select component replaces native <code>&lt;select&gt;</code> elements with a fully
+                                  styled, accessible custom dropdown. It is initialised automatically via the
+                                  <code>data-cnds-select-init</code> attribute or programmatically through
+                                  <code>new Nimbus.Select(element, options)</code>. The dropdown is appended to
+                                  <code>document.body</code> (or a specified container) so it escapes any
+                                  <code>overflow: hidden</code> clipping contexts. All design tokens use the
+                                  <code>--cnds-select-*</code> namespace and respond automatically to
+                                  <code>data-cnds-theme="dark"</code>.
+                                </p>
+                              </section>
+                              <!--/Section: API Introduction-->
+
+                              <!--Section: API Usage-->
+                              <section id="api-section-usage">
+                                <h4 class="mb-4">Usage</h4>
+
+                                <p class="fw-semibold mb-3">Via data attributes</p>
+                                <p>
+                                  Add <code>data-cnds-select-init</code> to any <code>&lt;select&gt;</code> element.
+                                  All options can be set with <code>data-cnds-*</code> attributes. No additional
+                                  JavaScript is required.
+                                </p>
+                                <section class="mb-4">
+                                  <h5><span class="badge badge-code-html">HTML</span></h5>
+                                  <div class="p-0">
+                                    <pre class="line-numbers m-0"><code class="language-html">&lt;select data-cnds-select-init&gt;
+    &lt;option value="1"&gt;One&lt;/option&gt;
+    &lt;option value="2"&gt;Two&lt;/option&gt;
+    &lt;option value="3"&gt;Three&lt;/option&gt;
+&lt;/select&gt;</code></pre>
+                                  </div>
+                                </section>
+
+                                <p class="fw-semibold mb-3">Via JavaScript</p>
+                                <p>
+                                  Pass an options object as the second argument to override any default.
+                                </p>
+                                <section class="mb-4">
+                                  <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                                  <div class="p-0">
+                                    <pre class="line-numbers m-0"><code class="language-js">const mySelect = new Nimbus.Select(
+    document.getElementById('mySelect'),
+    { visibleOptions: 8, clearButton: true }
+);</code></pre>
+                                  </div>
+                                </section>
+                              </section>
+                              <!--/Section: API Usage-->
+
+                              <!--Section: API Options-->
+                              <section id="api-section-options">
+                                <h4 class="mb-4">Options</h4>
+                                <p>
+                                  Options can be passed via data attributes or JavaScript. For data attributes, convert
+                                  camelCase names to kebab-case and prefix with <code>data-cnds-</code>, e.g.
+                                  <code>visibleOptions</code> → <code>data-cnds-visible-options="8"</code>.
+                                </p>
+                                <div class="table-responsive">
+                                  <table class="table table-striped table-bordered" aria-label="Options">
+                                    <thead>
+                                      <tr>
+                                        <th>Name</th>
+                                        <th>Type</th>
+                                        <th>Default</th>
+                                        <th>Description</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      <tr>
+                                        <td class="text-nowrap"><code>clearButton</code></td>
+                                        <td><i>Boolean</i></td>
+                                        <td><code>false</code></td>
+                                        <td>Displays a clear button that resets the current selection.</td>
+                                      </tr>
+                                      <tr>
+                                        <td class="text-nowrap"><code>container</code></td>
+                                        <td><i>String</i></td>
+                                        <td><code>'body'</code></td>
+                                        <td>CSS selector of the element the dropdown is appended to. Use a modal selector when the select is inside a modal.</td>
+                                      </tr>
+                                      <tr>
+                                        <td class="text-nowrap"><code>filter</code></td>
+                                        <td><i>Boolean</i></td>
+                                        <td><code>false</code></td>
+                                        <td>Displays a search input at the top of the dropdown for filtering options.</td>
+                                      </tr>
+                                      <tr>
+                                        <td class="text-nowrap"><code>filterPlaceholder</code></td>
+                                        <td><i>String</i></td>
+                                        <td><code>'Search...'</code></td>
+                                        <td>Placeholder text for the filter input. Requires <code>filter: true</code>.</td>
+                                      </tr>
+                                      <tr>
+                                        <td class="text-nowrap"><code>helperText</code></td>
+                                        <td><i>String</i></td>
+                                        <td><code>''</code></td>
+                                        <td>Static helper text rendered below the trigger input.</td>
+                                      </tr>
+                                      <tr>
+                                        <td class="text-nowrap"><code>iconPosition</code></td>
+                                        <td><i>String</i></td>
+                                        <td><code>'left'</code></td>
+                                        <td>Position of the option image set via <code>data-cnds-icon</code>. Accepts <code>'left'</code> or <code>'right'</code>.</td>
+                                      </tr>
+                                      <tr>
+                                        <td class="text-nowrap"><code>showGroup</code></td>
+                                        <td><i>Boolean</i></td>
+                                        <td><code>false</code></td>
+                                        <td>
+                                          Show the chosen option as a breadcrumb of its
+                                          <code>&lt;optgroup&gt;</code> &mdash;
+                                          <code>GROUP&nbsp;&gt;&nbsp;Option</code> &mdash; in the closed
+                                          trigger. Turn it on where the group carries <em>meaning</em>
+                                          rather than just tidying the list: without it the group is
+                                          visible while the list is open and gone the moment it closes.
+                                          The group is upper-cased to match
+                                          <code>.select-option-group-label</code>, which does it in CSS;
+                                          the trigger is an <code>&lt;input&gt;</code>, so its value is
+                                          one string and <code>text-transform</code> cannot apply to
+                                          part of it. The underlying <code>&lt;select&gt;</code> value is
+                                          untouched.
+                                        </td>
+                                      </tr>
+                                      <tr>
+                                        <td class="text-nowrap"><code>groupSeparator</code></td>
+                                        <td><i>String</i></td>
+                                        <td><code>'&nbsp;&nbsp;&gt;&nbsp;&nbsp;'</code></td>
+                                        <td>What sits between the group and the option when
+                                          <code>showGroup</code> is on.</td>
+                                      </tr>
+                                      <tr>
+                                        <td class="text-nowrap"><code>invalidFeedback</code></td>
+                                        <td><i>String</i></td>
+                                        <td><code>'Invalid'</code></td>
+                                        <td>Message shown below the field when validation fails. Requires <code>validation: true</code>.</td>
+                                      </tr>
+                                      <tr>
+                                        <td class="text-nowrap"><code>optionHeight</code></td>
+                                        <td><i>Number</i></td>
+                                        <td><code>44</code></td>
+                                        <td>Height in pixels of each option row. Used to calculate the dropdown max-height.</td>
+                                      </tr>
+                                      <tr>
+                                        <td class="text-nowrap"><code>placeholder</code></td>
+                                        <td><i>String</i></td>
+                                        <td><code>''</code></td>
+                                        <td>Text shown in the trigger when no option is selected.</td>
+                                      </tr>
+                                      <tr>
+                                        <td class="text-nowrap"><code>validFeedback</code></td>
+                                        <td><i>String</i></td>
+                                        <td><code>'Valid'</code></td>
+                                        <td>Message shown below the field when validation passes. Requires <code>validation: true</code>.</td>
+                                      </tr>
+                                      <tr>
+                                        <td class="text-nowrap"><code>validation</code></td>
+                                        <td><i>Boolean</i></td>
+                                        <td><code>false</code></td>
+                                        <td>Enables required-value validation on form submit. Applies <code>is-valid</code> or <code>is-invalid</code> to the wrapper and shows feedback text.</td>
+                                      </tr>
+                                      <tr>
+                                        <td class="text-nowrap"><code>visibleOptions</code></td>
+                                        <td><i>Number</i></td>
+                                        <td><code>5</code></td>
+                                        <td>Maximum number of options visible in the dropdown before scrolling.</td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </section>
+                              <!--/Section: API Options-->
+
+                              <!--Section: API Methods-->
+                              <section id="api-section-methods">
+                                <h4 class="mb-4">Methods</h4>
+                                <div class="table-responsive">
+                                  <table class="table table-striped table-bordered" aria-label="Methods">
+                                    <thead>
+                                      <tr>
+                                        <th>Name</th>
+                                        <th>Description</th>
+                                        <th>Example</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      <tr>
+                                        <td class="text-nowrap"><code>open()</code></td>
+                                        <td>Opens the dropdown.</td>
+                                        <td><code>mySelect.open()</code></td>
+                                      </tr>
+                                      <tr>
+                                        <td class="text-nowrap"><code>close()</code></td>
+                                        <td>Closes the dropdown.</td>
+                                        <td><code>mySelect.close()</code></td>
+                                      </tr>
+                                      <tr>
+                                        <td class="text-nowrap"><code>toggle()</code></td>
+                                        <td>Opens the dropdown if closed; closes it if open.</td>
+                                        <td><code>mySelect.toggle()</code></td>
+                                      </tr>
+                                      <tr>
+                                        <td class="text-nowrap"><code>getValue()</code></td>
+                                        <td>Returns the current value. A string for single selects; an array of strings for multiselect.</td>
+                                        <td><code>mySelect.getValue()</code></td>
+                                      </tr>
+                                      <tr>
+                                        <td class="text-nowrap"><code>setValue(value)</code></td>
+                                        <td>Programmatically sets the selection. Pass a single string for single selects or an array for multiselect.</td>
+                                        <td><code>mySelect.setValue('3')</code></td>
+                                      </tr>
+                                      <tr>
+                                        <td class="text-nowrap"><code>dispose()</code></td>
+                                        <td>Destroys the component instance and restores the original <code>&lt;select&gt;</code> element.</td>
+                                        <td><code>mySelect.dispose()</code></td>
+                                      </tr>
+                                      <tr>
+                                        <td class="text-nowrap"><code>getInstance(el)</code></td>
+                                        <td>Static. Returns the Select instance bound to a DOM element, or <code>null</code>.</td>
+                                        <td><code>Nimbus.Select.getInstance(el)</code></td>
+                                      </tr>
+                                      <tr>
+                                        <td class="text-nowrap"><code>getOrCreateInstance(el)</code></td>
+                                        <td>Static. Returns an existing instance or creates a new one.</td>
+                                        <td><code>Nimbus.Select.getOrCreateInstance(el)</code></td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </div>
+                                <section class="mb-4">
+                                  <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                                  <div class="p-0">
+                                    <pre class="line-numbers m-0"><code class="language-js">const selectEl = document.getElementById('mySelect');
+const select = Nimbus.Select.getInstance(selectEl);
+select.open();</code></pre>
+                                  </div>
+                                </section>
+                              </section>
+                              <!--/Section: API Methods-->
+
+                              <!--Section: API Events-->
+                              <section id="api-section-events">
+                                <h4 class="mb-4">Events</h4>
+                                <p>
+                                  All events are dispatched on the original <code>&lt;select&gt;</code> element and bubble up the DOM.
+                                </p>
+                                <div class="table-responsive">
+                                  <table class="table table-striped table-bordered" aria-label="Events">
+                                    <thead>
+                                      <tr>
+                                        <th>Event</th>
+                                        <th>Description</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      <tr>
+                                        <td class="text-nowrap"><code>open.cnds.select</code></td>
+                                        <td>Fires immediately before the dropdown opens.</td>
+                                      </tr>
+                                      <tr>
+                                        <td class="text-nowrap"><code>opened.cnds.select</code></td>
+                                        <td>Fires after the dropdown is fully open and the open animation has started.</td>
+                                      </tr>
+                                      <tr>
+                                        <td class="text-nowrap"><code>close.cnds.select</code></td>
+                                        <td>Fires immediately before the dropdown closes.</td>
+                                      </tr>
+                                      <tr>
+                                        <td class="text-nowrap"><code>closed.cnds.select</code></td>
+                                        <td>Fires after the close transition completes and the dropdown is hidden.</td>
+                                      </tr>
+                                      <tr>
+                                        <td class="text-nowrap"><code>valueChanged.cnds.select</code></td>
+                                        <td>Fires whenever the selection changes — on option click or programmatic <code>setValue()</code>.</td>
+                                      </tr>
+                                      <tr>
+                                        <td class="text-nowrap"><code>optionSelected.cnds.select</code></td>
+                                        <td>Fires when an individual option is selected.</td>
+                                      </tr>
+                                      <tr>
+                                        <td class="text-nowrap"><code>optionDeselected.cnds.select</code></td>
+                                        <td>Fires when an individual option is deselected (multiselect only).</td>
+                                      </tr>
+                                      <tr>
+                                        <td class="text-nowrap"><code>search.cnds.select</code></td>
+                                        <td>Fires on each keystroke in the filter input. The search term is available as <code>event.detail.value</code>.</td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </div>
+                                <section class="mb-4">
+                                  <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                                  <div class="p-0">
+                                    <pre class="line-numbers m-0"><code class="language-js">const mySelect = document.getElementById('mySelect');
+mySelect.addEventListener('valueChanged.cnds.select', (e) => {
+    const select = Nimbus.Select.getInstance(mySelect);
+    console.log('New value:', select.getValue());
+});</code></pre>
+                                  </div>
+                                </section>
+                              </section>
+                              <!--/Section: API Events-->
+
+                              <!--Section: API CSS Classes-->
+                              <section id="api-section-css-classes">
+                                <h4 class="mb-4">CSS classes</h4>
+                                <p>
+                                  The following classes are generated by the component or can be applied manually.
+                                  All structural classes are namespaced with <code>select-</code>.
+                                </p>
+                                <div class="table-responsive">
+                                  <table class="table table-striped" aria-label="CSS classes">
+                                    <thead>
+                                      <tr>
+                                        <th>Class</th>
+                                        <th>Element</th>
+                                        <th>Description</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      <tr>
+                                        <td><code>.select-wrapper</code></td>
+                                        <td><code>&lt;div&gt;</code></td>
+                                        <td>Outer flex-column container. Hosts all <code>--cnds-select-*</code> tokens. Added automatically by the component.</td>
+                                      </tr>
+                                      <tr>
+                                        <td><code>.select-wrapper.is-valid</code></td>
+                                        <td><code>&lt;div&gt;</code></td>
+                                        <td>Applied when validation passes. Shows valid feedback text below the field.</td>
+                                      </tr>
+                                      <tr>
+                                        <td><code>.select-wrapper.is-invalid</code></td>
+                                        <td><code>&lt;div&gt;</code></td>
+                                        <td>Applied when validation fails. Shows invalid feedback text below the field.</td>
+                                      </tr>
+                                      <tr>
+                                        <td><code>.select-wrapper.select-disabled</code></td>
+                                        <td><code>&lt;div&gt;</code></td>
+                                        <td>Reduces opacity and disables pointer events when the native select is disabled.</td>
+                                      </tr>
+                                      <tr>
+                                        <td><code>.select-label</code></td>
+                                        <td><code>&lt;label&gt;</code></td>
+                                        <td>Label element. Place a <code>&lt;label class="form-label select-label"&gt;</code> immediately after the <code>&lt;select&gt;</code> in the HTML.</td>
+                                      </tr>
+                                      <tr>
+                                        <td><code>.select-input</code></td>
+                                        <td><code>&lt;input&gt;</code></td>
+                                        <td>The visible trigger input. Read-only; displays the current selection or placeholder text.</td>
+                                      </tr>
+                                      <tr>
+                                        <td><code>.select-dropdown-container</code></td>
+                                        <td><code>&lt;div&gt;</code></td>
+                                        <td>Absolutely-positioned container appended to <code>body</code> (or the configured container). The component automatically adds <code>select-product-casefusion</code>, <code>select-product-expireon</code>, or <code>select-product-hyperlize</code> by detecting the <code>select-wrapper-{product}</code> class on any ancestor element, so selected-state colors match the active product theme.</td>
+                                      </tr>
+                                      <tr>
+                                        <td><code>.select-dropdown-container.open-above</code></td>
+                                        <td><code>&lt;div&gt;</code></td>
+                                        <td>Added automatically by the component when insufficient viewport space exists below the field and more room is available above. Resets <code>margin-top</code> to <code>0</code> (the 2 px gap is baked into the JS top calculation) and sets <code>transform-origin: bottom center</code> on the inner panel so the scale animation expands downward. Never set this class manually.</td>
+                                      </tr>
+                                      <tr>
+                                        <td><code>.select-dropdown</code></td>
+                                        <td><code>&lt;div&gt;</code></td>
+                                        <td>The dropdown panel. Receives <code>.open</code> to trigger the scale-in animation.</td>
+                                      </tr>
+                                      <tr>
+                                        <td><code>.select-option</code></td>
+                                        <td><code>&lt;li&gt;</code></td>
+                                        <td>Individual option row. Modifiers: <code>.selected</code>, <code>.active</code>, <code>.disabled</code>.</td>
+                                      </tr>
+                                      <tr>
+                                        <td><code>.select-option-icon</code></td>
+                                        <td><code>&lt;img&gt;</code></td>
+                                        <td>Circular thumbnail rendered when an option has <code>data-cnds-icon</code>. Add <code>.select-option-icon-right</code> when <code>iconPosition</code> is <code>'right'</code>.</td>
+                                      </tr>
+                                      <tr>
+                                        <td><code>.select-custom-content</code></td>
+                                        <td><code>&lt;div&gt;</code></td>
+                                        <td>Place a sibling <code>&lt;div class="select-custom-content"&gt;</code> immediately after the <code>&lt;select&gt;</code> to inject custom content at the bottom of the dropdown.</td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </section>
+                              <!--/Section: API CSS Classes-->
+
+                              <!--Section: API CSS Custom Properties-->
+                              <section id="api-section-css-variables">
+                                <h4 class="mb-4">CSS custom properties</h4>
+                                <p>
+                                  All tokens are defined on <code>.select-wrapper</code> in <code>select.css</code> and can
+                                  be overridden per-instance via an inline <code>style</code> attribute or globally by
+                                  targeting <code>.select-wrapper</code> in your own CSS.
+                                </p>
+                                <div class="table-responsive">
+                                  <table class="table table-striped" aria-label="CSS custom properties">
+                                    <thead>
+                                      <tr>
+                                        <th>Property</th>
+                                        <th>Default (light)</th>
+                                        <th>Description</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      <tr>
+                                        <td><code>--cnds-select-input-bg</code></td>
+                                        <td><code>#fafafa</code></td>
+                                        <td>Trigger input background color.</td>
+                                      </tr>
+                                      <tr>
+                                        <td><code>--cnds-select-input-border-color</code></td>
+                                        <td><code>#cccccc</code></td>
+                                        <td>Trigger input border color.</td>
+                                      </tr>
+                                      <tr>
+                                        <td><code>--cnds-select-input-color</code></td>
+                                        <td><code>#141414</code></td>
+                                        <td>Trigger input text color.</td>
+                                      </tr>
+                                      <tr>
+                                        <td><code>--cnds-select-input-focus-border-color</code></td>
+                                        <td><code>#2e892a</code></td>
+                                        <td>Border and inset ring color when the trigger is focused or the dropdown is open.</td>
+                                      </tr>
+                                      <tr>
+                                        <td><code>--cnds-select-arrow-color</code></td>
+                                        <td><code>#215aab</code></td>
+                                        <td>Color of the chevron arrow icon.</td>
+                                      </tr>
+                                      <tr>
+                                        <td><code>--cnds-select-clear-btn-color</code></td>
+                                        <td><code>#4f4f4f</code></td>
+                                        <td>Color of the clear button icon.</td>
+                                      </tr>
+                                      <tr>
+                                        <td><code>--cnds-select-dropdown-bg</code></td>
+                                        <td><code>#f5f5f5</code></td>
+                                        <td>Background of the dropdown panel.</td>
+                                      </tr>
+                                      <tr>
+                                        <td><code>--cnds-select-dropdown-border-radius</code></td>
+                                        <td><code>8px</code></td>
+                                        <td>Border radius of the dropdown panel.</td>
+                                      </tr>
+                                      <tr>
+                                        <td><code>--cnds-select-option-bg</code></td>
+                                        <td><code>#f5f5f5</code></td>
+                                        <td>Default background of each option row.</td>
+                                      </tr>
+                                      <tr>
+                                        <td><code>--cnds-select-option-color</code></td>
+                                        <td><code>#141414</code></td>
+                                        <td>Text color of each option row.</td>
+                                      </tr>
+                                      <tr>
+                                        <td><code>--cnds-select-option-hover-bg</code></td>
+                                        <td><code>#e0e0e0</code></td>
+                                        <td>Background on option hover and keyboard-active state.</td>
+                                      </tr>
+                                      <tr>
+                                        <td><code>--cnds-select-option-selected-bg</code></td>
+                                        <td><code>#beebbd</code></td>
+                                        <td>Background of the selected option (CaseFusion default).</td>
+                                      </tr>
+                                      <tr>
+                                        <td><code>--cnds-select-option-selected-color</code></td>
+                                        <td><code>#1d5a1d</code></td>
+                                        <td>Text color of the selected option (CaseFusion default).</td>
+                                      </tr>
+                                      <tr>
+                                        <td><code>--cnds-select-option-icon-size</code></td>
+                                        <td><code>30px</code></td>
+                                        <td>Width and height of the circular option image.</td>
+                                      </tr>
+                                      <tr>
+                                        <td><code>--cnds-select-valid-color</code></td>
+                                        <td><code>#439945</code></td>
+                                        <td>Color of the valid border and valid feedback text.</td>
+                                      </tr>
+                                      <tr>
+                                        <td><code>--cnds-select-invalid-color</code></td>
+                                        <td><code>#db3a00</code></td>
+                                        <td>Color of the invalid feedback text.</td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </section>
+                              <!--/Section: API CSS Custom Properties-->
+
+                              <!--Section: API Theme Variables-->
+                              <section id="api-section-theme-variables">
+                                <h4 class="mb-4">Theme variables</h4>
+                                <p>
+                                  These tokens are overridden in <code>dark.css</code> on the
+                                  <code>[data-cnds-theme="dark"] .select-dropdown-container</code> and
+                                  <code>[data-cnds-theme="dark"] .select-wrapper</code> selectors.
+                                  Note: because the dropdown is appended to <code>body</code>, dark-theme tokens
+                                  must be declared on <code>.select-dropdown-container</code> directly — they cannot
+                                  cascade from <code>.select-wrapper</code>.
+                                  Product-theme selected-state overrides follow the same pattern: the component adds
+                                  <code>select-product-{theme}</code> to the dropdown container so that
+                                  <code>.select-dropdown-container.select-product-expireon</code> and
+                                  <code>.select-dropdown-container.select-product-hyperlize</code> selectors in
+                                  <code>select.css</code> apply the correct highlight colors.
+                                </p>
+                                <div class="table-responsive">
+                                  <table class="table table-striped table-bordered" aria-label="Theme variables">
+                                    <thead>
+                                      <tr>
+                                        <th>Token</th>
+                                        <th>Light value</th>
+                                        <th>Dark value</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      <tr>
+                                        <td><code>--cnds-select-input-bg</code></td>
+                                        <td><code>#fafafa</code></td>
+                                        <td><code>#4a4a4a</code></td>
+                                      </tr>
+                                      <tr>
+                                        <td><code>--cnds-select-input-border-color</code></td>
+                                        <td><code>#cccccc</code></td>
+                                        <td><code>#787878</code></td>
+                                      </tr>
+                                      <tr>
+                                        <td><code>--cnds-select-input-color</code></td>
+                                        <td><code>#141414</code></td>
+                                        <td><code>#e8e8e8</code></td>
+                                      </tr>
+                                      <tr>
+                                        <td><code>--cnds-select-input-focus-border-color</code></td>
+                                        <td><code>#2e892a</code></td>
+                                        <td><code>#7dd67a</code></td>
+                                      </tr>
+                                      <tr>
+                                        <td><code>--cnds-select-dropdown-bg</code></td>
+                                        <td><code>#f5f5f5</code></td>
+                                        <td><code>#252525</code></td>
+                                      </tr>
+                                      <tr>
+                                        <td><code>--cnds-select-option-bg</code></td>
+                                        <td><code>#f5f5f5</code></td>
+                                        <td><code>#252525</code></td>
+                                      </tr>
+                                      <tr>
+                                        <td><code>--cnds-select-option-color</code></td>
+                                        <td><code>#141414</code></td>
+                                        <td><code>#e8e8e8</code></td>
+                                      </tr>
+                                      <tr>
+                                        <td><code>--cnds-select-option-hover-bg</code></td>
+                                        <td><code>#e0e0e0</code></td>
+                                        <td><code>#4a4a4a</code></td>
+                                      </tr>
+                                      <tr>
+                                        <td><code>--cnds-select-option-selected-bg</code></td>
+                                        <td><code>#beebbd</code></td>
+                                        <td><code>#1d5a1d</code></td>
+                                      </tr>
+                                      <tr>
+                                        <td><code>--cnds-select-option-selected-color</code></td>
+                                        <td><code>#1d5a1d</code></td>
+                                        <td><code>#7dd67a</code></td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </section>
+                              <!--/Section: API Theme Variables-->
+
+                              <!--Section: API Accessibility-->
+                              <section id="api-section-accessibility">
+                                <h4 class="mb-4">Accessibility</h4>
+                                <p>
+                                  The Select component implements the
+                                  <a rel="nofollow" target="_blank" href="https://www.w3.org/WAI/ARIA/apg/patterns/combobox/">WAI-ARIA Combobox pattern</a>.
+                                  Key attributes and behaviours:
+                                </p>
+                                <ul>
+                                  <li>The trigger input carries <code>role="combobox"</code>, <code>aria-haspopup="listbox"</code>, and <code>aria-expanded</code> (toggled on open/close).</li>
+                                  <li>The dropdown panel carries <code>role="listbox"</code>; each option carries <code>role="option"</code> and <code>aria-selected</code>.</li>
+                                  <li>Multiselect dropdowns include <code>aria-multiselectable="true"</code> on the listbox.</li>
+                                  <li><kbd>↓</kbd> / <kbd>↑</kbd> moves keyboard focus through options. <kbd>Enter</kbd> or <kbd>Space</kbd> confirms the active option. <kbd>Escape</kbd> closes the dropdown and returns focus to the trigger.</li>
+                                  <li>If the native <code>&lt;select&gt;</code> has an <code>id</code>, the dropdown container receives a matching <code>id</code> suffixed with <code>-dropdown</code>, and the trigger sets <code>aria-controls</code> accordingly.</li>
+                                  <li>Use a visible <code>&lt;label class="form-label select-label"&gt;</code> immediately after the <code>&lt;select&gt;</code> in the source HTML — the component promotes it above the trigger and associates it visually.</li>
+                                </ul>
+                              </section>
+                              <!--/Section: API Accessibility-->
+
+                            </section>
+                            <!--/Section: API Documentation-->
+                        </section>
+                <!--/Section: Docs content-->
+              </div>
+              <!-- ./Main column -->
+
+              <!-- Right Sidebar — 20 % of the row width; hidden below lg breakpoint.
+                   Sticky attributes (processed by nimbus.js):
+                     data-cnds-sticky="true"          : activates sticky positioning
+                     data-cnds-sticky-boundary="true" : constrains sticky to its parent container
+                     data-cnds-sticky-direction="both" : sticks when scrolling up OR down
+                     data-cnds-sticky-offset="56"     : clears the 56 px fixed header
+                     data-cnds-sticky-delay="125"     : debounce delay (ms) to reduce scroll jank
+                   data-cnds-allow-hashes="true" on the <ul>: nimbus.js watches the URL hash
+                     and highlights the matching nav-link as the user scrolls through sections. -->
+              <div class="col-lg-2 d-none d-lg-block">
+                <div class="sticky-top" style="top: 100px; z-index: 1">
+                  <ul
+                    class="nav flex-column nav-pills menu-sidebar"
+                    id="rightNav"
+                    data-cnds-allow-hashes="true"
+                  >
+                    <li class="nav-item"><a class="nav-link" href="#section-introduction">Introduction</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-basic-example">Basic example</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-sizing">Sizing</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-product-themes">Product themes</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-multiselect">Multiselect</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-select-with-label">Select with label</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-select-with-placeholder">Select with placeholder</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-disabled-select">Disabled select</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-disabled-options">Disabled options</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-clear-button">Clear button</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-custom-content">Custom content</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-visible-options">Visible options</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-secondary-text">Secondary text</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-search">Search</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-search-inside-modal">Select with search inside a modal</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-option-groups">Option groups</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-icons">Select with images</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-validation">Validation</a></li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-set-value">Set value</a>
+                      <ul class="nav flex-column ps-3 list-unstyled">
+                        <li class="nav-item"><a class="nav-link" href="#subsection-single-selection">Single selection</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#subsection-multi-selection">Multi selection</a></li>
+                      </ul>
+                    </li>
+                    <li class="nav-item"><a class="nav-link" href="#select-with-toggle-element">Select with toggle element</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-auto-select">Auto select</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-hidden-selected">Hidden selected option</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-with-CSS-classes">Select with CSS classes</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-api-docs">API Documentation</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-introduction">Introduction</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-usage">Usage</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-options">Options</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-methods">Methods</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-events">Events</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-css-classes">CSS classes</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-css-variables">CSS custom properties</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-theme-variables">Theme variables</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-accessibility">Accessibility</a></li>
+                  </ul>
+                </div>
+              </div>
+              <!-- ./Right Sidebar -->
+            </div>
+            <!-- ./Content Row -->
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- ./Content -->
+    <!-- Modals -->
+    <!-- Select in a Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" id="exampleModalLabel">Modal title</h3>
+            <button type="button" class="btn-close" data-cnds-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <form aria-labelledby="exampleModalLabel">
+            <div class="modal-body">
+              <select data-cnds-select-init data-cnds-container="#exampleModal" data-cnds-filter="true">
+                <option value="1">One</option>
+                <option value="2">Two</option>
+                <option value="3">Three</option>
+                <option value="4">Four</option>
+                <option value="5">Five</option>
+                <option value="6">Six</option>
+                <option value="7">Seven</option>
+                <option value="8">Eight</option>
+                <option value="9">Nine</option>
+                <option value="10">Ten</option>
+              </select>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-cnds-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary">Save changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <!-- ./Select in a Modal -->
+    <!-- ./Modals -->
+    <!-- Footer -->
+    <div class="cf-footer cf-footer-app">
+      <footer class="page-footer main-footer" aria-label="Site footer">
+        <div class="w-100 px-3 d-flex align-items-center">
+          <img src="img/cf/core/cloudficient_logo_light.svg" class="cf-logo-light" style="width: 135px;" alt="Cloudficient" />
+          <img src="img/cf/core/cloudficient_logo_dark.svg" class="cf-logo-dark" style="width: 135px;" alt="Cloudficient" />
+          <span class="footer-copyright ms-auto">&copy; <span id="currentYear"></span> Cloudficient</span>
+        </div>
+      </footer>
+    </div>
+    <!-- ./Footer -->
+    <!-- SCRIPTS — load order matters:
+         1. nimbus.js    — core framework: processes all data-cnds-* attributes (theme, sticky, sidenav, tooltips…)
+         2. app.js       — application-level overrides and custom initialisation
+         3. prism.min.js — syntax highlighting for <code class="language-*"> blocks; must run after DOM is ready
+         4. sidenav-loader.js — fetches shared sidenav HTML and injects it into #sidebar-cf -->
+    <script type="text/javascript" src="js/nimbus.js?v=9.0.4"></script>
+    <script type="text/javascript" src="js/app.js?v=9.0.4"></script>
+    <script type="text/javascript" src="plugins/js/prism.min.js"></script>
+    <script type="text/javascript" src="js/sidenav-loader.js"></script>
+    <!-- Page-specific demo initializations — runs after cnds.ready so all selects are initialized -->
+    <script type="text/javascript">
+      document.addEventListener("cnds.ready", function () {
+
+        // Validation demo — force invalid state to show the error pre-rendered
+        var validationSelect = document.querySelector("#select-with-validation");
+        var validationInstance = validationSelect && Nimbus.Select.getInstance(validationSelect);
+        if (validationInstance) {
+          validationInstance._hasValidated = true;
+          validationInstance._validate();
+        }
+
+        // Set value demo — single selection
+        var singleSelect = document.querySelector("#singleSelection");
+        var singleInstance = singleSelect && Nimbus.Select.getInstance(singleSelect);
+        if (singleInstance) singleInstance.setValue("4");
+
+        // Set value demo — multiple selection
+        var multiSelect = document.querySelector("#multiSelection");
+        var multiInstance = multiSelect && Nimbus.Select.getInstance(multiSelect);
+        if (multiInstance) multiInstance.setValue(["3", "4", "5"]);
+
+        // Toggle button demo — the data-cnds-toggle listener in select.js
+        // handles this automatically; no extra wiring needed here.
+
+      });
+    </script>
+    <!-- Inline: populate the footer copyright year dynamically so the page never needs a manual update -->
+    <script type="text/javascript">
+      var currentYearElement = document.getElementById("currentYear");
+      if (currentYearElement) {
+        currentYearElement.textContent = new Date().getFullYear();
+      }
+    </script>
+  </body>
+</html>

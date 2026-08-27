@@ -1,0 +1,1284 @@
+<!--
+* CNDS Nimbus Design System — TreeTable
+* Version: 1.0.0
+* Layout: Application with SideNav (migrated from Nimbus v8 template)
+* NOTES
+- Pure HTML5, CSS3, vanilla JavaScript — zero external dependencies
+- Uses data-cnds-* attributes (replaces data-mdb-*)
+- Uses Nimbus.* namespace (replaces mdb.*)
+- Default product theme: CaseFusion (cnds-product-casefusion on <body>; change to cnds-product-hyperlize or cnds-product-expireon)
+-->
+<!doctype html>
+<!-- data-cnds-theme: sets the initial theme ("light" | "dark"). nimbus.js syncs this attribute when the user toggles. -->
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta
+      name="description"
+      content="TreeTable | Cloudficient Nimbus Design System v1.0.0"
+    />
+    <title>TreeTable | CNDS v1.0.0 | Cloudficient Nimbus Design System</title>
+    <!-- Nimbus CSS -->
+    <link rel="stylesheet" href="css/nimbus.css" media="all" type="text/css" />
+    <!-- TreeTable plugin CSS — must load before app.css to allow overrides -->
+    <link rel="stylesheet" href="css/plugins/treetable.css" media="all" type="text/css" />
+    <!-- Custom styles | All custom classes/styles/overrides go here! -->
+    <link rel="stylesheet" href="css/app.css" media="all" type="text/css" />
+    <!-- Prism syntax highlighting -->
+    <link
+      rel="stylesheet"
+      href="plugins/css/prism.min.css"
+      media="all"
+      type="text/css"
+    />
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="57x57"  href="img/favicon/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="60x60"  href="img/favicon/apple-icon-60x60.png" />
+    <link rel="apple-touch-icon" sizes="72x72"  href="img/favicon/apple-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76"  href="img/favicon/apple-icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="img/favicon/apple-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="img/favicon/apple-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="img/favicon/apple-icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="img/favicon/apple-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-icon-180x180.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="img/favicon/android-icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="32x32"  href="img/favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="96x96"  href="img/favicon/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="16x16"  href="img/favicon/favicon-16x16.png" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="msapplication-TileImage" content="img/favicon/ms-icon-144x144.png" />
+    <!-- ./Favicons -->
+    <!-- Design tokens — load order matters:
+         1. primitives.css  — raw color/spacing values (no theming)
+         2. light.css       — semantic tokens for [data-cnds-theme="light"] / :root
+         3. dark.css        — semantic token overrides for [data-cnds-theme="dark"]
+         All three must appear AFTER nimbus.css so component variables resolve correctly. -->
+    <link rel="stylesheet" href="css/themes/primitives.css" />
+    <link rel="stylesheet" href="css/themes/light.css" />
+    <link rel="stylesheet" href="css/themes/dark.css" />
+  </head>
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 / Section 508 §1194.22(o): renders visually hidden until focused,
+         allowing keyboard users to bypass the repeated header and nav and jump directly to main content. -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+
+    <!-- ============================================================
+         HEADER — sticky; contains utility nav and main nav.
+         ============================================================ -->
+    <div class="sticky-top">
+
+      <!-- Utility Navigation -->
+      <nav id="UtilityNav" class="nav nav-cf-utility" aria-label="Utility navigation">
+        <div class="w-100 gx-3 px-sm-0 px-lg-3">
+          <ul class="nav nav-cf-utility-ul"></ul>
+        </div>
+      </nav>
+      <!-- ./Utility Navigation -->
+
+      <!-- Main Navigation -->
+      <nav id="MainNav" class="navbar navbar-expand-xl navbar-cf" aria-label="Main navigation">
+        <div class="container-fluid p-0 px-3 d-flex">
+          <div class="d-flex flex-fill align-items-center text-truncate">
+            <div class="text-center d-none d-md-block me-3 border-end">
+              <!-- Logo links back to the CNDS index -->
+              <a href="index.html">
+                <img
+                  src="img/cf/core/logo_nimbus.png"
+                  class="me-3 mt-n1"
+                  alt="Cloudficient Nimbus Design System"
+                />
+              </a>
+            </div>
+            <div class="flex-fill text-truncate">
+              <div class="navbar-cf-title-block">
+                <div
+                  class="navbar-cf-title cf-page-title text-truncate"
+                  style="padding-bottom: 0"
+                >
+                  <span class="cf-page-title-text cf-page-title-brand">v1</span
+                  ><span class="cf-page-title-divider"></span
+                  ><span class="cf-page-title-text">TreeTable</span>
+                </div>
+              </div>
+            </div>
+            <!-- Responsive nav toggle (mobile only) -->
+          </div>
+          <!-- data-cnds-toggle="theme": wired by nimbus.js — flips data-cnds-theme on <html> between "light" and "dark" -->
+          <button
+            class="btn btn-sm btn-outline-secondary ms-2"
+            data-cnds-toggle="theme"
+            aria-label="Toggle light/dark theme"
+            title="Toggle theme"
+          >
+            <i class="mdi mdi-weather-night mdi-18px" aria-hidden="true"></i>
+          </button>
+        </div>
+      </nav>
+      <!-- ./Main Navigation -->
+
+    </div>
+    <!-- ./Header -->
+
+    <!-- ============================================================
+         MAIN CONTENT
+         id="main-content" is the skip-nav target (WCAG 2.4.1).
+         ============================================================ -->
+    <main id="main-content" class="cf-main-app">
+
+      <!-- Mobile viewport warning — displayed only on xs/sm screens.
+           The component demos require a minimum viewport width to render correctly. -->
+      <div class="d-block d-md-none p-4">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>
+          This application is not optimized for small screens. Please use a
+          large tablet, laptop, or desktop computer to continue.
+        </div>
+      </div>
+
+      <!-- Desktop layout — sidenav + content; hidden below md breakpoint. -->
+      <div class="d-none d-md-block">
+
+        <!-- Sidenav — markup is intentionally empty; sidenav-loader.js fetches and
+             injects the shared nav HTML at runtime.
+             data-cnds-mode="side"            : persistent side panel (not an overlay)
+             data-cnds-slim / slim-collapsed  : compact/icon-only collapsed state
+             data-cnds-content="#slim-content": sibling panel that resizes as nav opens
+             data-cnds-accordion="true"       : collapses other open groups on expand -->
+        <nav
+          id="sidebar-cf"
+          class="sidenav"
+          aria-label="Site navigation"
+          data-cnds-mode="side"
+          data-cnds-slim="false"
+          data-cnds-slim-collapsed="false"
+          data-cnds-content="#slim-content"
+          data-cnds-accordion="true"
+        ></nav>
+
+        <div id="slim-content">
+          <div class="slim-content-box">
+
+            <!-- Content Row — 80/20 split: main docs + sticky right-sidebar nav -->
+            <div class="row">
+
+              <!-- ============================================================
+                   MAIN COLUMN — 80% of the row.
+                   Inline flex values pin the ratio across all lg+ breakpoints.
+                   ============================================================ -->
+              <div class="col-12 col-lg" style="flex: 0 0 80%; max-width: 80%">
+                <section class="container-fluid">
+
+                  <!-- ========================================================
+                       SECTION: Introduction
+                       No heading — introductory copy leads directly into demos.
+                       ======================================================== -->
+                  <section id="section-introduction">
+
+                    <p class="mb-4">
+                      The TreeTable component renders hierarchical (parent-child)
+                      data inside a standard HTML table. Each row is linked to its
+                      parent by <code>data-cnds-id</code> and
+                      <code>data-cnds-parent</code> attributes. The plugin reads
+                      those attributes on initialization, then injects four
+                      elements into the first column of every row: an indentation
+                      spacer, an MDI <code>mdi-chevron-right</code> toggle button
+                      (parent rows only), an MDI folder or file icon, and a label
+                      wrapper around the original cell content. The chevron rotates
+                      90° when the row is expanded and is colored with
+                      <code>--cnds-tt-toggle-color</code> (link color, auto-adapts
+                      in dark mode). The folder and file icons use a separate
+                      <code>--cnds-tt-icon-color</code> (Nimbus gray) so the two
+                      can be styled independently. Any row that has at least one
+                      child becomes a collapsible <em>parent row</em>; rows with no
+                      children are <em>leaf rows</em> and receive a file icon with
+                      no toggle control.
+                    </p>
+
+                    <p class="my-4">
+                      Use the TreeTable when you need to display multi-level
+                      data — such as folder structures, organizational charts,
+                      or nested record hierarchies — within a tabular layout that
+                      supports additional data columns alongside the tree.
+                    </p>
+
+                    <!-- API docs reference note — appears above the theme note per design spec -->
+                    <p class="note note-light">
+                      <strong>Note:</strong> Read the
+                      <a href="#section-api-docs">API Documentation</a> to find
+                      all available options, methods, events, and CSS
+                      customization.
+                    </p>
+
+                    <!-- Theme preview note — MDI icons used (mdi-weather-night / mdi-weather-sunny);
+                         aria-hidden="true" because the surrounding text provides full context. -->
+                    <p class="note note-info">
+                      <strong class="note-label">Note:</strong> To preview
+                      components in different themes, click the theme toggle
+                      button
+                      <i class="mdi mdi-weather-night" aria-hidden="true"></i> /
+                      <i class="mdi mdi-weather-sunny" aria-hidden="true"></i>
+                      in the header navigation bar.
+                    </p>
+
+                  </section>
+                  <!-- /Section: Introduction -->
+
+                  <hr class="my-5" />
+
+                  <!-- ========================================================
+                       SECTION: Basic example
+                       Two root-level folders with nested sub-folders and files.
+                       Demonstrates data-cnds-id / data-cnds-parent hierarchy.
+                       ======================================================== -->
+                  <section id="section-basic-example">
+
+                    <h3 class="mb-3">Basic example</h3>
+
+                    <p>
+                      The demo below renders a two-level file-system hierarchy.
+                      Root rows carry a unique <code>data-cnds-id</code>;
+                      child rows reference their parent with
+                      <code>data-cnds-parent</code>. A row that has at least one
+                      child becomes a collapsible parent; rows without children
+                      are leaves. Nesting depth is computed automatically from
+                      the parent-child graph — rows do not need to appear in
+                      any particular order in the markup.
+                    </p>
+
+                    <!-- Angular: Use *ngFor on <tr> elements, binding [attr.data-cnds-id] and [attr.data-cnds-parent] from a typed TreeNode interface; initialise the plugin in ngAfterViewInit.
+                         Example: <tr *ngFor="let node of nodes" [attr.data-cnds-id]="node.id" [attr.data-cnds-parent]="node.parentId || null"><td>{{ node.name }}</td></tr>
+                         Store the returned instance to call expandAll() / collapseAll() and pass MDI HTML strings in the config object to override default folder/file icons. -->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="p-4 d-flex justify-content-center w-100">
+
+                          <!--
+                            TreeTable wrapper:
+                              data-cnds-treetable-init — triggers auto-initialization on DOMContentLoaded
+                              class="treetable"        — required for plugin styles
+                              class="d-flex w-100"     — stretches the table to the available width
+                          -->
+                          <div
+                            data-cnds-treetable-init
+                            class="treetable d-flex w-100"
+                            aria-label="File system tree"
+                          >
+                            <table class="table" aria-label="TreeTable — Basic example">
+                              <thead>
+                                <tr>
+                                  <th scope="col">Name</th>
+                                  <th scope="col">Size</th>
+                                  <th scope="col">Type</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+
+                                <!-- Root: Personal folder -->
+                                <tr data-cnds-id="personal">
+                                  <td>Personal</td>
+                                  <td>15mb</td>
+                                  <td>Folder</td>
+                                </tr>
+                                <!-- Children of Personal -->
+                                <tr data-cnds-parent="personal">
+                                  <td>index</td>
+                                  <td>5mb</td>
+                                  <td>html</td>
+                                </tr>
+                                <tr data-cnds-parent="personal">
+                                  <td>index</td>
+                                  <td>5mb</td>
+                                  <td>html</td>
+                                </tr>
+                                <tr data-cnds-parent="personal">
+                                  <td>my-cat</td>
+                                  <td>0mb</td>
+                                  <td>webp</td>
+                                </tr>
+                                <!-- Sub-folder: Documents (child of Personal) -->
+                                <tr data-cnds-id="documents" data-cnds-parent="personal">
+                                  <td>Documents</td>
+                                  <td>350mb</td>
+                                  <td>Folder</td>
+                                </tr>
+                                <!-- Children of Documents -->
+                                <tr data-cnds-parent="documents">
+                                  <td>Bill</td>
+                                  <td>200mb</td>
+                                  <td>pdf</td>
+                                </tr>
+                                <tr data-cnds-parent="documents">
+                                  <td>Newspapers mentions</td>
+                                  <td>50mb</td>
+                                  <td>PDF</td>
+                                </tr>
+                                <tr data-cnds-parent="documents">
+                                  <td>Ebooks</td>
+                                  <td>100mb</td>
+                                  <td>zip</td>
+                                </tr>
+                                <!-- Sub-folder: Songs (child of Personal) -->
+                                <tr data-cnds-id="songs" data-cnds-parent="personal">
+                                  <td>Songs</td>
+                                  <td>30mb</td>
+                                  <td>Folder</td>
+                                </tr>
+                                <!-- Children of Songs -->
+                                <tr data-cnds-parent="songs">
+                                  <td>Ode to JS</td>
+                                  <td>10mb</td>
+                                  <td>mp3</td>
+                                </tr>
+                                <tr data-cnds-parent="songs">
+                                  <td>One more style</td>
+                                  <td>10mb</td>
+                                  <td>mp3</td>
+                                </tr>
+                                <tr data-cnds-parent="songs">
+                                  <td>Bjork-Its-Oh-So-Quiet</td>
+                                  <td>10mb</td>
+                                  <td>mp3</td>
+                                </tr>
+
+                                <!-- Root: Images folder -->
+                                <tr data-cnds-id="images">
+                                  <td>Images</td>
+                                  <td>1.5gb</td>
+                                  <td>Folder</td>
+                                </tr>
+                                <!-- Children of Images -->
+                                <tr data-cnds-parent="images">
+                                  <td>Album-cover</td>
+                                  <td>500mb</td>
+                                  <td>jpeg</td>
+                                </tr>
+                                <tr data-cnds-parent="images">
+                                  <td>Naruto-background</td>
+                                  <td>500mb</td>
+                                  <td>png</td>
+                                </tr>
+                                <tr data-cnds-parent="images">
+                                  <td>Sasuke-background</td>
+                                  <td>500mb</td>
+                                  <td>webp</td>
+                                </tr>
+
+                              </tbody>
+                            </table>
+                          </div>
+                          <!-- /TreeTable wrapper -->
+
+                        </section>
+                      </div>
+                    </section>
+                    <!-- /Demo -->
+
+                    <!-- HTML code snippet -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;!-- TreeTable wrapper
+     data-cnds-treetable-init — auto-initializes on DOMContentLoaded
+     data-cnds-id             — unique row identifier (required on parent rows)
+     data-cnds-parent         — links a child row to its parent row --&gt;
+&lt;div data-cnds-treetable-init class="treetable d-flex w-100" aria-label="File system tree"&gt;
+  &lt;table class="table"&gt;
+    &lt;thead&gt;
+      &lt;tr&gt;
+        &lt;th scope="col"&gt;Name&lt;/th&gt;
+        &lt;th scope="col"&gt;Size&lt;/th&gt;
+        &lt;th scope="col"&gt;Type&lt;/th&gt;
+      &lt;/tr&gt;
+    &lt;/thead&gt;
+    &lt;tbody&gt;
+
+      &lt;!-- Root: Personal folder --&gt;
+      &lt;tr data-cnds-id="personal"&gt;
+        &lt;td&gt;Personal&lt;/td&gt;&lt;td&gt;15mb&lt;/td&gt;&lt;td&gt;Folder&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr data-cnds-parent="personal"&gt;
+        &lt;td&gt;index&lt;/td&gt;&lt;td&gt;5mb&lt;/td&gt;&lt;td&gt;html&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr data-cnds-parent="personal"&gt;
+        &lt;td&gt;index&lt;/td&gt;&lt;td&gt;5mb&lt;/td&gt;&lt;td&gt;html&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr data-cnds-parent="personal"&gt;
+        &lt;td&gt;my-cat&lt;/td&gt;&lt;td&gt;0mb&lt;/td&gt;&lt;td&gt;webp&lt;/td&gt;
+      &lt;/tr&gt;
+
+      &lt;!-- Sub-folder: Documents (child of Personal) --&gt;
+      &lt;tr data-cnds-id="documents" data-cnds-parent="personal"&gt;
+        &lt;td&gt;Documents&lt;/td&gt;&lt;td&gt;350mb&lt;/td&gt;&lt;td&gt;Folder&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr data-cnds-parent="documents"&gt;
+        &lt;td&gt;Bill&lt;/td&gt;&lt;td&gt;200mb&lt;/td&gt;&lt;td&gt;pdf&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr data-cnds-parent="documents"&gt;
+        &lt;td&gt;Newspapers mentions&lt;/td&gt;&lt;td&gt;50mb&lt;/td&gt;&lt;td&gt;PDF&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr data-cnds-parent="documents"&gt;
+        &lt;td&gt;Ebooks&lt;/td&gt;&lt;td&gt;100mb&lt;/td&gt;&lt;td&gt;zip&lt;/td&gt;
+      &lt;/tr&gt;
+
+      &lt;!-- Sub-folder: Songs (child of Personal) --&gt;
+      &lt;tr data-cnds-id="songs" data-cnds-parent="personal"&gt;
+        &lt;td&gt;Songs&lt;/td&gt;&lt;td&gt;30mb&lt;/td&gt;&lt;td&gt;Folder&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr data-cnds-parent="songs"&gt;
+        &lt;td&gt;Ode to JS&lt;/td&gt;&lt;td&gt;10mb&lt;/td&gt;&lt;td&gt;mp3&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr data-cnds-parent="songs"&gt;
+        &lt;td&gt;One more style&lt;/td&gt;&lt;td&gt;10mb&lt;/td&gt;&lt;td&gt;mp3&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr data-cnds-parent="songs"&gt;
+        &lt;td&gt;Bjork-Its-Oh-So-Quiet&lt;/td&gt;&lt;td&gt;10mb&lt;/td&gt;&lt;td&gt;mp3&lt;/td&gt;
+      &lt;/tr&gt;
+
+      &lt;!-- Root: Images folder --&gt;
+      &lt;tr data-cnds-id="images"&gt;
+        &lt;td&gt;Images&lt;/td&gt;&lt;td&gt;1.5gb&lt;/td&gt;&lt;td&gt;Folder&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr data-cnds-parent="images"&gt;
+        &lt;td&gt;Album-cover&lt;/td&gt;&lt;td&gt;500mb&lt;/td&gt;&lt;td&gt;jpeg&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr data-cnds-parent="images"&gt;
+        &lt;td&gt;Naruto-background&lt;/td&gt;&lt;td&gt;500mb&lt;/td&gt;&lt;td&gt;png&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr data-cnds-parent="images"&gt;
+        &lt;td&gt;Sasuke-background&lt;/td&gt;&lt;td&gt;500mb&lt;/td&gt;&lt;td&gt;webp&lt;/td&gt;
+      &lt;/tr&gt;
+
+    &lt;/tbody&gt;
+  &lt;/table&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!-- /HTML code snippet -->
+
+                  </section>
+                  <!-- /Section: Basic example -->
+
+                  <hr class="my-5" />
+
+                  <!-- ========================================================
+                       SECTION: API Documentation
+                       Sub-sections use h3 per CNDS heading conventions.
+                       No <hr> elements between API sub-sections — spacing is
+                       handled by mb-4 / mb-5 utility classes.
+                       ======================================================== -->
+                  <section id="section-api-docs">
+
+                    <h3 class="mb-3">API Documentation</h3>
+
+                    <!-- ---- API: Introduction -------------------------------- -->
+                    <section id="api-section-introduction" class="mb-5">
+                      <h3 class="mb-4">Introduction</h3>
+                      <p>
+                        The TreeTable plugin is a self-contained Nimbus component
+                        that reads parent-child hierarchy from
+                        <code>data-cnds-id</code> and
+                        <code>data-cnds-parent</code> attributes on table rows.
+                        On initialization it injects four elements into the first
+                        column of every row: an indentation spacer, an MDI
+                        <code>mdi-chevron-right</code> toggle button (parent rows)
+                        or an equal-width spacer (leaf rows), an MDI folder or
+                        file icon, and a label wrapper around the original cell
+                        content. The remaining columns are left unchanged.
+                        Expand/collapse state is managed internally and
+                        communicated to the rest of the page via DOM events.
+                      </p>
+                      <p>
+                        The plugin class is exposed on the global
+                        <code>window.Nimbus</code> namespace as
+                        <code>Nimbus.TreeTable</code>. Elements that carry the
+                        <code>data-cnds-treetable-init</code> attribute are
+                        initialized automatically on
+                        <code>DOMContentLoaded</code>. Elements created
+                        dynamically after page load must be initialized
+                        programmatically.
+                      </p>
+                    </section>
+                    <!-- /API: Introduction -->
+
+                    <!-- ---- API: Usage --------------------------------------- -->
+                    <section id="api-section-usage" class="mb-5">
+                      <h3 class="mb-4">Usage</h3>
+
+                      <h4 class="mt-4 mb-3">Via data attribute</h3>
+                      <p>
+                        Add <code>data-cnds-treetable-init</code> to the wrapper
+                        <code>&lt;div&gt;</code> and apply the
+                        <code>.treetable</code> class. No JavaScript is required.
+                        The plugin reads all configuration from
+                        <code>data-cnds-*</code> attributes on the same element
+                        (see <a href="#api-section-options">Options</a> for the
+                        full list). Define hierarchy by placing
+                        <code>data-cnds-id</code> on parent rows and
+                        <code>data-cnds-parent</code> on their children,
+                        referencing the matching <code>data-cnds-id</code> value.
+                      </p>
+
+                      <!-- Angular: Bind [attr.data-cnds-id] and [attr.data-cnds-parent] from a typed OrgNode interface using *ngFor; call new Nimbus.TreeTable(el) in ngAfterViewInit.
+                           Example: <tr *ngFor="let node of nodes" [attr.data-cnds-id]="node.id" [attr.data-cnds-parent]="node.parentId || null"><td>{{ node.name }}</td><td>{{ node.role }}</td></tr>
+                           The CDK flat tree data source pattern can be used to build the nodes array; pass MDI HTML strings in the config object to override default icons. -->
+
+                      <!-- HTML snippet -->
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-html">&lt;div data-cnds-treetable-init class="treetable d-flex w-100"&gt;
+  &lt;table class="table"&gt;
+    &lt;thead&gt;
+      &lt;tr&gt;
+        &lt;th scope="col"&gt;Name&lt;/th&gt;
+        &lt;th scope="col"&gt;Role&lt;/th&gt;
+      &lt;/tr&gt;
+    &lt;/thead&gt;
+    &lt;tbody&gt;
+      &lt;!-- Root row: becomes a parent because dept-ops references it --&gt;
+      &lt;tr data-cnds-id="dept-eng"&gt;
+        &lt;td&gt;Engineering&lt;/td&gt;
+        &lt;td&gt;Department&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;!-- Leaf child of dept-eng --&gt;
+      &lt;tr data-cnds-parent="dept-eng"&gt;
+        &lt;td&gt;Steven&lt;/td&gt;
+        &lt;td&gt;Engineer&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;!-- Parent child of dept-eng --&gt;
+      &lt;tr data-cnds-id="dept-ops" data-cnds-parent="dept-eng"&gt;
+        &lt;td&gt;Operations&lt;/td&gt;
+        &lt;td&gt;Sub-department&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;!-- Leaf children of dept-ops --&gt;
+      &lt;tr data-cnds-parent="dept-ops"&gt;
+        &lt;td&gt;Eric&lt;/td&gt;
+        &lt;td&gt;Ops Engineer&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr data-cnds-parent="dept-ops"&gt;
+        &lt;td&gt;Daniel&lt;/td&gt;
+        &lt;td&gt;Ops Engineer&lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/tbody&gt;
+  &lt;/table&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+                      <!-- /HTML snippet -->
+
+                      <h4 class="mt-5 mb-3">Via JavaScript</h3>
+                      <p>
+                        Instantiate <code>Nimbus.TreeTable</code> directly for
+                        elements created dynamically or when you need a reference
+                        to call instance methods programmatically. Pass an optional
+                        configuration object as the second argument to override
+                        default option values (see
+                        <a href="#api-section-options">Options</a>).
+                      </p>
+
+                      <!-- JavaScript snippet -->
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-js">JavaScript</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-js">// Select the wrapper element
+const el = document.querySelector('.treetable');
+
+// Initialize with default options
+const instance = new Nimbus.TreeTable(el);
+
+// — or — initialize with custom options
+const instance = new Nimbus.TreeTable(el, {
+  indent:         32,                                                         // 32 px indent per nesting level
+  expandAll:      true,                                                        // expand all rows on init
+  icons:          true,                                                        // show folder/file icons
+  parentIcon:     '<i class="mdi mdi-folder" aria-hidden="true"></i>',        // icon for collapsed parent rows
+  parentOpenIcon: '<i class="mdi mdi-folder-open" aria-hidden="true"></i>',   // icon for expanded parent rows
+  leafIcon:       '<i class="mdi mdi-file" aria-hidden="true"></i>',          // icon for leaf rows
+  animated:       true                                                         // animate expand/collapse
+});</code></pre>
+                        </div>
+                      </section>
+                      <!-- /JavaScript snippet -->
+
+                    </section>
+                    <!-- /API: Usage -->
+
+                    <!-- ---- API: Options ------------------------------------- -->
+                    <section id="api-section-options" class="mb-5">
+                      <h3 class="mb-4">Options</h3>
+                      <p>
+                        Options can be passed as a JavaScript configuration object
+                        on instantiation or via <code>data-cnds-*</code>
+                        attributes on the wrapper element (camelCase names
+                        convert to kebab-case attribute names, e.g.
+                        <code>expandAll</code> →
+                        <code>data-cnds-expand-all</code>).
+                      </p>
+
+                      <!-- Options table — th scope="col" for Section 508 / WCAG 1.3.1 -->
+                      <div class="table-responsive mb-4">
+                        <table class="table table-striped table-bordered" aria-label="Options">
+                          <thead>
+                            <tr>
+                              <th scope="col">Option</th>
+                              <th scope="col">Data attribute</th>
+                              <th scope="col">Type</th>
+                              <th scope="col">Default</th>
+                              <th scope="col">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>indent</code></td>
+                              <td><code>data-cnds-indent</code></td>
+                              <td>number</td>
+                              <td><code>24</code></td>
+                              <td>
+                                Horizontal indent in pixels applied per nesting
+                                level to the first column of each row.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>expandAll</code></td>
+                              <td><code>data-cnds-expand-all</code></td>
+                              <td>boolean</td>
+                              <td><code>false</code></td>
+                              <td>
+                                When <code>true</code>, all parent rows are
+                                expanded on initialization.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>icons</code></td>
+                              <td><code>data-cnds-icons</code></td>
+                              <td>boolean</td>
+                              <td><code>true</code></td>
+                              <td>
+                                Show folder/file icon characters in the first
+                                column. Set to <code>false</code> to hide icons
+                                and reduce column width.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>parentIcon</code></td>
+                              <td><code>data-cnds-parent-icon</code></td>
+                              <td>string (HTML)</td>
+                              <td><code>'&lt;i class="mdi mdi-folder" aria-hidden="true"&gt;&lt;/i&gt;'</code></td>
+                              <td>
+                                HTML string rendered as the icon for collapsed
+                                parent rows (rows that have at least one child).
+                                Accepts any inline HTML — MDI or Font Awesome
+                                <code>&lt;i&gt;</code> elements are recommended.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>parentOpenIcon</code></td>
+                              <td><code>data-cnds-parent-open-icon</code></td>
+                              <td>string (HTML)</td>
+                              <td><code>'&lt;i class="mdi mdi-folder-open" aria-hidden="true"&gt;&lt;/i&gt;'</code></td>
+                              <td>
+                                HTML string rendered as the icon for expanded
+                                parent rows. Swapped with <code>parentIcon</code>
+                                each time a parent row is toggled.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>leafIcon</code></td>
+                              <td><code>data-cnds-leaf-icon</code></td>
+                              <td>string (HTML)</td>
+                              <td><code>'&lt;i class="mdi mdi-file" aria-hidden="true"&gt;&lt;/i&gt;'</code></td>
+                              <td>
+                                HTML string rendered as the icon for leaf rows
+                                (rows with no children).
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>animated</code></td>
+                              <td><code>data-cnds-animated</code></td>
+                              <td>boolean</td>
+                              <td><code>true</code></td>
+                              <td>
+                                Animate the toggle arrow rotation on
+                                expand/collapse. Set to <code>false</code> for
+                                reduced-motion environments or performance
+                                optimization.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <!-- Data attribute override example -->
+                      <h4 class="mt-4 mb-3">Via data attribute</h3>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-html">&lt;!-- All rows expanded on load; 32 px indent per level; no row icons --&gt;
+&lt;div
+  data-cnds-treetable-init
+  data-cnds-expand-all="true"
+  data-cnds-indent="32"
+  data-cnds-icons="false"
+  class="treetable d-flex w-100"
+&gt;
+  &lt;table class="table"&gt;...&lt;/table&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+
+                      <!-- JavaScript config example -->
+                      <h4 class="mt-4 mb-3">Via JavaScript</h3>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-js">JavaScript</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-js">const el = document.querySelector('.treetable');
+
+const instance = new Nimbus.TreeTable(el, {
+  indent:         32,
+  expandAll:      true,
+  icons:          true,
+  parentIcon:     '<i class="mdi mdi-folder" aria-hidden="true"></i>',
+  parentOpenIcon: '<i class="mdi mdi-folder-open" aria-hidden="true"></i>',
+  leafIcon:       '<i class="mdi mdi-file" aria-hidden="true"></i>',
+  animated:       true
+});</code></pre>
+                        </div>
+                      </section>
+
+                    </section>
+                    <!-- /API: Options -->
+
+                    <!-- ---- API: Methods ------------------------------------- -->
+                    <section id="api-section-methods" class="mb-5">
+                      <h3 class="mb-4">Methods</h3>
+                      <p>
+                        Retrieve an existing instance with
+                        <code>Nimbus.TreeTable.getInstance(element)</code> and
+                        call any of the methods below. Calling a method on an
+                        element that has not been initialized returns
+                        <code>null</code>.
+                      </p>
+
+                      <!-- Methods table -->
+                      <div class="table-responsive mb-4">
+                        <table class="table table-striped table-bordered" aria-label="Methods">
+                          <thead>
+                            <tr>
+                              <th scope="col">Method</th>
+                              <th scope="col">Description</th>
+                              <th scope="col">Example</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="text-nowrap"><code>collapseAll()</code></td>
+                              <td>Collapses all parent rows and hides their descendants.</td>
+                              <td><code>instance.collapseAll()</code></td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>expandAll()</code></td>
+                              <td>Expands all parent rows and shows their immediate children.</td>
+                              <td><code>instance.expandAll()</code></td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>toggleRow(<em>id</em>)</code></td>
+                              <td>
+                                Toggles the expand/collapse state of a single row
+                                identified by its <code>data-cnds-id</code> value.
+                                Has no effect on leaf rows.
+                              </td>
+                              <td><code>instance.toggleRow('dept-eng')</code></td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>dispose()</code></td>
+                              <td>
+                                Destroys the instance, releases event listeners,
+                                and clears internal row state. The element is left
+                                in the DOM with its injected markup intact.
+                              </td>
+                              <td><code>instance.dispose()</code></td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>Nimbus.TreeTable.getInstance(<em>element</em>)</code></td>
+                              <td>
+                                Static method. Returns the TreeTable instance
+                                associated with the given DOM element, or
+                                <code>null</code> if the element has not been
+                                initialized.
+                              </td>
+                              <td><code>Nimbus.TreeTable.getInstance(el)</code></td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <!-- JavaScript methods example -->
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-js">JavaScript</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-js">const el = document.querySelector('.treetable');
+
+// Retrieve the existing instance (returns null if not yet initialized)
+const instance = Nimbus.TreeTable.getInstance(el);
+
+if (instance) {
+  instance.collapseAll();           // collapse every parent row
+  instance.expandAll();             // expand every parent row
+  instance.toggleRow('dept-eng');   // toggle a specific row by data-cnds-id
+  instance.dispose();               // destroy the instance
+}</code></pre>
+                        </div>
+                      </section>
+
+                    </section>
+                    <!-- /API: Methods -->
+
+                    <!-- ---- API: Events -------------------------------------- -->
+                    <section id="api-section-events" class="mb-5">
+                      <h3 class="mb-4">Events</h3>
+                      <p>
+                        TreeTable fires custom DOM events on the wrapper element
+                        when a row is expanded or collapsed — either by the user
+                        clicking the toggle button or by a programmatic call to
+                        <code>toggleRow()</code>. Listen on the wrapper element
+                        itself; the event does not bubble past it. Event data is
+                        available on <code>event.detail</code>.
+                      </p>
+
+                      <!-- Events table -->
+                      <div class="table-responsive mb-4">
+                        <table class="table table-striped table-bordered" aria-label="Events">
+                          <thead>
+                            <tr>
+                              <th scope="col">Event</th>
+                              <th scope="col"><code>event.detail</code> fields</th>
+                              <th scope="col">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="text-nowrap"><code>expand.cnds.treetable</code></td>
+                              <td>
+                                <code>id</code> — the row's <code>data-cnds-id</code> value<br />
+                                <code>row</code> — the <code>&lt;tr&gt;</code> DOM element
+                              </td>
+                              <td>
+                                Fires immediately after a parent row is expanded,
+                                before child rows become visible.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>collapse.cnds.treetable</code></td>
+                              <td>
+                                <code>id</code> — the row's <code>data-cnds-id</code> value<br />
+                                <code>row</code> — the <code>&lt;tr&gt;</code> DOM element
+                              </td>
+                              <td>
+                                Fires immediately after a parent row is collapsed,
+                                before child rows are hidden.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <!-- JavaScript events example -->
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-js">JavaScript</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-js">const el = document.querySelector('.treetable');
+
+// Listen for row expand
+el.addEventListener('expand.cnds.treetable', (event) => {
+  const { id, row } = event.detail;
+  console.log('Row expanded — id:', id, 'element:', row);
+});
+
+// Listen for row collapse
+el.addEventListener('collapse.cnds.treetable', (event) => {
+  const { id, row } = event.detail;
+  console.log('Row collapsed — id:', id, 'element:', row);
+});</code></pre>
+                        </div>
+                      </section>
+
+                    </section>
+                    <!-- /API: Events -->
+
+                    <!-- ---- API: CSS Classes --------------------------------- -->
+                    <section id="api-section-css-classes" class="mb-5">
+                      <h3 class="mb-4">CSS classes</h3>
+                      <p>
+                        The classes below are injected into the DOM by the plugin
+                        at initialization time. You do not need to add them
+                        manually. They are documented here for reference when
+                        writing custom overrides in <code>app.css</code>.
+                      </p>
+
+                      <!-- CSS classes table -->
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="CSS classes">
+                          <thead>
+                            <tr>
+                              <th scope="col">Class</th>
+                              <th scope="col">Element</th>
+                              <th scope="col">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>.treetable</code></td>
+                              <td>wrapper <code>&lt;div&gt;</code></td>
+                              <td>
+                                Required container class. Applied automatically
+                                by the plugin alongside <code>.datatable</code>
+                                to inherit core table styles.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.treetable-cell</code></td>
+                              <td>injected <code>&lt;div&gt;</code></td>
+                              <td>
+                                Flex wrapper injected inside the first
+                                <code>&lt;td&gt;</code> of every row. Aligns the
+                                indent spacer, toggle, icon, and label
+                                horizontally.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.treetable-indent</code></td>
+                              <td>injected <code>&lt;span&gt;</code></td>
+                              <td>
+                                Inline-block spacer whose width is set to
+                                <code>level × indent</code> pixels. Controls the
+                                visual indentation of each row.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.treetable-toggle</code></td>
+                              <td>injected <code>&lt;button&gt;</code></td>
+                              <td>
+                                Expand/collapse button. Present only on parent
+                                rows. Contains an injected
+                                <code>&lt;i class="mdi mdi-chevron-right"&gt;</code>
+                                element colored via
+                                <code>--cnds-tt-toggle-color</code> (link color).
+                                Receives <code>aria-label="Toggle row"</code>.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.treetable-toggle.expanded</code></td>
+                              <td><code>&lt;button&gt;</code></td>
+                              <td>
+                                State modifier applied to
+                                <code>.treetable-toggle</code> when the row is
+                                expanded. Rotates the child
+                                <code>.mdi</code> element 90° via CSS
+                                <code>transform</code>.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.treetable-toggle-spacer</code></td>
+                              <td>injected <code>&lt;span&gt;</code></td>
+                              <td>
+                                Same-width spacer placed in the toggle area of
+                                leaf rows, keeping the icon and label column
+                                aligned with parent rows.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.treetable-icon</code></td>
+                              <td>injected <code>&lt;span&gt;</code></td>
+                              <td>
+                                MDI folder/file icon. Parent rows show
+                                <code>mdi-folder</code> (collapsed) or
+                                <code>mdi-folder-open</code> (expanded); leaf rows
+                                show <code>mdi-file</code>. Colored via
+                                <code>--cnds-tt-icon-color</code> (Nimbus gray —
+                                independent of the chevron color). Not rendered
+                                when the <code>icons</code> option is
+                                <code>false</code>.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.treetable-label</code></td>
+                              <td>injected <code>&lt;span&gt;</code></td>
+                              <td>
+                                Wrapper around the original first-column cell
+                                content. Applies <code>text-overflow: ellipsis</code>
+                                so long labels do not break the layout.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.parent-row</code></td>
+                              <td><code>&lt;tr&gt;</code></td>
+                              <td>
+                                Applied to rows that have at least one child.
+                                Sets the first column to
+                                <code>font-weight: 500</code>.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.collapsed</code></td>
+                              <td><code>&lt;tr&gt;</code></td>
+                              <td>
+                                Applied to rows that are hidden because an
+                                ancestor is collapsed. Sets
+                                <code>display: none</code>.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!-- /API: CSS Classes -->
+
+                    <!-- ---- API: CSS Custom Properties ----------------------- -->
+                    <section id="api-section-css-variables" class="mb-5">
+                      <h3 class="mb-4">CSS custom properties</h3>
+                      <p>
+                        The following custom properties are defined on
+                        <code>.treetable</code> in <code>treetable.css</code> and
+                        can be overridden per-instance (inline
+                        <code>style</code> attribute on the wrapper) or globally
+                        by targeting <code>.treetable</code> in
+                        <code>app.css</code>. Dark-mode overrides are applied
+                        automatically via the
+                        <code>[data-cnds-theme="dark"] .treetable</code>
+                        selector — no manual theme switching is required.
+                      </p>
+
+                      <!-- CSS variables table -->
+                      <div class="table-responsive mb-4">
+                        <table class="table table-striped table-bordered" aria-label="CSS custom properties">
+                          <thead>
+                            <tr>
+                              <th scope="col">Property</th>
+                              <th scope="col">Light default</th>
+                              <th scope="col">Dark default</th>
+                              <th scope="col">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>--cnds-tt-indent</code></td>
+                              <td><code>1.5rem</code></td>
+                              <td><code>1.5rem</code></td>
+                              <td>
+                                Indent step rendered as the width of the
+                                <code>.treetable-indent</code> spacer. The plugin
+                                sets this inline as <code>level × indent px</code>;
+                                override the <code>indent</code> option instead
+                                of this property for consistent results.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-tt-toggle-color</code></td>
+                              <td><code>var(--cnds-link-color, #215aab)</code></td>
+                              <td><code>var(--cnds-link-color, #6790ca)</code></td>
+                              <td>
+                                Color of the chevron toggle button. Resolves
+                                through <code>--cnds-link-color</code>, which
+                                <code>dark.css</code> overrides automatically.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-tt-icon-color</code></td>
+                              <td><code>var(--cnds-primary-gray-600, #666666)</code></td>
+                              <td><code>var(--cnds-surface-light-600, #a3a3a3)</code></td>
+                              <td>
+                                Color of the folder and file icons in the first
+                                column. Intentionally separate from
+                                <code>--cnds-tt-toggle-color</code> so chevrons
+                                and icons can be styled independently.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <!-- CSS override example -->
+                      <h4 class="mt-4 mb-3">Per-instance override</h3>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-html">&lt;!-- Override chevron and icon colors for this instance only --&gt;
+&lt;div
+  data-cnds-treetable-init
+  class="treetable d-flex w-100"
+  style="--cnds-tt-toggle-color: #0057b8; --cnds-tt-icon-color: #4a4a4a;"
+&gt;
+  &lt;table class="table"&gt;...&lt;/table&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+
+                      <!-- CSS global override example -->
+                      <h4 class="mt-4 mb-3">Global override</h3>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-css">CSS</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-css">/* app.css — applies to all TreeTable instances */
+.treetable {
+  --cnds-tt-toggle-color: #0057b8;  /* chevron color  */
+  --cnds-tt-icon-color:   #4a4a4a;  /* folder/file icon color */
+}</code></pre>
+                        </div>
+                      </section>
+
+                    </section>
+                    <!-- /API: CSS Custom Properties -->
+
+                  </section>
+                  <!-- /Section: API Documentation -->
+
+                </section>
+                <!-- /Docs content -->
+              </div>
+              <!-- ./Main column -->
+
+              <!-- ============================================================
+                   RIGHT SIDEBAR — 20% of the row; hidden below lg breakpoint.
+                   Sticky attributes processed by nimbus.js:
+                     data-cnds-sticky="true"           : activates sticky positioning
+                     data-cnds-sticky-boundary="true"  : constrains sticky to parent
+                     data-cnds-sticky-direction="both" : sticks on scroll up AND down
+                     data-cnds-sticky-offset="56"      : clears the 56px fixed header
+                     data-cnds-sticky-delay="125"      : debounce ms to reduce jank
+                   data-cnds-allow-hashes="true": nimbus.js highlights the nav-link
+                     that matches the current URL hash as the user scrolls.
+                   ============================================================ -->
+              <div class="col-lg-2 d-none d-lg-block">
+                <div class="sticky-top" style="top: 100px; z-index: 1">
+                  <ul
+                    class="nav flex-column nav-pills menu-sidebar"
+                    data-cnds-allow-hashes="true"
+                    aria-label="Page sections"
+                  >
+                    <li class="nav-item"><a class="nav-link" href="#section-introduction">Introduction</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-basic-example">Basic example</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-api-docs">API Documentation</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-introduction">Introduction</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-usage">Usage</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-options">Options</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-methods">Methods</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-events">Events</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-css-classes">CSS classes</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-css-variables">CSS custom properties</a></li>
+                  </ul>
+                </div>
+              </div>
+              <!-- ./Right Sidebar -->
+
+            </div>
+            <!-- ./Content Row -->
+          </div>
+        </div>
+      </div>
+      <!-- ./Desktop layout -->
+
+    </main>
+    <!-- ./Content -->
+
+    <!-- ============================================================
+         FOOTER
+         ============================================================ -->
+    <!-- Footer -->
+    <div class="cf-footer cf-footer-app">
+      <footer class="page-footer main-footer" aria-label="Site footer">
+        <div class="w-100 px-3 d-flex align-items-center">
+          <img src="img/cf/core/cloudficient_logo_light.svg" class="cf-logo-light" style="width: 135px;" alt="Cloudficient" />
+          <img src="img/cf/core/cloudficient_logo_dark.svg" class="cf-logo-dark" style="width: 135px;" alt="Cloudficient" />
+          <span class="footer-copyright ms-auto">&copy; <span id="currentYear"></span> Cloudficient</span>
+        </div>
+      </footer>
+    </div>
+    <!-- ./Footer -->
+            <div
+              class="col-12 col-md-5 col-lg-7 col-xl-8 flex-column flex-md-row d-flex justify-content-center footer-links py-0 py-lg-3 py-xl-3"
+            >
+              <a href="#!" target="_blank" class="text-nowrap my-3 my-md-0 mb-0 me-0">Cloudficient</a>
+              <a href="#!" target="_blank" class="text-nowrap my-3 my-md-0 mb-0 me-0">Support</a>
+              <a href="#!" target="_blank" class="text-nowrap my-3 my-md-0 mb-0 me-0">Community</a>
+              <a href="#!" target="_blank" class="text-nowrap my-3 my-md-0 mb-0 me-0">Documentation</a>
+            </div>
+            <div
+              class="col-12 col-md-4 col-lg-3 col-xl-2 d-flex justify-content-center justify-content-xl-end py-lg-1 py-xl-0 social-btns"
+            >
+              <div
+                class="d-flex align-items-center justify-content-center justify-content-xl-end social-btns-container"
+              >
+                <!-- Font Awesome — fa-x-twitter is the correct FA6 icon for X/Twitter -->
+                <a
+                  href="https://twitter.com/cloudficient"
+                  target="_blank"
+                  data-cnds-toggle="tooltip"
+                  data-cnds-placement="top"
+                  title="X"
+                  class="social footer-fa-fix"
+                  aria-label="Cloudficient on X"
+                  ><i class="fab fa-x-twitter fa-lg" aria-hidden="true"></i
+                ></a>
+                <!-- MDI icons for LinkedIn and YouTube -->
+                <a
+                  href="https://www.linkedin.com/company/cloudficient"
+                  target="_blank"
+                  data-cnds-toggle="tooltip"
+                  data-cnds-placement="top"
+                  title="LinkedIn"
+                  class="social"
+                  aria-label="Cloudficient on LinkedIn"
+                  ><i class="mdi mdi-24px mdi-linkedin" aria-hidden="true"></i
+                ></a>
+                <a
+                  href="https://www.youtube.com/@cloudficient"
+                  target="_blank"
+                  data-cnds-toggle="tooltip"
+                  data-cnds-placement="top"
+                  title="YouTube"
+                  class="social"
+                  aria-label="Cloudficient on YouTube"
+                  ><i class="mdi mdi-24px mdi-youtube" aria-hidden="true"></i
+                ></a>
+              </div>
+            </div>
+            <div class="col-12">
+              <p class="caption text-nowrap p-0 mt-0 mt-lg-3 mb-0 mb-lg-3 text-center">
+                &copy; <span id="currentYear"></span> Cloudficient. All rights reserved.
+              </p>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+    <!-- ./Footer -->
+
+    <!-- ============================================================
+         SCRIPTS — load order matters:
+         1. nimbus.js        — core: processes all data-cnds-* attributes
+                               (theme, sticky, sidenav, tooltips, collapse…)
+         2. app.js           — application-level overrides / custom init
+         3. prism.min.js     — syntax highlighting; must run after DOM ready
+         4. sidenav-loader.js — fetches shared sidenav HTML → #sidebar-cf
+         5. treetable.js     — TreeTable plugin; auto-inits [data-cnds-treetable-init]
+                               elements on DOMContentLoaded
+         ============================================================ -->
+    <script type="text/javascript" src="js/nimbus.js?v=9.0.4"></script>
+    <script type="text/javascript" src="js/app.js?v=9.0.4"></script>
+    <script type="text/javascript" src="plugins/js/prism.min.js"></script>
+    <script type="text/javascript" src="js/sidenav-loader.js"></script>
+    <script type="text/javascript" src="js/plugins/treetable.js"></script>
+    <!-- Inline: populate footer copyright year without a server-side render -->
+    <script type="text/javascript">
+      (function () {
+        var el = document.getElementById("currentYear");
+        if (el) el.textContent = new Date().getFullYear();
+      }());
+    </script>
+
+  </body>
+</html>

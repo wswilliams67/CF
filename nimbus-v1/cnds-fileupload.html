@@ -1,0 +1,1545 @@
+<!--
+* CNDS Nimbus Design System — File upload
+* Version: 1.0.0
+* Layout: Application with SideNav (migrated from Nimbus v8 template)
+*
+* Component CSS:  css/plugins/file-upload.css
+* Component JS:   js/plugins/file-upload.js
+*
+* SECTIONS (in document order)
+*   #section-introduction            — Overview and when to use
+*   #section-basic-example           — Minimal markup
+*   #section-default-msg             — Dropzone text (dropzoneText option)
+*   #section-custom-height           — CSS height override
+*   #section-max-size                — File size limit (maxSize option)
+*   #section-default-file            — Dropzone hint (dropzoneHint option)
+*   #section-disable                 — Disabled state
+*   #section-accept-formats          — Accepted file types (acceptedTypes option)
+*   #section-disabled-remove-button  — File list visibility (showFileList option)
+*   #section-multiple-files          — Multiple file selection
+*     #subsection-multiple-files-with-file-limit — File count limit (maxFiles option)
+*   #section-api-docs                — API Documentation
+*     #api-section-introduction      — Plugin overview
+*     #api-section-usage             — Initialisation patterns
+*     #api-section-options           — Configuration reference
+*     #api-section-methods           — Instance methods
+*     #api-section-events            — Custom events
+*     #api-section-css-classes       — CSS class reference
+*     #api-section-css-variables     — CSS custom properties
+*
+* NOTES
+* - Pure HTML5, CSS3, vanilla JavaScript — zero external dependencies
+* - Wrapper element carries data-cnds-file-upload-init (NOT the <input>)
+* - The plugin reads data-cnds-* attributes from the wrapper for configuration
+* - All plugin events fire on the wrapper element, not on the <input>
+* - Uses Nimbus.* namespace; plugin registered as window.Nimbus.FileUpload
+* - Dark-mode muted text uses var(--cnds-text-muted, #d1d1d1) for WCAG AA compliance.
+* - Default product theme: CaseFusion (cnds-product-casefusion on <body>; change to cnds-product-hyperlize or cnds-product-expireon)
+-->
+<!doctype html>
+<!-- data-cnds-theme: sets initial theme ("light"|"dark"). nimbus.js syncs this attribute on toggle. -->
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="File upload | Cloudficient Nimbus Design System v1.0.0" />
+    <title>File upload | CNDS v1.0.0 | Cloudficient Nimbus Design System</title>
+
+    <!-- Nimbus core CSS — must load before plugin and theme stylesheets -->
+    <link rel="stylesheet" href="css/nimbus.css" media="all" type="text/css" />
+    <!-- File Upload plugin CSS — provides drop zone, file list, and progress bar styles -->
+    <link rel="stylesheet" href="css/plugins/file-upload.css" media="all" type="text/css" />
+    <!-- App-level overrides — all project-specific classes and tweaks go here -->
+    <link rel="stylesheet" href="css/app.css" media="all" type="text/css" />
+    <!-- Prism syntax highlighting for <code class="language-*"> blocks -->
+    <link rel="stylesheet" href="plugins/css/prism.min.css" media="all" type="text/css" />
+
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="57x57"   href="img/favicon/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="60x60"   href="img/favicon/apple-icon-60x60.png" />
+    <link rel="apple-touch-icon" sizes="72x72"   href="img/favicon/apple-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76"   href="img/favicon/apple-icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="img/favicon/apple-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="img/favicon/apple-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="img/favicon/apple-icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="img/favicon/apple-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-icon-180x180.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="img/favicon/android-icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="32x32"   href="img/favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="96x96"   href="img/favicon/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="16x16"   href="img/favicon/favicon-16x16.png" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="msapplication-TileImage" content="img/favicon/ms-icon-144x144.png" />
+    <!-- ./Favicons -->
+
+    <!-- Design tokens — load order matters:
+         1. primitives.css  — raw color/spacing values (no theming)
+         2. light.css       — semantic tokens for [data-cnds-theme="light"] / :root
+         3. dark.css        — semantic token overrides for [data-cnds-theme="dark"]
+         All three must appear AFTER nimbus.css so component variables resolve correctly. -->
+    <link rel="stylesheet" href="css/themes/primitives.css" />
+    <link rel="stylesheet" href="css/themes/light.css" />
+    <link rel="stylesheet" href="css/themes/dark.css" />
+  </head>
+
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 Bypass Blocks; visually hidden until focused -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+
+    <!-- ═══════════════════════════════════════════════════════════════ HEADER -->
+    <div class="sticky-top">
+      <!-- Utility Navigation -->
+      <nav id="UtilityNav" class="nav nav-cf-utility" aria-label="Utility navigation">
+        <div class="w-100 gx-3 px-sm-0 px-lg-3">
+          <ul class="nav nav-cf-utility-ul"></ul>
+        </div>
+      </nav>
+      <!-- ./Utility Navigation -->
+
+      <!-- Main Navigation -->
+      <nav id="MainNav" class="navbar navbar-expand-xl navbar-cf" aria-label="Main navigation">
+        <div class="container-fluid p-0 px-3 d-flex">
+          <div class="d-flex flex-fill align-items-center text-truncate">
+            <div class="text-center d-none d-md-block me-3 border-end">
+              <a href="index.html">
+                <img src="img/cf/core/logo_nimbus.png" class="me-3 mt-n1"
+                     alt="Cloudficient Nimbus Design System" />
+              </a>
+            </div>
+            <div class="flex-fill text-truncate">
+              <div class="navbar-cf-title-block">
+                <div class="navbar-cf-title cf-page-title text-truncate" style="padding-bottom: 0">
+                  <!-- Brand prefix + page name; cf-page-title-brand applies the accent color -->
+                  <span class="cf-page-title-text cf-page-title-brand">v1</span
+                  ><span class="cf-page-title-divider"></span
+                  ><span class="cf-page-title-text">File upload</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- data-cnds-toggle="theme": processed by nimbus.js; flips data-cnds-theme on <html> -->
+          <button
+            class="btn btn-sm btn-outline-secondary ms-2"
+            data-cnds-toggle="theme"
+            aria-label="Toggle light/dark theme"
+            title="Toggle theme"
+          >
+            <i class="mdi mdi-weather-night mdi-18px" aria-hidden="true"></i>
+          </button>
+        </div>
+      </nav>
+      <!-- ./Main Navigation -->
+    </div>
+    <!-- ./Header ══════════════════════════════════════════════════════════════ -->
+
+    <!-- ══════════════════════════════════════════════════════════════ CONTENT -->
+    <main id="main-content" class="cf-main-app">
+
+      <!-- Mobile viewport warning — hidden on md+ screens -->
+      <div class="d-block d-md-none p-4">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>This
+          application is not optimized for small screens. Please use a large
+          tablet, laptop, or desktop computer to continue.
+        </div>
+      </div>
+
+      <div class="d-none d-md-block">
+        <!-- Sidenav — markup intentionally empty; sidenav-loader.js fetches and
+             injects the shared navigation HTML at runtime.
+             data-cnds-mode="side"            : persistent side panel, not an overlay
+             data-cnds-slim/slim-collapsed    : compact/icon-only toggle
+             data-cnds-content="#slim-content": sibling panel that resizes on open/close
+             data-cnds-accordion="true"       : collapse other groups on expand -->
+        <nav
+          id="sidebar-cf"
+          class="sidenav"
+          data-cnds-mode="side"
+          data-cnds-slim="false"
+          data-cnds-slim-collapsed="false"
+          data-cnds-content="#slim-content"
+          data-cnds-accordion="true"
+          aria-label="Page navigation"
+        ></nav>
+
+        <div id="slim-content">
+          <div class="slim-content-box">
+            <!-- Content Row -->
+            <div class="row">
+
+              <!-- ─── Main column (80 %) ─────────────────────────────────────
+                   Inline flex overrides pin the 80/20 ratio across all
+                   Bootstrap breakpoints so the sidebar never wraps. -->
+              <div class="col-12 col-lg" style="flex: 0 0 80%; max-width: 80%">
+                <!--Section: Docs content-->
+                <section class="container-fluid">
+
+                  <!-- ═══════════════════════════════════════ INTRODUCTION -->
+                  <!--Section: Introduction-->
+                  <section id="section-introduction" aria-labelledby="heading-introduction">
+
+                    <p class="mb-4">
+                      The File Upload plugin wraps a standard
+                      <code>&lt;input type="file"&gt;</code> element with a styled,
+                      accessible drag-and-drop drop zone. It handles file selection,
+                      image previewing, file-type and size validation, multi-file
+                      queuing, and optional XHR upload — all without external
+                      dependencies. Initialization requires only a single data
+                      attribute; every configurable behavior is exposed through
+                      <code>data-cnds-*</code> attributes or a plain JavaScript
+                      config object.
+                    </p>
+                    <p class="my-4">
+                      The plugin is registered globally as
+                      <code>window.Nimbus.FileUpload</code> and requires
+                      <code>css/plugins/file-upload.css</code> (styling) and
+                      <code>js/plugins/file-upload.js</code> (behaviour). Both
+                      files must be loaded before the DOM is ready.
+                    </p>
+
+                    <!-- Note: files required — shown before API and theme notes -->
+                    <p class="note note-light">
+                      <strong>Note:</strong> Read the
+                      <a href="#section-api-docs">API Documentation</a> for the
+                      full options, methods, events, and CSS custom-property
+                      reference.
+                    </p>
+                    <p class="note note-info">
+                      <strong>Note:</strong> <code>css/plugins/file-upload.css</code>
+                      and <code>js/plugins/file-upload.js</code> must be included
+                      for the plugin to function.
+                    </p>
+
+                    <!-- Note: theme toggle -->
+                    <p class="note note-info">
+                      <strong>Note:</strong> To preview the component in different
+                      themes, click the theme toggle
+                      <i class="mdi mdi-weather-night" aria-hidden="true"></i> /
+                      <i class="mdi mdi-weather-sunny" aria-hidden="true"></i>
+                      in the header navigation bar.
+                    </p>
+
+                  </section>
+                  <!--/Section: Introduction-->
+
+                  <hr class="my-5" />
+
+                  <!-- ═══════════════════════════════════════ BASIC EXAMPLE -->
+                  <!--Section: Basic example-->
+                  <section id="section-basic-example" aria-labelledby="heading-basic-example">
+                    <h3 class="mb-4" id="heading-basic-example">Basic example</h3>
+
+                    <p>
+                      Place <code>data-cnds-file-upload-init</code> on a
+                      <strong>wrapper <code>&lt;div&gt;</code></strong>, not on
+                      the <code>&lt;input&gt;</code>. The plugin reads the wrapper
+                      as its root element, finds (or creates) the
+                      <code>&lt;input type="file"&gt;</code> child, hides the
+                      native input, and builds the drop zone UI inside the wrapper.
+                      Default settings allow up to 10 files, 10&nbsp;MB each,
+                      any file type.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <!-- Angular: Use CndsFileUploadComponent from @cloudficient/cnds-angular; bind options via @Input() properties.
+                         Example: <cnds-file-upload [multiple]="true" [maxFiles]="10" aria-label="Upload files"></cnds-file-upload>
+                         Add CndsFileUploadModule to NgModule imports or import CndsFileUploadComponent in a standalone component. -->
+                    <section class="pb-4" aria-label="Basic example demo">
+                      <div class="border rounded-5">
+                        <section class="p-4 w-100">
+                          <!-- wrapper carries the init attribute; input is a child -->
+                          <div data-cnds-file-upload-init>
+                            <input type="file" aria-label="Choose a file to upload" />
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;!-- data-cnds-file-upload-init is on the wrapper, not the input --&gt;
+&lt;div data-cnds-file-upload-init&gt;
+  &lt;input type="file" aria-label="Choose a file to upload" /&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Basic example-->
+
+                  <hr class="my-5" />
+
+                  <!-- ══════════════════════════════════════ DROPZONE TEXT -->
+                  <!--Section: Dropzone text-->
+                  <section id="section-default-msg" aria-labelledby="heading-default-msg">
+                    <h3 class="mb-4" id="heading-default-msg">Dropzone text</h3>
+
+                    <p>
+                      The <code>dropzoneText</code> option controls the HTML
+                      displayed inside the drop zone when no file has been
+                      selected. The value accepts an HTML string, so inline
+                      markup is valid — wrapping a word in
+                      <code>&lt;strong&gt;</code> renders it in the same text
+                      color with an underline, making it look like a call-to-action
+                      without introducing a separate accent color. Pass the option
+                      via the <code>data-cnds-dropzone-text</code> attribute on
+                      the wrapper, or as a property in the JavaScript config
+                      object.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <!-- Angular: Bind dropzoneText as a string @Input(); accepts HTML markup.
+                         Example: <cnds-file-upload dropzoneText="Drop here or &lt;strong&gt;browse&lt;/strong&gt;"></cnds-file-upload>
+                         The &lt;strong&gt; tag renders in body text color with underline — no separate accent color is applied. -->
+                    <section class="pb-4" aria-label="Dropzone text demo">
+                      <div class="border rounded-5">
+                        <section class="p-4 w-100">
+                          <div
+                            data-cnds-file-upload-init
+                            data-cnds-dropzone-text="Drop your report here or &lt;strong&gt;browse&lt;/strong&gt;"
+                          >
+                            <input type="file" aria-label="Choose a file to upload" />
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div
+  data-cnds-file-upload-init
+  data-cnds-dropzone-text="Drop your report here or &lt;strong&gt;browse&lt;/strong&gt;"
+&gt;
+  &lt;input type="file" aria-label="Choose a file to upload" /&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Dropzone text-->
+
+                  <hr class="my-5" />
+
+                  <!-- ════════════════════════════════════ CUSTOM HEIGHT -->
+                  <!--Section: Custom height-->
+                  <section id="section-custom-height" aria-labelledby="heading-custom-height">
+                    <h3 class="mb-4" id="heading-custom-height">Custom height</h3>
+
+                    <p>
+                      The plugin has no built-in height option; override the
+                      <code>min-height</code> of <code>.file-upload-dropzone</code>
+                      with an inline <code>style</code> attribute on the wrapper
+                      or a CSS rule scoped to a selector of your choice. Use the
+                      CSS custom property <code>--cnds-fu-radius</code> if you
+                      also need to adjust the border radius.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <!-- Angular: Override dropzone height via ::ng-deep or a ViewChild ref targeting .file-upload-dropzone.
+                         Example: ngAfterViewInit() { this.uploadRef.nativeElement.querySelector('.file-upload-dropzone').style.minHeight = '300px'; }
+                         Use a scoped class in the component stylesheet rather than ::ng-deep for encapsulation-safe overrides. -->
+                    <section class="pb-4" aria-label="Custom height demo">
+                      <div class="border rounded-5">
+                        <section class="p-4 w-100">
+                          <!--
+                            CSS override: style targets .file-upload-dropzone inside
+                            this specific wrapper. Use a class or id for production.
+                          -->
+                          <div id="demo-custom-height" data-cnds-file-upload-init>
+                            <input type="file" aria-label="Choose a file to upload" />
+                          </div>
+                          <style>
+                            #demo-custom-height .file-upload-dropzone { min-height: 300px; }
+                          </style>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div id="my-upload" data-cnds-file-upload-init&gt;
+  &lt;input type="file" aria-label="Choose a file to upload" /&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-css">CSS</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-css">/* Scope the override to a specific instance */
+#my-upload .file-upload-dropzone {
+  min-height: 300px;
+}
+
+/* Or apply globally */
+.file-upload-dropzone {
+  min-height: 300px;
+}</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Custom height-->
+
+                  <hr class="my-5" />
+
+                  <!-- ══════════════════════════════════════════ MAX SIZE -->
+                  <!--Section: Max size-->
+                  <section id="section-max-size" aria-labelledby="heading-max-size">
+                    <h3 class="mb-4" id="heading-max-size">Max file size</h3>
+
+                    <p>
+                      The <code>maxSize</code> option accepts a size in
+                      <strong>bytes</strong>. Files that exceed the limit are
+                      rejected and an <code>error.cnds.fileupload</code> event
+                      fires with the reason. The example below restricts uploads
+                      to 5&nbsp;MB (5&nbsp;×&nbsp;1024&nbsp;×&nbsp;1024&nbsp;=&nbsp;5&thinsp;242&thinsp;880&nbsp;bytes).
+                      The drop zone hint updates automatically to reflect the
+                      configured limit.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <!-- Angular: Bind maxSize in bytes via @Input(); files exceeding the limit trigger an error.cnds.fileupload event.
+                         Example: <cnds-file-upload [maxSize]="5 * 1024 * 1024"></cnds-file-upload>
+                         The dropzone hint updates automatically to reflect the configured limit. -->
+                    <section class="pb-4" aria-label="Max file size demo">
+                      <div class="border rounded-5">
+                        <section class="p-4 w-100">
+                          <!-- maxSize is in bytes; 5242880 = 5 MB -->
+                          <div
+                            data-cnds-file-upload-init
+                            data-cnds-max-size="5242880"
+                          >
+                            <input type="file" aria-label="Choose a file to upload (5 MB max)" />
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;!-- maxSize is in bytes: 5242880 = 5 MB (5 × 1024 × 1024) --&gt;
+&lt;div data-cnds-file-upload-init data-cnds-max-size="5242880"&gt;
+  &lt;input type="file" aria-label="Choose a file to upload (5 MB max)" /&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Max size-->
+
+                  <hr class="my-5" />
+
+                  <!-- ════════════════════════════════════ DROPZONE HINT -->
+                  <!--Section: Dropzone hint-->
+                  <section id="section-default-file" aria-labelledby="heading-default-file">
+                    <h3 class="mb-4" id="heading-default-file">Dropzone hint</h3>
+
+                    <p>
+                      By default the drop zone renders a hint line beneath the
+                      main message that summarises the active <code>maxSize</code>
+                      and <code>maxFiles</code> constraints (e.g.,
+                      <em>"Max 10 MB · up to 10 files"</em>). The
+                      <code>dropzoneHint</code> option replaces this auto-generated
+                      text with a custom string, letting you add context-specific
+                      instructions or file-format guidance.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <!-- Angular: Bind dropzoneHint as a string @Input() to replace the auto-generated constraint summary.
+                         Example: <cnds-file-upload dropzoneHint="Accepted: PDF, DOCX, XLSX · Max 10 MB each"></cnds-file-upload>
+                         Omit dropzoneHint to let the component auto-generate hint text from maxSize and maxFiles. -->
+                    <section class="pb-4" aria-label="Dropzone hint demo">
+                      <div class="border rounded-5">
+                        <section class="p-4 w-100">
+                          <div
+                            data-cnds-file-upload-init
+                            data-cnds-dropzone-hint="Accepted: PDF, DOCX, XLSX · Max 10 MB each"
+                          >
+                            <input type="file" aria-label="Choose a file to upload" />
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div
+  data-cnds-file-upload-init
+  data-cnds-dropzone-hint="Accepted: PDF, DOCX, XLSX · Max 10 MB each"
+&gt;
+  &lt;input type="file" aria-label="Choose a file to upload" /&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Dropzone hint-->
+
+                  <hr class="my-5" />
+
+                  <!-- ═══════════════════════════════════════════ DISABLE -->
+                  <!--Section: Disable-->
+                  <section id="section-disable" aria-labelledby="heading-disable">
+                    <h3 class="mb-4" id="heading-disable">Disable</h3>
+
+                    <p>
+                      Setting <code>data-cnds-disabled="true"</code> renders the
+                      drop zone in a non-interactive state: cursor changes to
+                      <code>not-allowed</code>, opacity is reduced, and both
+                      drag-and-drop and click interactions are blocked. The state
+                      can be toggled at runtime using the
+                      <code>disable()</code> and <code>enable()</code> instance
+                      methods.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <!-- Angular: Bind [disabled] to a component boolean; toggle at runtime by updating the property.
+                         Example: <cnds-file-upload [disabled]="isUploadDisabled"></cnds-file-upload>
+                         The component also exposes disable() and enable() instance methods for imperative control. -->
+                    <section class="pb-4" aria-label="Disabled file upload demo">
+                      <div class="border rounded-5">
+                        <section class="p-4 w-100">
+                          <!-- disabled="true" blocks all interaction on init -->
+                          <div
+                            data-cnds-file-upload-init
+                            data-cnds-disabled="true"
+                          >
+                            <input type="file" aria-label="File upload (disabled)" disabled />
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div data-cnds-file-upload-init data-cnds-disabled="true"&gt;
+  &lt;input type="file" aria-label="File upload (disabled)" disabled /&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">const wrapper = document.getElementById('my-upload');
+const upload  = Nimbus.FileUpload.getInstance(wrapper);
+
+upload.disable(); // prevents all interaction
+upload.enable();  // restores interaction</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Disable-->
+
+                  <hr class="my-5" />
+
+                  <!-- ════════════════════════════════════ ACCEPT FORMATS -->
+                  <!--Section: Accept formats-->
+                  <section id="section-accept-formats" aria-labelledby="heading-accept-formats">
+                    <h3 class="mb-4" id="heading-accept-formats">Accept file types</h3>
+
+                    <p>
+                      The <code>acceptedTypes</code> option restricts which file
+                      types the drop zone accepts. Values follow the same
+                      comma-separated format as the HTML
+                      <code>accept</code> attribute: MIME types
+                      (<code>image/*</code>), file extensions
+                      (<code>.pdf</code>), or a mix of both. Files that do not
+                      match trigger an <code>error.cnds.fileupload</code> event
+                      and are shown in an error state in the file list.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <!-- Angular: Bind acceptedTypes as a comma-separated string @Input(); mirrors the HTML accept attribute format.
+                         Example: <cnds-file-upload acceptedTypes="image/*,.pdf"></cnds-file-upload>
+                         Files not matching the types trigger an error.cnds.fileupload event and display in an error state. -->
+                    <section class="pb-4" aria-label="Accept file types demo">
+                      <div class="border rounded-5">
+                        <section class="p-4 w-100">
+                          <!-- acceptedTypes mirrors the HTML accept attribute format -->
+                          <div
+                            data-cnds-file-upload-init
+                            data-cnds-accepted-types="image/*,.pdf"
+                          >
+                            <input
+                              type="file"
+                              accept="image/*,.pdf"
+                              aria-label="Choose an image or PDF file"
+                            />
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;!-- acceptedTypes mirrors the HTML accept attribute format --&gt;
+&lt;div
+  data-cnds-file-upload-init
+  data-cnds-accepted-types="image/*,.pdf"
+&gt;
+  &lt;input
+    type="file"
+    accept="image/*,.pdf"
+    aria-label="Choose an image or PDF file"
+  /&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Accept formats-->
+
+                  <hr class="my-5" />
+
+                  <!-- ══════════════════════════════════ FILE LIST VISIBILITY -->
+                  <!--Section: File list-->
+                  <section id="section-disabled-remove-button" aria-labelledby="heading-file-list">
+                    <h3 class="mb-4" id="heading-file-list">File list visibility</h3>
+
+                    <p>
+                      The plugin renders a file list beneath the drop zone after
+                      files are selected. Each entry shows a thumbnail (for
+                      images), the filename, file size, any validation error, and
+                      a remove button that uses the Nimbus
+                      <code>mdi-close</code> icon at 16&nbsp;px. Set
+                      <code>showFileList</code> to <code>false</code> to suppress
+                      the entire list — for example, when the surrounding form
+                      manages its own file summary UI.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <!-- Angular: Bind [showFileList]="false" to suppress the rendered list; access files via (fileChange) output.
+                         Example: <cnds-file-upload [showFileList]="false" (fileChange)="onFilesChanged($event.files)"></cnds-file-upload>
+                         Use when the surrounding form manages its own file summary UI. -->
+                    <section class="pb-4" aria-label="File list visibility demo">
+                      <div class="border rounded-5">
+                        <section class="p-4 w-100">
+                          <!-- showFileList="false" hides the list; files are still
+                               accessible via getFiles() or the change event -->
+                          <div
+                            data-cnds-file-upload-init
+                            data-cnds-show-file-list="false"
+                          >
+                            <input type="file" aria-label="Choose a file to upload" />
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;!-- showFileList="false" hides the rendered list;
+     files are still accessible via getFiles() or the change event --&gt;
+&lt;div data-cnds-file-upload-init data-cnds-show-file-list="false"&gt;
+  &lt;input type="file" aria-label="Choose a file to upload" /&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: File list-->
+
+                  <hr class="my-5" />
+
+                  <!-- ══════════════════════════════════════ MULTIPLE FILES -->
+                  <!--Section: Multiple files-->
+                  <section id="section-multiple-files" aria-labelledby="heading-multiple-files">
+                    <h3 class="mb-4" id="heading-multiple-files">Multiple files</h3>
+
+                    <p>
+                      The <code>multiple</code> option is <code>true</code> by
+                      default. The plugin accepts multiple files per drag-and-drop
+                      action or browse dialog and lists each file independently.
+                      Set <code>data-cnds-multiple="false"</code> to restrict the
+                      component to a single file; adding a second file will replace
+                      the first.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <!-- Angular: [multiple] is true by default; set [multiple]="false" to restrict to a single file.
+                         Example: <cnds-file-upload [multiple]="false"></cnds-file-upload>
+                         In single-file mode, adding a second file replaces the first. -->
+                    <section class="pb-4" aria-label="Multiple files demo">
+                      <div class="border rounded-5">
+                        <section class="p-4 w-100">
+                          <!-- multiple is true by default; shown explicitly for clarity -->
+                          <div
+                            data-cnds-file-upload-init
+                            data-cnds-multiple="true"
+                          >
+                            <input type="file" multiple aria-label="Choose one or more files to upload" />
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;!-- multiple is the default; set data-cnds-multiple="false" for single-file mode --&gt;
+&lt;div data-cnds-file-upload-init data-cnds-multiple="true"&gt;
+  &lt;input type="file" multiple aria-label="Choose one or more files to upload" /&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                    <hr class="my-5" />
+
+                    <!-- ══════════════════════════════ MAXIMUM FILE COUNT -->
+                    <!--Section: Maximum file count-->
+                    <section id="subsection-multiple-files-with-file-limit" aria-labelledby="heading-file-limit">
+                      <h4 class="mb-4" id="heading-file-limit">Maximum file count</h4>
+
+                      <p>
+                        Combine <code>data-cnds-multiple="true"</code> with
+                        <code>data-cnds-max-files</code> to cap the number of
+                        files a user can select. Attempting to add files beyond
+                        the limit fires an <code>error.cnds.fileupload</code> event
+                        with the reason
+                        <em>"Maximum number of files (n) reached"</em>. The drop
+                        zone hint updates automatically to reflect the configured
+                        limit.
+                      </p>
+
+                      <!--Section: Demo-->
+                      <!-- Angular: Combine [multiple]="true" with [maxFiles] to cap the file count; excess triggers an error event.
+                           Example: <cnds-file-upload [multiple]="true" [maxFiles]="3"></cnds-file-upload>
+                           The dropzone hint updates automatically to reflect the configured limit. -->
+                      <section class="pb-4" aria-label="Maximum file count demo">
+                        <div class="border rounded-5">
+                          <section class="p-4 w-100">
+                            <!-- maxFiles caps the total files queued; excess triggers an error event -->
+                            <div
+                              data-cnds-file-upload-init
+                              data-cnds-multiple="true"
+                              data-cnds-max-files="3"
+                            >
+                              <input type="file" multiple aria-label="Choose up to 3 files to upload" />
+                            </div>
+                          </section>
+                        </div>
+                      </section>
+                      <!--/Section: Demo-->
+
+                      <!--Section: Code-->
+                      <section class="mb-4">
+                        <h4><span class="badge badge-code-html">HTML</span></h4>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-html">&lt;!-- maxFiles caps the total files queued; excess triggers an error event --&gt;
+&lt;div
+  data-cnds-file-upload-init
+  data-cnds-multiple="true"
+  data-cnds-max-files="3"
+&gt;
+  &lt;input type="file" multiple aria-label="Choose up to 3 files to upload" /&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+                      <!--/Section: Code-->
+                    </section>
+                    <!--/Section: Maximum file count-->
+
+                  </section>
+                  <!--/Section: Multiple files-->
+
+                  <hr class="my-5" />
+
+                  <!-- ═══════════════════════════════ API DOCUMENTATION -->
+                  <!--Section: API Documentation-->
+                  <section id="section-api-docs" aria-labelledby="heading-api-docs">
+                    <h3 class="mb-3" id="heading-api-docs">API Documentation</h3>
+
+                    <!--Section: API Introduction-->
+                    <section id="api-section-introduction" aria-labelledby="heading-api-intro">
+                      <h3 class="mb-4" id="heading-api-intro">Introduction</h3>
+                      <p>
+                        The File Upload plugin wraps any
+                        <code>&lt;input type="file"&gt;</code> element inside a
+                        styled, keyboard-accessible drag-and-drop drop zone. It is
+                        initialised automatically on page load for every wrapper
+                        element that carries <code>data-cnds-file-upload-init</code>,
+                        or manually via the <code>FileUpload</code> constructor. All
+                        configuration is passed through <code>data-cnds-*</code>
+                        attributes on the wrapper or as a plain object to the
+                        constructor.
+                      </p>
+                      <p>
+                        The plugin dispatches four custom DOM events on the wrapper
+                        element so application code can react to user interactions
+                        without polling. It is fully theme-aware: all colors
+                        reference <code>--cnds-fu-*</code> CSS custom properties
+                        that adapt automatically when
+                        <code>data-cnds-theme="dark"</code> is active. Interactive
+                        states (hover border, drag-over border, progress bar) use a
+                        neutral gray derived from <code>--cnds-fu-color</code>
+                        rather than a brand accent, keeping the component visually
+                        neutral in any context. The plugin is registered globally
+                        as <code>window.Nimbus.FileUpload</code>.
+                      </p>
+                      <p class="note note-info">
+                        <strong>Note:</strong> <code>css/plugins/file-upload.css</code>
+                        and <code>js/plugins/file-upload.js</code> must both be
+                        loaded before the DOM is ready.
+                      </p>
+                    </section>
+                    <!--/Section: API Introduction-->
+
+                    <!--Section: API Usage-->
+                    <section id="api-section-usage" aria-labelledby="heading-api-usage">
+                      <h3 class="mb-4" id="heading-api-usage">Usage</h3>
+
+                      <p class="fw-semibold mb-3">Via data attributes</p>
+                      <p>
+                        Add <code>data-cnds-file-upload-init</code> to the wrapper
+                        <code>&lt;div&gt;</code> and use additional
+                        <code>data-cnds-*</code> attributes to configure the
+                        plugin. No JavaScript is required.
+                      </p>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-html">&lt;div
+  data-cnds-file-upload-init
+  data-cnds-max-size="5242880"
+  data-cnds-accepted-types="image/*,.pdf"
+  data-cnds-dropzone-text="Drop files here or &lt;strong&gt;browse&lt;/strong&gt;"
+&gt;
+  &lt;input type="file" multiple aria-label="Choose files to upload" /&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+
+                      <p class="fw-semibold mb-3">Via JavaScript</p>
+                      <p>
+                        Pass a config object as the second argument to the
+                        <code>FileUpload</code> constructor. The constructor
+                        merges the provided config with the plugin defaults.
+                      </p>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-js">const wrapper = document.getElementById('my-upload');
+
+const upload = new Nimbus.FileUpload(wrapper, {
+  maxSize:       5 * 1024 * 1024, // 5 MB in bytes
+  acceptedTypes: 'image/*,.pdf',
+  maxFiles:      5,
+  dropzoneText:  'Drop files here or &lt;strong&gt;browse&lt;/strong&gt;',
+  showPreview:   true,
+});</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Section: API Usage-->
+
+                    <!--Section: API Options-->
+                    <section id="api-section-options" aria-labelledby="heading-api-options">
+                      <h3 class="mb-4" id="heading-api-options">Options</h3>
+                      <p>
+                        All options can be set via <code>data-cnds-*</code>
+                        attributes on the wrapper (kebab-cased option name) or
+                        passed as a JavaScript config object to the constructor.
+                        Attribute values are automatically coerced to the expected
+                        type (boolean strings <code>"true"</code>/<code>"false"</code>
+                        and numeric strings are converted).
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Options">
+                          <thead>
+                            <tr>
+                              <th>Name</th>
+                              <th>Type</th>
+                              <th>Default</th>
+                              <th>Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>multiple</code></td>
+                              <td><em>boolean</em></td>
+                              <td><code>true</code></td>
+                              <td>
+                                Allow more than one file per selection. Set to
+                                <code>false</code> for single-file mode; adding a
+                                second file replaces the first.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>maxFiles</code></td>
+                              <td><em>number</em></td>
+                              <td><code>10</code></td>
+                              <td>
+                                Maximum number of files that can be queued at once.
+                                Attempting to add more fires
+                                <code>error.cnds.fileupload</code>.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>maxSize</code></td>
+                              <td><em>number</em></td>
+                              <td><code>10485760</code></td>
+                              <td>
+                                Maximum allowed file size in <strong>bytes</strong>
+                                (default: 10&nbsp;MB). Files exceeding this limit
+                                fire <code>error.cnds.fileupload</code>.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>acceptedTypes</code></td>
+                              <td><em>string | null</em></td>
+                              <td><code>null</code></td>
+                              <td>
+                                Comma-separated list of accepted MIME types
+                                (<code>image/*</code>) and/or extensions
+                                (<code>.pdf</code>). Matches the HTML
+                                <code>accept</code> attribute format.
+                                <code>null</code> accepts all types.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>showPreview</code></td>
+                              <td><em>boolean</em></td>
+                              <td><code>true</code></td>
+                              <td>
+                                Show a thumbnail preview for image files
+                                (jpg, jpeg, png, gif, webp, svg, bmp, ico)
+                                in the file list.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>showFileList</code></td>
+                              <td><em>boolean</em></td>
+                              <td><code>true</code></td>
+                              <td>
+                                Render the file list beneath the drop zone.
+                                When <code>false</code>, files are still tracked
+                                internally and accessible via
+                                <code>getFiles()</code>.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>autoUpload</code></td>
+                              <td><em>boolean</em></td>
+                              <td><code>false</code></td>
+                              <td>
+                                Automatically POST each file to
+                                <code>uploadUrl</code> as soon as it is added.
+                                Requires <code>uploadUrl</code> to be set.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>uploadUrl</code></td>
+                              <td><em>string | null</em></td>
+                              <td><code>null</code></td>
+                              <td>
+                                Endpoint URL for XHR file upload. Required when
+                                using <code>autoUpload</code> or the
+                                <code>upload()</code> method.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>uploadMethod</code></td>
+                              <td><em>string</em></td>
+                              <td><code>'POST'</code></td>
+                              <td>HTTP method used for the upload request.</td>
+                            </tr>
+                            <tr>
+                              <td><code>uploadFieldName</code></td>
+                              <td><em>string</em></td>
+                              <td><code>'file'</code></td>
+                              <td>
+                                FormData field name used for each uploaded file.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>dropzoneText</code></td>
+                              <td><em>string</em></td>
+                              <td><code>'Drag &amp; drop files here or &lt;strong&gt;browse&lt;/strong&gt;'</code></td>
+                              <td>
+                                HTML content rendered as the drop zone's primary
+                                message. Accepts inline HTML.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>dropzoneHint</code></td>
+                              <td><em>string</em></td>
+                              <td><code>''</code></td>
+                              <td>
+                                Secondary hint line rendered below the main
+                                message. When empty, the plugin auto-generates a
+                                summary from <code>maxSize</code> and
+                                <code>maxFiles</code>.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>disabled</code></td>
+                              <td><em>boolean</em></td>
+                              <td><code>false</code></td>
+                              <td>
+                                Initialise the component in a disabled state.
+                                Can be toggled at runtime with
+                                <code>disable()</code> / <code>enable()</code>.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: API Options-->
+
+                    <!--Section: API Methods-->
+                    <section id="api-section-methods" aria-labelledby="heading-api-methods">
+                      <h3 class="mb-4" id="heading-api-methods">Methods</h3>
+                      <p>
+                        Retrieve a plugin instance with the static
+                        <code>getInstance()</code> method, then call any public
+                        method on it. All methods are synchronous unless noted.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Methods">
+                          <thead>
+                            <tr>
+                              <th>Name</th>
+                              <th>Description</th>
+                              <th>Returns</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>getFiles()</code></td>
+                              <td>
+                                Returns an array of the native
+                                <code>File</code> objects currently queued.
+                              </td>
+                              <td><code>File[]</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>getFileData()</code></td>
+                              <td>
+                                Returns the full internal file-data array,
+                                including <code>status</code>,
+                                <code>progress</code>, and
+                                <code>error</code> per entry.
+                              </td>
+                              <td><code>Object[]</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>addFiles(fileListOrArray)</code></td>
+                              <td>
+                                Programmatically add files to the queue.
+                                Accepts a <code>FileList</code> or any array-like
+                                of <code>File</code> objects. Validation rules
+                                (type, size, count) still apply.
+                              </td>
+                              <td><code>void</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>removeFile(id)</code></td>
+                              <td>
+                                Remove a single queued file by its generated
+                                <code>id</code> string (obtained from
+                                <code>getFileData()</code>).
+                              </td>
+                              <td><code>void</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>clearFiles()</code></td>
+                              <td>
+                                Remove all queued files and reset the native
+                                input value.
+                              </td>
+                              <td><code>void</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>upload()</code></td>
+                              <td>
+                                Trigger an XHR upload for all queued files.
+                                Requires <code>uploadUrl</code> to be configured.
+                              </td>
+                              <td><code>void</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>disable()</code></td>
+                              <td>
+                                Put the component into a disabled state: applies
+                                the <code>.disabled</code> modifier class and
+                                blocks all interaction.
+                              </td>
+                              <td><code>void</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>enable()</code></td>
+                              <td>Remove the disabled state and restore interaction.</td>
+                              <td><code>void</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>dispose()</code></td>
+                              <td>
+                                Destroy the plugin instance: clears the file
+                                queue and removes all internal event listeners.
+                              </td>
+                              <td><code>void</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>FileUpload.getInstance(el)</code></td>
+                              <td>
+                                Static. Returns the
+                                <code>FileUpload</code> instance attached to the
+                                given wrapper element, or <code>null</code> if
+                                none exists.
+                              </td>
+                              <td><code>FileUpload | null</code></td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-js">// Retrieve the instance attached to the wrapper element
+const wrapper = document.getElementById('my-upload');
+const upload  = Nimbus.FileUpload.getInstance(wrapper);
+
+// Read queued files
+const files = upload.getFiles(); // File[]
+
+// Programmatically add files (e.g. from a custom drag target)
+upload.addFiles(myFileList);
+
+// Remove a specific file by id (from getFileData())
+const [first] = upload.getFileData();
+upload.removeFile(first.id);
+
+// Clear the entire queue
+upload.clearFiles();
+
+// Trigger upload to uploadUrl
+upload.upload();
+
+// Toggle disabled state
+upload.disable();
+upload.enable();</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Section: API Methods-->
+
+                    <!--Section: API Events-->
+                    <section id="api-section-events" aria-labelledby="heading-api-events">
+                      <h3 class="mb-4" id="heading-api-events">Events</h3>
+                      <p>
+                        All events fire on the <strong>wrapper element</strong>
+                        (the one that carries
+                        <code>data-cnds-file-upload-init</code>), not on the
+                        <code>&lt;input&gt;</code>. Event detail is accessed via
+                        <code>event.detail</code>.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Events">
+                          <thead>
+                            <tr>
+                              <th>Event</th>
+                              <th><code>event.detail</code> shape</th>
+                              <th>Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>add.cnds.fileupload</code></td>
+                              <td><code>{ file: File }</code></td>
+                              <td>
+                                Fires immediately after a valid file is added to
+                                the queue. <code>detail.file</code> is the native
+                                <code>File</code> object.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>remove.cnds.fileupload</code></td>
+                              <td><code>{ file: File }</code></td>
+                              <td>
+                                Fires when a file is removed from the queue,
+                                either by the user clicking the remove button or
+                                by calling <code>removeFile()</code>.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>error.cnds.fileupload</code></td>
+                              <td><code>{ file: File, error: string }</code></td>
+                              <td>
+                                Fires when a file fails validation (wrong type,
+                                exceeds <code>maxSize</code>, exceeds
+                                <code>maxFiles</code>). <code>detail.error</code>
+                                contains a human-readable reason string.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>change.cnds.fileupload</code></td>
+                              <td><code>{ files: File[] }</code></td>
+                              <td>
+                                Fires after any change to the file queue (add,
+                                remove, or clear). <code>detail.files</code> is
+                                the full current list of queued
+                                <code>File</code> objects.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-js">const wrapper = document.getElementById('my-upload');
+
+// React to any queue change (most common use case)
+wrapper.addEventListener('change.cnds.fileupload', (e) => {
+  console.log('Queued files:', e.detail.files);
+});
+
+// Intercept individual additions
+wrapper.addEventListener('add.cnds.fileupload', (e) => {
+  console.log('Added:', e.detail.file.name);
+});
+
+// Handle validation errors
+wrapper.addEventListener('error.cnds.fileupload', (e) => {
+  console.warn('Rejected:', e.detail.file.name, '—', e.detail.error);
+});
+
+// React to removals
+wrapper.addEventListener('remove.cnds.fileupload', (e) => {
+  console.log('Removed:', e.detail.file.name);
+});</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Section: API Events-->
+
+                    <!--Section: API CSS Classes-->
+                    <section id="api-section-css-classes" aria-labelledby="heading-api-css-classes">
+                      <h3 class="mb-4" id="heading-api-css-classes">CSS classes</h3>
+                      <p>
+                        The plugin generates and manages the following CSS classes.
+                        Most are applied programmatically; only
+                        <code>.file-upload-compact</code> is a modifier you apply
+                        manually to the wrapper.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped" aria-label="CSS classes">
+                          <thead>
+                            <tr>
+                              <th>Class</th>
+                              <th>Element</th>
+                              <th>Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>.file-upload</code></td>
+                              <td>Wrapper <code>&lt;div&gt;</code></td>
+                              <td>
+                                Applied automatically by the plugin on init.
+                                Sets <code>position: relative; width: 100%</code>
+                                and hosts all CSS custom properties.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.file-upload-compact</code></td>
+                              <td>Wrapper <code>&lt;div&gt;</code></td>
+                              <td>
+                                <strong>Optional modifier.</strong> Renders the
+                                drop zone as a compact row
+                                (<code>flex-direction: row</code>) rather than a
+                                tall column. Add manually alongside
+                                <code>data-cnds-file-upload-init</code>.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.file-upload-dropzone</code></td>
+                              <td>Generated <code>&lt;div&gt;</code></td>
+                              <td>
+                                The visible drop-zone area. Receives
+                                <code>.dragover</code> during an active drag and
+                                <code>.disabled</code> when the component is
+                                disabled.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.file-upload-dropzone.dragover</code></td>
+                              <td>Dropzone</td>
+                              <td>
+                                Applied during an active drag-over; changes the
+                                border from dashed to solid and applies the
+                                <code>--cnds-fu-hover-bg</code> neutral tint.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.file-upload-dropzone.disabled</code></td>
+                              <td>Dropzone</td>
+                              <td>
+                                Applied by <code>disable()</code>. Reduces opacity
+                                and sets <code>pointer-events: none</code>.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.file-upload-list</code></td>
+                              <td>Generated <code>&lt;ul&gt;</code></td>
+                              <td>
+                                Container for the queued-file entries. Only
+                                present when <code>showFileList</code> is
+                                <code>true</code>.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.file-upload-item</code></td>
+                              <td>Generated <code>&lt;li&gt;</code></td>
+                              <td>
+                                One entry per queued file. Hover applies a neutral
+                                background tint in both light and dark themes.
+                                Receives <code>.error</code> on validation failure
+                                (muted gray border, neutral background) and
+                                <code>.success</code> on successful upload (green
+                                border). Each item includes a 16&nbsp;px
+                                <code>mdi-close</code> remove button.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: API CSS Classes-->
+
+                    <!--Section: API CSS Custom Properties-->
+                    <section id="api-section-css-variables" aria-labelledby="heading-api-css-vars">
+                      <h3 class="mb-4" id="heading-api-css-vars">CSS custom properties</h3>
+                      <p>
+                        All custom properties are defined on <code>.file-upload</code>
+                        in <code>file-upload.css</code> and can be overridden
+                        per-instance (inline <code>style</code> on the wrapper) or
+                        globally via a CSS rule targeting <code>.file-upload</code>.
+                        Dark-mode overrides are in the
+                        <code>[data-cnds-theme="dark"] .file-upload</code> block.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="CSS custom properties">
+                          <thead>
+                            <tr>
+                              <th>Property</th>
+                              <th>Light default</th>
+                              <th>Dark default</th>
+                              <th>Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>--cnds-fu-bg</code></td>
+                              <td><code>var(--cnds-body-bg, #fff)</code></td>
+                              <td><code>var(--cnds-body-bg, #1e1e1e)</code></td>
+                              <td>Drop zone and file-item background color.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-fu-color</code></td>
+                              <td><code>var(--cnds-body-color, #4f4f4f)</code></td>
+                              <td><code>var(--cnds-body-color, #ebebeb)</code></td>
+                              <td>Primary text color inside the component.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-fu-border</code></td>
+                              <td><code>var(--cnds-border-color, #dee2e6)</code></td>
+                              <td><code>var(--cnds-border-color, #6b6b6b)</code></td>
+                              <td>Drop zone and file-item border color.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-fu-radius</code></td>
+                              <td><code>var(--cnds-border-radius, 0.375rem)</code></td>
+                              <td>same</td>
+                              <td>Border radius for the drop zone and file items.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-fu-primary</code></td>
+                              <td><code>var(--cnds-fu-color)</code></td>
+                              <td>same</td>
+                              <td>Accent color for hover state, active border, and progress bar. Inherits from <code>--cnds-fu-color</code> so it adapts to both themes automatically.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-fu-hover-bg</code></td>
+                              <td><code>rgba(0, 0, 0, 0.04)</code></td>
+                              <td><code>rgba(255, 255, 255, 0.05)</code></td>
+                              <td>Drop zone background on hover or active drag.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-fu-muted</code></td>
+                              <td><code>#6c757d</code></td>
+                              <td><code>var(--cnds-text-muted, #d1d1d1)</code></td>
+                              <td>Color for the upload icon, hint text, and file size. Dark value uses <code>--cnds-text-muted</code> for WCAG AA compliance (~10.9:1 on <code>#1e1e1e</code>).</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-fu-success</code></td>
+                              <td><code>var(--cnds-success, #00b74a)</code></td>
+                              <td>same</td>
+                              <td>
+                                Border and progress bar color for successfully
+                                uploaded files.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-fu-danger</code></td>
+                              <td><code>var(--cnds-danger, #f93154)</code></td>
+                              <td>same</td>
+                              <td>Reserved for downstream use. Error items use <code>--cnds-fu-muted</code> for borders and text to keep the component free of red.</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: API CSS Custom Properties-->
+
+                  </section>
+                  <!--/Section: API Documentation-->
+
+                </section>
+                <!--/Section: Docs content-->
+              </div>
+              <!-- ./Main column -->
+
+              <!-- ─── Right Sidebar (20 %) ───────────────────────────────────
+                   Sticky attributes processed by nimbus.js:
+                     data-cnds-sticky="true"          : activates sticky positioning
+                     data-cnds-sticky-boundary="true" : constrains to parent container
+                     data-cnds-sticky-direction="both": sticks on scroll up or down
+                     data-cnds-sticky-offset="56"     : clears the 56 px fixed header
+                     data-cnds-sticky-delay="125"     : debounce delay (ms)
+                   data-cnds-allow-hashes="true": nimbus.js highlights the nav-link
+                     matching the current URL hash as the user scrolls. -->
+              <div class="col-lg-2 d-none d-lg-block">
+                <div class="sticky-top" style="top: 100px; z-index: 1">
+                  <ul
+                    class="nav flex-column nav-pills menu-sidebar"
+                    data-cnds-allow-hashes="true"
+                  >
+                    <li class="nav-item"><a class="nav-link" href="#section-introduction">Introduction</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-basic-example">Basic example</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-default-msg">Dropzone text</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-custom-height">Custom height</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-max-size">Max file size</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-default-file">Dropzone hint</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-disable">Disable</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-accept-formats">Accept file types</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-disabled-remove-button">File list visibility</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-multiple-files">Multiple files</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#subsection-multiple-files-with-file-limit">Maximum file count</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-api-docs">API Documentation</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-introduction">Introduction</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-usage">Usage</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-options">Options</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-methods">Methods</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-events">Events</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-css-classes">CSS classes</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-css-variables">CSS custom properties</a></li>
+                  </ul>
+                </div>
+              </div>
+              <!-- ./Right Sidebar -->
+
+            </div>
+            <!-- ./Content Row -->
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- ./Content ══════════════════════════════════════════════════════════════ -->
+
+    <!-- ══════════════════════════════════════════════════════════════ FOOTER -->
+    <!-- Footer -->
+    <div class="cf-footer cf-footer-app">
+      <footer class="page-footer main-footer" aria-label="Site footer">
+        <div class="w-100 px-3 d-flex align-items-center">
+          <img src="img/cf/core/cloudficient_logo_light.svg" class="cf-logo-light" style="width: 135px;" alt="Cloudficient" />
+          <img src="img/cf/core/cloudficient_logo_dark.svg" class="cf-logo-dark" style="width: 135px;" alt="Cloudficient" />
+          <span class="footer-copyright ms-auto">&copy; <span id="currentYear"></span> Cloudficient</span>
+        </div>
+      </footer>
+    </div>
+    <!-- ./Footer -->
+            <div class="col-12 col-md-5 col-lg-7 col-xl-8 flex-column flex-md-row d-flex justify-content-center footer-links py-0 py-lg-3 py-xl-3">
+              <a href="#!" target="_blank" class="text-nowrap my-3 my-md-0 mb-0 me-0">Cloudficient</a>
+              <a href="#!" target="_blank" class="text-nowrap my-3 my-md-0 mb-0 me-0">Support</a>
+              <a href="#!" target="_blank" class="text-nowrap my-3 my-md-0 mb-0 me-0">Community</a>
+              <a href="#!" target="_blank" class="text-nowrap my-3 my-md-0 mb-0 me-0">Documentation</a>
+            </div>
+            <div class="col-12 col-md-4 col-lg-3 col-xl-2 d-flex justify-content-center justify-content-xl-end py-lg-1 py-xl-0 social-btns">
+              <div class="d-flex align-items-center justify-content-center justify-content-xl-end social-btns-container">
+                <a href="https://twitter.com/cloudficient" target="_blank" data-cnds-toggle="tooltip" data-cnds-placement="top" title="X" class="social footer-fa-fix" aria-label="X Twitter">
+                  <i class="fab fa-x-twitter fa-lg" aria-hidden="true"></i>
+                </a>
+                <a href="https://www.linkedin.com/company/cloudficient" target="_blank" data-cnds-toggle="tooltip" data-cnds-placement="top" title="LinkedIn" class="social" aria-label="Linkedin">
+                  <i class="mdi mdi-24px mdi-linkedin" aria-hidden="true"></i>
+                </a>
+                <a href="https://www.youtube.com/@cloudficient" target="_blank" data-cnds-toggle="tooltip" data-cnds-placement="top" title="YouTube" class="social" aria-label="Youtube">
+                  <i class="mdi mdi-24px mdi-youtube" aria-hidden="true"></i>
+                </a>
+              </div>
+            </div>
+            <div class="col-12">
+              <p class="caption text-nowrap p-0 mt-0 mt-lg-3 mb-0 mb-lg-3 text-center">
+                &copy; <span id="currentYear"></span> Cloudficient. All rights reserved.
+              </p>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+    <!-- ./Footer ══════════════════════════════════════════════════════════════ -->
+
+    <!-- SCRIPTS — load order matters:
+         1. nimbus.js        — core framework; processes all data-cnds-* attributes
+                               (theme toggle, sticky, sidenav, tooltips…)
+         2. file-upload.js   — File Upload plugin; must load after nimbus.js because
+                               it accesses window.Nimbus.{Utils, EventHandler, NimbusComponent}
+         3. app.js           — application-level overrides and custom initialisation
+         4. prism.min.js     — syntax highlighting for <code class="language-*"> blocks;
+                               runs after DOM is ready
+         5. sidenav-loader.js — fetches shared sidenav HTML and injects into #sidebar-cf -->
+    <script type="text/javascript" src="js/nimbus.js?v=9.0.4"></script>
+    <script type="text/javascript" src="js/plugins/file-upload.js?v=9.0.4"></script>
+    <script type="text/javascript" src="js/app.js?v=9.0.4"></script>
+    <script type="text/javascript" src="plugins/js/prism.min.js"></script>
+    <script type="text/javascript" src="js/sidenav-loader.js"></script>
+
+    <!-- Inline: populate footer copyright year without a server-side include -->
+    <script type="text/javascript">
+      var currentYearElement = document.getElementById("currentYear");
+      if (currentYearElement) {
+        currentYearElement.textContent = new Date().getFullYear();
+      }
+    </script>
+  </body>
+</html>

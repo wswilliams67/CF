@@ -1,0 +1,1145 @@
+<!--
+* CNDS Nimbus Design System — Pagination
+* Version: 1.0.0
+* Layout: Application with SideNav (migrated from Nimbus v8 template)
+* NOTES
+- Pure HTML5, CSS3, vanilla JavaScript — zero external dependencies
+- Uses data-cnds-* attributes (replaces data-mdb-*)
+- Uses Nimbus.* namespace (replaces mdb.*)
+- Default product theme: CaseFusion (cnds-product-casefusion on <body>; change to cnds-product-hyperlize or cnds-product-expireon)
+-->
+<!doctype html>
+<!-- data-cnds-theme="light|dark" — nimbus.js syncs this on theme toggle -->
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="Pagination | Cloudficient Nimbus Design System v1.0.0" />
+    <title>Pagination | CNDS v1.0.0 | Cloudficient Nimbus Design System</title>
+    <!-- Nimbus CSS -->
+    <link rel="stylesheet" href="css/nimbus.css" media="all" type="text/css" />
+    <!-- Custom styles | All custom classes/styles/overrides go here! -->
+    <link rel="stylesheet" href="css/app.css" media="all" type="text/css" />
+    <!-- Prism syntax highlighting -->
+    <link rel="stylesheet" href="plugins/css/prism.min.css" media="all" type="text/css" />
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="57x57"  href="img/favicon/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="60x60"  href="img/favicon/apple-icon-60x60.png" />
+    <link rel="apple-touch-icon" sizes="72x72"  href="img/favicon/apple-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76"  href="img/favicon/apple-icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="img/favicon/apple-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="img/favicon/apple-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="img/favicon/apple-icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="img/favicon/apple-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-icon-180x180.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="img/favicon/android-icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="32x32"   href="img/favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="96x96"   href="img/favicon/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="16x16"   href="img/favicon/favicon-16x16.png" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="msapplication-TileImage" content="img/favicon/ms-icon-144x144.png" />
+    <!-- ./Favicons -->
+    <!-- Design tokens — load order matters:
+         1. primitives.css  — raw color/spacing values (no theming)
+         2. light.css       — semantic tokens for [data-cnds-theme="light"] / :root
+         3. dark.css        — semantic token overrides for [data-cnds-theme="dark"]
+         All three must appear AFTER nimbus.css so component variables resolve correctly. -->
+    <link rel="stylesheet" href="css/themes/primitives.css" />
+    <link rel="stylesheet" href="css/themes/light.css" />
+    <link rel="stylesheet" href="css/themes/dark.css" />
+  </head>
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 Bypass Blocks; renders visually hidden until focused -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+    <!-- Header -->
+    <div class="sticky-top">
+      <!-- Utility Navigation -->
+      <nav id="UtilityNav" class="nav nav-cf-utility">
+        <div class="w-100 gx-3 px-sm-0 px-lg-3">
+          <ul class="nav nav-cf-utility-ul"></ul>
+        </div>
+      </nav>
+      <!-- ./Utility Navigation -->
+      <!-- Main Navigation -->
+      <nav id="MainNav" class="navbar navbar-expand-xl navbar-cf" aria-label="Main navigation">
+        <div class="container-fluid p-0 px-3 d-flex">
+          <div class="d-flex flex-fill align-items-center text-truncate">
+            <div class="text-center d-none d-md-block me-3 border-end">
+              <a href="index.html"
+                ><img src="img/cf/core/logo_nimbus.png" class="me-3 mt-n1"
+              alt="Cloudficient Nimbus Design System" /></a>
+            </div>
+            <div class="flex-fill text-truncate">
+              <div class="navbar-cf-title-block">
+                <div
+                  class="navbar-cf-title cf-page-title text-truncate"
+                  style="padding-bottom: 0"
+                >
+                  <span class="cf-page-title-text cf-page-title-brand">v1</span
+                  ><span class="cf-page-title-divider"></span
+                  ><span class="cf-page-title-text">Pagination</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- data-cnds-toggle="theme": wired by nimbus.js — flips data-cnds-theme on <html> between "light" and "dark" -->
+          <button
+            class="btn btn-sm btn-outline-secondary ms-2"
+            data-cnds-toggle="theme"
+            aria-label="Toggle theme"
+            title="Toggle theme"
+          >
+            <i class="mdi mdi-weather-night mdi-18px" aria-hidden="true"></i>
+          </button>
+        </div>
+      </nav>
+      <!-- ./Main Navigation -->
+    </div>
+    <!-- ./Header -->
+    <!-- Content — id="main-content" is the skip-nav target (see visually-hidden-focusable link above) -->
+    <main id="main-content" class="cf-main-app">
+      <!-- Mobile viewport warning -->
+      <div class="d-block d-md-none p-4">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>This application is not
+          optimized for small screens. Please use a large tablet, laptop, or
+          desktop computer to continue.
+        </div>
+      </div>
+      <div class="d-none d-md-block">
+        <!-- Sidenav — markup is intentionally empty; sidenav-loader.js fetches and injects the shared nav HTML.
+             data-cnds-mode="side"           : renders as a persistent side panel (not an overlay/drawer)
+             data-cnds-slim / slim-collapsed : controls compact/icon-only collapsed state
+             data-cnds-content="#slim-content": the sibling panel that shrinks/expands as the nav opens/closes
+             data-cnds-accordion="true"      : collapses other open nav groups when a new one is expanded -->
+        <nav
+          id="sidebar-cf"
+          class="sidenav"
+          aria-label="Site navigation"
+          data-cnds-mode="side"
+          data-cnds-slim="false"
+          data-cnds-slim-collapsed="false"
+          data-cnds-content="#slim-content"
+          data-cnds-accordion="true"
+        ></nav>
+        <!-- slim-content: sibling panel that shrinks/expands as the sidenav opens/closes -->
+        <div id="slim-content">
+          <!-- slim-content-box: inner wrapper; provides consistent padding and scroll context -->
+          <div class="slim-content-box">
+            <!-- Content Row: 80/20 split — main docs column (left) + sticky section nav (right) -->
+            <div class="row">
+              <!-- Main column (80%).
+                   Inline flex overrides pin the ratio regardless of Bootstrap breakpoints
+                   so the right sidebar never wraps on large viewports. -->
+              <div class="col-12 col-lg" style="flex: 0 0 80%; max-width: 80%">
+                <!--Section: Docs content-->
+                <section class="container-fluid">
+                  <!--Section: Introduction-->
+                  <section id="section-introduction">
+                    <h3 class="visually-hidden">Pagination</h3>
+
+                    <p class="mb-4">
+                      The Nimbus pagination bar is a toolbar component placed at the bottom of
+                      tables and card grids to let users navigate large data sets. It is built
+                      as a single <code>&lt;div class="pagination-toolbar"&gt;</code> row and
+                      contains four elements in a fixed order: a plain-text label
+                      (<code>.pagination-toolbar-label</code>), a
+                      <code>&lt;select data-cnds-select-init&gt;</code> for choosing how many
+                      records to show per page, a range indicator
+                      (<code>.pagination-toolbar-range</code>) showing the current window of
+                      records, and a <code>&lt;nav class="pagination-toolbar-nav"&gt;</code>
+                      containing four icon buttons — First, Previous, Next, and Last — built
+                      with <code>.pagination-toolbar-btn</code>.
+                    </p>
+                    <p class="my-4">
+                      The component adapts automatically to light and dark themes via CSS custom
+                      properties and requires no JavaScript initialisation.
+                    </p>
+
+                    <p class="note note-light"><strong>Note:</strong> Read the <a href="#api-section-introduction">API Documentation</a> to find all available options and advanced customization.</p>
+                    <p class="note note-info"><strong class="note-label">Note:</strong> To preview components in different themes, click the theme toggle button <i class="mdi mdi-weather-night" aria-hidden="true"></i> / <i class="mdi mdi-weather-sunny" aria-hidden="true"></i> in the header navigation bar.</p>
+                  </section>
+                  <!--/Section: Introduction-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Basic example-->
+                  <section id="section-basic-example">
+                    <h3 class="mb-3">Basic example</h3>
+
+                    <p>
+                      The example below shows the four elements of the pagination toolbar
+                      assembled together. The per-page selector is set to 10 records and the
+                      range label reads <em>1–10 of 100</em>, indicating the user is on the
+                      first page of ten. Because there are no earlier pages, the First and
+                      Previous buttons carry the <code>disabled</code> attribute and render at
+                      reduced opacity; Next and Last remain active.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="p-4">
+                          <div class="pagination-toolbar">
+                            <span class="pagination-toolbar-label">Cards per page:</span>
+                            <select data-cnds-select-init class="select-sm" aria-label="Cards per page">
+                              <option>10</option>
+                              <option>25</option>
+                              <option>50</option>
+                            </select>
+                            <span class="pagination-toolbar-range">1–10 of 100</span>
+                            <nav class="pagination-toolbar-nav" aria-label="Page navigation">
+                              <button class="pagination-toolbar-btn" aria-label="First page" disabled>
+                                <i class="mdi mdi-skip-previous" aria-hidden="true"></i>
+                              </button>
+                              <button class="pagination-toolbar-btn" aria-label="Previous page" disabled>
+                                <i class="mdi mdi-chevron-left" aria-hidden="true"></i>
+                              </button>
+                              <button class="pagination-toolbar-btn" aria-label="Next page">
+                                <i class="mdi mdi-chevron-right" aria-hidden="true"></i>
+                              </button>
+                              <button class="pagination-toolbar-btn" aria-label="Last page">
+                                <i class="mdi mdi-skip-next" aria-hidden="true"></i>
+                              </button>
+                            </nav>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div class="pagination-toolbar"&gt;
+    &lt;span class="pagination-toolbar-label"&gt;Cards per page:&lt;/span&gt;
+    &lt;select data-cnds-select-init class="select-sm" aria-label="Cards per page"&gt;
+        &lt;option&gt;10&lt;/option&gt;
+        &lt;option&gt;25&lt;/option&gt;
+        &lt;option&gt;50&lt;/option&gt;
+    &lt;/select&gt;
+    &lt;span class="pagination-toolbar-range"&gt;1&amp;ndash;10 of 100&lt;/span&gt;
+    &lt;nav class="pagination-toolbar-nav" aria-label="Page navigation"&gt;
+        &lt;button class="pagination-toolbar-btn" aria-label="First page" disabled&gt;
+            &lt;i class="mdi mdi-skip-previous" aria-hidden="true"&gt;&lt;/i&gt;
+        &lt;/button&gt;
+        &lt;button class="pagination-toolbar-btn" aria-label="Previous page" disabled&gt;
+            &lt;i class="mdi mdi-chevron-left" aria-hidden="true"&gt;&lt;/i&gt;
+        &lt;/button&gt;
+        &lt;button class="pagination-toolbar-btn" aria-label="Next page"&gt;
+            &lt;i class="mdi mdi-chevron-right" aria-hidden="true"&gt;&lt;/i&gt;
+        &lt;/button&gt;
+        &lt;button class="pagination-toolbar-btn" aria-label="Last page"&gt;
+            &lt;i class="mdi mdi-skip-next" aria-hidden="true"&gt;&lt;/i&gt;
+        &lt;/button&gt;
+    &lt;/nav&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                    <!--
+                      Angular conversion — Basic example
+                      ═══════════════════════════════════════════════════════════════════════════
+
+                      Component class  (pagination-toolbar.component.ts)
+                      ─────────────────────────────────────────────────
+                      export class PaginationToolbarComponent {
+                        pageSize   = 10;
+                        pageSizes  = [10, 25, 50];
+                        totalItems = 100;
+                        currentPage = 1;
+
+                        get rangeLabel(): string {
+                          const start = (this.currentPage - 1) * this.pageSize + 1;
+                          const end   = Math.min(this.currentPage * this.pageSize, this.totalItems);
+                          return `${start}–${end} of ${this.totalItems}`;
+                        }
+
+                        get isFirstPage(): boolean { return this.currentPage === 1; }
+                        get isLastPage():  boolean { return this.currentPage === this.lastPage; }
+                        get lastPage():    number  { return Math.ceil(this.totalItems / this.pageSize); }
+
+                        goFirst():    void { this.currentPage = 1; }
+                        goPrevious(): void { if (!this.isFirstPage) this.currentPage--; }
+                        goNext():     void { if (!this.isLastPage)  this.currentPage++; }
+                        goLast():     void { this.currentPage = this.lastPage; }
+
+                        onPageSizeChange(event: Event): void {
+                          this.pageSize   = +(event.target as HTMLSelectElement).value;
+                          this.currentPage = 1;
+                        }
+                      }
+
+                      Template  (pagination-toolbar.component.html)
+                      ─────────────────────────────────────────────
+                      <div class="pagination-toolbar">
+                        <span class="pagination-toolbar-label">Cards per page:</span>
+                        <select data-cnds-select-init class="select-sm"
+                                aria-label="Cards per page"
+                                [value]="pageSize"
+                                (change)="onPageSizeChange($event)">
+                          <option *ngFor="let size of pageSizes" [value]="size">{{ size }}</option>
+                        </select>
+                        <span class="pagination-toolbar-range">{{ rangeLabel }}</span>
+                        <nav class="pagination-toolbar-nav" aria-label="Page navigation">
+                          <button class="pagination-toolbar-btn" aria-label="First page"
+                                  [disabled]="isFirstPage" (click)="goFirst()">
+                            <i class="mdi mdi-skip-previous" aria-hidden="true"></i>
+                          </button>
+                          <button class="pagination-toolbar-btn" aria-label="Previous page"
+                                  [disabled]="isFirstPage" (click)="goPrevious()">
+                            <i class="mdi mdi-chevron-left" aria-hidden="true"></i>
+                          </button>
+                          <button class="pagination-toolbar-btn" aria-label="Next page"
+                                  [disabled]="isLastPage" (click)="goNext()">
+                            <i class="mdi mdi-chevron-right" aria-hidden="true"></i>
+                          </button>
+                          <button class="pagination-toolbar-btn" aria-label="Last page"
+                                  [disabled]="isLastPage" (click)="goLast()">
+                            <i class="mdi mdi-skip-next" aria-hidden="true"></i>
+                          </button>
+                        </nav>
+                      </div>
+
+                      Key points
+                      ──────────
+                      • [disabled] binding replaces the static HTML `disabled` attribute.
+                        Angular sets the attribute when the expression is truthy and removes
+                        it when falsy, so isFirstPage / isLastPage drive button state.
+                      • [value] + (change) on the <select> keeps pageSize in sync without
+                        FormsModule. Switch to [(ngModel)]="pageSize" if FormsModule is
+                        available — the onPageSizeChange handler is then unnecessary.
+                      • rangeLabel is a getter so it recalculates automatically whenever
+                        currentPage or pageSize changes without a manual subscription.
+                      • Emit a custom @Output() pageChange = new EventEmitter<{page,size}>()
+                        from goFirst/goPrevious/goNext/goLast and onPageSizeChange so the
+                        parent component can reload its data set.
+                    -->
+                  </section>
+                  <!--/Section: Basic example-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Disabled and active states-->
+                  <section id="section-disabled-and-active-states">
+                    <h3 class="mb-3">Disabled and active states</h3>
+
+                    <p>
+                      Navigation buttons are disabled by adding the native
+                      <code>disabled</code> attribute directly to the
+                      <code>&lt;button&gt;</code> element. Disabled buttons render at
+                      <code>opacity: 0.35</code>, do not respond to pointer events, and are
+                      removed from the keyboard tab order by the browser — no additional
+                      JavaScript or ARIA is needed. The rule of thumb: disable First and
+                      Previous when the user is on the first page; disable Next and Last when
+                      the user is on the last page.
+                    </p>
+
+                    <p class="fw-semibold mb-2">Mid-page — all buttons active</p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="p-4">
+                          <div class="pagination-toolbar">
+                            <span class="pagination-toolbar-label">Cards per page:</span>
+                            <select data-cnds-select-init class="select-sm" aria-label="Cards per page">
+                              <option>10</option>
+                              <option>25</option>
+                              <option>50</option>
+                            </select>
+                            <span class="pagination-toolbar-range">11–20 of 100</span>
+                            <nav class="pagination-toolbar-nav" aria-label="Page navigation">
+                              <button class="pagination-toolbar-btn" aria-label="First page">
+                                <i class="mdi mdi-skip-previous" aria-hidden="true"></i>
+                              </button>
+                              <button class="pagination-toolbar-btn" aria-label="Previous page">
+                                <i class="mdi mdi-chevron-left" aria-hidden="true"></i>
+                              </button>
+                              <button class="pagination-toolbar-btn" aria-label="Next page">
+                                <i class="mdi mdi-chevron-right" aria-hidden="true"></i>
+                              </button>
+                              <button class="pagination-toolbar-btn" aria-label="Last page">
+                                <i class="mdi mdi-skip-next" aria-hidden="true"></i>
+                              </button>
+                            </nav>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div class="pagination-toolbar"&gt;
+    &lt;span class="pagination-toolbar-label"&gt;Cards per page:&lt;/span&gt;
+    &lt;select data-cnds-select-init class="select-sm" aria-label="Cards per page"&gt;
+        &lt;option&gt;10&lt;/option&gt;
+        &lt;option&gt;25&lt;/option&gt;
+        &lt;option&gt;50&lt;/option&gt;
+    &lt;/select&gt;
+    &lt;span class="pagination-toolbar-range"&gt;11&amp;ndash;20 of 100&lt;/span&gt;
+    &lt;nav class="pagination-toolbar-nav" aria-label="Page navigation"&gt;
+        &lt;button class="pagination-toolbar-btn" aria-label="First page"&gt;
+            &lt;i class="mdi mdi-skip-previous" aria-hidden="true"&gt;&lt;/i&gt;
+        &lt;/button&gt;
+        &lt;button class="pagination-toolbar-btn" aria-label="Previous page"&gt;
+            &lt;i class="mdi mdi-chevron-left" aria-hidden="true"&gt;&lt;/i&gt;
+        &lt;/button&gt;
+        &lt;button class="pagination-toolbar-btn" aria-label="Next page"&gt;
+            &lt;i class="mdi mdi-chevron-right" aria-hidden="true"&gt;&lt;/i&gt;
+        &lt;/button&gt;
+        &lt;button class="pagination-toolbar-btn" aria-label="Last page"&gt;
+            &lt;i class="mdi mdi-skip-next" aria-hidden="true"&gt;&lt;/i&gt;
+        &lt;/button&gt;
+    &lt;/nav&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                    <!--
+                      Angular conversion — Mid-page state (all buttons active)
+                      ═══════════════════════════════════════════════════════════════════════════
+
+                      This state is reached when currentPage > 1 AND currentPage < lastPage.
+                      No structural change to the template is needed from the Basic example.
+                      The same [disabled] bindings automatically enable all four buttons because:
+                        • isFirstPage  evaluates to false  → First and Previous are enabled
+                        • isLastPage   evaluates to false  → Next and Last are enabled
+
+                      To start the component in a mid-page state, set the initial value:
+                        currentPage = 2;   // or any page between 1 and lastPage exclusive
+
+                      The range label getter recalculates automatically:
+                        page 2, pageSize 10, total 100  →  "11–20 of 100"
+
+                      If the parent supplies the current page via @Input(), handle the
+                      OnChanges lifecycle hook to keep local state in sync:
+                        @Input() page = 1;
+                        ngOnChanges(changes: SimpleChanges): void {
+                          if (changes['page']) this.currentPage = this.page;
+                        }
+                    -->
+
+                    <p class="mt-4 fw-semibold mb-2">Last page — Next and Last disabled</p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="p-4">
+                          <div class="pagination-toolbar">
+                            <span class="pagination-toolbar-label">Cards per page:</span>
+                            <select data-cnds-select-init class="select-sm" aria-label="Cards per page">
+                              <option>10</option>
+                              <option>25</option>
+                              <option>50</option>
+                            </select>
+                            <span class="pagination-toolbar-range">91–100 of 100</span>
+                            <nav class="pagination-toolbar-nav" aria-label="Page navigation">
+                              <button class="pagination-toolbar-btn" aria-label="First page">
+                                <i class="mdi mdi-skip-previous" aria-hidden="true"></i>
+                              </button>
+                              <button class="pagination-toolbar-btn" aria-label="Previous page">
+                                <i class="mdi mdi-chevron-left" aria-hidden="true"></i>
+                              </button>
+                              <button class="pagination-toolbar-btn" aria-label="Next page" disabled>
+                                <i class="mdi mdi-chevron-right" aria-hidden="true"></i>
+                              </button>
+                              <button class="pagination-toolbar-btn" aria-label="Last page" disabled>
+                                <i class="mdi mdi-skip-next" aria-hidden="true"></i>
+                              </button>
+                            </nav>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div class="pagination-toolbar"&gt;
+    &lt;span class="pagination-toolbar-label"&gt;Cards per page:&lt;/span&gt;
+    &lt;select data-cnds-select-init class="select-sm" aria-label="Cards per page"&gt;
+        &lt;option&gt;10&lt;/option&gt;
+        &lt;option&gt;25&lt;/option&gt;
+        &lt;option&gt;50&lt;/option&gt;
+    &lt;/select&gt;
+    &lt;span class="pagination-toolbar-range"&gt;91&amp;ndash;100 of 100&lt;/span&gt;
+    &lt;nav class="pagination-toolbar-nav" aria-label="Page navigation"&gt;
+        &lt;button class="pagination-toolbar-btn" aria-label="First page"&gt;
+            &lt;i class="mdi mdi-skip-previous" aria-hidden="true"&gt;&lt;/i&gt;
+        &lt;/button&gt;
+        &lt;button class="pagination-toolbar-btn" aria-label="Previous page"&gt;
+            &lt;i class="mdi mdi-chevron-left" aria-hidden="true"&gt;&lt;/i&gt;
+        &lt;/button&gt;
+        &lt;button class="pagination-toolbar-btn" aria-label="Next page" disabled&gt;
+            &lt;i class="mdi mdi-chevron-right" aria-hidden="true"&gt;&lt;/i&gt;
+        &lt;/button&gt;
+        &lt;button class="pagination-toolbar-btn" aria-label="Last page" disabled&gt;
+            &lt;i class="mdi mdi-skip-next" aria-hidden="true"&gt;&lt;/i&gt;
+        &lt;/button&gt;
+    &lt;/nav&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                    <!--
+                      Angular conversion — Last-page state (Next and Last disabled)
+                      ═══════════════════════════════════════════════════════════════════════════
+
+                      This state is reached when currentPage === lastPage.
+                      isLastPage evaluates to true, so [disabled]="isLastPage" disables the
+                      Next and Last buttons. isFirstPage is false, so First and Previous remain
+                      enabled. No template change is required from the Basic example.
+
+                      To start the component on the last page:
+                        currentPage = this.lastPage;   // e.g. Math.ceil(100 / 10) = 10
+
+                      Range label for the last page (pageSize 10, total 100):
+                        start = (10 - 1) * 10 + 1 = 91
+                        end   = Math.min(10 * 10, 100) = 100
+                        label = "91–100 of 100"
+
+                      When totalItems is not a clean multiple of pageSize, Math.min ensures
+                      the end value never exceeds totalItems:
+                        totalItems 95, pageSize 10, page 10
+                        end = Math.min(100, 95) = 95  →  "91–95 of 95"
+                    -->
+                  </section>
+                  <!--/Section: Disabled and active states-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Product themes-->
+                  <section id="section-product-themes">
+                    <!-- Section title -->
+                    <h3 class="mb-3">Product themes</h3>
+                    <p>
+                      Each Cloudficient product has a designated accent color defined in the design
+                      system. Setting a product class on <code>&lt;body&gt;</code> activates that
+                      color for the pagination toolbar focus indicator and numbered pagination
+                      active page via <code>--cnds-primary</code>:
+                    </p>
+                    <ul>
+                      <li><code>&lt;body class="cnds-product-casefusion"&gt;</code> — CaseFusion green</li>
+                      <li><code>&lt;body class="cnds-product-hyperlize"&gt;</code> — Hyperlize gold</li>
+                      <li><code>&lt;body class="cnds-product-expireon"&gt;</code> — Expireon indigo</li>
+                    </ul>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="p-4">
+                          <div class="d-flex flex-column gap-3">
+                            <div class="cnds-product-casefusion">
+                              <p class="text-muted small mb-1">CaseFusion</p>
+                              <nav aria-label="CaseFusion pagination">
+                                <ul class="pagination mb-0">
+                                  <li class="page-item disabled"><a class="page-link">Previous</a></li>
+                                  <li class="page-item"><a class="page-link" href="#">1</a></li>
+                                  <li class="page-item active" aria-current="page"><a class="page-link" href="#">2</a></li>
+                                  <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                  <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                                </ul>
+                              </nav>
+                            </div>
+                            <div class="cnds-product-hyperlize">
+                              <p class="text-muted small mb-1">Hyperlize</p>
+                              <nav aria-label="Hyperlize pagination">
+                                <ul class="pagination mb-0">
+                                  <li class="page-item disabled"><a class="page-link">Previous</a></li>
+                                  <li class="page-item"><a class="page-link" href="#">1</a></li>
+                                  <li class="page-item active" aria-current="page"><a class="page-link" href="#">2</a></li>
+                                  <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                  <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                                </ul>
+                              </nav>
+                            </div>
+                            <div class="cnds-product-expireon">
+                              <p class="text-muted small mb-1">Expireon</p>
+                              <nav aria-label="Expireon pagination">
+                                <ul class="pagination mb-0">
+                                  <li class="page-item disabled"><a class="page-link">Previous</a></li>
+                                  <li class="page-item"><a class="page-link" href="#">1</a></li>
+                                  <li class="page-item active" aria-current="page"><a class="page-link" href="#">2</a></li>
+                                  <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                  <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                                </ul>
+                              </nav>
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+
+<!-- Angular: In most applications, set the product class on <body> via a ThemeService; no modifier class is needed on individual pagination components.
+     The active page button background and toolbar focus color update automatically as --cnds-primary changes. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;!-- Set once on &lt;body&gt; for the whole application --&gt;
+&lt;body class="cnds-product-casefusion"&gt;
+  &lt;nav aria-label="Page navigation"&gt;
+    &lt;ul class="pagination"&gt;
+      &lt;li class="page-item disabled"&gt;&lt;a class="page-link"&gt;Previous&lt;/a&gt;&lt;/li&gt;
+      &lt;li class="page-item"&gt;&lt;a class="page-link" href="#"&gt;1&lt;/a&gt;&lt;/li&gt;
+      &lt;li class="page-item active" aria-current="page"&gt;&lt;a class="page-link" href="#"&gt;2&lt;/a&gt;&lt;/li&gt;
+      &lt;li class="page-item"&gt;&lt;a class="page-link" href="#"&gt;3&lt;/a&gt;&lt;/li&gt;
+      &lt;li class="page-item"&gt;&lt;a class="page-link" href="#"&gt;Next&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/nav&gt;
+&lt;/body&gt;
+
+&lt;!-- Hyperlize: replace cnds-product-casefusion with cnds-product-hyperlize --&gt;
+&lt;!-- Expireon:  replace cnds-product-casefusion with cnds-product-expireon  --&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Product themes-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Sizing-->
+                  <section id="section-sizing">
+                    <!-- Section title -->
+                    <h3 class="mb-3">Sizing</h3>
+                    <p>
+                      Fancy larger or smaller pagination? Add <code>.pagination-lg</code> or
+                      <code>.pagination-sm</code> to the <code>&lt;ul class="pagination"&gt;</code>
+                      element for additional sizes.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="p-4">
+                          <div class="d-flex flex-column gap-3">
+                            <div>
+                              <p class="text-muted small mb-1">Small</p>
+                              <nav aria-label="Small pagination">
+                                <ul class="pagination pagination-sm mb-0">
+                                  <li class="page-item disabled"><a class="page-link">Previous</a></li>
+                                  <li class="page-item"><a class="page-link" href="#">1</a></li>
+                                  <li class="page-item active" aria-current="page"><a class="page-link" href="#">2</a></li>
+                                  <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                  <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                                </ul>
+                              </nav>
+                            </div>
+                            <div>
+                              <p class="text-muted small mb-1">Default</p>
+                              <nav aria-label="Default pagination">
+                                <ul class="pagination mb-0">
+                                  <li class="page-item disabled"><a class="page-link">Previous</a></li>
+                                  <li class="page-item"><a class="page-link" href="#">1</a></li>
+                                  <li class="page-item active" aria-current="page"><a class="page-link" href="#">2</a></li>
+                                  <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                  <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                                </ul>
+                              </nav>
+                            </div>
+                            <div>
+                              <p class="text-muted small mb-1">Large</p>
+                              <nav aria-label="Large pagination">
+                                <ul class="pagination pagination-lg mb-0">
+                                  <li class="page-item disabled"><a class="page-link">Previous</a></li>
+                                  <li class="page-item"><a class="page-link" href="#">1</a></li>
+                                  <li class="page-item active" aria-current="page"><a class="page-link" href="#">2</a></li>
+                                  <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                  <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                                </ul>
+                              </nav>
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+
+<!-- Angular: Bind the size modifier with [ngClass] when driven by an @Input(), e.g.
+     [ngClass]="{'pagination-sm': size === 'sm', 'pagination-lg': size === 'lg'}" on the <ul>.
+     No other template changes are required from the Product themes example. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;nav aria-label="Page navigation"&gt;
+  &lt;ul class="pagination pagination-sm"&gt;
+    &lt;li class="page-item disabled"&gt;&lt;a class="page-link"&gt;Previous&lt;/a&gt;&lt;/li&gt;
+    &lt;li class="page-item"&gt;&lt;a class="page-link" href="#"&gt;1&lt;/a&gt;&lt;/li&gt;
+    &lt;li class="page-item active" aria-current="page"&gt;&lt;a class="page-link" href="#"&gt;2&lt;/a&gt;&lt;/li&gt;
+    &lt;li class="page-item"&gt;&lt;a class="page-link" href="#"&gt;3&lt;/a&gt;&lt;/li&gt;
+    &lt;li class="page-item"&gt;&lt;a class="page-link" href="#"&gt;Next&lt;/a&gt;&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/nav&gt;
+
+&lt;!-- Default: omit the size modifier class --&gt;
+&lt;ul class="pagination"&gt;...&lt;/ul&gt;
+
+&lt;!-- Large --&gt;
+&lt;ul class="pagination pagination-lg"&gt;...&lt;/ul&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Sizing-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Accessibility-->
+                  <section id="section-accessibility">
+                    <h3 class="mb-3">Accessibility</h3>
+
+                    <p>
+                      The pagination toolbar has three accessibility requirements.
+                    </p>
+                    <ul>
+                      <li>
+                        Wrap the four navigation buttons in a <code>&lt;nav&gt;</code> element
+                        and add <code>aria-label="Page navigation"</code> — or a more specific
+                        label such as <code>aria-label="Cases table pagination"</code> — so
+                        assistive technologies announce it as a distinct navigation landmark.
+                      </li>
+                      <li>
+                        Add an <code>aria-label</code> to each
+                        <code>.pagination-toolbar-btn</code> since the buttons contain only
+                        icons with no visible text. Use descriptive values:
+                        <code>"First page"</code>, <code>"Previous page"</code>,
+                        <code>"Next page"</code>, <code>"Last page"</code>.
+                      </li>
+                      <li>
+                        Add <code>aria-label</code> to the <code>&lt;select&gt;</code> element
+                        to give it an accessible name. The adjacent
+                        <code>.pagination-toolbar-label</code> text is a visual cue only and
+                        is not programmatically associated with the control.
+                      </li>
+                    </ul>
+                    <p>
+                      The native <code>disabled</code> attribute handles inactive button state
+                      completely — it suppresses pointer events, removes the element from the
+                      tab order, and communicates the state to screen readers without any
+                      additional ARIA attributes.
+                    </p>
+                  </section>
+                  <!--/Section: Accessibility-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: API Documentation-->
+                  <section id="section-api-docs">
+                    <h3 class="mb-3">API Documentation</h3>
+
+                    <!--Section: API Introduction-->
+                    <section id="api-section-introduction">
+                      <h4 class="mb-4">Introduction</h4>
+                      <p>
+                        The Nimbus pagination toolbar is a CSS-only component — no JavaScript
+                        initialisation is required. It is built as a standard <code>&lt;div&gt;</code>
+                        flex row and relies entirely on native HTML semantics and CSS custom
+                        properties for its appearance and behavior. The component is fully
+                        theme-aware: background, border, text, and focus-ring colors adapt
+                        automatically when the <code>data-cnds-theme="dark"</code> attribute is
+                        applied to any ancestor element.
+                      </p>
+                    </section>
+                    <!--/Section: API Introduction-->
+
+                    <!--Section: API Usage-->
+                    <section id="api-section-usage">
+                      <h4 class="mb-4">Usage</h4>
+                      <p>
+                        Wrap the four elements in a <code>&lt;div class="pagination-toolbar"&gt;</code>
+                        container. Place a plain-text label (<code>.pagination-toolbar-label</code>),
+                        a <code>&lt;select data-cnds-select-init&gt;</code> with
+                        <code>aria-label</code>, a range indicator
+                        (<code>.pagination-toolbar-range</code>), and a
+                        <code>&lt;nav class="pagination-toolbar-nav"&gt;</code> holding four
+                        <code>.pagination-toolbar-btn</code> icon buttons — in that order. Apply the
+                        native <code>disabled</code> attribute to First and Previous on the first page
+                        and to Next and Last on the final page.
+                      </p>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-html">&lt;div class="pagination-toolbar"&gt;
+    &lt;span class="pagination-toolbar-label"&gt;Cards per page&lt;/span&gt;
+    &lt;select data-cnds-select-init class="select-sm" aria-label="Cards per page"&gt;
+        &lt;option value="10" selected&gt;10&lt;/option&gt;
+        &lt;option value="25"&gt;25&lt;/option&gt;
+        &lt;option value="50"&gt;50&lt;/option&gt;
+        &lt;option value="100"&gt;100&lt;/option&gt;
+    &lt;/select&gt;
+    &lt;span class="pagination-toolbar-range"&gt;1–10 of 100&lt;/span&gt;
+    &lt;nav class="pagination-toolbar-nav" aria-label="Page navigation"&gt;
+        &lt;button class="pagination-toolbar-btn" aria-label="First page" disabled&gt;
+            &lt;i class="mdi mdi-skip-previous" aria-hidden="true"&gt;&lt;/i&gt;
+        &lt;/button&gt;
+        &lt;button class="pagination-toolbar-btn" aria-label="Previous page" disabled&gt;
+            &lt;i class="mdi mdi-chevron-left" aria-hidden="true"&gt;&lt;/i&gt;
+        &lt;/button&gt;
+        &lt;button class="pagination-toolbar-btn" aria-label="Next page"&gt;
+            &lt;i class="mdi mdi-chevron-right" aria-hidden="true"&gt;&lt;/i&gt;
+        &lt;/button&gt;
+        &lt;button class="pagination-toolbar-btn" aria-label="Last page"&gt;
+            &lt;i class="mdi mdi-skip-next" aria-hidden="true"&gt;&lt;/i&gt;
+        &lt;/button&gt;
+    &lt;/nav&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Section: API Usage-->
+
+                    <!--Section: API CSS Classes-->
+                    <section id="api-section-css-classes">
+                      <h4 class="mb-4">CSS classes</h4>
+                      <p>
+                        The following classes control pagination toolbar structure and appearance.
+                        All classes are CSS-only and require no JavaScript.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped" aria-label="CSS classes">
+                          <thead>
+                            <tr>
+                              <th>Class</th>
+                              <th>Element</th>
+                              <th>Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>.pagination-toolbar</code></td>
+                              <td><code>&lt;div&gt;</code></td>
+                              <td>
+                                Toolbar container. Renders as a right-aligned flex row with
+                                <code>gap: 1rem</code>, a rounded border, and a z-depth-12 box
+                                shadow. Hosts all toolbar CSS custom properties.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.pagination-toolbar-label</code></td>
+                              <td><code>&lt;span&gt;</code></td>
+                              <td>
+                                Plain-text label preceding the per-page select. Renders at
+                                <code>0.875rem</code> with <code>white-space: nowrap</code>.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.pagination-toolbar-range</code></td>
+                              <td><code>&lt;span&gt;</code></td>
+                              <td>
+                                Displays the current record window (e.g., <em>1–10 of 100</em>).
+                                Same typography as <code>.pagination-toolbar-label</code>.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.pagination-toolbar-nav</code></td>
+                              <td><code>&lt;nav&gt;</code></td>
+                              <td>
+                                Flex row wrapper for the four navigation buttons. Use as a
+                                <code>&lt;nav&gt;</code> landmark with <code>aria-label</code>.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.pagination-toolbar-btn</code></td>
+                              <td><code>&lt;button&gt;</code></td>
+                              <td>
+                                Icon-only navigation button. Transparent background; hover applies
+                                <code>--cnds-pagination-toolbar-btn-hover-bg</code>. Apply the
+                                native <code>disabled</code> attribute to suppress interaction and
+                                reduce opacity to <code>0.35</code>.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: API CSS Classes-->
+
+                    <!--Section: API CSS Custom Properties-->
+                    <section id="api-section-css-variables">
+                      <h4 class="mb-4">CSS custom properties</h4>
+                      <p>
+                        All custom properties are defined on <code>.pagination-toolbar</code> in
+                        <code>pagination.css</code> and can be overridden per-instance via an
+                        inline <code>style</code> attribute or globally via a CSS rule targeting
+                        <code>.pagination-toolbar</code>.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped" aria-label="CSS custom properties">
+                          <thead>
+                            <tr>
+                              <th>Property</th>
+                              <th>Default</th>
+                              <th>Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>--cnds-pagination-toolbar-bg</code></td>
+                              <td><code>var(--cnds-surface-light-300, #e0e0e0)</code></td>
+                              <td>Background color of the toolbar container.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-pagination-toolbar-border-color</code></td>
+                              <td><code>var(--cnds-surface-light-300, #e0e0e0)</code></td>
+                              <td>Border color of the toolbar container.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-pagination-toolbar-color</code></td>
+                              <td><code>var(--cnds-surface-light-950, #141414)</code></td>
+                              <td>Text and icon color for all toolbar children.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-pagination-toolbar-shadow</code></td>
+                              <td><code>var(--cnds-shadow-1)</code></td>
+                              <td>Box shadow applied to the toolbar container. Two layers &mdash; <code>0 2px 5px rgba(0,0,0,.16)</code> and <code>0 2px 10px rgba(0,0,0,.12)</code>. Kept deliberately light because the bar is often floated over scrolling content; override this property alone if a screen needs more lift.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-pagination-toolbar-padding</code></td>
+                              <td><code>3px 0</code></td>
+                              <td>
+                                Padding on the bar. Flush left and right so the
+                                label and the arrow group sit on the container
+                                edge, matching the Figma component.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-pagination-toolbar-gap</code></td>
+                              <td><code>8px</code></td>
+                              <td>
+                                Gap between the label, the per-page select, the
+                                range text and the arrow group.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-pagination-toolbar-btn-radius</code></td>
+                              <td><code>4px</code></td>
+                              <td>Border radius of each navigation button.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-pagination-toolbar-btn-color</code></td>
+                              <td><code>var(--cnds-link-color, #215aab)</code></td>
+                              <td>Icon color of the navigation arrow buttons.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-pagination-toolbar-btn-hover-bg</code></td>
+                              <td><code>rgba(0, 0, 0, 0.06)</code></td>
+                              <td>Background color applied to a button on hover.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-pagination-toolbar-focus-color</code></td>
+                              <td><code>var(--cnds-primary, #ab2328)</code></td>
+                              <td>
+                                Outer ring color of the offset double-ring focus indicator on
+                                <code>.pagination-toolbar-btn:focus-visible</code>.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: API CSS Custom Properties-->
+
+                    <!--Section: API Theme Variables-->
+                    <section id="api-section-theme-variables">
+                      <h4 class="mb-4">Theme variables</h4>
+                      <p>
+                        The toolbar adapts to the active theme via custom properties overridden on
+                        <code>[data-cnds-theme="dark"] .pagination-toolbar</code> in
+                        <code>dark.css</code>. All values meet WCAG AA contrast requirements
+                        against their respective theme backgrounds.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Theme variables">
+                          <thead>
+                            <tr>
+                              <th>Token</th>
+                              <th>Light value</th>
+                              <th>Light contrast</th>
+                              <th>Dark value</th>
+                              <th>Dark contrast</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>--cnds-pagination-toolbar-bg</code></td>
+                              <td><code>var(--cnds-surface-light-300, #e0e0e0)</code></td>
+                              <td>—</td>
+                              <td><code>var(--cnds-surface-dark-700, #121212)</code></td>
+                              <td>—</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-pagination-toolbar-border-color</code></td>
+                              <td><code>var(--cnds-surface-light-300, #e0e0e0)</code></td>
+                              <td>—</td>
+                              <td><code>var(--cnds-surface-dark-300, #4a4a4a)</code></td>
+                              <td>—</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-pagination-toolbar-color</code></td>
+                              <td><code>var(--cnds-surface-light-950, #141414)</code></td>
+                              <td>13.1:1 on <code>#e0e0e0</code></td>
+                              <td><code>var(--cnds-surface-dark-50, #e8e8e8)</code></td>
+                              <td>14.6:1 on <code>#121212</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-pagination-toolbar-btn-color</code></td>
+                              <td><code>var(--cnds-link-color, #215aab)</code></td>
+                              <td>—</td>
+                              <td><code>var(--cnds-link-color, #6790ca)</code></td>
+                              <td>—</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-pagination-toolbar-btn-hover-bg</code></td>
+                              <td><code>rgba(0, 0, 0, 0.06)</code></td>
+                              <td>—</td>
+                              <td><code>rgba(255, 255, 255, 0.08)</code></td>
+                              <td>—</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-pagination-toolbar-focus-color</code></td>
+                              <td><code>var(--cnds-primary, #ab2328)</code></td>
+                              <td>5.44:1 on <code>#e0e0e0</code></td>
+                              <td><code>var(--cnds-surface-blue-400, #6790ca)</code></td>
+                              <td>6.39:1 on <code>#121212</code></td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: API Theme Variables-->
+
+                    <!--Section: API Accessibility-->
+                    <section id="api-section-accessibility">
+                      <h4 class="mb-4">Accessibility</h4>
+                      <p>
+                        The following ARIA attributes are required for an accessible pagination
+                        toolbar implementation:
+                      </p>
+                      <ul>
+                        <li>
+                          Wrap the four navigation buttons in a <code>&lt;nav&gt;</code> element.
+                          This creates a navigation landmark that assistive technologies announce
+                          to users.
+                        </li>
+                        <li>
+                          Add <code>aria-label="Page navigation"</code> — or a more specific label
+                          such as <code>aria-label="Cases table pagination"</code> — to the
+                          <code>&lt;nav&gt;</code> to distinguish this landmark from other navigation
+                          regions on the page.
+                        </li>
+                        <li>
+                          Add <code>aria-label</code> to each <code>.pagination-toolbar-btn</code>
+                          since the buttons contain only icons with no visible text. Use descriptive
+                          values: <code>"First page"</code>, <code>"Previous page"</code>,
+                          <code>"Next page"</code>, <code>"Last page"</code>.
+                        </li>
+                        <li>
+                          Add <code>aria-label</code> to the <code>&lt;select&gt;</code> element
+                          to give it an accessible name. The adjacent
+                          <code>.pagination-toolbar-label</code> text is a visual cue only and is
+                          not programmatically associated with the control.
+                        </li>
+                        <li>
+                          Use the native <code>disabled</code> attribute on buttons that are not
+                          applicable for the current page. It suppresses pointer events, removes
+                          the element from the tab order, and communicates the state to screen
+                          readers without any additional ARIA attributes.
+                        </li>
+                      </ul>
+                      <p>
+                        For the full specification, see the
+                        <a rel="nofollow" target="_blank" href="https://www.w3.org/TR/wai-aria-practices/">WAI-ARIA Authoring Practices</a>.
+                      </p>
+                    </section>
+                    <!--/Section: API Accessibility-->
+
+                  </section>
+                  <!--/Section: API Documentation-->
+                </section>
+                <!--Section: Docs content-->
+              </div>
+              <!-- ./Main column-->
+
+              <!-- Right Sidebar — 20 % of the row width; hidden below lg breakpoint.
+                   Sticky attributes (processed by nimbus.js):
+                     data-cnds-sticky="true"          : activates sticky positioning
+                     data-cnds-sticky-boundary="true" : constrains sticky to its parent container
+                     data-cnds-sticky-direction="both" : sticks when scrolling up OR down
+                     data-cnds-sticky-offset="56"     : clears the 56 px fixed header
+                     data-cnds-sticky-delay="125"     : debounce delay (ms) to reduce scroll jank
+                   data-cnds-allow-hashes="true" on the <ul>: nimbus.js watches the URL hash
+                     and highlights the matching nav-link as the user scrolls through sections. -->
+              <div class="col-lg-2 d-none d-lg-block">
+                <div class="sticky-top" style="top: 100px; z-index: 1">
+                  <ul
+                    class="nav flex-column nav-pills menu-sidebar"
+                    id="rightNav"
+                    data-cnds-allow-hashes="true"
+                  >
+                    <li class="nav-item"><a class="nav-link" href="#section-introduction">Introduction</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-basic-example">Basic example</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-disabled-and-active-states">Disabled and active states</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-product-themes">Product themes</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-sizing">Sizing</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-accessibility">Accessibility</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-api-docs">API Documentation</a></li>
+                    <!-- ms-3 indents API sub-section links one level beneath "API Documentation" -->
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-introduction">Introduction</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-usage">Usage</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-css-classes">CSS classes</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-css-variables">CSS custom properties</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-theme-variables">Theme variables</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-accessibility">Accessibility</a></li>
+                  </ul>
+                </div>
+              </div>
+              <!-- ./Right Sidebar -->
+            </div>
+            <!-- ./Content Row -->
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- ./Content -->
+    <!-- Footer -->
+    <div class="cf-footer cf-footer-app">
+      <footer class="page-footer main-footer" aria-label="Site footer">
+        <div class="w-100 px-3 d-flex align-items-center">
+          <img src="img/cf/core/cloudficient_logo_light.svg" class="cf-logo-light" style="width: 135px;" alt="Cloudficient" />
+          <img src="img/cf/core/cloudficient_logo_dark.svg" class="cf-logo-dark" style="width: 135px;" alt="Cloudficient" />
+          <span class="footer-copyright ms-auto">&copy; <span id="currentYear"></span> Cloudficient</span>
+        </div>
+      </footer>
+    </div>
+    <!-- ./Footer -->
+    <!-- SCRIPTS — load order matters:
+         1. nimbus.js    — core framework: processes all data-cnds-* attributes (theme, sticky, sidenav, tooltips…)
+         2. app.js       — application-level overrides and custom initialisation
+         3. prism.min.js — syntax highlighting for <code class="language-*"> blocks; must run after DOM is ready
+         4. sidenav-loader.js — fetches shared sidenav HTML and injects it into #sidebar-cf -->
+    <script type="text/javascript" src="js/nimbus.js?v=9.0.4"></script>
+    <script type="text/javascript" src="js/app.js?v=9.0.4"></script>
+    <script type="text/javascript" src="plugins/js/prism.min.js"></script>
+    <script type="text/javascript" src="js/sidenav-loader.js"></script>
+    <!-- Inline: populate the footer copyright year dynamically so the page never needs a manual update -->
+    <script type="text/javascript">
+      var currentYearElement = document.getElementById("currentYear");
+      if (currentYearElement) {
+        currentYearElement.textContent = new Date().getFullYear();
+      }
+    </script>
+  </body>
+</html>

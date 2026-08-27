@@ -1,0 +1,2071 @@
+<!--
+* CNDS Nimbus Design System — Tabs
+* Version: 1.0.0
+* Layout: Application with SideNav (migrated from Nimbus v8 template)
+* NOTES
+- Pure HTML5, CSS3, vanilla JavaScript — zero external dependencies
+- Uses data-cnds-* attributes (replaces data-mdb-*)
+- Uses Nimbus.* namespace (replaces mdb.*)
+- Default product theme: CaseFusion (cnds-product-casefusion on <body>; change to cnds-product-hyperlize or cnds-product-expireon)
+-->
+<!doctype html>
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta
+      name="description"
+      content="Tabs | Cloudficient Nimbus Design System v1.0.0"
+    />
+    <title>
+      Tabs | CNDS v1.0.0 | Cloudficient Nimbus Design System
+    </title>
+    <!--
+      CSS load order is intentional:
+      1. nimbus.css   — compiled component styles (references token variables)
+      2. app.css      — page-level overrides and doc shell styles
+      3. prism.min.css — syntax highlight styles for code blocks
+      4. primitives / light / dark — raw token values that components consume;
+         loaded last so they win the cascade over any hardcoded fallbacks.
+    -->
+    <link rel="stylesheet" href="css/nimbus.css" media="all" type="text/css" />
+    <link rel="stylesheet" href="css/app.css" media="all" type="text/css" />
+    <link rel="stylesheet" href="plugins/css/prism.min.css" media="all" type="text/css" />
+
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="img/favicon/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="60x60" href="img/favicon/apple-icon-60x60.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="img/favicon/apple-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76" href="img/favicon/apple-icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="img/favicon/apple-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="img/favicon/apple-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="img/favicon/apple-icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="img/favicon/apple-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-icon-180x180.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="img/favicon/android-icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="img/favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="img/favicon/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="msapplication-TileImage" content="img/favicon/ms-icon-144x144.png" />
+
+    <!-- Design token layers: raw primitives → light overrides → dark overrides.
+         Components consume these via CSS custom properties (var(--cnds-*)). -->
+    <link rel="stylesheet" href="css/themes/primitives.css" />
+    <link rel="stylesheet" href="css/themes/light.css" />
+    <link rel="stylesheet" href="css/themes/dark.css" />
+
+    <style>
+      /* Overflow tab menu -------------------------------------------- */
+      .nav-tabs-overflow { flex-wrap: nowrap; overflow: hidden; }
+      .nav-tabs-more-item { flex-shrink: 0; display: flex; align-self: stretch; }
+      .nav-tabs-more-btn { flex: 1; display: flex; align-items: center; justify-content: center; width: 40px; }
+      /* Icons inside .nav-tabs-nimbus .nav-link are forced to 18px (vs 14px text), making the
+         more button 4px taller than text tabs. Reduce T/B padding to compensate. Also clears
+         the 97px min-width that .nav-tabs-nimbus .nav-link sets — needs (0,3,0) specificity. */
+      .nav-tabs-nimbus .nav-link.nav-tabs-more-btn { min-width: 0; padding-top: 12px; padding-bottom: 11px; }
+      /* Fixed positioning lets the dropdown escape the nav's overflow:hidden clip.
+         Also restore display when the hidden attribute is absent — dropdown-menu's own
+         display:none would otherwise win and keep the panel invisible. */
+      /* Remap dropdown token variables to the tab bar's own theme-aware tokens so the
+         overflow menu inherits the same background, border, and text as the tab bar. */
+      .nav-tabs-more-dropdown {
+        --cnds-dropdown-bg:              var(--nimbus-tab-bg);
+        --cnds-dropdown-border-color:    var(--nimbus-tab-border);
+        --cnds-dropdown-link-color:      var(--nimbus-tab-text);
+        --cnds-dropdown-link-hover-color: var(--nimbus-tab-text);
+        --cnds-dropdown-link-hover-bg:   var(--nimbus-tab-hover-bg);
+        position: fixed !important;
+        /* 9999 — stacking contexts from isolation:isolate (tabs.css:47) and
+           will-change:width (app.css:319) cap comparisons within those contexts;
+           9999 ensures the dropdown wins against all of them */
+        z-index: 9999 !important;
+        min-width: 0 !important;
+        width: max-content;
+      }
+      .nav-tabs-more-dropdown:not([hidden]) { display: block !important; }
+    </style>
+  </head>
+
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 Bypass Blocks; renders visually hidden until focused -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+    <!-- ═══════════════════════════════════════════════════════════
+         HEADER — sticky wrapper holds UtilityNav + MainNav.
+         Theme toggle button lives in MainNav and is wired by app.js
+         via [data-cnds-toggle="theme"] on the <html> element.
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="sticky-top">
+      <!-- Utility nav — links injected by sidenav-loader.js / app shell config -->
+      <nav id="UtilityNav" class="nav nav-cf-utility">
+        <div class="w-100 gx-3 px-sm-0 px-lg-3">
+          <ul class="nav nav-cf-utility-ul"></ul>
+        </div>
+      </nav>
+      <!-- Main Navigation -->
+      <nav id="MainNav" class="navbar navbar-expand-xl navbar-cf">
+        <div class="container-fluid p-0 px-3 d-flex">
+          <div class="d-flex flex-fill align-items-center text-truncate">
+            <div class="text-center d-none d-md-block me-3 border-end">
+              <a href="index.html"><img src="img/cf/core/logo_nimbus.png" class="me-3 mt-n1" alt="Cloudficient Nimbus Design System" /></a>
+            </div>
+            <div class="flex-fill text-truncate">
+              <div class="navbar-cf-title-block">
+                <div class="navbar-cf-title cf-page-title text-truncate" style="padding-bottom: 0;">
+                  <span class="cf-page-title-text cf-page-title-brand">v1</span>
+                  <span class="cf-page-title-divider"></span>
+                  <span class="cf-page-title-text">Tabs</span>
+                  </div>
+              </div>
+            </div>
+          </div>
+          <button class="btn btn-sm btn-outline-secondary ms-2" data-cnds-toggle="theme" aria-label="Toggle theme" title="Toggle theme">
+            <i class="mdi mdi-weather-night mdi-18px" aria-hidden="true"></i>
+          </button>
+        </div>
+      </nav>
+    </div>
+    <!-- ═══════════════════════════════════════════════════════════
+         MAIN — top-level content region.
+         Layout uses a sidenav + slim-content pattern:
+           #sidebar-cf  — collapsible left sidenav (populated by sidenav-loader.js)
+           #slim-content — scrollable main area pushed/shrunk by sidenav state
+         The sidenav is hidden on mobile; users see a warning banner instead.
+         ═══════════════════════════════════════════════════════════ -->
+    <main id="main-content" class="cf-main-app">
+
+      <!-- Mobile fallback — layout requires ≥ md breakpoint -->
+      <div class="d-block d-md-none p-4">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>This application is not optimized for small screens. Please use a large tablet, laptop, or desktop computer to continue.
+        </div>
+      </div>
+
+      <!-- Desktop layout — hidden below md breakpoint -->
+      <div class="d-none d-md-block">
+
+        <!--
+          Sidenav — data-cnds-content="#slim-content" tells the sidenav which
+          element to push/shrink when it expands. Markup is injected at runtime
+          by js/sidenav-loader.js from a shared navigation JSON source.
+          data-cnds-accordion="true" collapses other groups when one opens.
+        -->
+        <nav id="sidebar-cf" class="sidenav" data-cnds-mode="side" data-cnds-slim="false" data-cnds-slim-collapsed="false" data-cnds-content="#slim-content" data-cnds-accordion="true">
+          <!-- Sidenav content loaded by js/sidenav-loader.js -->
+        </nav>
+      <!-- slim-content — the sidenav pushes this region's left margin.
+           Inner layout: 80% docs column + 20% sticky right-rail nav. -->
+      <div id="slim-content">
+        <div class="slim-content-box">
+          <div class="row">
+
+            <!-- Docs column (80%) -->
+            <div class="col-md-12 col-lg" style="flex: 0 0 80%; max-width: 80%">
+              <!-- Page documentation content -->
+              <section class="container-fluid">
+                <!--Section: Introduction-->
+                <a id="section-introduction" class="anchor"></a>
+                <section>
+
+                  <!-- Description -->
+                  <p class="mb-4">
+                    Tabs organize content into discrete panels within a shared space. Only one panel is visible at a time, letting users navigate between views without leaving the page. All Nimbus tab bars use the <code>.nav-tabs-nimbus</code> class and render with a dark background and a per-product active indicator color.
+                  </p>
+                  <p class="my-4">
+                    Each tab trigger is a <code>.nav-link</code> with <code>data-cnds-tab-init</code> and a matching <code>href</code> pointing to its <code>.tab-pane</code>. Add the <code>.disabled</code> class to make a tab non-interactive. The active tab is marked with <code>.active</code> and <code>aria-selected="true"</code>; inactive tabs should carry <code>tabindex="-1"</code> to maintain correct keyboard focus order.
+                  </p>
+
+                  <p class="note note-light">
+                    <strong>Note:</strong> Read the
+                    <a href="#api-section-introduction">API documentation</a> to
+                    find all available options and advanced customization.
+                  </p>
+                
+                    <p class="note note-info"><strong>Note:</strong> To preview components in different themes, click the theme toggle button <i class="mdi mdi-weather-night" aria-hidden="true"></i> / <i class="mdi mdi-weather-sunny" aria-hidden="true"></i> in the header navigation bar.</p>
+
+                  <table class="table table-striped table-bordered mb-0" aria-label="Tabs">
+                    <thead>
+                      <tr>
+                        <th>Modifier class</th>
+                        <th>Product</th>
+                        <th>Active indicator</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr><td><code>.nav-tabs-casefusion</code></td><td>CaseFusion</td><td><span style="display:inline-block;width:14px;height:14px;border-radius:2px;background:#7dd67a;vertical-align:middle;"></span> <code>#7dd67a</code></td></tr>
+                      <tr><td><code>.nav-tabs-hyperlize</code></td><td>Hyperlize</td><td><span style="display:inline-block;width:14px;height:14px;border-radius:2px;background:#f6bf37;vertical-align:middle;"></span> <code>#f6bf37</code></td></tr>
+                      <tr><td><code>.nav-tabs-expireon</code></td><td>ExpireOn</td><td><span style="display:inline-block;width:14px;height:14px;border-radius:2px;background:#6e69de;vertical-align:middle;"></span> <code>#6e69de</code></td></tr>
+                    </tbody>
+                  </table>
+                </section>
+                <!--Section: Introduction-->
+
+                <hr class="my-5" />
+
+                <!--Section: Basic example-->
+                <a id="section-basic-example" class="anchor"></a>
+                <section>
+                  <!-- Section title -->
+                  <h3 class="mb-4">Basic example</h3>
+
+                  <p>
+                    All Nimbus tab bars require <code>.nav-tabs-nimbus</code> plus a product modifier class. Add <code>data-cnds-tab-init</code> to each <code>.nav-link</code> to enable built-in tab switching. Connect each trigger to its panel using matching <code>href</code> and <code>id</code> attributes.
+                  </p>
+
+                  <!-- Angular: Track active tab with activeTab = 'tab-1' in the component; replace data-cnds-tab-init with (click)="activeTab = tab.id" on each nav-link.
+                       Example: <a [class.active]="activeTab === 'tab-1'" [attr.aria-selected]="activeTab === 'tab-1'" (click)="activeTab = 'tab-1'">Tab 1</a>
+                       Drive the tab list with *ngFor and bind [class.show]="activeTab === 'pane-1'" on each .tab-pane. -->
+                  <!--Section: Demo-->
+                  <div class="border rounded-5">
+                  <section class="w-100 p-4">
+                    <p class="text-muted small mb-2">CaseFusion</p>
+                    <ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-casefusion mb-4" id="basic-cf" role="tablist">
+                      <li class="nav-item" role="presentation">
+                        <a data-cnds-tab-init class="nav-link active" id="basic-cf-tab-1" href="#basic-cf-pane-1" role="tab" aria-controls="basic-cf-pane-1" aria-selected="true">Tab 1</a>
+                      </li>
+                      <li class="nav-item" role="presentation">
+                        <a data-cnds-tab-init class="nav-link" id="basic-cf-tab-2" href="#basic-cf-pane-2" role="tab" aria-controls="basic-cf-pane-2" aria-selected="false">Tab 2</a>
+                      </li>
+                      <li class="nav-item" role="presentation">
+                        <a data-cnds-tab-init class="nav-link disabled" id="basic-cf-tab-3" href="#basic-cf-pane-3" role="tab" aria-controls="basic-cf-pane-3" aria-selected="false" tabindex="-1">Tab 3</a>
+                      </li>
+                    </ul>
+                    <div class="tab-content mb-4" id="basic-cf-content">
+                      <div class="tab-pane fade show active" id="basic-cf-pane-1" role="tabpanel" aria-labelledby="basic-cf-tab-1">CaseFusion — Tab 1 content</div>
+                      <div class="tab-pane fade" id="basic-cf-pane-2" role="tabpanel" aria-labelledby="basic-cf-tab-2">CaseFusion — Tab 2 content</div>
+                      <div class="tab-pane fade" id="basic-cf-pane-3" role="tabpanel" aria-labelledby="basic-cf-tab-3">CaseFusion — Tab 3 content</div>
+                    </div>
+
+                    <p class="text-muted small mb-2 mt-4">Hyperlize</p>
+                    <ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-hyperlize mb-4" id="basic-hy" role="tablist">
+                      <li class="nav-item" role="presentation">
+                        <a data-cnds-tab-init class="nav-link active" id="basic-hy-tab-1" href="#basic-hy-pane-1" role="tab" aria-controls="basic-hy-pane-1" aria-selected="true">Tab 1</a>
+                      </li>
+                      <li class="nav-item" role="presentation">
+                        <a data-cnds-tab-init class="nav-link" id="basic-hy-tab-2" href="#basic-hy-pane-2" role="tab" aria-controls="basic-hy-pane-2" aria-selected="false">Tab 2</a>
+                      </li>
+                      <li class="nav-item" role="presentation">
+                        <a data-cnds-tab-init class="nav-link disabled" id="basic-hy-tab-3" href="#basic-hy-pane-3" role="tab" aria-controls="basic-hy-pane-3" aria-selected="false" tabindex="-1">Tab 3</a>
+                      </li>
+                    </ul>
+                    <div class="tab-content mb-4" id="basic-hy-content">
+                      <div class="tab-pane fade show active" id="basic-hy-pane-1" role="tabpanel" aria-labelledby="basic-hy-tab-1">Hyperlize — Tab 1 content</div>
+                      <div class="tab-pane fade" id="basic-hy-pane-2" role="tabpanel" aria-labelledby="basic-hy-tab-2">Hyperlize — Tab 2 content</div>
+                      <div class="tab-pane fade" id="basic-hy-pane-3" role="tabpanel" aria-labelledby="basic-hy-tab-3">Hyperlize — Tab 3 content</div>
+                    </div>
+
+                    <p class="text-muted small mb-2 mt-4">ExpireOn</p>
+                    <ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-expireon mb-4" id="basic-eo" role="tablist">
+                      <li class="nav-item" role="presentation">
+                        <a data-cnds-tab-init class="nav-link active" id="basic-eo-tab-1" href="#basic-eo-pane-1" role="tab" aria-controls="basic-eo-pane-1" aria-selected="true">Tab 1</a>
+                      </li>
+                      <li class="nav-item" role="presentation">
+                        <a data-cnds-tab-init class="nav-link" id="basic-eo-tab-2" href="#basic-eo-pane-2" role="tab" aria-controls="basic-eo-pane-2" aria-selected="false">Tab 2</a>
+                      </li>
+                      <li class="nav-item" role="presentation">
+                        <a data-cnds-tab-init class="nav-link disabled" id="basic-eo-tab-3" href="#basic-eo-pane-3" role="tab" aria-controls="basic-eo-pane-3" aria-selected="false" tabindex="-1">Tab 3</a>
+                      </li>
+                    </ul>
+                    <div class="tab-content" id="basic-eo-content">
+                      <div class="tab-pane fade show active" id="basic-eo-pane-1" role="tabpanel" aria-labelledby="basic-eo-tab-1">ExpireOn — Tab 1 content</div>
+                      <div class="tab-pane fade" id="basic-eo-pane-2" role="tabpanel" aria-labelledby="basic-eo-tab-2">ExpireOn — Tab 2 content</div>
+                      <div class="tab-pane fade" id="basic-eo-pane-3" role="tabpanel" aria-labelledby="basic-eo-tab-3">ExpireOn — Tab 3 content</div>
+                    </div>
+                  </section>
+                  </div>
+                  <!--Section: Demo-->
+
+                  <!--Section: Code-->
+                  <section class="mt-4">
+                    <h5><span class="badge badge-code-html">HTML</span></h5>
+                    <!-- snippet -->
+                    <div class="p-0">
+                      <pre class="line-numbers m-0"><code class="language-html">&lt;ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-casefusion mb-4" id="myTabs" role="tablist"&gt;
+    &lt;li class="nav-item" role="presentation"&gt;
+        &lt;a data-cnds-tab-init class="nav-link active" id="tab-1" href="#pane-1" role="tab" aria-controls="pane-1" aria-selected="true"&gt;Tab 1&lt;/a&gt;
+    &lt;/li&gt;
+    &lt;li class="nav-item" role="presentation"&gt;
+        &lt;a data-cnds-tab-init class="nav-link" id="tab-2" href="#pane-2" role="tab" aria-controls="pane-2" aria-selected="false"&gt;Tab 2&lt;/a&gt;
+    &lt;/li&gt;
+    &lt;li class="nav-item" role="presentation"&gt;
+        &lt;a data-cnds-tab-init class="nav-link disabled" id="tab-3" href="#pane-3" role="tab" aria-controls="pane-3" aria-selected="false" tabindex="-1"&gt;Tab 3&lt;/a&gt;
+    &lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="tab-content" id="myTabsContent"&gt;
+    &lt;div class="tab-pane fade show active" id="pane-1" role="tabpanel" aria-labelledby="tab-1"&gt;Tab 1 content&lt;/div&gt;
+    &lt;div class="tab-pane fade" id="pane-2" role="tabpanel" aria-labelledby="tab-2"&gt;Tab 2 content&lt;/div&gt;
+    &lt;div class="tab-pane fade" id="pane-3" role="tabpanel" aria-labelledby="tab-3"&gt;Tab 3 content&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Hyperlize: replace nav-tabs-casefusion with nav-tabs-hyperlize --&gt;
+&lt;!-- ExpireOn:  replace nav-tabs-casefusion with nav-tabs-expireon  --&gt;</code></pre>
+                    </div>
+                    <!-- /.snippet -->
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--Section: Basic example-->
+
+                <hr class="my-5" />
+
+                <!--Section: States-->
+                <a id="section-states" class="anchor"></a>
+                <section>
+                  <h3 class="mb-4">States</h3>
+                  <p>
+                    Each row below shows all five tab states for a single product. <strong>Default</strong> is the resting/inactive appearance. <strong>Hover</strong> is the lightened background applied on cursor-over. <strong>Disabled</strong> is the unavailable state at 50% opacity with pointer events removed. <strong>Active</strong> shows the selected tab with its product-colored bottom indicator. <strong>Active hover</strong> is the selected tab with the cursor over it — the background lightens while the indicator persists.
+                  </p>
+
+                  <!-- Angular: Bind active and disabled states from component properties on each nav-link.
+                       Example: <a [class.active]="tab.isActive" [class.disabled]="tab.isDisabled" [attr.aria-selected]="tab.isActive" [attr.tabindex]="tab.isDisabled ? -1 : null">
+                       The hover state is CSS-only; no Angular binding is needed. -->
+                  <!--Section: Demo-->
+                  <div class="border rounded-5">
+                  <section class="w-100 p-4">
+                    <p class="text-muted small mb-2">CaseFusion</p>
+                    <div class="d-flex mb-4" style="gap: 24px;">
+                      <ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-casefusion" role="tablist">
+                        <li class="nav-item" role="presentation"><a class="nav-link" role="tab">Default</a></li>
+                      </ul>
+                      <ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-casefusion" role="tablist">
+                        <li class="nav-item" role="presentation"><a class="nav-link" role="tab" style="background: var(--nimbus-tab-hover-bg);">Hover</a></li>
+                      </ul>
+                      <ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-casefusion" role="tablist">
+                        <li class="nav-item" role="presentation"><a class="nav-link disabled" role="tab" tabindex="-1">Disabled</a></li>
+                      </ul>
+                      <ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-casefusion" role="tablist">
+                        <li class="nav-item" role="presentation"><a class="nav-link active" role="tab" aria-selected="true">Active</a></li>
+                      </ul>
+                      <ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-casefusion" role="tablist">
+                        <li class="nav-item" role="presentation"><a class="nav-link active" role="tab" aria-selected="true" style="background: var(--nimbus-tab-hover-bg);">Active hover</a></li>
+                      </ul>
+                      <ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-casefusion" role="tablist">
+                        <li class="nav-item" role="presentation"><a class="nav-link" role="tab">Count <span class="nav-tab-badge">9</span></a></li>
+                      </ul>
+                      <ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-casefusion" role="tablist">
+                        <li class="nav-item" role="presentation"><a class="nav-link active" role="tab" aria-selected="true">Active + count <span class="nav-tab-badge">9</span></a></li>
+                      </ul>
+                    </div>
+                    <p class="text-muted small mb-0">Add <code>.nav-tab-badge</code> inside the link to show a count. The badge is secondary-coloured so it reads as a quantity rather than a state, and the tab holds its 47px height whether or not a badge is present.</p>
+
+                    <p class="text-muted small mb-2 mt-4">Hyperlize</p>
+                    <div class="d-flex mb-4" style="gap: 24px;">
+                      <ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-hyperlize" role="tablist">
+                        <li class="nav-item" role="presentation"><a class="nav-link" role="tab">Default</a></li>
+                      </ul>
+                      <ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-hyperlize" role="tablist">
+                        <li class="nav-item" role="presentation"><a class="nav-link" role="tab" style="background: var(--nimbus-tab-hover-bg);">Hover</a></li>
+                      </ul>
+                      <ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-hyperlize" role="tablist">
+                        <li class="nav-item" role="presentation"><a class="nav-link disabled" role="tab" tabindex="-1">Disabled</a></li>
+                      </ul>
+                      <ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-hyperlize" role="tablist">
+                        <li class="nav-item" role="presentation"><a class="nav-link active" role="tab" aria-selected="true">Active</a></li>
+                      </ul>
+                      <ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-hyperlize" role="tablist">
+                        <li class="nav-item" role="presentation"><a class="nav-link active" role="tab" aria-selected="true" style="background: var(--nimbus-tab-hover-bg);">Active hover</a></li>
+                      </ul>
+                    </div>
+
+                    <p class="text-muted small mb-2 mt-4">ExpireOn</p>
+                    <div class="d-flex" style="gap: 24px;">
+                      <ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-expireon" role="tablist">
+                        <li class="nav-item" role="presentation"><a class="nav-link" role="tab">Default</a></li>
+                      </ul>
+                      <ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-expireon" role="tablist">
+                        <li class="nav-item" role="presentation"><a class="nav-link" role="tab" style="background: var(--nimbus-tab-hover-bg);">Hover</a></li>
+                      </ul>
+                      <ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-expireon" role="tablist">
+                        <li class="nav-item" role="presentation"><a class="nav-link disabled" role="tab" tabindex="-1">Disabled</a></li>
+                      </ul>
+                      <ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-expireon" role="tablist">
+                        <li class="nav-item" role="presentation"><a class="nav-link active" role="tab" aria-selected="true">Active</a></li>
+                      </ul>
+                      <ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-expireon" role="tablist">
+                        <li class="nav-item" role="presentation"><a class="nav-link active" role="tab" aria-selected="true" style="background: var(--nimbus-tab-hover-bg);">Active hover</a></li>
+                      </ul>
+                    </div>
+                  </section>
+                  </div>
+                  <!--Section: Demo-->
+
+                  <!--Section: Code-->
+                  <section class="mt-4 mb-4">
+                    <h5><span class="badge badge-code-html">HTML</span></h5>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0"><code class="language-html">&lt;ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-casefusion" role="tablist"&gt;
+    &lt;!-- Default --&gt;
+    &lt;li class="nav-item" role="presentation"&gt;
+        &lt;a class="nav-link" role="tab"&gt;Default&lt;/a&gt;
+    &lt;/li&gt;
+    &lt;!-- Hover (forced via inline style for static display) --&gt;
+    &lt;li class="nav-item" role="presentation"&gt;
+        &lt;a class="nav-link" role="tab" style="background: var(--nimbus-tab-hover-bg);"&gt;Hover&lt;/a&gt;
+    &lt;/li&gt;
+    &lt;!-- Disabled --&gt;
+    &lt;li class="nav-item" role="presentation"&gt;
+        &lt;a class="nav-link disabled" role="tab" tabindex="-1"&gt;Disabled&lt;/a&gt;
+    &lt;/li&gt;
+    &lt;!-- Active --&gt;
+    &lt;li class="nav-item" role="presentation"&gt;
+        &lt;a class="nav-link active" role="tab" aria-selected="true"&gt;Active&lt;/a&gt;
+    &lt;/li&gt;
+    &lt;!-- Active hover (forced via inline style for static display) --&gt;
+    &lt;li class="nav-item" role="presentation"&gt;
+        &lt;a class="nav-link active" role="tab" aria-selected="true" style="background: var(--nimbus-tab-hover-bg);"&gt;Active hover&lt;/a&gt;
+    &lt;/li&gt;
+&lt;/ul&gt;
+&lt;!-- Hyperlize: replace nav-tabs-casefusion with nav-tabs-hyperlize --&gt;
+&lt;!-- ExpireOn:  replace nav-tabs-casefusion with nav-tabs-expireon  --&gt;</code></pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--/Section: States-->
+
+                <hr class="my-5" />
+
+                <!--Section: Fill and justify-->
+                <a id="section-fill-and-justify" class="anchor"></a>
+                <section>
+                  <!--Section title-->
+                  <h3 class="mb-4">Fill and justify</h3>
+
+                  <p>
+                    Use <code>.nav-fill</code> or <code>.nav-justified</code> to stretch the tab bar across the full width of its container.
+                  </p>
+
+                  <!--Subsection: Fill-->
+                  <a id="subsection-fill" class="anchor"></a>
+                  <section>
+                    <!--Subsection title-->
+                    <h4 class="mt-5">Fill</h4>
+
+                    <!--Description-->
+                    <p>
+                      Add <code>.nav-fill</code> to distribute tabs proportionally across the full container width. Each tab takes up space relative to its label length — tabs with longer labels are wider.
+                    </p>
+
+                    <!-- Angular: .nav-fill is a CSS-only modifier; no Angular-specific handling required.
+                         Example: <ul [class.nav-fill]="isFillMode" class="nav nav-tabs nav-tabs-nimbus nav-tabs-casefusion">
+                         Apply conditionally if the layout mode is toggled at runtime. -->
+                    <!--Section: Demo-->
+                    <div class="border rounded-5">
+                    <section class="w-100 p-4">
+                      <p class="text-muted small mb-2">CaseFusion</p>
+                      <ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-casefusion nav-fill mb-4" id="fill-cf" role="tablist">
+                        <li class="nav-item" role="presentation">
+                          <a data-cnds-tab-init class="nav-link active" id="fill-cf-tab-1" href="#fill-cf-pane-1" role="tab" aria-controls="fill-cf-pane-1" aria-selected="true">Link</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <a data-cnds-tab-init class="nav-link" id="fill-cf-tab-2" href="#fill-cf-pane-2" role="tab" aria-controls="fill-cf-pane-2" aria-selected="false">Very very very very long link</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <a data-cnds-tab-init class="nav-link disabled" id="fill-cf-tab-3" href="#fill-cf-pane-3" role="tab" aria-controls="fill-cf-pane-3" aria-selected="false" tabindex="-1">Another link</a>
+                        </li>
+                      </ul>
+                      <div class="tab-content mb-4" id="fill-cf-content">
+                        <div class="tab-pane fade show active" id="fill-cf-pane-1" role="tabpanel" aria-labelledby="fill-cf-tab-1">CaseFusion — Tab 1 content</div>
+                        <div class="tab-pane fade" id="fill-cf-pane-2" role="tabpanel" aria-labelledby="fill-cf-tab-2">CaseFusion — Tab 2 content</div>
+                        <div class="tab-pane fade" id="fill-cf-pane-3" role="tabpanel" aria-labelledby="fill-cf-tab-3">CaseFusion — Tab 3 content</div>
+                      </div>
+
+                      <p class="text-muted small mb-2 mt-4">Hyperlize</p>
+                      <ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-hyperlize nav-fill mb-4" id="fill-hy" role="tablist">
+                        <li class="nav-item" role="presentation">
+                          <a data-cnds-tab-init class="nav-link active" id="fill-hy-tab-1" href="#fill-hy-pane-1" role="tab" aria-controls="fill-hy-pane-1" aria-selected="true">Link</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <a data-cnds-tab-init class="nav-link" id="fill-hy-tab-2" href="#fill-hy-pane-2" role="tab" aria-controls="fill-hy-pane-2" aria-selected="false">Very very very very long link</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <a data-cnds-tab-init class="nav-link disabled" id="fill-hy-tab-3" href="#fill-hy-pane-3" role="tab" aria-controls="fill-hy-pane-3" aria-selected="false" tabindex="-1">Another link</a>
+                        </li>
+                      </ul>
+                      <div class="tab-content mb-4" id="fill-hy-content">
+                        <div class="tab-pane fade show active" id="fill-hy-pane-1" role="tabpanel" aria-labelledby="fill-hy-tab-1">Hyperlize — Tab 1 content</div>
+                        <div class="tab-pane fade" id="fill-hy-pane-2" role="tabpanel" aria-labelledby="fill-hy-tab-2">Hyperlize — Tab 2 content</div>
+                        <div class="tab-pane fade" id="fill-hy-pane-3" role="tabpanel" aria-labelledby="fill-hy-tab-3">Hyperlize — Tab 3 content</div>
+                      </div>
+
+                      <p class="text-muted small mb-2 mt-4">ExpireOn</p>
+                      <ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-expireon nav-fill mb-4" id="fill-eo" role="tablist">
+                        <li class="nav-item" role="presentation">
+                          <a data-cnds-tab-init class="nav-link active" id="fill-eo-tab-1" href="#fill-eo-pane-1" role="tab" aria-controls="fill-eo-pane-1" aria-selected="true">Link</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <a data-cnds-tab-init class="nav-link" id="fill-eo-tab-2" href="#fill-eo-pane-2" role="tab" aria-controls="fill-eo-pane-2" aria-selected="false">Very very very very long link</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <a data-cnds-tab-init class="nav-link disabled" id="fill-eo-tab-3" href="#fill-eo-pane-3" role="tab" aria-controls="fill-eo-pane-3" aria-selected="false" tabindex="-1">Another link</a>
+                        </li>
+                      </ul>
+                      <div class="tab-content" id="fill-eo-content">
+                        <div class="tab-pane fade show active" id="fill-eo-pane-1" role="tabpanel" aria-labelledby="fill-eo-tab-1">ExpireOn — Tab 1 content</div>
+                        <div class="tab-pane fade" id="fill-eo-pane-2" role="tabpanel" aria-labelledby="fill-eo-tab-2">ExpireOn — Tab 2 content</div>
+                        <div class="tab-pane fade" id="fill-eo-pane-3" role="tabpanel" aria-labelledby="fill-eo-tab-3">ExpireOn — Tab 3 content</div>
+                      </div>
+                    </section>
+                    </div>
+                    <!--Section: Demo-->
+
+                    <!--Section: Code-->
+                    <section class="mt-4">
+                      <h5><span class="badge badge-code-html">HTML</span></h5>
+                      <!-- snippet -->
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-casefusion nav-fill mb-4" id="myFillTabs" role="tablist"&gt;
+    &lt;li class="nav-item" role="presentation"&gt;
+        &lt;a data-cnds-tab-init class="nav-link active" id="tab-1" href="#pane-1" role="tab" aria-controls="pane-1" aria-selected="true"&gt;Link&lt;/a&gt;
+    &lt;/li&gt;
+    &lt;li class="nav-item" role="presentation"&gt;
+        &lt;a data-cnds-tab-init class="nav-link" id="tab-2" href="#pane-2" role="tab" aria-controls="pane-2" aria-selected="false"&gt;Very very very very long link&lt;/a&gt;
+    &lt;/li&gt;
+    &lt;li class="nav-item" role="presentation"&gt;
+        &lt;a data-cnds-tab-init class="nav-link disabled" id="tab-3" href="#pane-3" role="tab" aria-controls="pane-3" aria-selected="false" tabindex="-1"&gt;Another link&lt;/a&gt;
+    &lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="tab-content" id="myFillTabsContent"&gt;
+    &lt;div class="tab-pane fade show active" id="pane-1" role="tabpanel" aria-labelledby="tab-1"&gt;Tab 1 content&lt;/div&gt;
+    &lt;div class="tab-pane fade" id="pane-2" role="tabpanel" aria-labelledby="tab-2"&gt;Tab 2 content&lt;/div&gt;
+    &lt;div class="tab-pane fade" id="pane-3" role="tabpanel" aria-labelledby="tab-3"&gt;Tab 3 content&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Hyperlize: replace nav-tabs-casefusion with nav-tabs-hyperlize --&gt;
+&lt;!-- ExpireOn:  replace nav-tabs-casefusion with nav-tabs-expireon  --&gt;</code></pre>
+                      </div>
+                      <!-- /.snippet -->
+                    </section>
+                    <!--Section: Code-->
+                  </section>
+                  <!--Subsection: Fill-->
+
+                  <!--Subsection: Justify-->
+                  <a id="subsection-justify" class="anchor"></a>
+                  <section>
+                    <!--Subsection title-->
+                    <h4 class="mt-5">Justify</h4>
+
+                    <!-- Subsection description -->
+                    <p>
+                      Add <code>.nav-justified</code> to give every tab an equal share of the container width. Unlike <code>.nav-fill</code>, all tabs are exactly the same size regardless of label length.
+                    </p>
+
+                    <!-- Angular: .nav-justified is a CSS-only modifier; no Angular-specific handling required.
+                         Example: <ul [class.nav-justified]="isJustified" class="nav nav-tabs nav-tabs-nimbus nav-tabs-casefusion">
+                         Apply conditionally if the layout mode is toggled at runtime. -->
+                    <!--Section: Demo-->
+                    <div class="border rounded-5">
+                    <section class="w-100 p-4">
+                      <p class="text-muted small mb-2">CaseFusion</p>
+                      <ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-casefusion nav-justified mb-4" id="just-cf" role="tablist">
+                        <li class="nav-item" role="presentation">
+                          <a data-cnds-tab-init class="nav-link active" id="just-cf-tab-1" href="#just-cf-pane-1" role="tab" aria-controls="just-cf-pane-1" aria-selected="true">Link</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <a data-cnds-tab-init class="nav-link" id="just-cf-tab-2" href="#just-cf-pane-2" role="tab" aria-controls="just-cf-pane-2" aria-selected="false">Very very very very long link</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <a data-cnds-tab-init class="nav-link disabled" id="just-cf-tab-3" href="#just-cf-pane-3" role="tab" aria-controls="just-cf-pane-3" aria-selected="false" tabindex="-1">Another link</a>
+                        </li>
+                      </ul>
+                      <div class="tab-content mb-4" id="just-cf-content">
+                        <div class="tab-pane fade show active" id="just-cf-pane-1" role="tabpanel" aria-labelledby="just-cf-tab-1">CaseFusion — Tab 1 content</div>
+                        <div class="tab-pane fade" id="just-cf-pane-2" role="tabpanel" aria-labelledby="just-cf-tab-2">CaseFusion — Tab 2 content</div>
+                        <div class="tab-pane fade" id="just-cf-pane-3" role="tabpanel" aria-labelledby="just-cf-tab-3">CaseFusion — Tab 3 content</div>
+                      </div>
+
+                      <p class="text-muted small mb-2 mt-4">Hyperlize</p>
+                      <ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-hyperlize nav-justified mb-4" id="just-hy" role="tablist">
+                        <li class="nav-item" role="presentation">
+                          <a data-cnds-tab-init class="nav-link active" id="just-hy-tab-1" href="#just-hy-pane-1" role="tab" aria-controls="just-hy-pane-1" aria-selected="true">Link</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <a data-cnds-tab-init class="nav-link" id="just-hy-tab-2" href="#just-hy-pane-2" role="tab" aria-controls="just-hy-pane-2" aria-selected="false">Very very very very long link</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <a data-cnds-tab-init class="nav-link disabled" id="just-hy-tab-3" href="#just-hy-pane-3" role="tab" aria-controls="just-hy-pane-3" aria-selected="false" tabindex="-1">Another link</a>
+                        </li>
+                      </ul>
+                      <div class="tab-content mb-4" id="just-hy-content">
+                        <div class="tab-pane fade show active" id="just-hy-pane-1" role="tabpanel" aria-labelledby="just-hy-tab-1">Hyperlize — Tab 1 content</div>
+                        <div class="tab-pane fade" id="just-hy-pane-2" role="tabpanel" aria-labelledby="just-hy-tab-2">Hyperlize — Tab 2 content</div>
+                        <div class="tab-pane fade" id="just-hy-pane-3" role="tabpanel" aria-labelledby="just-hy-tab-3">Hyperlize — Tab 3 content</div>
+                      </div>
+
+                      <p class="text-muted small mb-2 mt-4">ExpireOn</p>
+                      <ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-expireon nav-justified mb-4" id="just-eo" role="tablist">
+                        <li class="nav-item" role="presentation">
+                          <a data-cnds-tab-init class="nav-link active" id="just-eo-tab-1" href="#just-eo-pane-1" role="tab" aria-controls="just-eo-pane-1" aria-selected="true">Link</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <a data-cnds-tab-init class="nav-link" id="just-eo-tab-2" href="#just-eo-pane-2" role="tab" aria-controls="just-eo-pane-2" aria-selected="false">Very very very very long link</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <a data-cnds-tab-init class="nav-link disabled" id="just-eo-tab-3" href="#just-eo-pane-3" role="tab" aria-controls="just-eo-pane-3" aria-selected="false" tabindex="-1">Another link</a>
+                        </li>
+                      </ul>
+                      <div class="tab-content" id="just-eo-content">
+                        <div class="tab-pane fade show active" id="just-eo-pane-1" role="tabpanel" aria-labelledby="just-eo-tab-1">ExpireOn — Tab 1 content</div>
+                        <div class="tab-pane fade" id="just-eo-pane-2" role="tabpanel" aria-labelledby="just-eo-tab-2">ExpireOn — Tab 2 content</div>
+                        <div class="tab-pane fade" id="just-eo-pane-3" role="tabpanel" aria-labelledby="just-eo-tab-3">ExpireOn — Tab 3 content</div>
+                      </div>
+                    </section>
+                    </div>
+                    <!--Section: Demo-->
+
+                    <!--Section: Code-->
+                    <section class="mt-4">
+                      <h5><span class="badge badge-code-html">HTML</span></h5>
+                      <!-- snippet -->
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-casefusion nav-justified mb-4" id="myJustifiedTabs" role="tablist"&gt;
+    &lt;li class="nav-item" role="presentation"&gt;
+        &lt;a data-cnds-tab-init class="nav-link active" id="tab-1" href="#pane-1" role="tab" aria-controls="pane-1" aria-selected="true"&gt;Link&lt;/a&gt;
+    &lt;/li&gt;
+    &lt;li class="nav-item" role="presentation"&gt;
+        &lt;a data-cnds-tab-init class="nav-link" id="tab-2" href="#pane-2" role="tab" aria-controls="pane-2" aria-selected="false"&gt;Very very very very long link&lt;/a&gt;
+    &lt;/li&gt;
+    &lt;li class="nav-item" role="presentation"&gt;
+        &lt;a data-cnds-tab-init class="nav-link disabled" id="tab-3" href="#pane-3" role="tab" aria-controls="pane-3" aria-selected="false" tabindex="-1"&gt;Another link&lt;/a&gt;
+    &lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="tab-content" id="myJustifiedTabsContent"&gt;
+    &lt;div class="tab-pane fade show active" id="pane-1" role="tabpanel" aria-labelledby="tab-1"&gt;Tab 1 content&lt;/div&gt;
+    &lt;div class="tab-pane fade" id="pane-2" role="tabpanel" aria-labelledby="tab-2"&gt;Tab 2 content&lt;/div&gt;
+    &lt;div class="tab-pane fade" id="pane-3" role="tabpanel" aria-labelledby="tab-3"&gt;Tab 3 content&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Hyperlize: replace nav-tabs-casefusion with nav-tabs-hyperlize --&gt;
+&lt;!-- ExpireOn:  replace nav-tabs-casefusion with nav-tabs-expireon  --&gt;</code></pre>
+                      </div>
+                      <!-- /.snippet -->
+                    </section>
+                    <!--Section: Code-->
+                  </section>
+                  <!--/Subsection: Justify-->
+                </section>
+                <!--/Section: Fill and justify-->
+
+                <hr class="my-5" />
+
+                <!--Section: Vertical-->
+                <a id="section-vertical" class="anchor"></a>
+                <section>
+                  <!--Section title-->
+                  <h3 class="mb-4">Vertical</h3>
+
+                  <!-- Section description -->
+                  <p>
+                    Add <code>.flex-column</code> to orient the tab bar vertically along the left edge of the content area. The active indicator shifts from a bottom border to a <code>3px</code> left border. Each tab row is <code>39px</code> tall. Use <code>d-flex</code> to place the nav and tab content side by side.
+                  </p>
+
+                  <!-- Angular: .flex-column is a CSS-only modifier; apply conditionally with [class.flex-column]="isVertical".
+                       Example: <ul [class.flex-column]="isVertical" [attr.aria-orientation]="isVertical ? 'vertical' : 'horizontal'" class="nav nav-tabs nav-tabs-nimbus nav-tabs-casefusion">
+                       Place the nav and .tab-content inside a d-flex wrapper — no Angular layout management needed. -->
+                  <!--Section: Demo-->
+                  <div class="border rounded-5">
+                  <section class="w-100 p-4">
+                    <div class="row">
+                      <div class="col-auto">
+                        <p class="text-muted small mb-2">CaseFusion</p>
+                        <div class="d-flex">
+                          <ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-casefusion flex-column" id="vert-cf" role="tablist" aria-orientation="vertical">
+                            <li class="nav-item" role="presentation">
+                              <a data-cnds-tab-init class="nav-link active" id="vert-cf-tab-1" href="#vert-cf-pane-1" role="tab" aria-controls="vert-cf-pane-1" aria-selected="true">Home</a>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                              <a data-cnds-tab-init class="nav-link" id="vert-cf-tab-2" href="#vert-cf-pane-2" role="tab" aria-controls="vert-cf-pane-2" aria-selected="false">Profile</a>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                              <a data-cnds-tab-init class="nav-link disabled" id="vert-cf-tab-3" href="#vert-cf-pane-3" role="tab" aria-controls="vert-cf-pane-3" aria-selected="false" tabindex="-1">Settings</a>
+                            </li>
+                          </ul>
+                          <div class="tab-content ps-3" id="vert-cf-content">
+                            <div class="tab-pane fade show active" id="vert-cf-pane-1" role="tabpanel" aria-labelledby="vert-cf-tab-1">CaseFusion — Home</div>
+                            <div class="tab-pane fade" id="vert-cf-pane-2" role="tabpanel" aria-labelledby="vert-cf-tab-2">CaseFusion — Profile</div>
+                            <div class="tab-pane fade" id="vert-cf-pane-3" role="tabpanel" aria-labelledby="vert-cf-tab-3">CaseFusion — Settings</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="col-auto">
+                        <p class="text-muted small mb-2">Hyperlize</p>
+                        <div class="d-flex">
+                          <ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-hyperlize flex-column" id="vert-hy" role="tablist" aria-orientation="vertical">
+                            <li class="nav-item" role="presentation">
+                              <a data-cnds-tab-init class="nav-link active" id="vert-hy-tab-1" href="#vert-hy-pane-1" role="tab" aria-controls="vert-hy-pane-1" aria-selected="true">Home</a>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                              <a data-cnds-tab-init class="nav-link" id="vert-hy-tab-2" href="#vert-hy-pane-2" role="tab" aria-controls="vert-hy-pane-2" aria-selected="false">Profile</a>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                              <a data-cnds-tab-init class="nav-link disabled" id="vert-hy-tab-3" href="#vert-hy-pane-3" role="tab" aria-controls="vert-hy-pane-3" aria-selected="false" tabindex="-1">Settings</a>
+                            </li>
+                          </ul>
+                          <div class="tab-content ps-3" id="vert-hy-content">
+                            <div class="tab-pane fade show active" id="vert-hy-pane-1" role="tabpanel" aria-labelledby="vert-hy-tab-1">Hyperlize — Home</div>
+                            <div class="tab-pane fade" id="vert-hy-pane-2" role="tabpanel" aria-labelledby="vert-hy-tab-2">Hyperlize — Profile</div>
+                            <div class="tab-pane fade" id="vert-hy-pane-3" role="tabpanel" aria-labelledby="vert-hy-tab-3">Hyperlize — Settings</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="col-auto">
+                        <p class="text-muted small mb-2">ExpireOn</p>
+                        <div class="d-flex">
+                          <ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-expireon flex-column" id="vert-eo" role="tablist" aria-orientation="vertical">
+                            <li class="nav-item" role="presentation">
+                              <a data-cnds-tab-init class="nav-link active" id="vert-eo-tab-1" href="#vert-eo-pane-1" role="tab" aria-controls="vert-eo-pane-1" aria-selected="true">Home</a>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                              <a data-cnds-tab-init class="nav-link" id="vert-eo-tab-2" href="#vert-eo-pane-2" role="tab" aria-controls="vert-eo-pane-2" aria-selected="false">Profile</a>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                              <a data-cnds-tab-init class="nav-link disabled" id="vert-eo-tab-3" href="#vert-eo-pane-3" role="tab" aria-controls="vert-eo-pane-3" aria-selected="false" tabindex="-1">Settings</a>
+                            </li>
+                          </ul>
+                          <div class="tab-content ps-3" id="vert-eo-content">
+                            <div class="tab-pane fade show active" id="vert-eo-pane-1" role="tabpanel" aria-labelledby="vert-eo-tab-1">ExpireOn — Home</div>
+                            <div class="tab-pane fade" id="vert-eo-pane-2" role="tabpanel" aria-labelledby="vert-eo-tab-2">ExpireOn — Profile</div>
+                            <div class="tab-pane fade" id="vert-eo-pane-3" role="tabpanel" aria-labelledby="vert-eo-tab-3">ExpireOn — Settings</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                  </div>
+                  <!--Section: Demo-->
+
+                  <!--Section: Code-->
+                  <section class="mt-4">
+                    <h5><span class="badge badge-code-html">HTML</span></h5>
+                    <!-- snippet -->
+                    <div class="p-0">
+                      <pre class="line-numbers m-0"><code class="language-html">&lt;div class="d-flex"&gt;
+    &lt;ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-casefusion flex-column" id="myVerticalTabs" role="tablist" aria-orientation="vertical"&gt;
+        &lt;li class="nav-item" role="presentation"&gt;
+            &lt;a data-cnds-tab-init class="nav-link active" id="v-tab-1" href="#v-pane-1" role="tab" aria-controls="v-pane-1" aria-selected="true"&gt;Home&lt;/a&gt;
+        &lt;/li&gt;
+        &lt;li class="nav-item" role="presentation"&gt;
+            &lt;a data-cnds-tab-init class="nav-link" id="v-tab-2" href="#v-pane-2" role="tab" aria-controls="v-pane-2" aria-selected="false"&gt;Profile&lt;/a&gt;
+        &lt;/li&gt;
+        &lt;li class="nav-item" role="presentation"&gt;
+            &lt;a data-cnds-tab-init class="nav-link disabled" id="v-tab-3" href="#v-pane-3" role="tab" aria-controls="v-pane-3" aria-selected="false" tabindex="-1"&gt;Settings&lt;/a&gt;
+        &lt;/li&gt;
+    &lt;/ul&gt;
+    &lt;div class="tab-content ps-3"&gt;
+        &lt;div class="tab-pane fade show active" id="v-pane-1" role="tabpanel" aria-labelledby="v-tab-1"&gt;Home content&lt;/div&gt;
+        &lt;div class="tab-pane fade" id="v-pane-2" role="tabpanel" aria-labelledby="v-tab-2"&gt;Profile content&lt;/div&gt;
+        &lt;div class="tab-pane fade" id="v-pane-3" role="tabpanel" aria-labelledby="v-tab-3"&gt;Settings content&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Hyperlize: replace nav-tabs-casefusion with nav-tabs-hyperlize --&gt;
+&lt;!-- ExpireOn:  replace nav-tabs-casefusion with nav-tabs-expireon  --&gt;</code></pre>
+                    </div>
+                    <!-- /.snippet -->
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--/Section: Vertical-->
+
+                <hr class="my-5" />
+
+                <section id="section-tabs-with-icons">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Tabs with icons</h3>
+
+                  <!--Description-->
+                  <p>
+                    Add an MDI or Font Awesome icon inside each tab link alongside the label. Icons are sized at <code>18px</code> and separated from the label by an <code>8px</code> gap — no extra margin classes needed.
+                  </p>
+
+                  <!-- Angular: Icon markup is static and unchanged in Angular templates; bind data-driven icon names via [ngClass].
+                       Example: <a ...><i [ngClass]="'mdi mdi-' + tab.icon"></i>{{ tab.label }}</a>
+                       The 8px gap between icon and label is handled by CSS flex layout — no wrapper element needed. -->
+                  <!--Section: Demo-->
+                  <div class="border rounded-5">
+                  <section class="w-100 p-4">
+                    <p class="text-muted small mb-2">CaseFusion</p>
+                    <ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-casefusion mb-4" id="icons-cf" role="tablist">
+                      <li class="nav-item" role="presentation">
+                        <a data-cnds-tab-init class="nav-link active" id="icons-cf-tab-1" href="#icons-cf-pane-1" role="tab" aria-controls="icons-cf-pane-1" aria-selected="true"><i class="mdi mdi-chart-pie" aria-hidden="true"></i>Sales</a>
+                      </li>
+                      <li class="nav-item" role="presentation">
+                        <a data-cnds-tab-init class="nav-link" id="icons-cf-tab-2" href="#icons-cf-pane-2" role="tab" aria-controls="icons-cf-pane-2" aria-selected="false"><i class="mdi mdi-chart-line" aria-hidden="true"></i>Subscriptions</a>
+                      </li>
+                      <li class="nav-item" role="presentation">
+                        <a data-cnds-tab-init class="nav-link disabled" id="icons-cf-tab-3" href="#icons-cf-pane-3" role="tab" aria-controls="icons-cf-pane-3" aria-selected="false" tabindex="-1"><i class="mdi mdi-cogs" aria-hidden="true"></i>Settings</a>
+                      </li>
+                    </ul>
+                    <div class="tab-content mb-4" id="icons-cf-content">
+                      <div class="tab-pane fade show active" id="icons-cf-pane-1" role="tabpanel" aria-labelledby="icons-cf-tab-1">CaseFusion — Sales content</div>
+                      <div class="tab-pane fade" id="icons-cf-pane-2" role="tabpanel" aria-labelledby="icons-cf-tab-2">CaseFusion — Subscriptions content</div>
+                      <div class="tab-pane fade" id="icons-cf-pane-3" role="tabpanel" aria-labelledby="icons-cf-tab-3">CaseFusion — Settings content</div>
+                    </div>
+
+                    <p class="text-muted small mb-2 mt-4">Hyperlize</p>
+                    <ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-hyperlize mb-4" id="icons-hy" role="tablist">
+                      <li class="nav-item" role="presentation">
+                        <a data-cnds-tab-init class="nav-link active" id="icons-hy-tab-1" href="#icons-hy-pane-1" role="tab" aria-controls="icons-hy-pane-1" aria-selected="true"><i class="mdi mdi-chart-pie" aria-hidden="true"></i>Sales</a>
+                      </li>
+                      <li class="nav-item" role="presentation">
+                        <a data-cnds-tab-init class="nav-link" id="icons-hy-tab-2" href="#icons-hy-pane-2" role="tab" aria-controls="icons-hy-pane-2" aria-selected="false"><i class="mdi mdi-chart-line" aria-hidden="true"></i>Subscriptions</a>
+                      </li>
+                      <li class="nav-item" role="presentation">
+                        <a data-cnds-tab-init class="nav-link disabled" id="icons-hy-tab-3" href="#icons-hy-pane-3" role="tab" aria-controls="icons-hy-pane-3" aria-selected="false" tabindex="-1"><i class="mdi mdi-cogs" aria-hidden="true"></i>Settings</a>
+                      </li>
+                    </ul>
+                    <div class="tab-content mb-4" id="icons-hy-content">
+                      <div class="tab-pane fade show active" id="icons-hy-pane-1" role="tabpanel" aria-labelledby="icons-hy-tab-1">Hyperlize — Sales content</div>
+                      <div class="tab-pane fade" id="icons-hy-pane-2" role="tabpanel" aria-labelledby="icons-hy-tab-2">Hyperlize — Subscriptions content</div>
+                      <div class="tab-pane fade" id="icons-hy-pane-3" role="tabpanel" aria-labelledby="icons-hy-tab-3">Hyperlize — Settings content</div>
+                    </div>
+
+                    <p class="text-muted small mb-2 mt-4">ExpireOn</p>
+                    <ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-expireon mb-4" id="icons-eo" role="tablist">
+                      <li class="nav-item" role="presentation">
+                        <a data-cnds-tab-init class="nav-link active" id="icons-eo-tab-1" href="#icons-eo-pane-1" role="tab" aria-controls="icons-eo-pane-1" aria-selected="true"><i class="mdi mdi-chart-pie" aria-hidden="true"></i>Sales</a>
+                      </li>
+                      <li class="nav-item" role="presentation">
+                        <a data-cnds-tab-init class="nav-link" id="icons-eo-tab-2" href="#icons-eo-pane-2" role="tab" aria-controls="icons-eo-pane-2" aria-selected="false"><i class="mdi mdi-chart-line" aria-hidden="true"></i>Subscriptions</a>
+                      </li>
+                      <li class="nav-item" role="presentation">
+                        <a data-cnds-tab-init class="nav-link disabled" id="icons-eo-tab-3" href="#icons-eo-pane-3" role="tab" aria-controls="icons-eo-pane-3" aria-selected="false" tabindex="-1"><i class="mdi mdi-cogs" aria-hidden="true"></i>Settings</a>
+                      </li>
+                    </ul>
+                    <div class="tab-content" id="icons-eo-content">
+                      <div class="tab-pane fade show active" id="icons-eo-pane-1" role="tabpanel" aria-labelledby="icons-eo-tab-1">ExpireOn — Sales content</div>
+                      <div class="tab-pane fade" id="icons-eo-pane-2" role="tabpanel" aria-labelledby="icons-eo-tab-2">ExpireOn — Subscriptions content</div>
+                      <div class="tab-pane fade" id="icons-eo-pane-3" role="tabpanel" aria-labelledby="icons-eo-tab-3">ExpireOn — Settings content</div>
+                    </div>
+                  </section>
+                  </div>
+                  <!--Section: Demo-->
+
+                  <!--Section: Code-->
+                  <section class="mt-4">
+                    <!-- prettier-ignore -->
+                    <h5><span class="badge badge-code-html">HTML</span></h5>
+                    <!-- snippet -->
+                    <div class="p-0">
+                      <pre class="line-numbers m-0"><code class="language-html">&lt;ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-casefusion mb-4" id="myIconTabs" role="tablist"&gt;
+    &lt;li class="nav-item" role="presentation"&gt;
+        &lt;a data-cnds-tab-init class="nav-link active" id="icon-tab-1" href="#icon-pane-1" role="tab" aria-controls="icon-pane-1" aria-selected="true"&gt;&lt;i class="mdi mdi-chart-pie"&gt;&lt;/i&gt;Sales&lt;/a&gt;
+    &lt;/li&gt;
+    &lt;li class="nav-item" role="presentation"&gt;
+        &lt;a data-cnds-tab-init class="nav-link" id="icon-tab-2" href="#icon-pane-2" role="tab" aria-controls="icon-pane-2" aria-selected="false"&gt;&lt;i class="mdi mdi-chart-line"&gt;&lt;/i&gt;Subscriptions&lt;/a&gt;
+    &lt;/li&gt;
+    &lt;li class="nav-item" role="presentation"&gt;
+        &lt;a data-cnds-tab-init class="nav-link disabled" id="icon-tab-3" href="#icon-pane-3" role="tab" aria-controls="icon-pane-3" aria-selected="false" tabindex="-1"&gt;&lt;i class="mdi mdi-cogs"&gt;&lt;/i&gt;Settings&lt;/a&gt;
+    &lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="tab-content" id="myIconTabsContent"&gt;
+    &lt;div class="tab-pane fade show active" id="icon-pane-1" role="tabpanel" aria-labelledby="icon-tab-1"&gt;Sales content&lt;/div&gt;
+    &lt;div class="tab-pane fade" id="icon-pane-2" role="tabpanel" aria-labelledby="icon-tab-2"&gt;Subscriptions content&lt;/div&gt;
+    &lt;div class="tab-pane fade" id="icon-pane-3" role="tabpanel" aria-labelledby="icon-tab-3"&gt;Settings content&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Hyperlize: replace nav-tabs-casefusion with nav-tabs-hyperlize --&gt;
+&lt;!-- ExpireOn:  replace nav-tabs-casefusion with nav-tabs-expireon  --&gt;</code></pre>
+                    </div>
+                    <!-- /.snippet -->
+                  </section>
+                  <!--Section: Code-->
+                </section>
+
+                <hr class="my-5" />
+
+                <!--Section: Buttons-->
+                <a id="section-buttons" class="anchor"></a>
+                <section>
+                  <!--Section title-->
+                  <h3 class="mb-4">Tabs with buttons</h3>
+
+                  <p>
+                    Use <code>&lt;button&gt;</code> elements instead of <code>&lt;a&gt;</code> links when tabs trigger in-page content changes rather than navigating to a URL. Connect each button to its panel using <code>data-cnds-target</code>. Include <code>role="tablist"</code>, <code>role="tab"</code>, <code>role="tabpanel"</code>, and <code>aria-</code> attributes for full accessibility per <a href="https://www.w3.org/TR/wai-aria-practices/#tabpanel" rel="nofollow" target="_blank">WAI-ARIA Authoring Practices</a>.
+                  </p>
+
+                  <!-- Angular: <button> is preferred over <a> for in-page tab actions; replace data-cnds-target with (click)="activeTab = tab.id".
+                       Example: <button type="button" [class.active]="activeTab === tab.id" [disabled]="tab.disabled" (click)="activeTab = tab.id">{{ tab.label }}</button>
+                       Use native [disabled] instead of .disabled class — the browser handles pointer-events and focus automatically. -->
+                  <!--Section: Demo-->
+                  <div class="border rounded-5">
+                  <section class="w-100 p-4">
+                    <p class="text-muted small mb-2">CaseFusion</p>
+                    <ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-casefusion mb-4" id="btns-cf" role="tablist">
+                      <li class="nav-item" role="presentation">
+                        <button data-cnds-tab-init class="nav-link active" id="btns-cf-tab-1" data-cnds-target="#btns-cf-pane-1" type="button" role="tab" aria-controls="btns-cf-pane-1" aria-selected="true">Home</button>
+                      </li>
+                      <li class="nav-item" role="presentation">
+                        <button data-cnds-tab-init class="nav-link" id="btns-cf-tab-2" data-cnds-target="#btns-cf-pane-2" type="button" role="tab" aria-controls="btns-cf-pane-2" aria-selected="false">Profile</button>
+                      </li>
+                      <li class="nav-item" role="presentation">
+                        <button data-cnds-tab-init class="nav-link disabled" id="btns-cf-tab-3" data-cnds-target="#btns-cf-pane-3" type="button" role="tab" aria-controls="btns-cf-pane-3" aria-selected="false" tabindex="-1">Contact</button>
+                      </li>
+                    </ul>
+                    <div class="tab-content mb-4" id="btns-cf-content">
+                      <div class="tab-pane fade show active" id="btns-cf-pane-1" role="tabpanel" aria-labelledby="btns-cf-tab-1">CaseFusion — Home content</div>
+                      <div class="tab-pane fade" id="btns-cf-pane-2" role="tabpanel" aria-labelledby="btns-cf-tab-2">CaseFusion — Profile content</div>
+                      <div class="tab-pane fade" id="btns-cf-pane-3" role="tabpanel" aria-labelledby="btns-cf-tab-3">CaseFusion — Contact content</div>
+                    </div>
+
+                    <p class="text-muted small mb-2 mt-4">Hyperlize</p>
+                    <ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-hyperlize mb-4" id="btns-hy" role="tablist">
+                      <li class="nav-item" role="presentation">
+                        <button data-cnds-tab-init class="nav-link active" id="btns-hy-tab-1" data-cnds-target="#btns-hy-pane-1" type="button" role="tab" aria-controls="btns-hy-pane-1" aria-selected="true">Home</button>
+                      </li>
+                      <li class="nav-item" role="presentation">
+                        <button data-cnds-tab-init class="nav-link" id="btns-hy-tab-2" data-cnds-target="#btns-hy-pane-2" type="button" role="tab" aria-controls="btns-hy-pane-2" aria-selected="false">Profile</button>
+                      </li>
+                      <li class="nav-item" role="presentation">
+                        <button data-cnds-tab-init class="nav-link disabled" id="btns-hy-tab-3" data-cnds-target="#btns-hy-pane-3" type="button" role="tab" aria-controls="btns-hy-pane-3" aria-selected="false" tabindex="-1">Contact</button>
+                      </li>
+                    </ul>
+                    <div class="tab-content mb-4" id="btns-hy-content">
+                      <div class="tab-pane fade show active" id="btns-hy-pane-1" role="tabpanel" aria-labelledby="btns-hy-tab-1">Hyperlize — Home content</div>
+                      <div class="tab-pane fade" id="btns-hy-pane-2" role="tabpanel" aria-labelledby="btns-hy-tab-2">Hyperlize — Profile content</div>
+                      <div class="tab-pane fade" id="btns-hy-pane-3" role="tabpanel" aria-labelledby="btns-hy-tab-3">Hyperlize — Contact content</div>
+                    </div>
+
+                    <p class="text-muted small mb-2 mt-4">ExpireOn</p>
+                    <ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-expireon mb-4" id="btns-eo" role="tablist">
+                      <li class="nav-item" role="presentation">
+                        <button data-cnds-tab-init class="nav-link active" id="btns-eo-tab-1" data-cnds-target="#btns-eo-pane-1" type="button" role="tab" aria-controls="btns-eo-pane-1" aria-selected="true">Home</button>
+                      </li>
+                      <li class="nav-item" role="presentation">
+                        <button data-cnds-tab-init class="nav-link" id="btns-eo-tab-2" data-cnds-target="#btns-eo-pane-2" type="button" role="tab" aria-controls="btns-eo-pane-2" aria-selected="false">Profile</button>
+                      </li>
+                      <li class="nav-item" role="presentation">
+                        <button data-cnds-tab-init class="nav-link disabled" id="btns-eo-tab-3" data-cnds-target="#btns-eo-pane-3" type="button" role="tab" aria-controls="btns-eo-pane-3" aria-selected="false" tabindex="-1">Contact</button>
+                      </li>
+                    </ul>
+                    <div class="tab-content" id="btns-eo-content">
+                      <div class="tab-pane fade show active" id="btns-eo-pane-1" role="tabpanel" aria-labelledby="btns-eo-tab-1">ExpireOn — Home content</div>
+                      <div class="tab-pane fade" id="btns-eo-pane-2" role="tabpanel" aria-labelledby="btns-eo-tab-2">ExpireOn — Profile content</div>
+                      <div class="tab-pane fade" id="btns-eo-pane-3" role="tabpanel" aria-labelledby="btns-eo-tab-3">ExpireOn — Contact content</div>
+                    </div>
+                  </section>
+                  </div>
+                  <!--Section: Demo-->
+
+                  <!--Section: Code-->
+                  <section class="mt-4">
+                    <h5><span class="badge badge-code-html">HTML</span></h5>
+                    <!-- snippet -->
+                    <div class="p-0">
+                      <pre class="line-numbers m-0"><code class="language-html">&lt;ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-casefusion mb-4" id="myBtnTabs" role="tablist"&gt;
+    &lt;li class="nav-item" role="presentation"&gt;
+        &lt;button data-cnds-tab-init class="nav-link active" id="btn-tab-1" data-cnds-target="#btn-pane-1" type="button" role="tab" aria-controls="btn-pane-1" aria-selected="true"&gt;Home&lt;/button&gt;
+    &lt;/li&gt;
+    &lt;li class="nav-item" role="presentation"&gt;
+        &lt;button data-cnds-tab-init class="nav-link" id="btn-tab-2" data-cnds-target="#btn-pane-2" type="button" role="tab" aria-controls="btn-pane-2" aria-selected="false"&gt;Profile&lt;/button&gt;
+    &lt;/li&gt;
+    &lt;li class="nav-item" role="presentation"&gt;
+        &lt;button data-cnds-tab-init class="nav-link disabled" id="btn-tab-3" data-cnds-target="#btn-pane-3" type="button" role="tab" aria-controls="btn-pane-3" aria-selected="false" tabindex="-1"&gt;Contact&lt;/button&gt;
+    &lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="tab-content" id="myBtnTabsContent"&gt;
+    &lt;div class="tab-pane fade show active" id="btn-pane-1" role="tabpanel" aria-labelledby="btn-tab-1"&gt;Home content&lt;/div&gt;
+    &lt;div class="tab-pane fade" id="btn-pane-2" role="tabpanel" aria-labelledby="btn-tab-2"&gt;Profile content&lt;/div&gt;
+    &lt;div class="tab-pane fade" id="btn-pane-3" role="tabpanel" aria-labelledby="btn-tab-3"&gt;Contact content&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Hyperlize: replace nav-tabs-casefusion with nav-tabs-hyperlize --&gt;
+&lt;!-- ExpireOn:  replace nav-tabs-casefusion with nav-tabs-expireon  --&gt;</code></pre>
+                    </div>
+                    <!-- /.snippet -->
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--/Section: Buttons-->
+
+                <hr class="my-5" />
+
+                <!--Section: Overflow menu-->
+                <a id="section-overflow-menu" class="anchor"></a>
+                <section>
+                  <!-- Section title -->
+                  <h3 class="mb-4">Overflow menu</h3>
+
+                  <!-- Section description -->
+                  <p>
+                    When a horizontal tab bar contains more tabs than its container can display, excess tabs automatically collapse into a three-dot menu button at the trailing edge of the bar. This behavior is applied automatically to every horizontal <code>.nav-tabs-nimbus</code> tab bar — no extra attributes or markup are needed. The script measures available width on load and on every container resize, hides tabs that do not fit, and lists them in a dropdown. The three-dot button gains the <code>.active</code> class when the currently selected tab is among the hidden items.
+                  </p>
+                  <p class="note note-info">
+                    <strong>Tip:</strong> Drag the lower-right resize handle of the demo container to make it narrower and watch the overflow behavior activate.
+                  </p>
+
+                  <!-- Angular: Compute visibleTabs / overflowTabs from a ResizeObserver in your component and drive both
+                       lists with *ngFor. Bind [class.active] on the more button when overflowTabs.some(t => t.isActive).
+                       Example: <ul [class.active]="hasActiveInOverflow" class="nav-tabs-more-btn"> -->
+                  <!--Section: Demo-->
+                  <div class="border rounded-5">
+                  <section class="w-100 p-4">
+                    <p class="text-muted small mb-2">CaseFusion — drag the lower-right corner to resize</p>
+
+                    <!-- Resizable container — drag the lower-right handle to trigger overflow -->
+                    <div style="resize: horizontal; overflow: auto; max-width: 100%; min-width: 220px; width: 460px; padding-bottom: 4px;">
+                      <ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-casefusion mb-0" id="ov-cf" role="tablist">
+                        <li class="nav-item" role="presentation">
+                          <a data-cnds-tab-init class="nav-link active" id="ov-cf-tab-1" href="#ov-cf-pane-1" role="tab" aria-controls="ov-cf-pane-1" aria-selected="true">Dashboard</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <a data-cnds-tab-init class="nav-link" id="ov-cf-tab-2" href="#ov-cf-pane-2" role="tab" aria-controls="ov-cf-pane-2" aria-selected="false">Analytics</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <a data-cnds-tab-init class="nav-link" id="ov-cf-tab-3" href="#ov-cf-pane-3" role="tab" aria-controls="ov-cf-pane-3" aria-selected="false">Reports</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <a data-cnds-tab-init class="nav-link" id="ov-cf-tab-4" href="#ov-cf-pane-4" role="tab" aria-controls="ov-cf-pane-4" aria-selected="false">Users</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <a data-cnds-tab-init class="nav-link" id="ov-cf-tab-5" href="#ov-cf-pane-5" role="tab" aria-controls="ov-cf-pane-5" aria-selected="false">Settings</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <a data-cnds-tab-init class="nav-link" id="ov-cf-tab-6" href="#ov-cf-pane-6" role="tab" aria-controls="ov-cf-pane-6" aria-selected="false">Audit log</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <a data-cnds-tab-init class="nav-link" id="ov-cf-tab-7" href="#ov-cf-pane-7" role="tab" aria-controls="ov-cf-pane-7" aria-selected="false">Integrations</a>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <div class="tab-content mt-3" id="ov-cf-content">
+                      <div class="tab-pane fade show active" id="ov-cf-pane-1" role="tabpanel" aria-labelledby="ov-cf-tab-1">Dashboard content</div>
+                      <div class="tab-pane fade" id="ov-cf-pane-2" role="tabpanel" aria-labelledby="ov-cf-tab-2">Analytics content</div>
+                      <div class="tab-pane fade" id="ov-cf-pane-3" role="tabpanel" aria-labelledby="ov-cf-tab-3">Reports content</div>
+                      <div class="tab-pane fade" id="ov-cf-pane-4" role="tabpanel" aria-labelledby="ov-cf-tab-4">Users content</div>
+                      <div class="tab-pane fade" id="ov-cf-pane-5" role="tabpanel" aria-labelledby="ov-cf-tab-5">Settings content</div>
+                      <div class="tab-pane fade" id="ov-cf-pane-6" role="tabpanel" aria-labelledby="ov-cf-tab-6">Audit log content</div>
+                      <div class="tab-pane fade" id="ov-cf-pane-7" role="tabpanel" aria-labelledby="ov-cf-tab-7">Integrations content</div>
+                    </div>
+                  </section>
+                  </div>
+                  <!--/Section: Demo-->
+
+                  <!--Section: Code-->
+                  <section class="mt-4">
+                    <h5><span class="badge badge-code-html">HTML</span></h5>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0"><code class="language-html">&lt;!-- Standard tab markup — no extra attributes needed.
+     The overflow script auto-initializes all horizontal .nav-tabs-nimbus bars. --&gt;
+&lt;ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-casefusion" id="myTabs" role="tablist"&gt;
+    &lt;li class="nav-item" role="presentation"&gt;
+        &lt;a data-cnds-tab-init class="nav-link active" id="tab-1" href="#pane-1"
+           role="tab" aria-controls="pane-1" aria-selected="true"&gt;Dashboard&lt;/a&gt;
+    &lt;/li&gt;
+    &lt;li class="nav-item" role="presentation"&gt;
+        &lt;a data-cnds-tab-init class="nav-link" id="tab-2" href="#pane-2"
+           role="tab" aria-controls="pane-2" aria-selected="false"&gt;Analytics&lt;/a&gt;
+    &lt;/li&gt;
+    &lt;!-- ... add as many tabs as needed; the script handles the rest ... --&gt;
+&lt;/ul&gt;
+&lt;div class="tab-content"&gt;
+    &lt;div class="tab-pane fade show active" id="pane-1" role="tabpanel" aria-labelledby="tab-1"&gt;...&lt;/div&gt;
+    &lt;div class="tab-pane fade" id="pane-2" role="tabpanel" aria-labelledby="tab-2"&gt;...&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Hyperlize: replace nav-tabs-casefusion with nav-tabs-hyperlize --&gt;
+&lt;!-- ExpireOn:  replace nav-tabs-casefusion with nav-tabs-expireon  --&gt;</code></pre>
+                    </div>
+                  </section>
+
+                  <section>
+                    <h5><span class="badge badge-code-css">CSS</span></h5>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0"><code class="language-css">.nav-tabs-overflow { flex-wrap: nowrap; overflow: hidden; }
+.nav-tabs-more-item { flex-shrink: 0; display: flex; align-self: stretch; }
+.nav-tabs-more-btn { flex: 1; display: flex; align-items: center; justify-content: center; width: 40px; }
+
+/* Icons in .nav-tabs-nimbus .nav-link are forced to 18px (vs 14px text), making the
+   more button 4px taller than text-only tabs. Reduce T/B padding to compensate.
+   Also clears the 97px min-width. Needs (0,3,0) specificity to beat Nimbus. */
+.nav-tabs-nimbus .nav-link.nav-tabs-more-btn { min-width: 0; padding-top: 12px; padding-bottom: 11px; }
+
+/* Fixed position escapes the nav's overflow:hidden clip.
+   The :not([hidden]) rule restores display — dropdown-menu's display:none
+   would otherwise keep the panel hidden even when the hidden attribute is absent. */
+/* Remap dropdown token variables to the tab bar's own theme-aware tokens so the
+   overflow menu inherits the same background, border, and text as the tab bar. */
+.nav-tabs-more-dropdown {
+    --cnds-dropdown-bg:               var(--nimbus-tab-bg);
+    --cnds-dropdown-border-color:     var(--nimbus-tab-border);
+    --cnds-dropdown-link-color:       var(--nimbus-tab-text);
+    --cnds-dropdown-link-hover-color: var(--nimbus-tab-text);
+    --cnds-dropdown-link-hover-bg:    var(--nimbus-tab-hover-bg);
+    position: fixed !important;
+    /* 9999 — stacking contexts from isolation:isolate (tabs.css:47) and
+       will-change:width (app.css:319) cap comparisons within those contexts;
+       9999 ensures the dropdown wins against all of them */
+    z-index: 9999 !important;
+    min-width: 0 !important;
+    width: max-content;
+}
+.nav-tabs-more-dropdown:not([hidden]) { display: block !important; }</code></pre>
+                    </div>
+                  </section>
+
+                  <section>
+                    <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0"><code class="language-js">(function () {
+    'use strict';
+
+    function initTabOverflow(nav) {
+        // Skip vertical tabs
+        if (nav.classList.contains('flex-column')) return;
+
+        // Detect product theme so the dropdown inherits the matching Nimbus product class
+        var productClass =
+            nav.classList.contains('nav-tabs-casefusion') ? 'dropdown-menu-casefusion' :
+            nav.classList.contains('nav-tabs-hyperlize')  ? 'dropdown-menu-hyperlize'  :
+            nav.classList.contains('nav-tabs-expireon')   ? 'dropdown-menu-expireon'   : '';
+
+        // Inject the more-item button (always last in the list)
+        var moreItem = document.createElement('li');
+        moreItem.className = 'nav-item nav-tabs-more-item';
+        moreItem.setAttribute('role', 'presentation');
+        moreItem.hidden = true;
+        moreItem.innerHTML =
+            '&lt;button type="button" class="nav-link nav-tabs-more-btn"' +
+            ' aria-haspopup="true" aria-expanded="false" aria-label="More tabs"&gt;' +
+            '&lt;i class="mdi mdi-dots-vertical mdi-18px" aria-hidden="true"&gt;&lt;/i&gt;&lt;/button&gt;' +
+            '&lt;ul class="nav-tabs-more-dropdown dropdown-menu dropdown-menu-product ' + productClass + '" role="menu" hidden&gt;&lt;/ul&gt;';
+        nav.appendChild(moreItem);
+
+        nav.classList.add('nav-tabs-overflow');
+
+        var items    = Array.from(nav.querySelectorAll(':scope &gt; .nav-item:not(.nav-tabs-more-item)'));
+        var moreBtn  = moreItem.querySelector('.nav-tabs-more-btn');
+        var dropdown = moreItem.querySelector('.nav-tabs-more-dropdown');
+        var open     = false;
+
+        function close() {
+            dropdown.hidden = true;
+            moreBtn.setAttribute('aria-expanded', 'false');
+            open = false;
+        }
+
+        moreBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            open = !open;
+            dropdown.hidden = !open;
+            moreBtn.setAttribute('aria-expanded', String(open));
+            if (open) {
+                // Position the fixed dropdown below the button
+                var rect = moreBtn.getBoundingClientRect();
+                dropdown.style.top   = rect.bottom + 'px';
+                dropdown.style.right = (window.innerWidth - rect.right) + 'px';
+            }
+        });
+        document.addEventListener('click', close);
+        function reposition() {
+            if (open) {
+                var rect = moreBtn.getBoundingClientRect();
+                dropdown.style.top   = rect.bottom + 'px';
+                dropdown.style.right = (window.innerWidth - rect.right) + 'px';
+            }
+        }
+        window.addEventListener('resize', reposition);
+
+        function showItem(item) {
+            item.style.cssText = '';
+            var a = item.querySelector('.nav-link');
+            if (a) { a.removeAttribute('aria-hidden'); a.removeAttribute('tabindex'); }
+        }
+
+        function hideItem(item) {
+            item.style.cssText = 'width:0;min-width:0;overflow:hidden;padding:0;margin:0;flex-basis:0;flex-shrink:0';
+            var a = item.querySelector('.nav-link');
+            if (a) { a.setAttribute('aria-hidden', 'true'); a.setAttribute('tabindex', '-1'); }
+        }
+
+        function update() {
+            items.forEach(showItem);
+            moreItem.hidden = true;
+
+            var navW  = nav.clientWidth;
+            var total = items.reduce(function (s, it) { return s + it.offsetWidth; }, 0);
+            if (total &lt;= navW) return; // all tabs fit — nothing to do
+
+            moreItem.hidden = false;
+            var available = navW - moreItem.offsetWidth;
+            var cum = 0;
+            var split = items.length;
+
+            for (var i = 0; i &lt; items.length; i++) {
+                cum += items[i].offsetWidth;
+                if (cum &gt; available) { split = i; break; }
+            }
+
+            for (var j = split; j &lt; items.length; j++) hideItem(items[j]);
+
+            // Rebuild dropdown
+            dropdown.innerHTML = '';
+            var hasActive = false;
+
+            for (var k = split; k &lt; items.length; k++) {
+                var link = items[k].querySelector('.nav-link');
+                if (!link) continue;
+                var isActive = link.classList.contains('active');
+                if (isActive) hasActive = true;
+
+                var li  = document.createElement('li');
+                li.setAttribute('role', 'menuitem');
+                var btn = document.createElement('button');
+                btn.type      = 'button';
+                btn.className = 'dropdown-item' + (isActive ? ' active' : '');
+                btn.textContent = link.textContent.trim();
+
+                (function (origLink) {
+                    btn.addEventListener('click', function (e) {
+                        e.stopPropagation();
+                        origLink.removeAttribute('aria-hidden');
+                        origLink.click();
+                        origLink.setAttribute('aria-hidden', 'true');
+                        close();
+                        update();
+                    });
+                })(link);
+
+                li.appendChild(btn);
+                dropdown.appendChild(li);
+            }
+
+            moreBtn.classList.toggle('active', hasActive);
+            reposition();
+        }
+
+        nav.addEventListener('shown.cnds.tab', update);
+        new ResizeObserver(update).observe(nav.parentElement);
+        update();
+    }
+
+    // Auto-initialize every horizontal Nimbus tab bar on the page
+    document.querySelectorAll('.nav-tabs-nimbus:not(.flex-column)').forEach(initTabOverflow);
+})();</code></pre>
+                    </div>
+                  </section>
+                  <!--/Section: Code-->
+                </section>
+                <!--/Section: Overflow menu-->
+
+                <hr class="my-5" />
+
+                <!--Section: Product themes-->
+                <section id="section-product-themes">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Product themes</h3>
+                  <p>
+                    All Nimbus tab bars require an explicit product modifier class on the
+                    <code>.nav-tabs-nimbus</code> element. Unlike many other Nimbus components,
+                    tabs do not inherit the product accent from the page-level body class — the
+                    modifier class must always be present:
+                  </p>
+                  <ul>
+                    <li><code>.nav-tabs-casefusion</code> — CaseFusion green active indicator</li>
+                    <li><code>.nav-tabs-hyperlize</code> — Hyperlize gold active indicator</li>
+                    <li><code>.nav-tabs-expireon</code> — Expireon indigo active indicator</li>
+                  </ul>
+                  <p>
+                    In Angular applications, bind the modifier class dynamically so it always
+                    matches the active product:
+                  </p>
+<!-- Angular: Bind the product modifier class dynamically from a ThemeService so it tracks the active product.
+     Example: <ul class="nav nav-tabs nav-tabs-nimbus" [ngClass]="'nav-tabs-' + productTheme">...</ul>
+     Define productTheme as 'casefusion' | 'hyperlize' | 'expireon' from your shared ThemeService. -->
+                  <!--Section: Code-->
+                  <section class="mt-4 mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0"><code class="language-html">&lt;!-- CaseFusion --&gt;
+&lt;ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-casefusion" role="tablist"&gt;
+  &lt;li class="nav-item" role="presentation"&gt;
+    &lt;a data-cnds-tab-init class="nav-link active" href="#pane-1" role="tab" aria-selected="true"&gt;Tab 1&lt;/a&gt;
+  &lt;/li&gt;
+  &lt;li class="nav-item" role="presentation"&gt;
+    &lt;a data-cnds-tab-init class="nav-link" href="#pane-2" role="tab" aria-selected="false"&gt;Tab 2&lt;/a&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;!-- Hyperlize: replace nav-tabs-casefusion with nav-tabs-hyperlize --&gt;
+&lt;!-- ExpireOn:  replace nav-tabs-casefusion with nav-tabs-expireon  --&gt;</code></pre>
+                    </div>
+                  </section>
+                  <!--/Section: Code-->
+                </section>
+                <!--/Section: Product themes-->
+
+                <hr class="my-5" />
+                <section id="section-api-docs">
+                  <h3 class="mb-3">API Documentation</h3>
+
+                  <!--Section: Introduction-->
+                  <section id="api-section-introduction">
+                    <h4 class="mb-4">Introduction</h4>
+                    <p>
+                      The CNDS Tabs component is a JavaScript-powered UI element that manages
+                      tabbed content panels. It handles show/hide transitions, keyboard navigation,
+                      ARIA attribute updates, and fires lifecycle events. Tabs are initialized
+                      automatically via the <code>data-cnds-tab-init</code> attribute, or
+                      programmatically via the JavaScript API.
+                    </p>
+                    <p>
+                      The component extends <code>NimbusComponent</code> and is accessible as
+                      <code>Nimbus.Tab</code>. It integrates with the Nimbus event system for
+                      cancellable show/hide events and supports the full WAI-ARIA tab pattern
+                      when the appropriate ARIA roles and attributes are applied to the markup.
+                    </p>
+                  </section>
+                  <!--Section: Introduction-->
+
+                  <!--Section: Usage-->
+                  <section id="api-section-usage">
+                    <h4 class="mb-4">Usage</h4>
+
+                    <h5 class="mb-2">Via data attributes</h5>
+                    <p>
+                      Using the Tabs component doesn’t require any additional JavaScript — simply
+                      add the <code>data-cnds-tab-init</code> attribute to every
+                      <code>.nav-link</code> and the component initializes automatically on click.
+                    </p>
+                    <!--Section: Code-->
+                    <section class="mt-4 mb-4">
+                      <h5><span class="badge badge-code-html">HTML</span></h5>
+                      <!-- snippet -->
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;!-- Nav tabs --&gt;
+&lt;ul class="nav nav-tabs nav-tabs-nimbus" id="myTab" role="tablist"&gt;
+    &lt;li class="nav-item" role="presentation"&gt;
+        &lt;a data-cnds-tab-init class="nav-link active" id="home-tab" href="#home" role="tab" aria-controls="home" aria-selected="true"&gt;Home&lt;/a&gt;
+    &lt;/li&gt;
+    &lt;li class="nav-item" role="presentation"&gt;
+        &lt;a data-cnds-tab-init class="nav-link" id="profile-tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false"&gt;Profile&lt;/a&gt;
+    &lt;/li&gt;
+    &lt;li class="nav-item" role="presentation"&gt;
+        &lt;a data-cnds-tab-init class="nav-link" id="messages-tab" href="#messages" role="tab" aria-controls="messages" aria-selected="false"&gt;Messages&lt;/a&gt;
+    &lt;/li&gt;
+    &lt;li class="nav-item" role="presentation"&gt;
+        &lt;a data-cnds-tab-init class="nav-link" id="settings-tab" href="#settings" role="tab" aria-controls="settings" aria-selected="false"&gt;Settings&lt;/a&gt;
+    &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;!-- Tab panes --&gt;
+&lt;div class="tab-content"&gt;
+    &lt;div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab"&gt;...&lt;/div&gt;
+    &lt;div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab"&gt;...&lt;/div&gt;
+    &lt;div class="tab-pane fade" id="messages" role="tabpanel" aria-labelledby="messages-tab"&gt;...&lt;/div&gt;
+    &lt;div class="tab-pane fade" id="settings" role="tabpanel" aria-labelledby="settings-tab"&gt;...&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                      <!-- /.snippet -->
+                    </section>
+                    <!--Section: Code-->
+
+                    <h5 class="mb-2">Via JavaScript</h5>
+                    <p>
+                      Enable tabbable tabs via JavaScript (each tab needs to be
+                      activated individually):
+                    </p>
+                    <!--Section: Code-->
+                    <section class="mt-4 mb-4">
+                      <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                      <!-- snippet -->
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">const triggerTabList = document.querySelectorAll(‘#myTab [data-cnds-tab-init]’);
+triggerTabList.forEach((triggerEl) => {
+    const tabTrigger = new Nimbus.Tab(triggerEl);
+    triggerEl.addEventListener(‘click’, (event) => {
+        event.preventDefault();
+        tabTrigger.show();
+    });
+});</code></pre>
+                      </div>
+                      <!-- /.snippet -->
+                    </section>
+                    <!--Section: Code-->
+
+                    <p>You can activate individual tabs in several ways:</p>
+
+                    <!--Section: Code-->
+                    <section class="mt-4 mb-4">
+                      <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                      <!-- snippet -->
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">const triggerEl = document.querySelector(‘#myTab a[href="#profile"]’);
+Nimbus.Tab.getInstance(triggerEl).show(); // Select tab by name
+
+const triggerFirstTabEl = document.querySelector(‘#myTab li:first-child a’);
+Nimbus.Tab.getInstance(triggerFirstTabEl).show(); // Select first tab</code></pre>
+                      </div>
+                      <!-- /.snippet -->
+                    </section>
+                    <!--Section: Code-->
+                  </section>
+                  <!--Section: Usage-->
+
+                  <!--Section: CSS classes-->
+                  <section id="api-section-css-classes">
+                    <h4 class="mb-4">CSS classes</h4>
+                    <table class="table table-striped table-bordered" aria-label="CSS classes">
+                      <thead>
+                        <tr>
+                          <th style="width: 220px">Class</th>
+                          <th>Description</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td><code>.nav</code></td>
+                          <td>Base flex container for all nav and tab patterns.</td>
+                        </tr>
+                        <tr>
+                          <td><code>.nav-tabs</code></td>
+                          <td>Adds the bordered tab appearance with a bottom border on the container.</td>
+                        </tr>
+                        <tr>
+                          <td><code>.nav-pills</code></td>
+                          <td>Renders tab triggers as rounded pill buttons.</td>
+                        </tr>
+                        <tr>
+                          <td><code>.nav-item</code></td>
+                          <td>Wrapper element for each tab trigger (typically a <code>&lt;li&gt;</code>).</td>
+                        </tr>
+                        <tr>
+                          <td><code>.nav-link</code></td>
+                          <td>Applied to the tab trigger element (<code>&lt;a&gt;</code> or <code>&lt;button&gt;</code>).</td>
+                        </tr>
+                        <tr>
+                          <td><code>.nav-link.active</code></td>
+                          <td>Marks the currently selected tab trigger. Set by the JavaScript component.</td>
+                        </tr>
+                        <tr>
+                          <td><code>.nav-link.disabled</code></td>
+                          <td>Visually disables the tab and removes pointer events.</td>
+                        </tr>
+                        <tr>
+                          <td><code>.nav-fill</code></td>
+                          <td>Causes each tab item to grow to fill available space proportionally.</td>
+                        </tr>
+                        <tr>
+                          <td><code>.nav-justified</code></td>
+                          <td>Distributes tabs evenly so all items share equal width.</td>
+                        </tr>
+                        <tr>
+                          <td><code>.flex-column</code></td>
+                          <td>Stacks tabs vertically. Use with <code>.nav-tabs-nimbus</code> for a side-rail layout.</td>
+                        </tr>
+                        <tr>
+                          <td><code>.tab-content</code></td>
+                          <td>Wrapper for all tab panes. Hides inactive panes via <code>display: none</code>.</td>
+                        </tr>
+                        <tr>
+                          <td><code>.tab-pane</code></td>
+                          <td>Individual content panel. Hidden by default; shown when its trigger is active.</td>
+                        </tr>
+                        <tr>
+                          <td><code>.tab-pane.fade</code></td>
+                          <td>Adds an opacity transition when the pane is shown or hidden.</td>
+                        </tr>
+                        <tr>
+                          <td><code>.nav-tabs-nimbus</code></td>
+                          <td>Applies the dark Nimbus application tab bar style with product indicator support.</td>
+                        </tr>
+                        <tr>
+                          <td><code>.nav-tabs-casefusion</code></td>
+                          <td>Sets the active indicator color to CaseFusion green (<code>#7dd67a</code>).</td>
+                        </tr>
+                        <tr>
+                          <td><code>.nav-tabs-hyperlize</code></td>
+                          <td>Sets the active indicator color to Hyperlize yellow (<code>#f6bf37</code>).</td>
+                        </tr>
+                        <tr>
+                          <td><code>.nav-tabs-expireon</code></td>
+                          <td>Sets the active indicator color to Expireon purple (<code>#6e69de</code>).</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </section>
+                  <!--Section: CSS classes-->
+
+                  <!--Section: CSS custom properties-->
+                  <section id="api-section-css-variables">
+                    <h4 class="mb-4">CSS custom properties</h4>
+                    <p>
+                      The <code>.nav-tabs-nimbus</code> component exposes the following CSS custom
+                      properties. Override them on the component element or any ancestor to theme
+                      the tab bar without modifying the source CSS.
+                    </p>
+                    <table class="table table-striped table-bordered" aria-label="CSS custom properties">
+                      <thead>
+                        <tr>
+                          <th style="width: 240px">Variable</th>
+                          <th style="width: 200px">Default</th>
+                          <th>Description</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td><code>--nimbus-tab-bg</code></td>
+                          <td><code>var(--cnds-surface-dark-500, #1e1e1e)</code></td>
+                          <td>Background color of the tab bar and inactive tabs.</td>
+                        </tr>
+                        <tr>
+                          <td><code>--nimbus-tab-hover-bg</code></td>
+                          <td><code>var(--cnds-surface-dark-300, #4a4a4a)</code></td>
+                          <td>Background color applied on tab hover and active-tab hover.</td>
+                        </tr>
+                        <tr>
+                          <td><code>--nimbus-tab-border</code></td>
+                          <td><code>var(--cnds-surface-dark-200, #787878)</code></td>
+                          <td>Color of the bottom border separating the tab bar from content.</td>
+                        </tr>
+                        <tr>
+                          <td><code>--nimbus-tab-text</code></td>
+                          <td><code>var(--cnds-surface-dark-50, #e8e8e8)</code></td>
+                          <td>Text and icon color for all tab states.</td>
+                        </tr>
+                        <tr>
+                          <td><code>--nimbus-tab-indicator</code></td>
+                          <td><code>#7dd67a</code></td>
+                          <td>
+                            Color of the active-tab indicator border. Defaults to CaseFusion green.
+                            Overridden by the product modifier classes
+                            (<code>.nav-tabs-casefusion</code>, <code>.nav-tabs-hyperlize</code>,
+                            <code>.nav-tabs-expireon</code>).
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <!--Section: Code-->
+                    <section class="mt-4 mb-4">
+                      <h5><span class="badge badge-code-css">CSS</span></h5>
+                      <!-- snippet -->
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-css">/* Override Nimbus tab colors for a custom context */
+.my-custom-tab-bar {
+    --nimbus-tab-bg: #0d1117;
+    --nimbus-tab-hover-bg: #21262d;
+    --nimbus-tab-border: #30363d;
+    --nimbus-tab-text: #c9d1d9;
+    --nimbus-tab-indicator: #58a6ff;
+}</code></pre>
+                      </div>
+                      <!-- /.snippet -->
+                    </section>
+                    <!--Section: Code-->
+                  </section>
+                  <!--Section: CSS custom properties-->
+
+                  <!--Section: Methods-->
+                  <section id="api-section-methods">
+                    <h4 class="mb-4">Methods</h4>
+
+                    <p class="note note-danger">
+                      <strong>Asynchronous methods and transitions:</strong>
+                      <br />
+                      All API methods are <strong>asynchronous</strong> and
+                      start a <strong>transition</strong>. They return to the
+                      caller as soon as the transition is started but 
+                      <strong>before it ends</strong>. In addition, a method
+                      call on a
+                      <strong>transitioning component will be ignored</strong>.
+                    </p>
+
+                    <table class="table table-striped table-bordered" aria-label="Methods">
+                      <thead>
+                        <tr>
+                          <th style="width: 200px" class="th-sm">Name</th>
+                          <th class="th-sm">Description</th>
+                          <th class="th-sm">Example</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td><code>show</code></td>
+                          <td>
+                            Selects the given tab and shows its associated pane.
+                            Any other tab that was previously selected becomes
+                            unselected and its associated pane is hidden.
+                            Returns to the caller before the tab pane has
+                            actually been shown (i.e. before the <code>shown.cnds.tab</code>
+                            event occurs).
+                          </td>
+                          <td><code>instance.show()</code></td>
+                        </tr>
+                        <tr>
+                          <td><code>toggle</code></td>
+                          <td>Alias for <code>show()</code>. Activates the tab trigger.</td>
+                          <td><code>instance.toggle()</code></td>
+                        </tr>
+                        <tr>
+                          <td><code>dispose</code></td>
+                          <td>Destroys the tab instance and removes any associated data.</td>
+                          <td><code>instance.dispose()</code></td>
+                        </tr>
+                        <tr>
+                          <td><code>getInstance</code></td>
+                          <td>
+                            Static method which returns the tab instance
+                            associated to a DOM element, or <code>null</code> if no instance exists.
+                          </td>
+                          <td>
+                            <code>Nimbus.Tab.getInstance(el)</code>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td><code>getOrCreateInstance</code></td>
+                          <td>
+                            Static method which returns the existing tab instance
+                            associated to a DOM element, or creates and returns a new one
+                            if none exists.
+                          </td>
+                          <td>
+                            <code>Nimbus.Tab.getOrCreateInstance(el)</code>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+
+                    <!--Section: Code-->
+                    <section class="mt-4 mb-4">
+                      <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                      <!-- snippet -->
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">const someTabTriggerEl = document.querySelector(‘#someTabTrigger’);
+const tab = new Nimbus.Tab(someTabTriggerEl);
+tab.show();</code></pre>
+                      </div>
+                      <!-- /.snippet -->
+                    </section>
+                    <!--Section: Code-->
+                  </section>
+                  <!--Section: Methods-->
+
+                  <!--Section: Events-->
+                  <section id="api-section-events">
+                    <h4 class="mb-4">Events</h4>
+                    <p>
+                      When showing a new tab, the events fire in the following
+                      order:
+                    </p>
+                    <ol>
+                      <li>
+                        <code>hide.cnds.tab</code> (on the current active tab)
+                      </li>
+                      <li>
+                        <code>show.cnds.tab</code> (on the to-be-shown tab)
+                      </li>
+                      <li>
+                        <code>hidden.cnds.tab</code> (on the previous active tab,
+                        the same one as for the <code>hide.cnds.tab</code> event)
+                      </li>
+                      <li>
+                        <code>shown.cnds.tab</code> (on the newly-active
+                        just-shown tab, the same one as for the
+                        <code>show.cnds.tab</code> event)
+                      </li>
+                    </ol>
+                    <p>
+                      If no tab was already active, then the
+                      <code>hide.cnds.tab</code> and
+                      <code>hidden.cnds.tab</code> events will not be fired.
+                    </p>
+
+                    <table class="table table-striped table-bordered" aria-label="Events">
+                      <thead>
+                        <tr>
+                          <th style="width: 180px">Event type</th>
+                          <th>Description</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td><code>show.cnds.tab</code></td>
+                          <td>
+                            Fires on tab show, before the new tab has been shown. Use
+                            <code>event.target</code> and
+                            <code>event.relatedTarget</code> to target the
+                            active tab and the previous active tab (if
+                            available) respectively. Cancellable via <code>event.preventDefault()</code>.
+                          </td>
+                        </tr>
+                        <tr>
+                          <td><code>shown.cnds.tab</code></td>
+                          <td>
+                            Fires after a tab has been shown. Use
+                            <code>event.target</code> and
+                            <code>event.relatedTarget</code> to target the
+                            active tab and the previous active tab (if
+                            available) respectively.
+                          </td>
+                        </tr>
+                        <tr>
+                          <td><code>hide.cnds.tab</code></td>
+                          <td>
+                            Fires when a new tab is to be shown (and thus the previous active
+                            tab is to be hidden). Use <code>event.target</code> and
+                            <code>event.relatedTarget</code> to target the
+                            current active tab and the new soon-to-be-active
+                            tab, respectively. Cancellable via <code>event.preventDefault()</code>.
+                          </td>
+                        </tr>
+                        <tr>
+                          <td><code>hidden.cnds.tab</code></td>
+                          <td>
+                            Fires after a new tab is shown (and thus the previous active tab
+                            is hidden). Use <code>event.target</code> and
+                            <code>event.relatedTarget</code> to target the
+                            previous active tab and the new active tab,
+                            respectively.
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+
+                    <!--Section: Code-->
+                    <section class="mt-4 mb-4">
+                      <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                      <!-- snippet -->
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">const tabEl = document.querySelector(‘[data-cnds-tab-init]’);
+tabEl.addEventListener(‘shown.cnds.tab’, (e) => {
+    console.log(e.target);        // newly activated tab
+    console.log(e.relatedTarget); // previous active tab
+});</code></pre>
+                      </div>
+                      <!-- /.snippet -->
+                    </section>
+                    <!--Section: Code-->
+                  </section>
+                  <!--Section: Events-->
+
+                  <!--Section: Keyboard navigation-->
+                  <section id="api-section-keyboard">
+                    <h4 class="mb-4">Keyboard navigation</h4>
+                    <p>
+                      The Tabs component provides full keyboard navigation when focus is on a tab
+                      trigger within a <code>.nav</code> or <code>.list-group</code> container.
+                    </p>
+                    <table class="table table-striped table-bordered" aria-label="Keyboard navigation">
+                      <thead>
+                        <tr>
+                          <th style="width: 200px">Key</th>
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td><kbd>ArrowRight</kbd> / <kbd>ArrowDown</kbd></td>
+                          <td>Move focus to the next tab and activate it. Wraps to the first tab from the last.</td>
+                        </tr>
+                        <tr>
+                          <td><kbd>ArrowLeft</kbd> / <kbd>ArrowUp</kbd></td>
+                          <td>Move focus to the previous tab and activate it. Wraps to the last tab from the first.</td>
+                        </tr>
+                        <tr>
+                          <td><kbd>Home</kbd></td>
+                          <td>Move focus to the first tab and activate it.</td>
+                        </tr>
+                        <tr>
+                          <td><kbd>End</kbd></td>
+                          <td>Move focus to the last tab and activate it.</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </section>
+                  <!--Section: Keyboard navigation-->
+
+                  <!--Section: Accessibility-->
+                  <section id="api-section-accessibility">
+                    <h4 class="mb-4">Accessibility</h4>
+                    <p>
+                      For dynamic tabbed interfaces, apply the WAI-ARIA tab pattern roles and
+                      attributes to your markup. The JavaScript component automatically manages
+                      <code>aria-selected</code> and <code>tabindex</code> on tab triggers as
+                      tabs are switched.
+                    </p>
+                    <ul>
+                      <li>
+                        Add <code>role="tablist"</code> to the <code>.nav</code> container,
+                        <code>role="tab"</code> to each <code>.nav-link</code>, and
+                        <code>role="tabpanel"</code> to each <code>.tab-pane</code>.
+                      </li>
+                      <li>
+                        Set <code>aria-controls="paneId"</code> on each tab trigger and
+                        <code>aria-labelledby="tabId"</code> on each pane to establish the
+                        programmatic association between triggers and panels.
+                      </li>
+                      <li>
+                        The active tab trigger receives <code>aria-selected="true"</code> and
+                        has its <code>tabindex</code> attribute removed; inactive triggers receive
+                        <code>aria-selected="false"</code> and <code>tabindex="-1"</code>.
+                      </li>
+                      <li>
+                        If you are using a <code>.nav</code> purely for site navigation (not a
+                        dynamic tab interface), do <strong>not</strong> apply
+                        <code>role="tablist"</code>, <code>role="tab"</code>, or
+                        <code>role="tabpanel"</code>. Instead, wrap the nav in a
+                        <code>&lt;nav&gt;</code> element or add <code>role="navigation"</code>
+                        to the appropriate parent.
+                      </li>
+                    </ul>
+                  </section>
+                  <!--Section: Accessibility-->
+                </section>
+              </section>
+              <!--Section: Docs content-->
+            </div>
+            <!--/.Main column-->
+            <!-- Right rail (20%) — sticky page-section nav.
+                 data-cnds-sticky-offset="56" matches the sticky header height.
+                 data-cnds-allow-hashes="true" on the inner <ul> lets the smooth-
+                 scroll utility intercept anchor clicks and update the URL hash. -->
+            <div class="col-lg-2 d-none d-lg-block">
+              <div class="sticky-top" style="top: 100px; z-index: 1">
+                <ul
+                  class="nav flex-column nav-pills menu-sidebar"
+                  id="rightNav"
+                  data-cnds-allow-hashes="true"
+                >
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-introduction">Introduction</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-basic-example">Basic example</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-states">States</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-fill-and-justify">Fill and justify</a>
+                    <ul class="nav flex-column list-unstyled ps-3">
+                      <li class="nav-item">
+                        <a class="nav-link" href="#subsection-fill">Fill</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" href="#subsection-justify">Justify</a>
+                      </li>
+                    </ul>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-vertical">Vertical</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-tabs-with-icons">Tabs with icons</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-buttons">Tabs with buttons</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-overflow-menu">Overflow menu</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-product-themes">Product themes</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-api-docs">API Documentation</a>
+                    <ul class="nav flex-column list-unstyled ps-3">
+                      <li class="nav-item">
+                        <a class="nav-link" href="#api-section-introduction">Introduction</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" href="#api-section-usage">Usage</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" href="#api-section-css-classes">CSS classes</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" href="#api-section-css-variables">CSS custom properties</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" href="#api-section-methods">Methods</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" href="#api-section-events">Events</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" href="#api-section-keyboard">Keyboard navigation</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" href="#api-section-accessibility">Accessibility</a>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <!-- /.right rail -->
+          </div><!-- /.row -->
+        </div><!-- /.slim-content-box -->
+      </div><!-- /#slim-content -->
+    </div><!-- /.d-none.d-md-block -->
+  </main>
+    <!-- Footer -->
+    <div class="cf-footer cf-footer-app">
+      <footer class="page-footer main-footer" aria-label="Site footer">
+        <div class="w-100 px-3 d-flex align-items-center">
+          <img src="img/cf/core/cloudficient_logo_light.svg" class="cf-logo-light" style="width: 135px;" alt="Cloudficient" />
+          <img src="img/cf/core/cloudficient_logo_dark.svg" class="cf-logo-dark" style="width: 135px;" alt="Cloudficient" />
+          <span class="footer-copyright ms-auto">&copy; <span id="currentYear"></span> Cloudficient</span>
+        </div>
+      </footer>
+    </div>
+    <!--
+      SCRIPTS — load order matters:
+      1. nimbus.js       — core component library; exposes window.Nimbus.*
+                           and auto-inits data-cnds-* elements on DOMContentLoaded
+      2. app.js          — shell behaviour: theme toggle, utility nav, tooltips
+      3. prism.min.js    — syntax highlighting for <code class="language-*"> blocks
+      4. sidenav-loader.js — fetches shared nav JSON and populates #sidebar-cf
+    -->
+    <script src="js/nimbus.js?v=9.0.4"></script>
+    <script src="js/app.js?v=9.0.4"></script>
+    <script src="plugins/js/prism.min.js"></script>
+    <script src="js/sidenav-loader.js"></script>
+
+    <!-- Overflow tab menu — auto-applied to all horizontal .nav-tabs-nimbus bars -->
+    <script>
+    (function () {
+      'use strict';
+
+      function initTabOverflow(nav) {
+        if (nav.classList.contains('flex-column')) return;
+
+        var productClass =
+          nav.classList.contains('nav-tabs-casefusion') ? 'dropdown-menu-casefusion' :
+          nav.classList.contains('nav-tabs-hyperlize')  ? 'dropdown-menu-hyperlize'  :
+          nav.classList.contains('nav-tabs-expireon')   ? 'dropdown-menu-expireon'   : '';
+
+        var moreItem = document.createElement('li');
+        moreItem.className = 'nav-item nav-tabs-more-item';
+        moreItem.setAttribute('role', 'presentation');
+        moreItem.hidden = true;
+        moreItem.innerHTML =
+          '<button type="button" class="nav-link nav-tabs-more-btn"' +
+          ' aria-haspopup="true" aria-expanded="false" aria-label="More tabs">' +
+          '<i class="mdi mdi-dots-vertical mdi-18px" aria-hidden="true"></i></button>' +
+          '<ul class="nav-tabs-more-dropdown dropdown-menu dropdown-menu-product ' + productClass + '" role="menu" hidden></ul>';
+        nav.appendChild(moreItem);
+        nav.classList.add('nav-tabs-overflow');
+
+        var items    = Array.from(nav.querySelectorAll(':scope > .nav-item:not(.nav-tabs-more-item)'));
+        var moreBtn  = moreItem.querySelector('.nav-tabs-more-btn');
+        var dropdown = moreItem.querySelector('.nav-tabs-more-dropdown');
+        var open     = false;
+
+        function close() {
+          dropdown.hidden = true;
+          moreBtn.setAttribute('aria-expanded', 'false');
+          open = false;
+        }
+
+        moreBtn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          open = !open;
+          dropdown.hidden = !open;
+          moreBtn.setAttribute('aria-expanded', String(open));
+          if (open) {
+            var rect = moreBtn.getBoundingClientRect();
+            dropdown.style.top   = rect.bottom + 'px';
+            dropdown.style.right = (window.innerWidth - rect.right) + 'px';
+          }
+        });
+        document.addEventListener('click', close);
+        function reposition() {
+          if (open) {
+            var rect = moreBtn.getBoundingClientRect();
+            dropdown.style.top   = rect.bottom + 'px';
+            dropdown.style.right = (window.innerWidth - rect.right) + 'px';
+          }
+        }
+        window.addEventListener('resize', reposition);
+
+        function showItem(item) {
+          item.style.cssText = '';
+          var a = item.querySelector('.nav-link');
+          if (a) { a.removeAttribute('aria-hidden'); a.removeAttribute('tabindex'); }
+        }
+
+        function hideItem(item) {
+          item.style.cssText = 'width:0;min-width:0;overflow:hidden;padding:0;margin:0;flex-basis:0;flex-shrink:0';
+          var a = item.querySelector('.nav-link');
+          if (a) { a.setAttribute('aria-hidden', 'true'); a.setAttribute('tabindex', '-1'); }
+        }
+
+        function update() {
+          items.forEach(showItem);
+          moreItem.hidden = true;
+
+          var navW  = nav.clientWidth;
+          var total = items.reduce(function (s, it) { return s + it.offsetWidth; }, 0);
+          if (total <= navW) return;
+
+          moreItem.hidden = false;
+          var available = navW - moreItem.offsetWidth;
+          var cum = 0;
+          var split = items.length;
+
+          for (var i = 0; i < items.length; i++) {
+            cum += items[i].offsetWidth;
+            if (cum > available) { split = i; break; }
+          }
+
+          for (var j = split; j < items.length; j++) hideItem(items[j]);
+
+          dropdown.innerHTML = '';
+          var hasActive = false;
+
+          for (var k = split; k < items.length; k++) {
+            var link = items[k].querySelector('.nav-link');
+            if (!link) continue;
+            var isActive = link.classList.contains('active');
+            if (isActive) hasActive = true;
+
+            var li  = document.createElement('li');
+            li.setAttribute('role', 'menuitem');
+            var btn = document.createElement('button');
+            btn.type        = 'button';
+            btn.className   = 'dropdown-item' + (isActive ? ' active' : '');
+            btn.textContent = link.textContent.trim();
+
+            (function (origLink) {
+              btn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                origLink.removeAttribute('aria-hidden');
+                origLink.click();
+                origLink.setAttribute('aria-hidden', 'true');
+                close();
+                update();
+              });
+            })(link);
+
+            li.appendChild(btn);
+            dropdown.appendChild(li);
+          }
+
+          moreBtn.classList.toggle('active', hasActive);
+          reposition();
+        }
+
+        nav.addEventListener('shown.cnds.tab', update);
+        new ResizeObserver(update).observe(nav.parentElement);
+        update();
+      }
+
+      document.querySelectorAll('.nav-tabs-nimbus:not(.flex-column)').forEach(initTabOverflow);
+    })();
+    </script>
+
+    <!-- Inline: stamp the current year into the footer copyright span -->
+    <script>
+      const el = document.getElementById("currentYear");
+      if (el) el.textContent = new Date().getFullYear();
+    </script>
+  </body>
+</html>

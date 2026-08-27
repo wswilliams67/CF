@@ -1,0 +1,1171 @@
+<!--
+* CNDS Nimbus Design System — Popovers
+* Version: 1.0.0
+* Layout: Application with SideNav
+* NOTES
+- Pure HTML5, CSS3, vanilla JavaScript — zero external dependencies
+- Uses data-cnds-* attributes (replaces data-mdb-*)
+- Uses Nimbus.* namespace (replaces mdb.*)
+- Default product theme: CaseFusion (cnds-product-casefusion on <body>;
+  change to cnds-product-hyperlize or cnds-product-expireon)
+* ACCESSIBILITY (Section 508 / WCAG 2.1 AA)
+- Skip-navigation link (#main-content) satisfies WCAG 2.4.1 Bypass Blocks
+- Every <nav> landmark carries a unique aria-label — WCAG 1.3.6 / 4.1.2
+- Decorative icons use aria-hidden="true" to remove them from the AT tree
+- All data tables use scope="col" on <th> — Section 508 §1194.22(g) / WCAG 1.3.1
+- Focus-trigger popover uses <a tabindex="0" role="button"> for cross-browser keyboard support
+- Popover body text is wired to its trigger via aria-describedby by the Nimbus runtime;
+  keep content concise so assistive technology users receive a short, uninterrupted announcement
+* ANGULAR INTEGRATION
+- Create a PopoverDirective; call new Nimbus.Popover(el, opts) inside ngAfterViewInit
+- Expose @Input() popoverTitle forwarded to [attr.title]
+- Expose @Input() popoverContent forwarded to [attr.data-cnds-content]
+- Emit @Output() shown = new EventEmitter<void>() and hidden = new EventEmitter<void>()
+- Call myPopover.dispose() in ngOnDestroy to prevent memory leaks
+- See inline <!-- Angular: --> comments below each demo for pattern-specific guidance
+-->
+<!doctype html>
+<!-- data-cnds-theme: sets the initial theme ("light" | "dark"). nimbus.js syncs this attribute when the user toggles. -->
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta
+      name="description"
+      content="Popovers | Cloudficient Nimbus Design System v1.0.0"
+    />
+    <title>
+      Popovers | CNDS v1.0.0 | Cloudficient Nimbus Design System
+    </title>
+    <!-- Nimbus CSS -->
+    <link rel="stylesheet" href="css/nimbus.css" media="all" type="text/css" />
+    <!-- Custom styles -->
+    <link rel="stylesheet" href="css/app.css" media="all" type="text/css" />
+    <!-- Prism syntax highlighting -->
+    <link rel="stylesheet" href="plugins/css/prism.min.css" media="all" type="text/css" />
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="img/favicon/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="60x60" href="img/favicon/apple-icon-60x60.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="img/favicon/apple-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76" href="img/favicon/apple-icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="img/favicon/apple-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="img/favicon/apple-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="img/favicon/apple-icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="img/favicon/apple-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-icon-180x180.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="img/favicon/android-icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="img/favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="img/favicon/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="msapplication-TileImage" content="img/favicon/ms-icon-144x144.png" />
+    <!-- Design tokens — load order matters:
+         1. primitives.css  — raw color/spacing values (no theming)
+         2. light.css       — semantic tokens for [data-cnds-theme="light"] / :root
+         3. dark.css        — semantic token overrides for [data-cnds-theme="dark"]
+         All three must appear AFTER nimbus.css so component variables resolve correctly. -->
+    <link rel="stylesheet" href="css/themes/primitives.css" />
+    <link rel="stylesheet" href="css/themes/light.css" />
+    <link rel="stylesheet" href="css/themes/dark.css" />
+  </head>
+
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 Bypass Blocks; renders visually hidden until focused -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+    <!-- Header -->
+    <div class="sticky-top">
+      <!-- Utility Navigation -->
+      <nav id="UtilityNav" class="nav nav-cf-utility" aria-label="Utility navigation">
+        <div class="w-100 gx-3 px-sm-0 px-lg-3">
+          <ul class="nav nav-cf-utility-ul"></ul>
+        </div>
+      </nav>
+      <!-- ./Utility Navigation -->
+      <!-- Main Navigation -->
+      <nav id="MainNav" class="navbar navbar-expand-xl navbar-cf" aria-label="Main navigation">
+        <div class="container-fluid p-0 px-3 d-flex">
+          <div class="d-flex flex-fill align-items-center text-truncate">
+            <div class="text-center d-none d-md-block me-3 border-end">
+              <a href="index.html"><img src="img/cf/core/logo_nimbus.png" class="me-3 mt-n1" alt="Cloudficient Nimbus Design System" /></a>
+            </div>
+            <div class="flex-fill text-truncate">
+              <div class="navbar-cf-title-block">
+                <div class="navbar-cf-title cf-page-title text-truncate" style="padding-bottom: 0;">
+                  <span class="cf-page-title-text cf-page-title-brand">v1</span>
+                  <span class="cf-page-title-divider"></span>
+                  <span class="cf-page-title-text">Popovers</span>
+                  </div>
+              </div>
+            </div>
+          </div>
+          <button class="btn btn-sm btn-outline-secondary ms-2" data-cnds-toggle="theme" aria-label="Toggle theme" title="Toggle theme">
+            <i class="mdi mdi-weather-night mdi-18px" aria-hidden="true"></i>
+          </button>
+        </div>
+      </nav>
+      <!-- ./Main Navigation -->
+    </div>
+    <!-- ./Header -->
+    <!-- Content -->
+    <main id="main-content" class="cf-main-app">
+      <!-- Mobile viewport warning -->
+      <div class="d-block d-md-none p-4">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>This application is not optimized for small screens. Please use a large tablet, laptop, or desktop computer to continue.
+        </div>
+      </div>
+      <div class="d-none d-md-block">
+        <!-- Sidenav — markup is intentionally empty; sidenav-loader.js fetches and injects the shared nav HTML.
+             data-cnds-mode="side"            : renders as a persistent side panel (not an overlay/drawer)
+             data-cnds-slim / slim-collapsed  : controls compact/icon-only collapsed state
+             data-cnds-content="#slim-content" : the sibling panel that shrinks/expands as the nav opens/closes
+             data-cnds-accordion="true"       : collapses other open nav groups when a new one is expanded -->
+        <nav
+          id="sidebar-cf"
+          class="sidenav"
+          aria-label="Sidebar navigation"
+          data-cnds-mode="side"
+          data-cnds-slim="false"
+          data-cnds-slim-collapsed="false"
+          data-cnds-content="#slim-content"
+          data-cnds-accordion="true"
+        ></nav>
+        <div id="slim-content">
+          <div class="slim-content-box">
+            <!-- Content Row -->
+            <div class="row">
+              <!-- Main column — 80% of the row width; the remaining 20% is the right sidebar.
+                   The inline flex overrides pin the ratio regardless of Bootstrap's grid breakpoints
+                   so the sidebar never wraps on large viewports. -->
+              <div class="col-md-12 col-lg" style="flex: 0 0 80%; max-width: 80%">
+              <!--Section: Docs content-->
+              <section class="container-fluid">
+                <!--Section: Introduction-->
+                <section id="section-introduction">
+
+                  <!-- Description -->
+                  <p class="mb-4">
+                    Nimbus Popovers are contextual floating overlays that display a header and rich body content anchored to a trigger element. Unlike tooltips, popovers are click-triggered, persist until dismissed, and can contain formatted text, links, or structured content — making them suitable for inline help, feature callouts, and supplementary detail panels.
+                  </p>
+
+                  <p class="my-4">
+                    Popovers are opt-in for performance reasons and must be individually initialized using <code>data-cnds-popover-init</code> or via the <code>Nimbus.Popover</code> JavaScript API. Placement is controlled with <code>data-cnds-placement</code> and supports four directions: <code>top</code>, <code>right</code>, <code>bottom</code>, and <code>left</code>. The component automatically flips to the opposite side when the preferred placement would overflow the viewport, and repositions on scroll and resize while open.
+                  </p>
+
+                  <p class="my-4">
+                    A directional pointer arrow is rendered by default for all four placements and follows the active side when auto-flip engages. The arrow can be hidden per-component or globally by setting <code>--cnds-popover-arrow-display: none</code> in the appropriate CSS scope. Use the <code>viewportPadding</code> option to reserve clearance from fixed chrome such as sticky headers or floating toolbars.
+                  </p>
+
+                  <p class="note note-light">
+                    <strong>Note:</strong> Read the
+                    <a href="#section-api-docs">API Documentation</a> to
+                    find all available options and advanced customization.
+                  </p>
+
+                  <p class="note note-info">
+                    <strong>Note:</strong> To preview components in different themes, click the theme toggle button <i class="mdi mdi-weather-night" aria-hidden="true"></i> / <i class="mdi mdi-weather-sunny" aria-hidden="true"></i> in the header navigation bar.
+                  </p>
+                </section>
+                <!--/Section: Introduction-->
+
+                <hr class="my-5" />
+
+                <!--Section: Basic example-->
+                <section id="section-basic-example">
+                  <h3 class="mb-4">Basic example</h3>
+
+                  <p>
+                    Click the button below to open a popover. The popover
+                    displays a header set by the <code>title</code> attribute
+                    and a body set by <code>data-cnds-content</code>. It
+                    closes when you click outside it or click the trigger again.
+                  </p>
+
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section class="p-4 text-center w-100">
+                        <button
+                          type="button"
+                          class="btn btn-lg btn-primary"
+                          data-cnds-popover-init
+                          title="Popover title"
+                          data-cnds-content="And here's some amazing content. It's very engaging. Right?"
+                        >
+                          Click to toggle popover
+                        </button>
+                      </section>
+                    </div>
+                  </section>
+                  <!--/Section: Demo-->
+
+                  <!-- Angular: Basic popover
+                       1. Create a PopoverDirective with @Input() popoverTitle: string and @Input() popoverContent: string.
+                       2. In ngAfterViewInit, call: this.popoverInstance = new Nimbus.Popover(this.el.nativeElement, {});
+                       3. Forward inputs to the host element: [attr.title]="popoverTitle" and [attr.data-cnds-content]="popoverContent".
+                       4. Emit @Output() shown = new EventEmitter<void>() / hidden = new EventEmitter<void>() by listening to
+                          the 'shown.cnds.popover' and 'hidden.cnds.popover' DOM events on the host element.
+                       5. Call this.popoverInstance.dispose() in ngOnDestroy.
+                       Example:
+                         <button type="button" class="btn btn-lg btn-primary"
+                           data-cnds-popover-init
+                           [attr.title]="popoverTitle"
+                           [attr.data-cnds-content]="popoverContent"
+                           (shown)="onShown()"
+                           (hidden)="onHidden()">
+                           Click to toggle popover
+                         </button> -->
+
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0"><code class="language-html">&lt;button type="button" class="btn btn-lg btn-primary" data-cnds-popover-init title="Popover title" data-cnds-content="And here's some amazing content. It's very engaging. Right?"&gt;
+    Click to toggle popover
+&lt;/button&gt;</code></pre>
+                    </div>
+                  </section>
+                  <!--/Section: Code-->
+                </section>
+                <!--/Section: Basic example-->
+
+                <hr class="my-5" />
+
+                <!--Section: Overview-->
+                <section id="section-overview">
+                  <h3 class="mb-4">Overview</h3>
+
+                  <p>Things to know when using the Nimbus Popover component:</p>
+
+                  <ul>
+                    <li>
+                      Popovers are opt-in for performance reasons —
+                      <strong>you must initialize them yourself</strong>.
+                    </li>
+                    <li>
+                      A popover with zero-length <code>title</code> and
+                      <code>content</code> will never be displayed.
+                    </li>
+                    <li>
+                      Triggering popovers on hidden elements will not work.
+                    </li>
+                    <li>
+                      Popovers on <code>.disabled</code> or
+                      <code>disabled</code> elements must be triggered from a
+                      wrapper element — see <a href="#section-disabled-elements">Disabled elements</a>.
+                    </li>
+                    <li>
+                      When triggered from anchors that wrap across multiple
+                      lines, popovers will be centered across the anchors’
+                      combined width. Use <code>.text-nowrap</code> on
+                      <code>&lt;a&gt;</code> elements to prevent this.
+                    </li>
+                    <li>
+                      Popovers must be hidden before their corresponding
+                      trigger elements are removed from the DOM.
+                    </li>
+                    <li>
+                      Popovers can be triggered from an element inside a
+                      shadow DOM.
+                    </li>
+                  </ul>
+                </section>
+                <!--/Section: Overview-->
+
+                <hr class="my-5" />
+
+                <!--Section: Four directions-->
+                <section id="section-four-directions">
+                  <h3 class="mb-4">Four directions</h3>
+
+                  <p>
+                    Use <code>data-cnds-placement</code> to control where the
+                    popover appears relative to its trigger —
+                    <code>top</code>, <code>right</code>, <code>bottom</code>,
+                    or <code>left</code>. The default is <code>right</code>.
+                  </p>
+
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section class="p-4 text-center w-100">
+                        <button
+                          type="button"
+                          class="btn btn-secondary"
+                          data-cnds-popover-init
+                          data-cnds-placement="top"
+                          data-cnds-content="Vivamus sagittis lacus vel augue laoreet rutrum faucibus."
+                        >
+                          Popover on top
+                        </button>
+
+                        <button
+                          type="button"
+                          class="btn btn-secondary"
+                          data-cnds-popover-init
+                          data-cnds-placement="right"
+                          data-cnds-content="Vivamus sagittis lacus vel augue laoreet rutrum faucibus."
+                        >
+                          Popover on right
+                        </button>
+
+                        <button
+                          type="button"
+                          class="btn btn-secondary"
+                          data-cnds-popover-init
+                          data-cnds-placement="bottom"
+                          data-cnds-content="Vivamus sagittis lacus vel augue laoreet rutrum faucibus."
+                        >
+                          Popover on bottom
+                        </button>
+
+                        <button
+                          type="button"
+                          class="btn btn-secondary"
+                          data-cnds-popover-init
+                          data-cnds-placement="left"
+                          data-cnds-content="Vivamus sagittis lacus vel augue laoreet rutrum faucibus."
+                        >
+                          Popover on left
+                        </button>
+                      </section>
+                    </div>
+                  </section>
+                  <!--/Section: Demo-->
+
+                  <!-- Angular: Placement variants
+                       1. Add @Input() placement: 'top' | 'right' | 'bottom' | 'left' = 'right' to the directive.
+                       2. Forward it to the host: [attr.data-cnds-placement]="placement".
+                       3. In the component, declare a readonly directions array and use *ngFor to avoid repeating markup.
+                       Example:
+                         readonly directions = ['top', 'right', 'bottom', 'left'] as const;
+                         <button *ngFor="let dir of directions"
+                           type="button"
+                           class="btn btn-secondary"
+                           data-cnds-popover-init
+                           [attr.data-cnds-placement]="dir"
+                           [attr.data-cnds-content]="popoverText">
+                           Popover on {{ dir }}
+                         </button> -->
+
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0"><code class="language-html">&lt;button type="button" class="btn btn-secondary" data-cnds-popover-init data-cnds-placement="top" data-cnds-content="Vivamus sagittis lacus vel augue laoreet rutrum faucibus."&gt;
+    Popover on top
+&lt;/button&gt;
+
+&lt;button type="button" class="btn btn-secondary" data-cnds-popover-init data-cnds-placement="right" data-cnds-content="Vivamus sagittis lacus vel augue laoreet rutrum faucibus."&gt;
+    Popover on right
+&lt;/button&gt;
+
+&lt;button type="button" class="btn btn-secondary" data-cnds-popover-init data-cnds-placement="bottom" data-cnds-content="Vivamus sagittis lacus vel augue laoreet rutrum faucibus."&gt;
+    Popover on bottom
+&lt;/button&gt;
+
+&lt;button type="button" class="btn btn-secondary" data-cnds-popover-init data-cnds-placement="left" data-cnds-content="Vivamus sagittis lacus vel augue laoreet rutrum faucibus."&gt;
+    Popover on left
+&lt;/button&gt;</code></pre>
+                    </div>
+                  </section>
+                  <!--/Section: Code-->
+                </section>
+                <!--/Section: Four directions-->
+
+                <hr class="my-5" />
+
+                <!--Section: Dismiss on next click-->
+                <section id="section-dismiss-on-next-click">
+                  <h3 class="mb-4">Dismiss on next click</h3>
+
+                  <p>
+                    Use <code>data-cnds-trigger="focus"</code> to dismiss the
+                    popover when the user clicks or focuses any other element.
+                    This is commonly used for popovers that should close as soon
+                    as the user moves on.
+                  </p>
+
+                  <p class="note note-danger">
+                    <strong>Specific markup required for dismiss-on-next-click:</strong>
+                    <br />
+                    For consistent cross-browser behavior, use an
+                    <code>&lt;a&gt;</code> element — not
+                    <code>&lt;button&gt;</code> — and include a
+                    <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/tabindex" rel="nofollow noopener noreferrer" target="_blank"><code>tabindex</code></a>
+                    attribute so keyboard users can trigger and dismiss it.
+                  </p>
+
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section class="p-4 text-center w-100">
+                        <a
+                          tabindex="0"
+                          class="btn btn-lg btn-primary"
+                          role="button"
+                          data-cnds-popover-init
+                          data-cnds-trigger="focus"
+                          title="Dismissible popover"
+                          data-cnds-content="And here’s some amazing content. It’s very engaging. Right?"
+                        >
+                          Dismissible popover
+                        </a>
+                      </section>
+                    </div>
+                  </section>
+                  <!--/Section: Demo-->
+
+                  <!-- Angular: Dismiss-on-next-click (focus trigger)
+                       1. Use an <a> element (not <button>) — required for consistent cross-browser focus-dismiss behavior.
+                       2. Always include tabindex="0" and role="button" so keyboard users can activate it.
+                       3. Set data-cnds-trigger="focus" as a static attribute; it does not need binding.
+                       4. Bind title and content: [attr.title]="popoverTitle" and [attr.data-cnds-content]="popoverContent".
+                       5. Listen for (hidden) from the directive to run any cleanup (e.g., reset form state).
+                       Example:
+                         <a tabindex="0"
+                           class="btn btn-lg btn-primary"
+                           role="button"
+                           data-cnds-popover-init
+                           data-cnds-trigger="focus"
+                           [attr.title]="popoverTitle"
+                           [attr.data-cnds-content]="popoverContent"
+                           (hidden)="onPopoverDismissed()">
+                           Dismissible popover
+                         </a> -->
+
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0"><code class="language-html">&lt;a tabindex="0" class="btn btn-lg btn-primary" role="button" data-cnds-popover-init data-cnds-trigger="focus" title="Dismissible popover" data-cnds-content="And here’s some amazing content. It’s very engaging. Right?"&gt;
+    Dismissible popover
+&lt;/a&gt;</code></pre>
+                    </div>
+                  </section>
+                  <!--/Section: Code-->
+                </section>
+                <!--/Section: Dismiss on next click-->
+
+                <hr class="my-5" />
+
+                <!--Section: Disabled elements-->
+                <section id="section-disabled-elements">
+                  <h3 class="mb-4">Disabled elements</h3>
+
+                  <p>
+                    Disabled elements ignore pointer and focus events, so
+                    popovers cannot be triggered on them directly. Wrap the
+                    disabled element in a <code>&lt;span&gt;</code> with
+                    <code>tabindex="0"</code>, attach <code>data-cnds-popover-init</code>
+                    to the wrapper, and set <code>pointer-events: none</code> on
+                    the inner button so hover events reach the wrapper.
+                  </p>
+
+                  <p>
+                    Use <code>data-cnds-trigger="hover"</code> on the wrapper
+                    so the popover provides immediate visual feedback — users
+                    typically do not expect to <em>click</em> a disabled control.
+                  </p>
+
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section class="p-4 text-center w-100">
+                        <span
+                          class="d-inline-block"
+                          tabindex="0"
+                          data-cnds-popover-init
+                          data-cnds-trigger="hover"
+                          data-cnds-content="This action is currently disabled."
+                        >
+                          <button
+                            class="btn btn-primary"
+                            style="pointer-events: none"
+                            type="button"
+                            disabled
+                          >
+                            Disabled button
+                          </button>
+                        </span>
+                      </section>
+                    </div>
+                  </section>
+                  <!--/Section: Demo-->
+
+                  <!-- Angular: Disabled element wrapper
+                       1. The disabled button cannot receive pointer/focus events, so attach the popover to a wrapper <span>.
+                       2. Add tabindex="0" and data-cnds-trigger="hover" to the <span> so hover events reach it.
+                       3. Set style="pointer-events: none" on the inner <button> so events pass through to the wrapper.
+                       4. Bind the reason: [attr.data-cnds-content]="disabledReason" — make disabledReason an @Input() so
+                          each usage can explain why the control is disabled rather than showing a generic label.
+                       5. Toggle the button state via [disabled]="isDisabled"; the popover wrapper requires no change.
+                       Example:
+                         <span class="d-inline-block"
+                           tabindex="0"
+                           data-cnds-popover-init
+                           data-cnds-trigger="hover"
+                           [attr.data-cnds-content]="disabledReason">
+                           <button class="btn btn-primary"
+                             style="pointer-events: none"
+                             type="button"
+                             [disabled]="isDisabled">
+                             Disabled button
+                           </button>
+                         </span> -->
+
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0"><code class="language-html">&lt;span class="d-inline-block" tabindex="0" data-cnds-popover-init data-cnds-trigger="hover" data-cnds-content="This action is currently disabled."&gt;
+    &lt;button class="btn btn-primary" style="pointer-events: none" type="button" disabled&gt;Disabled button&lt;/button&gt;
+&lt;/span&gt;</code></pre>
+                    </div>
+                  </section>
+                  <!--/Section: Code-->
+                </section>
+                <!--/Section: Disabled elements-->
+
+                <hr class="my-5" />
+
+                <!--Section: API content-->
+                <section id="section-api-docs">
+                  <!-- Section title -->
+                  <h3 class="mb-3">API Documentation</h3>
+
+                  <!--Section: Usage-->
+                  <section id="api-section-usage">
+                    <!-- Section title -->
+                    <h4 class="mb-4">Usage</h4>
+
+                    <h5 class="mb-4">Via data attributes</h5>
+
+                    <p>
+                      Using the Popovers component doesn't require any
+                      additional JavaScript code - simply add
+                      <code>data-cnds-popover-init</code> attribute to toggle
+                      element and use other data attributes to set all options.
+                    </p>
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h6><span class="badge badge-code-html">HTML</span></h6>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;button type="button" class="btn btn-lg btn-primary" data-cnds-popover-init title="Popover title" data-cnds-content="And here's some amazing content. It's very engaging. Right?"&gt;
+    Click to toggle popover
+&lt;/button&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                    <h6 class="mt-5">Via JavaScript:</h6>
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h6><span class="badge badge-code-js">JAVASCRIPT</span></h6>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">const element = document.getElementById('example')
+const instance = new Nimbus.Popover(element, options)</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                    <h6 class="mt-4">
+                      Making popovers work for keyboard and assistive technology
+                      users
+                    </h6>
+
+                    <p>
+                      To allow keyboard users to activate your popovers, you
+                      should only add them to HTML elements that are
+                      traditionally keyboard-focusable and interactive (such as
+                      links or form controls). Although arbitrary HTML elements
+                      (such as
+                      <code>&lt;span&gt;</code>s) can be made focusable by
+                      adding the <code>tabindex="0"</code> attribute, this will
+                      add potentially annoying and confusing tab stops on
+                      non-interactive elements for keyboard users, and most
+                      assistive technologies currently do not announce the
+                      popover’s content in this situation. Additionally, do not
+                      rely solely on <code>hover</code> as the trigger for your
+                      popovers, as this will make them impossible to trigger for
+                      keyboard users.
+                    </p>
+
+                    <p>
+                      While you can insert rich, structured HTML in popovers
+                      with the
+                      <code>html</code> option, we strongly recommend that you
+                      avoid adding an excessive amount of content. The way
+                      popovers currently work is that, once displayed, their
+                      content is tied to the trigger element with the
+                      <code>aria-describedby</code> attribute. As a result, the
+                      entirety of the popover’s content will be announced to
+                      assistive technology users as one long, uninterrupted
+                      stream.
+                    </p>
+
+                    <p>
+                      Additionally, while it is possible to also include
+                      interactive controls (such as form elements or links) in
+                      your popover (by adding these elements to the
+                      <code>allowList</code> or allowed attributes and tags), be
+                      aware that currently the popover does not manage keyboard
+                      focus order. When a keyboard user opens a popover, focus
+                      remains on the triggering element, and as the popover
+                      usually does not immediately follow the trigger in the
+                      document’s structure, there is no guarantee that moving
+                      forward/pressing <kbd>TAB</kbd> will move a keyboard user
+                      into the popover itself. In short, simply adding
+                      interactive controls to a popover is likely to make these
+                      controls unreachable/unusable for keyboard users and users
+                      of assistive technologies, or at the very least make for
+                      an illogical overall focus order. In these cases, consider
+                      using a modal dialog instead.
+                    </p>
+                  </section>
+                  <!--/Section: Usage-->
+
+                  <!--Section: Options-->
+                  <section id="api-section-options">
+                    <!-- Section title -->
+                    <h4 class="mb-4">Options</h4>
+
+                    <p>
+                      Options can be passed via data attributes or JavaScript.
+                      For data attributes, append the option name to
+                      <code>data-cnds-</code>, as in
+                      <code>data-cnds-animation=""</code>.
+                    </p>
+
+                    <p class="note note-warning">
+                      <strong>Note:</strong> For security reasons the
+                      <code>sanitize</code> option cannot be supplied using
+                      data attributes.
+                    </p>
+
+                    <table class="table table-striped table-bordered" aria-label="Options">
+                      <thead>
+                        <tr>
+                          <th scope="col" style="width: 100px">Name</th>
+                          <th scope="col" style="width: 100px">Type</th>
+                          <th scope="col" style="width: 50px">Default</th>
+                          <th scope="col">Description</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td><code>animation</code></td>
+                          <td>boolean</td>
+                          <td><code>true</code></td>
+                          <td>Apply a CSS fade transition to the popover</td>
+                        </tr>
+                        <tr>
+                          <td><code>container</code></td>
+                          <td>string | element</td>
+                          <td><code>'body'</code></td>
+                          <td>
+                            Appends the popover to a specific element. Defaults
+                            to <code>'body'</code>, which lets the popover
+                            escape <code>overflow:hidden</code> ancestors.
+                            Pass a CSS selector string or a DOM element reference
+                            to use a different container.
+                          </td>
+                        </tr>
+                        <tr>
+                          <td><code>content</code></td>
+                          <td>string | element | function</td>
+                          <td><code>''</code></td>
+                          <td>
+                            <p>
+                              Default content value if
+                              <code>data-cnds-content</code> attribute isn't
+                              present.
+                            </p>
+                            <p>
+                              If a function is given, it will be called with its
+                              <code>this</code> reference set to the element
+                              that the popover is attached to.
+                            </p>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td><code>customClass</code></td>
+                          <td>string | function</td>
+                          <td><code>''</code></td>
+                          <td>
+                            <p>
+                              Add classes to the popover when it is shown. Note
+                              that these classes will be added in addition to
+                              any classes specified in the template. To add
+                              multiple classes, separate them with spaces:
+                              <code>'class-1 class-2'</code>.
+                            </p>
+                            <p>
+                              You can also pass a function that should return a
+                              single string containing additional class names.
+                            </p>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td><code>delay</code></td>
+                          <td>number | object</td>
+                          <td><code>0</code></td>
+                          <td>
+                            <p>
+                              Delay showing and hiding the popover (ms) - does
+                              not apply to manual trigger type
+                            </p>
+                            <p>
+                              If a number is supplied, delay is applied to both
+                              hide/show
+                            </p>
+                            <p>
+                              Object structure is:
+                              <code>delay: { "show": 500, "hide": 100 }</code>
+                            </p>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td><code>html</code></td>
+                          <td>boolean</td>
+                          <td><code>false</code></td>
+                          <td>
+                            Insert HTML into the popover. If false,
+                            <code>innerText</code> property will be used to
+                            insert content into the DOM. Use text if you're
+                            worried about XSS attacks.
+                          </td>
+                        </tr>
+                        <tr>
+                          <td><code>placement</code></td>
+                          <td>string</td>
+                          <td><code>'right'</code></td>
+                          <td>
+                            Preferred side for the popover: <code>'top'</code>,
+                            <code>'right'</code>, <code>'bottom'</code>, or
+                            <code>'left'</code>. The component automatically
+                            flips to the opposite side when the preferred
+                            placement would overflow the viewport — no extra
+                            configuration required.
+                          </td>
+                        </tr>
+                        <tr>
+                          <td><code>title</code></td>
+                          <td>string | element | function</td>
+                          <td><code>''</code></td>
+                          <td>
+                            <p>
+                              Default title value if
+                              <code>title</code> attribute isn't present.
+                            </p>
+                            <p>
+                              If a function is given, it will be called with its
+                              <code>this</code> reference set to the element
+                              that the popover is attached to.
+                            </p>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td><code>trigger</code></td>
+                          <td>string</td>
+                          <td>'click'</td>
+                          <td>
+                            How popover is triggered - click | hover | focus |
+                            manual. You may pass multiple triggers; separate
+                            them with a space. <code>manual</code> cannot be
+                            combined with any other trigger.
+                          </td>
+                        </tr>
+                        <tr>
+                          <td><code>offset</code></td>
+                          <td>array | string</td>
+                          <td><code>[0, 12]</code></td>
+                          <td>
+                            Pixel offset of the popover relative to its trigger.
+                            Accepts an array <code>[skid, distance]</code> or a
+                            comma-separated string <code>"0, 12"</code>.
+                            <code>skid</code> shifts the popover along the
+                            trigger axis; <code>distance</code> controls the gap
+                            between the trigger and the arrow.
+                          </td>
+                        </tr>
+                        <tr>
+                          <td><code>sanitize</code></td>
+                          <td>boolean</td>
+                          <td><code>true</code></td>
+                          <td>
+                            When <code>true</code>, <code>content</code> and
+                            <code>title</code> strings are sanitized before
+                            insertion. Set to <code>false</code> only when
+                            <code>html: true</code> and the source is trusted.
+                          </td>
+                        </tr>
+                        <tr>
+                          <td><code>dismissOnOutsideClick</code></td>
+                          <td>boolean</td>
+                          <td><code>true</code></td>
+                          <td>
+                            When <code>true</code>, a click anywhere outside the
+                            popover or its trigger element hides the popover
+                            automatically.
+                          </td>
+                        </tr>
+                        <tr>
+                          <td><code>viewportPadding</code></td>
+                          <td>number | object</td>
+                          <td><code>8</code></td>
+                          <td>
+                            Minimum distance (px) the popover must maintain from
+                            each viewport edge. Accepts a single number (applied
+                            to all four sides) or an object with individual
+                            <code>top</code>, <code>bottom</code>,
+                            <code>left</code>, and <code>right</code> values.
+                            Use this to clear fixed chrome: e.g.
+                            <code>viewportPadding: { top: headerHeight + 8, bottom: pagerHeight + 8, left: 8, right: 8 }</code>.
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+
+                    <p class="note note-info">
+                      <strong>Data attributes for individual popovers:</strong>
+                      <br />
+                      Options for individual popovers can alternatively be
+                      specified through the use of data attributes, as explained
+                      above.
+                    </p>
+
+                    <h5 class="mt-4 mb-2">CSS customization tokens</h5>
+                    <table class="table table-striped table-bordered" aria-label="CSS tokens">
+                      <thead>
+                        <tr>
+                          <th scope="col">Token</th>
+                          <th scope="col">Default</th>
+                          <th scope="col">Description</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td><code>--cnds-popover-arrow-display</code></td>
+                          <td><code>block</code></td>
+                          <td>
+                            Controls arrow visibility. Set to <code>none</code>
+                            on the <code>.popover</code> element or a
+                            <code>customClass</code> scope to suppress the arrow
+                            for a specific variant.<br />
+                            Example: <code>.my-popover { --cnds-popover-arrow-display: none; }</code>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td><code>--cnds-popover-arrow-width</code></td>
+                          <td><code>1rem</code></td>
+                          <td>Base spread of the arrow triangle (perpendicular to the tip direction).</td>
+                        </tr>
+                        <tr>
+                          <td><code>--cnds-popover-arrow-height</code></td>
+                          <td><code>0.5rem</code></td>
+                          <td>Depth of the arrow triangle (along the tip direction).</td>
+                        </tr>
+                        <tr>
+                          <td><code>--cnds-popover-max-width</code></td>
+                          <td><code>276px</code></td>
+                          <td>Maximum width of the popover panel.</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </section>
+                  <!--/Section: Options-->
+
+                  <!--Section: Methods-->
+                  <section id="api-section-methods">
+                    <!-- Section title -->
+                    <h4 class="mb-4">Methods</h4>
+
+                    <p class="note note-danger">
+                      <strong>Asynchronous methods and transitions:</strong>
+                      <br />
+                      All API methods are <strong>asynchronous</strong> and
+                      start a <strong>transition</strong>. They return to the
+                      caller as soon as the transition is started but
+                      <strong>before it ends</strong>. In addition, a method
+                      call on a
+                      <strong>transitioning component will be ignored</strong>.
+                    </p>
+
+                    <table class="table table-striped table-bordered" aria-label="Methods">
+                      <thead>
+                        <tr>
+                          <th scope="col">Method</th>
+                          <th scope="col">Description</th>
+                          <th scope="col">Example</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td><code>show</code></td>
+                          <td>
+                            Reveals an element’s popover.
+                            <strong
+                              >Returns to the caller before the popover has
+                              actually been shown</strong
+                            >
+                            (i.e. before the
+                            <code>shown.cnds.popover</code> event occurs). This
+                            is considered a “manual” triggering of the popover.
+                            Popovers whose title and content are both
+                            zero-length are never displayed.
+                          </td>
+                          <td><code>myPopover.show()</code></td>
+                        </tr>
+                        <tr>
+                          <td><code>hide</code></td>
+                          <td>
+                            Hides an element’s popover.
+                            <strong
+                              >Returns to the caller before the popover has
+                              actually been hidden</strong
+                            >
+                            (i.e. before the
+                            <code>hidden.cnds.popover</code> event occurs). This
+                            is considered a “manual” triggering of the popover.
+                          </td>
+                          <td><code>myPopover.hide()</code></td>
+                        </tr>
+                        <tr>
+                          <td><code>toggle</code></td>
+                          <td>
+                            Toggles an element’s popover.
+                            <strong
+                              >Returns to the caller before the popover has
+                              actually been shown or hidden</strong
+                            >
+                            (i.e. before the <code>shown.cnds.popover</code> or
+                            <code>hidden.cnds.popover</code> event occurs). This
+                            is considered a “manual” triggering of the popover.
+                          </td>
+                          <td><code>myPopover.toggle()</code></td>
+                        </tr>
+                        <tr>
+                          <td><code>dispose</code></td>
+                          <td>
+                            Hides and destroys an element’s popover. Popovers
+                            that use delegation (which are created using
+                            <a href="#api-section-options"
+                              >the <code>selector</code> option</a
+                            >) cannot be individually destroyed on descendant
+                            trigger elements.
+                          </td>
+                          <td><code>myPopover.dispose()</code></td>
+                        </tr>
+                        <tr>
+                          <td><code>enable</code></td>
+                          <td>
+                            Gives an element’s popover the ability to be shown.
+                            <strong>Popovers are enabled by default.</strong>
+                          </td>
+                          <td><code>myPopover.enable()</code></td>
+                        </tr>
+                        <tr>
+                          <td><code>disable</code></td>
+                          <td>
+                            Removes the ability for an element’s popover to be
+                            shown. The popover will only be able to be shown if
+                            it is re-enabled.
+                          </td>
+                          <td><code>myPopover.disable()</code></td>
+                        </tr>
+                        <tr>
+                          <td><code>toggleEnabled</code></td>
+                          <td>
+                            Toggles the ability for an element’s popover to be
+                            shown or hidden.
+                          </td>
+                          <td><code>myPopover.toggleEnabled()</code></td>
+                        </tr>
+                        <tr>
+                          <td><code>update</code></td>
+                          <td>Updates the position of an element’s popover.</td>
+                          <td><code>myPopover.update()</code></td>
+                        </tr>
+                        <tr>
+                          <td><code>getInstance</code></td>
+                          <td>
+                            Static method which allows you to get the popover
+                            instance associated with a DOM element.
+                          </td>
+                          <td><code>Nimbus.Popover.getInstance(element)</code></td>
+                        </tr>
+                        <tr>
+                          <td><code>getOrCreateInstance</code></td>
+                          <td>
+                            Static method which allows you to get the popover
+                            instance associated with a DOM element or create a
+                            new one in case it wasn't initialized.
+                          </td>
+                          <td><code>Nimbus.Popover.getOrCreateInstance(element)</code></td>
+                        </tr>
+                      </tbody>
+                    </table>
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">const exampleTriggerEl = document.getElementById('example')
+const popover = new Nimbus.Popover(exampleTriggerEl)
+popover.show()</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Methods-->
+
+                  <!--Section: Events-->
+                  <section id="api-section-events">
+                    <!-- Section title -->
+                    <h4 class="mb-4">Events</h4>
+
+                    <table class="table table-striped table-bordered" aria-label="Events">
+                      <thead>
+                        <tr>
+                          <th scope="col" style="width: 150px">Event type</th>
+                          <th scope="col">Description</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td><code>show.cnds.popover</code></td>
+                          <td>
+                            This event fires immediately when the
+                            <code>show</code> instance method is called.
+                          </td>
+                        </tr>
+                        <tr>
+                          <td><code>shown.cnds.popover</code></td>
+                          <td>
+                            This event is fired when the popover has been made
+                            visible to the user (will wait for CSS transitions
+                            to complete).
+                          </td>
+                        </tr>
+                        <tr>
+                          <td><code>hide.cnds.popover</code></td>
+                          <td>
+                            This event is fired immediately when the
+                            <code>hide</code> instance method has been called.
+                          </td>
+                        </tr>
+                        <tr>
+                          <td><code>hidden.cnds.popover</code></td>
+                          <td>
+                            This event is fired when the popover has finished
+                            being hidden from the user (will wait for CSS
+                            transitions to complete).
+                          </td>
+                        </tr>
+                        <tr>
+                          <td><code>inserted.cnds.popover</code></td>
+                          <td>
+                            This event is fired after the
+                            <code>show.cnds.popover</code> event when the popover
+                            template has been added to the DOM.
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">const myPopoverTrigger = document.getElementById('myPopover')
+myPopoverTrigger.addEventListener('hidden.cnds.popover', () => {
+  // do something...
+})</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Events-->
+                </section>
+                <!--/Section: API content-->
+              </section>
+              <!--/Section: Docs content-->
+            </div>
+            <!-- ./Main column -->
+
+            <!-- Right Sidebar — 20% of the row width; hidden below lg breakpoint.
+                 Sticky attributes (processed by nimbus.js):
+                   data-cnds-sticky="true"           : activates sticky positioning
+                   data-cnds-sticky-boundary="true"  : constrains sticky to its parent container
+                   data-cnds-sticky-direction="both" : sticks when scrolling up OR down
+                   data-cnds-sticky-offset="56"      : clears the 56 px fixed header
+                   data-cnds-sticky-delay="125"      : debounce delay (ms) to reduce scroll jank
+                 data-cnds-allow-hashes="true" on the <ul>: nimbus.js watches the URL hash
+                   and highlights the matching nav-link as the user scrolls through sections. -->
+            <div class="col-lg-2 d-none d-lg-block">
+              <div class="sticky-top" style="top: 100px; z-index: 1">
+                <nav aria-label="Page sections">
+                  <ul
+                    class="nav flex-column nav-pills menu-sidebar"
+                    id="rightNav"
+                    data-cnds-allow-hashes="true"
+                  >
+                    <li class="nav-item"><a class="nav-link" href="#section-introduction">Introduction</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-basic-example">Basic example</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-overview">Overview</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-four-directions">Four directions</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-dismiss-on-next-click">Dismiss on next click</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-disabled-elements">Disabled elements</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-api-docs">API Documentation</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-usage">Usage</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-options">Options</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-methods">Methods</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-events">Events</a></li>
+                  </ul>
+                </nav>
+              </div>
+            </div>
+            <!-- ./Right Sidebar -->
+          </div>
+          <!-- ./Content Row -->
+        </div>
+      </div>
+      </div>
+      <!-- ./d-none d-md-block -->
+    </main>
+    <!-- ./Content -->
+    <!-- Footer -->
+    <div class="cf-footer cf-footer-app">
+      <footer class="page-footer main-footer" aria-label="Site footer">
+        <div class="w-100 px-3 d-flex align-items-center">
+          <img src="img/cf/core/cloudficient_logo_light.svg" class="cf-logo-light" style="width: 135px;" alt="Cloudficient" />
+          <img src="img/cf/core/cloudficient_logo_dark.svg" class="cf-logo-dark" style="width: 135px;" alt="Cloudficient" />
+          <span class="footer-copyright ms-auto">&copy; <span id="currentYear"></span> Cloudficient</span>
+        </div>
+      </footer>
+    </div>
+    <!-- ./Footer -->
+    <!-- SCRIPTS — load order matters:
+         1. nimbus.js       — core framework: processes all data-cnds-* attributes (theme, sticky, sidenav, tooltips, popovers…)
+         2. app.js          — application-level overrides and custom initialisation
+         3. prism.min.js    — syntax highlighting for <code class="language-*"> blocks; must run after DOM is ready
+         4. sidenav-loader.js — fetches shared sidenav HTML and injects it into #sidebar-cf -->
+    <script type="text/javascript" src="js/nimbus.js?v=9.0.4"></script>
+    <script type="text/javascript" src="js/app.js?v=9.0.4"></script>
+    <script type="text/javascript" src="plugins/js/prism.min.js"></script>
+    <script type="text/javascript" src="js/sidenav-loader.js"></script>
+    <!-- Inline: populate the footer copyright year dynamically so the page never needs a manual update -->
+    <script type="text/javascript">
+      var currentYearElement = document.getElementById("currentYear");
+      if (currentYearElement) {
+        currentYearElement.textContent = new Date().getFullYear();
+      }
+    </script>
+  </body>
+</html>

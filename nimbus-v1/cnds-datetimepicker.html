@@ -1,0 +1,2497 @@
+<!--
+* CNDS Nimbus Design System — DateTimepicker
+* Version: 1.0.0
+* Layout: Application with SideNav (migrated from Nimbus v8 template)
+* NOTES
+- Pure HTML5, CSS3, vanilla JavaScript — zero external dependencies
+- Uses data-cnds-* attributes (replaces data-mdb-*)
+- Uses Nimbus.* namespace (replaces mdb.*)
+- Default product theme: CaseFusion (cnds-product-casefusion on <body>; change to cnds-product-hyperlize or cnds-product-expireon)
+-->
+<!doctype html>
+<!-- data-cnds-theme: sets the initial theme ("light" | "dark"). nimbus.js syncs this attribute when the user toggles. -->
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta
+      name="description"
+      content="DateTimepicker | Cloudficient Nimbus Design System v1.0.0"
+    />
+    <title>DateTimepicker | CNDS v1.0.0 | Cloudficient Nimbus Design System</title>
+    <!-- Nimbus CSS -->
+    <link rel="stylesheet" href="css/nimbus.css" media="all" type="text/css" />
+    <!-- Custom styles | All custom classes/styles/overrides go here! -->
+    <link rel="stylesheet" href="css/app.css" media="all" type="text/css" />
+    <!-- Prism syntax highlighting -->
+    <link
+      rel="stylesheet"
+      href="plugins/css/prism.min.css"
+      media="all"
+      type="text/css"
+    />
+    <!-- Favicons -->
+    <link
+      rel="apple-touch-icon"
+      sizes="57x57"
+      href="img/favicon/apple-icon-57x57.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="60x60"
+      href="img/favicon/apple-icon-60x60.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="72x72"
+      href="img/favicon/apple-icon-72x72.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="76x76"
+      href="img/favicon/apple-icon-76x76.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="114x114"
+      href="img/favicon/apple-icon-114x114.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="120x120"
+      href="img/favicon/apple-icon-120x120.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="144x144"
+      href="img/favicon/apple-icon-144x144.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="152x152"
+      href="img/favicon/apple-icon-152x152.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="img/favicon/apple-icon-180x180.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="192x192"
+      href="img/favicon/android-icon-192x192.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="img/favicon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="96x96"
+      href="img/favicon/favicon-96x96.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="img/favicon/favicon-16x16.png"
+    />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta
+      name="msapplication-TileImage"
+      content="img/favicon/ms-icon-144x144.png"
+    />
+    <!-- ./Favicons -->
+    <!-- Design tokens — load order matters:
+         1. primitives.css  — raw color/spacing values (no theming)
+         2. light.css       — semantic tokens for [data-cnds-theme="light"] / :root
+         3. dark.css        — semantic token overrides for [data-cnds-theme="dark"]
+         All three must appear AFTER nimbus.css so component variables resolve correctly. -->
+    <link rel="stylesheet" href="css/themes/primitives.css" />
+    <link rel="stylesheet" href="css/themes/light.css" />
+    <link rel="stylesheet" href="css/themes/dark.css" />
+  </head>
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 Bypass Blocks; renders visually hidden until focused -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+    <!-- Header -->
+    <div class="sticky-top">
+      <!-- Utility Navigation -->
+      <nav id="UtilityNav" class="nav nav-cf-utility">
+        <div class="w-100 gx-3 px-sm-0 px-lg-3">
+          <ul class="nav nav-cf-utility-ul"></ul>
+        </div>
+      </nav>
+      <!-- ./Utility Navigation -->
+      <!-- Main Navigation -->
+      <nav id="MainNav" class="navbar navbar-expand-xl navbar-cf">
+        <div class="container-fluid p-0 px-3 d-flex">
+          <div class="d-flex flex-fill align-items-center text-truncate">
+            <div class="text-center d-none d-md-block me-3 border-end">
+              <a href="index.html"
+                ><img src="img/cf/core/logo_nimbus.png" class="me-3 mt-n1"
+              alt="Cloudficient Nimbus Design System" /></a>
+            </div>
+            <div class="flex-fill text-truncate">
+              <div class="navbar-cf-title-block">
+                <div
+                  class="navbar-cf-title cf-page-title text-truncate"
+                  style="padding-bottom: 0"
+                >
+                  <span class="cf-page-title-text cf-page-title-brand">v1</span
+                  ><span class="cf-page-title-divider"></span
+                  ><span class="cf-page-title-text">DateTimepicker</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- data-cnds-toggle="theme": wired by nimbus.js — flips data-cnds-theme on <html> between "light" and "dark" -->
+          <button
+            class="btn btn-sm btn-outline-secondary ms-2"
+            data-cnds-toggle="theme"
+            aria-label="Toggle theme"
+            title="Toggle theme"
+          >
+            <i class="mdi mdi-weather-night mdi-18px" aria-hidden="true"></i>
+          </button>
+        </div>
+      </nav>
+      <!-- ./Main Navigation -->
+    </div>
+    <!-- ./Header -->
+    <!-- Content -->
+    <main id="main-content" class="cf-main-app">
+      <!-- Mobile viewport warning -->
+      <div class="d-block d-md-none p-4">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>This application is not
+          optimized for small screens. Please use a large tablet, laptop, or
+          desktop computer to continue.
+        </div>
+      </div>
+      <div class="d-none d-md-block">
+        <!-- Sidenav — markup is intentionally empty; sidenav-loader.js fetches and injects the shared nav HTML.
+             data-cnds-mode="side"           : renders as a persistent side panel (not an overlay/drawer)
+             data-cnds-slim / slim-collapsed : controls compact/icon-only collapsed state
+             data-cnds-content="#slim-content": the sibling panel that shrinks/expands as the nav opens/closes
+             data-cnds-accordion="true"      : collapses other open nav groups when a new one is expanded -->
+        <nav
+          id="sidebar-cf"
+          class="sidenav"
+          data-cnds-mode="side"
+          data-cnds-slim="false"
+          data-cnds-slim-collapsed="false"
+          data-cnds-content="#slim-content"
+          data-cnds-accordion="true"
+        ></nav>
+        <div id="slim-content">
+          <div class="slim-content-box">
+            <!-- Content Row -->
+            <div class="row">
+              <!-- Main column — 80 % of the row width; the remaining 20 % is the right sidebar.
+                   The inline flex overrides are intentional: they pin the ratio regardless of Bootstrap's
+                   grid breakpoints so the sidebar never wraps on large viewports. -->
+              <div class="col-12 col-lg" style="flex: 0 0 80%; max-width: 80%">
+                <!--Section: Docs content-->
+                <section class="container-fluid">
+                  <!--Section: Introduction-->
+                  <section id="section-introduction">
+
+                    <!-- Description -->
+                    <p class="mb-4">
+                      The DateTimepicker combines date and time selection into a
+                      single form field. It opens a modal dialog with two tabs —
+                      <strong>Date</strong> and <strong>Time</strong> — powered by
+                      the existing Datepicker and Timepicker components, so both
+                      parts benefit from their full option sets (date constraints,
+                      format strings, 12/24-hour mode, and so on).
+                    </p>
+                    <p class="mb-4">
+                      Use the DateTimepicker when a form requires both a calendar
+                      date and a clock time captured together — for example, event
+                      scheduling, appointment booking, or log timestamps. When only
+                      one of date or time is needed, use the dedicated
+                      <a href="cnds-datepicker.html">Datepicker</a> or
+                      <a href="cnds-timepicker.html">Timepicker</a> instead.
+                    </p>
+                    <p class="note note-light">
+                      <strong>Note:</strong> Read the
+                      <a href="#api-section-introduction">API Documentation</a> to
+                      find all available options and advanced customization.
+                    </p>
+
+                    <p class="note note-info"><strong class="note-label">Note:</strong> To preview components in different themes, click the theme toggle button <i class="mdi mdi-weather-night" aria-hidden="true"></i> / <i class="mdi mdi-weather-sunny" aria-hidden="true"></i> in the header navigation bar.</p>
+                  </section>
+                  <!--/Section: Introduction-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Basic example-->
+                  <section id="section-basic-example">
+                    <!-- Section title -->
+                    <h3 class="mb-3">Basic example (Mobile)</h3>
+
+                    <p>A form input that opens a modal dialog for selecting date and time. The modal uses two tabs — <strong>Date</strong> and <strong>Time</strong> — powered by the existing Datepicker and Timepicker components. Click the input to open the picker.</p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                          <div class="cf-input-field cf-input-field-casefusion datetimepicker" style="width: 280px;">
+                            <label class="cf-input-label" for="datetimepickerExample">Select Date and Time</label>
+                            <div class="cf-input-wrapper">
+                              <div class="datetimepicker-input">
+                                <input type="text" class="cf-input-control" id="datetimepickerExample"
+                                       readonly />
+                                <button type="button" class="datetimepicker-toggle"
+                                        data-cnds-toggle="modal" data-cnds-target="#dtpExampleModal"
+                                        aria-label="Toggle datetimepicker">
+                                  <i class="mdi mdi-calendar-clock" aria-hidden="true"></i>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Wrap the date and time FormControls in a FormGroup; combine the values into a single ISO string output via a (click) handler on OK.
+     Example: this.form = this.fb.group({ date: ['', Validators.required], time: ['', Validators.required] });
+     Emit the combined dateTime string via an EventEmitter when the user clicks OK so the parent component receives a single reactive value. -->
+
+                    <!-- DateTimePicker Modal -->
+                    <div class="modal fade datetimepicker-modal" id="dtpExampleModal" tabindex="-1"
+                         aria-labelledby="dtpExampleModalLabel" aria-hidden="true">
+                      <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h4 class="modal-title" id="dtpExampleModalLabel">Select Date &amp; Time</h4>
+                            <button type="button" class="btn-close" data-cnds-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                          <div class="dtp-modal-tabs">
+                            <ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-casefusion nav-justified" role="tablist">
+                              <li class="nav-item" role="presentation">
+                                <a class="nav-link active" id="dtp-date-tab-ex" data-cnds-tab-init
+                                   href="#dtp-date-pane-ex" role="tab"
+                                   aria-controls="dtp-date-pane-ex" aria-selected="true">
+                                  Date
+                                </a>
+                              </li>
+                              <li class="nav-item" role="presentation">
+                                <a class="nav-link" id="dtp-time-tab-ex" data-cnds-tab-init
+                                   href="#dtp-time-pane-ex" role="tab"
+                                   aria-controls="dtp-time-pane-ex" aria-selected="false">
+                                  Time
+                                </a>
+                              </li>
+                            </ul>
+                          </div>
+                          <div class="modal-body">
+                            <div class="tab-content">
+                              <div class="tab-pane fade show active" id="dtp-date-pane-ex"
+                                   role="tabpanel" aria-labelledby="dtp-date-tab-ex">
+                                <div class="dtp-date-display" id="dtpExDateDisplay">&mdash;</div>
+                                <div class="dtp-datepicker-inline">
+                                  <div class="cf-input-field cf-input-field-casefusion" id="dtpExDatepicker"
+                                       data-cnds-datepicker-init data-cnds-inline="true"
+                                       data-cnds-today-button="false" data-cnds-clear-button="false">
+                                    <label class="visually-hidden" for="dtpExDateInput">Select a date</label>
+                                    <input type="text" class="visually-hidden" id="dtpExDateInput" />
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="tab-pane fade" id="dtp-time-pane-ex"
+                                   role="tabpanel" aria-labelledby="dtp-time-tab-ex">
+                                <div class="dtp-timepicker-inline">
+                                  <div class="timepicker" data-cnds-timepicker-init data-cnds-inline="true">
+                                    <input type="text" class="form-control visually-hidden" id="dtpExTimeInput" />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-cnds-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-secondary" id="dtpExClearBtn">Clear</button>
+                            <button type="button" class="btn btn-secondary" id="dtpExTodayBtn">Today</button>
+                            <button type="button" class="btn btn-primary" id="dtpExOkBtn">Ok</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- /DateTimePicker Modal -->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;!-- Trigger input --&gt;
+&lt;div class="cf-input-field cf-input-field-casefusion datetimepicker"&gt;
+  &lt;label class="cf-input-label" for="datetimepickerExample"&gt;Select Date and Time&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;div class="datetimepicker-input"&gt;
+      &lt;input type="text" class="cf-input-control" id="datetimepickerExample"
+             readonly placeholder="mm/dd/yyyy, hh:mm" /&gt;
+      &lt;button type="button" class="datetimepicker-toggle"
+              data-cnds-toggle="modal" data-cnds-target="#dtpModal"
+              aria-label="Toggle datetimepicker"&gt;
+        &lt;i class="mdi mdi-calendar-clock" aria-hidden="true"&gt;&lt;/i&gt;
+      &lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- DateTimePicker Modal --&gt;
+&lt;div class="modal fade datetimepicker-modal" id="dtpModal" tabindex="-1"
+     aria-labelledby="dtpModalLabel" aria-hidden="true"&gt;
+  &lt;div class="modal-dialog modal-dialog-centered"&gt;
+    &lt;div class="modal-content"&gt;
+      &lt;div class="modal-header"&gt;
+        &lt;h5 class="modal-title" id="dtpModalLabel"&gt;Select Date &amp;amp; Time&lt;/h5&gt;
+        &lt;button type="button" class="btn-close" data-cnds-dismiss="modal" aria-label="Close"&gt;&lt;/button&gt;
+      &lt;/div&gt;
+      &lt;div class="dtp-modal-tabs"&gt;
+        &lt;ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-casefusion nav-justified" role="tablist"&gt;
+          &lt;li class="nav-item" role="presentation"&gt;
+            &lt;a class="nav-link active" id="dtp-date-tab" data-cnds-tab-init
+               href="#dtp-date-pane" role="tab"
+               aria-controls="dtp-date-pane" aria-selected="true"&gt;
+              Date
+            &lt;/a&gt;
+          &lt;/li&gt;
+          &lt;li class="nav-item" role="presentation"&gt;
+            &lt;a class="nav-link" id="dtp-time-tab" data-cnds-tab-init
+               href="#dtp-time-pane" role="tab"
+               aria-controls="dtp-time-pane" aria-selected="false"&gt;
+              Time
+            &lt;/a&gt;
+          &lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/div&gt;
+      &lt;div class="modal-body"&gt;
+        &lt;div class="tab-content"&gt;
+          &lt;div class="tab-pane fade show active" id="dtp-date-pane"
+               role="tabpanel" aria-labelledby="dtp-date-tab"&gt;
+            &lt;div class="dtp-date-display"&gt;&amp;mdash;&lt;/div&gt;
+            &lt;div class="dtp-datepicker-inline"&gt;
+              &lt;div class="cf-input-field cf-input-field-casefusion" data-cnds-datepicker-init data-cnds-inline="true"&gt;
+                &lt;label class="visually-hidden" for="dtpDateInput"&gt;Select a date&lt;/label&gt;
+                &lt;input type="text" class="visually-hidden" id="dtpDateInput" /&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+          &lt;div class="tab-pane fade" id="dtp-time-pane"
+               role="tabpanel" aria-labelledby="dtp-time-tab"&gt;
+            &lt;div class="dtp-timepicker-inline"&gt;
+              &lt;div class="timepicker" data-cnds-timepicker-init data-cnds-inline="true"&gt;
+                &lt;input type="text" class="form-control visually-hidden" id="dtpTimeInput" /&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class="modal-footer"&gt;
+        &lt;button type="button" class="btn btn-secondary" data-cnds-dismiss="modal"&gt;Cancel&lt;/button&gt;
+        &lt;button type="button" class="btn btn-secondary"&gt;Clear&lt;/button&gt;
+        &lt;button type="button" class="btn btn-secondary"&gt;Today&lt;/button&gt;
+        &lt;button type="button" class="btn btn-primary"&gt;Ok&lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Basic example-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Inline example-->
+                  <section id="section-inline">
+                    <!-- Section title -->
+                    <h3 class="mb-3">Inline version (Desktop)</h3>
+
+                    <p>
+                      The desktop version uses two sequential popups: clicking the
+                      calendar icon opens the datepicker, selecting a date opens the
+                      timepicker, and clicking OK populates the trigger field.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center pb-4">
+
+                          <!-- Trigger field -->
+                          <div class="cf-input-field cf-input-field-casefusion datetimepicker"
+                               style="width: 280px;" id="dtpIlWrapper">
+                            <label class="cf-input-label" for="datetimepickerInline">Select Date and Time</label>
+                            <div class="cf-input-wrapper">
+                              <div class="datetimepicker-input">
+                                <input type="text" class="cf-input-control"
+                                       id="datetimepickerInline" readonly />
+                                <button type="button" class="datetimepicker-toggle"
+                                        id="dtpIlToggle" aria-label="Open date and time picker">
+                                  <i class="mdi mdi-calendar-clock" aria-hidden="true"></i>
+                                </button>
+                              </div>
+                            </div>
+
+                            <!-- Datepicker popup — toggle button hidden; opened programmatically -->
+                            <div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker"
+                                 id="dtpIlDp"
+                                 data-cnds-datepicker-init>
+                              <label class="visually-hidden" for="dtpIlDpInput">Select a date</label>
+                              <input type="text" class="visually-hidden" id="dtpIlDpInput" />
+                            </div>
+
+                            <!-- Timepicker popup — toggle button hidden; opened after date selected -->
+                            <div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker"
+                                 id="dtpIlTp"
+                                 data-cnds-timepicker-init>
+                              <label class="visually-hidden" for="dtpIlTpInput">Select a time</label>
+                              <input type="text" class="form-control visually-hidden"
+                                     id="dtpIlTpInput" />
+                            </div>
+
+                          </div>
+
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Use a FormGroup with separate date and time FormControls; open each picker sequentially by subscribing to the date FormControl's valueChanges.
+     Example: this.dateCtrl.valueChanges.subscribe(v => { if (v) this.openTimepicker(); });
+     Combine the FormGroup values in a computed getter that returns the ISO datetime string for downstream use. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;!-- Trigger field --&gt;
+&lt;div class="cf-input-field cf-input-field-casefusion datetimepicker" id="dtpWrapper"&gt;
+  &lt;label class="cf-input-label" for="datetimepickerInline"&gt;Select Date and Time&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;div class="datetimepicker-input"&gt;
+      &lt;input type="text" class="cf-input-control" id="datetimepickerInline" readonly /&gt;
+      &lt;button type="button" class="datetimepicker-toggle" id="dtpToggle"
+              aria-label="Open date and time picker"&gt;
+        &lt;i class="mdi mdi-calendar-clock" aria-hidden="true"&gt;&lt;/i&gt;
+      &lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;!-- Datepicker popup --&gt;
+  &lt;div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker" id="dtpDp"
+       data-cnds-datepicker-init data-cnds-today-button="false" data-cnds-clear-button="false"&gt;
+    &lt;label class="visually-hidden" for="dtpDpInput"&gt;Select a date&lt;/label&gt;
+    &lt;input type="text" class="visually-hidden" id="dtpDpInput" /&gt;
+  &lt;/div&gt;
+
+  &lt;!-- Timepicker popup --&gt;
+  &lt;div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker" id="dtpTp"
+       data-cnds-timepicker-init&gt;
+    &lt;label class="visually-hidden" for="dtpTpInput"&gt;Select a time&lt;/label&gt;
+    &lt;input type="text" class="form-control visually-hidden" id="dtpTpInput" /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Inline example-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Sizing-->
+                  <section id="section-sizing">
+                    <!-- Section title -->
+                    <h3 class="mb-3">Sizing</h3>
+
+                    <p>
+                      The datetimepicker inherits its input dimensions directly from the
+                      <a href="cnds-inputfields.html"><code>.cf-input-field</code></a>
+                      size modifiers. Apply <code>.cf-input-field-sm</code> or
+                      <code>.cf-input-field-lg</code> to the wrapper — the label,
+                      control padding, and toggle icon all scale together.
+                    </p>
+
+                    <div class="table-responsive mb-4">
+                      <table class="table table-sm" aria-label="Sizing">
+                        <thead>
+                          <tr>
+                            <th>Wrapper class</th>
+                            <th>Label</th>
+                            <th>Input font</th>
+                            <th>Vertical padding</th>
+                            <th>Horizontal padding</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr><td><code>.cf-input-field-sm</code></td><td>13px / 700</td><td>13px</td><td>8px</td><td>12px</td></tr>
+                          <tr><td><code>.cf-input-field</code> <em>(default)</em></td><td>14px / 800</td><td>14px</td><td>12px</td><td>20px</td></tr>
+                          <tr><td><code>.cf-input-field-lg</code></td><td>16px / 700</td><td>16px</td><td>14px</td><td>24px</td></tr>
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center align-items-end gap-4 pb-4">
+
+                          <!-- Large -->
+                          <div class="cf-input-field cf-input-field-casefusion cf-input-field-lg datetimepicker"
+                               style="width: 240px;" id="dtpSzLgWrapper">
+                            <label class="cf-input-label" for="datetimepickerSizeLg">Large</label>
+                            <div class="cf-input-wrapper">
+                              <div class="datetimepicker-input">
+                                <input type="text" class="cf-input-control"
+                                       id="datetimepickerSizeLg" readonly />
+                                <button type="button" class="datetimepicker-toggle"
+                                        id="dtpSzLgToggle" aria-label="Open date and time picker">
+                                  <i class="mdi mdi-calendar-clock" aria-hidden="true"></i>
+                                </button>
+                              </div>
+                            </div>
+                            <div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker"
+                                 id="dtpSzLgDp" data-cnds-datepicker-init>
+                              <label class="visually-hidden" for="dtpSzLgDpInput">Select a date</label>
+                              <input type="text" class="visually-hidden" id="dtpSzLgDpInput" />
+                            </div>
+                            <div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker"
+                                 id="dtpSzLgTp" data-cnds-timepicker-init>
+                              <label class="visually-hidden" for="dtpSzLgTpInput">Select a time</label>
+                              <input type="text" class="form-control visually-hidden" id="dtpSzLgTpInput" />
+                            </div>
+                          </div>
+
+                          <!-- Default -->
+                          <div class="cf-input-field cf-input-field-casefusion datetimepicker"
+                               style="width: 220px;" id="dtpSzDfWrapper">
+                            <label class="cf-input-label" for="datetimepickerSizeDf">Default</label>
+                            <div class="cf-input-wrapper">
+                              <div class="datetimepicker-input">
+                                <input type="text" class="cf-input-control"
+                                       id="datetimepickerSizeDf" readonly />
+                                <button type="button" class="datetimepicker-toggle"
+                                        id="dtpSzDfToggle" aria-label="Open date and time picker">
+                                  <i class="mdi mdi-calendar-clock" aria-hidden="true"></i>
+                                </button>
+                              </div>
+                            </div>
+                            <div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker"
+                                 id="dtpSzDfDp" data-cnds-datepicker-init>
+                              <label class="visually-hidden" for="dtpSzDfDpInput">Select a date</label>
+                              <input type="text" class="visually-hidden" id="dtpSzDfDpInput" />
+                            </div>
+                            <div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker"
+                                 id="dtpSzDfTp" data-cnds-timepicker-init>
+                              <label class="visually-hidden" for="dtpSzDfTpInput">Select a time</label>
+                              <input type="text" class="form-control visually-hidden" id="dtpSzDfTpInput" />
+                            </div>
+                          </div>
+
+                          <!-- Small -->
+                          <div class="cf-input-field cf-input-field-casefusion cf-input-field-sm datetimepicker"
+                               style="width: 200px;" id="dtpSzSmWrapper">
+                            <label class="cf-input-label" for="datetimepickerSizeSm">Small</label>
+                            <div class="cf-input-wrapper">
+                              <div class="datetimepicker-input">
+                                <input type="text" class="cf-input-control"
+                                       id="datetimepickerSizeSm" readonly />
+                                <button type="button" class="datetimepicker-toggle"
+                                        id="dtpSzSmToggle" aria-label="Open date and time picker">
+                                  <i class="mdi mdi-calendar-clock" aria-hidden="true"></i>
+                                </button>
+                              </div>
+                            </div>
+                            <div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker"
+                                 id="dtpSzSmDp" data-cnds-datepicker-init>
+                              <label class="visually-hidden" for="dtpSzSmDpInput">Select a date</label>
+                              <input type="text" class="visually-hidden" id="dtpSzSmDpInput" />
+                            </div>
+                            <div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker"
+                                 id="dtpSzSmTp" data-cnds-timepicker-init>
+                              <label class="visually-hidden" for="dtpSzSmTpInput">Select a time</label>
+                              <input type="text" class="form-control visually-hidden" id="dtpSzSmTpInput" />
+                            </div>
+                          </div>
+
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Pass the size modifier class via @Input() size and apply it with [ngClass] on the wrapper; the date and time sub-pickers inherit the same size.
+     Example: <div class="cf-input-field datetimepicker" [ngClass]="size !== 'default' ? 'cf-input-field-' + size : ''">
+     Exposing size as an @Input() keeps the datetimepicker component consistent with the standalone datepicker and timepicker size APIs. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;!-- Large --&gt;
+&lt;div class="cf-input-field cf-input-field-casefusion cf-input-field-lg datetimepicker" id="dtpSzLgWrapper"&gt;
+  &lt;label class="cf-input-label" for="datetimepickerSizeLg"&gt;Large&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;div class="datetimepicker-input"&gt;
+      &lt;input type="text" class="cf-input-control" id="datetimepickerSizeLg" readonly /&gt;
+      &lt;button type="button" class="datetimepicker-toggle" id="dtpSzLgToggle" aria-label="Open date and time picker"&gt;
+        &lt;i class="mdi mdi-calendar-clock" aria-hidden="true"&gt;&lt;/i&gt;
+      &lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker" id="dtpSzLgDp" data-cnds-datepicker-init&gt;
+    &lt;label class="visually-hidden" for="dtpSzLgDpInput"&gt;Select a date&lt;/label&gt;
+    &lt;input type="text" class="visually-hidden" id="dtpSzLgDpInput" /&gt;
+  &lt;/div&gt;
+  &lt;div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker" id="dtpSzLgTp" data-cnds-timepicker-init&gt;
+    &lt;label class="visually-hidden" for="dtpSzLgTpInput"&gt;Select a time&lt;/label&gt;
+    &lt;input type="text" class="form-control visually-hidden" id="dtpSzLgTpInput" /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Default --&gt;
+&lt;div class="cf-input-field cf-input-field-casefusion datetimepicker" id="dtpSzDfWrapper"&gt;
+  &lt;label class="cf-input-label" for="datetimepickerSizeDf"&gt;Default&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;div class="datetimepicker-input"&gt;
+      &lt;input type="text" class="cf-input-control" id="datetimepickerSizeDf" readonly /&gt;
+      &lt;button type="button" class="datetimepicker-toggle" id="dtpSzDfToggle" aria-label="Open date and time picker"&gt;
+        &lt;i class="mdi mdi-calendar-clock" aria-hidden="true"&gt;&lt;/i&gt;
+      &lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker" id="dtpSzDfDp" data-cnds-datepicker-init&gt;
+    &lt;label class="visually-hidden" for="dtpSzDfDpInput"&gt;Select a date&lt;/label&gt;
+    &lt;input type="text" class="visually-hidden" id="dtpSzDfDpInput" /&gt;
+  &lt;/div&gt;
+  &lt;div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker" id="dtpSzDfTp" data-cnds-timepicker-init&gt;
+    &lt;label class="visually-hidden" for="dtpSzDfTpInput"&gt;Select a time&lt;/label&gt;
+    &lt;input type="text" class="form-control visually-hidden" id="dtpSzDfTpInput" /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Small --&gt;
+&lt;div class="cf-input-field cf-input-field-casefusion cf-input-field-sm datetimepicker" id="dtpSzSmWrapper"&gt;
+  &lt;label class="cf-input-label" for="datetimepickerSizeSm"&gt;Small&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;div class="datetimepicker-input"&gt;
+      &lt;input type="text" class="cf-input-control" id="datetimepickerSizeSm" readonly /&gt;
+      &lt;button type="button" class="datetimepicker-toggle" id="dtpSzSmToggle" aria-label="Open date and time picker"&gt;
+        &lt;i class="mdi mdi-calendar-clock" aria-hidden="true"&gt;&lt;/i&gt;
+      &lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker" id="dtpSzSmDp" data-cnds-datepicker-init&gt;
+    &lt;label class="visually-hidden" for="dtpSzSmDpInput"&gt;Select a date&lt;/label&gt;
+    &lt;input type="text" class="visually-hidden" id="dtpSzSmDpInput" /&gt;
+  &lt;/div&gt;
+  &lt;div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker" id="dtpSzSmTp" data-cnds-timepicker-init&gt;
+    &lt;label class="visually-hidden" for="dtpSzSmTpInput"&gt;Select a time&lt;/label&gt;
+    &lt;input type="text" class="form-control visually-hidden" id="dtpSzSmTpInput" /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Sizing-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Product themes-->
+                  <section id="section-product-example">
+                    <!-- Section title -->
+                    <h3 class="mb-3">Product themes</h3>
+
+                    <p>
+                      Add the product modifier class directly on the datetimepicker wrapper to apply the matching focus color. Each product has light and dark variants defined automatically.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="bg-white border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center gap-5 pb-4">
+
+                          <!-- CaseFusion -->
+                          <div style="width: 220px;">
+                            <div class="cf-input-field cf-input-field-casefusion datetimepicker"
+                                 id="dtpPrCfWrapper">
+                              <label class="cf-input-label" for="datetimepickerProdCf">CaseFusion</label>
+                              <div class="cf-input-wrapper">
+                                <div class="datetimepicker-input">
+                                  <input type="text" class="cf-input-control"
+                                         id="datetimepickerProdCf" readonly />
+                                  <button type="button" class="datetimepicker-toggle"
+                                          id="dtpPrCfToggle" aria-label="Open date and time picker">
+                                    <i class="mdi mdi-calendar-clock" aria-hidden="true"></i>
+                                  </button>
+                                </div>
+                              </div>
+                              <div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker"
+                                   id="dtpPrCfDp" data-cnds-datepicker-init>
+                                <label class="visually-hidden" for="dtpPrCfDpInput">Select a date</label>
+                                <input type="text" class="visually-hidden" id="dtpPrCfDpInput" />
+                              </div>
+                              <div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker"
+                                   id="dtpPrCfTp" data-cnds-timepicker-init>
+                                <label class="visually-hidden" for="dtpPrCfTpInput">Select a time</label>
+                                <input type="text" class="form-control visually-hidden" id="dtpPrCfTpInput" />
+                              </div>
+                            </div>
+                          </div>
+
+                          <!-- ExpireOn -->
+                          <div style="width: 220px;">
+                            <div class="cf-input-field cf-input-field-expireon datetimepicker"
+                                 id="dtpPrExWrapper">
+                              <label class="cf-input-label" for="datetimepickerProdEx">ExpireOn</label>
+                              <div class="cf-input-wrapper">
+                                <div class="datetimepicker-input">
+                                  <input type="text" class="cf-input-control"
+                                         id="datetimepickerProdEx" readonly />
+                                  <button type="button" class="datetimepicker-toggle"
+                                          id="dtpPrExToggle" aria-label="Open date and time picker">
+                                    <i class="mdi mdi-calendar-clock" aria-hidden="true"></i>
+                                  </button>
+                                </div>
+                              </div>
+                              <div class="cf-input-field cf-input-field-expireon dtpil-sub-picker"
+                                   id="dtpPrExDp" data-cnds-datepicker-init>
+                                <label class="visually-hidden" for="dtpPrExDpInput">Select a date</label>
+                                <input type="text" class="visually-hidden" id="dtpPrExDpInput" />
+                              </div>
+                              <div class="cf-input-field cf-input-field-expireon dtpil-sub-picker"
+                                   id="dtpPrExTp" data-cnds-timepicker-init>
+                                <label class="visually-hidden" for="dtpPrExTpInput">Select a time</label>
+                                <input type="text" class="form-control visually-hidden" id="dtpPrExTpInput" />
+                              </div>
+                            </div>
+                          </div>
+
+                          <!-- Hyperlize -->
+                          <div style="width: 220px;">
+                            <div class="cf-input-field cf-input-field-hyperlize datetimepicker"
+                                 id="dtpPrHyWrapper">
+                              <label class="cf-input-label" for="datetimepickerProdHy">Hyperlize</label>
+                              <div class="cf-input-wrapper">
+                                <div class="datetimepicker-input">
+                                  <input type="text" class="cf-input-control"
+                                         id="datetimepickerProdHy" readonly />
+                                  <button type="button" class="datetimepicker-toggle"
+                                          id="dtpPrHyToggle" aria-label="Open date and time picker">
+                                    <i class="mdi mdi-calendar-clock" aria-hidden="true"></i>
+                                  </button>
+                                </div>
+                              </div>
+                              <div class="cf-input-field cf-input-field-hyperlize dtpil-sub-picker"
+                                   id="dtpPrHyDp" data-cnds-datepicker-init>
+                                <label class="visually-hidden" for="dtpPrHyDpInput">Select a date</label>
+                                <input type="text" class="visually-hidden" id="dtpPrHyDpInput" />
+                              </div>
+                              <div class="cf-input-field cf-input-field-hyperlize dtpil-sub-picker"
+                                   id="dtpPrHyTp" data-cnds-timepicker-init>
+                                <label class="visually-hidden" for="dtpPrHyTpInput">Select a time</label>
+                                <input type="text" class="form-control visually-hidden" id="dtpPrHyTpInput" />
+                              </div>
+                            </div>
+                          </div>
+
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Bind the product theme modifier class via @Input() product ('casefusion' | 'expireon' | 'hyperlize') on the datetimepicker component.
+     Example: <div class="cf-input-field datetimepicker" [ngClass]="'cf-input-field-' + product">
+     Provide the product theme from a shared AppConfigService so every datetimepicker picks up the active product context automatically. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;!-- CaseFusion --&gt;
+&lt;div class="cf-input-field cf-input-field-casefusion datetimepicker" id="dtpPrCfWrapper"&gt;
+  &lt;label class="cf-input-label" for="datetimepickerProdCf"&gt;CaseFusion&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;div class="datetimepicker-input"&gt;
+      &lt;input type="text" class="cf-input-control" id="datetimepickerProdCf" readonly /&gt;
+      &lt;button type="button" class="datetimepicker-toggle" id="dtpPrCfToggle" aria-label="Open date and time picker"&gt;
+        &lt;i class="mdi mdi-calendar-clock" aria-hidden="true"&gt;&lt;/i&gt;
+      &lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker" id="dtpPrCfDp" data-cnds-datepicker-init&gt;
+    &lt;label class="visually-hidden" for="dtpPrCfDpInput"&gt;Select a date&lt;/label&gt;
+    &lt;input type="text" class="visually-hidden" id="dtpPrCfDpInput" /&gt;
+  &lt;/div&gt;
+  &lt;div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker" id="dtpPrCfTp" data-cnds-timepicker-init&gt;
+    &lt;label class="visually-hidden" for="dtpPrCfTpInput"&gt;Select a time&lt;/label&gt;
+    &lt;input type="text" class="form-control visually-hidden" id="dtpPrCfTpInput" /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- ExpireOn --&gt;
+&lt;div class="cf-input-field cf-input-field-expireon datetimepicker" id="dtpPrExWrapper"&gt;
+  &lt;label class="cf-input-label" for="datetimepickerProdEx"&gt;ExpireOn&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;div class="datetimepicker-input"&gt;
+      &lt;input type="text" class="cf-input-control" id="datetimepickerProdEx" readonly /&gt;
+      &lt;button type="button" class="datetimepicker-toggle" id="dtpPrExToggle" aria-label="Open date and time picker"&gt;
+        &lt;i class="mdi mdi-calendar-clock" aria-hidden="true"&gt;&lt;/i&gt;
+      &lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="cf-input-field cf-input-field-expireon dtpil-sub-picker" id="dtpPrExDp" data-cnds-datepicker-init&gt;
+    &lt;label class="visually-hidden" for="dtpPrExDpInput"&gt;Select a date&lt;/label&gt;
+    &lt;input type="text" class="visually-hidden" id="dtpPrExDpInput" /&gt;
+  &lt;/div&gt;
+  &lt;div class="cf-input-field cf-input-field-expireon dtpil-sub-picker" id="dtpPrExTp" data-cnds-timepicker-init&gt;
+    &lt;label class="visually-hidden" for="dtpPrExTpInput"&gt;Select a time&lt;/label&gt;
+    &lt;input type="text" class="form-control visually-hidden" id="dtpPrExTpInput" /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Hyperlize --&gt;
+&lt;div class="cf-input-field cf-input-field-hyperlize datetimepicker" id="dtpPrHyWrapper"&gt;
+  &lt;label class="cf-input-label" for="datetimepickerProdHy"&gt;Hyperlize&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;div class="datetimepicker-input"&gt;
+      &lt;input type="text" class="cf-input-control" id="datetimepickerProdHy" readonly /&gt;
+      &lt;button type="button" class="datetimepicker-toggle" id="dtpPrHyToggle" aria-label="Open date and time picker"&gt;
+        &lt;i class="mdi mdi-calendar-clock" aria-hidden="true"&gt;&lt;/i&gt;
+      &lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="cf-input-field cf-input-field-hyperlize dtpil-sub-picker" id="dtpPrHyDp" data-cnds-datepicker-init&gt;
+    &lt;label class="visually-hidden" for="dtpPrHyDpInput"&gt;Select a date&lt;/label&gt;
+    &lt;input type="text" class="visually-hidden" id="dtpPrHyDpInput" /&gt;
+  &lt;/div&gt;
+  &lt;div class="cf-input-field cf-input-field-hyperlize dtpil-sub-picker" id="dtpPrHyTp" data-cnds-timepicker-init&gt;
+    &lt;label class="visually-hidden" for="dtpPrHyTpInput"&gt;Select a time&lt;/label&gt;
+    &lt;input type="text" class="form-control visually-hidden" id="dtpPrHyTpInput" /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Product themes-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Disabled example-->
+                  <section id="section-disabled">
+                    <!-- Section title -->
+                    <h3 class="mb-3">Disabled</h3>
+
+                    <p>
+                      Use <code>data-cnds-disabled="true"</code> attribute on
+                      DateTimepicker to give it a grayed out appearance and remove
+                      pointer events.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section
+                          class="w-100 p-4 d-flex justify-content-center pb-4"
+                        >
+                          <div
+                            class="cf-input-field cf-input-field-casefusion w-25"
+                            data-cnds-datetimepicker-init
+                            data-cnds-disabled="true"
+                          >
+                            <label class="cf-input-label" for="datetimepickerDisabled">Select Date and Time</label>
+                            <div class="cf-input-wrapper">
+                              <input
+                                type="text"
+                                class="cf-input-control"
+                                id="datetimepickerDisabled"
+                              />
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Control the disabled state via [attr.disabled] on the input and a [class.disabled] binding on the wrapper; pair with FormControl.disable().
+     Example: <input type="text" class="cf-input-control" [attr.disabled]="isDisabled ? true : null" [formControl]="dateTimeCtrl" />
+     Call this.form.controls['dateTime'].disable() programmatically to disable the full datetimepicker when the surrounding form context requires it. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0">
+                                <code class="language-html">
+&lt;div class="cf-input-field cf-input-field-casefusion" data-cnds-datetimepicker-init data-cnds-disabled="true"&gt;
+  &lt;label class="cf-input-label" for="datetimepickerDisabled"&gt;Select Date and Time&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;input type="text" class="cf-input-control" id="datetimepickerDisabled" /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+                                </code>
+                                </pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Disabled example-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Disabled past example-->
+                  <section id="section-disable-past">
+                    <!-- Section title -->
+                    <h3 class="mb-3">Disable past</h3>
+                    <p>
+                      Utilize the <code>data-cnds-disable-past</code> attribute to
+                      prevent the selection of dates that have already occurred.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                          <div class="cf-input-field cf-input-field-casefusion datetimepicker"
+                               style="width: 280px;" id="dtpDpWrapper">
+                            <label class="cf-input-label" for="datetimepickerDisablePast">Select Date and Time</label>
+                            <div class="cf-input-wrapper">
+                              <div class="datetimepicker-input">
+                                <input type="text" class="cf-input-control"
+                                       id="datetimepickerDisablePast" readonly />
+                                <button type="button" class="datetimepicker-toggle"
+                                        id="dtpDpToggle" aria-label="Open date and time picker">
+                                  <i class="mdi mdi-calendar-clock" aria-hidden="true"></i>
+                                </button>
+                              </div>
+                            </div>
+
+                            <div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker"
+                                 id="dtpDpDp"
+                                 data-cnds-datepicker-init
+                                 data-cnds-disable-past="true">
+                              <label class="visually-hidden" for="dtpDpDpInput">Select a date</label>
+                              <input type="text" class="visually-hidden" id="dtpDpDpInput" />
+                            </div>
+
+                            <div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker"
+                                 id="dtpDpTp" data-cnds-timepicker-init>
+                              <label class="visually-hidden" for="dtpDpTpInput">Select a time</label>
+                              <input type="text" class="form-control visually-hidden" id="dtpDpTpInput" />
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Pass data-cnds-disable-past as a static attribute or bind it conditionally; set minDate to today on the datepicker sub-component.
+     Example: <div class="cf-input-field dtpil-sub-picker" data-cnds-datepicker-init [attr.data-cnds-min-date]="todayIso">
+     Compute todayIso once in the component and share it with both the datepicker and any date validation logic in the FormGroup. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div class="cf-input-field cf-input-field-casefusion datetimepicker" id="dtpDpWrapper"&gt;
+  &lt;label class="cf-input-label" for="datetimepickerDisablePast"&gt;Select Date and Time&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;div class="datetimepicker-input"&gt;
+      &lt;input type="text" class="cf-input-control" id="datetimepickerDisablePast" readonly /&gt;
+      &lt;button type="button" class="datetimepicker-toggle" id="dtpDpToggle" aria-label="Open date and time picker"&gt;
+        &lt;i class="mdi mdi-calendar-clock" aria-hidden="true"&gt;&lt;/i&gt;
+      &lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker" id="dtpDpDp"
+       data-cnds-datepicker-init data-cnds-disable-past="true"&gt;
+    &lt;label class="visually-hidden" for="dtpDpDpInput"&gt;Select a date&lt;/label&gt;
+    &lt;input type="text" class="visually-hidden" id="dtpDpDpInput" /&gt;
+  &lt;/div&gt;
+  &lt;div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker" id="dtpDpTp" data-cnds-timepicker-init&gt;
+    &lt;label class="visually-hidden" for="dtpDpTpInput"&gt;Select a time&lt;/label&gt;
+    &lt;input type="text" class="form-control visually-hidden" id="dtpDpTpInput" /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Disabled past example-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Disable future example-->
+                  <section id="section-disable-future">
+                    <!-- Section title -->
+                    <h3 class="mb-3">Disable future</h3>
+
+                    <p>
+                      Utilize the <code>data-cnds-disable-future</code> attribute
+                      to prevent the selection of future dates.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                          <div class="cf-input-field cf-input-field-casefusion datetimepicker"
+                               style="width: 280px;" id="dtpDfWrapper">
+                            <label class="cf-input-label" for="datetimepickerDisableFuture">Select Date and Time</label>
+                            <div class="cf-input-wrapper">
+                              <div class="datetimepicker-input">
+                                <input type="text" class="cf-input-control"
+                                       id="datetimepickerDisableFuture" readonly />
+                                <button type="button" class="datetimepicker-toggle"
+                                        id="dtpDfToggle" aria-label="Open date and time picker">
+                                  <i class="mdi mdi-calendar-clock" aria-hidden="true"></i>
+                                </button>
+                              </div>
+                            </div>
+
+                            <div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker"
+                                 id="dtpDfDp"
+                                 data-cnds-datepicker-init
+                                 data-cnds-disable-future="true">
+                              <label class="visually-hidden" for="dtpDfDpInput">Select a date</label>
+                              <input type="text" class="visually-hidden" id="dtpDfDpInput" />
+                            </div>
+
+                            <div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker"
+                                 id="dtpDfTp" data-cnds-timepicker-init>
+                              <label class="visually-hidden" for="dtpDfTpInput">Select a time</label>
+                              <input type="text" class="form-control visually-hidden" id="dtpDfTpInput" />
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Pass maxDate bound to today for the datepicker sub-component via [attr.data-cnds-max-date]="todayIso" to disable future date selection.
+     Example: <div class="cf-input-field dtpil-sub-picker" data-cnds-datepicker-init [attr.data-cnds-max-date]="todayIso">
+     Reuse the same todayIso computed property to keep disable-future logic consistent with disable-past across the application. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div class="cf-input-field cf-input-field-casefusion datetimepicker" id="dtpDfWrapper"&gt;
+  &lt;label class="cf-input-label" for="datetimepickerDisableFuture"&gt;Select Date and Time&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;div class="datetimepicker-input"&gt;
+      &lt;input type="text" class="cf-input-control" id="datetimepickerDisableFuture" readonly /&gt;
+      &lt;button type="button" class="datetimepicker-toggle" id="dtpDfToggle" aria-label="Open date and time picker"&gt;
+        &lt;i class="mdi mdi-calendar-clock" aria-hidden="true"&gt;&lt;/i&gt;
+      &lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker" id="dtpDfDp"
+       data-cnds-datepicker-init data-cnds-disable-future="true"&gt;
+    &lt;label class="visually-hidden" for="dtpDfDpInput"&gt;Select a date&lt;/label&gt;
+    &lt;input type="text" class="visually-hidden" id="dtpDfDpInput" /&gt;
+  &lt;/div&gt;
+  &lt;div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker" id="dtpDfTp" data-cnds-timepicker-init&gt;
+    &lt;label class="visually-hidden" for="dtpDfTpInput"&gt;Select a time&lt;/label&gt;
+    &lt;input type="text" class="form-control visually-hidden" id="dtpDfTpInput" /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Disable future example-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Default values example-->
+                  <section id="section-default">
+                    <!-- Section title -->
+                    <h3 class="mb-3">Default values</h3>
+
+                    <!--Description-->
+                    <p>
+                      You can set default date and time with options
+                      <code>defaultDate</code> and <code>defaultTime</code>.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                          <div class="cf-input-field cf-input-field-casefusion datetimepicker"
+                               style="width: 280px;" id="dtpDefWrapper">
+                            <label class="cf-input-label" for="datetimepickerDefault">Select Date and Time</label>
+                            <div class="cf-input-wrapper">
+                              <div class="datetimepicker-input">
+                                <input type="text" class="cf-input-control"
+                                       id="datetimepickerDefault" readonly value="01/22/2019, 10:33 PM" />
+                                <button type="button" class="datetimepicker-toggle"
+                                        id="dtpDefToggle" aria-label="Open date and time picker">
+                                  <i class="mdi mdi-calendar-clock" aria-hidden="true"></i>
+                                </button>
+                              </div>
+                            </div>
+
+                            <div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker"
+                                 id="dtpDefDp" data-cnds-datepicker-init>
+                              <label class="visually-hidden" for="dtpDefDpInput">Select a date</label>
+                              <input type="text" class="visually-hidden" id="dtpDefDpInput" value="01/22/2019" />
+                            </div>
+
+                            <div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker"
+                                 id="dtpDefTp" data-cnds-timepicker-init>
+                              <label class="visually-hidden" for="dtpDefTpInput">Select a time</label>
+                              <input type="text" class="form-control visually-hidden" id="dtpDefTpInput" value="10:33 PM" />
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Set default date and time values by initialising the FormGroup with default values and patching the inputs after the datepicker plugin is ready.
+     Example: this.form.patchValue({ date: '2025-01-15', time: '10:33 PM' }); in ngAfterViewInit.
+     Use patchValue instead of setValue to avoid errors when the FormGroup has additional controls beyond date and time. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div class="cf-input-field cf-input-field-casefusion datetimepicker" id="dtpDefWrapper"&gt;
+  &lt;label class="cf-input-label" for="datetimepickerDefault"&gt;Select Date and Time&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;div class="datetimepicker-input"&gt;
+      &lt;input type="text" class="cf-input-control" id="datetimepickerDefault" readonly /&gt;
+      &lt;button type="button" class="datetimepicker-toggle" id="dtpDefToggle" aria-label="Open date and time picker"&gt;
+        &lt;i class="mdi mdi-calendar-clock" aria-hidden="true"&gt;&lt;/i&gt;
+      &lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker" id="dtpDefDp" data-cnds-datepicker-init&gt;
+    &lt;label class="visually-hidden" for="dtpDefDpInput"&gt;Select a date&lt;/label&gt;
+    &lt;input type="text" class="visually-hidden" id="dtpDefDpInput" /&gt;
+  &lt;/div&gt;
+  &lt;div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker" id="dtpDefTp" data-cnds-timepicker-init&gt;
+    &lt;label class="visually-hidden" for="dtpDefTpInput"&gt;Select a time&lt;/label&gt;
+    &lt;input type="text" class="form-control visually-hidden" id="dtpDefTpInput" /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">// Default values are pre-seeded directly on the hidden inputs so the
+// datepicker and timepicker plugins pick them up during auto-init.
+// &lt;input id="dtpDefDpInput" value="01/22/2019" /&gt;
+// &lt;input id="dtpDefTpInput" value="10:33 PM" /&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Default values example-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Custom label example-->
+                  <section id="section-custom-label">
+                    <!-- Section title -->
+                    <h3 class="mb-3">Invalid label</h3>
+
+                    <!--description-->
+                    <p>
+                      Add <code>.is-invalid</code> to the wrapper and place a
+                      <code>.cf-input-helper</code> containing a
+                      <code>.cf-input-error</code> span below the
+                      <code>.cf-input-wrapper</code> to display a custom validation
+                      message.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                          <div class="cf-input-field cf-input-field-casefusion datetimepicker is-invalid"
+                               style="width: 280px;" id="dtpIvWrapper">
+                            <label class="cf-input-label" for="datetimepickerInvalid">Select Date and Time</label>
+                            <div class="cf-input-wrapper">
+                              <div class="datetimepicker-input">
+                                <input type="text" class="cf-input-control"
+                                       id="datetimepickerInvalid" readonly
+                                       aria-describedby="error-dtp-invalid" aria-invalid="true" />
+                                <button type="button" class="datetimepicker-toggle"
+                                        id="dtpIvToggle" aria-label="Open date and time picker">
+                                  <i class="mdi mdi-calendar-clock" aria-hidden="true"></i>
+                                </button>
+                              </div>
+                            </div>
+                            <div class="cf-input-helper">
+                              <span class="cf-input-error" id="error-dtp-invalid">Correct your input</span>
+                            </div>
+
+                            <div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker"
+                                 id="dtpIvDp" data-cnds-datepicker-init>
+                              <label class="visually-hidden" for="dtpIvDpInput">Select a date</label>
+                              <input type="text" class="visually-hidden" id="dtpIvDpInput" />
+                            </div>
+
+                            <div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker"
+                                 id="dtpIvTp" data-cnds-timepicker-init>
+                              <label class="visually-hidden" for="dtpIvTpInput">Select a time</label>
+                              <input type="text" class="form-control visually-hidden" id="dtpIvTpInput" />
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Apply .is-invalid to the wrapper via [class.is-invalid]="form.touched && form.invalid" and show the error helper conditionally.
+     Example: <div class="cf-input-field datetimepicker" [class.is-invalid]="form.touched && form.controls['dateTime'].invalid">
+     Use a single FormControl for the combined datetime value and validate it with Validators.required to ensure both date and time are selected. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div class="cf-input-field cf-input-field-casefusion datetimepicker is-invalid" id="dtpIvWrapper"&gt;
+  &lt;label class="cf-input-label" for="datetimepickerInvalid"&gt;Select Date and Time&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;div class="datetimepicker-input"&gt;
+      &lt;input type="text" class="cf-input-control" id="datetimepickerInvalid" readonly
+             aria-describedby="error-dtp-invalid" aria-invalid="true" /&gt;
+      &lt;button type="button" class="datetimepicker-toggle" id="dtpIvToggle" aria-label="Open date and time picker"&gt;
+        &lt;i class="mdi mdi-calendar-clock" aria-hidden="true"&gt;&lt;/i&gt;
+      &lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="cf-input-helper"&gt;
+    &lt;span class="cf-input-error" id="error-dtp-invalid"&gt;Correct your input&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker" id="dtpIvDp" data-cnds-datepicker-init&gt;
+    &lt;label class="visually-hidden" for="dtpIvDpInput"&gt;Select a date&lt;/label&gt;
+    &lt;input type="text" class="visually-hidden" id="dtpIvDpInput" /&gt;
+  &lt;/div&gt;
+  &lt;div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker" id="dtpIvTp" data-cnds-timepicker-init&gt;
+    &lt;label class="visually-hidden" for="dtpIvTpInput"&gt;Select a time&lt;/label&gt;
+    &lt;input type="text" class="form-control visually-hidden" id="dtpIvTpInput" /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Custom label example-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Input toggle example-->
+                  <section id="section-input-toggle">
+                    <!-- Section title -->
+                    <h3 class="mb-3">Input toggle</h3>
+
+                    <!--description-->
+                    <p>
+                      Attach a click listener to the input field to open the
+                      datepicker popup directly — no calendar icon button required.
+                      Use a <code>cursor: pointer</code> style to signal the field
+                      is clickable.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                          <div class="cf-input-field cf-input-field-casefusion datetimepicker"
+                               style="width: 280px;" id="dtpTgWrapper">
+                            <label class="cf-input-label" for="datetimepickerToggle">Select Date and Time</label>
+                            <div class="cf-input-wrapper">
+                              <input type="text" class="cf-input-control"
+                                     id="datetimepickerToggle" readonly
+                                     style="cursor: pointer;" />
+                            </div>
+
+                            <div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker"
+                                 id="dtpTgDp" data-cnds-datepicker-init>
+                              <label class="visually-hidden" for="dtpTgDpInput">Select a date</label>
+                              <input type="text" class="visually-hidden" id="dtpTgDpInput" />
+                            </div>
+
+                            <div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker"
+                                 id="dtpTgTp" data-cnds-timepicker-init>
+                              <label class="visually-hidden" for="dtpTgTpInput">Select a time</label>
+                              <input type="text" class="form-control visually-hidden" id="dtpTgTpInput" />
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Expose an @Input() triggerMode ('button' | 'input') to switch between icon-button and click-on-input toggle behaviours.
+     Example: <div class="cf-input-field datetimepicker" [class.datetimepicker-input-toggle]="triggerMode === 'input'">
+     The input-toggle pattern reduces the icon button in constrained layouts where the calendar icon would push text overflow. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div class="cf-input-field cf-input-field-casefusion datetimepicker" id="dtpTgWrapper"&gt;
+  &lt;label class="cf-input-label" for="datetimepickerToggle"&gt;Select Date and Time&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;input type="text" class="cf-input-control" id="datetimepickerToggle" readonly style="cursor: pointer;" /&gt;
+  &lt;/div&gt;
+  &lt;div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker" id="dtpTgDp" data-cnds-datepicker-init&gt;
+    &lt;label class="visually-hidden" for="dtpTgDpInput"&gt;Select a date&lt;/label&gt;
+    &lt;input type="text" class="visually-hidden" id="dtpTgDpInput" /&gt;
+  &lt;/div&gt;
+  &lt;div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker" id="dtpTgTp" data-cnds-timepicker-init&gt;
+    &lt;label class="visually-hidden" for="dtpTgTpInput"&gt;Select a time&lt;/label&gt;
+    &lt;input type="text" class="form-control visually-hidden" id="dtpTgTpInput" /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--Section: Code JS-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">document.getElementById('datetimepickerToggle').addEventListener('click', function () {
+  var dp = Nimbus.Datepicker.getInstance(document.getElementById('dtpTgDp'));
+  if (dp) dp.open();
+});</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                  </section>
+                  <!--/Section: Input toggle example-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Example with time and date options-->
+                  <section id="section-dateTime-options">
+                    <!-- Section title -->
+                    <h3 class="mb-3">Custom date and time options</h3>
+
+                    <!-- Description -->
+                    <p class="my-4">
+                      Use <code>datepicker</code> or
+                      <code>timepicker</code> option to set custom options from
+                      our Datepicker and Timepicker components.
+                    </p>
+
+                    <!--Subsection: Example with date options-->
+                    <section id="subsection-datepicker" class="mb-4">
+                      <!-- Subsection title -->
+                      <h3 class="mb-4">Datepicker options</h3>
+
+                      <p>
+                        Pass <code>data-cnds-format</code> on the datepicker
+                        sub-picker to change the date format displayed in the
+                        trigger field.
+                      </p>
+
+                      <!--Section: Demo-->
+                      <section class="pb-4">
+                        <div class="border rounded-5">
+                          <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                            <div class="cf-input-field cf-input-field-casefusion datetimepicker"
+                                 style="width: 280px;" id="dtpDoWrapper">
+                              <label class="cf-input-label" for="datetimepickerDateOptions">Select Date and Time</label>
+                              <div class="cf-input-wrapper">
+                                <div class="datetimepicker-input">
+                                  <input type="text" class="cf-input-control"
+                                         id="datetimepickerDateOptions" readonly />
+                                  <button type="button" class="datetimepicker-toggle"
+                                          id="dtpDoToggle" aria-label="Open date and time picker">
+                                    <i class="mdi mdi-calendar-clock" aria-hidden="true"></i>
+                                  </button>
+                                </div>
+                              </div>
+
+                              <div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker"
+                                   id="dtpDoDp" data-cnds-datepicker-init data-cnds-format="dd-mm-yyyy">
+                                <label class="visually-hidden" for="dtpDoDpInput">Select a date</label>
+                                <input type="text" class="visually-hidden" id="dtpDoDpInput" />
+                              </div>
+
+                              <div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker"
+                                   id="dtpDoTp" data-cnds-timepicker-init>
+                                <label class="visually-hidden" for="dtpDoTpInput">Select a time</label>
+                                <input type="text" class="form-control visually-hidden" id="dtpDoTpInput" />
+                              </div>
+                            </div>
+                          </section>
+                        </div>
+                      </section>
+                      <!--/Section: Demo-->
+<!-- Angular: Bind custom datepicker options (minDate, maxDate, format) via [attr.data-cnds-*] attributes from @Input() properties on the component.
+     Example: <div class="cf-input-field dtpil-sub-picker" data-cnds-datepicker-init [attr.data-cnds-min-date]="dpMinDate" [attr.data-cnds-format]="dpFormat">
+     Group related datepicker options into a typed DatepickerOptions @Input() object to reduce the number of individual @Input() declarations. -->
+                      <!--Section: Code-->
+                      <section class="mb-4">
+                        <h4><span class="badge badge-code-html">HTML</span></h4>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-html">&lt;div class="cf-input-field cf-input-field-casefusion datetimepicker" id="dtpDoWrapper"&gt;
+  &lt;label class="cf-input-label" for="datetimepickerDateOptions"&gt;Select Date and Time&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;div class="datetimepicker-input"&gt;
+      &lt;input type="text" class="cf-input-control" id="datetimepickerDateOptions" readonly /&gt;
+      &lt;button type="button" class="datetimepicker-toggle" id="dtpDoToggle" aria-label="Open date and time picker"&gt;
+        &lt;i class="mdi mdi-calendar-clock" aria-hidden="true"&gt;&lt;/i&gt;
+      &lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker" id="dtpDoDp"
+       data-cnds-datepicker-init data-cnds-format="dd-mm-yyyy"&gt;
+    &lt;label class="visually-hidden" for="dtpDoDpInput"&gt;Select a date&lt;/label&gt;
+    &lt;input type="text" class="visually-hidden" id="dtpDoDpInput" /&gt;
+  &lt;/div&gt;
+  &lt;div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker" id="dtpDoTp" data-cnds-timepicker-init&gt;
+    &lt;label class="visually-hidden" for="dtpDoTpInput"&gt;Select a time&lt;/label&gt;
+    &lt;input type="text" class="form-control visually-hidden" id="dtpDoTpInput" /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+                      <!--/Section: Code-->
+                    </section>
+                    <!--/Subsection: Example with date options-->
+
+                    <!--Subsection: Example with time options-->
+                    <section id="subsection-timepicker" class="mb-4">
+                      <!-- Subsection title -->
+                      <h3 class="mb-4">Timepicker options</h3>
+
+                      <p>
+                        Pass <code>data-cnds-format12="false"</code> on the
+                        timepicker sub-picker to switch to 24-hour time format.
+                      </p>
+
+                      <!--Section: Demo-->
+                      <section class="pb-4">
+                        <div class="border rounded-5">
+                          <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                            <div class="cf-input-field cf-input-field-casefusion datetimepicker"
+                                 style="width: 280px;" id="dtpToWrapper">
+                              <label class="cf-input-label" for="datetimepickerTimeOptions">Select Date and Time</label>
+                              <div class="cf-input-wrapper">
+                                <div class="datetimepicker-input">
+                                  <input type="text" class="cf-input-control"
+                                         id="datetimepickerTimeOptions" readonly />
+                                  <button type="button" class="datetimepicker-toggle"
+                                          id="dtpToToggle" aria-label="Open date and time picker">
+                                    <i class="mdi mdi-calendar-clock" aria-hidden="true"></i>
+                                  </button>
+                                </div>
+                              </div>
+
+                              <div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker"
+                                   id="dtpToDp" data-cnds-datepicker-init>
+                                <label class="visually-hidden" for="dtpToDpInput">Select a date</label>
+                                <input type="text" class="visually-hidden" id="dtpToDpInput" />
+                              </div>
+
+                              <div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker"
+                                   id="dtpToTp" data-cnds-timepicker-init data-cnds-format12="false">
+                                <label class="visually-hidden" for="dtpToTpInput">Select a time</label>
+                                <input type="text" class="form-control visually-hidden" id="dtpToTpInput" />
+                              </div>
+                            </div>
+                          </section>
+                        </div>
+                      </section>
+                      <!--/Section: Demo-->
+<!-- Angular: Bind custom timepicker options (format, step) via [attr.data-cnds-*] attributes; pass a TimepickerOptions @Input() object for clean API.
+     Example: <div class="cf-input-field dtpil-sub-picker" data-cnds-timepicker-init [attr.data-cnds-format]="tpFormat" [attr.data-cnds-increment]="tpStep">
+     Group timepicker and datepicker options objects together in a single DateTimeOptions @Input() for a clean combined datetime component API. -->
+                      <!--Section: Code-->
+                      <section class="mb-4">
+                        <h4><span class="badge badge-code-html">HTML</span></h4>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-html">&lt;div class="cf-input-field cf-input-field-casefusion datetimepicker" id="dtpToWrapper"&gt;
+  &lt;label class="cf-input-label" for="datetimepickerTimeOptions"&gt;Select Date and Time&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;div class="datetimepicker-input"&gt;
+      &lt;input type="text" class="cf-input-control" id="datetimepickerTimeOptions" readonly /&gt;
+      &lt;button type="button" class="datetimepicker-toggle" id="dtpToToggle" aria-label="Open date and time picker"&gt;
+        &lt;i class="mdi mdi-calendar-clock" aria-hidden="true"&gt;&lt;/i&gt;
+      &lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker" id="dtpToDp" data-cnds-datepicker-init&gt;
+    &lt;label class="visually-hidden" for="dtpToDpInput"&gt;Select a date&lt;/label&gt;
+    &lt;input type="text" class="visually-hidden" id="dtpToDpInput" /&gt;
+  &lt;/div&gt;
+  &lt;div class="cf-input-field cf-input-field-casefusion dtpil-sub-picker" id="dtpToTp"
+       data-cnds-timepicker-init data-cnds-format12="false"&gt;
+    &lt;label class="visually-hidden" for="dtpToTpInput"&gt;Select a time&lt;/label&gt;
+    &lt;input type="text" class="form-control visually-hidden" id="dtpToTpInput" /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+                      <!--/Section: Code-->
+                    </section>
+                    <!--/Subsection: Example with time options-->
+                  </section>
+                  <!--/Section: Example with time and date options -->
+
+                  <hr class="my-5" />
+
+                  <!--Section: API content-->
+                  <section id="section-api-docs">
+                    <h3 class="mb-3">API Documentation</h3>
+
+                    <!--Section: Introduction-->
+                    <section id="api-section-introduction">
+                      <!-- Section title -->
+                      <h4 class="mb-4">Introduction</h4>
+                      <p>
+                        The Nimbus DateTimepicker is a composite plugin built on
+                        top of the existing Datepicker and Timepicker components.
+                        It attaches to any <code>.cf-input-field</code> wrapper
+                        and opens a modal dialog with <strong>Date</strong> and
+                        <strong>Time</strong> tabs. Configuration is read from
+                        <code>data-cnds-*</code> attributes on the wrapper element
+                        or from an options object passed to
+                        <code>new Nimbus.Datetimepicker(element, options)</code>.
+                        Add <code>data-cnds-datetimepicker-init</code> to
+                        auto-initialize on page load with no additional JavaScript.
+                      </p>
+                    </section>
+                    <!--/Section: Introduction-->
+
+
+                    <!--Section: Usage-->
+                    <section id="api-section-usage">
+                      <!-- Section title -->
+                      <h4 class="mb-4">Usage</h4>
+
+                      <h5 class="mb-4">Via data attributes</h5>
+
+                      <p>
+                        Using the Datetimepicker component doesn't require any
+                        additional JavaScript code - simply add
+                        <code>data-cnds-datetimepicker-init</code> attribute to
+                        <code>.cf-input-field</code>,
+                        and use other data attributes to set all options.
+                      </p>
+
+                      <!--Section: Code-->
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0">
+                                    <code class="language-html">
+&lt;div class="cf-input-field cf-input-field-casefusion" data-cnds-datetimepicker-init&gt;
+  &lt;label class="cf-input-label" for="form1"&gt;Select a date and time&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;input type="text" class="cf-input-control" id="form1" /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+                                    </code>
+                                    </pre>
+                        </div>
+                      </section>
+                      <!--/Section: Code-->
+
+
+                      <h5 class="my-4">Via JavaScript</h5>
+
+                      <!--Section: Code-->
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0">
+                                    <code class="language-js">
+const options = {
+  datepicker: { format: 'dd-mm-yyyy' }
+};
+const myDatetimepicker = new Nimbus.Datetimepicker(document.getElementById('myDatetimepicker'), options);
+                                    </code>
+                                    </pre>
+                        </div>
+                      </section>
+                      <!--/Section: Code-->
+                    </section>
+                    <!--/Section: Usage-->
+
+
+                    <!--Section: Options-->
+                    <section id="api-section-options">
+                      <!-- Section title -->
+                      <h4 class="mb-4">Options</h4>
+
+                      <p>
+                        Options can be passed via data attributes or JavaScript.
+                        For data attributes, append the option name to
+                        <code>data-cnds-</code>, as in
+                        <code>data-cnds-container="body"</code>.
+                      </p>
+
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Options">
+                          <thead>
+                            <tr>
+                              <th class="th-sm">Name</th>
+                              <th class="th-sm">Type</th>
+                              <th class="th-sm">Default</th>
+                              <th class="th-sm">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="highlighter-rouge">
+                                <code>container</code>
+                              </td>
+                              <td><i>String</i></td>
+                              <td><code>'body'</code></td>
+                              <td>
+                                <p>
+                                  Allows to set the parent element for the
+                                  datepicker and timepicker.
+                                </p>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap">
+                                <code class="highlighter-rouge">datepicker</code>
+                              </td>
+                              <td><i>Object</i></td>
+                              <td><code>{}</code></td>
+                              <td>Allows to set datepicker options.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap">
+                                <code class="highlighter-rouge">defaultDate</code>
+                              </td>
+                              <td><i>String|Date|Number</i></td>
+                              <td><code>-</code></td>
+                              <td>Allows to set default date.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap">
+                                <code class="highlighter-rouge">defaultTime</code>
+                              </td>
+                              <td><i>String|Date|Number</i></td>
+                              <td><code>-</code></td>
+                              <td>Allows to set default time.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap">
+                                <code class="highlighter-rouge">disabled</code>
+                              </td>
+                              <td><i>Boolean</i></td>
+                              <td><code>false</code></td>
+                              <td>
+                                Set a disabled attribute to input in wrapper.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap">
+                                <code class="highlighter-rouge">disablePast</code>
+                              </td>
+                              <td><i>Boolean</i></td>
+                              <td><code>false</code></td>
+                              <td>
+                                Allows to disable the selection of the past time
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap">
+                                <code class="highlighter-rouge"
+                                  >disableFuture</code
+                                >
+                              </td>
+                              <td><i>Boolean</i></td>
+                              <td><code>false</code></td>
+                              <td>
+                                Allows to disable the selection of the future time
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap">
+                                <code class="highlighter-rouge">inline</code>
+                              </td>
+                              <td><i>Boolean</i></td>
+                              <td><code>false</code></td>
+                              <td>
+                                Allows to use a inline version of datetimepicker.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap">
+                                <code class="highlighter-rouge">showFormat</code>
+                              </td>
+                              <td><i>Boolean</i></td>
+                              <td><code>false</code></td>
+                              <td>
+                                Adds placeholder with current format of
+                                datepicker.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap">
+                                <code class="highlighter-rouge">timepicker</code>
+                              </td>
+                              <td><i>Object</i></td>
+                              <td><code>-</code></td>
+                              <td>Allows to set timepicker options.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap">
+                                <code class="highlighter-rouge"
+                                  >toggleButton</code
+                                >
+                              </td>
+                              <td><i>Boolean</i></td>
+                              <td><code>true</code></td>
+                              <td>Allows to set the value of invalid label.</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: Options-->
+
+
+                    <!--Section: Methods-->
+                    <section id="api-section-methods">
+                      <!-- Section title -->
+                      <h4 class="mb-4">Methods</h4>
+
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Methods">
+                          <thead>
+                            <tr>
+                              <th class="th-sm">Name</th>
+                              <th class="th-sm">Description</th>
+                              <th class="th-sm">Example</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="text-nowrap">
+                                <code class="highlighter-rouge">dispose</code>
+                              </td>
+                              <td>Disposes a datetimepicker instance</td>
+                              <td>
+                                <code>myDatetimepicker.dispose()</code>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap">
+                                <code class="highlighter-rouge">getInstance</code>
+                              </td>
+                              <td>
+                                Static method which allows you to get the
+                                datetimepicker instance associated to a DOM
+                                element.
+                              </td>
+                              <td>
+                                <code
+                                  >Datetimepicker.getInstance(datetimepickerEl)</code
+                                >
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap">
+                                <code class="highlighter-rouge"
+                                  >getOrCreateInstance</code
+                                >
+                              </td>
+                              <td>
+                                Static method which returns the datetimepicker
+                                instance associated to a DOM element or create a
+                                new one in case it wasn't initialized.
+                              </td>
+                              <td>
+                                <code
+                                  >Datetimepicker.getOrCreateInstance(datetimepickerEl)</code
+                                >
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap">
+                                <code class="highlighter-rouge">update</code>
+                              </td>
+                              <td>
+                                Updates options of a dateTimepicker instance.
+                              </td>
+                              <td>
+                                <code
+                                  >myDatetimepicker.update({inline: true})</code
+                                >
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <!--Section: Code-->
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0">
+                                    <code class="language-js">
+const datetimepickerEl = document.getElementById('myDatetimepicker');
+const datetimepicker = new Nimbus.Datetimepicker(datetimepickerEl);
+datetimepicker.dispose();
+                                    </code>
+                                    </pre>
+                        </div>
+                      </section>
+                      <!--/Section: Code-->
+                    </section>
+                    <!--/Section: Methods-->
+
+
+                    <!--Section: Events-->
+                    <section id="api-section-events">
+                      <!-- Section title -->
+                      <h4 class="mb-4">Events</h4>
+
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Events">
+                          <thead>
+                            <tr>
+                              <th class="th-sm">Name</th>
+                              <th class="th-sm">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="text-nowrap">
+                                <code class="highlighter-rouge"
+                                  >open.cnds.datetimepicker</code
+                                >
+                              </td>
+                              <td>
+                                This event fires immediately when the
+                                datetimepicker is opened.
+                              </td>
+                            </tr>
+
+                            <tr>
+                              <td class="text-nowrap">
+                                <code class="highlighter-rouge"
+                                  >close.cnds.datetimepicker</code
+                                >
+                              </td>
+                              <td>
+                                This event fires immediately when the
+                                datetimepicker is closed.
+                              </td>
+                            </tr>
+
+                            <tr>
+                              <td class="text-nowrap">
+                                <code class="highlighter-rouge"
+                                  >valueChanged.cnds.datetimepicker</code
+                                >
+                              </td>
+                              <td>
+                                This event fires immediately when datetimepicker
+                                value is changed.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <!--Section: Code-->
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0">
+                                    <code class="language-js">
+const myDatetimepicker = document.getElementById('myDatetimepicker')
+myDatetimepicker.addEventListener('open.cnds.datetimepicker', (e) => {
+  // do something...
+})
+                                    </code>
+                                    </pre>
+                        </div>
+                      </section>
+                      <!--/Section: Code-->
+                    </section>
+                    <!--/Section: Events-->
+                  </section>
+                  <!--/Section: API content-->
+                </section>
+                <!--/Section: Docs content-->
+              </div>
+              <!-- ./Main column -->
+
+              <!-- Right Sidebar — 20 % of the row width; hidden below lg breakpoint.
+                   Sticky attributes (processed by nimbus.js):
+                     data-cnds-sticky="true"          : activates sticky positioning
+                     data-cnds-sticky-boundary="true" : constrains sticky to its parent container
+                     data-cnds-sticky-direction="both" : sticks when scrolling up OR down
+                     data-cnds-sticky-offset="56"     : clears the 56 px fixed header
+                     data-cnds-sticky-delay="125"     : debounce delay (ms) to reduce scroll jank
+                   data-cnds-allow-hashes="true" on the <ul>: nimbus.js watches the URL hash
+                     and highlights the matching nav-link as the user scrolls through sections. -->
+              <div class="col-lg-2 d-none d-lg-block">
+                <div class="sticky-top" style="top: 100px; z-index: 1">
+                  <ul
+                    class="nav flex-column nav-pills menu-sidebar"
+                    id="rightNav"
+                    data-cnds-allow-hashes="true"
+                  >
+                    <li class="nav-item"><a class="nav-link" href="#section-introduction">Introduction</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-basic-example">Basic example</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-inline">Inline version</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-sizing">Sizing</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-product-example">Product themes</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-disabled">Disabled</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-disable-past">Disable past</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-disable-future">Disable future</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-default">Default values</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-custom-label">Invalid label</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-input-toggle">Input toggle</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-dateTime-options">DateTime options</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#subsection-datepicker">Datepicker</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#subsection-timepicker">Timepicker</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-api-docs">API Documentation</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-usage">Usage</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-options">Options</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-methods">Methods</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-events">Events</a></li>
+                  </ul>
+                </div>
+              </div>
+              <!-- ./Right Sidebar -->
+            </div>
+            <!-- ./Content Row -->
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- ./Content -->
+    <!-- Footer -->
+    <div class="cf-footer cf-footer-app">
+      <footer class="page-footer main-footer" aria-label="Site footer">
+        <div class="w-100 px-3 d-flex align-items-center">
+          <img src="img/cf/core/cloudficient_logo_light.svg" class="cf-logo-light" style="width: 135px;" alt="Cloudficient" />
+          <img src="img/cf/core/cloudficient_logo_dark.svg" class="cf-logo-dark" style="width: 135px;" alt="Cloudficient" />
+          <span class="footer-copyright ms-auto">&copy; <span id="currentYear"></span> Cloudficient</span>
+        </div>
+      </footer>
+    </div>
+    <!-- ./Footer -->
+    <!-- SCRIPTS — load order matters:
+         1. nimbus.js    — core framework: processes all data-cnds-* attributes (theme, sticky, sidenav, tooltips…)
+         2. app.js       — application-level overrides and custom initialisation
+         3. prism.min.js — syntax highlighting for <code class="language-*"> blocks; must run after DOM is ready
+         4. sidenav-loader.js — fetches shared sidenav HTML and injects it into #sidebar-cf -->
+    <script type="text/javascript" src="js/nimbus.js?v=9.0.4"></script>
+    <script type="text/javascript" src="js/app.js?v=9.0.4"></script>
+    <script type="text/javascript" src="plugins/js/prism.min.js"></script>
+    <script type="text/javascript" src="js/sidenav-loader.js"></script>
+    <!-- Inline: populate the footer copyright year dynamically so the page never needs a manual update -->
+    <script type="text/javascript">
+      var currentYearElement = document.getElementById("currentYear");
+      if (currentYearElement) {
+        currentYearElement.textContent = new Date().getFullYear();
+      }
+
+      // Basic example (Mobile) — wire inline datepicker to the modal UI
+      (function () {
+        var DAY_NAMES  = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+        var MON_NAMES  = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        var selectedDate = null;
+
+        function formatDateDisplay(date) {
+          if (!date) return '';
+          return DAY_NAMES[date.getDay()] + ', ' + MON_NAMES[date.getMonth()] + ' ' + date.getDate();
+        }
+
+        function formatDateForInput(date) {
+          var m = date.getMonth() + 1;
+          var d = date.getDate();
+          var y = date.getFullYear();
+          return (m < 10 ? '0' + m : m) + '/' + (d < 10 ? '0' + d : d) + '/' + y;
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+          var pickerEl    = document.getElementById('dtpExDatepicker');
+          var displayEl   = document.getElementById('dtpExDateDisplay');
+          var triggerEl   = document.getElementById('datetimepickerExample');
+          var timeInputEl = document.getElementById('dtpExTimeInput');
+          var clearBtn    = document.getElementById('dtpExClearBtn');
+          var todayBtn    = document.getElementById('dtpExTodayBtn');
+          var okBtn       = document.getElementById('dtpExOkBtn');
+          var dateTabEl   = document.getElementById('dtp-date-tab-ex');
+          var timeTabEl   = document.getElementById('dtp-time-tab-ex');
+          if (!pickerEl) return;
+
+          var isTimeTab = false;
+
+          // Swap Today ↔ Now when switching tabs
+          timeTabEl && timeTabEl.addEventListener('show.cnds.tab', function () {
+            isTimeTab = true;
+            if (todayBtn) todayBtn.textContent = 'Now';
+          });
+          dateTabEl && dateTabEl.addEventListener('show.cnds.tab', function () {
+            isTimeTab = false;
+            if (todayBtn) todayBtn.textContent = 'Today';
+          });
+
+          // Track selected date whenever the datepicker selection changes
+          pickerEl.addEventListener('change.cnds.datepicker', function (e) {
+            selectedDate = e.detail && e.detail.date ? e.detail.date : null;
+            displayEl.textContent = selectedDate ? formatDateDisplay(selectedDate) : '\u2014';
+          });
+
+          // OK — Date tab: advance to Time tab; Time tab: commit and close
+          okBtn && okBtn.addEventListener('click', function () {
+            if (!isTimeTab) {
+              document.getElementById('dtp-time-tab-ex').click();
+            } else {
+              var tpEl = document.querySelector('#dtp-time-pane-ex .timepicker');
+              var tp = Nimbus.Timepicker && tpEl && Nimbus.Timepicker.getInstance(tpEl);
+              var effectiveDate = selectedDate || new Date();
+              var dateStr = formatDateForInput(effectiveDate);
+              var timeStr = tp ? tp.getFormattedTime() : (timeInputEl ? timeInputEl.value.trim() : '');
+              triggerEl.value = dateStr && timeStr ? dateStr + ', ' + timeStr : dateStr || timeStr;
+              var modal = Nimbus.Modal.getInstance(document.getElementById('dtpExampleModal'));
+              if (modal) modal.hide();
+            }
+          });
+
+          // Clear — reset datepicker (Date tab) or reset timepicker to 12:00 AM (Time tab)
+          clearBtn && clearBtn.addEventListener('click', function () {
+            if (isTimeTab) {
+              var tpEl = document.querySelector('#dtp-time-pane-ex .timepicker');
+              var tp = Nimbus.Timepicker && tpEl && Nimbus.Timepicker.getInstance(tpEl);
+              if (tp) { tp.setTime(12, 0, 'AM'); }
+            } else {
+              var dp = Nimbus.Datepicker.getInstance(pickerEl);
+              if (dp) { dp.clear(); }
+              selectedDate = null;
+              displayEl.textContent = '\u2014';
+              triggerEl.value = '';
+            }
+          });
+
+          // Today / Now — set today's date (Date tab) or current time (Time tab)
+          todayBtn && todayBtn.addEventListener('click', function () {
+            if (isTimeTab) {
+              var now = new Date();
+              var rawHour = now.getHours();
+              var minutes = now.getMinutes();
+              var ampm = rawHour >= 12 ? 'PM' : 'AM';
+              var hours12 = rawHour % 12 || 12;
+              var tpEl = document.querySelector('#dtp-time-pane-ex .timepicker');
+              var tp = Nimbus.Timepicker && tpEl && Nimbus.Timepicker.getInstance(tpEl);
+              if (tp) { tp.setTime(hours12, minutes, ampm); }
+            } else {
+              var dp = Nimbus.Datepicker.getInstance(pickerEl);
+              selectedDate = new Date();
+              if (dp) { dp.setDate(selectedDate); }
+              displayEl.textContent = formatDateDisplay(selectedDate);
+            }
+          });
+        });
+      })();
+
+      // Disable past — sequential popup, datepicker constrained to today+ via data-cnds-disable-past
+      (function () {
+        var selectedDate = null;
+        function formatDate(date) {
+          var m = date.getMonth() + 1, d = date.getDate(), y = date.getFullYear();
+          return (m < 10 ? '0' + m : m) + '/' + (d < 10 ? '0' + d : d) + '/' + y;
+        }
+        document.addEventListener('DOMContentLoaded', function () {
+          var triggerEl = document.getElementById('datetimepickerDisablePast');
+          var toggleBtn = document.getElementById('dtpDpToggle');
+          var dpEl      = document.getElementById('dtpDpDp');
+          var tpEl      = document.getElementById('dtpDpTp');
+          if (!dpEl || !tpEl || !triggerEl) return;
+
+          toggleBtn && toggleBtn.addEventListener('click', function (e) {
+            e.preventDefault(); e.stopPropagation();
+            var dp = Nimbus.Datepicker && Nimbus.Datepicker.getInstance(dpEl);
+            if (dp) dp.open();
+          });
+
+          dpEl.addEventListener('change.cnds.datepicker', function (e) {
+            selectedDate = e.detail && e.detail.date ? e.detail.date : null;
+            if (!selectedDate) return;
+            setTimeout(function () {
+              var tp = Nimbus.Timepicker && Nimbus.Timepicker.getInstance(tpEl);
+              if (tp) tp.open();
+            }, 150);
+          });
+
+          tpEl.addEventListener('click', function (e) {
+            if (e.target.closest('[data-cnds-action="ok"]')) {
+              setTimeout(function () {
+                var tp = Nimbus.Timepicker && Nimbus.Timepicker.getInstance(tpEl);
+                if (tp) triggerEl.value = formatDate(selectedDate || new Date()) + ', ' + tp.getFormattedTime();
+              }, 0);
+            }
+          }, true);
+        });
+      })();
+
+      // Disable future — sequential popup, datepicker constrained to today- via data-cnds-disable-future
+      (function () {
+        var selectedDate = null;
+        function formatDate(date) {
+          var m = date.getMonth() + 1, d = date.getDate(), y = date.getFullYear();
+          return (m < 10 ? '0' + m : m) + '/' + (d < 10 ? '0' + d : d) + '/' + y;
+        }
+        document.addEventListener('DOMContentLoaded', function () {
+          var triggerEl = document.getElementById('datetimepickerDisableFuture');
+          var toggleBtn = document.getElementById('dtpDfToggle');
+          var dpEl      = document.getElementById('dtpDfDp');
+          var tpEl      = document.getElementById('dtpDfTp');
+          if (!dpEl || !tpEl || !triggerEl) return;
+
+          toggleBtn && toggleBtn.addEventListener('click', function (e) {
+            e.preventDefault(); e.stopPropagation();
+            var dp = Nimbus.Datepicker && Nimbus.Datepicker.getInstance(dpEl);
+            if (dp) dp.open();
+          });
+
+          dpEl.addEventListener('change.cnds.datepicker', function (e) {
+            selectedDate = e.detail && e.detail.date ? e.detail.date : null;
+            if (!selectedDate) return;
+            setTimeout(function () {
+              var tp = Nimbus.Timepicker && Nimbus.Timepicker.getInstance(tpEl);
+              if (tp) tp.open();
+            }, 150);
+          });
+
+          tpEl.addEventListener('click', function (e) {
+            if (e.target.closest('[data-cnds-action="ok"]')) {
+              setTimeout(function () {
+                var tp = Nimbus.Timepicker && Nimbus.Timepicker.getInstance(tpEl);
+                if (tp) triggerEl.value = formatDate(selectedDate || new Date()) + ', ' + tp.getFormattedTime();
+              }, 0);
+            }
+          }, true);
+        });
+      })();
+
+      // Default values — inline sequential popup pre-seeded with Jan 22 2019 / 10:33 PM
+      (function () {
+        var selectedDate = null;
+        function formatDate(date) {
+          var m = date.getMonth() + 1, d = date.getDate(), y = date.getFullYear();
+          return (m < 10 ? '0' + m : m) + '/' + (d < 10 ? '0' + d : d) + '/' + y;
+        }
+        document.addEventListener('DOMContentLoaded', function () {
+          var triggerEl = document.getElementById('datetimepickerDefault');
+          var toggleBtn = document.getElementById('dtpDefToggle');
+          var dpEl      = document.getElementById('dtpDefDp');
+          var tpEl      = document.getElementById('dtpDefTp');
+          if (!dpEl || !tpEl || !triggerEl) return;
+
+          // Default date is pre-seeded in the hidden input; plugins pick it up during auto-init.
+          selectedDate = new Date(2019, 0, 22);
+
+          toggleBtn && toggleBtn.addEventListener('click', function (e) {
+            e.preventDefault(); e.stopPropagation();
+            var dpInst = Nimbus.Datepicker && Nimbus.Datepicker.getInstance(dpEl);
+            if (dpInst) dpInst.open();
+          });
+
+          dpEl.addEventListener('change.cnds.datepicker', function (e) {
+            selectedDate = e.detail && e.detail.date ? e.detail.date : null;
+            if (!selectedDate) return;
+            setTimeout(function () {
+              var tpInst = Nimbus.Timepicker && Nimbus.Timepicker.getInstance(tpEl);
+              if (tpInst) tpInst.open();
+            }, 150);
+          });
+
+          tpEl.addEventListener('click', function (e) {
+            if (e.target.closest('[data-cnds-action="ok"]')) {
+              setTimeout(function () {
+                var tpInst = Nimbus.Timepicker && Nimbus.Timepicker.getInstance(tpEl);
+                if (tpInst) triggerEl.value = formatDate(selectedDate || new Date()) + ', ' + tpInst.getFormattedTime();
+              }, 0);
+            }
+          }, true);
+        });
+      })();
+
+      // Sizing + Product themes — shared sequential popup init
+      (function () {
+        function formatDate(date) {
+          var m = date.getMonth() + 1, d = date.getDate(), y = date.getFullYear();
+          return (m < 10 ? '0' + m : m) + '/' + (d < 10 ? '0' + d : d) + '/' + y;
+        }
+
+        function initDtp(triggerId, toggleId, dpId, tpId) {
+          var triggerEl = document.getElementById(triggerId);
+          var toggleBtn = document.getElementById(toggleId);
+          var dpEl      = document.getElementById(dpId);
+          var tpEl      = document.getElementById(tpId);
+          if (!dpEl || !tpEl || !triggerEl) return;
+          var selectedDate = null;
+
+          toggleBtn && toggleBtn.addEventListener('click', function (e) {
+            e.preventDefault(); e.stopPropagation();
+            var dp = Nimbus.Datepicker && Nimbus.Datepicker.getInstance(dpEl);
+            if (dp) dp.open();
+          });
+
+          dpEl.addEventListener('change.cnds.datepicker', function (e) {
+            selectedDate = e.detail && e.detail.date ? e.detail.date : null;
+            if (!selectedDate) return;
+            setTimeout(function () {
+              var tp = Nimbus.Timepicker && Nimbus.Timepicker.getInstance(tpEl);
+              if (tp) tp.open();
+            }, 150);
+          });
+
+          tpEl.addEventListener('click', function (e) {
+            if (e.target.closest('[data-cnds-action="ok"]')) {
+              setTimeout(function () {
+                var tp = Nimbus.Timepicker && Nimbus.Timepicker.getInstance(tpEl);
+                if (tp) triggerEl.value = formatDate(selectedDate || new Date()) + ', ' + tp.getFormattedTime();
+              }, 0);
+            }
+          }, true);
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+          // Sizing
+          initDtp('datetimepickerSizeLg', 'dtpSzLgToggle', 'dtpSzLgDp', 'dtpSzLgTp');
+          initDtp('datetimepickerSizeDf', 'dtpSzDfToggle', 'dtpSzDfDp', 'dtpSzDfTp');
+          initDtp('datetimepickerSizeSm', 'dtpSzSmToggle', 'dtpSzSmDp', 'dtpSzSmTp');
+          // Product themes
+          initDtp('datetimepickerProdCf', 'dtpPrCfToggle', 'dtpPrCfDp', 'dtpPrCfTp');
+          initDtp('datetimepickerProdEx', 'dtpPrExToggle', 'dtpPrExDp', 'dtpPrExTp');
+          initDtp('datetimepickerProdHy', 'dtpPrHyToggle', 'dtpPrHyDp', 'dtpPrHyTp');
+        });
+      })();
+
+      // Datepicker options — dd-mm-yyyy format
+      (function () {
+        var selectedDateDo = null;
+
+        function formatDateDo(date) {
+          var d = String(date.getDate()).padStart(2, '0');
+          var m = String(date.getMonth() + 1).padStart(2, '0');
+          var y = date.getFullYear();
+          return d + '-' + m + '-' + y;
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+          var triggerEl = document.getElementById('datetimepickerDateOptions');
+          var toggleBtn = document.getElementById('dtpDoToggle');
+          var dpEl      = document.getElementById('dtpDoDp');
+          var tpEl      = document.getElementById('dtpDoTp');
+          if (!dpEl || !tpEl || !triggerEl) return;
+
+          toggleBtn && toggleBtn.addEventListener('click', function (e) {
+            e.preventDefault(); e.stopPropagation();
+            var dp = Nimbus.Datepicker && Nimbus.Datepicker.getInstance(dpEl);
+            if (dp) dp.open();
+          });
+
+          dpEl.addEventListener('change.cnds.datepicker', function (e) {
+            selectedDateDo = e.detail && e.detail.date ? e.detail.date : null;
+            if (!selectedDateDo) return;
+            setTimeout(function () {
+              var tp = Nimbus.Timepicker && Nimbus.Timepicker.getInstance(tpEl);
+              if (tp) tp.open();
+            }, 150);
+          });
+
+          tpEl.addEventListener('click', function (e) {
+            if (e.target.closest('[data-cnds-action="ok"]')) {
+              setTimeout(function () {
+                var tp = Nimbus.Timepicker && Nimbus.Timepicker.getInstance(tpEl);
+                if (tp) triggerEl.value = formatDateDo(selectedDateDo || new Date()) + ', ' + tp.getFormattedTime();
+              }, 0);
+            }
+          }, true);
+        });
+      })();
+
+      // Timepicker options — 24-hour format
+      (function () {
+        var selectedDateTo = null;
+
+        function formatDateTo(date) {
+          var m = date.getMonth() + 1, d = date.getDate(), y = date.getFullYear();
+          return (m < 10 ? '0' + m : m) + '/' + (d < 10 ? '0' + d : d) + '/' + y;
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+          var triggerEl = document.getElementById('datetimepickerTimeOptions');
+          var toggleBtn = document.getElementById('dtpToToggle');
+          var dpEl      = document.getElementById('dtpToDp');
+          var tpEl      = document.getElementById('dtpToTp');
+          if (!dpEl || !tpEl || !triggerEl) return;
+
+          toggleBtn && toggleBtn.addEventListener('click', function (e) {
+            e.preventDefault(); e.stopPropagation();
+            var dp = Nimbus.Datepicker && Nimbus.Datepicker.getInstance(dpEl);
+            if (dp) dp.open();
+          });
+
+          dpEl.addEventListener('change.cnds.datepicker', function (e) {
+            selectedDateTo = e.detail && e.detail.date ? e.detail.date : null;
+            if (!selectedDateTo) return;
+            setTimeout(function () {
+              var tp = Nimbus.Timepicker && Nimbus.Timepicker.getInstance(tpEl);
+              if (tp) tp.open();
+            }, 150);
+          });
+
+          tpEl.addEventListener('click', function (e) {
+            if (e.target.closest('[data-cnds-action="ok"]')) {
+              setTimeout(function () {
+                var tp = Nimbus.Timepicker && Nimbus.Timepicker.getInstance(tpEl);
+                if (tp) triggerEl.value = formatDateTo(selectedDateTo || new Date()) + ', ' + tp.getFormattedTime();
+              }, 0);
+            }
+          }, true);
+        });
+      })();
+
+      // Input toggle — input click opens datepicker (no calendar icon button)
+      (function () {
+        var selectedDateTg = null;
+
+        function formatDateTg(date) {
+          var m = date.getMonth() + 1, d = date.getDate(), y = date.getFullYear();
+          return (m < 10 ? '0' + m : m) + '/' + (d < 10 ? '0' + d : d) + '/' + y;
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+          var triggerEl = document.getElementById('datetimepickerToggle');
+          var dpEl      = document.getElementById('dtpTgDp');
+          var tpEl      = document.getElementById('dtpTgTp');
+          if (!dpEl || !tpEl || !triggerEl) return;
+
+          // Input click → open datepicker
+          triggerEl.addEventListener('click', function () {
+            var dp = Nimbus.Datepicker && Nimbus.Datepicker.getInstance(dpEl);
+            if (dp) dp.open();
+          });
+
+          dpEl.addEventListener('change.cnds.datepicker', function (e) {
+            selectedDateTg = e.detail && e.detail.date ? e.detail.date : null;
+            if (!selectedDateTg) return;
+            setTimeout(function () {
+              var tp = Nimbus.Timepicker && Nimbus.Timepicker.getInstance(tpEl);
+              if (tp) tp.open();
+            }, 150);
+          });
+
+          tpEl.addEventListener('click', function (e) {
+            if (e.target.closest('[data-cnds-action="ok"]')) {
+              setTimeout(function () {
+                var tp = Nimbus.Timepicker && Nimbus.Timepicker.getInstance(tpEl);
+                if (tp) triggerEl.value = formatDateTg(selectedDateTg || new Date()) + ', ' + tp.getFormattedTime();
+              }, 0);
+            }
+          }, true);
+        });
+      })();
+
+      // Invalid label — inline sequential popup with is-invalid state
+      (function () {
+        var selectedDateIv = null;
+
+        function formatDateIv(date) {
+          var m = date.getMonth() + 1, d = date.getDate(), y = date.getFullYear();
+          return (m < 10 ? '0' + m : m) + '/' + (d < 10 ? '0' + d : d) + '/' + y;
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+          var triggerEl = document.getElementById('datetimepickerInvalid');
+          var toggleBtn = document.getElementById('dtpIvToggle');
+          var dpEl      = document.getElementById('dtpIvDp');
+          var tpEl      = document.getElementById('dtpIvTp');
+          if (!dpEl || !tpEl || !triggerEl) return;
+
+          toggleBtn && toggleBtn.addEventListener('click', function (e) {
+            e.preventDefault(); e.stopPropagation();
+            var dp = Nimbus.Datepicker && Nimbus.Datepicker.getInstance(dpEl);
+            if (dp) dp.open();
+          });
+
+          dpEl.addEventListener('change.cnds.datepicker', function (e) {
+            selectedDateIv = e.detail && e.detail.date ? e.detail.date : null;
+            if (!selectedDateIv) return;
+            setTimeout(function () {
+              var tp = Nimbus.Timepicker && Nimbus.Timepicker.getInstance(tpEl);
+              if (tp) tp.open();
+            }, 150);
+          });
+
+          tpEl.addEventListener('click', function (e) {
+            if (e.target.closest('[data-cnds-action="ok"]')) {
+              setTimeout(function () {
+                var tp = Nimbus.Timepicker && Nimbus.Timepicker.getInstance(tpEl);
+                if (tp) triggerEl.value = formatDateIv(selectedDateIv || new Date()) + ', ' + tp.getFormattedTime();
+              }, 0);
+            }
+          }, true);
+        });
+      })();
+
+      // Inline example (Desktop) — icon → datepicker popup → timepicker popup → populate
+      (function () {
+        var selectedDateIl = null;
+
+        function formatDateForInputIl(date) {
+          var m = date.getMonth() + 1;
+          var d = date.getDate();
+          var y = date.getFullYear();
+          return (m < 10 ? '0' + m : m) + '/' + (d < 10 ? '0' + d : d) + '/' + y;
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+          var triggerEl = document.getElementById('datetimepickerInline');
+          var toggleBtn = document.getElementById('dtpIlToggle');
+          var dpEl      = document.getElementById('dtpIlDp');
+          var tpEl      = document.getElementById('dtpIlTp');
+          if (!dpEl || !tpEl || !triggerEl) return;
+
+          // Calendar icon → open datepicker
+          toggleBtn && toggleBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var dp = Nimbus.Datepicker && Nimbus.Datepicker.getInstance(dpEl);
+            if (dp) dp.open();
+          });
+
+          // Date selected — autoClose closes dp; open timepicker after short delay
+          dpEl.addEventListener('change.cnds.datepicker', function (e) {
+            selectedDateIl = e.detail && e.detail.date ? e.detail.date : null;
+            if (!selectedDateIl) return;
+            setTimeout(function () {
+              var tp = Nimbus.Timepicker && Nimbus.Timepicker.getInstance(tpEl);
+              if (tp) tp.open();
+            }, 150);
+          });
+
+          // Timepicker OK clicked → populate trigger field
+          // Capture phase (true) fires before the timepicker's own stopPropagation call.
+          tpEl.addEventListener('click', function (e) {
+            if (e.target.closest('[data-cnds-action="ok"]')) {
+              setTimeout(function () {
+                var tp = Nimbus.Timepicker && Nimbus.Timepicker.getInstance(tpEl);
+                if (tp) {
+                  var effectiveDate = selectedDateIl || new Date();
+                  var timeStr = tp.getFormattedTime();
+                  triggerEl.value = formatDateForInputIl(effectiveDate) + ', ' + timeStr;
+                }
+              }, 0);
+            }
+          }, true);
+        });
+      })();
+
+    </script>
+  </body>
+</html>

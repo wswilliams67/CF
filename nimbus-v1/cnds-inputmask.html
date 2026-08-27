@@ -1,0 +1,1430 @@
+<!--
+* CNDS Nimbus Design System — Input Mask
+* Version: 1.0.0
+* Layout: Application with SideNav
+* NOTES
+- Pure HTML5, CSS3, vanilla JavaScript — zero external dependencies
+- Uses data-cnds-* attributes (replaces data-mdb-*)
+- Uses Nimbus.* namespace (replaces mdb.*)
+- Default product theme: CaseFusion (cnds-product-casefusion on <body>; change to cnds-product-hyperlize or cnds-product-expireon)
+-->
+<!doctype html>
+<!-- data-cnds-theme: sets the initial theme ("light" | "dark"). nimbus.js syncs this attribute when the user toggles. -->
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="Input Mask | Cloudficient Nimbus Design System v1.0.0" />
+    <title>Input Mask | CNDS v1.0.0 | Cloudficient Nimbus Design System</title>
+    <!-- Nimbus CSS -->
+    <link rel="stylesheet" href="css/nimbus.css" media="all" type="text/css" />
+    <!-- Custom styles | All custom classes/styles/overrides go here! -->
+    <link rel="stylesheet" href="css/app.css" media="all" type="text/css" />
+    <!-- Prism syntax highlighting -->
+    <link rel="stylesheet" href="plugins/css/prism.min.css" media="all" type="text/css" />
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="img/favicon/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="60x60" href="img/favicon/apple-icon-60x60.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="img/favicon/apple-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76" href="img/favicon/apple-icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="img/favicon/apple-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="img/favicon/apple-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="img/favicon/apple-icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="img/favicon/apple-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-icon-180x180.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="img/favicon/android-icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="img/favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="img/favicon/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="msapplication-TileImage" content="img/favicon/ms-icon-144x144.png" />
+    <!-- Design tokens — load order matters:
+         1. primitives.css  — raw color/spacing values (no theming)
+         2. light.css       — semantic tokens for [data-cnds-theme="light"] / :root
+         3. dark.css        — semantic token overrides for [data-cnds-theme="dark"]
+         All three must appear AFTER nimbus.css so component variables resolve correctly. -->
+    <link rel="stylesheet" href="css/themes/primitives.css" />
+    <link rel="stylesheet" href="css/themes/light.css" />
+    <link rel="stylesheet" href="css/themes/dark.css" />
+  </head>
+
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 Bypass Blocks; renders visually hidden until focused -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+    <!-- Header -->
+    <div class="sticky-top">
+      <!-- Utility Navigation -->
+      <nav id="UtilityNav" class="nav nav-cf-utility">
+        <div class="w-100 gx-3 px-sm-0 px-lg-3">
+          <ul class="nav nav-cf-utility-ul"></ul>
+        </div>
+      </nav>
+      <!-- ./Utility Navigation -->
+      <!-- Main Navigation -->
+      <nav id="MainNav" class="navbar navbar-expand-xl navbar-cf">
+        <div class="container-fluid p-0 px-3 d-flex">
+          <div class="d-flex flex-fill align-items-center text-truncate">
+            <div class="text-center d-none d-md-block me-3 border-end">
+              <a href="index.html"
+                ><img src="img/cf/core/logo_nimbus.png" class="me-3 mt-n1"
+              alt="Cloudficient Nimbus Design System" /></a>
+            </div>
+            <div class="flex-fill text-truncate">
+              <div class="navbar-cf-title-block">
+                <div
+                  class="navbar-cf-title cf-page-title text-truncate"
+                  style="padding-bottom: 0"
+                >
+                  <span class="cf-page-title-text cf-page-title-brand">v1</span
+                  ><span class="cf-page-title-divider"></span
+                  ><span class="cf-page-title-text">Input Mask</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- data-cnds-toggle="theme": wired by nimbus.js — flips data-cnds-theme on <html> between "light" and "dark" -->
+          <button
+            class="btn btn-sm btn-outline-secondary ms-2"
+            data-cnds-toggle="theme"
+            aria-label="Toggle theme"
+            title="Toggle theme"
+          >
+            <i class="mdi mdi-weather-night mdi-18px" aria-hidden="true"></i>
+          </button>
+        </div>
+      </nav>
+      <!-- ./Main Navigation -->
+    </div>
+    <!-- ./Header -->
+
+    <!-- Content -->
+    <main id="main-content" class="cf-main-app">
+      <!-- Mobile viewport warning — Section 508 note: this alert is visible and announced on small screens -->
+      <div class="d-block d-md-none p-4">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>This application is not
+          optimized for small screens. Please use a large tablet, laptop, or
+          desktop computer to continue.
+        </div>
+      </div>
+      <div class="d-none d-md-block">
+        <!-- Sidenav — markup is intentionally empty; sidenav-loader.js fetches and injects the shared nav HTML.
+             data-cnds-mode="side"           : renders as a persistent side panel (not an overlay/drawer)
+             data-cnds-slim / slim-collapsed : controls compact/icon-only collapsed state
+             data-cnds-content="#slim-content": the sibling panel that shrinks/expands as the nav opens/closes
+             data-cnds-accordion="true"      : collapses other open nav groups when a new one is expanded -->
+        <nav
+          id="sidebar-cf"
+          class="sidenav"
+          data-cnds-mode="side"
+          data-cnds-slim="false"
+          data-cnds-slim-collapsed="false"
+          data-cnds-content="#slim-content"
+          data-cnds-accordion="true"
+        ></nav>
+        <div id="slim-content">
+          <div class="slim-content-box">
+            <!-- Content Row -->
+            <div class="row">
+              <!-- Main column — 80 % of the row width; the remaining 20 % is the right sidebar.
+                   The inline flex overrides pin the ratio regardless of Bootstrap grid breakpoints. -->
+              <div class="col-12 col-lg" style="flex: 0 0 80%; max-width: 80%">
+                <!--Section: Docs content-->
+                <section class="container-fluid">
+
+                  <!--Section: Introduction-->
+                  <section id="section-introduction">
+                    <p class="mb-4">
+                      The InputMask plugin (registered as <code>Nimbus.InputMask</code>)
+                      enforces a fixed-format entry pattern on <code>&lt;input&gt;</code>
+                      elements as the user types, automatically inserting literal separator
+                      characters and blocking invalid input. Three wildcard characters define
+                      editable positions: <code>9</code> (digit 0–9), <code>a</code>
+                      (letter a–z / A–Z), and <code>*</code> (alphanumeric). Every other
+                      character in the mask string is treated as a literal separator and is
+                      inserted automatically — the user never has to type it. Thirteen
+                      built-in presets cover the most common US data formats; custom patterns
+                      are supported for any other format. The plugin exposes a clean
+                      programmatic API: <code>getValue()</code> returns the displayed value
+                      including separators; <code>getUnmaskedValue()</code> returns only the
+                      user-entered characters; <code>isComplete()</code> returns
+                      <code>true</code> when every wildcard position has been filled.
+                    </p>
+                    <p class="note note-light">
+                      <strong>Note:</strong> Read the
+                      <a href="#api-section-introduction">API Documentation</a> to find all
+                      available options, presets, methods, and events.
+                    </p>
+                    <p class="note note-info">
+                      <strong>Note:</strong> To preview components in different themes, click
+                      the theme toggle button
+                      <i class="mdi mdi-weather-night" aria-hidden="true"></i> /
+                      <i class="mdi mdi-weather-sunny" aria-hidden="true"></i> in the header
+                      navigation bar.
+                    </p>
+                  </section>
+                  <!--/Section: Introduction-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Phone number-->
+                  <section id="section-phone">
+                    <h3 class="mb-4">Phone number</h3>
+                    <p>
+                      Use the <code>phone</code> preset to apply the standard US phone
+                      number format <code>(999) 999-9999</code>. Add
+                      <code>data-cnds-input-mask-init</code> to the
+                      <code>&lt;input&gt;</code> element and set
+                      <code>data-cnds-mask="phone"</code> to the preset key. The plugin
+                      auto-initialises via the Data API on <code>DOMContentLoaded</code> —
+                      no JavaScript is required for basic usage. The opening parenthesis,
+                      closing parenthesis, space, and hyphen are all literal separators
+                      inserted automatically; only the ten digit positions are typed by the
+                      user.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="bg-white border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                          <div class="cf-input-field cf-input-field-casefusion" style="width: 260px;">
+                            <label class="cf-input-label" for="phone-basic">Phone Number</label>
+                            <div class="cf-input-wrapper">
+                              <input type="tel" id="phone-basic" class="cf-input-control"
+                                data-cnds-input-mask-init
+                                data-cnds-mask="phone"
+                                placeholder="(___) ___-____" />
+                            </div>
+                            <div class="cf-input-helper">
+                              <span class="cf-input-helper-text">Mask: (999) 999-9999</span>
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Add data-cnds-input-mask-init and data-cnds-mask="phone" to the input in your template.
+     The plugin auto-inits via the Data API — no additional Angular code needed for basic usage.
+     To read the value in a reactive form, subscribe to valueChanges and call
+     Nimbus.InputMask.getInstance(el).getUnmaskedValue() to get the raw digits.
+     To gate form submission on completion, call isComplete() in your (ngSubmit) handler. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div class="cf-input-field cf-input-field-casefusion"&gt;
+  &lt;label class="cf-input-label" for="phone-basic"&gt;Phone Number&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;input type="tel" id="phone-basic" class="cf-input-control"
+      data-cnds-input-mask-init
+      data-cnds-mask="phone"
+      placeholder="(___) ___-____" /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Phone number-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: International phone-->
+                  <section id="section-phone-intl">
+                    <h3 class="mb-4">International phone</h3>
+                    <p>
+                      The <code>phoneIntl</code> preset applies the pattern
+                      <code>+9 (999) 999-9999</code>. The leading <code>+</code> sign is a
+                      literal separator inserted automatically; the single <code>9</code>
+                      immediately following it is a one-digit country code placeholder
+                      (the user types a single digit, e.g. <code>1</code> for the US).
+                      The remaining ten digit positions follow the same area-code and local
+                      number structure as the domestic <code>phone</code> preset.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="bg-white border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                          <div class="cf-input-field cf-input-field-casefusion" style="width: 280px;">
+                            <label class="cf-input-label" for="phone-intl">International Phone</label>
+                            <div class="cf-input-wrapper">
+                              <input type="tel" id="phone-intl" class="cf-input-control"
+                                data-cnds-input-mask-init
+                                data-cnds-mask="phoneIntl"
+                                placeholder="+_ (___) ___-____" />
+                            </div>
+                            <div class="cf-input-helper">
+                              <span class="cf-input-helper-text">Mask: +9 (999) 999-9999</span>
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Same Data API pattern as the domestic phone preset.
+     For reactive forms, use a custom validator: (ctrl) =>
+     Nimbus.InputMask.getInstance(el)?.isComplete() ? null : { maskIncomplete: true }.
+     Note that phoneIntl only accepts a single country-code digit — for multi-digit
+     country codes (e.g. +44, +61) use a custom mask pattern instead. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div class="cf-input-field cf-input-field-casefusion"&gt;
+  &lt;label class="cf-input-label" for="phone-intl"&gt;International Phone&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;input type="tel" id="phone-intl" class="cf-input-control"
+      data-cnds-input-mask-init
+      data-cnds-mask="phoneIntl"
+      placeholder="+_ (___) ___-____" /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: International phone-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Date-->
+                  <section id="section-date">
+                    <h3 class="mb-4">Date</h3>
+                    <p>
+                      Two date presets are available. Use <code>date</code> for the common
+                      US format <code>MM/DD/YYYY</code> (slashes inserted automatically),
+                      and <code>dateISO</code> for the ISO&nbsp;8601 format
+                      <code>YYYY-MM-DD</code> — preferred when transmitting date values to
+                      an API or storing them in a database. Note that the mask enforces
+                      format only; it does not validate calendar correctness (e.g. month
+                      values of 99 or invalid leap-year dates will not be rejected). Pair
+                      with a server-side or form-level validator to enforce a valid date
+                      range.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="bg-white border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center gap-5 pb-4">
+                          <div class="cf-input-field cf-input-field-casefusion" style="width: 220px;">
+                            <label class="cf-input-label" for="date-us">Date (MM/DD/YYYY)</label>
+                            <div class="cf-input-wrapper">
+                              <input type="text" id="date-us" class="cf-input-control"
+                                data-cnds-input-mask-init
+                                data-cnds-mask="date"
+                                placeholder="__/__/____" />
+                            </div>
+                            <div class="cf-input-helper">
+                              <span class="cf-input-helper-text">Mask: 99/99/9999</span>
+                            </div>
+                          </div>
+                          <div class="cf-input-field cf-input-field-casefusion" style="width: 220px;">
+                            <label class="cf-input-label" for="date-iso">Date ISO (YYYY-MM-DD)</label>
+                            <div class="cf-input-wrapper">
+                              <input type="text" id="date-iso" class="cf-input-control"
+                                data-cnds-input-mask-init
+                                data-cnds-mask="dateISO"
+                                placeholder="____-__-__" />
+                            </div>
+                            <div class="cf-input-helper">
+                              <span class="cf-input-helper-text">Mask: 9999-99-99</span>
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Combine with the Nimbus DatePicker when a calendar picker is also needed — both
+     data-cnds-input-mask-init and data-cnds-datepicker-init can be applied to the same input;
+     the DatePicker writes a formatted string which the mask re-formats on the input event.
+     Use dateISO when the value is sent to an API so the server receives a consistent format. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;!-- MM/DD/YYYY --&gt;
+&lt;div class="cf-input-field cf-input-field-casefusion"&gt;
+  &lt;label class="cf-input-label" for="date-us"&gt;Date (MM/DD/YYYY)&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;input type="text" id="date-us" class="cf-input-control"
+      data-cnds-input-mask-init
+      data-cnds-mask="date"
+      placeholder="__/__/____" /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- YYYY-MM-DD (ISO 8601) --&gt;
+&lt;div class="cf-input-field cf-input-field-casefusion"&gt;
+  &lt;label class="cf-input-label" for="date-iso"&gt;Date ISO (YYYY-MM-DD)&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;input type="text" id="date-iso" class="cf-input-control"
+      data-cnds-input-mask-init
+      data-cnds-mask="dateISO"
+      placeholder="____-__-__" /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Date-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: SSN-->
+                  <section id="section-ssn">
+                    <h3 class="mb-4">Social Security Number</h3>
+                    <p>
+                      The <code>ssn</code> preset applies the pattern
+                      <code>999-99-9999</code>. The two hyphens are literal separators
+                      inserted automatically after the third and fifth digits; the user
+                      types only the nine digit characters. Set
+                      <code>autocomplete="off"</code> to prevent the browser from
+                      suggesting or autofilling previously entered values from other
+                      forms.
+                    </p>
+                    <p class="note note-warning">
+                      <strong>Security:</strong> Never log or store the unmasked value
+                      client-side. Always call <code>getUnmaskedValue()</code> at submit
+                      time and transmit the result over HTTPS only. Do not bind the raw
+                      SSN to a component property, local variable, or console statement
+                      that could appear in browser developer tools or error logs.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="bg-white border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                          <div class="cf-input-field cf-input-field-casefusion" style="width: 260px;">
+                            <label class="cf-input-label" for="ssn-input">Social Security Number</label>
+                            <div class="cf-input-wrapper">
+                              <input type="text" id="ssn-input" class="cf-input-control"
+                                data-cnds-input-mask-init
+                                data-cnds-mask="ssn"
+                                placeholder="___-__-____"
+                                autocomplete="off" />
+                            </div>
+                            <div class="cf-input-helper">
+                              <span class="cf-input-helper-text">Mask: 999-99-9999</span>
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Listen for complete.cnds.inputmask to know when the SSN is fully entered.
+     Call getUnmaskedValue() only inside the (ngSubmit) handler — never bind the unmasked
+     value to a component property or template expression that could appear in logs.
+     Consider a reactive form validator that checks isComplete() to block submission
+     on partially entered values. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div class="cf-input-field cf-input-field-casefusion"&gt;
+  &lt;label class="cf-input-label" for="ssn-input"&gt;Social Security Number&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;input type="text" id="ssn-input" class="cf-input-control"
+      data-cnds-input-mask-init
+      data-cnds-mask="ssn"
+      placeholder="___-__-____"
+      autocomplete="off" /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: SSN-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Credit card-->
+                  <section id="section-creditcard">
+                    <h3 class="mb-4">Credit card</h3>
+                    <p>
+                      The <code>creditCard</code> preset applies the standard 16-digit PAN
+                      format <code>9999 9999 9999 9999</code>, grouping digits into four
+                      blocks of four separated by spaces. The spaces are literal separators
+                      inserted automatically; the user types only the 16 digit characters.
+                      Set <code>autocomplete="off"</code> to prevent the browser from
+                      suggesting previously stored card numbers.
+                    </p>
+                    <p class="note note-warning">
+                      <strong>Security:</strong> PAN data must be tokenized server-side
+                      before storage. This mask is for display formatting only — never
+                      transmit the raw card number from the client or persist it in any
+                      client-side storage.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="bg-white border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                          <div class="cf-input-field cf-input-field-casefusion" style="width: 300px;">
+                            <label class="cf-input-label" for="cc-input">Card Number</label>
+                            <div class="cf-input-wrapper">
+                              <input type="text" id="cc-input" class="cf-input-control"
+                                data-cnds-input-mask-init
+                                data-cnds-mask="creditCard"
+                                placeholder="____ ____ ____ ____"
+                                autocomplete="off" />
+                            </div>
+                            <div class="cf-input-helper">
+                              <span class="cf-input-helper-text">Mask: 9999 9999 9999 9999</span>
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Detect card type (Visa/MC/Amex) from the first 1–2 digits in the
+     change.cnds.inputmask event handler and show the corresponding card-brand icon beside
+     the field. For Amex (15 digits, 4-6-5 grouping), switch the mask at runtime:
+     Nimbus.InputMask.getInstance(el).setMask('9999 999999 99999') -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div class="cf-input-field cf-input-field-casefusion"&gt;
+  &lt;label class="cf-input-label" for="cc-input"&gt;Card Number&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;input type="text" id="cc-input" class="cf-input-control"
+      data-cnds-input-mask-init
+      data-cnds-mask="creditCard"
+      placeholder="____ ____ ____ ____"
+      autocomplete="off" /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Credit card-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: ZIP code-->
+                  <section id="section-zip">
+                    <h3 class="mb-4">ZIP code</h3>
+                    <p>
+                      Two ZIP presets are available: <code>zip</code> for the standard
+                      5-digit format <code>99999</code>, and <code>zipPlus4</code> for the
+                      extended ZIP+4 format <code>99999-9999</code>. The toggle below
+                      demonstrates switching between them at runtime using the
+                      <code>instance.setMask()</code> method — no new instance is created;
+                      the existing instance's pattern is replaced in place and the field is
+                      reformatted to match.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="bg-white border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center align-items-end gap-5 pb-4">
+                          <div>
+                            <div class="form-check mb-3">
+                              <input class="form-check-input" type="checkbox" id="zip-plus4-toggle" />
+                              <label class="form-check-label" for="zip-plus4-toggle">Use ZIP+4</label>
+                            </div>
+                            <div class="cf-input-field cf-input-field-casefusion" style="width: 220px;">
+                              <label class="cf-input-label" for="zip-input">ZIP Code</label>
+                              <div class="cf-input-wrapper">
+                                <input type="text" id="zip-input" class="cf-input-control"
+                                  placeholder="_____" />
+                              </div>
+                              <div class="cf-input-helper">
+                                <span class="cf-input-helper-text" id="zip-mask-label">Mask: 99999</span>
+                              </div>
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Control the active mask variant via an @Input() plusFour: boolean property.
+     In ngOnChanges, call this.maskInstance.setMask(this.plusFour ? 'zipPlus4' : 'zip').
+     Store the Nimbus.InputMask instance in a component property set in ngAfterViewInit. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div class="form-check mb-3"&gt;
+  &lt;input class="form-check-input" type="checkbox" id="zip-plus4-toggle" /&gt;
+  &lt;label class="form-check-label" for="zip-plus4-toggle"&gt;Use ZIP+4&lt;/label&gt;
+&lt;/div&gt;
+
+&lt;div class="cf-input-field cf-input-field-casefusion"&gt;
+  &lt;label class="cf-input-label" for="zip-input"&gt;ZIP Code&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;input type="text" id="zip-input" class="cf-input-control"
+      placeholder="_____" /&gt;
+  &lt;/div&gt;
+  &lt;div class="cf-input-helper"&gt;
+    &lt;span class="cf-input-helper-text" id="zip-mask-label"&gt;Mask: 99999&lt;/span&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">var zipInput  = document.getElementById('zip-input');
+var toggle    = document.getElementById('zip-plus4-toggle');
+var maskLabel = document.getElementById('zip-mask-label');
+
+// Initialise with the 5-digit preset
+var inst = new Nimbus.InputMask(zipInput, { preset: 'zip' });
+
+toggle.addEventListener('change', function () {
+  if (toggle.checked) {
+    inst.setMask('99999-9999');
+    maskLabel.textContent = 'Mask: 99999-9999';
+  } else {
+    inst.setMask('99999');
+    maskLabel.textContent = 'Mask: 99999';
+  }
+});</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: ZIP code-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Custom pattern-->
+                  <section id="section-custom">
+                    <h3 class="mb-4">Custom pattern</h3>
+                    <p>
+                      Any mask string can be used directly — not just the built-in presets.
+                      Pass the pattern as the <code>data-cnds-mask</code> attribute value
+                      or as the <code>mask</code> option in the programmatic constructor.
+                      Literal characters (any character that is not <code>9</code>,
+                      <code>a</code>, or <code>*</code>) are inserted automatically as the
+                      user types; the user only types characters for the wildcard positions.
+                    </p>
+                    <ul>
+                      <li><strong>Employee ID</strong> — mask <code>EMP-999-aaa</code>:
+                        the prefix <code>EMP-</code> and the separating hyphen are literals;
+                        the user types 3 digits then 3 letters.</li>
+                      <li><strong>Product code</strong> — mask <code>**-9999</code>:
+                        the user types 2 alphanumeric characters, the hyphen is then
+                        inserted automatically, followed by 4 digits.</li>
+                    </ul>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="bg-white border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center gap-5 pb-4">
+                          <div class="cf-input-field cf-input-field-casefusion" style="width: 260px;">
+                            <label class="cf-input-label" for="custom-empid">Employee ID</label>
+                            <div class="cf-input-wrapper">
+                              <input type="text" id="custom-empid" class="cf-input-control"
+                                data-cnds-input-mask-init
+                                data-cnds-mask="EMP-999-aaa"
+                                placeholder="EMP-___-___" />
+                            </div>
+                            <div class="cf-input-helper">
+                              <span class="cf-input-helper-text">Mask: EMP-999-aaa</span>
+                            </div>
+                          </div>
+                          <div class="cf-input-field cf-input-field-casefusion" style="width: 260px;">
+                            <label class="cf-input-label" for="custom-prodcode">Product Code</label>
+                            <div class="cf-input-wrapper">
+                              <input type="text" id="custom-prodcode" class="cf-input-control"
+                                data-cnds-input-mask-init
+                                data-cnds-mask="**-9999"
+                                placeholder="__-____" />
+                            </div>
+                            <div class="cf-input-helper">
+                              <span class="cf-input-helper-text">Mask: **-9999</span>
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Bind the mask pattern via [attr.data-cnds-mask]="maskPattern" where maskPattern
+     is a string @Input(). For runtime switching, call instance.setMask(newPattern) rather
+     than destroying and re-creating the input element (which would lose focus and form state). -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;!-- Employee ID: EMP-999-aaa --&gt;
+&lt;div class="cf-input-field cf-input-field-casefusion"&gt;
+  &lt;label class="cf-input-label" for="custom-empid"&gt;Employee ID&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;input type="text" id="custom-empid" class="cf-input-control"
+      data-cnds-input-mask-init
+      data-cnds-mask="EMP-999-aaa"
+      placeholder="EMP-___-___" /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Product code: **-9999 --&gt;
+&lt;div class="cf-input-field cf-input-field-casefusion"&gt;
+  &lt;label class="cf-input-label" for="custom-prodcode"&gt;Product Code&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;input type="text" id="custom-prodcode" class="cf-input-control"
+      data-cnds-input-mask-init
+      data-cnds-mask="**-9999"
+      placeholder="__-____" /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Custom pattern-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Clear incomplete-->
+                  <section id="section-clearincomplete">
+                    <h3 class="mb-4">Clear incomplete on blur</h3>
+                    <p>
+                      When <code>clearIncomplete: true</code> is passed to the constructor,
+                      the field clears itself if the user tabs away or clicks out without
+                      completing the mask. This prevents a partial value (e.g.
+                      <code>(617) 55</code>) from being submitted or read by application
+                      code. Combine with the HTML <code>required</code> attribute and a
+                      reactive form validator that calls <code>isComplete()</code> to fully
+                      enforce completion before the form is submitted.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="bg-white border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                          <div class="cf-input-field cf-input-field-casefusion" style="width: 300px;">
+                            <label class="cf-input-label" for="clearincomplete-input">Phone (clears if incomplete)</label>
+                            <div class="cf-input-wrapper">
+                              <input type="tel" id="clearincomplete-input" class="cf-input-control"
+                                placeholder="(___) ___-____"
+                                required />
+                            </div>
+                            <div class="cf-input-helper">
+                              <span class="cf-input-helper-text">Tab away without completing to see the field clear</span>
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Use clearIncomplete: true for required masked fields in reactive forms.
+     Pair with a custom validator: (ctrl) => inst.isComplete() ? null : { maskIncomplete: true }.
+     The validator returns an error when clearIncomplete fires, causing the FormControl to
+     become invalid and triggering the standard Angular validation UI (e.g. mat-error or
+     a .is-invalid class on the input). -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div class="cf-input-field cf-input-field-casefusion"&gt;
+  &lt;label class="cf-input-label" for="clearincomplete-input"&gt;Phone (clears if incomplete)&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;input type="tel" id="clearincomplete-input" class="cf-input-control"
+      placeholder="(___) ___-____"
+      required /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">var el = document.getElementById('clearincomplete-input');
+new Nimbus.InputMask(el, { preset: 'phone', clearIncomplete: true });</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Clear incomplete-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Programmatic API-->
+                  <section id="section-api-demo">
+                    <h3 class="mb-4">Programmatic API</h3>
+                    <p>
+                      When you need to create a mask instance in code rather than through
+                      the Data API, call <code>new Nimbus.InputMask(element, options)</code>
+                      directly. The returned instance exposes four read methods and one
+                      reset: <code>getValue()</code> returns the displayed value including
+                      separators; <code>getUnmaskedValue()</code> returns only the
+                      user-entered characters with all separators stripped;
+                      <code>isComplete()</code> returns <code>true</code> when every
+                      wildcard position has been filled; and <code>clear()</code> resets
+                      the field to an empty state. Use <code>setMask(pattern)</code> to
+                      replace the active mask at runtime without re-creating the instance.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="bg-white border rounded-5">
+                        <section class="w-100 p-4 d-flex flex-column align-items-center gap-3 pb-4">
+                          <div class="cf-input-field cf-input-field-casefusion" style="width: 260px;">
+                            <label class="cf-input-label" for="api-demo-input">Phone Number</label>
+                            <div class="cf-input-wrapper">
+                              <input type="tel" id="api-demo-input" class="cf-input-control"
+                                placeholder="(___) ___-____" />
+                            </div>
+                          </div>
+                          <div class="d-flex gap-2 flex-wrap justify-content-center">
+                            <button id="btn-get-value" class="btn btn-sm btn-outline-primary">Get Value</button>
+                            <button id="btn-get-unmasked" class="btn btn-sm btn-outline-primary">Get Unmasked</button>
+                            <button id="btn-is-complete" class="btn btn-sm btn-outline-primary">Is Complete</button>
+                            <button id="btn-clear" class="btn btn-sm btn-outline-secondary">Clear</button>
+                          </div>
+                          <!-- aria-live: screen readers announce result text updates without requiring focus -->
+                          <div id="api-demo-status" class="small fst-italic" aria-live="polite" style="min-height: 1.5em;">
+                            <!-- result appears here -->
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Expose getValue(), getUnmaskedValue(), isComplete(), and clear() as public methods
+     on a MaskedInputComponent wrapper that holds the Nimbus.InputMask instance internally.
+     Parent components access these via @ViewChild(MaskedInputComponent). Create the instance
+     in ngAfterViewInit using this._el.nativeElement and dispose() it in ngOnDestroy. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div class="cf-input-field cf-input-field-casefusion"&gt;
+  &lt;label class="cf-input-label" for="api-demo-input"&gt;Phone Number&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;input type="tel" id="api-demo-input" class="cf-input-control"
+      placeholder="(___) ___-____" /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;button id="btn-get-value"   class="btn btn-sm btn-outline-primary"&gt;Get Value&lt;/button&gt;
+&lt;button id="btn-get-unmasked" class="btn btn-sm btn-outline-primary"&gt;Get Unmasked&lt;/button&gt;
+&lt;button id="btn-is-complete" class="btn btn-sm btn-outline-primary"&gt;Is Complete&lt;/button&gt;
+&lt;button id="btn-clear"       class="btn btn-sm btn-outline-secondary"&gt;Clear&lt;/button&gt;
+
+&lt;div id="api-demo-status" aria-live="polite"&gt;&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">var input    = document.getElementById('api-demo-input');
+var statusEl = document.getElementById('api-demo-status');
+var inst     = new Nimbus.InputMask(input, { preset: 'phone' });
+
+document.getElementById('btn-get-value').addEventListener('click', function () {
+  statusEl.textContent = 'getValue(): ' + inst.getValue();
+});
+document.getElementById('btn-get-unmasked').addEventListener('click', function () {
+  statusEl.textContent = 'getUnmaskedValue(): ' + inst.getUnmaskedValue();
+});
+document.getElementById('btn-is-complete').addEventListener('click', function () {
+  statusEl.textContent = 'isComplete(): ' + inst.isComplete();
+});
+document.getElementById('btn-clear').addEventListener('click', function () {
+  inst.clear();
+  statusEl.textContent = 'Cleared.';
+});</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Programmatic API-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Complete event-->
+                  <section id="section-complete-event">
+                    <h3 class="mb-4">Complete event</h3>
+                    <p>
+                      The <code>complete.cnds.inputmask</code> event fires once when the
+                      mask transitions from incomplete to complete — i.e. when the last
+                      unfilled wildcard position is typed. It carries a
+                      <code>detail</code> object with two properties: the masked
+                      <code>value</code> (including separators) and the
+                      <code>unmasked</code> string (digits/letters only). A second
+                      event, <code>change.cnds.inputmask</code>, fires on every
+                      keystroke that modifies the field and includes a
+                      <code>complete</code> boolean. The demo below auto-advances focus
+                      from the phone field to the SSN field when the phone mask is
+                      completed.
+                    </p>
+                    <p class="note note-light">
+                      <strong>Note:</strong> The <code>complete.cnds.inputmask</code>
+                      event fires <em>once</em> when the mask transitions from incomplete
+                      to complete. Subsequent edits that keep the mask fully filled do
+                      not re-fire it.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="bg-white border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                          <div class="d-flex flex-column gap-4" style="width: 280px;">
+                            <div class="cf-input-field cf-input-field-casefusion">
+                              <label class="cf-input-label" for="autotab-phone">Phone Number</label>
+                              <div class="cf-input-wrapper">
+                                <input type="tel" id="autotab-phone" class="cf-input-control"
+                                  placeholder="(___) ___-____" />
+                              </div>
+                              <div class="cf-input-helper">
+                                <span class="cf-input-helper-text">Complete this field to advance focus</span>
+                              </div>
+                            </div>
+                            <div class="cf-input-field cf-input-field-casefusion">
+                              <label class="cf-input-label" for="autotab-ssn">Social Security Number</label>
+                              <div class="cf-input-wrapper">
+                                <input type="text" id="autotab-ssn" class="cf-input-control"
+                                  placeholder="___-__-____"
+                                  autocomplete="off" />
+                              </div>
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Use a host listener in a MaskedInputDirective to emit an Angular output event:
+     @HostListener('complete.cnds.inputmask') onComplete() {
+       this.maskComplete.emit(this.instance.getUnmaskedValue());
+     }
+     The parent component binds (maskComplete)="focusNext(nextInputRef)" to advance focus.
+     This is preferable to directly calling .focus() on a sibling — Angular's FocusMonitor
+     handles focus tracking for accessibility. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div class="cf-input-field cf-input-field-casefusion"&gt;
+  &lt;label class="cf-input-label" for="autotab-phone"&gt;Phone Number&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;input type="tel" id="autotab-phone" class="cf-input-control"
+      placeholder="(___) ___-____" /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="cf-input-field cf-input-field-casefusion"&gt;
+  &lt;label class="cf-input-label" for="autotab-ssn"&gt;Social Security Number&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;input type="text" id="autotab-ssn" class="cf-input-control"
+      placeholder="___-__-____" autocomplete="off" /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">var phoneInput = document.getElementById('autotab-phone');
+var ssnInput   = document.getElementById('autotab-ssn');
+
+new Nimbus.InputMask(phoneInput, { preset: 'phone' });
+new Nimbus.InputMask(ssnInput,   { preset: 'ssn' });
+
+// Advance focus when the phone mask is fully satisfied
+phoneInput.addEventListener('complete.cnds.inputmask', function () {
+  ssnInput.focus();
+});</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Complete event-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: API Documentation-->
+                  <section id="section-api-docs">
+                    <h3 class="mb-3">API Documentation</h3>
+
+                    <!--Section: API Introduction-->
+                    <section id="api-section-introduction">
+                      <h4 class="mb-4">Introduction</h4>
+                      <p>
+                        The InputMask plugin (registered as <code>Nimbus.InputMask</code>)
+                        is loaded dynamically by <code>nimbus.js</code> as part of the
+                        Plugins phase. Once loaded it scans the DOM for
+                        <code>[data-cnds-input-mask-init]</code> elements and auto-initialises
+                        each one via the Data API. No additional script tag is needed for
+                        basic usage. For programmatic control, construct an instance directly:
+                        <code>new Nimbus.InputMask(el, options)</code>. The constructor
+                        resolves the active mask by checking, in order: the
+                        <code>mask</code> option, the <code>preset</code> option, and the
+                        <code>data-cnds-mask</code> attribute. Instances are stored on the
+                        element and can be retrieved with
+                        <code>Nimbus.InputMask.getInstance(el)</code>.
+                      </p>
+                    </section>
+                    <!--/Section: API Introduction-->
+
+                    <!--Section: API Data API-->
+                    <section id="api-section-data-api">
+                      <h4 class="mb-4">Data API</h4>
+                      <p>
+                        Add <code>data-cnds-input-mask-init</code> to any
+                        <code>&lt;input&gt;</code> to register it for automatic
+                        initialisation. Set <code>data-cnds-mask</code> to either a preset
+                        key (e.g. <code>"phone"</code>) or a raw mask pattern string (e.g.
+                        <code>"EMP-999-aaa"</code>). All boolean options can be passed as
+                        <code>data-cnds-*</code> attributes using camelCase-to-kebab-case
+                        conversion (<code>clearIncomplete</code> →
+                        <code>data-cnds-clear-incomplete</code>).
+                      </p>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-html">&lt;!-- Preset via Data API --&gt;
+&lt;input data-cnds-input-mask-init data-cnds-mask="phone" /&gt;
+
+&lt;!-- Custom pattern via Data API --&gt;
+&lt;input data-cnds-input-mask-init data-cnds-mask="EMP-999-aaa" /&gt;
+
+&lt;!-- clearIncomplete option via Data API --&gt;
+&lt;input data-cnds-input-mask-init data-cnds-mask="phone"
+       data-cnds-clear-incomplete="true" /&gt;</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Section: API Data API-->
+
+                    <!--Section: API Presets-->
+                    <section id="api-section-presets">
+                      <h4 class="mb-4">Presets</h4>
+                      <p>
+                        Presets are named aliases for common mask patterns. Pass the preset
+                        key as the <code>data-cnds-mask</code> attribute value or as the
+                        <code>preset</code> option in the programmatic constructor. When
+                        both <code>mask</code> and <code>preset</code> are provided,
+                        <code>mask</code> takes precedence.
+                      </p>
+                      <div class="table-responsive mb-4">
+                        <table class="table table-striped table-bordered" aria-label="Input mask presets">
+                          <thead>
+                            <tr>
+                              <th class="th-sm">Preset key</th>
+                              <th class="th-sm">Mask pattern</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>phone</code></td>
+                              <td><code>(999) 999-9999</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>phoneIntl</code></td>
+                              <td><code>+9 (999) 999-9999</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>date</code></td>
+                              <td><code>99/99/9999</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>dateISO</code></td>
+                              <td><code>9999-99-99</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>time</code></td>
+                              <td><code>99:99</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>time12</code></td>
+                              <td><code>99:99 aa</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>ssn</code></td>
+                              <td><code>999-99-9999</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>zip</code></td>
+                              <td><code>99999</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>zipPlus4</code></td>
+                              <td><code>99999-9999</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>creditCard</code></td>
+                              <td><code>9999 9999 9999 9999</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>currency</code></td>
+                              <td><code>$9,999,999.99</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>ip</code></td>
+                              <td><code>999.999.999.999</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>ein</code></td>
+                              <td><code>99-9999999</code></td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: API Presets-->
+
+                    <!--Section: API Options-->
+                    <section id="api-section-options">
+                      <h4 class="mb-4">Options</h4>
+                      <p>
+                        Options can be passed as a plain object to the constructor, or via
+                        <code>data-cnds-*</code> attributes on the
+                        <code>&lt;input&gt;</code> element for Data API initialisation.
+                      </p>
+                      <div class="table-responsive mb-4">
+                        <table class="table table-striped table-bordered" aria-label="Input mask options">
+                          <thead>
+                            <tr>
+                              <th class="th-sm">Name</th>
+                              <th class="th-sm">Type</th>
+                              <th class="th-sm">Default</th>
+                              <th class="th-sm">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="text-nowrap"><code>mask</code></td>
+                              <td><i>String | null</i></td>
+                              <td><code>null</code></td>
+                              <td>The mask pattern string to apply directly. Use wildcard characters <code>9</code> (digit), <code>a</code> (letter), <code>*</code> (alphanumeric); all other characters are literal separators. Takes precedence over <code>preset</code>.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>preset</code></td>
+                              <td><i>String | null</i></td>
+                              <td><code>null</code></td>
+                              <td>Name of a built-in preset to use as the mask pattern. Ignored when <code>mask</code> is also provided.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>placeholder</code></td>
+                              <td><i>String</i></td>
+                              <td><code>"_"</code></td>
+                              <td>Character displayed in empty wildcard positions within the mask when <code>showMaskOnFocus</code> or <code>greedy</code> is active.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>showMaskOnFocus</code></td>
+                              <td><i>Boolean</i></td>
+                              <td><code>true</code></td>
+                              <td>When <code>true</code>, the full mask pattern (with placeholder characters) is shown as soon as the field receives focus.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>showMaskOnHover</code></td>
+                              <td><i>Boolean</i></td>
+                              <td><code>false</code></td>
+                              <td>When <code>true</code>, the mask pattern is revealed on mouse hover, before the field is focused.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>clearIncomplete</code></td>
+                              <td><i>Boolean</i></td>
+                              <td><code>false</code></td>
+                              <td>When <code>true</code>, the field value is cleared on blur if the mask is not fully complete.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>greedy</code></td>
+                              <td><i>Boolean</i></td>
+                              <td><code>false</code></td>
+                              <td>When <code>true</code>, the full mask (including all literal separators and placeholder characters) is always displayed, even when the field is empty.</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: API Options-->
+
+                    <!--Section: API Methods-->
+                    <section id="api-section-methods">
+                      <h4 class="mb-4">Methods</h4>
+                      <div class="table-responsive mb-4">
+                        <table class="table table-striped table-bordered" aria-label="Input mask methods">
+                          <thead>
+                            <tr>
+                              <th class="th-sm">Name</th>
+                              <th class="th-sm">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="text-nowrap"><code>getValue()</code></td>
+                              <td>Returns the current field value as displayed, including all literal separator characters.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>getUnmaskedValue()</code></td>
+                              <td>Returns only the characters entered by the user, with all literal separators stripped out.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>isComplete()</code></td>
+                              <td>Returns <code>true</code> if every wildcard position in the mask has been filled by the user; <code>false</code> otherwise.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>setMask(mask)</code></td>
+                              <td>Replaces the active mask pattern at runtime. Accepts a mask string or a preset name. The existing field value is reformatted to match the new pattern.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>clear()</code></td>
+                              <td>Resets the field, removing all entered characters and reverting to the empty mask state.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>dispose()</code></td>
+                              <td>Destroys the InputMask instance, removes all event listeners attached by the plugin, and restores the original input element state.</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: API Methods-->
+
+                    <!--Section: API Events-->
+                    <section id="api-section-events">
+                      <h4 class="mb-4">Events</h4>
+                      <p>
+                        Events are dispatched on the <code>&lt;input&gt;</code> element
+                        and bubble up the DOM. Listen with
+                        <code>addEventListener</code>; event payload is available on
+                        <code>event.detail</code>.
+                      </p>
+                      <div class="table-responsive mb-4">
+                        <table class="table table-striped table-bordered" aria-label="Input mask events">
+                          <thead>
+                            <tr>
+                              <th class="th-sm">Name</th>
+                              <th class="th-sm">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="text-nowrap"><code>complete.cnds.inputmask</code></td>
+                              <td>
+                                Fires once when every wildcard position has been filled and
+                                the mask transitions from incomplete to complete. Detail:
+                                <code>{ value, unmasked }</code>.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>change.cnds.inputmask</code></td>
+                              <td>
+                                Fires on every keystroke that modifies the field value.
+                                Detail: <code>{ value, unmasked, complete }</code>.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: API Events-->
+
+                    <!--Section: API Usage-->
+                    <section id="api-section-usage">
+                      <h4 class="mb-4">Usage</h4>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-js">// Data API — auto-init via attribute (no script required)
+// &lt;input data-cnds-input-mask-init data-cnds-mask="phone" /&gt;
+
+// Programmatic — preset
+var inst = new Nimbus.InputMask(document.getElementById('myInput'), {
+  preset: 'phone'
+});
+
+// Programmatic — custom mask string
+var inst2 = new Nimbus.InputMask(document.getElementById('myInput2'), {
+  mask: 'EMP-999-aaa'
+});
+
+// Read values
+console.log(inst.getValue());          // e.g. "(617) 555-1234"
+console.log(inst.getUnmaskedValue());  // e.g. "6175551234"
+console.log(inst.isComplete());        // true
+
+// Switch mask at runtime (no new instance needed)
+inst.setMask('99999-9999');
+
+// Listen for completion (fires once, on first full entry)
+document.getElementById('myInput').addEventListener('complete.cnds.inputmask', function (e) {
+  console.log('Completed:', e.detail.value, e.detail.unmasked);
+});
+
+// Listen for every change
+document.getElementById('myInput').addEventListener('change.cnds.inputmask', function (e) {
+  console.log('Changed:', e.detail.value, '| complete:', e.detail.complete);
+});
+
+// Retrieve an existing instance
+var existing = Nimbus.InputMask.getInstance(document.getElementById('myInput'));
+
+// Destroy the instance and remove all event listeners
+existing.dispose();</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Section: API Usage-->
+
+                  </section>
+                  <!--/Section: API Documentation-->
+
+                </section>
+                <!--/Section: Docs content-->
+              </div>
+              <!-- ./Main column -->
+
+              <!-- Right Sidebar — 20 % of the row width; hidden below lg breakpoint.
+                   data-cnds-allow-hashes="true" on the <ul>: nimbus.js watches the URL hash
+                   and highlights the matching nav-link as the user scrolls through sections. -->
+              <div class="col-lg-2 d-none d-lg-block">
+                <div class="sticky-top" style="top: 100px; z-index: 1">
+                  <ul class="nav flex-column nav-pills menu-sidebar" id="rightNav" data-cnds-allow-hashes="true">
+                    <li class="nav-item"><a class="nav-link" href="#section-introduction">Introduction</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-phone">Phone number</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-phone-intl">International phone</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-date">Date</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-ssn">SSN</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-creditcard">Credit card</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-zip">ZIP code</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-custom">Custom pattern</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-clearincomplete">Clear incomplete</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-api-demo">Programmatic API</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-complete-event">Complete event</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-api-docs">API Documentation</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-introduction">Introduction</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-data-api">Data API</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-presets">Presets</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-options">Options</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-methods">Methods</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-events">Events</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-usage">Usage</a></li>
+                  </ul>
+                </div>
+              </div>
+              <!--/Right sidebar-->
+
+            </div>
+            <!-- ./Content Row -->
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- ./Content -->
+
+    <!-- Footer -->
+    <div class="cf-footer cf-footer-app">
+      <footer class="page-footer main-footer" aria-label="Site footer">
+        <div class="w-100 px-3 d-flex align-items-center">
+          <img src="img/cf/core/cloudficient_logo_light.svg" class="cf-logo-light" style="width: 135px;" alt="Cloudficient" />
+          <img src="img/cf/core/cloudficient_logo_dark.svg" class="cf-logo-dark" style="width: 135px;" alt="Cloudficient" />
+          <span class="footer-copyright ms-auto">&copy; <span id="currentYear"></span> Cloudficient</span>
+        </div>
+      </footer>
+    </div>
+    <!-- ./Footer -->
+
+    <!-- SCRIPTS — load order matters:
+         1. nimbus.js        — core framework + dynamic plugin loader; boots on DOMContentLoaded
+                               and dispatches "cnds.ready" when all plugins are registered
+         2. app.js           — application-level overrides and custom initialisation
+         3. prism.min.js     — syntax highlighting for <code class="language-*"> blocks
+         4. sidenav-loader.js— fetches shared sidenav HTML, injects it into #sidebar-cf,
+                               and highlights the current page's nav item -->
+    <script type="text/javascript" src="js/nimbus.js?v=9.0.4"></script>
+    <script type="text/javascript" src="js/app.js?v=9.0.4"></script>
+    <script type="text/javascript" src="plugins/js/prism.min.js"></script>
+    <script type="text/javascript" src="js/sidenav-loader.js"></script>
+
+    <!-- Inline: footer copyright year — avoids a manual update every year -->
+    <script type="text/javascript">
+      var el = document.getElementById('currentYear');
+      if (el) el.textContent = new Date().getFullYear();
+    </script>
+
+    <!-- InputMask demo initialisation
+         IIFEs isolate each demo's variables so there are no cross-demo name collisions.
+         The outer guard checks if the plugin is already registered (synchronous load) or
+         defers to "cnds.ready" (async load via nimbus.js boot sequence). -->
+    <script type="text/javascript">
+    function initInputMaskDemos() {
+
+      // --- ZIP code: programmatic init + runtime mask switching ---
+      // The zip-input has no data-cnds-input-mask-init so it is NOT auto-inited by
+      // the Data API — we create the instance here and wire the toggle checkbox.
+      (function () {
+        var zipInput  = document.getElementById('zip-input');
+        var toggle    = document.getElementById('zip-plus4-toggle');
+        var maskLabel = document.getElementById('zip-mask-label');
+        if (!zipInput || !toggle) return;
+
+        var inst = new Nimbus.InputMask(zipInput, { preset: 'zip' });
+
+        toggle.addEventListener('change', function () {
+          if (toggle.checked) {
+            inst.setMask('99999-9999');
+            if (maskLabel) maskLabel.textContent = 'Mask: 99999-9999';
+          } else {
+            inst.setMask('99999');
+            if (maskLabel) maskLabel.textContent = 'Mask: 99999';
+          }
+        });
+      })();
+
+      // --- Clear incomplete: phone field that resets on blur if not fully entered ---
+      (function () {
+        var el = document.getElementById('clearincomplete-input');
+        if (!el) return;
+        new Nimbus.InputMask(el, { preset: 'phone', clearIncomplete: true });
+      })();
+
+      // --- Programmatic API demo: exposes getValue / getUnmasked / isComplete / clear ---
+      (function () {
+        var input    = document.getElementById('api-demo-input');
+        if (!input) return;
+        var inst     = new Nimbus.InputMask(input, { preset: 'phone' });
+        var statusEl = document.getElementById('api-demo-status');
+
+        document.getElementById('btn-get-value').addEventListener('click', function () {
+          if (statusEl) statusEl.textContent = 'getValue(): ' + inst.getValue();
+        });
+        document.getElementById('btn-get-unmasked').addEventListener('click', function () {
+          if (statusEl) statusEl.textContent = 'getUnmaskedValue(): ' + inst.getUnmaskedValue();
+        });
+        document.getElementById('btn-is-complete').addEventListener('click', function () {
+          if (statusEl) statusEl.textContent = 'isComplete(): ' + inst.isComplete();
+        });
+        document.getElementById('btn-clear').addEventListener('click', function () {
+          inst.clear();
+          if (statusEl) statusEl.textContent = 'Cleared.';
+        });
+      })();
+
+      // --- Complete event: auto-advance focus phone → SSN on mask completion ---
+      (function () {
+        var phoneInput = document.getElementById('autotab-phone');
+        var ssnInput   = document.getElementById('autotab-ssn');
+        if (!phoneInput || !ssnInput) return;
+
+        new Nimbus.InputMask(phoneInput, { preset: 'phone' });
+        new Nimbus.InputMask(ssnInput,   { preset: 'ssn' });
+
+        phoneInput.addEventListener('complete.cnds.inputmask', function () {
+          ssnInput.focus();
+        });
+      })();
+    }
+
+    // Defer init until nimbus.js has finished its async boot sequence and registered
+    // the InputMask plugin. If the plugin is already available (e.g. synchronous load),
+    // call immediately; otherwise wait for the "cnds.ready" custom event.
+    if (window.Nimbus && window.Nimbus.InputMask) {
+      initInputMaskDemos();
+    } else {
+      document.addEventListener('cnds.ready', initInputMaskDemos);
+    }
+    </script>
+  </body>
+</html>

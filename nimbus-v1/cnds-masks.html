@@ -1,0 +1,1638 @@
+<!--
+* CNDS Nimbus Design System — Masks
+* Version: 1.0.0
+* Layout: Application with SideNav (migrated from Nimbus v8 template)
+*
+* Component CSS:  css/components/mask.css
+* Theme overrides: css/themes/light.css | css/themes/dark.css
+*
+* SECTIONS (in document order)
+*   #section-introduction    — Overview, narrative, and when to use
+*   #section-basic-example   — Minimal mask overlay
+*   #section-how-it-works    — Structural explanation
+*   #section-hsla            — Color and opacity via HSLA
+*     #subsection-color      — Hue manipulation examples
+*     #subsection-opacity    — Alpha value examples
+*   #section-content         — Text over a masked image
+*   #section-ripple          — Ripple effect on masked containers
+*   #section-link            — Mask as clickable link
+*     #subsection-regular    — Plain link mask
+*     #subsection-with-ripple — Link mask with ripple
+*   #section-product-example — CaseFusion application context
+*   #section-accessibility   — WCAG / Section 508 guidance
+*   #section-api-docs        — API Documentation
+*     #api-section-introduction  — Component model overview
+*     #api-section-usage         — Minimum markup pattern
+*     #api-section-css-classes   — Class reference table
+*     #api-section-data-attributes — data-cnds-* ripple attributes
+*     #api-section-accessibility — Required ARIA / a11y notes
+*
+* NOTES
+* - Pure HTML5, CSS3, vanilla JavaScript — zero external dependencies
+* - UI icons: MDI (mdi-* classes); social/footer icons: Font Awesome (fab fa-*)
+* - Uses data-cnds-* attributes processed by nimbus.js / app.js
+* - Uses Nimbus.* namespace
+* - Default product theme: CaseFusion (cnds-product-casefusion on <body>; change to cnds-product-hyperlize or cnds-product-expireon)
+-->
+<!doctype html>
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta
+      name="description"
+      content="Masks | Cloudficient Nimbus Design System v1.0.0"
+    />
+    <title>Masks | CNDS v1.0.0 | Cloudficient Nimbus Design System</title>
+    <!-- Nimbus CSS -->
+    <link rel="stylesheet" href="css/nimbus.css" media="all" type="text/css" />
+    <!-- Custom styles | All custom classes/styles/overrides go here! -->
+    <link rel="stylesheet" href="css/app.css" media="all" type="text/css" />
+    <!-- Prism syntax highlighting -->
+    <link
+      rel="stylesheet"
+      href="plugins/css/prism.min.css"
+      media="all"
+      type="text/css"
+    />
+    <!-- Favicons -->
+    <link
+      rel="apple-touch-icon"
+      sizes="57x57"
+      href="img/favicon/apple-icon-57x57.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="60x60"
+      href="img/favicon/apple-icon-60x60.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="72x72"
+      href="img/favicon/apple-icon-72x72.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="76x76"
+      href="img/favicon/apple-icon-76x76.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="114x114"
+      href="img/favicon/apple-icon-114x114.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="120x120"
+      href="img/favicon/apple-icon-120x120.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="144x144"
+      href="img/favicon/apple-icon-144x144.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="152x152"
+      href="img/favicon/apple-icon-152x152.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="img/favicon/apple-icon-180x180.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="192x192"
+      href="img/favicon/android-icon-192x192.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="img/favicon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="96x96"
+      href="img/favicon/favicon-96x96.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="img/favicon/favicon-16x16.png"
+    />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta
+      name="msapplication-TileImage"
+      content="img/favicon/ms-icon-144x144.png"
+    />
+    <!-- ./Favicons -->
+    <!-- Design tokens — load order matters:
+         1. primitives.css  — raw color/spacing values (no theming)
+         2. light.css       — semantic tokens for [data-cnds-theme="light"] / :root
+         3. dark.css        — semantic token overrides for [data-cnds-theme="dark"]
+         All three must appear AFTER nimbus.css so component variables resolve correctly. -->
+    <link rel="stylesheet" href="css/themes/primitives.css" />
+    <link rel="stylesheet" href="css/themes/light.css" />
+    <link rel="stylesheet" href="css/themes/dark.css" />
+  </head>
+
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 Bypass Blocks; renders visually hidden until focused -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+    <!-- Header -->
+    <div class="sticky-top">
+      <!-- Utility Navigation -->
+      <nav id="UtilityNav" class="nav nav-cf-utility">
+        <div class="w-100 gx-3 px-sm-0 px-lg-3">
+          <ul class="nav nav-cf-utility-ul"></ul>
+        </div>
+      </nav>
+      <!-- ./Utility Navigation -->
+      <!-- Main Navigation -->
+      <nav id="MainNav" class="navbar navbar-expand-xl navbar-cf">
+        <div class="container-fluid p-0 px-3 d-flex">
+          <div class="d-flex flex-fill align-items-center text-truncate">
+            <div class="text-center d-none d-md-block me-3 border-end">
+              <a href="index.html"
+                ><img src="img/cf/core/logo_nimbus.png" class="me-3 mt-n1"
+              alt="Cloudficient Nimbus Design System" /></a>
+            </div>
+            <div class="flex-fill text-truncate">
+              <div class="navbar-cf-title-block">
+                <div
+                  class="navbar-cf-title cf-page-title text-truncate"
+                  style="padding-bottom: 0"
+                >
+                  <span class="cf-page-title-text cf-page-title-brand">v1</span
+                  ><span class="cf-page-title-divider"></span
+                  ><span class="cf-page-title-text">Masks</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- data-cnds-toggle="theme": wired by nimbus.js — flips data-cnds-theme on <html> between "light" and "dark" -->
+          <button
+            class="btn btn-sm btn-outline-secondary ms-2"
+            data-cnds-toggle="theme"
+            aria-label="Toggle theme"
+            title="Toggle theme"
+          >
+            <i class="mdi mdi-weather-night mdi-18px" aria-hidden="true"></i>
+          </button>
+        </div>
+      </nav>
+      <!-- ./Main Navigation -->
+    </div>
+    <!-- ./Header -->
+    <!-- Content -->
+    <main id="main-content" class="cf-main-app">
+      <!-- Mobile viewport warning -->
+      <div class="d-block d-md-none p-4">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>This application is not
+          optimized for small screens. Please use a large tablet, laptop, or
+          desktop computer to continue.
+        </div>
+      </div>
+      <div class="d-none d-md-block">
+        <!-- Sidenav — markup is intentionally empty; sidenav-loader.js fetches and injects the shared nav HTML.
+             data-cnds-mode="side"           : renders as a persistent side panel (not an overlay/drawer)
+             data-cnds-slim / slim-collapsed : controls compact/icon-only collapsed state
+             data-cnds-content="#slim-content": the sibling panel that shrinks/expands as the nav opens/closes
+             data-cnds-accordion="true"      : collapses other open nav groups when a new one is expanded -->
+        <nav
+          id="sidebar-cf"
+          class="sidenav"
+          data-cnds-mode="side"
+          data-cnds-slim="false"
+          data-cnds-slim-collapsed="false"
+          data-cnds-content="#slim-content"
+          data-cnds-accordion="true"
+        ></nav>
+        <div id="slim-content">
+          <div class="slim-content-box">
+            <!-- Content Row -->
+            <div class="row">
+              <!-- Main column — 80 % of the row width; the remaining 20 % is the right sidebar.
+                   The inline flex overrides are intentional: they pin the ratio regardless of Bootstrap's
+                   grid breakpoints so the sidebar never wraps on large viewports. -->
+              <div class="col-12 col-lg" style="flex: 0 0 80%; max-width: 80%">
+                <!--Section: Docs content-->
+                <section class="container-fluid">
+
+                  <!--Section: Introduction-->
+                  <a id="section-introduction" class="anchor"></a>
+                  <section>
+
+                    <!-- Description — expanded narrative (Step 4) -->
+                    <p class="mb-4">
+                      Masks alter the visibility of an element by either partially or fully hiding it.
+                      In the Nimbus Design System, a mask is a semi-transparent overlay — a
+                      <code>.mask</code> element absolutely positioned inside a <code>.bg-image</code>
+                      wrapper — that sits on top of an image or background container. By setting the
+                      overlay's <code>background-color</code> or <code>background</code> gradient via
+                      inline HSLA or RGBA values you can control exactly how much of the underlying image
+                      shows through. Masks are most commonly used to ensure readable text contrast over
+                      photographs and hero images: without an overlay, light-colored body text can be
+                      nearly invisible against a bright sky or pale background; with a dark mask at
+                      roughly 50–70 % opacity the same text passes WCAG AA contrast requirements with
+                      ease.
+                    </p>
+                    <p class="my-4">
+                      Beyond solid color overlays, masks support gradient backgrounds — giving you
+                      directional color washes that transition smoothly across an image. You can use
+                      <code>linear-gradient</code> or <code>radial-gradient</code> values on the
+                      <code>.mask</code> element to create cinematic color grades, brand-colored
+                      overlays, or soft vignette effects. Because mask color and opacity are set via
+                      inline styles rather than modifier classes, the approach is fully flexible:
+                      any valid CSS color expression works, including named
+                      <code>var(--cnds-*)</code> design tokens, <code>hsla()</code> functional
+                      notation, and multi-stop gradients. Interactive mask demos below can also
+                      incorporate the Nimbus ripple effect (<code>data-cnds-ripple="true"</code>)
+                      to provide tactile click feedback when a masked image is used as a button or link.
+                    </p>
+
+                    <!--Grid row — side-by-side without/with mask comparison-->
+                    <div class="row">
+                      <!--Grid column-->
+                      <div class="col-md-6 mb-4">
+                        <p class="text-center"><strong>Without mask</strong></p>
+                        <div class="bg-image shadow-1-strong rounded">
+                          <img
+                            src="img/cf/styleguide/card-media-1280x720.jpg"
+                            class="w-100"
+                            alt="Sample landscape photo shown without a mask overlay"
+                          />
+                          <div
+                            class="mask"
+                            style="background-color: rgba(0, 0, 0, 0)"
+                          >
+                            <div
+                              class="d-flex justify-content-center align-items-center h-100"
+                            >
+                              <p class="text-white mb-0">Can you see me?</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <!--/Grid column-->
+
+                      <!--Grid column-->
+                      <div class="col-md-6 mb-4">
+                        <p class="text-center"><strong>With mask</strong></p>
+                        <div class="bg-image shadow-1-strong rounded">
+                          <img
+                            src="img/cf/styleguide/card-media-1280x720.jpg"
+                            class="w-100"
+                            alt="Sample landscape photo shown with a dark semi-transparent mask overlay"
+                          />
+                          <div
+                            class="mask"
+                            style="background-color: rgba(0, 0, 0, 0.6)"
+                          >
+                            <div
+                              class="d-flex justify-content-center align-items-center h-100"
+                            >
+                              <p class="text-white mb-0">Can you see me?</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <!--/Grid column-->
+                    </div>
+                    <!--/Grid row-->
+
+                    <p class="note note-light">
+                      <strong>Note:</strong> Read the
+                      <a href="#api-section-introduction">API Documentation</a> to find all available
+                      options and advanced customization.
+                    </p>
+
+                    <p class="note note-info"><strong>Note:</strong> To preview components in different themes, click the theme toggle button <i class="mdi mdi-weather-night" aria-hidden="true"></i> / <i class="mdi mdi-weather-sunny" aria-hidden="true"></i> in the header navigation bar.</p>
+                  </section>
+                  <!--/Section: Introduction-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Basic example-->
+                  <a id="section-basic-example" class="anchor"></a>
+                  <section>
+                    <!-- Section title -->
+                    <h3 class="mb-3">Basic example</h3>
+
+                    <p>A simple example of mask usage — a dark overlay applied to an image to increase contrast.</p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <!-- Angular: Apply mask classes directly in templates.
+                           Example: <div class="bg-image" [style.maxWidth]="'22rem'">
+                                      <img [src]="imageUrl" class="w-100" [attr.alt]="imageAlt" alt="">
+                                      <div class="mask" [style.backgroundColor]="maskColor"></div>
+                                    </div>
+                           Bind maskColor to a component property like 'hsla(0, 0%, 0%, 0.6)'
+                           and update it reactively to change overlay opacity at runtime. -->
+                      <div class="border p-4 d-flex justify-content-center">
+                        <div class="bg-image" style="max-width: 22rem">
+                          <img
+                            src="img/cf/styleguide/card-media-1280x720.jpg"
+                            class="w-100"
+                            alt="Sample image with a dark semi-transparent overlay mask"
+                          />
+                          <div
+                            class="mask"
+                            style="background-color: hsla(0, 0%, 0%, 0.6)"
+                          ></div>
+                        </div>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <!-- snippet -->
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div class="bg-image" style="max-width: 22rem"&gt;
+  &lt;img src="img/cf/styleguide/card-media-1280x720.jpg" class="w-100"
+       alt="Sample image with a dark semi-transparent overlay mask" /&gt;
+  &lt;div class="mask" style="background-color: hsla(0, 0%, 0%, 0.6)"&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                      <!-- /.snippet -->
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Basic example-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: How it works-->
+                  <a id="section-how-it-works" class="anchor"></a>
+                  <section>
+                    <!--Section title-->
+                    <h3 class="mb-3">How it works</h3>
+
+                    <!-- Section description -->
+                    <p>A detailed explanation of how masks work in Nimbus:</p>
+
+                    <ul>
+                      <li>
+                        Masks require a <code>.bg-image</code> wrapper which sets
+                        <code>position: relative</code>, <code>overflow: hidden</code>, and properly
+                        centers the image.
+                      </li>
+                      <li>
+                        Inside the <code>.bg-image</code> wrapper, the first child is an
+                        <code>&lt;img&gt;</code> element with a source path and descriptive
+                        <code>alt</code> text.
+                      </li>
+                      <li>
+                        The sibling <code>.mask</code> element is the actual overlay. Set its color
+                        and opacity via <code>background-color: hsla(h, s%, l%, a)</code> as an inline
+                        style. See the <a href="#section-hsla">HSLA section</a> for a full explanation
+                        of how HSLA values control mask appearance.
+                      </li>
+                      <li>
+                        If you want to place text over the image, nest it inside the
+                        <code>.mask</code> wrapper and use flexbox utilities to center it vertically
+                        and horizontally — see the <a href="#section-content">Content section</a> below.
+                      </li>
+                    </ul>
+                  </section>
+                  <!--/Section: How it works-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: HSLA-->
+                  <a id="section-hsla" class="anchor"></a>
+                  <section>
+                    <!--Section title-->
+                    <h3 class="mb-3">HSLA</h3>
+
+                    <!-- Section description -->
+                    <p>
+                      By manipulating the HSLA code you can change the color and opacity of the mask.
+                    </p>
+
+                    <!--Subsection: Color-->
+                    <a id="subsection-color" class="anchor"></a>
+                    <section>
+                      <!--Subsection title-->
+                      <h4 class="mt-5">Color</h4>
+
+                      <!--Description-->
+                      <p>Change the hue, saturation, and lightness values to apply any color wash to the mask.</p>
+
+                      <!--Section: Demo-->
+                      <section class="pb-4">
+                        <!-- Angular: Bind HSLA values dynamically per card item.
+                             Example: <div class="mask" [style.backgroundColor]="item.maskColor"></div>
+                             Store maskColor as a computed string in each card model object,
+                             e.g. item.maskColor = 'hsla(217, 89%, 51%, 0.6)'. -->
+                        <div class="border p-4 text-center">
+                          <!--Grid row-->
+                          <div class="row">
+                            <!--Grid column-->
+                            <div class="col-lg-4 col-md-12 mb-4">
+                              <code>hsla(217, 89%, 51%, 0.6)</code>
+                              <div class="bg-image">
+                                <img
+                                  src="img/cf/styleguide/card-media-1280x720.jpg"
+                                  class="w-100"
+                                  alt="Image with a blue mask overlay at 60% opacity"
+                                />
+                                <div
+                                  class="mask"
+                                  style="background-color: hsla(217, 89%, 51%, 0.6)"
+                                ></div>
+                              </div>
+                            </div>
+                            <!--/Grid column-->
+
+                            <!--Grid column-->
+                            <div class="col-lg-4 col-md-6 mb-4">
+                              <code>hsla(276, 98%, 61%, 0.6)</code>
+                              <div class="bg-image">
+                                <img
+                                  src="img/cf/styleguide/card-media-1280x720.jpg"
+                                  class="w-100"
+                                  alt="Image with a purple mask overlay at 60% opacity"
+                                />
+                                <div
+                                  class="mask"
+                                  style="background-color: hsla(276, 98%, 61%, 0.6)"
+                                ></div>
+                              </div>
+                            </div>
+                            <!--/Grid column-->
+
+                            <!--Grid column-->
+                            <div class="col-lg-4 col-md-6 mb-4">
+                              <code>hsla(144, 100%, 36%, 0.6)</code>
+                              <div class="bg-image">
+                                <img
+                                  src="img/cf/styleguide/card-media-1280x720.jpg"
+                                  class="w-100"
+                                  alt="Image with a green mask overlay at 60% opacity"
+                                />
+                                <div
+                                  class="mask"
+                                  style="background-color: hsla(144, 100%, 36%, 0.6)"
+                                ></div>
+                              </div>
+                            </div>
+                            <!--/Grid column-->
+                          </div>
+                          <!--/Grid row-->
+
+                          <!--Grid row-->
+                          <div class="row">
+                            <!--Grid column-->
+                            <div class="col-lg-4 col-md-12 mb-4">
+                              <code>hsla(349, 94%, 58%, 0.6)</code>
+                              <div class="bg-image">
+                                <img
+                                  src="img/cf/styleguide/card-media-1280x720.jpg"
+                                  class="w-100"
+                                  alt="Image with a red mask overlay at 60% opacity"
+                                />
+                                <div
+                                  class="mask"
+                                  style="background-color: hsla(349, 94%, 58%, 0.6)"
+                                ></div>
+                              </div>
+                            </div>
+                            <!--/Grid column-->
+
+                            <!--Grid column-->
+                            <div class="col-lg-4 col-md-6 mb-4">
+                              <code>hsla(0, 0%, 98%, 0.6)</code>
+                              <div class="bg-image">
+                                <img
+                                  src="img/cf/styleguide/card-media-1280x720.jpg"
+                                  class="w-100"
+                                  alt="Image with a near-white mask overlay at 60% opacity"
+                                />
+                                <div
+                                  class="mask"
+                                  style="background-color: hsla(0, 0%, 98%, 0.6)"
+                                ></div>
+                              </div>
+                            </div>
+                            <!--/Grid column-->
+
+                            <!--Grid column-->
+                            <div class="col-lg-4 col-md-6 mb-4">
+                              <code>hsla(195, 83%, 58%, 0.6)</code>
+                              <div class="bg-image">
+                                <img
+                                  src="img/cf/styleguide/card-media-1280x720.jpg"
+                                  class="w-100"
+                                  alt="Image with a cyan mask overlay at 60% opacity"
+                                />
+                                <div
+                                  class="mask"
+                                  style="background-color: hsla(195, 83%, 58%, 0.6)"
+                                ></div>
+                              </div>
+                            </div>
+                            <!--/Grid column-->
+                          </div>
+                          <!--/Grid row-->
+                        </div>
+                      </section>
+                      <!--/Section: Demo-->
+
+                      <p>You can even set a fancy gradient as a mask.</p>
+
+                      <!--Section: Demo-->
+                      <section class="pb-4">
+                        <!-- Angular: For gradient masks, compute the gradient string in the component.
+                             Example: <div class="mask" [style.background]="gradientMask"></div>
+                             Where gradientMask = 'linear-gradient(45deg, hsla(168,85%,52%,0.7), hsla(263,88%,45%,0.7) 100%)'.
+                             This keeps template markup clean and allows gradient values to be data-driven. -->
+                        <div class="border p-4 d-flex justify-content-center">
+                          <div>
+                            <code>hsla(168, 85%, 52%, 0.7), hsla(263, 88%, 45%, 0.7) 100%</code>
+                            <div class="bg-image" style="max-width: 28rem">
+                              <img
+                                src="img/cf/styleguide/card-media-1280x720.jpg"
+                                class="w-100"
+                                alt="Image with a teal-to-purple gradient mask overlay"
+                              />
+                              <div
+                                class="mask"
+                                style="background: linear-gradient(45deg, hsla(168, 85%, 52%, 0.7), hsla(263, 88%, 45%, 0.7) 100%)"
+                              ></div>
+                            </div>
+                          </div>
+                        </div>
+                      </section>
+                      <!--/Section: Demo-->
+
+                      <!--Section: Code-->
+                      <section class="mb-4">
+                        <h4><span class="badge badge-code-html">HTML</span></h4>
+                        <!-- snippet -->
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-html">&lt;div class="bg-image"&gt;
+  &lt;img src="img/cf/styleguide/card-media-1280x720.jpg" class="w-100"
+       alt="Image with a teal-to-purple gradient mask overlay" /&gt;
+  &lt;div
+    class="mask"
+    style="background: linear-gradient(
+      45deg,
+      hsla(168, 85%, 52%, 0.7),
+      hsla(263, 88%, 45%, 0.7) 100%
+    )"
+  &gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                        <!-- /.snippet -->
+                      </section>
+                      <!--/Section: Code-->
+                    </section>
+                    <!--/Subsection: Color-->
+
+                    <!--Subsection: Opacity-->
+                    <a id="subsection-opacity" class="anchor"></a>
+                    <section>
+                      <!--Subsection title-->
+                      <h4 class="mt-5">Opacity</h4>
+
+                      <!--Description-->
+                      <p>
+                        By changing the last (alpha) value in the HSLA color you can control the
+                        opacity of the mask.
+                      </p>
+
+                      <p>
+                        <code>0.0</code> means fully transparent and <code>1.0</code> fully opaque.
+                        You can set any value between <code>0.0</code> and <code>1.0</code>.
+                      </p>
+
+                      <p class="mb-1">
+                        <code>hsla(0, 0%, 0%, 0.0)</code> — fully transparent
+                      </p>
+                      <p><code>hsla(0, 0%, 0%, 1.0)</code> — fully opaque</p>
+
+                      <!--Section: Demo-->
+                      <section class="pb-4">
+                        <!-- Angular: Expose an opacity input or slider on the component and bind it.
+                             Example: <div class="mask" [style.backgroundColor]="'hsla(0, 0%, 0%, ' + opacity + ')'"></div>
+                             Where opacity is a number property (0.0–1.0). Update it via (input) event
+                             from a range slider for a live preview of mask intensity. -->
+                        <div class="border p-4 text-center">
+                          <!--Grid row-->
+                          <div class="row">
+                            <!--Grid column-->
+                            <div class="col-lg-4 col-md-12 mb-4">
+                              <code>0.1</code>
+                              <div class="bg-image">
+                                <img
+                                  src="img/cf/styleguide/card-media-1280x720.jpg"
+                                  class="w-100"
+                                  alt="Image with a 10% opacity dark mask"
+                                />
+                                <div
+                                  class="mask"
+                                  style="background-color: hsla(0, 0%, 0%, 0.1)"
+                                ></div>
+                              </div>
+                            </div>
+                            <!--/Grid column-->
+
+                            <!--Grid column-->
+                            <div class="col-lg-4 col-md-6 mb-4">
+                              <code>0.3</code>
+                              <div class="bg-image">
+                                <img
+                                  src="img/cf/styleguide/card-media-1280x720.jpg"
+                                  class="w-100"
+                                  alt="Image with a 30% opacity dark mask"
+                                />
+                                <div
+                                  class="mask"
+                                  style="background-color: hsla(0, 0%, 0%, 0.3)"
+                                ></div>
+                              </div>
+                            </div>
+                            <!--/Grid column-->
+
+                            <!--Grid column-->
+                            <div class="col-lg-4 col-md-6 mb-4">
+                              <code>0.55</code>
+                              <div class="bg-image">
+                                <img
+                                  src="img/cf/styleguide/card-media-1280x720.jpg"
+                                  class="w-100"
+                                  alt="Image with a 55% opacity dark mask"
+                                />
+                                <div
+                                  class="mask"
+                                  style="background-color: hsla(0, 0%, 0%, 0.55)"
+                                ></div>
+                              </div>
+                            </div>
+                            <!--/Grid column-->
+                          </div>
+                          <!--/Grid row-->
+
+                          <!--Grid row-->
+                          <div class="row">
+                            <!--Grid column-->
+                            <div class="col-lg-4 col-md-12 mb-4">
+                              <code>0.7</code>
+                              <div class="bg-image">
+                                <img
+                                  src="img/cf/styleguide/card-media-1280x720.jpg"
+                                  class="w-100"
+                                  alt="Image with a 70% opacity dark mask"
+                                />
+                                <div
+                                  class="mask"
+                                  style="background-color: hsla(0, 0%, 0%, 0.7)"
+                                ></div>
+                              </div>
+                            </div>
+                            <!--/Grid column-->
+
+                            <!--Grid column-->
+                            <div class="col-lg-4 col-md-6 mb-4">
+                              <code>0.8</code>
+                              <div class="bg-image">
+                                <img
+                                  src="img/cf/styleguide/card-media-1280x720.jpg"
+                                  class="w-100"
+                                  alt="Image with an 80% opacity dark mask"
+                                />
+                                <div
+                                  class="mask"
+                                  style="background-color: hsla(0, 0%, 0%, 0.8)"
+                                ></div>
+                              </div>
+                            </div>
+                            <!--/Grid column-->
+
+                            <!--Grid column-->
+                            <div class="col-lg-4 col-md-6 mb-4">
+                              <code>0.9</code>
+                              <div class="bg-image">
+                                <img
+                                  src="img/cf/styleguide/card-media-1280x720.jpg"
+                                  class="w-100"
+                                  alt="Image with a 90% opacity dark mask"
+                                />
+                                <div
+                                  class="mask"
+                                  style="background-color: hsla(0, 0%, 0%, 0.9)"
+                                ></div>
+                              </div>
+                            </div>
+                            <!--/Grid column-->
+                          </div>
+                          <!--/Grid row-->
+                        </div>
+                      </section>
+                      <!--/Section: Demo-->
+                    </section>
+                    <!--/Subsection: Opacity-->
+                  </section>
+                  <!--/Section: HSLA-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Content-->
+                  <a id="section-content" class="anchor"></a>
+                  <section>
+                    <!--Section title-->
+                    <h3 class="mb-3">Content</h3>
+
+                    <!-- Section description -->
+                    <p>
+                      The main goal of masks is to provide proper contrast between the image and
+                      content placed on it. Most commonly, a text overlay is placed on a masked image.
+                    </p>
+
+                    <p>
+                      Within the <code>.mask</code> wrapper, place a <code>div</code> and apply
+                      <a href="/docs/standard/layout/flexbox/">flexbox utilities</a>
+                      to center the content vertically and horizontally. Then put the text inside.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <!-- Angular: Place content inside the mask element using a content projection slot or template.
+                           Example: <div class="mask" [style.backgroundColor]="'hsla(0, 0%, 0%, 0.6)'">
+                                      <div class="d-flex justify-content-center align-items-center h-100">
+                                        <p class="text-white mb-0">{{ overlayText }}</p>
+                                      </div>
+                                    </div>
+                           Keep overlayText as a component input (@Input() overlayText: string)
+                           so the parent can supply contextual label copy per instance. -->
+                      <div class="border p-4 d-flex justify-content-center">
+                        <div class="bg-image" style="max-width: 22rem">
+                          <img
+                            src="img/cf/styleguide/card-media-1280x720.jpg"
+                            class="w-100"
+                            alt="Sample photo with a dark mask overlay and centered white text"
+                          />
+                          <div
+                            class="mask"
+                            style="background-color: hsla(0, 0%, 0%, 0.6)"
+                          >
+                            <div
+                              class="d-flex justify-content-center align-items-center h-100"
+                            >
+                              <p class="text-white mb-0">Can you see me?</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <!-- snippet -->
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div class="bg-image" style="max-width: 22rem"&gt;
+  &lt;img
+    src="img/cf/styleguide/card-media-1280x720.jpg"
+    class="w-100"
+    alt="Sample photo with a dark mask overlay and centered white text"
+  /&gt;
+  &lt;div class="mask" style="background-color: hsla(0, 0%, 0%, 0.6)"&gt;
+    &lt;div class="d-flex justify-content-center align-items-center h-100"&gt;
+      &lt;p class="text-white mb-0"&gt;Can you see me?&lt;/p&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                      <!-- /.snippet -->
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Content-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Ripple-->
+                  <a id="section-ripple" class="anchor"></a>
+                  <section>
+                    <!--Section title-->
+                    <h3 class="mb-3">Ripple</h3>
+
+                    <!-- Section description -->
+                    <p>
+                      You can easily add a
+                      <a href="/docs/standard/methods/ripple/">ripple effect</a>
+                      to a masked image.
+                    </p>
+
+                    <p>
+                      Simply add <code>data-cnds-ripple="true"</code> to the
+                      <code>.bg-image</code> element. The ripple is initialized automatically by
+                      Nimbus JS on page load — no additional JavaScript is required.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <!-- Angular: The ripple effect is driven by the data-cnds-ripple attribute, which
+                           nimbus.js processes automatically on DOMContentLoaded. In Angular, set the
+                           attribute declaratively: <div class="bg-image" data-cnds-ripple="true">.
+                           To change ripple color per instance: [attr.data-cnds-ripple-color]="rippleColor".
+                           Re-initialization is handled by Nimbus.Ripple.init() — call it after dynamic
+                           content is inserted if you use *ngIf or lazy-loaded routes. -->
+                      <div class="border p-4 text-center">
+                        <!--Grid row-->
+                        <div class="row">
+                          <!--Grid column-->
+                          <div class="col-md-6 mb-4">
+                            <!-- Default dark color ripple -->
+                            <div class="bg-image" data-cnds-ripple="true">
+                              <img
+                                src="img/cf/styleguide/card-media-1280x720.jpg"
+                                class="w-100"
+                                alt="Image with a light mask and default dark ripple effect on click"
+                              />
+                              <div
+                                class="mask"
+                                style="background-color: hsla(0, 0%, 98%, 0.6)"
+                              ></div>
+                            </div>
+                          </div>
+                          <!--/Grid column-->
+
+                          <!--Grid column-->
+                          <div class="col-md-6 mb-4">
+                            <!-- Light color ripple changed via data-cnds-attribute -->
+                            <div class="bg-image" data-cnds-ripple="true" data-cnds-ripple-color="light">
+                              <img
+                                src="img/cf/styleguide/card-media-1280x720.jpg"
+                                class="w-100"
+                                alt="Image with a dark mask and light ripple effect on click"
+                              />
+                              <div
+                                class="mask"
+                                style="background-color: hsla(0, 0%, 0%, 0.6)"
+                              ></div>
+                            </div>
+                          </div>
+                          <!--/Grid column-->
+                        </div>
+                        <!--/Grid row-->
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <!-- snippet -->
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;!-- Default dark color ripple --&gt;
+&lt;div class="bg-image" data-cnds-ripple="true"&gt;
+  &lt;img src="img/cf/styleguide/card-media-1280x720.jpg" class="w-100"
+       alt="Image with a light mask and default dark ripple effect on click" /&gt;
+  &lt;div class="mask" style="background-color: hsla(0, 0%, 98%, 0.6)"&gt;&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Light color ripple changed via data-cnds-attribute --&gt;
+&lt;div class="bg-image" data-cnds-ripple="true" data-cnds-ripple-color="light"&gt;
+  &lt;img src="img/cf/styleguide/card-media-1280x720.jpg" class="w-100"
+       alt="Image with a dark mask and light ripple effect on click" /&gt;
+  &lt;div class="mask" style="background-color: hsla(0, 0%, 0%, 0.6)"&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                      <!-- /.snippet -->
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Ripple-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Link-->
+                  <a id="section-link" class="anchor"></a>
+                  <section>
+                    <!--Section title-->
+                    <h3 class="mb-3">Link</h3>
+
+                    <!-- Section description -->
+                    <p>
+                      By wrapping the mask element in an <code>&lt;a&gt;</code> element you can
+                      turn the entire masked image into a clickable link.
+                    </p>
+
+                    <!--Subsection: Regular-->
+                    <a id="subsection-regular" class="anchor"></a>
+                    <section>
+                      <!--Subsection title-->
+                      <h4 class="mt-5">Regular</h4>
+
+                      <!--Description-->
+                      <p>Regular link without additional effects.</p>
+
+                      <!--Section: Demo-->
+                      <section class="pb-4">
+                        <!-- Angular: Wrap the mask in a routerLink for SPA navigation.
+                             Example: <a [routerLink]="['/cases', caseId]">
+                                        <div class="mask" style="background-color: hsla(0,0%,0%,0.6)"></div>
+                                      </a>
+                             Add aria-label to the <a> element to describe the link destination
+                             for screen readers, since the mask div has no visible label text. -->
+                        <div class="border p-4 d-flex justify-content-center">
+                          <div class="bg-image" style="max-width: 24rem">
+                            <img
+                              src="img/cf/styleguide/card-media-1280x720.jpg"
+                              class="w-100"
+                              alt="Sample image used as a clickable link with a dark mask overlay"
+                            />
+                            <a href="#!" aria-label="View sample image detail">
+                              <div
+                                class="mask"
+                                style="background-color: hsla(0, 0%, 0%, 0.6)"
+                              ></div>
+                            </a>
+                          </div>
+                        </div>
+                      </section>
+                      <!--/Section: Demo-->
+
+                      <!--Section: Code-->
+                      <section class="mb-4">
+                        <h4><span class="badge badge-code-html">HTML</span></h4>
+                        <!-- snippet -->
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-html">&lt;div class="bg-image" style="max-width: 24rem"&gt;
+  &lt;img src="img/cf/styleguide/card-media-1280x720.jpg" class="w-100"
+       alt="Sample image used as a clickable link with a dark mask overlay" /&gt;
+  &lt;a href="#!" aria-label="View sample image detail"&gt;
+    &lt;div class="mask" style="background-color: hsla(0, 0%, 0%, 0.6)"&gt;&lt;/div&gt;
+  &lt;/a&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                        <!-- /.snippet -->
+                      </section>
+                      <!--/Section: Code-->
+                    </section>
+                    <!--/Subsection: Regular-->
+
+                    <!--Subsection: With ripple-->
+                    <a id="subsection-with-ripple" class="anchor"></a>
+                    <section>
+                      <!--Subsection title-->
+                      <h4 class="mt-5">With ripple</h4>
+
+                      <p>
+                        Add <code>data-cnds-ripple="true"</code> to the
+                        <code>.bg-image</code> wrapper to layer a ripple effect on top of the link.
+                      </p>
+
+                      <!--Section: Demo-->
+                      <section class="pb-4">
+                        <!-- Angular: Combine routerLink navigation with ripple for interactive image links.
+                             Example: <div class="bg-image" data-cnds-ripple="true" [style.maxWidth]="'24rem'">
+                                        <img [src]="imageUrl" class="w-100" [attr.alt]="imageAlt" alt="">
+                                        <a [routerLink]="targetRoute" [attr.aria-label]="linkLabel">
+                                          <div class="mask" [style.backgroundColor]="maskColor"></div>
+                                        </a>
+                                      </div>
+                             Call Nimbus.Ripple.init() after dynamic insertion if the element was added
+                             outside the initial render cycle (e.g., inside an *ngIf or lazy route). -->
+                        <div class="border p-4 d-flex justify-content-center">
+                          <div class="bg-image" data-cnds-ripple="true" style="max-width: 24rem">
+                            <img
+                              src="img/cf/styleguide/card-media-1280x720.jpg"
+                              class="w-100"
+                              alt="Sample image used as a clickable link with a light mask and ripple effect"
+                            />
+                            <a href="#!" aria-label="View sample image detail">
+                              <div
+                                class="mask"
+                                style="background-color: hsla(0, 0%, 98%, 0.4)"
+                              ></div>
+                            </a>
+                          </div>
+                        </div>
+                      </section>
+                      <!--/Section: Demo-->
+
+                      <!--Section: Code-->
+                      <section class="mb-4">
+                        <h4><span class="badge badge-code-html">HTML</span></h4>
+                        <!-- snippet -->
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-html">&lt;div class="bg-image" data-cnds-ripple="true" style="max-width: 24rem"&gt;
+  &lt;img src="img/cf/styleguide/card-media-1280x720.jpg" class="w-100"
+       alt="Sample image used as a clickable link with a light mask and ripple effect" /&gt;
+  &lt;a href="#!" aria-label="View sample image detail"&gt;
+    &lt;div class="mask" style="background-color: hsla(0, 0%, 98%, 0.4)"&gt;&lt;/div&gt;
+  &lt;/a&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                        <!-- /.snippet -->
+                      </section>
+                      <!--/Section: Code-->
+                    </section>
+                    <!--/Subsection: With ripple-->
+                  </section>
+                  <!--/Section: Link-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Product example-->
+                  <a id="section-product-example" class="anchor"></a>
+                  <section id="section-product-example" class="pb-4">
+                    <!-- Section title -->
+                    <h3 class="mb-3">Product example</h3>
+
+                    <p>
+                      The example below shows how masks appear in a <strong>CaseFusion</strong>
+                      application context. A CaseFusion migration case card uses a CaseFusion
+                      green gradient mask over a project thumbnail to display the case title and
+                      status directly on the image. The gradient runs from the CaseFusion primary
+                      green token at 80% opacity to a deeper shade at full opacity along the
+                      bottom third, ensuring the white case title text remains legible while the
+                      top of the image stays visible.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <!-- Angular: In CaseFusion, bind the case thumbnail URL and title from a CaseModel.
+                           Example: <div class="bg-image" [style.maxWidth]="'28rem'">
+                                      <img [src]="caseCard.thumbnailUrl" class="w-100"
+                                           [attr.alt]="'Thumbnail for case ' + caseCard.caseName" alt="">
+                                      <div class="mask" [style.background]="casefusionGradientMask">
+                                        <div class="d-flex flex-column justify-content-end align-items-start h-100 p-3">
+                                          <span class="text-white fw-bold">{{ caseCard.caseName }}</span>
+                                          <span class="badge badge-cf-green mt-1">{{ caseCard.status }}</span>
+                                        </div>
+                                      </div>
+                                    </div>
+                           Where casefusionGradientMask uses --cnds-product-casefusion-green-* tokens
+                           resolved via getComputedStyle for full theme compliance. -->
+                      <div class="border p-4 d-flex justify-content-center">
+                        <div class="card shadow-1-strong" style="max-width: 28rem; width: 100%; border-radius: 0.5rem; overflow: hidden;">
+                          <!-- CaseFusion card thumbnail with gradient mask -->
+                          <div class="bg-image" style="height: 200px;">
+                            <img
+                              src="img/cf/styleguide/card-media-1280x720.jpg"
+                              class="w-100 h-100"
+                              style="object-fit: cover;"
+                              alt="Exchange migration project thumbnail for CaseFusion case #CF-2024-0842"
+                            />
+                            <!-- CaseFusion green gradient mask — bottom-to-top fade using
+                                 --cnds-product-casefusion-green-* tokens approximated as HSLA.
+                                 Token reference: --cnds-product-casefusion-green-600 ≈ hsla(152, 69%, 31%, ...)
+                                                  --cnds-product-casefusion-green-800 ≈ hsla(152, 75%, 20%, ...) -->
+                            <div
+                              class="mask"
+                              style="background: linear-gradient(
+                                to top,
+                                hsla(152, 75%, 18%, 0.92) 0%,
+                                hsla(152, 69%, 31%, 0.70) 55%,
+                                hsla(152, 69%, 31%, 0.10) 100%
+                              )"
+                            >
+                              <div class="d-flex flex-column justify-content-end align-items-start h-100 p-3">
+                                <span
+                                  class="badge mb-1"
+                                  style="background-color: var(--cnds-product-casefusion-green-500, #2d9e66); color: #fff; font-size: 0.7rem;"
+                                >
+                                  <i class="mdi mdi-email-sync-outline me-1" aria-hidden="true"></i>Exchange Migration
+                                </span>
+                                <p class="text-white fw-bold mb-0" style="font-size: 1rem; line-height: 1.3; text-shadow: 0 1px 3px rgba(0,0,0,0.5);">
+                                  Case #CF-2024-0842
+                                </p>
+                                <p class="text-white mb-0" style="font-size: 0.8rem; opacity: 0.85;">
+                                  Contoso Ltd — 14,200 mailboxes
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                          <!-- Card body -->
+                          <div class="card-body p-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                              <span class="fw-semibold" style="color: var(--cnds-body-color);">Migration Progress</span>
+                              <span class="fw-bold" style="color: var(--cnds-product-casefusion-green-600, #257a50);">68%</span>
+                            </div>
+                            <!-- Progress bar using CaseFusion green token -->
+                            <div class="progress" style="height: 8px; border-radius: 4px;" role="progressbar" aria-valuenow="68" aria-valuemin="0" aria-valuemax="100" aria-label="Migration progress: 68%">
+                              <div
+                                class="progress-bar"
+                                style="width: 68%; background-color: var(--cnds-product-casefusion-green-500, #2d9e66); border-radius: 4px;"
+                              ></div>
+                            </div>
+                            <div class="d-flex justify-content-between mt-2">
+                              <small style="color: var(--cnds-text-muted);">
+                                <i class="mdi mdi-check-circle-outline me-1" aria-hidden="true"></i>9,656 migrated
+                              </small>
+                              <small style="color: var(--cnds-text-muted);">
+                                <i class="mdi mdi-clock-outline me-1" aria-hidden="true"></i>Est. 3 days remaining
+                              </small>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <!-- snippet -->
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;!-- CaseFusion case card with gradient mask over thumbnail --&gt;
+&lt;div class="card shadow-1-strong" style="max-width: 28rem; overflow: hidden;"&gt;
+  &lt;div class="bg-image" style="height: 200px;"&gt;
+    &lt;img
+      src="img/cf/styleguide/card-media-1280x720.jpg"
+      class="w-100 h-100"
+      style="object-fit: cover;"
+      alt="Exchange migration project thumbnail for CaseFusion case #CF-2024-0842"
+    /&gt;
+    &lt;!-- CaseFusion green gradient mask using --cnds-product-casefusion-green-* tokens --&gt;
+    &lt;div
+      class="mask"
+      style="background: linear-gradient(
+        to top,
+        hsla(152, 75%, 18%, 0.92) 0%,
+        hsla(152, 69%, 31%, 0.70) 55%,
+        hsla(152, 69%, 31%, 0.10) 100%
+      )"
+    &gt;
+      &lt;div class="d-flex flex-column justify-content-end align-items-start h-100 p-3"&gt;
+        &lt;span
+          class="badge mb-1"
+          style="background-color: var(--cnds-product-casefusion-green-500); color: #fff;"
+        &gt;
+          &lt;i class="mdi mdi-email-sync-outline me-1" aria-hidden="true"&gt;&lt;/i&gt;Exchange Migration
+        &lt;/span&gt;
+        &lt;p class="text-white fw-bold mb-0"&gt;Case #CF-2024-0842&lt;/p&gt;
+        &lt;p class="text-white mb-0" style="opacity: 0.85;"&gt;Contoso Ltd — 14,200 mailboxes&lt;/p&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="card-body p-3"&gt;
+    &lt;div class="d-flex justify-content-between align-items-center mb-2"&gt;
+      &lt;span class="fw-semibold"&gt;Migration Progress&lt;/span&gt;
+      &lt;span class="fw-bold" style="color: var(--cnds-product-casefusion-green-600);"&gt;68%&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;div class="progress" style="height: 8px;" role="progressbar"
+         aria-valuenow="68" aria-valuemin="0" aria-valuemax="100"
+         aria-label="Migration progress: 68%"&gt;
+      &lt;div class="progress-bar"
+           style="width: 68%; background-color: var(--cnds-product-casefusion-green-500);"&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                      <!-- /.snippet -->
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Product example-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Accessibility-->
+                  <a id="section-accessibility" class="anchor"></a>
+                  <section>
+                    <!--Section title-->
+                    <h3 class="mb-3">Accessibility</h3>
+
+                    <!-- Section description -->
+                    <p>
+                      Masks are a visual-only layer — they must not obscure content that is essential
+                      to assistive technology users. Follow these guidelines to keep masked content
+                      Section 508 / WCAG 2.1 compliant:
+                    </p>
+
+                    <ul>
+                      <li>
+                        <strong>Always provide <code>alt</code> text.</strong> The underlying
+                        <code>&lt;img&gt;</code> element inside <code>.bg-image</code> must carry a
+                        meaningful <code>alt</code> attribute. Screen readers announce the
+                        <code>alt</code> text regardless of the overlay, so do not use
+                        <code>alt=""</code> unless the image is purely decorative and all information
+                        is conveyed through the visible text overlay.
+                      </li>
+                      <li>
+                        <strong>Ensure sufficient contrast.</strong> Text placed inside the
+                        <code>.mask</code> wrapper must meet WCAG AA contrast requirements (4.5:1 for
+                        normal text, 3:1 for large text) against the effective background — which is
+                        the blended color of the image and the mask overlay. A dark mask at 60% or
+                        higher opacity with white text reliably meets AA contrast in most scenarios.
+                        Use a contrast checker with the average image color to verify.
+                      </li>
+                      <li>
+                        <strong>Do not use masks to hide critical content.</strong> The
+                        <code>.mask</code> element is positioned on top of the DOM flow and does not
+                        remove the underlying content from the accessibility tree. Avoid patterns where
+                        a fully-opaque mask hides important information visually while leaving it in the
+                        DOM — this creates a confusing experience for sighted users who cannot see the
+                        hidden content.
+                      </li>
+                      <li>
+                        <strong>Mask links must be labeled.</strong> When the mask element is wrapped in
+                        an <code>&lt;a&gt;</code> tag (see the <a href="#section-link">Link section</a>),
+                        add an <code>aria-label</code> attribute to the anchor element to describe the
+                        link destination. Without visible text inside the link, screen readers cannot
+                        determine the link's purpose from context alone.
+                      </li>
+                      <li>
+                        <strong>Interactive masks must be keyboard accessible.</strong> Mask links and
+                        ripple-enabled mask containers receive focus in the natural tab order. Do not
+                        suppress <code>:focus-visible</code> outlines on mask links.
+                      </li>
+                    </ul>
+
+                    <p>
+                      For background on overlay contrast requirements, refer to
+                      <a rel="nofollow" target="_blank" href="https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html">WCAG 2.1 Success Criterion 1.4.3 — Contrast (Minimum)</a>.
+                    </p>
+                  </section>
+                  <!--/Section: Accessibility-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: API Documentation-->
+                  <section id="section-api-docs">
+                    <h3 class="mb-3">API Documentation</h3>
+
+                    <!--Section: API Introduction-->
+                    <section id="api-section-introduction" class="mt-4">
+                      <h4 class="mb-4">Introduction</h4>
+                      <p>
+                        Nimbus masks are a CSS-only feature that overlays a semi-transparent layer on
+                        top of images or containers to improve text contrast and visual hierarchy. They
+                        require no JavaScript to render — color and opacity are set via inline
+                        <code>style</code> using HSLA or RGBA values.
+                      </p>
+                      <p>
+                        An optional ripple effect can be added using the
+                        <code>data-cnds-ripple="true"</code> attribute on the <code>.bg-image</code>
+                        wrapper, which is initialized automatically by Nimbus JS on page load.
+                      </p>
+                    </section>
+                    <!--/Section: API Introduction-->
+
+                    <!--Section: API Usage-->
+                    <section id="api-section-usage" class="mt-4">
+                      <h4 class="mb-4">Usage</h4>
+                      <p>
+                        Wrap an <code>&lt;img&gt;</code> in a <code>.bg-image</code> container, then
+                        add a sibling <code>.mask</code> element with an inline
+                        <code>background-color</code> or <code>background</code> gradient style.
+                      </p>
+
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-html">&lt;!-- Basic mask --&gt;
+&lt;div class="bg-image"&gt;
+  &lt;img src="img/photo.jpg" class="w-100" alt="Descriptive alt text" /&gt;
+  &lt;div class="mask" style="background-color: hsla(0, 0%, 0%, 0.6)"&gt;&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Mask with centered text content --&gt;
+&lt;div class="bg-image"&gt;
+  &lt;img src="img/photo.jpg" class="w-100" alt="Descriptive alt text" /&gt;
+  &lt;div class="mask" style="background-color: hsla(0, 0%, 0%, 0.6)"&gt;
+    &lt;div class="d-flex justify-content-center align-items-center h-100"&gt;
+      &lt;p class="text-white mb-0"&gt;Overlay text&lt;/p&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Mask with ripple effect --&gt;
+&lt;div class="bg-image" data-cnds-ripple="true"&gt;
+  &lt;img src="img/photo.jpg" class="w-100" alt="Descriptive alt text" /&gt;
+  &lt;div class="mask" style="background-color: hsla(0, 0%, 98%, 0.6)"&gt;&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Mask as clickable link --&gt;
+&lt;div class="bg-image"&gt;
+  &lt;img src="img/photo.jpg" class="w-100" alt="Descriptive alt text" /&gt;
+  &lt;a href="#!" aria-label="View image detail"&gt;
+    &lt;div class="mask" style="background-color: hsla(0, 0%, 0%, 0.6)"&gt;&lt;/div&gt;
+  &lt;/a&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Section: API Usage-->
+
+                    <!--Section: API CSS Classes-->
+                    <section id="api-section-css-classes" class="mt-4">
+                      <h4 class="mb-4">CSS classes</h4>
+                      <p>
+                        The following classes are used to construct mask components. Color and opacity
+                        are always set via inline <code>style</code> — no modifier classes exist for
+                        these values.
+                      </p>
+
+                      <div class="table-responsive mb-4">
+                        <table class="table table-striped table-bordered" aria-label="CSS classes">
+                          <thead>
+                            <tr>
+                              <th class="th-sm">Class</th>
+                              <th class="th-sm">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>.bg-image</code></td>
+                              <td>
+                                Required wrapper. Sets <code>position: relative</code>,
+                                <code>overflow: hidden</code>, and centers the image.
+                                All child mask elements are positioned relative to this container.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.mask</code></td>
+                              <td>
+                                The overlay element. Positioned absolutely to cover the full area of
+                                the <code>.bg-image</code> wrapper. Apply
+                                <code>background-color</code> or <code>background</code> (gradient)
+                                via inline style to control color and opacity.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.hover-overlay</code></td>
+                              <td>
+                                Applied to the <code>.bg-image</code> wrapper to reveal the mask only
+                                on hover. The <code>.mask</code> is hidden by default
+                                (<code>opacity: 0</code>) and transitions to <code>opacity: 1</code>
+                                on hover.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.shadow-1-strong</code></td>
+                              <td>
+                                Optional elevation shadow applied to the <code>.bg-image</code>
+                                wrapper. Adds a two-layer box-shadow for a subtle card-like lift effect.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: API CSS Classes-->
+
+                    <!--Section: API Data Attributes-->
+                    <section id="api-section-data-attributes" class="mt-4">
+                      <h4 class="mb-4">Data attributes</h4>
+                      <p>
+                        The following <code>data-cnds-*</code> attributes enable the
+                        JavaScript-powered ripple effect on mask containers. All attributes are
+                        applied to the <code>.bg-image</code> element.
+                      </p>
+
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Data attributes">
+                          <thead>
+                            <tr>
+                              <th class="th-sm">Attribute</th>
+                              <th class="th-sm">Type</th>
+                              <th class="th-sm">Default</th>
+                              <th class="th-sm">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>data-cnds-ripple</code></td>
+                              <td>Boolean</td>
+                              <td><code>false</code></td>
+                              <td>
+                                Set to <code>"true"</code> to enable the ripple effect on click.
+                                Required to activate all other ripple options.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>data-cnds-ripple-color</code></td>
+                              <td>String</td>
+                              <td><code>""</code></td>
+                              <td>
+                                Sets the ripple wave color. Accepts named theme values:
+                                <code>primary</code>, <code>secondary</code>, <code>success</code>,
+                                <code>danger</code>, <code>warning</code>, <code>info</code>,
+                                <code>light</code>, <code>dark</code> — or any valid CSS color string.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>data-cnds-ripple-duration</code></td>
+                              <td>String</td>
+                              <td><code>"500ms"</code></td>
+                              <td>
+                                Controls how long the ripple animation plays. Accepts any valid CSS
+                                time value (e.g. <code>"300ms"</code>, <code>"0.8s"</code>).
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>data-cnds-ripple-radius</code></td>
+                              <td>Number</td>
+                              <td><code>0</code></td>
+                              <td>
+                                Sets a fixed ripple radius in pixels. When <code>0</code>, the radius
+                                is calculated automatically from the element dimensions.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>data-cnds-ripple-centered</code></td>
+                              <td>Boolean</td>
+                              <td><code>false</code></td>
+                              <td>
+                                When <code>"true"</code>, the ripple always originates from the center
+                                of the element rather than the click position.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: API Data Attributes-->
+
+                    <!--Section: API Accessibility-->
+                    <section id="api-section-accessibility" class="mt-4">
+                      <h4 class="mb-4">Accessibility</h4>
+                      <p>
+                        The following practices are required for an accessible mask implementation
+                        (Section 508 / WCAG 2.1):
+                      </p>
+                      <ul>
+                        <li>
+                          Always provide descriptive <code>alt</code> text on the
+                          <code>&lt;img&gt;</code> inside <code>.bg-image</code>. Use
+                          <code>alt=""</code> only for purely decorative images where all information
+                          is conveyed through visible text in the overlay.
+                        </li>
+                        <li>
+                          Ensure text inside <code>.mask</code> meets WCAG AA contrast (4.5:1 for
+                          normal text, 3:1 for large text) against the blended image + overlay color.
+                          White text on a black mask at 60% or higher opacity meets AA in most
+                          real-world scenarios.
+                        </li>
+                        <li>
+                          When the mask is wrapped in an <code>&lt;a&gt;</code> element, add
+                          <code>aria-label</code> to describe the link destination. Without it,
+                          assistive technologies have no way to announce the link's purpose.
+                        </li>
+                        <li>
+                          Do not use fully opaque masks to hide critical content from sighted users
+                          while leaving it in the DOM — this creates a mismatch between the visual and
+                          accessible representation of the page.
+                        </li>
+                        <li>
+                          Interactive mask containers (links, ripple targets) must remain keyboard
+                          accessible. Do not suppress <code>:focus-visible</code> outlines.
+                        </li>
+                      </ul>
+                      <p>
+                        For further reading, see
+                        <a rel="nofollow" target="_blank" href="https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html">WCAG 2.1 SC 1.4.3 — Contrast (Minimum)</a>
+                        and
+                        <a rel="nofollow" target="_blank" href="https://www.section508.gov/create/web-software/">Section 508 web software requirements</a>.
+                      </p>
+                    </section>
+                    <!--/Section: API Accessibility-->
+
+                  </section>
+                  <!--/Section: API Documentation-->
+
+                </section>
+                <!--/Section: Docs content-->
+              </div>
+              <!-- ./Main column-->
+
+              <!-- Right Sidebar — 20 % of the row width; hidden below lg breakpoint.
+                   Sticky attributes (processed by nimbus.js):
+                     data-cnds-sticky="true"          : activates sticky positioning
+                     data-cnds-sticky-boundary="true" : constrains sticky to its parent container
+                     data-cnds-sticky-direction="both" : sticks when scrolling up OR down
+                     data-cnds-sticky-offset="56"     : clears the 56 px fixed header
+                     data-cnds-sticky-delay="125"     : debounce delay (ms) to reduce scroll jank
+                   data-cnds-allow-hashes="true" on the <ul>: nimbus.js watches the URL hash
+                     and highlights the matching nav-link as the user scrolls through sections. -->
+              <div class="col-lg-2 d-none d-lg-block">
+                <div class="sticky-top" style="top: 100px; z-index: 1">
+                  <ul
+                    class="nav flex-column nav-pills menu-sidebar"
+                    id="rightNav"
+                    data-cnds-allow-hashes="true"
+                  >
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-introduction">Introduction</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-basic-example">Basic example</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-how-it-works">How it works</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-hsla">HSLA</a>
+                      <ul class="nav flex-column list-unstyled ps-3">
+                        <li class="nav-item">
+                          <a class="nav-link" href="#subsection-color">Color</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="#subsection-opacity">Opacity</a>
+                        </li>
+                      </ul>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-content">Content</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-ripple">Ripple</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-link">Link</a>
+                      <ul class="nav flex-column list-unstyled ps-3">
+                        <li class="nav-item">
+                          <a class="nav-link" href="#subsection-regular">Regular</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="#subsection-with-ripple">With ripple</a>
+                        </li>
+                      </ul>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-product-example">Product example</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-accessibility">Accessibility</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-api-docs">API Documentation</a>
+                      <ul class="nav flex-column list-unstyled ps-3">
+                        <li class="nav-item">
+                          <a class="nav-link" href="#api-section-introduction">Introduction</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="#api-section-usage">Usage</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="#api-section-css-classes">CSS classes</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="#api-section-data-attributes">Data attributes</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="#api-section-accessibility">Accessibility</a>
+                        </li>
+                      </ul>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <!-- ./Right Sidebar -->
+            </div>
+            <!-- ./Content Row -->
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- ./Content -->
+    <!-- Footer -->
+    <div class="cf-footer cf-footer-app">
+      <footer class="page-footer main-footer" aria-label="Site footer">
+        <div class="w-100 px-3 d-flex align-items-center">
+          <img src="img/cf/core/cloudficient_logo_light.svg" class="cf-logo-light" style="width: 135px;" alt="Cloudficient" />
+          <img src="img/cf/core/cloudficient_logo_dark.svg" class="cf-logo-dark" style="width: 135px;" alt="Cloudficient" />
+          <span class="footer-copyright ms-auto">&copy; <span id="currentYear"></span> Cloudficient</span>
+        </div>
+      </footer>
+    </div>
+    <!-- ./Footer -->
+    <!-- SCRIPTS — load order matters:
+         1. nimbus.js    — core framework: processes all data-cnds-* attributes (theme, sticky, sidenav, tooltips, ripple…)
+         2. app.js       — application-level overrides and custom initialisation
+         3. prism.min.js — syntax highlighting for <code class="language-*"> blocks; must run after DOM is ready
+         4. sidenav-loader.js — fetches shared sidenav HTML and injects it into #sidebar-cf -->
+    <script type="text/javascript" src="js/nimbus.js?v=9.0.4"></script>
+    <script type="text/javascript" src="js/app.js?v=9.0.4"></script>
+    <script type="text/javascript" src="plugins/js/prism.min.js"></script>
+    <script type="text/javascript" src="js/sidenav-loader.js"></script>
+    <!-- Inline: populate the footer copyright year dynamically so the page never needs a manual update -->
+    <script type="text/javascript">
+      var currentYearElement = document.getElementById("currentYear");
+      if (currentYearElement) {
+        currentYearElement.textContent = new Date().getFullYear();
+      }
+    </script>
+  </body>
+</html>

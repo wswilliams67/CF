@@ -1,0 +1,2681 @@
+<!--
+* CNDS Nimbus Design System — Tree view
+* Version: 1.0.0
+* Layout: Application with SideNav (migrated from Nimbus v8 template)
+* NOTES
+- Pure HTML5, CSS3, vanilla JavaScript — zero external dependencies
+- Uses data-cnds-* attributes (replaces data-mdb-*)
+- Uses Nimbus.* namespace (replaces mdb.*)
+- Default product theme: CaseFusion (cnds-product-casefusion on <body>; change to cnds-product-hyperlize or cnds-product-expireon)
+-->
+<!doctype html>
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta
+      name="description"
+      content="Tree view | Cloudficient Nimbus Design System v1.0.0"
+    />
+    <title>
+      Tree view | CNDS v1.0.0 | Cloudficient Nimbus Design System
+    </title>
+    <!-- Nimbus CSS -->
+    <link rel="stylesheet" href="css/nimbus.css" media="all" type="text/css" />
+    <!-- Custom styles | All custom classes/styles/overrides go here! -->
+    <link rel="stylesheet" href="css/app.css" media="all" type="text/css" />
+    <!-- Prism syntax highlighting -->
+    <link rel="stylesheet" href="plugins/css/prism.min.css" media="all" type="text/css" />
+    <!-- Tree view plugin -->
+    <link rel="stylesheet" href="css/plugins/treeview.css" />
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="img/favicon/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="60x60" href="img/favicon/apple-icon-60x60.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="img/favicon/apple-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76" href="img/favicon/apple-icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="img/favicon/apple-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="img/favicon/apple-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="img/favicon/apple-icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="img/favicon/apple-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-icon-180x180.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="img/favicon/android-icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="img/favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="img/favicon/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="msapplication-TileImage" content="img/favicon/ms-icon-144x144.png" />
+    <!-- Design tokens — load order matters:
+         1. primitives.css  — raw color/spacing values (no theming)
+         2. light.css       — semantic tokens for [data-cnds-theme="light"] / :root
+         3. dark.css        — semantic token overrides for [data-cnds-theme="dark"]
+         All three must appear AFTER nimbus.css so component variables resolve correctly. -->
+    <link rel="stylesheet" href="css/themes/primitives.css" />
+    <link rel="stylesheet" href="css/themes/light.css" />
+    <link rel="stylesheet" href="css/themes/dark.css" />
+  </head>
+
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 Bypass Blocks; renders visually hidden until focused -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+    <!-- Header -->
+    <div class="sticky-top">
+      <!-- Utility Navigation -->
+      <nav id="UtilityNav" class="nav nav-cf-utility">
+        <div class="w-100 gx-3 px-sm-0 px-lg-3">
+          <ul class="nav nav-cf-utility-ul"></ul>
+        </div>
+      </nav>
+      <!-- ./Utility Navigation -->
+      <!-- Main Navigation -->
+      <nav id="MainNav" class="navbar navbar-expand-xl navbar-cf">
+        <div class="container-fluid p-0 px-3 d-flex">
+          <div class="d-flex flex-fill align-items-center text-truncate">
+            <div class="text-center d-none d-md-block me-3 border-end">
+              <a href="index.html"><img src="img/cf/core/logo_nimbus.png" class="me-3 mt-n1" alt="Cloudficient Nimbus Design System" /></a>
+            </div>
+            <div class="flex-fill text-truncate">
+              <div class="navbar-cf-title-block">
+                <div class="navbar-cf-title cf-page-title text-truncate" style="padding-bottom: 0;">
+                  <span class="cf-page-title-text cf-page-title-brand">v1</span>
+                  <span class="cf-page-title-divider"></span>
+                  <span class="cf-page-title-text">Tree view</span>
+                  </div>
+              </div>
+            </div>
+          </div>
+          <button class="btn btn-sm btn-outline-secondary ms-2" data-cnds-toggle="theme" aria-label="Toggle theme" title="Toggle theme">
+            <i class="mdi mdi-weather-night mdi-18px" aria-hidden="true"></i>
+          </button>
+        </div>
+      </nav>
+      <!-- ./Main Navigation -->
+    </div>
+    <!-- ./Header -->
+    <!-- Content -->
+    <main id="main-content" class="cf-main-app">
+      <!-- Mobile viewport warning -->
+      <div class="d-block d-md-none p-4">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>This application is not optimized for small screens. Please use a large tablet, laptop, or desktop computer to continue.
+        </div>
+      </div>
+      <div class="d-none d-md-block">
+        <!-- Sidenav — markup is intentionally empty; sidenav-loader.js fetches and injects the shared nav HTML.
+             data-cnds-mode="side"           : renders as a persistent side panel (not an overlay/drawer)
+             data-cnds-slim / slim-collapsed : controls compact/icon-only collapsed state
+             data-cnds-content="#slim-content": the sibling panel that shrinks/expands as the nav opens/closes
+             data-cnds-accordion="true"      : collapses other open nav groups when a new one is expanded -->
+        <nav
+          id="sidebar-cf"
+          class="sidenav"
+          data-cnds-mode="side"
+          data-cnds-slim="false"
+          data-cnds-slim-collapsed="false"
+          data-cnds-content="#slim-content"
+          data-cnds-accordion="true"
+        ></nav>
+        <div id="slim-content">
+          <div class="slim-content-box">
+            <!-- Content Row -->
+            <div class="row">
+              <!-- Main column — 80 % of the row width; the remaining 20 % is the right sidebar.
+                   The inline flex overrides are intentional: they pin the ratio regardless of Bootstrap's
+                   grid breakpoints so the sidebar never wraps on large viewports. -->
+              <div class="col-12 col-lg" style="flex: 0 0 80%; max-width: 80%">
+                <!--Section: Docs content-->
+              <section class="container-fluid">
+                <!--Section: Introduction-->
+                <section id="section-introduction">
+                  <!-- Description -->
+                  <p class="mb-4">
+                    The Nimbus Treeview component displays hierarchical data as
+                    an expandable/collapsible tree. Each node can contain child
+                    nodes, forming parent–child relationships. Nodes are toggled
+                    open or closed with the chevron button; clicking the label
+                    selects (highlights) the node.
+                  </p>
+                  <p>
+                    The plugin supports both a DOM-based initialisation (write
+                    plain HTML, add <code>data-cnds-treeview-init</code>) and a
+                    JavaScript data API (pass a <code>data</code> array to
+                    <code>new Nimbus.Treeview()</code>). Optional features
+                    include checkboxes, connection lines, accordion mode,
+                    color variants, custom icons, and live search/filter.
+                  </p>
+                  <!-- API docs note — first, per design standards -->
+                  <p class="note note-light">
+                    <strong>Note:</strong> Read the
+                    <a href="#api-section-introduction">API Documentation</a> to
+                    find all available options and advanced customization.
+                  </p>
+                  <!-- Theme toggle note — second -->
+                  <p class="note note-info">
+                    <strong>Note:</strong> To preview components in different themes, click the theme toggle button
+                    <i class="mdi mdi-weather-night" aria-hidden="true"></i> /
+                    <i class="mdi mdi-weather-sunny" aria-hidden="true"></i>
+                    in the header navigation bar.
+                  </p>
+                </section>
+                <!--Section: Introduction-->
+                <hr class="my-5" />
+                <!--Section: Basic example - DOM-->
+                <section id="section-basic-example-dom">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Basic example - DOM</h3>
+                  <!-- Description -->
+                  <p class="my-4">
+                    Add <code>.treeview</code> class to the container with your
+                    list to initialize the component structure. If you want to
+                    nest your lists - wrap a text of a <code>li</code> tag in
+                    <code>a</code> tag and define other <code>ul</code> after
+                    it. Add <code>.show</code> class to the list that you want
+                    to expand from the beginning.
+                  </p>
+                  <!-- Angular: Keep the static HTML structure; DataAPI auto-inits via data-cnds-treeview-init after ngAfterViewInit renders the template.
+                       Example: @ViewChild('tree') treeEl!: ElementRef; ngAfterViewInit() { const tv = Nimbus.Treeview.getInstance(this.treeEl.nativeElement); }
+                       For dynamic node lists use *ngFor on <li> elements; access the instance via Nimbus.Treeview.getInstance(el) to call methods like expand(). -->
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section class="w-100 p-4 d-flex">
+                        <div data-cnds-treeview-init class="treeview">
+                          <ul>
+                            <li>One</li>
+                            <li>Two</li>
+                            <li>
+                              <a>Three</a>
+                              <ul class="show">
+                                <li>Second-one</li>
+                                <li>Second-two</li>
+                                <li>
+                                  <a>Second-three</a>
+                                  <ul>
+                                    <li>
+                                      <a>Third-one</a>
+                                      <ul>
+                                        <li>Fourth-one</li>
+                                        <li>Fourth-two</li>
+                                        <li>Fourth-three</li>
+                                      </ul>
+                                    </li>
+                                    <li>Third-two</li>
+                                    <li>
+                                      <a>Third-three</a>
+                                      <ul>
+                                        <li>Fourth-one</li>
+                                        <li>Fourth-two</li>
+                                        <li>Fourth-three</li>
+                                      </ul>
+                                    </li>
+                                  </ul>
+                                </li>
+                              </ul>
+                            </li>
+                          </ul>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div data-cnds-treeview-init class="treeview"&gt;
+    &lt;ul&gt;
+        &lt;li&gt;One&lt;/li&gt;
+        &lt;li&gt;Two&lt;/li&gt;
+        &lt;li&gt;
+            &lt;a&gt;Three&lt;/a&gt;
+            &lt;ul class="show"&gt;
+                &lt;li&gt;Second-one&lt;/li&gt;
+                &lt;li&gt;Second-two&lt;/li&gt;
+                &lt;li&gt;
+                    &lt;a&gt;Second-three&lt;/a&gt;
+                    &lt;ul&gt;
+                        &lt;li&gt;
+                            &lt;a&gt;Third-one&lt;/a&gt;
+                            &lt;ul&gt;
+                                &lt;li&gt;Fourth-one&lt;/li&gt;
+                                &lt;li&gt;Fourth-two&lt;/li&gt;
+                                &lt;li&gt;Fourth-three&lt;/li&gt;
+                            &lt;/ul&gt;
+                        &lt;/li&gt;
+                        &lt;li&gt;Third-two&lt;/li&gt;
+                        &lt;li&gt;
+                            &lt;a&gt;Third-three&lt;/a&gt;
+                            &lt;ul&gt;
+                                &lt;li&gt;Fourth-one&lt;/li&gt;
+                                &lt;li&gt;Fourth-two&lt;/li&gt;
+                                &lt;li&gt;Fourth-three&lt;/li&gt;
+                            &lt;/ul&gt;
+                        &lt;/li&gt;
+                    &lt;/ul&gt;
+                &lt;/li&gt;
+            &lt;/ul&gt;
+        &lt;/li&gt;
+    &lt;/ul&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--Section: Basic example - DOM-->
+                <hr class="my-5" />
+                <!--Section: Basic example - JavaScript-->
+                <section id="section-basic-example-javascript">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Basic example - JavaScript</h3>
+                  <!-- Angular: Move new Nimbus.Treeview(el, { data: [...] }) into ngAfterViewInit; declare the data array as a component property typed with the node interface.
+                       Example: @ViewChild('treeEl') treeEl!: ElementRef; nodes = [{ label: 'One' }, { label: 'Three', children: [...] }]; ngAfterViewInit() { new (window as any).Nimbus.Treeview(this.treeEl.nativeElement, { data: this.nodes }); }
+                       Use (window as any).Nimbus or declare const Nimbus: any at the top of the file to avoid TypeScript compile errors. -->
+                  <div>
+                    <p>
+                      You can define the whole structure of a tree using only
+                      JavaScript. Each node in the <code>data</code> array
+                      supports the following properties:
+                    </p>
+                    <ul>
+                      <li><code>label</code> - the display text for the item</li>
+                      <li>
+                        <code>children</code> - an array of child nodes, making
+                        this item a parent folder
+                      </li>
+                      <li>
+                        <code>icon</code> - custom icon HTML (e.g. an
+                        <code>&lt;i&gt;</code> element) overriding the default
+                        folder/file icon
+                      </li>
+                      <li>
+                        <code>disabled</code> - set to <code>true</code> to
+                        render the item as non-interactive
+                      </li>
+                    </ul>
+                  </div>
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section class="w-100 p-4 d-flex">
+                        <div id="sample-element"></div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div id="sample-element"&gt;&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-js">
+const el = document.getElementById('sample-element');
+new Nimbus.Treeview(el, {
+  data: [
+    { label: 'One' },
+    { label: 'Two' },
+    { label: 'Three', children: [
+      { label: 'Second-one' },
+      { label: 'Second-two' },
+      { label: 'Second-three', children: [
+        { label: 'Third-one', children: [
+          { label: 'Fourth-one' },
+          { label: 'Fourth-two' },
+          { label: 'Fourth-three' }
+        ]},
+        { label: 'Third-two' },
+        { label: 'Third-three', children: [
+          { label: 'Fourth-one' },
+          { label: 'Fourth-two' },
+          { label: 'Fourth-three' }
+        ]}
+      ]}
+    ]}
+  ]
+});
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--Section: Basic example - JavaScript-->
+                <hr class="my-5" />
+                <!--Section: Open on click-->
+                <section id="section-open-on-click">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Open on item click</h3>
+                  <p>
+                    In the Nimbus v1 Treeview, expand and collapse is always
+                    controlled by the chevron toggle button — clicking the node
+                    label selects (highlights) the node rather than toggling its
+                    children. Add <code>class="show"</code> to a nested
+                    <code>&lt;ul&gt;</code> to pre-open it on load.
+                  </p>
+                  <!-- Angular: No JavaScript change needed for chevron-only expand — it is the default v9 behavior; bind [class.show]="isExpanded" on a nested <ul> to control pre-opened state from component state.
+                       Example: <ul [class.show]="isThreeExpanded"> where isThreeExpanded is a component property toggled by application logic.
+                       Listen for the select.cnds.treeview DOM event via @HostListener or addEventListener in ngAfterViewInit to track which node label was clicked. -->
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section class="w-100 p-4 d-flex">
+                        <div
+                          data-cnds-treeview-init
+                          class="treeview"
+                        >
+                          <ul>
+                            <li>One</li>
+                            <li>Two</li>
+                            <li>
+                              <a>Three</a>
+                              <ul class="show">
+                                <li>Second-one</li>
+                                <li>Second-two</li>
+                                <li>
+                                  <a>Second-three</a>
+                                  <ul>
+                                    <li>
+                                      <a>Third-one</a>
+                                      <ul>
+                                        <li>Fourth-one</li>
+                                        <li>Fourth-two</li>
+                                        <li>Fourth-three</li>
+                                      </ul>
+                                    </li>
+                                    <li>Third-two</li>
+                                    <li>
+                                      <a>Third-three</a>
+                                      <ul>
+                                        <li>Fourth-one</li>
+                                        <li>Fourth-two</li>
+                                        <li>Fourth-three</li>
+                                      </ul>
+                                    </li>
+                                  </ul>
+                                </li>
+                              </ul>
+                            </li>
+                          </ul>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div data-cnds-treeview-init class="treeview"&gt;
+    &lt;ul&gt;
+        &lt;li&gt;One&lt;/li&gt;
+        &lt;li&gt;Two&lt;/li&gt;
+        &lt;li&gt;
+            &lt;a&gt;Three&lt;/a&gt;
+            &lt;ul class="show"&gt;
+                &lt;li&gt;Second-one&lt;/li&gt;
+                &lt;li&gt;Second-two&lt;/li&gt;
+                &lt;li&gt;
+                    &lt;a&gt;Second-three&lt;/a&gt;
+                    &lt;ul&gt;
+                        &lt;li&gt;
+                            &lt;a&gt;Third-one&lt;/a&gt;
+                            &lt;ul&gt;
+                                &lt;li&gt;Fourth-one&lt;/li&gt;
+                                &lt;li&gt;Fourth-two&lt;/li&gt;
+                                &lt;li&gt;Fourth-three&lt;/li&gt;
+                            &lt;/ul&gt;
+                        &lt;/li&gt;
+                        &lt;li&gt;Third-two&lt;/li&gt;
+                        &lt;li&gt;
+                            &lt;a&gt;Third-three&lt;/a&gt;
+                            &lt;ul&gt;
+                                &lt;li&gt;Fourth-one&lt;/li&gt;
+                                &lt;li&gt;Fourth-two&lt;/li&gt;
+                                &lt;li&gt;Fourth-three&lt;/li&gt;
+                            &lt;/ul&gt;
+                        &lt;/li&gt;
+                    &lt;/ul&gt;
+                &lt;/li&gt;
+            &lt;/ul&gt;
+        &lt;/li&gt;
+    &lt;/ul&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--Section: Open on click-->
+                <hr class="my-5" />
+                <!--Section: Accordion-->
+                <section id="section-accordion">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Accordion</h3>
+                  <p>
+                    Use a <code>data-cnds-accordion</code> attribute to enable or
+                    disable opening only one list at the same level.
+                  </p>
+                  <!-- Angular: Bind [attr.data-cnds-accordion]="accordionMode ? 'true' : null" and expose accordionMode as a @Input() to let parents toggle accordion behavior.
+                       Example: <div data-cnds-treeview-init class="treeview" [attr.data-cnds-accordion]="accordionMode ? 'true' : null">
+                       The DataAPI reads the attribute at init time; call dispose() and re-init if accordionMode changes after first render. -->
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section class="w-100 p-4 d-flex">
+                        <div
+                          data-cnds-treeview-init
+                          class="treeview"
+                          data-cnds-accordion="true"
+                        >
+                          <ul>
+                            <li>One</li>
+                            <li>Two</li>
+                            <li>
+                              <a>Three</a>
+                              <ul class="show">
+                                <li>Second-one</li>
+                                <li>Second-two</li>
+                                <li>
+                                  <a>Second-three</a>
+                                  <ul>
+                                    <li>
+                                      <a>Third-one</a>
+                                      <ul>
+                                        <li>Fourth-one</li>
+                                        <li>Fourth-two</li>
+                                        <li>Fourth-three</li>
+                                      </ul>
+                                    </li>
+                                    <li>Third-two</li>
+                                    <li>
+                                      <a>Third-three</a>
+                                      <ul>
+                                        <li>Fourth-one</li>
+                                        <li>Fourth-two</li>
+                                        <li>Fourth-three</li>
+                                      </ul>
+                                    </li>
+                                  </ul>
+                                </li>
+                              </ul>
+                            </li>
+                          </ul>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div data-cnds-treeview-init class="treeview" data-cnds-accordion="true"&gt;
+    &lt;ul&gt;
+        &lt;li&gt;One&lt;/li&gt;
+        &lt;li&gt;Two&lt;/li&gt;
+        &lt;li&gt;
+            &lt;a&gt;Three&lt;/a&gt;
+            &lt;ul class="show"&gt;
+                &lt;li&gt;Second-one&lt;/li&gt;
+                &lt;li&gt;Second-two&lt;/li&gt;
+                &lt;li&gt;
+                    &lt;a&gt;Second-three&lt;/a&gt;
+                    &lt;ul&gt;
+                        &lt;li&gt;
+                            &lt;a&gt;Third-one&lt;/a&gt;
+                            &lt;ul&gt;
+                                &lt;li&gt;Fourth-one&lt;/li&gt;
+                                &lt;li&gt;Fourth-two&lt;/li&gt;
+                                &lt;li&gt;Fourth-three&lt;/li&gt;
+                            &lt;/ul&gt;
+                        &lt;/li&gt;
+                        &lt;li&gt;Third-two&lt;/li&gt;
+                        &lt;li&gt;
+                            &lt;a&gt;Third-three&lt;/a&gt;
+                            &lt;ul&gt;
+                                &lt;li&gt;Fourth-one&lt;/li&gt;
+                                &lt;li&gt;Fourth-two&lt;/li&gt;
+                                &lt;li&gt;Fourth-three&lt;/li&gt;
+                            &lt;/ul&gt;
+                        &lt;/li&gt;
+                    &lt;/ul&gt;
+                &lt;/li&gt;
+            &lt;/ul&gt;
+        &lt;/li&gt;
+    &lt;/ul&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--Section: Accordion-->
+                <hr class="my-5" />
+                <!--Section: Selectable-->
+                <section id="section-selectable">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Checkboxes</h3>
+                  <p>
+                    Add <code>data-cnds-checkboxes="true"</code> to enable a
+                    checkbox on every node. The plugin automatically applies the
+                    Nimbus <code>form-check-input</code> class to each checkbox,
+                    giving it the standard custom-styled appearance — no extra
+                    CSS is required. Checkbox state is independent of node
+                    selection; use the <code>getChecked()</code> method or
+                    listen for the <code>check.cnds.treeview</code> event to
+                    read which nodes are checked.
+                  </p>
+                  <!-- Angular: Add data-cnds-checkboxes="true" as a static attribute or bind [attr.data-cnds-checkboxes]="enableCheckboxes ? 'true' : null"; the plugin injects form-check-input styling automatically.
+                       Example: el.addEventListener('check.cnds.treeview', (e) => { this.checked = e.detail.allChecked; }); then emit via @Output() checked = new EventEmitter<any[]>().
+                       Call Nimbus.Treeview.getInstance(el).getChecked() to retrieve the checked node list on demand. -->
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section class="w-100 p-4 d-flex">
+                        <div
+                          data-cnds-treeview-init
+                          class="treeview"
+                          data-cnds-checkboxes="true"
+                        >
+                          <ul>
+                            <li>One</li>
+                            <li>Two</li>
+                            <li>
+                              <a>Three</a>
+                              <ul class="show">
+                                <li>Second-one</li>
+                                <li>Second-two</li>
+                                <li>
+                                  <a>Second-three</a>
+                                  <ul>
+                                    <li>
+                                      <a>Third-one</a>
+                                      <ul>
+                                        <li>Fourth-one</li>
+                                        <li>Fourth-two</li>
+                                        <li>Fourth-three</li>
+                                      </ul>
+                                    </li>
+                                    <li>Third-two</li>
+                                    <li>
+                                      <a>Third-three</a>
+                                      <ul>
+                                        <li>Fourth-one</li>
+                                        <li>Fourth-two</li>
+                                        <li>Fourth-three</li>
+                                      </ul>
+                                    </li>
+                                  </ul>
+                                </li>
+                              </ul>
+                            </li>
+                          </ul>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div data-cnds-treeview-init class="treeview" data-cnds-checkboxes="true"&gt;
+    &lt;ul&gt;
+        &lt;li&gt;One&lt;/li&gt;
+        &lt;li&gt;Two&lt;/li&gt;
+        &lt;li&gt;
+            &lt;a&gt;Three&lt;/a&gt;
+            &lt;ul class="show"&gt;
+                &lt;li&gt;Second-one&lt;/li&gt;
+                &lt;li&gt;Second-two&lt;/li&gt;
+                &lt;li&gt;
+                    &lt;a&gt;Second-three&lt;/a&gt;
+                    &lt;ul&gt;
+                        &lt;li&gt;
+                            &lt;a&gt;Third-one&lt;/a&gt;
+                            &lt;ul&gt;
+                                &lt;li&gt;Fourth-one&lt;/li&gt;
+                                &lt;li&gt;Fourth-two&lt;/li&gt;
+                                &lt;li&gt;Fourth-three&lt;/li&gt;
+                            &lt;/ul&gt;
+                        &lt;/li&gt;
+                        &lt;li&gt;Third-two&lt;/li&gt;
+                        &lt;li&gt;
+                            &lt;a&gt;Third-three&lt;/a&gt;
+                            &lt;ul&gt;
+                                &lt;li&gt;Fourth-one&lt;/li&gt;
+                                &lt;li&gt;Fourth-two&lt;/li&gt;
+                                &lt;li&gt;Fourth-three&lt;/li&gt;
+                            &lt;/ul&gt;
+                        &lt;/li&gt;
+                    &lt;/ul&gt;
+                &lt;/li&gt;
+            &lt;/ul&gt;
+        &lt;/li&gt;
+    &lt;/ul&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--Section: Selectable-->
+                <hr class="my-5" />
+                <!--Section: Expand-->
+                <section id="section-expand">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Expand</h3>
+                  <p>
+                    Call <code>expandAll()</code> on an instance to expand every
+                    node at once, or programmatically click a specific toggle
+                    button to expand a single level. The example below expands
+                    the "Three" branch by triggering its toggle element.
+                  </p>
+                  <!-- Angular: Replace the plain addEventListener with (click)="expandFirst()" on the <button>; implement expandFirst() in the component class using @ViewChild.
+                       Example: expandFirst() { const tv = Nimbus.Treeview.getInstance(this.treeEl.nativeElement); tv?.expand(nodeId); }
+                       Call Nimbus.Treeview.getInstance(el).expandAll() to expand all nodes programmatically at once. -->
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section class="w-100 p-4">
+                        <div class="row justify-content-center mb-3">
+                          <div class="col-md-3">
+                            <button
+                              type="button"
+                              class="btn btn-primary"
+                              id="expand-example-button"
+                            >
+                              Expand first list
+                            </button>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div
+                            data-cnds-treeview-init
+                            class="treeview"
+                            id="expand-example"
+                          >
+                            <ul>
+                              <li>One</li>
+                              <li>Two</li>
+                              <li>
+                                <a>Three</a>
+                                <ul id="level-expand-example-item">
+                                  <li>Second-one</li>
+                                  <li>Second-two</li>
+                                  <li>
+                                    <a>Second-three</a>
+                                    <ul>
+                                      <li>
+                                        <a>Third-one</a>
+                                        <ul>
+                                          <li>Fourth-one</li>
+                                          <li>Fourth-two</li>
+                                          <li>Fourth-three</li>
+                                        </ul>
+                                      </li>
+                                      <li>Third-two</li>
+                                      <li>
+                                        <a>Third-three</a>
+                                        <ul>
+                                          <li>Fourth-one</li>
+                                          <li>Fourth-two</li>
+                                          <li>Fourth-three</li>
+                                        </ul>
+                                      </li>
+                                    </ul>
+                                  </li>
+                                </ul>
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div class="row justify-content-center mb-3"&gt;
+    &lt;div class="col-md-3"&gt;
+        &lt;button type="button" class="btn btn-primary" id="expand-example-button"&gt;
+            Expand first list
+        &lt;/button&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="row"&gt;
+    &lt;div data-cnds-treeview-init class="treeview" id="expand-example"&gt;
+        &lt;ul&gt;
+            &lt;li&gt;One&lt;/li&gt;
+            &lt;li&gt;Two&lt;/li&gt;
+            &lt;li&gt;
+                &lt;a&gt;Three&lt;/a&gt;
+                &lt;ul id="expand-example-item"&gt;
+                    &lt;li&gt;Second-one&lt;/li&gt;
+                    &lt;li&gt;Second-two&lt;/li&gt;
+                    &lt;li&gt;
+                        &lt;a&gt;Second-three&lt;/a&gt;
+                        &lt;ul&gt;
+                            &lt;li&gt;
+                                &lt;a&gt;Third-one&lt;/a&gt;
+                                &lt;ul&gt;
+                                    &lt;li&gt;Fourth-one&lt;/li&gt;
+                                    &lt;li&gt;Fourth-two&lt;/li&gt;
+                                    &lt;li&gt;Fourth-three&lt;/li&gt;
+                                &lt;/ul&gt;
+                            &lt;/li&gt;
+                            &lt;li&gt;Third-two&lt;/li&gt;
+                            &lt;li&gt;
+                                &lt;a&gt;Third-three&lt;/a&gt;
+                                &lt;ul&gt;
+                                    &lt;li&gt;Fourth-one&lt;/li&gt;
+                                    &lt;li&gt;Fourth-two&lt;/li&gt;
+                                    &lt;li&gt;Fourth-three&lt;/li&gt;
+                                &lt;/ul&gt;
+                            &lt;/li&gt;
+                        &lt;/ul&gt;
+                    &lt;/li&gt;
+                &lt;/ul&gt;
+            &lt;/li&gt;
+        &lt;/ul&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-js">
+const expandButton = document.getElementById('expand-example-button');
+expandButton.addEventListener('click', () => {
+  // Find the UL to expand, walk up to its .treeview-children wrapper,
+  // then trigger the parent toggle button — works with accordion mode too.
+  const targetUl = document.getElementById('level-expand-example-item');
+  if (!targetUl) return;
+  const childrenWrap = targetUl.closest('.treeview-children');
+  if (!childrenWrap || childrenWrap.classList.contains('expanded')) return;
+  const toggle = childrenWrap.parentElement
+    ?.querySelector(':scope > .treeview-content > .treeview-toggle');
+  if (toggle) toggle.click();
+});
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--Section: Expand-->
+                <hr class="my-5" />
+                <!--Section: Collapse-->
+                <section id="section-collapse">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Collapse</h3>
+                  <p>
+                    Call <code>collapseAll()</code> on an instance to collapse
+                    every expanded node. Retrieve the instance with the static
+                    <code>Nimbus.Treeview.getInstance(element)</code> helper.
+                  </p>
+                  <!-- Angular: Bind (click)="collapseAll()" on the button and implement the method using Nimbus.Treeview.getInstance(el) via @ViewChild.
+                       Example: collapseAll() { const inst = (window as any).Nimbus.Treeview.getInstance(this.treeEl.nativeElement); inst?.collapseAll(); }
+                       Always access the instance after ngAfterViewInit to ensure the DataAPI has already run and the instance is registered. -->
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section class="w-100 p-4">
+                        <div class="row justify-content-center mb-3">
+                          <div class="col-md-3">
+                            <button
+                              type="button"
+                              class="btn btn-primary"
+                              id="collapse-example-button"
+                            >
+                              Collapse treeview
+                            </button>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div
+                            data-cnds-treeview-init
+                            class="treeview"
+                            id="collapse-example"
+                          >
+                            <ul>
+                              <li>One</li>
+                              <li>Two</li>
+                              <li>
+                                <a>Three</a>
+                                <ul class="show">
+                                  <li>Second-one</li>
+                                  <li>Second-two</li>
+                                  <li>
+                                    <a>Second-three</a>
+                                    <ul class="show">
+                                      <li>
+                                        <a>Third-one</a>
+                                        <ul class="show">
+                                          <li>Fourth-one</li>
+                                          <li>Fourth-two</li>
+                                          <li>Fourth-three</li>
+                                        </ul>
+                                      </li>
+                                      <li>Third-two</li>
+                                      <li>
+                                        <a>Third-three</a>
+                                        <ul class="show">
+                                          <li>Fourth-one</li>
+                                          <li>Fourth-two</li>
+                                          <li>Fourth-three</li>
+                                        </ul>
+                                      </li>
+                                    </ul>
+                                  </li>
+                                </ul>
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div class="row justify-content-center mb-3"&gt;
+    &lt;div class="col-md-3"&gt;
+        &lt;button type="button" class="btn btn-primary" id="collapse-example-button"&gt;
+            Collapse treeview
+        &lt;/button&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="row"&gt;
+    &lt;div data-cnds-treeview-init class="treeview" id="collapse-example"&gt;
+        &lt;ul&gt;
+            &lt;li&gt;One&lt;/li&gt;
+            &lt;li&gt;Two&lt;/li&gt;
+            &lt;li&gt;
+                &lt;a&gt;Three&lt;/a&gt;
+                &lt;ul class="show"&gt;
+                    &lt;li&gt;Second-one&lt;/li&gt;
+                    &lt;li&gt;Second-two&lt;/li&gt;
+                    &lt;li&gt;
+                        &lt;a&gt;Second-three&lt;/a&gt;
+                        &lt;ul class="show"&gt;
+                            &lt;li&gt;
+                                &lt;a&gt;Third-one&lt;/a&gt;
+                                &lt;ul class="show"&gt;
+                                    &lt;li&gt;Fourth-one&lt;/li&gt;
+                                    &lt;li&gt;Fourth-two&lt;/li&gt;
+                                    &lt;li&gt;Fourth-three&lt;/li&gt;
+                                &lt;/ul&gt;
+                            &lt;/li&gt;
+                            &lt;li&gt;Third-two&lt;/li&gt;
+                            &lt;li&gt;
+                                &lt;a&gt;Third-three&lt;/a&gt;
+                                &lt;ul class="show"&gt;
+                                    &lt;li&gt;Fourth-one&lt;/li&gt;
+                                    &lt;li&gt;Fourth-two&lt;/li&gt;
+                                    &lt;li&gt;Fourth-three&lt;/li&gt;
+                                &lt;/ul&gt;
+                            &lt;/li&gt;
+                        &lt;/ul&gt;
+                    &lt;/li&gt;
+                &lt;/ul&gt;
+            &lt;/li&gt;
+        &lt;/ul&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-js">
+const collapseTreeview = document.getElementById('collapse-example');
+const collapseButton = document.getElementById('collapse-example-button');
+collapseButton.addEventListener('click', () => {
+  const instance = Nimbus.Treeview.getInstance(collapseTreeview);
+  if (instance) instance.collapseAll();
+});
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--Section: Collapse-->
+                <hr class="my-5" />
+                <!--Section: Custom icons - DOM-->
+                <section id="section-custom-icons-dom">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Custom icons - DOM</h3>
+                  <p>
+                    Override the default MDI folder/file icons by embedding icon
+                    markup directly in the HTML. For leaf nodes, place an
+                    <code>&lt;i&gt;</code> element before the label text inside
+                    the <code>&lt;li&gt;</code>. For parent nodes, place the
+                    icon inside a <code>&lt;span aria-label="toggle"&gt;</code>
+                    within the <code>&lt;a&gt;</code> wrapper — the plugin
+                    extracts it and uses it as the node icon.
+                  </p>
+                  <!-- Angular: Use *ngFor with a node model carrying an iconClass property; bind [class]="node.iconClass" on the <i> element for both leaf and parent nodes.
+                       Example: <li><a><span aria-label="toggle"><i [class]="node.iconClass"></i></span>{{ node.label }}</a><ul *ngIf="node.children"><li *ngFor="let child of node.children">...</li></ul></li>
+                       The plugin reads embedded icon HTML during enhancement and preserves it on expand/collapse, so Angular class bindings work without extra coordination. -->
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section class="w-100 p-4">
+                        <div data-cnds-treeview-init class="treeview">
+                          <ul>
+                            <li><i class="fas fa-dot-circle" aria-hidden="true"></i> One</li>
+                            <li><i class="fas fa-dot-circle" aria-hidden="true"></i> Two</li>
+                            <li>
+                              <a>
+                                <span
+                                  aria-label="toggle"
+                                >
+                                  <i class="fas fa-angle-double-right" aria-hidden="true"></i>
+                                </span>
+                                Three
+                              </a>
+                              <ul class="show" id="custom-icon-list">
+                                <li>
+                                  <i class="fas fa-dot-circle" aria-hidden="true"></i> Second-one
+                                </li>
+                                <li>
+                                  <i class="fas fa-dot-circle" aria-hidden="true"></i> Second-two
+                                </li>
+                                <li>
+                                  <a>
+                                    <span
+                                      aria-label="toggle"
+                                    >
+                                      <i class="fas fa-angle-double-right" aria-hidden="true"></i>
+                                    </span>
+                                    Second-three
+                                  </a>
+                                  <ul>
+                                    <li>
+                                      <i class="fas fa-dot-circle" aria-hidden="true"></i>
+                                      Third-one
+                                    </li>
+                                    <li>
+                                      <i class="fas fa-dot-circle" aria-hidden="true"></i>
+                                      Third-two
+                                    </li>
+                                    <li>
+                                      <i class="fas fa-dot-circle" aria-hidden="true"></i>
+                                      Third-three
+                                    </li>
+                                  </ul>
+                                </li>
+                              </ul>
+                            </li>
+                          </ul>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div data-cnds-treeview-init class="treeview"&gt;
+    &lt;ul&gt;
+        &lt;li&gt;&lt;i class="fas fa-dot-circle"&gt;&lt;/i&gt; One&lt;/li&gt;
+        &lt;li&gt;&lt;i class="fas fa-dot-circle"&gt;&lt;/i&gt; Two&lt;/li&gt;
+        &lt;li&gt;
+            &lt;a&gt;
+                &lt;span aria-label="toggle"&gt;
+                    &lt;i class="fas fa-angle-double-right"&gt;&lt;/i&gt;
+                &lt;/span&gt;
+                Three
+            &lt;/a&gt;
+            &lt;ul class="show" id="custom-icon-list"&gt;
+                &lt;li&gt;&lt;i class="fas fa-dot-circle"&gt;&lt;/i&gt; Second-one&lt;/li&gt;
+                &lt;li&gt;&lt;i class="fas fa-dot-circle"&gt;&lt;/i&gt; Second-two&lt;/li&gt;
+                &lt;li&gt;
+                    &lt;a&gt;
+                        &lt;span aria-label="toggle"&gt;
+                            &lt;i class="fas fa-angle-double-right"&gt;&lt;/i&gt;
+                        &lt;/span&gt;
+                        Second-three
+                    &lt;/a&gt;
+                    &lt;ul&gt;
+                        &lt;li&gt;&lt;i class="fas fa-dot-circle"&gt;&lt;/i&gt; Third-one&lt;/li&gt;
+                        &lt;li&gt;&lt;i class="fas fa-dot-circle"&gt;&lt;/i&gt; Third-two&lt;/li&gt;
+                        &lt;li&gt;&lt;i class="fas fa-dot-circle"&gt;&lt;/i&gt; Third-three&lt;/li&gt;
+                    &lt;/ul&gt;
+                &lt;/li&gt;
+            &lt;/ul&gt;
+        &lt;/li&gt;
+    &lt;/ul&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--Section: Custom icons - DOM-->
+                <hr class="my-5" />
+                <!--Subsection: Custom icons - JavaScript-->
+                <section id="subsection-custom-icons-javascript">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Custom icons - JavaScript</h3>
+                  <p>
+                    Supply custom icons via the <code>icon</code> property on
+                    each node in the <code>data</code> array. The value is an
+                    HTML string (e.g. <code>'&lt;i class="fas fa-star"&gt;&lt;/i&gt;'</code>)
+                    that replaces the default folder/file icon for that node.
+                    The plugin marks custom icons so they are not overwritten on
+                    expand/collapse.
+                  </p>
+                  <!-- Angular: Declare the data array as a component property with icon HTML strings and pass it via the JS constructor in ngAfterViewInit.
+                       Example: nodes = [{ label: 'One', icon: '<i class="fas fa-dot-circle" aria-hidden="true"></i>' }]; ngAfterViewInit() { new Nimbus.Treeview(el, { data: this.nodes }); }
+                       Use DomSanitizer.bypassSecurityTrustHtml() if Angular flags the icon strings as unsafe, or build icon HTML in the data layer before passing it to the plugin. -->
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section class="w-100 p-4">
+                        <div id="custom-icons-js"></div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div id="custom-icons-js"&gt;&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-js">
+const customIconsEl = document.getElementById('custom-icons-js');
+new Nimbus.Treeview(customIconsEl, {
+  data: [
+    { label: 'One',  icon: '&lt;i class="fas fa-dot-circle"&gt;&lt;/i&gt;' },
+    { label: 'Two',  icon: '&lt;i class="fas fa-dot-circle"&gt;&lt;/i&gt;' },
+    {
+      label: 'Three',
+      icon: '&lt;i class="fas fa-angle-double-right"&gt;&lt;/i&gt;',
+      children: [
+        { label: 'Second-one', icon: '&lt;i class="fas fa-dot-circle"&gt;&lt;/i&gt;' },
+        { label: 'Second-two', icon: '&lt;i class="fas fa-dot-circle"&gt;&lt;/i&gt;' },
+        {
+          label: 'Second-three',
+          icon: '&lt;i class="fas fa-angle-double-right"&gt;&lt;/i&gt;',
+          children: [
+            {
+              label: 'Third-one',
+              icon: '&lt;i class="fas fa-angle-double-right"&gt;&lt;/i&gt;',
+              children: [
+                { label: 'Fourth-one',   icon: '&lt;i class="fas fa-dot-circle"&gt;&lt;/i&gt;' },
+                { label: 'Fourth-two',   icon: '&lt;i class="fas fa-dot-circle"&gt;&lt;/i&gt;' },
+                { label: 'Fourth-three', icon: '&lt;i class="fas fa-dot-circle"&gt;&lt;/i&gt;' }
+              ]
+            },
+            { label: 'Third-two', icon: '&lt;i class="fas fa-dot-circle"&gt;&lt;/i&gt;' },
+            {
+              label: 'Third-three',
+              icon: '&lt;i class="fas fa-angle-double-right"&gt;&lt;/i&gt;',
+              children: [
+                { label: 'Fourth-one',   icon: '&lt;i class="fas fa-dot-circle"&gt;&lt;/i&gt;' },
+                { label: 'Fourth-two',   icon: '&lt;i class="fas fa-dot-circle"&gt;&lt;/i&gt;' },
+                { label: 'Fourth-three', icon: '&lt;i class="fas fa-dot-circle"&gt;&lt;/i&gt;' }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+});
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--Subsection: Custom icons - JavaScript-->
+                <hr class="my-5" />
+                <!--Section: Show meta-->
+                <section id="section-show-meta">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Show meta</h3>
+                  <p>
+                    Add a <code>&lt;span class="treeview-meta"&gt;</code>
+                    inside a node's content row to display secondary
+                    information — a file size, item count, or date — next to
+                    the label. Give the row a <code>has-meta</code> modifier
+                    class so the label stops growing to fill the row, leaving
+                    room for the meta text. Meta text renders muted and at a
+                    smaller size than the label.
+                  </p>
+                  <p class="note note-light">
+                    <strong>Note:</strong> The <code>data-cnds-treeview-init</code>
+                    DOM and JavaScript data APIs flatten a node's content to a
+                    single text label, so they do not currently support the
+                    meta field. Compose the <code>treeview-content</code> row
+                    markup directly (as shown below) when a node needs meta
+                    text.
+                  </p>
+                  <!-- Angular: Render node content with *ngFor over a node model that carries a meta string; bind [class.has-meta]="!!node.meta" on the content row and *ngIf="node.meta" on the meta span.
+                       Example: <div class="treeview-content" [class.has-meta]="!!node.meta"><span class="treeview-icon">…</span><span class="treeview-label">{{ node.label }}</span><span class="treeview-meta" *ngIf="node.meta">{{ node.meta }}</span></div>
+                       Since this pattern is composed by hand rather than through the DataAPI, there is no Nimbus.Treeview instance to retrieve for these rows. -->
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section class="w-100 p-4">
+                        <div class="treeview">
+                          <ul class="treeview-list" role="group">
+                            <li class="treeview-node">
+                              <div class="treeview-content has-meta">
+                                <span class="treeview-toggle-spacer"></span>
+                                <span class="treeview-icon"><i class="mdi mdi-file-outline" aria-hidden="true"></i></span>
+                                <span class="treeview-label">Report.pdf</span>
+                                <span class="treeview-meta">2.4 MB</span>
+                              </div>
+                            </li>
+                            <li class="treeview-node">
+                              <div class="treeview-content has-meta">
+                                <span class="treeview-toggle-spacer"></span>
+                                <span class="treeview-icon"><i class="mdi mdi-file-outline" aria-hidden="true"></i></span>
+                                <span class="treeview-label">Summary.docx</span>
+                                <span class="treeview-meta">512 KB</span>
+                              </div>
+                            </li>
+                            <li class="treeview-node">
+                              <div class="treeview-content has-meta">
+                                <span class="treeview-toggle-spacer"></span>
+                                <span class="treeview-icon"><i class="mdi mdi-folder-outline" aria-hidden="true"></i></span>
+                                <span class="treeview-label">Archive</span>
+                                <span class="treeview-meta">128 items</span>
+                              </div>
+                            </li>
+                          </ul>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div class="treeview"&gt;
+    &lt;ul class="treeview-list" role="group"&gt;
+        &lt;li class="treeview-node"&gt;
+            &lt;div class="treeview-content has-meta"&gt;
+                &lt;span class="treeview-toggle-spacer"&gt;&lt;/span&gt;
+                &lt;span class="treeview-icon"&gt;&lt;i class="mdi mdi-file-outline"&gt;&lt;/i&gt;&lt;/span&gt;
+                &lt;span class="treeview-label"&gt;Report.pdf&lt;/span&gt;
+                &lt;span class="treeview-meta"&gt;2.4 MB&lt;/span&gt;
+            &lt;/div&gt;
+        &lt;/li&gt;
+        &lt;li class="treeview-node"&gt;
+            &lt;div class="treeview-content has-meta"&gt;
+                &lt;span class="treeview-toggle-spacer"&gt;&lt;/span&gt;
+                &lt;span class="treeview-icon"&gt;&lt;i class="mdi mdi-file-outline"&gt;&lt;/i&gt;&lt;/span&gt;
+                &lt;span class="treeview-label"&gt;Summary.docx&lt;/span&gt;
+                &lt;span class="treeview-meta"&gt;512 KB&lt;/span&gt;
+            &lt;/div&gt;
+        &lt;/li&gt;
+        &lt;li class="treeview-node"&gt;
+            &lt;div class="treeview-content has-meta"&gt;
+                &lt;span class="treeview-toggle-spacer"&gt;&lt;/span&gt;
+                &lt;span class="treeview-icon"&gt;&lt;i class="mdi mdi-folder-outline"&gt;&lt;/i&gt;&lt;/span&gt;
+                &lt;span class="treeview-label"&gt;Archive&lt;/span&gt;
+                &lt;span class="treeview-meta"&gt;128 items&lt;/span&gt;
+            &lt;/div&gt;
+        &lt;/li&gt;
+    &lt;/ul&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--Section: Show meta-->
+                <hr class="my-5" />
+                <!--Section: Color-->
+                <section id="section-color">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Color</h3>
+                  <p>
+                    Control the selected-node highlight color by adding a
+                    product modifier class to the treeview element:
+                    <code>treeview-casefusion</code>, <code>treeview-expireon</code>, or
+                    <code>treeview-hyperlize</code>. Each variant tints the selected-item
+                    background with the corresponding product brand color; node text
+                    remains theme-compliant in all variants.
+                    Toggle the class at runtime with
+                    <code>classList.add()</code> / <code>classList.remove()</code>.
+                  </p>
+                  <!-- Angular: Bind the product color modifier with [ngClass] and expose productVariant as an @Input(); change it on button click with (click)="productVariant = 'expireon'".
+                       Example: <div [ngClass]="'treeview treeview-' + productVariant" data-cnds-treeview-init></div>
+                       No Nimbus instance interaction is required — the color variant is pure CSS applied to the host element. -->
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section class="w-100 p-4">
+                        <div class="text-center mb-5">
+                          <button
+                            type="button"
+                            class="btn btn-outline-secondary"
+                            id="casefusion"
+                            style="display:inline-flex;align-items:center;gap:8px;line-height:1;"
+                          >
+                            <span style="width:10px;height:10px;background:#5ccb59;border-radius:50%;flex-shrink:0;"></span>
+                            CaseFusion
+                          </button>
+                          <button
+                            type="button"
+                            class="btn btn-outline-secondary"
+                            id="expireon"
+                            style="display:inline-flex;align-items:center;gap:8px;line-height:1;"
+                          >
+                            <span style="width:10px;height:10px;background:#4d45d6;border-radius:50%;flex-shrink:0;"></span>
+                            Expireon
+                          </button>
+                          <button
+                            type="button"
+                            class="btn btn-outline-secondary"
+                            id="hyperlize"
+                            style="display:inline-flex;align-items:center;gap:8px;line-height:1;"
+                          >
+                            <span style="width:10px;height:10px;background:#f0c808;border-radius:50%;flex-shrink:0;"></span>
+                            Hyperlize
+                          </button>
+                        </div>
+                        <div class="row text-center">
+                          <h4>
+                            Current product:
+                            <span id="current-color">casefusion</span>
+                          </h4>
+                        </div>
+                        <div class="row mt-4">
+                          <div
+                            data-cnds-treeview-init
+                            class="treeview treeview-casefusion"
+                            id="color-example"
+                          >
+                            <ul>
+                              <li>One</li>
+                              <li>Two</li>
+                              <li>
+                                <a>Three</a>
+                                <ul class="show">
+                                  <li>Second-one</li>
+                                  <li>Second-two</li>
+                                  <li>
+                                    <a>Second-three</a>
+                                    <ul>
+                                      <li>
+                                        <a>Third-one</a>
+                                        <ul>
+                                          <li>Fourth-one</li>
+                                          <li>Fourth-two</li>
+                                          <li>Fourth-three</li>
+                                        </ul>
+                                      </li>
+                                      <li>Third-two</li>
+                                      <li>
+                                        <a>Third-three</a>
+                                        <ul>
+                                          <li>Fourth-one</li>
+                                          <li>Fourth-two</li>
+                                          <li>Fourth-three</li>
+                                        </ul>
+                                      </li>
+                                    </ul>
+                                  </li>
+                                </ul>
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div class="text-center mb-5"&gt;
+    &lt;button type="button" class="btn btn-outline-secondary" id="casefusion" style="display:inline-flex;align-items:center;gap:8px;line-height:1;"&gt;
+        &lt;span style="width:10px;height:10px;background:#5ccb59;border-radius:50%;flex-shrink:0;"&gt;&lt;/span&gt;
+        CaseFusion
+    &lt;/button&gt;
+    &lt;button type="button" class="btn btn-outline-secondary" id="expireon" style="display:inline-flex;align-items:center;gap:8px;line-height:1;"&gt;
+        &lt;span style="width:10px;height:10px;background:#4d45d6;border-radius:50%;flex-shrink:0;"&gt;&lt;/span&gt;
+        Expireon
+    &lt;/button&gt;
+    &lt;button type="button" class="btn btn-outline-secondary" id="hyperlize" style="display:inline-flex;align-items:center;gap:8px;line-height:1;"&gt;
+        &lt;span style="width:10px;height:10px;background:#f0c808;border-radius:50%;flex-shrink:0;"&gt;&lt;/span&gt;
+        Hyperlize
+    &lt;/button&gt;
+&lt;/div&gt;
+&lt;div class="row text-center"&gt;
+    &lt;h5&gt;Current product: &lt;span id="current-color"&gt;casefusion&lt;/span&gt;&lt;/h5&gt;
+&lt;/div&gt;
+&lt;div class="row mt-4"&gt;
+    &lt;div data-cnds-treeview-init class="treeview treeview-casefusion" id="color-example"&gt;
+        &lt;ul&gt;
+            &lt;li&gt;One&lt;/li&gt;
+            &lt;li&gt;Two&lt;/li&gt;
+            &lt;li&gt;
+                &lt;a&gt;Three&lt;/a&gt;
+                &lt;ul class="show"&gt;
+                    &lt;li&gt;Second-one&lt;/li&gt;
+                    &lt;li&gt;Second-two&lt;/li&gt;
+                    &lt;li&gt;
+                        &lt;a&gt;Second-three&lt;/a&gt;
+                        &lt;ul&gt;
+                            &lt;li&gt;
+                                &lt;a&gt;Third-one&lt;/a&gt;
+                                &lt;ul&gt;
+                                    &lt;li&gt;Fourth-one&lt;/li&gt;
+                                    &lt;li&gt;Fourth-two&lt;/li&gt;
+                                    &lt;li&gt;Fourth-three&lt;/li&gt;
+                                &lt;/ul&gt;
+                            &lt;/li&gt;
+                            &lt;li&gt;Third-two&lt;/li&gt;
+                            &lt;li&gt;
+                                &lt;a&gt;Third-three&lt;/a&gt;
+                                &lt;ul&gt;
+                                    &lt;li&gt;Fourth-one&lt;/li&gt;
+                                    &lt;li&gt;Fourth-two&lt;/li&gt;
+                                    &lt;li&gt;Fourth-three&lt;/li&gt;
+                                &lt;/ul&gt;
+                            &lt;/li&gt;
+                        &lt;/ul&gt;
+                    &lt;/li&gt;
+                &lt;/ul&gt;
+            &lt;/li&gt;
+        &lt;/ul&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-js">
+const products = ['casefusion', 'expireon', 'hyperlize'];
+const currentColor = document.getElementById('current-color');
+const colorTreeviewEl = document.getElementById('color-example');
+products.forEach((id) => {
+  document.getElementById(id).addEventListener('click', () => {
+    products.forEach((p) => colorTreeviewEl.classList.remove(`treeview-${p}`));
+    colorTreeviewEl.classList.add(`treeview-${id}`);
+    currentColor.textContent = id;
+  });
+});
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--Section: Color-->
+                <hr class="my-5" />
+                <!--Section: Line-->
+                <section id="section-line">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Connection lines</h3>
+                  <p>
+                    Add <code>data-cnds-show-lines="true"</code> to draw
+                    vertical and horizontal guide lines connecting parent nodes
+                    to their children, making deep hierarchies easier to scan.
+                  </p>
+                  <!-- Angular: Bind the attribute with [attr.data-cnds-show-lines]="showLines ? 'true' : null" and expose showLines as an @Input() so parent components can toggle it.
+                       Example: <div class="treeview" data-cnds-treeview-init [attr.data-cnds-show-lines]="showLines ? 'true' : null"></div>
+                       Alternatively pass showLines: true to the JS constructor in ngAfterViewInit to avoid the data-attribute altogether. -->
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section class="w-100 p-4 d-flex">
+                        <div
+                          data-cnds-treeview-init
+                          class="treeview"
+                          data-cnds-show-lines="true"
+                        >
+                          <ul>
+                            <li>One</li>
+                            <li>Two</li>
+                            <li>
+                              <a>Three</a>
+                              <ul class="show">
+                                <li>Second-one</li>
+                                <li>Second-two</li>
+                                <li>
+                                  <a>Second-three</a>
+                                  <ul>
+                                    <li>
+                                      <a>Third-one</a>
+                                      <ul>
+                                        <li>Fourth-one</li>
+                                        <li>Fourth-two</li>
+                                        <li>Fourth-three</li>
+                                      </ul>
+                                    </li>
+                                    <li>Third-two</li>
+                                    <li>
+                                      <a>Third-three</a>
+                                      <ul>
+                                        <li>Fourth-one</li>
+                                        <li>Fourth-two</li>
+                                        <li>Fourth-three</li>
+                                      </ul>
+                                    </li>
+                                  </ul>
+                                </li>
+                              </ul>
+                            </li>
+                          </ul>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div data-cnds-treeview-init class="treeview" data-cnds-show-lines="true"&gt;
+    &lt;ul&gt;
+        &lt;li&gt;One&lt;/li&gt;
+        &lt;li&gt;Two&lt;/li&gt;
+        &lt;li&gt;
+            &lt;a&gt;Three&lt;/a&gt;
+            &lt;ul class="show"&gt;
+                &lt;li&gt;Second-one&lt;/li&gt;
+                &lt;li&gt;Second-two&lt;/li&gt;
+                &lt;li&gt;
+                    &lt;a&gt;Second-three&lt;/a&gt;
+                    &lt;ul&gt;
+                        &lt;li&gt;
+                            &lt;a&gt;Third-one&lt;/a&gt;
+                            &lt;ul&gt;
+                                &lt;li&gt;Fourth-one&lt;/li&gt;
+                                &lt;li&gt;Fourth-two&lt;/li&gt;
+                                &lt;li&gt;Fourth-three&lt;/li&gt;
+                            &lt;/ul&gt;
+                        &lt;/li&gt;
+                        &lt;li&gt;Third-two&lt;/li&gt;
+                        &lt;li&gt;
+                            &lt;a&gt;Third-three&lt;/a&gt;
+                            &lt;ul&gt;
+                                &lt;li&gt;Fourth-one&lt;/li&gt;
+                                &lt;li&gt;Fourth-two&lt;/li&gt;
+                                &lt;li&gt;Fourth-three&lt;/li&gt;
+                            &lt;/ul&gt;
+                        &lt;/li&gt;
+                    &lt;/ul&gt;
+                &lt;/li&gt;
+            &lt;/ul&gt;
+        &lt;/li&gt;
+    &lt;/ul&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--Section: Line-->
+                <hr class="my-5" />
+                <!--Section: Disabled - DOM-->
+                <section id="section-disabled-dom">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Disabled - DOM</h3>
+                  <p>
+                    Add the <code>treeview-disabled</code> class to a
+                    <code>&lt;li&gt;</code> (leaf node) or to the
+                    <code>&lt;a&gt;</code> child of a parent
+                    <code>&lt;li&gt;</code> to make that node non-interactive.
+                    Disabled nodes are rendered at reduced opacity and block all
+                    pointer events.
+                  </p>
+                  <!-- Angular: Bind [class.treeview-disabled]="node.disabled" on each <li> (leaf) or <a> (parent) rendered via *ngFor; expose a disabled flag on each node model.
+                       Example: <li *ngFor="let node of nodes" [class.treeview-disabled]="node.disabled">{{ node.label }}</li>
+                       Toggle node.disabled from the parent component to reactively enable or disable individual nodes without reinitialising the plugin. -->
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section class="w-100 p-4 d-flex">
+                        <div
+                          data-cnds-treeview-init
+                          class="treeview"
+                          data-cnds-checkboxes="true"
+                        >
+                          <ul>
+                            <li>One</li>
+                            <li class="treeview-disabled">Two</li>
+                            <li>
+                              <a>Three</a>
+                              <ul class="show">
+                                <li>Second-one</li>
+                                <li>Second-two</li>
+                                <li>
+                                  <a class="treeview-disabled">Second-three</a>
+                                  <ul>
+                                    <li>
+                                      <a>Third-one</a>
+                                      <ul>
+                                        <li>Fourth-one</li>
+                                        <li>Fourth-two</li>
+                                        <li>Fourth-three</li>
+                                      </ul>
+                                    </li>
+                                    <li>Third-two</li>
+                                    <li>
+                                      <a>Third-three</a>
+                                      <ul>
+                                        <li>Fourth-one</li>
+                                        <li>Fourth-two</li>
+                                        <li>Fourth-three</li>
+                                      </ul>
+                                    </li>
+                                  </ul>
+                                </li>
+                              </ul>
+                            </li>
+                          </ul>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div data-cnds-treeview-init class="treeview" data-cnds-checkboxes="true"&gt;
+    &lt;ul&gt;
+        &lt;li&gt;One&lt;/li&gt;
+        &lt;li class="treeview-disabled"&gt;Two&lt;/li&gt;
+        &lt;li&gt;
+            &lt;a&gt;Three&lt;/a&gt;
+            &lt;ul class="show"&gt;
+                &lt;li&gt;Second-one&lt;/li&gt;
+                &lt;li&gt;Second-two&lt;/li&gt;
+                &lt;li&gt;
+                    &lt;a class="treeview-disabled"&gt;Second-three&lt;/a&gt;
+                    &lt;ul&gt;
+                        &lt;li&gt;
+                            &lt;a&gt;Third-one&lt;/a&gt;
+                            &lt;ul&gt;
+                                &lt;li&gt;Fourth-one&lt;/li&gt;
+                                &lt;li&gt;Fourth-two&lt;/li&gt;
+                                &lt;li&gt;Fourth-three&lt;/li&gt;
+                            &lt;/ul&gt;
+                        &lt;/li&gt;
+                        &lt;li&gt;Third-two&lt;/li&gt;
+                        &lt;li&gt;
+                            &lt;a&gt;Third-three&lt;/a&gt;
+                            &lt;ul&gt;
+                                &lt;li&gt;Fourth-one&lt;/li&gt;
+                                &lt;li&gt;Fourth-two&lt;/li&gt;
+                                &lt;li&gt;Fourth-three&lt;/li&gt;
+                            &lt;/ul&gt;
+                        &lt;/li&gt;
+                    &lt;/ul&gt;
+                &lt;/li&gt;
+            &lt;/ul&gt;
+        &lt;/li&gt;
+    &lt;/ul&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--Section: Disabled - DOM-->
+                <hr class="my-5" />
+                <!--Subsection: Disabled - JavaScript-->
+                <section id="subsection-disabled-javascript">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Disabled - JavaScript</h3>
+                  <p>
+                    When building a tree from the <code>data</code> array, set
+                    <code>disabled: true</code> on any node object to render it
+                    non-interactive. Disabled parent nodes still show their
+                    chevron but block selection and checkbox interaction.
+                  </p>
+                  <!-- Angular: Declare the data array as a component property with disabled flags and pass it to the JS constructor in ngAfterViewInit.
+                       Example: nodes = [{ label: 'One', disabled: true }, { label: 'Two' }]; ngAfterViewInit() { this.tv = new Nimbus.Treeview(el, { data: this.nodes }); }
+                       To toggle disabled state at runtime, update the data array then call this.tv.dispose() and re-create the treeview with the updated data. -->
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section class="w-100 p-4 d-flex">
+                        <div id="disabled-element"></div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div id="disabled-element"&gt;&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-js">
+const disabledEl = document.getElementById('disabled-element');
+new Nimbus.Treeview(disabledEl, {
+  data: [
+    { label: 'One', disabled: true },
+    { label: 'Two' },
+    {
+      label: 'Three',
+      children: [
+        { label: 'Second-one' },
+        { label: 'Second-two' },
+        {
+          label: 'Second-three',
+          disabled: true,
+          children: [
+            {
+              label: 'Third-one',
+              children: [
+                { label: 'Fourth-one' },
+                { label: 'Fourth-two' },
+                { label: 'Fourth-three' }
+              ]
+            },
+            { label: 'Third-two' },
+            {
+              label: 'Third-three',
+              children: [
+                { label: 'Fourth-one' },
+                { label: 'Fourth-two' },
+                { label: 'Fourth-three' }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+});
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--Subsection: Disabled - JavaScript-->
+                <hr class="my-5" />
+                <!--Section: Filter-->
+                <section id="section-filter">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Filter</h3>
+                  <p>
+                    Call <code>filter(term)</code> on an instance to
+                    case-insensitively hide all nodes whose labels do not
+                    contain <code>term</code>, and auto-expand the ancestors of
+                    any matching nodes. Pass an empty string to reset and show
+                    all nodes. The search field uses the Nimbus
+                    <code>cf-input-field</code> component with a trailing
+                    <code>mdi-magnify</code> icon.
+                  </p>
+                  <!-- Angular: Bind (input)="onFilter($event)" on the cf-input-field's <input> and implement onFilter() using Nimbus.Treeview.getInstance() via @ViewChild.
+                       Example: onFilter(e: Event) { const term = (e.target as HTMLInputElement).value; Nimbus.Treeview.getInstance(this.treeEl.nativeElement)?.filter(term); }
+                       For reactive forms, subscribe to the FormControl's valueChanges and call filter() in the subscriber instead of using the (input) event. -->
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section class="w-100 p-4">
+                        <div class="row mb-4 justify-content-center">
+                          <div class="col-md-6">
+                            <div class="cf-input-field cf-input-field-casefusion">
+                              <label class="cf-input-label" for="form1">Find in the treeview</label>
+                              <div class="cf-input-wrapper">
+                                <input type="text" id="form1" class="cf-input-control" placeholder="Type to filter…" />
+                                <i class="cf-input-icon mdi mdi-magnify" aria-hidden="true"></i>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div
+                            data-cnds-treeview-init
+                            class="treeview"
+                            id="filter-example"
+                          >
+                            <ul>
+                              <li>One</li>
+                              <li>Two</li>
+                              <li>
+                                <a>Three</a>
+                                <ul>
+                                  <li>Second-one</li>
+                                  <li>Second-two</li>
+                                  <li>
+                                    <a>Second-three</a>
+                                    <ul>
+                                      <li>
+                                        <a>Third-one</a>
+                                        <ul>
+                                          <li>Fourth-one</li>
+                                          <li>Fourth-two</li>
+                                          <li>Fourth-three</li>
+                                        </ul>
+                                      </li>
+                                      <li>Third-two</li>
+                                      <li>
+                                        <a>Third-three</a>
+                                        <ul>
+                                          <li>Fourth-one</li>
+                                          <li>Fourth-two</li>
+                                          <li>Fourth-three</li>
+                                        </ul>
+                                      </li>
+                                    </ul>
+                                  </li>
+                                </ul>
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div class="row mb-4 justify-content-center"&gt;
+    &lt;div class="col-md-6"&gt;
+        &lt;div class="cf-input-field cf-input-field-casefusion"&gt;
+            &lt;label class="cf-input-label" for="form1"&gt;Find in the treeview&lt;/label&gt;
+            &lt;div class="cf-input-wrapper"&gt;
+                &lt;input type="text" id="form1" class="cf-input-control" placeholder="Type to filter…" /&gt;
+                &lt;i class="cf-input-icon mdi mdi-magnify" aria-hidden="true"&gt;&lt;/i&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="row"&gt;
+    &lt;div data-cnds-treeview-init class="treeview" id="filter-example"&gt;
+        &lt;ul&gt;
+            &lt;li&gt;One&lt;/li&gt;
+            &lt;li&gt;Two&lt;/li&gt;
+            &lt;li&gt;
+                &lt;a&gt;Three&lt;/a&gt;
+                &lt;ul&gt;
+                    &lt;li&gt;Second-one&lt;/li&gt;
+                    &lt;li&gt;Second-two&lt;/li&gt;
+                    &lt;li&gt;
+                        &lt;a&gt;Second-three&lt;/a&gt;
+                        &lt;ul&gt;
+                            &lt;li&gt;
+                                &lt;a&gt;Third-one&lt;/a&gt;
+                                &lt;ul&gt;
+                                    &lt;li&gt;Fourth-one&lt;/li&gt;
+                                    &lt;li&gt;Fourth-two&lt;/li&gt;
+                                    &lt;li&gt;Fourth-three&lt;/li&gt;
+                                &lt;/ul&gt;
+                            &lt;/li&gt;
+                            &lt;li&gt;Third-two&lt;/li&gt;
+                            &lt;li&gt;
+                                &lt;a&gt;Third-three&lt;/a&gt;
+                                &lt;ul&gt;
+                                    &lt;li&gt;Fourth-one&lt;/li&gt;
+                                    &lt;li&gt;Fourth-two&lt;/li&gt;
+                                    &lt;li&gt;Fourth-three&lt;/li&gt;
+                                &lt;/ul&gt;
+                            &lt;/li&gt;
+                        &lt;/ul&gt;
+                    &lt;/li&gt;
+                &lt;/ul&gt;
+            &lt;/li&gt;
+        &lt;/ul&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-js">
+const filterTreeview = document.getElementById('filter-example');
+const filterInput = document.getElementById('form1');
+const filterInstance = Nimbus.Treeview.getInstance(filterTreeview);
+filterInput.addEventListener('input', () => {
+  filterInstance.filter(filterInput.value);
+});
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--Section: Filter-->
+                <hr class="my-5" />
+                <!--Section: API Docs-->
+                <section id="section-api-docs">
+                  <h3 class="mb-3">API Documentation</h3>
+
+                  <!--Section: Introduction-->
+                  <section id="api-section-introduction">
+                    <h4>API Documentation</h4>
+                  </section>
+                  <!--Section: Introduction-->
+
+                  <!--Section: Usage-->
+                  <section id="api-section-usage" class="mt-4">
+                    <h4 class="mb-3">Usage</h3>
+
+                    <h5 class="mt-4 mb-2">Via data attribute</h5>
+                    <p>
+                      No JavaScript is required to initialise a DOM-based
+                      treeview. Add <code>data-cnds-treeview-init</code> to any
+                      container that holds a nested <code>&lt;ul&gt;</code> and
+                      the plugin bootstraps automatically. Set options with
+                      additional <code>data-cnds-*</code> attributes
+                      (camelCase option names convert to kebab-case, e.g.
+                      <code>showLines</code> → <code>data-cnds-show-lines</code>).
+                    </p>
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h5><span class="badge badge-code-html">HTML</span></h5>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div data-cnds-treeview-init class="treeview"&gt;
+    &lt;ul&gt;
+        &lt;li&gt;One&lt;/li&gt;
+        &lt;li&gt;Two&lt;/li&gt;
+        &lt;li&gt;
+            &lt;a&gt;Three&lt;/a&gt;
+            &lt;ul&gt;
+                &lt;li&gt;Second-one&lt;/li&gt;
+                &lt;li&gt;Second-two&lt;/li&gt;
+                &lt;li&gt;Second-three&lt;/li&gt;
+            &lt;/ul&gt;
+        &lt;/li&gt;
+    &lt;/ul&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--Section: Code-->
+
+                    <h5 class="mt-4 mb-2">Via JavaScript</h5>
+                    <p>
+                      Instantiate programmatically with
+                      <code>new Nimbus.Treeview(element, options)</code>.
+                      Pass the tree structure as a <code>data</code> array of
+                      node objects; the plugin builds the DOM for you.
+                    </p>
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">const el = document.getElementById('myTreeview');
+new Nimbus.Treeview(el, {
+  data: [
+    { label: 'One' },
+    { label: 'Two' },
+    { label: 'Three', children: [
+      { label: 'Second-one' },
+      { label: 'Second-two' },
+      { label: 'Second-three' }
+    ]}
+  ]
+});</code></pre>
+                      </div>
+                    </section>
+                    <!--Section: Code-->
+                  </section>
+                  <!--Section: Usage-->
+
+                  <!--Section: Options-->
+                  <section id="api-section-options" class="mt-5">
+                    <h4 class="mb-3">Options</h3>
+                    <p>
+                      Options are passed as the second argument to
+                      <code>new Nimbus.Treeview()</code> or as
+                      <code>data-cnds-*</code> attributes on the element
+                      (camelCase → kebab-case). Boolean strings
+                      <code>"true"</code> / <code>"false"</code> are
+                      automatically coerced to their JavaScript equivalents.
+                    </p>
+                    <div class="table-responsive">
+                      <table class="table table-striped table-bordered" aria-label="Options">
+                        <thead>
+                          <tr>
+                            <th class="th-sm">Name</th>
+                            <th class="th-sm">Type</th>
+                            <th class="th-sm">Default</th>
+                            <th class="th-sm">Description</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td class="text-nowrap"><code>data</code></td>
+                            <td><i>Array | null</i></td>
+                            <td><code>null</code></td>
+                            <td>
+                              Node-data array used to build the tree from
+                              JavaScript. Each object supports
+                              <code>label</code>, <code>children</code>,
+                              <code>icon</code>, <code>id</code>,
+                              <code>checked</code>, and
+                              <code>disabled</code>.
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap"><code>selectable</code></td>
+                            <td><i>Boolean</i></td>
+                            <td><code>true</code></td>
+                            <td>
+                              When <code>true</code>, clicking a node label
+                              highlights it and fires
+                              <code>select.cnds.treeview</code>.
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap"><code>checkboxes</code></td>
+                            <td><i>Boolean</i></td>
+                            <td><code>false</code></td>
+                            <td>
+                              Adds a checkbox to every node. The plugin
+                              automatically applies the Nimbus
+                              <code>form-check-input</code> class to each
+                              generated checkbox — no additional styling is
+                              required. Use <code>getChecked()</code> or the
+                              <code>check.cnds.treeview</code> event to read
+                              checked state.
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap"><code>icons</code></td>
+                            <td><i>Boolean</i></td>
+                            <td><code>true</code></td>
+                            <td>
+                              Show folder/file icons beside each node.
+                              Disable to render a plain text-only tree.
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap"><code>expandAll</code></td>
+                            <td><i>Boolean</i></td>
+                            <td><code>false</code></td>
+                            <td>
+                              Expand every node on initialisation.
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap"><code>showLines</code></td>
+                            <td><i>Boolean</i></td>
+                            <td><code>false</code></td>
+                            <td>
+                              Draw vertical and horizontal guide lines
+                              connecting parent nodes to their children.
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap"><code>searchable</code></td>
+                            <td><i>Boolean</i></td>
+                            <td><code>false</code></td>
+                            <td>
+                              Prepend a search input to the treeview. Typing
+                              filters nodes in real time (debounced 200 ms).
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap"><code>accordion</code></td>
+                            <td><i>Boolean</i></td>
+                            <td><code>false</code></td>
+                            <td>
+                              Collapse sibling nodes when a parent is expanded,
+                              keeping only one branch open per level.
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap"><code>folderIcon</code></td>
+                            <td><i>String</i></td>
+                            <td><code>'&lt;i class="mdi mdi-folder"&gt;&lt;/i&gt;'</code></td>
+                            <td>
+                              HTML string rendered as the icon for collapsed
+                              parent nodes. Accepts any inline icon markup.
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap"><code>folderOpenIcon</code></td>
+                            <td><i>String</i></td>
+                            <td><code>'&lt;i class="mdi mdi-folder-open"&gt;&lt;/i&gt;'</code></td>
+                            <td>
+                              HTML string rendered as the icon for expanded
+                              parent nodes.
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap"><code>fileIcon</code></td>
+                            <td><i>String</i></td>
+                            <td><code>'&lt;i class="mdi mdi-file"&gt;&lt;/i&gt;'</code></td>
+                            <td>
+                              HTML string rendered as the icon for leaf nodes
+                              (nodes without children).
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </section>
+                  <!--Section: Options-->
+
+                  <!--Section: Methods-->
+                  <section id="api-section-methods" class="mt-5">
+                    <h4 class="mb-3">Methods</h3>
+                    <p>
+                      Retrieve an instance with the static helper
+                      <code>Nimbus.Treeview.getInstance(element)</code>
+                      (returns <code>null</code> if not yet initialised) or
+                      keep a reference returned from <code>new Nimbus.Treeview()</code>.
+                    </p>
+                    <div class="table-responsive">
+                      <table class="table table-striped table-bordered" aria-label="Methods">
+                        <thead>
+                          <tr>
+                            <th class="th-sm">Name</th>
+                            <th class="th-sm">Description</th>
+                            <th class="th-sm">Returns</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td class="text-nowrap"><code>getSelected()</code></td>
+                            <td>
+                              Returns the currently highlighted
+                              <code>.treeview-content</code> element, or
+                              <code>null</code> if nothing is selected.
+                            </td>
+                            <td><code>Element | null</code></td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap"><code>getChecked()</code></td>
+                            <td>
+                              Returns an array of objects
+                              <code>{ element, label }</code> for every
+                              checked node. Requires <code>checkboxes: true</code>.
+                            </td>
+                            <td><code>Array</code></td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap"><code>expandAll()</code></td>
+                            <td>Expands every node in the tree.</td>
+                            <td><code>void</code></td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap"><code>collapseAll()</code></td>
+                            <td>Collapses every node in the tree.</td>
+                            <td><code>void</code></td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap"><code>filter(term)</code></td>
+                            <td>
+                              Hides nodes whose labels do not match
+                              <code>term</code> (case-insensitive substring
+                              match) and auto-expands their ancestors. Pass
+                              <code>''</code> or <code>null</code> to reset.
+                            </td>
+                            <td><code>void</code></td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap"><code>dispose()</code></td>
+                            <td>
+                              Destroys the instance, removes all event
+                              listeners, and deregisters it from the instance
+                              map.
+                            </td>
+                            <td><code>void</code></td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code>Nimbus.Treeview.getInstance(el)</code>
+                            </td>
+                            <td>
+                              Static helper. Returns the Treeview instance for
+                              <code>el</code>, or <code>null</code>.
+                            </td>
+                            <td><code>Treeview | null</code></td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    <!--Section: Code-->
+                    <section class="mb-4 mt-3">
+                      <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">const el = document.getElementById('myTreeview');
+const instance = Nimbus.Treeview.getInstance(el);
+
+// Collapse all nodes
+instance.collapseAll();
+
+// Expand all nodes
+instance.expandAll();
+
+// Filter to nodes matching a term
+instance.filter('search term');
+
+// Read currently checked nodes (requires checkboxes: true)
+const checked = instance.getChecked();
+checked.forEach(({ label }) => console.log(label));</code></pre>
+                      </div>
+                    </section>
+                    <!--Section: Code-->
+                  </section>
+                  <!--Section: Methods-->
+
+                  <!--Section: Events-->
+                  <section id="api-section-events" class="mt-5">
+                    <h4 class="mb-3">Events</h3>
+                    <p>
+                      All events are dispatched on the treeview root element
+                      and bubble up the DOM. Listen with
+                      <code>addEventListener</code>; the event
+                      <code>detail</code> object carries the relevant node
+                      data.
+                    </p>
+                    <div class="table-responsive">
+                      <table class="table table-striped table-bordered" aria-label="Events">
+                        <thead>
+                          <tr>
+                            <th class="th-sm">Name</th>
+                            <th class="th-sm">Detail payload</th>
+                            <th class="th-sm">Description</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code>select.cnds.treeview</code>
+                            </td>
+                            <td><code>{ node, label }</code></td>
+                            <td>
+                              Fired when a node is selected (clicked while
+                              <code>selectable: true</code>).
+                              <code>node</code> is the
+                              <code>.treeview-node</code> <code>&lt;li&gt;</code>
+                              element; <code>label</code> is its text content.
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code>expand.cnds.treeview</code>
+                            </td>
+                            <td><code>{ node, label }</code></td>
+                            <td>
+                              Fired when a node's children are expanded.
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code>collapse.cnds.treeview</code>
+                            </td>
+                            <td><code>{ node, label }</code></td>
+                            <td>
+                              Fired when a node's children are collapsed.
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code>check.cnds.treeview</code>
+                            </td>
+                            <td><code>{ node, checked, allChecked }</code></td>
+                            <td>
+                              Fired when a checkbox state changes.
+                              <code>checked</code> is the new boolean state;
+                              <code>allChecked</code> is the full array of
+                              currently checked nodes.
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    <!--Section: Code-->
+                    <section class="mb-4 mt-3">
+                      <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">const el = document.getElementById('myTreeview');
+
+el.addEventListener('select.cnds.treeview', (e) => {
+  console.log('Selected:', e.detail.label);
+});
+
+el.addEventListener('expand.cnds.treeview', (e) => {
+  console.log('Expanded:', e.detail.label);
+});
+
+el.addEventListener('check.cnds.treeview', (e) => {
+  console.log('Checked nodes:', e.detail.allChecked);
+});</code></pre>
+                      </div>
+                    </section>
+                    <!--Section: Code-->
+                  </section>
+                  <!--Section: Events-->
+                </section>
+                <!--Section: API Docs-->
+              </section>
+              <!--Section: Docs content-->
+            </div>
+            <!-- ./Main column-->
+
+            <!-- Right Sidebar — 20 % of the row width; hidden below lg breakpoint.
+                 Sticky attributes (processed by nimbus.js):
+                   data-cnds-sticky="true"          : activates sticky positioning
+                   data-cnds-sticky-boundary="true" : constrains sticky to its parent container
+                   data-cnds-sticky-direction="both" : sticks when scrolling up OR down
+                   data-cnds-sticky-offset="56"     : clears the 56 px fixed header
+                   data-cnds-sticky-delay="125"     : debounce delay (ms) to reduce scroll jank
+                 data-cnds-allow-hashes="true" on the <ul>: nimbus.js watches the URL hash
+                   and highlights the matching nav-link as the user scrolls through sections. -->
+            <div class="col-lg-2 d-none d-lg-block">
+              <div class="sticky-top" style="top: 100px; z-index: 1">
+                <ul
+                  class="nav flex-column nav-pills menu-sidebar"
+                  id="rightNav"
+                  data-cnds-allow-hashes="true"
+                >
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-introduction"
+                      >Introduction</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-basic-example-dom"
+                      >Basic example - DOM</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-basic-example-javascript"
+                      >Basic example - JavaScript</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-open-on-click"
+                      >Open on item click</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-accordion">Accordion</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-selectable"
+                      >Checkboxes</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-expand">Expand</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-collapse">Collapse</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-custom-icons-dom"
+                      >Custom icons - DOM</a
+                    >
+                    <ul class="nav flex-column ps-3 list-unstyled">
+                      <li class="nav-item">
+                        <a
+                          class="nav-link"
+                          href="#subsection-custom-icons-javascript"
+                          >Custom icons - JavaScript</a
+                        >
+                      </li>
+                    </ul>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-color">Color</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-line">Connection lines</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-disabled-dom"
+                      >Disabled - DOM</a
+                    >
+                    <ul class="nav flex-column ps-3 list-unstyled">
+                      <li class="nav-item">
+                        <a
+                          class="nav-link"
+                          href="#subsection-disabled-javascript"
+                          >Disabled - JavaScript</a
+                        >
+                      </li>
+                    </ul>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-filter">Filter</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-api-docs"
+                      >API Documentation</a
+                    >
+                    <ul class="nav flex-column ps-3 list-unstyled">
+                      <li class="nav-item">
+                        <a class="nav-link" href="#api-section-usage">Usage</a>
+                      </li>
+                  <li class="nav-item ms-3">
+                    <a class="nav-link" href="#api-section-introduction">Introduction</a>
+                  </li>
+                      <li class="nav-item">
+                        <a class="nav-link" href="#api-section-options">Options</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" href="#api-section-methods">Methods</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" href="#api-section-events">Events</a>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <!-- ./Right Sidebar -->
+          </div>
+          <!-- ./Content Row -->
+        </div>
+      </div>
+      </div>
+    </main>
+    <!-- ./Content -->
+    <!-- Footer -->
+    <div class="cf-footer cf-footer-app">
+      <footer class="page-footer main-footer" aria-label="Site footer">
+        <div class="w-100 px-3 d-flex align-items-center">
+          <img src="img/cf/core/cloudficient_logo_light.svg" class="cf-logo-light" style="width: 135px;" alt="Cloudficient" />
+          <img src="img/cf/core/cloudficient_logo_dark.svg" class="cf-logo-dark" style="width: 135px;" alt="Cloudficient" />
+          <span class="footer-copyright ms-auto">&copy; <span id="currentYear"></span> Cloudficient</span>
+        </div>
+      </footer>
+    </div>
+    <!-- SCRIPTS — load order matters:
+         1. nimbus.js       — core framework: async-loads all core modules and plugins (including treeview),
+                              then auto-inits data-cnds-* elements and fires "cnds.ready"
+         2. app.js          — application-level overrides and custom initialisation
+         3. prism.min.js    — syntax highlighting for <code class="language-*"> blocks; must run after DOM is ready
+         4. sidenav-loader.js — fetches shared sidenav HTML and injects it into #sidebar-cf -->
+    <script type="text/javascript" src="js/nimbus.js?v=9.0.4"></script>
+    <script type="text/javascript" src="js/app.js?v=9.0.4"></script>
+    <script type="text/javascript" src="plugins/js/prism.min.js"></script>
+    <script type="text/javascript" src="js/sidenav-loader.js"></script>
+    <!-- Inline: populate the footer copyright year dynamically so the page never needs a manual update -->
+    <script type="text/javascript">
+      var currentYearElement = document.getElementById("currentYear");
+      if (currentYearElement) {
+        currentYearElement.textContent = new Date().getFullYear();
+      }
+    </script>
+    <!-- Demo scripts — run after nimbus.js has finished async-loading all plugins and auto-initing the DOM.
+         Each demo is wrapped in an IIFE to keep variables scoped; guard clauses exit early if the target
+         element is missing so one missing element cannot break all subsequent demos. -->
+    <script type="text/javascript">
+      function initTreeviewDemos() {
+
+        // ── Basic example — JavaScript data API ──────────────────────────────────
+        // Constructs the tree entirely from a JS data array; no HTML list required.
+        (function () {
+          var el = document.getElementById("sample-element");
+          if (!el) return;
+          new Nimbus.Treeview(el, {
+            data: [
+              { label: "One" },
+              { label: "Two" },
+              { label: "Three", children: [
+                { label: "Second-one" },
+                { label: "Second-two" },
+                { label: "Second-three", children: [
+                  { label: "Third-one", children: [
+                    { label: "Fourth-one" },
+                    { label: "Fourth-two" },
+                    { label: "Fourth-three" }
+                  ]},
+                  { label: "Third-two" },
+                  { label: "Third-three", children: [
+                    { label: "Fourth-one" },
+                    { label: "Fourth-two" },
+                    { label: "Fourth-three" }
+                  ]}
+                ]}
+              ]}
+            ]
+          });
+        })();
+
+        // ── Expand ───────────────────────────────────────────────────────────────
+        // Expands a specific branch by programmatically clicking its toggle button.
+        // Walk from the target <ul> up to its .treeview-children wrapper, then find
+        // the sibling .treeview-toggle to click.
+        (function () {
+          var expandButton = document.getElementById("expand-example-button");
+          if (!expandButton) return;
+          expandButton.addEventListener("click", function () {
+            var targetUl = document.getElementById("level-expand-example-item");
+            if (!targetUl) return;
+            var childrenWrap = targetUl.closest(".treeview-children");
+            if (!childrenWrap || childrenWrap.classList.contains("expanded")) return;
+            var parentNode = childrenWrap.parentElement;
+            var toggle = parentNode && parentNode.querySelector(":scope > .treeview-content > .treeview-toggle");
+            if (toggle) toggle.click();
+          });
+        })();
+
+        // ── Collapse ──────────────────────────────────────────────────────────────
+        // Retrieves the existing Treeview instance via the static getInstance() helper
+        // and calls collapseAll() to close every expanded node at once.
+        (function () {
+          var collapseTreeview = document.getElementById("collapse-example");
+          var collapseButton = document.getElementById("collapse-example-button");
+          if (!collapseTreeview || !collapseButton) return;
+          collapseButton.addEventListener("click", function () {
+            var inst = Nimbus.Treeview.getInstance(collapseTreeview);
+            if (inst) inst.collapseAll();
+          });
+        })();
+
+        // ── Custom icons — JavaScript data API ───────────────────────────────────
+        // Each node passes an icon HTML string; the plugin preserves custom icons
+        // through expand/collapse via the data-cnds-custom-icon marker attribute.
+        (function () {
+          var el = document.getElementById("custom-icons-js");
+          if (!el) return;
+          new Nimbus.Treeview(el, {
+            icons: true,
+            data: [
+              { label: "One",  icon: '<i class="fas fa-dot-circle" aria-hidden="true"></i>' },
+              { label: "Two",  icon: '<i class="fas fa-dot-circle" aria-hidden="true"></i>' },
+              { label: "Three", icon: '<i class="fas fa-angle-double-right" aria-hidden="true"></i>', children: [
+                { label: "Second-one", icon: '<i class="fas fa-dot-circle" aria-hidden="true"></i>' },
+                { label: "Second-two", icon: '<i class="fas fa-dot-circle" aria-hidden="true"></i>' },
+                { label: "Second-three", icon: '<i class="fas fa-angle-double-right" aria-hidden="true"></i>', children: [
+                  { label: "Third-one", icon: '<i class="fas fa-angle-double-right" aria-hidden="true"></i>', children: [
+                    { label: "Fourth-one",   icon: '<i class="fas fa-dot-circle" aria-hidden="true"></i>' },
+                    { label: "Fourth-two",   icon: '<i class="fas fa-dot-circle" aria-hidden="true"></i>' },
+                    { label: "Fourth-three", icon: '<i class="fas fa-dot-circle" aria-hidden="true"></i>' }
+                  ]},
+                  { label: "Third-two", icon: '<i class="fas fa-dot-circle" aria-hidden="true"></i>' },
+                  { label: "Third-three", icon: '<i class="fas fa-angle-double-right" aria-hidden="true"></i>', children: [
+                    { label: "Fourth-one",   icon: '<i class="fas fa-dot-circle" aria-hidden="true"></i>' },
+                    { label: "Fourth-two",   icon: '<i class="fas fa-dot-circle" aria-hidden="true"></i>' },
+                    { label: "Fourth-three", icon: '<i class="fas fa-dot-circle" aria-hidden="true"></i>' }
+                  ]}
+                ]}
+              ]}
+            ]
+          });
+        })();
+
+        // ── Color picker ─────────────────────────────────────────────────────────
+        // Toggles a treeview-{product} modifier class by removing all product classes
+        // first, then adding the selected one. Pure CSS — no Treeview instance needed.
+        (function () {
+          var products = ["casefusion", "expireon", "hyperlize"];
+          var colorEl = document.getElementById("color-example");
+          var currentColorEl = document.getElementById("current-color");
+          if (!colorEl) return;
+          products.forEach(function (id) {
+            var btn = document.getElementById(id);
+            if (!btn) return;
+            btn.addEventListener("click", function () {
+              products.forEach(function (p) { colorEl.classList.remove("treeview-" + p); });
+              colorEl.classList.add("treeview-" + id);
+              if (currentColorEl) currentColorEl.textContent = id;
+            });
+          });
+        })();
+
+        // ── Disabled — JavaScript data API ───────────────────────────────────────
+        // Nodes with disabled:true receive pointer-events:none + reduced opacity;
+        // icons: false suppresses folder/file icons for this plain-text demo.
+        (function () {
+          var el = document.getElementById("disabled-element");
+          if (!el) return;
+          new Nimbus.Treeview(el, {
+            icons: false,
+            data: [
+              { label: "One", disabled: true },
+              { label: "Two" },
+              { label: "Three", children: [
+                { label: "Second-one" },
+                { label: "Second-two" },
+                { label: "Second-three", disabled: true, children: [
+                  { label: "Third-one", children: [
+                    { label: "Fourth-one" },
+                    { label: "Fourth-two" },
+                    { label: "Fourth-three" }
+                  ]},
+                  { label: "Third-two" },
+                  { label: "Third-three", children: [
+                    { label: "Fourth-one" },
+                    { label: "Fourth-two" },
+                    { label: "Fourth-three" }
+                  ]}
+                ]}
+              ]}
+            ]
+          });
+        })();
+
+        // ── Filter ────────────────────────────────────────────────────────────────
+        // Calls filter(term) on the existing DataAPI-initialized instance on every
+        // input event. Passing "" resets visibility and collapses the filter state.
+        (function () {
+          var filterTreeview = document.getElementById("filter-example");
+          var filterInput = document.getElementById("form1");
+          if (!filterTreeview || !filterInput) return;
+          var filterInstance = Nimbus.Treeview.getInstance(filterTreeview);
+          if (!filterInstance) return;
+          filterInput.addEventListener("input", function () {
+            filterInstance.filter(filterInput.value);
+          });
+        })();
+
+      }
+
+      // cnds.ready fires after nimbus.js has async-loaded every plugin and run DataAPI.init().
+      // Fall back to calling directly if it has already fired (e.g. cached scripts).
+      if (window.Nimbus && window.Nimbus.Treeview) {
+        initTreeviewDemos();
+      } else {
+        document.addEventListener("cnds.ready", initTreeviewDemos);
+      }
+    </script>
+  </body>
+</html>

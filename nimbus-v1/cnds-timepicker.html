@@ -1,0 +1,1858 @@
+<!--
+* CNDS Nimbus Design System — Timepicker
+* Version: 1.0.0
+* Layout: Application with SideNav (migrated from Nimbus v8 template)
+* NOTES
+- Pure HTML5, CSS3, vanilla JavaScript — zero external dependencies
+- Uses data-cnds-* attributes (replaces data-mdb-*)
+- Uses Nimbus.* namespace (replaces mdb.*)
+- Default product theme: CaseFusion (cnds-product-casefusion on <body>; change to cnds-product-hyperlize or cnds-product-expireon)
+-->
+<!doctype html>
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta
+      name="description"
+      content="Timepicker | Cloudficient Nimbus Design System v1.0.0"
+    />
+    <title>
+      Timepicker | CNDS v1.0.0 | Cloudficient Nimbus Design System
+    </title>
+    <!-- Nimbus CSS -->
+    <link rel="stylesheet" href="css/nimbus.css" media="all" type="text/css" />
+    <!-- Custom styles | All custom classes/styles/overrides go here! -->
+    <link rel="stylesheet" href="css/app.css" media="all" type="text/css" />
+    <!-- Prism syntax highlighting -->
+    <link rel="stylesheet" href="plugins/css/prism.min.css" media="all" type="text/css" />
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="img/favicon/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="60x60" href="img/favicon/apple-icon-60x60.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="img/favicon/apple-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76" href="img/favicon/apple-icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="img/favicon/apple-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="img/favicon/apple-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="img/favicon/apple-icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="img/favicon/apple-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-icon-180x180.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="img/favicon/android-icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="img/favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="img/favicon/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="msapplication-TileImage" content="img/favicon/ms-icon-144x144.png" />
+    <!-- Design tokens — load order matters:
+         1. primitives.css  — raw color/spacing values (no theming)
+         2. light.css       — semantic tokens for [data-cnds-theme="light"] / :root
+         3. dark.css        — semantic token overrides for [data-cnds-theme="dark"]
+         All three must appear AFTER nimbus.css so component variables resolve correctly. -->
+    <link rel="stylesheet" href="css/themes/primitives.css" />
+    <link rel="stylesheet" href="css/themes/light.css" />
+    <link rel="stylesheet" href="css/themes/dark.css" />
+  </head>
+
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 Bypass Blocks; renders visually hidden until focused -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+    <!-- Header -->
+    <div class="sticky-top">
+      <!-- Utility Navigation -->
+      <nav id="UtilityNav" class="nav nav-cf-utility">
+        <div class="w-100 gx-3 px-sm-0 px-lg-3">
+          <ul class="nav nav-cf-utility-ul"></ul>
+        </div>
+      </nav>
+      <!-- ./Utility Navigation -->
+      <!-- Main Navigation -->
+      <nav id="MainNav" class="navbar navbar-expand-xl navbar-cf">
+        <div class="container-fluid p-0 px-3 d-flex">
+          <div class="d-flex flex-fill align-items-center text-truncate">
+            <div class="text-center d-none d-md-block me-3 border-end">
+              <a href="index.html"><img src="img/cf/core/logo_nimbus.png" class="me-3 mt-n1" alt="Cloudficient Nimbus Design System" /></a>
+            </div>
+            <div class="flex-fill text-truncate">
+              <div class="navbar-cf-title-block">
+                <div class="navbar-cf-title cf-page-title text-truncate" style="padding-bottom: 0;">
+                  <span class="cf-page-title-text cf-page-title-brand">v1</span>
+                  <span class="cf-page-title-divider"></span>
+                  <span class="cf-page-title-text">Timepicker</span>
+                  </div>
+              </div>
+            </div>
+          </div>
+          <!-- data-cnds-toggle="theme": wired by nimbus.js — flips data-cnds-theme on <html> between "light" and "dark" -->
+          <button class="btn btn-sm btn-outline-secondary ms-2" data-cnds-toggle="theme" aria-label="Toggle theme" title="Toggle theme">
+            <i class="mdi mdi-weather-night mdi-18px" aria-hidden="true"></i>
+          </button>
+        </div>
+      </nav>
+      <!-- ./Main Navigation -->
+    </div>
+    <!-- ./Header -->
+    <!-- Content -->
+    <main id="main-content" class="cf-main-app">
+      <!-- Mobile viewport warning -->
+      <div class="d-block d-md-none p-4">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>This application is not optimized for small screens. Please use a large tablet, laptop, or desktop computer to continue.
+        </div>
+      </div>
+      <div class="d-none d-md-block">
+        <!-- Sidenav — markup is intentionally empty; sidenav-loader.js fetches and injects the shared nav HTML.
+             data-cnds-mode="side"           : renders as a persistent side panel (not an overlay/drawer)
+             data-cnds-slim / slim-collapsed : controls compact/icon-only collapsed state
+             data-cnds-content="#slim-content": the sibling panel that shrinks/expands as the nav opens/closes
+             data-cnds-accordion="true"      : collapses other open nav groups when a new one is expanded -->
+        <nav
+          id="sidebar-cf"
+          class="sidenav"
+          data-cnds-mode="side"
+          data-cnds-slim="false"
+          data-cnds-slim-collapsed="false"
+          data-cnds-content="#slim-content"
+          data-cnds-accordion="true"
+        ></nav>
+        <div id="slim-content">
+          <div class="slim-content-box">
+            <!-- Content Row -->
+            <div class="row">
+              <!-- Main column — 80 % of the row width; the remaining 20 % is the right sidebar.
+                   The inline flex overrides are intentional: they pin the ratio regardless of Bootstrap's
+                   grid breakpoints so the sidebar never wraps on large viewports. -->
+              <div class="col-12 col-lg" style="flex: 0 0 80%; max-width: 80%">
+              <!--Section: Docs content-->
+              <section class="container-fluid">
+                <!--Section: Introduction-->
+                <section id="section-introduction">
+                  <!-- Description -->
+                  <p class="mb-4">
+                    The Nimbus Timepicker is a spinner-based time selection widget that integrates directly with standard form inputs. It supports 12-hour and 24-hour formats, inline display, custom icons, min/max time constraints, and minute increment snapping — all configurable through HTML data attributes or JavaScript options.
+                  </p>
+                  <p class="mb-4">
+                    Add <code>data-cnds-timepicker-init</code> to any
+                    <code>.timepicker</code> wrapper to auto-initialize on page
+                    load, or call <code>new Nimbus.Timepicker(element, options)</code>
+                    programmatically. Use the Timepicker when capturing a time-of-day
+                    value independently; pair it with the Datepicker inside the
+                    <a href="cnds-datetimepicker.html">DateTimepicker</a> pattern when
+                    both a date and a time are needed.
+                  </p>
+                  <p class="note note-light">
+                    <strong>Note:</strong> Read the
+                    <a href="#section-api-docs">API Documentation</a> to
+                    find all available options and advanced customization
+                  </p>
+                  <p class="note note-info"><strong>Note:</strong> To preview components in different themes, click the theme toggle button <i class="mdi mdi-weather-night" aria-hidden="true"></i> / <i class="mdi mdi-weather-sunny" aria-hidden="true"></i> in the header navigation bar.</p>
+                </section>
+                <!--/Section: Introduction-->
+                <hr class="my-5" />
+                <!--Section: Basic example-->
+                <section id="section-basic-example">
+                  <!-- Section title -->
+                  <h3 class="mb-3">Basic example</h3>
+                  <p>
+                    Add <code>data-cnds-timepicker-init</code> to any <code>.timepicker</code> wrapper to initialize the component automatically on page load. Place a <code>&lt;label class="cf-input-label"&gt;</code> as the first child inside the wrapper and a plain <code>&lt;input type="text"&gt;</code> after it. No additional JavaScript is required for the default configuration.
+                  </p>
+                  <!-- Angular: Remove data-cnds-timepicker-init from the template; obtain the wrapper with @ViewChild and call new Nimbus.Timepicker(el) in ngAfterViewInit.
+                       Example: @ViewChild('tpBasic') wrapperRef!: ElementRef; ngAfterViewInit() { this.tp = new (window as any).Nimbus.Timepicker(this.wrapperRef.nativeElement); }
+                       Always call this.tp?.dispose() in ngOnDestroy to remove the dropdown and event listeners. -->
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section
+                        class="w-100 p-4 d-flex justify-content-center pb-4"
+                      >
+                        <div class="w-25">
+                          <div
+                            class="timepicker"
+                            data-cnds-timepicker-init
+                          >
+                            <label for="form11" class="cf-input-label">Select a time</label>
+                            <input type="text" class="form-control" id="form11" />
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!--Code: HTML-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div class="timepicker" data-cnds-timepicker-init&gt;
+    &lt;label for="form11" class="cf-input-label"&gt;Select a time&lt;/label&gt;
+    &lt;input type="text" class="form-control" id="form11" /&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--/Code: HTML-->
+                </section>
+                <!--/Section: Basic example-->
+
+                <hr class="my-5" />
+
+                <!--Section: Sizing-->
+                <section id="section-sizing">
+                  <!-- Section title -->
+                  <h3 class="mb-3">Sizing</h3>
+
+                  <p>
+                    Three sizes are available. Add <code>.cf-input-field-sm</code> or
+                    <code>.cf-input-field-lg</code> directly to the <code>.timepicker</code>
+                    wrapper — the label, input padding, and font all scale together.
+                  </p>
+                  <!-- Angular: Accept a size @Input() and compose the wrapper class string dynamically with [class] or [ngClass]; instantiate the picker in ngAfterViewInit.
+                       Example: <div #tpSized [class]="sizeClass"> where sizeClass returns 'timepicker cf-input-field-sm' | 'timepicker' | 'timepicker cf-input-field-lg' based on the @Input().
+                       All three size variants can live in the same component or as separate instances with different @Input() values. -->
+
+                  <div class="table-responsive mb-4">
+                    <table class="table table-sm" aria-label="Sizing">
+                      <thead>
+                        <tr>
+                          <th>Modifier class</th>
+                          <th>Label</th>
+                          <th>Input font</th>
+                          <th>Vertical padding</th>
+                          <th>Horizontal padding</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr><td><code>.cf-input-field-sm</code></td><td>13px / 700</td><td>13px</td><td>8px</td><td>12px</td></tr>
+                        <tr><td><em>(default)</em></td><td>14px / 800</td><td>14px</td><td>12px</td><td>20px</td></tr>
+                        <tr><td><code>.cf-input-field-lg</code></td><td>16px / 700</td><td>16px</td><td>14px</td><td>24px</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section class="w-100 p-4 d-flex justify-content-center align-items-end gap-4 pb-4">
+                        <div style="width: 200px;">
+                          <div class="timepicker cf-input-field-casefusion cf-input-field-lg" data-cnds-timepicker-init>
+                            <label for="tpSizeLg" class="cf-input-label">Large</label>
+                            <input type="text" class="form-control" id="tpSizeLg" />
+                          </div>
+                        </div>
+                        <div style="width: 200px;">
+                          <div class="timepicker cf-input-field-casefusion" data-cnds-timepicker-init>
+                            <label for="tpSizeDefault" class="cf-input-label">Default</label>
+                            <input type="text" class="form-control" id="tpSizeDefault" />
+                          </div>
+                        </div>
+                        <div style="width: 200px;">
+                          <div class="timepicker cf-input-field-casefusion cf-input-field-sm" data-cnds-timepicker-init>
+                            <label for="tpSizeSm" class="cf-input-label">Small</label>
+                            <input type="text" class="form-control" id="tpSizeSm" />
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--/Section: Demo-->
+
+                  <!--Code: HTML-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0"><code class="language-html">&lt;!-- Large --&gt;
+&lt;div class="timepicker cf-input-field-casefusion cf-input-field-lg" data-cnds-timepicker-init&gt;
+    &lt;label for="tpSizeLg" class="cf-input-label"&gt;Large&lt;/label&gt;
+    &lt;input type="text" class="form-control" id="tpSizeLg" /&gt;
+&lt;/div&gt;
+
+&lt;!-- Default --&gt;
+&lt;div class="timepicker cf-input-field-casefusion" data-cnds-timepicker-init&gt;
+    &lt;label for="tpSizeDefault" class="cf-input-label"&gt;Default&lt;/label&gt;
+    &lt;input type="text" class="form-control" id="tpSizeDefault" /&gt;
+&lt;/div&gt;
+
+&lt;!-- Small --&gt;
+&lt;div class="timepicker cf-input-field-casefusion cf-input-field-sm" data-cnds-timepicker-init&gt;
+    &lt;label for="tpSizeSm" class="cf-input-label"&gt;Small&lt;/label&gt;
+    &lt;input type="text" class="form-control" id="tpSizeSm" /&gt;
+&lt;/div&gt;</code></pre>
+                    </div>
+                  </section>
+                  <!--/Code: HTML-->
+                </section>
+                <!--/Section: Sizing-->
+
+                <hr class="my-5" />
+
+                <!--Section: Product example-->
+                <section id="section-product-example">
+                  <!-- Section title -->
+                  <h3 class="mb-3">Product themes</h3>
+                  <p>
+                    Add the product modifier class directly on the <code>.timepicker</code> wrapper to apply the matching focus color. Each product has light and dark variants defined automatically.
+                  </p>
+                  <!-- Angular: Bind the product modifier class dynamically using [ngClass] based on a @Input(); instantiate each picker in ngAfterViewInit.
+                       Example: <div #tpProduct [ngClass]="'timepicker ' + productClass"> where productClass is 'cf-input-field-casefusion', 'cf-input-field-expireon', or 'cf-input-field-hyperlize'.
+                       Each product variant is a separate picker instance — call dispose() on each in ngOnDestroy. -->
+
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section class="w-100 p-4 d-flex justify-content-center gap-5 pb-4">
+                        <div style="width: 200px;">
+                          <div class="timepicker cf-input-field-casefusion" data-cnds-timepicker-init>
+                            <label for="form-prod-cf" class="cf-input-label">CasFusion</label>
+                            <input type="text" class="form-control" id="form-prod-cf" />
+                          </div>
+                        </div>
+                        <div style="width: 200px;">
+                          <div class="timepicker cf-input-field-expireon" data-cnds-timepicker-init>
+                            <label for="form-prod-ex" class="cf-input-label">Expireon</label>
+                            <input type="text" class="form-control" id="form-prod-ex" />
+                          </div>
+                        </div>
+                        <div style="width: 200px;">
+                          <div class="timepicker cf-input-field-hyperlize" data-cnds-timepicker-init>
+                            <label for="form-prod-hy" class="cf-input-label">Hyperlize</label>
+                            <input type="text" class="form-control" id="form-prod-hy" />
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+
+                  <!--Code: HTML-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0"><code class="language-html">&lt;!-- CasFusion --&gt;
+&lt;div class="timepicker cf-input-field-casefusion" data-cnds-timepicker-init&gt;
+    &lt;label for="form-prod-cf" class="cf-input-label"&gt;CasFusion&lt;/label&gt;
+    &lt;input type="text" class="form-control" id="form-prod-cf" /&gt;
+&lt;/div&gt;
+
+&lt;!-- Expireon --&gt;
+&lt;div class="timepicker cf-input-field-expireon" data-cnds-timepicker-init&gt;
+    &lt;label for="form-prod-ex" class="cf-input-label"&gt;Expireon&lt;/label&gt;
+    &lt;input type="text" class="form-control" id="form-prod-ex" /&gt;
+&lt;/div&gt;
+
+&lt;!-- Hyperlize --&gt;
+&lt;div class="timepicker cf-input-field-hyperlize" data-cnds-timepicker-init&gt;
+    &lt;label for="form-prod-hy" class="cf-input-label"&gt;Hyperlize&lt;/label&gt;
+    &lt;input type="text" class="form-control" id="form-prod-hy" /&gt;
+&lt;/div&gt;</code></pre>
+                    </div>
+                  </section>
+                  <!--/Code: HTML-->
+                </section>
+                <!--/Section: Product example-->
+
+                <hr class="my-5" />
+                <!--Section: Inline12-->
+                <section id="section-inline-12">
+                  <!-- Section title -->
+                  <h3 class="mb-3">Inline Timepicker with 12h</h3>
+                  <p>
+                    Use the <code>inline</code> option to render the Timepicker widget directly on the page without a dropdown. The default format is 12-hour with AM/PM selection.
+                  </p>
+                  <!-- Angular: Pass { inline: true } to the constructor in ngAfterViewInit; the picker renders immediately into the wrapper without a dropdown.
+                       Example: this.tp = new (window as any).Nimbus.Timepicker(this.wrapperRef.nativeElement, { inline: true });
+                       Listen for the change.cnds.timepicker DOM event via RxJS fromEvent or a native addEventListener to react to spinner value changes. -->
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section
+                        class="w-100 p-4 d-flex justify-content-center pb-4"
+                      >
+                        <div class="w-25">
+                          <div class="timepicker-inline-12">
+                            <label for="form41" class="cf-input-label">Select a time</label>
+                            <input type="text" class="form-control" id="form41" />
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!--Code: HTML-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div class="timepicker-inline-12"&gt;
+    &lt;label for="form41" class="cf-input-label"&gt;Select a time&lt;/label&gt;
+    &lt;input type="text" class="form-control" id="form41" /&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--/Code: HTML-->
+                  <!--Code: JS-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-js">
+const pickerInline12 = document.querySelector('.timepicker-inline-12');
+const timepickerInline12 = new Nimbus.Timepicker(pickerInline12, {
+  inline: true
+});
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--/Code: JS-->
+                </section>
+                <!--/Section: Inline12-->
+                <hr class="my-5" />
+                <!--Section: Inline24-->
+                <section id="section-inline-24">
+                  <!-- Section title -->
+                  <h3 class="mb-3">Inline Timepicker with 24h</h3>
+                  <p>
+                    To render the Timepicker inline in 24-hour format, set <code>inline: true</code> and <code>format12: false</code>. The AM/PM toggle is hidden in 24-hour mode.
+                  </p>
+                  <!-- Angular: Add format12: false to the options object alongside inline: true; the AM/PM buttons are suppressed automatically with no template change required.
+                       Example: this.tp = new (window as any).Nimbus.Timepicker(this.wrapperRef.nativeElement, { inline: true, format12: false });
+                       The 24-hour inline pattern is identical to the 12-hour pattern — only the constructor options differ. -->
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section
+                        class="w-100 p-4 d-flex justify-content-center pb-4"
+                      >
+                        <div class="w-25">
+                          <div class="timepicker-inline-24">
+                            <label for="form43" class="cf-input-label">Select a time</label>
+                            <input type="text" class="form-control" id="form43" />
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!--Code: HTML-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div class="timepicker-inline-24"&gt;
+    &lt;label for="form43" class="cf-input-label"&gt;Select a time&lt;/label&gt;
+    &lt;input type="text" class="form-control" id="form43" /&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--/Code: HTML-->
+                  <!--Code: JS-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-js">
+const pickerInline24 = document.querySelector('.timepicker-inline-24');
+const timepickerInline24 = new Nimbus.Timepicker(pickerInline24, {
+  format12: false,
+  inline: true
+});
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--/Code: JS-->
+                </section>
+                <!--/Section: Inline24-->
+                <hr class="my-5" />
+                <!--Section: Custom Icon-->
+                <section id="section-with-custom-icon">
+                  <!-- Section title -->
+                  <h3 class="mb-3">Custom Icon</h3>
+                  <p>
+                    Replace the default clock icon with your own custom icon by adding class
+                    <code>timepicker-toggle-button</code> to your toggle element. If using a
+                    <code>&lt;button&gt;</code>, place the icon <code>&lt;i&gt;</code> inside it
+                    and add <code>timepicker-icon</code> to the icon only — this sets
+                    <code>pointer-events: none</code> so clicks pass through to the button.
+                    If using a bare icon element as the toggle, use only
+                    <code>timepicker-toggle-button</code> (not <code>timepicker-icon</code>).
+                  </p>
+                  <!--Subsection: Subsection-with-button-->
+                  <section id="subsection-with-button">
+                    <!--Subsection title-->
+                    <h4 class="mt-5">With button</h4>
+                    <!--Description-->
+                    <p>Wrap the custom icon in a <code>&lt;button&gt;</code> element with <code>class="timepicker-toggle-button"</code> and <code>data-cnds-toggle="timepicker"</code>. This provides a focusable, keyboard-accessible toggle target.</p>
+                    <!-- Angular: The <button class="timepicker-toggle-button"> needs no Angular binding; the picker discovers it automatically and wires its click handler at init time.
+                         Example: <div #tpCustomBtn class="timepicker"><input /><button class="timepicker-toggle-button" aria-label="Timer"><i class="mdi mdi-timer timepicker-icon" aria-hidden="true"></i></button></div>
+                         Use @ViewChild on the wrapper and instantiate with new Nimbus.Timepicker(el) in ngAfterViewInit as with any other picker variant. -->
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="bg-white border rounded-5">
+                        <section
+                          class="w-100 p-4 d-flex justify-content-center pb-4"
+                        >
+                          <div class="w-25">
+                            <div
+                              class="timepicker"
+                              data-cnds-timepicker-init
+                            >
+                              <label for="form214" class="cf-input-label">Select a time</label>
+                              <input
+                                type="text"
+                                class="form-control"
+                                id="form214"
+                              />
+                              <button
+                                tabindex="0"
+                                type="button"
+                                class="timepicker-toggle-button"
+                               aria-label="Timer">
+                                <i
+                                  class="mdi mdi-timer mdi-18px timepicker-icon"
+                                 aria-hidden="true"></i>
+                              </button>
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--Section: Demo-->
+                    <!--Code: HTML-->
+                    <section class="mb-4">
+                      <h5><span class="badge badge-code-html">HTML</span></h5>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div class="timepicker" data-cnds-timepicker-init&gt;
+    &lt;label for="form214" class="cf-input-label"&gt;Select a time&lt;/label&gt;
+    &lt;input type="text" class="form-control" id="form214" /&gt;
+    &lt;button tabindex="0" type="button" class="timepicker-toggle-button"&gt;
+        &lt;i class="mdi mdi-timer mdi-18px timepicker-icon"&gt;&lt;/i&gt;
+    &lt;/button&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                      </div>
+                    </section>
+                    <!--/Code: HTML-->
+                  </section>
+                  <!--/Subsection: Subsection-with-button-->
+                  <hr class="my-5" />
+                  <!--Subsection: Subsection-with-icon-->
+                  <section id="subsection-with-icon">
+                    <!--Subsection title-->
+                    <h4 class="mt-5">With icon</h4>
+                    <!--Description-->
+                    <p>Use an <code>&lt;i&gt;</code> element with <code>class="timepicker-toggle-button"</code> directly inside the wrapper to use an icon alone as the toggle, without a button container. Do not add <code>timepicker-icon</code> to the element itself — that class sets <code>pointer-events: none</code> and is only for icons placed <em>inside</em> a toggle button.</p>
+                    <!-- Angular: Use a bare <i class="timepicker-toggle-button"> inside the wrapper as the icon toggle; the picker discovers it automatically without a data attribute.
+                         Example: <i class="mdi mdi-timer mdi-18px timepicker-toggle-button" tabindex="0" role="button" aria-hidden="true"></i> alongside the label and input inside the wrapper <div>.
+                         Do not add timepicker-icon to the <i> itself — that class sets pointer-events: none and is only for icons nested inside a <button> toggle. -->
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="bg-white border rounded-5">
+                        <section
+                          class="w-100 p-4 d-flex justify-content-center pb-4"
+                        >
+                          <div class="w-25">
+                            <div
+                              class="timepicker"
+                              data-cnds-timepicker-init
+                            >
+                              <label for="form2" class="cf-input-label">Select a time</label>
+                              <input
+                                type="text"
+                                class="form-control"
+                                id="form2"
+                              />
+                              <i
+                                class="mdi mdi-timer mdi-18px timepicker-toggle-button"
+                                tabindex="0"
+                                role="button"
+                               aria-hidden="true"></i>
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--Section: Demo-->
+                    <!--Code: HTML-->
+                    <section class="mb-4">
+                      <h5><span class="badge badge-code-html">HTML</span></h5>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div class="timepicker" data-cnds-timepicker-init&gt;
+    &lt;label for="form2" class="cf-input-label"&gt;Select a time&lt;/label&gt;
+    &lt;input type="text" class="form-control" id="form2" /&gt;
+    &lt;i class="mdi mdi-timer mdi-18px timepicker-toggle-button" tabindex="0" role="button"&gt;&lt;/i&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                      </div>
+                    </section>
+                    <!--/Code: HTML-->
+                  </section>
+                  <!--/Subsection: Subsection-with-icon-->
+                </section>
+                <!--/Section: Custom Icon-->
+                <hr class="my-5" />
+                <!--Section: Without icon-->
+                <section id="section-without-icon">
+                  <!-- Section title -->
+                  <h3 class="mb-3">Without icon</h3>
+                  <p>
+                    Pass <code>withIcon: false</code> in the JavaScript options (or set <code>data-cnds-with-icon="false"</code> as a data attribute) to suppress the built-in clock icon toggle entirely. Because there is no icon to click, you must open the picker programmatically — for example by wiring a separate button to <code>tp.open()</code>.
+                  </p>
+                  <!-- Angular: Pass { withIcon: false } and wire an external button's (click) event to a component method that calls tp.open(); no directive or data attribute is needed.
+                       Example: <button class="btn btn-primary" (click)="openPicker()">Open Timepicker</button> with openPicker() { this.tp?.open(); } in the component.
+                       Store the picker instance in a component property so open() and dispose() can be called from any method. -->
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section
+                        class="w-100 p-4 d-flex justify-content-center mb-4 flex-column align-items-center"
+                      >
+                        <div class="d-flex align-items-end gap-2">
+                          <div id="timepicker-without-icon" style="width: 200px;">
+                            <label for="form12" class="cf-input-label">Select a time</label>
+                            <input
+                              type="text"
+                              class="form-control"
+                              id="form12"
+                            />
+                          </div>
+                          <button
+                            id="btn-timepicker-without-icon"
+                            class="btn btn-primary"
+                          >
+                            Open Timepicker
+                          </button>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!--Code: HTML-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div id="timepicker-without-icon"&gt;
+    &lt;label for="form12" class="cf-input-label"&gt;Select a time&lt;/label&gt;
+    &lt;input type="text" class="form-control" id="form12" /&gt;
+&lt;/div&gt;
+&lt;button id="btn-timepicker-without-icon" class="btn btn-primary"&gt;
+    Open Timepicker
+&lt;/button&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--/Code: HTML-->
+                  <!--Code: JS-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-js">
+const tp = new Nimbus.Timepicker(document.querySelector('#timepicker-without-icon'), { withIcon: false });
+document.querySelector('#btn-timepicker-without-icon').addEventListener('click', function () {
+    tp.open();
+});
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--/Code: JS-->
+                </section>
+                <!--/Section: Without icon-->
+                <hr class="my-5" />
+                <!--Section: No arrows-->
+                <section id="section-no-arrows">
+                  <!-- Section title -->
+                  <h3 class="mb-3">No arrows</h3>
+                  <p>
+                    Pass <code>showArrows: false</code> in the JavaScript options (or set <code>data-cnds-show-arrows="false"</code> as a data attribute) to render a compact spinner without the up/down chevron buttons. The hour and minute digits, AM/PM toggle, and footer actions (Clear / Now / OK) remain available.
+                  </p>
+                  <!-- Angular: Pass { showArrows: false } to the Timepicker constructor, or set [attr.data-cnds-show-arrows]="false" on the wrapper if using data-cnds-timepicker-init. -->
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section
+                        class="w-100 p-4 d-flex justify-content-center pb-4"
+                      >
+                        <div class="w-25">
+                          <div
+                            class="timepicker"
+                            data-cnds-timepicker-init
+                            data-cnds-show-arrows="false"
+                          >
+                            <label for="form-no-arrows" class="cf-input-label">Select a time</label>
+                            <input type="text" class="form-control" id="form-no-arrows" />
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!--Code: HTML-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div class="timepicker" data-cnds-timepicker-init data-cnds-show-arrows="false"&gt;
+    &lt;label for="form-no-arrows" class="cf-input-label"&gt;Select a time&lt;/label&gt;
+    &lt;input type="text" class="form-control" id="form-no-arrows" /&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--/Code: HTML-->
+                </section>
+                <!--/Section: No arrows-->
+                <hr class="my-5" />
+                <!--Section: Default time-->
+                <section id="section-default-time">
+                  <!-- Section title -->
+                  <h3 class="mb-3">Default time</h3>
+                  <p>
+                    Use the <code>defaultHour</code> and <code>defaultMinute</code> options to pre-populate the picker when it first opens. To initialize from the current time, read the values from <code>new Date()</code> at initialization:
+                  </p>
+                  <p class="note note-info">
+                    <strong>Note:</strong> For 24-hour format, set <code>format12: false</code>. For 12-hour format (the default), the picker opens in AM by default unless the hour value indicates PM. The <code>defaultHour</code> value should be in 24-hour notation (0–23) regardless of the display format.
+                  </p>
+                  <!-- Angular: Pass defaultHour and defaultMinute as @Input() properties into the options object; compute new Date() inside ngAfterViewInit (not the template) for current-time defaults.
+                       Example: this.tp = new Nimbus.Timepicker(el, { format12: this.format12, defaultHour: this.defaultHour ?? now.getHours(), defaultMinute: this.defaultMinute ?? now.getMinutes() });
+                       defaultHour always uses 24-hour notation (0–23) regardless of the display format; the picker handles AM/PM conversion automatically. -->
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section
+                        class="w-100 p-4 mb-4 d-flex justify-content-center gap-4 flex-wrap"
+                      >
+                        <div style="width: 200px;">
+                          <div class="timepicker-default-time-string-am">
+                            <label for="form27" class="cf-input-label">Default 9:15 AM</label>
+                            <input type="text" class="form-control" id="form27" />
+                          </div>
+                        </div>
+                        <div style="width: 200px;">
+                          <div class="timepicker-default-time-string-pm">
+                            <label for="form28" class="cf-input-label">Default 2:30 PM</label>
+                            <input type="text" class="form-control" id="form28" />
+                          </div>
+                        </div>
+                        <div style="width: 200px;">
+                          <div class="timepicker-default-time-string-24h">
+                            <label for="form29" class="cf-input-label">Default 23:44 (24h)</label>
+                            <input type="text" class="form-control" id="form29" />
+                          </div>
+                        </div>
+                        <div style="width: 200px;">
+                          <div class="timepicker-default-time-with-new-date-12h">
+                            <label for="form210" class="cf-input-label">Current time (12h)</label>
+                            <input type="text" class="form-control" id="form210" />
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!--Code: HTML-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div class="timepicker-default-time-string-am"&gt;
+    &lt;label for="form27" class="cf-input-label"&gt;Default 9:15 AM&lt;/label&gt;
+    &lt;input type="text" class="form-control" id="form27" /&gt;
+&lt;/div&gt;
+&lt;div class="timepicker-default-time-string-pm"&gt;
+    &lt;label for="form28" class="cf-input-label"&gt;Default 2:30 PM&lt;/label&gt;
+    &lt;input type="text" class="form-control" id="form28" /&gt;
+&lt;/div&gt;
+&lt;div class="timepicker-default-time-string-24h"&gt;
+    &lt;label for="form29" class="cf-input-label"&gt;Default 23:44 (24h)&lt;/label&gt;
+    &lt;input type="text" class="form-control" id="form29" /&gt;
+&lt;/div&gt;
+&lt;div class="timepicker-default-time-with-new-date-12h"&gt;
+    &lt;label for="form210" class="cf-input-label"&gt;Current time (12h)&lt;/label&gt;
+    &lt;input type="text" class="form-control" id="form210" /&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--/Code: HTML-->
+                  <!--Code: JS-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-js">
+// 9:15 AM — defaultHour uses 24h notation (0–23); timepicker handles AM/PM conversion
+new Nimbus.Timepicker(document.querySelector('.timepicker-default-time-string-am'), {
+    defaultHour: 9, defaultMinute: 15
+});
+// 2:30 PM — hour 14 in 24h notation → displayed as 2:30 PM in 12h format
+new Nimbus.Timepicker(document.querySelector('.timepicker-default-time-string-pm'), {
+    defaultHour: 14, defaultMinute: 30
+});
+// 23:44 in 24h format
+new Nimbus.Timepicker(document.querySelector('.timepicker-default-time-string-24h'), {
+    defaultHour: 23, defaultMinute: 44, format12: false
+});
+// Current time — pass getHours() directly; timepicker derives AM/PM from the 24h value
+const now = new Date();
+new Nimbus.Timepicker(document.querySelector('.timepicker-default-time-with-new-date-12h'), {
+    defaultHour: now.getHours(), defaultMinute: now.getMinutes()
+});
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--/Code: JS-->
+                </section>
+                <!--/Section: Default time-->
+                <hr class="my-5" />
+                <!--Section: Handle input value-->
+                <section id="section-handle-input-value">
+                  <!-- Section title -->
+                  <h3 class="mb-3">Handle input value</h3>
+                  <p>
+                    To read the selected time when the user confirms the picker, listen for the <code>valueChanged.cnds.timepicker</code> event on the wrapper element. The event fires immediately when the input value is set.
+                  </p>
+                  <!-- Angular: Listen for the change.cnds.timepicker DOM event in ngAfterViewInit and emit the formatted value via an @Output() EventEmitter for the parent to react.
+                       Example: el.addEventListener('change.cnds.timepicker', (e) => { this.selectedTime = e.detail.formatted; this.timeChange.emit(e.detail.formatted); });
+                       RxJS fromEvent(el, 'change.cnds.timepicker') can replace the native addEventListener for cleaner subscription management with takeUntilDestroyed. -->
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section
+                        class="w-100 p-4 d-flex justify-content-center mb-4 flex-column align-items-center"
+                      >
+                        <div class="w-25">
+                          <div
+                            id="timepicker-value"
+                          >
+                            <label for="form3" class="cf-input-label">Select a time</label>
+                            <input
+                              type="text"
+                              class="form-control"
+                              id="form3"
+                            />
+                          </div>
+                          <div class="my-2">
+                            Input value: <span id="span-input-value"></span>
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!--Code: HTML-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div id="timepicker-value"&gt;
+    &lt;label for="form3" class="cf-input-label"&gt;Select a time&lt;/label&gt;
+    &lt;input type="text" class="form-control" id="form3" /&gt;
+&lt;/div&gt;
+&lt;div class="my-2"&gt;Input value: &lt;span id="span-input-value"&gt;&lt;/span&gt;&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--/Code: HTML-->
+                  <!--Code: JS-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-js">
+const timepickerValue = document.querySelector('#timepicker-value');
+const tminputValue = new Nimbus.Timepicker(timepickerValue);
+timepickerValue.addEventListener('change.cnds.timepicker', (e) => {
+  const valueDiv = document.querySelector('#span-input-value');
+  valueDiv.textContent = e.detail.formatted;
+});
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--/Code: JS-->
+                </section>
+                <!--/Section: Handle input value-->
+                <hr class="my-5" />
+                <!--Section: Format 24h-->
+                <section id="section-format24">
+                  <!-- Section title -->
+                  <h3 class="mb-3">Format 24h</h3>
+                  <p>
+                    Timepicker allows you to use 24-hour format. You
+                    can set it with the JavaScript option <code>format12: false</code> or with the
+                    data attribute <code>data-cnds-format12="false"</code>.
+                  </p>
+                  <!-- Angular: Pass { format12: false } in the options object; the AM/PM toggle is suppressed automatically with no template change required.
+                       Example: this.tp = new Nimbus.Timepicker(el, { format12: this.format12 }); where format12 is an @Input() defaulting to false.
+                       Exposing format12 as an @Input() makes the component reusable for both 12h and 24h modes without duplication. -->
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section
+                        class="w-100 p-4 d-flex justify-content-center pb-4"
+                      >
+                        <div class="w-25">
+                          <div
+                            class="timepicker"
+                            data-cnds-timepicker-init
+                            data-cnds-format12="false"
+                          >
+                            <label for="form3b" class="cf-input-label">Select a time</label>
+                            <input
+                              type="text"
+                              class="form-control"
+                              id="form3b"
+                            />
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!--Code: HTML-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div class="timepicker" data-cnds-timepicker-init data-cnds-format12="false"&gt;
+    &lt;label for="form3b" class="cf-input-label"&gt;Select a time&lt;/label&gt;
+    &lt;input type="text" class="form-control" id="form3b" /&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--/Code: HTML-->
+                </section>
+                <!--/Section: Format 24h-->
+                <hr class="my-5" />
+                <!--Section: Just Input-->
+                <section id="section-just-input">
+                  <!-- Section title -->
+                  <h3 class="mb-3">Just Input</h3>
+                  <p>Render the timepicker without a visible toggle icon using <code>withIcon: false</code>, then wire the input's click event to <code>tp.open()</code> so clicking the field opens the picker directly.</p>
+                  <!-- Angular: Pass { withIcon: false } and bind (click) on the <input> to a component method that calls tp.open(); the tp reference is guaranteed to exist by click time.
+                       Example: <input (click)="openPicker()" /> with openPicker() { this.tp?.open(); } in the component class.
+                       This pattern removes all icon markup and lets the field itself serve as the picker trigger. -->
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section
+                        class="w-100 p-4 d-flex justify-content-center pb-4"
+                      >
+                        <div class="w-25">
+                          <div id="tp-just-input">
+                            <label for="form22" class="cf-input-label">Select a time</label>
+                            <input
+                              type="text"
+                              class="form-control"
+                              id="form22"
+                            />
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!--Code: HTML-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div id="tp-just-input"&gt;
+    &lt;label for="form22" class="cf-input-label"&gt;Select a time&lt;/label&gt;
+    &lt;input type="text" class="form-control" id="form22" /&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--/Code: HTML-->
+                  <!--Code: JS-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-js">
+const el = document.querySelector('#tp-just-input');
+const tp = new Nimbus.Timepicker(el, { withIcon: false });
+el.querySelector('input').addEventListener('click', function () {
+    tp.open();
+});
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--/Code: JS-->
+                </section>
+                <!--/Section: Just Input-->
+                <hr class="my-5" />
+                <!--Section: Increment-->
+                <section id="section-increment">
+                  <!-- Section title -->
+                  <h3 class="mb-3">Increment</h3>
+                  <p>Set <code>minuteStep: 5</code> to snap minute selection to 5-minute intervals. This is useful for scheduling interfaces where precision below 5 minutes is not required.</p>
+                  <!-- Angular: Pass minuteStep as an @Input() and forward it into the options object; any positive integer is accepted.
+                       Example: this.tp = new Nimbus.Timepicker(el, { minuteStep: this.minuteStep }); where minuteStep defaults to 5.
+                       The picker rounds minutes to the nearest multiple of minuteStep on each spinner step. -->
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section
+                        class="w-100 p-4 d-flex justify-content-center pb-4"
+                      >
+                        <div class="w-25">
+                          <div class="timepicker-inc">
+                            <label for="form45" class="cf-input-label">Select a time</label>
+                            <input
+                              type="text"
+                              class="form-control"
+                              id="form45"
+                            />
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!--Code: HTML-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div class="timepicker-inc"&gt;
+    &lt;label for="form45" class="cf-input-label"&gt;Select a time&lt;/label&gt;
+    &lt;input type="text" class="form-control" id="form45" /&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--/Code: HTML-->
+                  <!--Code: JS-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-js">
+const pickerInc = document.querySelector('.timepicker-inc');
+const timepickerInc = new Nimbus.Timepicker(pickerInc, {
+  minuteStep: 5
+});
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--/Code: JS-->
+                </section>
+                <!--/Section: Increment-->
+                <hr class="my-5" />
+                <!--Section: Max time-->
+                <section id="section-max-time">
+                  <!-- Section title -->
+                  <h3 class="mb-3">Max time</h3>
+                  <p>Use the <code>maxTime</code> option to set the latest selectable time. Times after the limit are disabled in the picker. Pass a 24h value (<code>'6:35'</code>), or include an AM/PM suffix for 12h format (<code>'6:35 PM'</code>, <code>'6:35 AM'</code>).</p>
+                  <!-- Angular: Pass maxTime as an @Input() string; to change it dynamically after init, call dispose() and recreate the instance inside ngOnChanges.
+                       Example: this.tp = new Nimbus.Timepicker(el, { maxTime: this.maxTime, format12: this.format12 }); where maxTime is '6:35', '6:35 AM', or '6:35 PM'.
+                       Times after the limit are disabled in the picker UI automatically. -->
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section class="w-100 p-4 d-flex justify-content-center gap-4 flex-wrap mb-4">
+                        <div style="width: 200px;">
+                          <div class="timepicker-max-time">
+                            <label for="form46" class="cf-input-label">Max 6:35 (24h)</label>
+                            <input type="text" class="form-control" id="form46" />
+                          </div>
+                        </div>
+                        <div style="width: 200px;">
+                          <div class="timepicker-max-time-pm">
+                            <label for="form48" class="cf-input-label">Max 6:35 PM</label>
+                            <input type="text" class="form-control" id="form48" />
+                          </div>
+                        </div>
+                        <div style="width: 200px;">
+                          <div class="timepicker-max-time-am">
+                            <label for="form410" class="cf-input-label">Max 6:35 AM</label>
+                            <input type="text" class="form-control" id="form410" />
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!--Code: HTML-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div class="tp-max-24h"&gt;
+    &lt;label for="tp1" class="cf-input-label"&gt;Max 6:35 (24h)&lt;/label&gt;
+    &lt;input type="text" class="form-control" id="tp1" /&gt;
+&lt;/div&gt;
+&lt;div class="tp-max-pm"&gt;
+    &lt;label for="tp2" class="cf-input-label"&gt;Max 6:35 PM&lt;/label&gt;
+    &lt;input type="text" class="form-control" id="tp2" /&gt;
+&lt;/div&gt;
+&lt;div class="tp-max-am"&gt;
+    &lt;label for="tp3" class="cf-input-label"&gt;Max 6:35 AM&lt;/label&gt;
+    &lt;input type="text" class="form-control" id="tp3" /&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--/Code: HTML-->
+                  <!--Code: JS-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-js">
+new Nimbus.Timepicker(document.querySelector('.tp-max-24h'), { maxTime: '6:35', format12: false });
+new Nimbus.Timepicker(document.querySelector('.tp-max-pm'),  { maxTime: '6:35 PM' });
+new Nimbus.Timepicker(document.querySelector('.tp-max-am'),  { maxTime: '6:35 AM' });
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--/Code: JS-->
+                </section>
+                <!--/Section: Max time-->
+                <hr class="my-5" />
+                <!--Section: Min time-->
+                <section id="section-min-time">
+                  <!-- Section title -->
+                  <h3 class="mb-3">Min time</h3>
+                  <p>Use the <code>minTime</code> option to set the earliest selectable time. Times before the limit are disabled in the picker. Pass a 24h value (<code>'10:15'</code>), or include an AM/PM suffix for 12h format (<code>'6:35 PM'</code>, <code>'6:35 AM'</code>).</p>
+                  <!-- Angular: Pass minTime as an @Input() string using the same pattern as maxTime; combine both on the same instance to create a bounded time range.
+                       Example: this.tp = new Nimbus.Timepicker(el, { minTime: this.minTime, format12: this.format12 }); where minTime is '10:15', '6:35 AM', or '6:35 PM'.
+                       Times before the limit are disabled in the picker UI automatically. -->
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section class="w-100 p-4 d-flex justify-content-center gap-4 flex-wrap mb-4">
+                        <div style="width: 200px;">
+                          <div class="timepicker-min-time">
+                            <label for="form412" class="cf-input-label">Min 10:15 (24h)</label>
+                            <input type="text" class="form-control" id="form412" />
+                          </div>
+                        </div>
+                        <div style="width: 200px;">
+                          <div class="timepicker-min-time-pm">
+                            <label for="form414" class="cf-input-label">Min 6:35 PM</label>
+                            <input type="text" class="form-control" id="form414" />
+                          </div>
+                        </div>
+                        <div style="width: 200px;">
+                          <div class="timepicker-min-time-am">
+                            <label for="form416" class="cf-input-label">Min 6:35 AM</label>
+                            <input type="text" class="form-control" id="form416" />
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!--Code: HTML-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div class="tp-min-24h"&gt;
+    &lt;label for="tp1" class="cf-input-label"&gt;Min 10:15 (24h)&lt;/label&gt;
+    &lt;input type="text" class="form-control" id="tp1" /&gt;
+&lt;/div&gt;
+&lt;div class="tp-min-pm"&gt;
+    &lt;label for="tp2" class="cf-input-label"&gt;Min 6:35 PM&lt;/label&gt;
+    &lt;input type="text" class="form-control" id="tp2" /&gt;
+&lt;/div&gt;
+&lt;div class="tp-min-am"&gt;
+    &lt;label for="tp3" class="cf-input-label"&gt;Min 6:35 AM&lt;/label&gt;
+    &lt;input type="text" class="form-control" id="tp3" /&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--/Code: HTML-->
+                  <!--Code: JS-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-js">
+new Nimbus.Timepicker(document.querySelector('.tp-min-24h'), { minTime: '10:15', format12: false });
+new Nimbus.Timepicker(document.querySelector('.tp-min-pm'),  { minTime: '6:35 PM' });
+new Nimbus.Timepicker(document.querySelector('.tp-min-am'),  { minTime: '6:35 AM' });
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--/Code: JS-->
+                </section>
+                <!--/Section: Min time-->
+                <hr class="my-5" />
+                <!--Section: Disable past-->
+                <section id="section-disable-past">
+                  <!-- Section title -->
+                  <h3 class="mb-3">Disable past</h3>
+                  <p>
+                    Set <code>minTime</code> to the current time to prevent selection of any time in the past. The value is computed at initialization time.
+                  </p>
+                  <!-- Angular: Compute the current time string inside ngAfterViewInit (not the template) so it reflects the exact mount moment; pass the formatted string as minTime.
+                       Example: const now = new Date(); const minTime = `${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`; this.tp = new Nimbus.Timepicker(el, { minTime });
+                       For real-time enforcement, recreate the picker instance each time the dropdown opens. -->
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section
+                        class="w-100 p-4 d-flex justify-content-center pb-4"
+                      >
+                        <div class="w-25">
+                          <div class="timepicker-disable-past">
+                            <label for="form4" class="cf-input-label">Select a time</label>
+                            <input
+                              type="text"
+                              class="form-control"
+                              id="form4"
+                            />
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!--Code: HTML-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div class="timepicker-disable-past"&gt;
+    &lt;label for="form4" class="cf-input-label"&gt;Select a time&lt;/label&gt;
+    &lt;input type="text" class="form-control" id="form4" /&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--/Code: HTML-->
+                  <!--Code: JS-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-js">
+const pickerDisablePast = document.querySelector('.timepicker-disable-past');
+const now = new Date();
+const timepickerDisablePast = new Nimbus.Timepicker(pickerDisablePast, {
+  minTime: now.getHours() + ':' + String(now.getMinutes()).padStart(2, '0')
+});
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--/Code: JS-->
+                </section>
+                <!--/Section: Disable past-->
+                <hr class="my-5" />
+                <!--Section: Disable future-->
+                <section id="section-disable-future">
+                  <!-- Section title -->
+                  <h3 class="mb-3">Disable future</h3>
+                  <p>
+                    Set <code>maxTime</code> to the current time to prevent selection of any future time. The value is computed at initialization time.
+                  </p>
+                  <!-- Angular: Mirror of the Disable past pattern; use maxTime instead of minTime, computed in ngAfterViewInit so the ceiling reflects the exact mount time.
+                       Example: const now = new Date(); const maxTime = `${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`; this.tp = new Nimbus.Timepicker(el, { maxTime });
+                       For real-time enforcement, recreate the picker instance each time the dropdown opens. -->
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section
+                        class="w-100 p-4 d-flex justify-content-center pb-4"
+                      >
+                        <div class="w-25">
+                          <div class="timepicker-disable-future">
+                            <label for="form5" class="cf-input-label">Select a time</label>
+                            <input
+                              type="text"
+                              class="form-control"
+                              id="form5"
+                            />
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!--Code: HTML-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div class="timepicker-disable-future"&gt;
+    &lt;label for="form5" class="cf-input-label"&gt;Select a time&lt;/label&gt;
+    &lt;input type="text" class="form-control" id="form5" /&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--/Code: HTML-->
+                  <!--Code: JS-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-js">
+const pickerDisableFuture = document.querySelector('.timepicker-disable-future');
+const now = new Date();
+const timepickerDisableFuture = new Nimbus.Timepicker(pickerDisableFuture, {
+  maxTime: now.getHours() + ':' + String(now.getMinutes()).padStart(2, '0')
+});
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--/Code: JS-->
+                </section>
+                <!--/Section: Disable future-->
+                <hr class="my-5" />
+
+                <!--Section: Validation-->
+                <section id="section-validation">
+                  <h3 class="mb-3">Validation</h3>
+
+                  <p>
+                    Add <code>.is-invalid</code> to the <code>.timepicker</code> wrapper to signal
+                    a validation error. Place a <code>.cf-input-helper</code> after the input inside
+                    the wrapper and include a <code>.cf-input-error</code> span inside it — the error
+                    text appears when <code>.is-invalid</code> is present. The time popover stays
+                    anchored to the input edge regardless of the helper text below it.
+                  </p>
+
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                        <div class="w-25">
+                          <div class="timepicker cf-input-field-casefusion is-invalid" data-cnds-timepicker-init>
+                            <label for="tpValidation" class="cf-input-label">Time <span class="cf-input-required">*</span></label>
+                            <input type="text" class="cf-input-control" id="tpValidation" aria-describedby="error-tp-validation" aria-invalid="true" />
+                            <div class="cf-input-helper">
+                              <span class="cf-input-error" id="error-tp-validation">Please select a time.</span>
+                            </div>
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--/Section: Demo-->
+
+                  <!--Code: HTML-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div class="timepicker cf-input-field-casefusion is-invalid" data-cnds-timepicker-init&gt;
+    &lt;label for="tpValidation" class="cf-input-label"&gt;Time &lt;span class="cf-input-required"&gt;*&lt;/span&gt;&lt;/label&gt;
+    &lt;input type="text" class="cf-input-control" id="tpValidation" aria-describedby="error-tp-validation" aria-invalid="true" /&gt;
+    &lt;div class="cf-input-helper"&gt;
+        &lt;span class="cf-input-error" id="error-tp-validation"&gt;Please select a time.&lt;/span&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--/Code: HTML-->
+                </section>
+                <!--/Section: Validation-->
+
+                <hr class="my-5" />
+                <!--Section: Accessibility-->
+                <section id="section-accessibility">
+                  <!-- Section title -->
+                  <h3 class="mb-3">Accessibility</h3>
+                  <p>
+                    The Timepicker includes <code>aria-label</code> attributes on all interactive controls — the hour/minute spinners, the AM/PM buttons, and the toggle button — to support screen readers. These labels are set directly in the component markup and do not require additional configuration.
+                  </p>
+                  <!-- Angular: All ARIA attributes are injected by Nimbus.Timepicker at init time — no Angular bindings are required; focus trap and focus-return-on-close are handled internally.
+                       Example: el.addEventListener('change.cnds.timepicker', (e) => { this.formControl.setValue(e.detail.formatted, { emitEvent: false }); }); to keep a reactive FormControl in sync.
+                       Update the FormControl with { emitEvent: false } to avoid triggering valueChanges twice when the picker and the form both react to the same user action. -->
+                  <!--Code: JS-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-js">
+// aria-label values set by the component:
+// "Increase hour" / "Decrease hour"
+// "Increase minute" / "Decrease minute"
+// "Open time picker" (toggle button)
+// "Time picker" (dropdown dialog)
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--/Code: JS-->
+                </section>
+                <!--/Section: Accessibility-->
+                <hr class="my-5" />
+                <!--Section: API Documentation-->
+                <section id="section-api-docs">
+                  <h3 class="mb-3">API Documentation</h3>
+
+                  <!--Section: API Introduction-->
+                  <section id="api-section-introduction">
+                    <h4 class="mb-4">Introduction</h4>
+                    <p>
+                      The Nimbus Timepicker is a JavaScript-powered form plugin that renders hour and minute spinners with an optional AM/PM toggle. It attaches to any wrapper element containing a plain <code>&lt;input type="text"&gt;</code> and exposes a concise public API for programmatic control. The component is fully keyboard-navigable and screen-reader friendly — ARIA roles, labels, and focus management are applied automatically.
+                    </p>
+                  </section>
+                  <!--/Section: API Introduction-->
+
+                  <!--Section: API Usage-->
+                  <section id="api-section-usage">
+                    <h4 class="mb-4">Usage</h4>
+                    <h5 class="mb-3">Via data attributes</h5>
+                    <p>
+                      Add <code>data-cnds-timepicker-init</code> to any wrapper element and use <code>data-cnds-*</code> attributes to configure options. Place a <code>&lt;label class="cf-input-label"&gt;</code> as the first child inside the wrapper and a plain <code>&lt;input type="text"&gt;</code> after it — no additional JavaScript required.
+                    </p>
+                    <section class="mb-4">
+                      <h5><span class="badge badge-code-html">HTML</span></h5>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div data-cnds-timepicker-init&gt;
+    &lt;label for="form1" class="cf-input-label"&gt;Select a time&lt;/label&gt;
+    &lt;input type="text" class="form-control" id="form1" /&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <h5 class="mb-3">Via JavaScript</h5>
+                    <section class="mb-4">
+                      <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">const myTimepicker = new Nimbus.Timepicker(document.getElementById('wrapper-id'), options)</code></pre>
+                      </div>
+                    </section>
+                  </section>
+                  <!--/Section: API Usage-->
+
+                  <!--Section: API Options-->
+                  <section id="api-section-options">
+                    <h4 class="mb-4">Options</h4>
+                    <p>
+                      Options can be passed via JavaScript or as data attributes. For data attributes, convert the camelCase option name to kebab-case and prefix with <code>data-cnds-</code> — for example, <code>minuteStep</code> becomes <code>data-cnds-minute-step="5"</code>.
+                    </p>
+                    <div class="table-responsive">
+                      <table class="table table-striped table-bordered" aria-label="Options">
+                        <thead>
+                          <tr>
+                            <th class="th-sm">Name</th>
+                            <th class="th-sm">Type</th>
+                            <th class="th-sm">Default</th>
+                            <th class="th-sm">Description</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td class="highlighter-rouge"><code>format12</code></td>
+                            <td><i>Boolean</i></td>
+                            <td><code>true</code></td>
+                            <td><p>Use 12-hour format with AM/PM toggle. Set to <code>false</code> for 24-hour format.</p></td>
+                          </tr>
+                          <tr>
+                            <td class="highlighter-rouge"><code>minuteStep</code></td>
+                            <td><i>Number</i></td>
+                            <td><code>1</code></td>
+                            <td><p>Minute increment step. Set to <code>5</code> to snap minutes to 5-minute intervals.</p></td>
+                          </tr>
+                          <tr>
+                            <td class="highlighter-rouge"><code>defaultHour</code></td>
+                            <td><i>Number | null</i></td>
+                            <td><code>null</code></td>
+                            <td><p>Initial hour value (0–23) shown when the picker first opens. Overrides the current-time default. Always use 24-hour notation regardless of display format.</p></td>
+                          </tr>
+                          <tr>
+                            <td class="highlighter-rouge"><code>defaultMinute</code></td>
+                            <td><i>Number | null</i></td>
+                            <td><code>null</code></td>
+                            <td><p>Initial minute value (0–59) shown when the picker first opens. Overrides the current-time default.</p></td>
+                          </tr>
+                          <tr>
+                            <td class="highlighter-rouge"><code>minTime</code></td>
+                            <td><i>String | null</i></td>
+                            <td><code>null</code></td>
+                            <td><p>Earliest selectable time. Accepts <code>"HH:MM"</code> (24h), <code>"H:MM AM"</code>, or <code>"H:MM PM"</code>. Spinner buttons that would navigate past this boundary are disabled automatically.</p></td>
+                          </tr>
+                          <tr>
+                            <td class="highlighter-rouge"><code>maxTime</code></td>
+                            <td><i>String | null</i></td>
+                            <td><code>null</code></td>
+                            <td><p>Latest selectable time. Accepts the same formats as <code>minTime</code>. Spinner buttons that would navigate past this boundary are disabled automatically.</p></td>
+                          </tr>
+                          <tr>
+                            <td class="highlighter-rouge"><code>inline</code></td>
+                            <td><i>Boolean</i></td>
+                            <td><code>false</code></td>
+                            <td><p>Render the picker widget inline (always visible) instead of as a dropdown. When <code>true</code>, no toggle button is rendered.</p></td>
+                          </tr>
+                          <tr>
+                            <td class="highlighter-rouge"><code>readonly</code></td>
+                            <td><i>Boolean</i></td>
+                            <td><code>true</code></td>
+                            <td><p>Make the text input read-only so the user can only set the time via the picker spinners.</p></td>
+                          </tr>
+                          <tr>
+                            <td class="highlighter-rouge"><code>withIcon</code></td>
+                            <td><i>Boolean</i></td>
+                            <td><code>true</code></td>
+                            <td><p>When <code>true</code>, a clock-icon toggle button is rendered next to the input. Set to <code>false</code> when supplying an external trigger (e.g. a custom button calling <code>tp.open()</code>) or when using the picker as a bare input field.</p></td>
+                          </tr>
+                          <tr>
+                            <td class="highlighter-rouge"><code>showArrows</code></td>
+                            <td><i>Boolean</i></td>
+                            <td><code>true</code></td>
+                            <td><p>When <code>true</code>, up/down chevron buttons are rendered on the hour and minute spinners. Set to <code>false</code> for a compact digit-only display (Figma: Show Arrows=false).</p></td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </section>
+                  <!--/Section: API Options-->
+
+                  <!--Section: API Methods-->
+                  <section id="api-section-methods">
+                    <h4 class="mb-4">Methods</h4>
+                    <div class="table-responsive">
+                      <table class="table table-striped table-bordered" aria-label="Methods">
+                        <thead>
+                          <tr>
+                            <th class="th-sm">Name</th>
+                            <th class="th-sm">Description</th>
+                            <th class="th-sm">Example</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td class="text-nowrap"><code class="highlighter-rouge">open()</code></td>
+                            <td>Opens the timepicker dropdown and moves focus into the widget.</td>
+                            <td><code>myTimepicker.open()</code></td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap"><code class="highlighter-rouge">close()</code></td>
+                            <td>Closes the timepicker dropdown and returns focus to the toggle.</td>
+                            <td><code>myTimepicker.close()</code></td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap"><code class="highlighter-rouge">toggle()</code></td>
+                            <td>Toggles the timepicker dropdown open or closed.</td>
+                            <td><code>myTimepicker.toggle()</code></td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap"><code class="highlighter-rouge">setTime(h, m, ampm)</code></td>
+                            <td>Programmatically sets the time. <code>h</code> and <code>m</code> are numbers; <code>ampm</code> is optional and only used in 12-hour mode.</td>
+                            <td><code>myTimepicker.setTime(3, 30, 'PM')</code></td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap"><code class="highlighter-rouge">getTime()</code></td>
+                            <td>Returns the current time as <code>{ hours, minutes, ampm }</code>. <code>ampm</code> is <code>null</code> in 24-hour mode.</td>
+                            <td><code>myTimepicker.getTime()</code></td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap"><code class="highlighter-rouge">getFormattedTime()</code></td>
+                            <td>Returns the current time as a display string — <code>"03:30 PM"</code> in 12h mode or <code>"15:30"</code> in 24h mode.</td>
+                            <td><code>myTimepicker.getFormattedTime()</code></td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap"><code class="highlighter-rouge">clear()</code></td>
+                            <td>Resets the spinners to their default state and clears the input value.</td>
+                            <td><code>myTimepicker.clear()</code></td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap"><code class="highlighter-rouge">dispose()</code></td>
+                            <td>Destroys the instance, removes the dropdown from the DOM, and cleans up all event listeners.</td>
+                            <td><code>myTimepicker.dispose()</code></td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap"><code class="highlighter-rouge">getInstance(el)</code></td>
+                            <td>Static. Returns the existing Timepicker instance for a given element, or <code>null</code> if none exists.</td>
+                            <td><code>Nimbus.Timepicker.getInstance(el)</code></td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap"><code class="highlighter-rouge">getOrCreateInstance(el)</code></td>
+                            <td>Static. Returns the existing instance or creates and returns a new one with default options.</td>
+                            <td><code>Nimbus.Timepicker.getOrCreateInstance(el)</code></td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    <section class="mb-4">
+                      <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">const timepickerEl = document.getElementById('myTimepicker')
+const timepicker = new Nimbus.Timepicker(timepickerEl)
+timepicker.dispose()</code></pre>
+                      </div>
+                    </section>
+                  </section>
+                  <!--/Section: API Methods-->
+
+                  <!--Section: API Events-->
+                  <section id="api-section-events">
+                    <h4 class="mb-4">Events</h4>
+                    <p>All events are dispatched on the timepicker wrapper element and bubble up the DOM.</p>
+                    <div class="table-responsive">
+                      <table class="table table-striped table-bordered" aria-label="Events">
+                        <thead>
+                          <tr>
+                            <th class="th-sm">Event</th>
+                            <th class="th-sm">Description</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td class="text-nowrap"><code class="highlighter-rouge">open.cnds.timepicker</code></td>
+                            <td>Fires immediately when the timepicker dropdown is opened.</td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap"><code class="highlighter-rouge">close.cnds.timepicker</code></td>
+                            <td>Fires immediately when the timepicker dropdown is closed.</td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap"><code class="highlighter-rouge">change.cnds.timepicker</code></td>
+                            <td>Fires whenever the time value changes — spinner step, AM/PM toggle, "Now", or "Clear". The event <code>detail</code> object contains <code>{ hours, minutes, ampm, formatted }</code>.</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    <section class="mb-4">
+                      <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">const myTimepicker = document.getElementById('myTimepicker')
+myTimepicker.addEventListener('change.cnds.timepicker', (e) => {
+    console.log(e.detail.formatted) // e.g. "03:30 PM"
+})</code></pre>
+                      </div>
+                    </section>
+                  </section>
+                  <!--/Section: API Events-->
+
+                </section>
+                <!--/Section: API Documentation-->
+              </section>
+              <!--/Section: Docs content-->
+            </div>
+            <!-- ./Main column-->
+
+            <!-- Right Sidebar — 20 % of the row width; hidden below lg breakpoint.
+                 Sticky attributes (processed by nimbus.js):
+                   data-cnds-sticky="true"          : activates sticky positioning
+                   data-cnds-sticky-boundary="true" : constrains sticky to its parent container
+                   data-cnds-sticky-direction="both" : sticks when scrolling up OR down
+                   data-cnds-sticky-offset="56"     : clears the 56 px fixed header
+                   data-cnds-sticky-delay="125"     : debounce delay (ms) to reduce scroll jank
+                 data-cnds-allow-hashes="true" on the <ul>: nimbus.js watches the URL hash
+                   and highlights the matching nav-link as the user scrolls through sections. -->
+            <div class="col-lg-2 d-none d-lg-block">
+              <div class="sticky-top" style="top: 100px; z-index: 1">
+                <ul
+                  class="nav flex-column nav-pills menu-sidebar"
+                  id="rightNav"
+                  data-cnds-allow-hashes="true"
+                >
+                  <li class="nav-item"><a class="nav-link" href="#section-introduction">Introduction</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#section-basic-example">Basic example</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#section-sizing">Sizing</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#section-product-example">Product themes</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#section-inline-12">Inline Timepicker with 12h</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#section-inline-24">Inline Timepicker with 24h</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#section-with-custom-icon">Custom Icon</a></li>
+                  <li class="nav-item ms-3"><a class="nav-link" href="#subsection-with-button">With button</a></li>
+                  <li class="nav-item ms-3"><a class="nav-link" href="#subsection-with-icon">With icon</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#section-without-icon">Without icon</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#section-no-arrows">No arrows</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#section-default-time">Default time</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#section-handle-input-value">Handle input value</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#section-format24">Format 24h</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#section-just-input">Just Input</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#section-increment">Increment</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#section-max-time">Max time</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#section-min-time">Min time</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#section-disable-past">Disable past</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#section-disable-future">Disable future</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#section-validation">Validation</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#section-accessibility">Accessibility</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#section-api-docs">API Documentation</a></li>
+                  <li class="nav-item ms-3"><a class="nav-link" href="#api-section-introduction">Introduction</a></li>
+                  <li class="nav-item ms-3"><a class="nav-link" href="#api-section-usage">Usage</a></li>
+                  <li class="nav-item ms-3"><a class="nav-link" href="#api-section-options">Options</a></li>
+                  <li class="nav-item ms-3"><a class="nav-link" href="#api-section-methods">Methods</a></li>
+                  <li class="nav-item ms-3"><a class="nav-link" href="#api-section-events">Events</a></li>
+                </ul>
+              </div>
+            </div>
+            <!-- ./Right Sidebar -->
+            </div>
+            <!-- ./Content Row -->
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- ./Content -->
+    <!-- Footer -->
+    <div class="cf-footer cf-footer-app">
+      <footer class="page-footer main-footer" aria-label="Site footer">
+        <div class="w-100 px-3 d-flex align-items-center">
+          <img src="img/cf/core/cloudficient_logo_light.svg" class="cf-logo-light" style="width: 135px;" alt="Cloudficient" />
+          <img src="img/cf/core/cloudficient_logo_dark.svg" class="cf-logo-dark" style="width: 135px;" alt="Cloudficient" />
+          <span class="footer-copyright ms-auto">&copy; <span id="currentYear"></span> Cloudficient</span>
+        </div>
+      </footer>
+    </div>
+    <!-- SCRIPTS — load order matters:
+         1. nimbus.js    — core framework: processes all data-cnds-* attributes (theme, sticky, sidenav, tooltips…)
+         2. app.js       — application-level overrides and custom initialisation
+         3. prism.min.js — syntax highlighting for <code class="language-*"> blocks; must run after DOM is ready
+         4. sidenav-loader.js — fetches shared sidenav HTML and injects it into #sidebar-cf -->
+    <script type="text/javascript" src="js/nimbus.js?v=9.0.13"></script>
+    <script type="text/javascript" src="js/app.js?v=9.0.4"></script>
+    <script type="text/javascript" src="plugins/js/prism.min.js"></script>
+    <script type="text/javascript" src="js/sidenav-loader.js"></script>
+    <!-- Inline: initialize demo timepickers that require JavaScript options.
+         Listens for cnds.ready, which fires after nimbus.js finishes loading all plugins. -->
+    <script type="text/javascript">
+      document.addEventListener('cnds.ready', function () {
+        var el, now;
+
+        // --- Inline 12h ---
+        el = document.querySelector('.timepicker-inline-12');
+        if (el) new Nimbus.Timepicker(el, { inline: true });
+
+        // --- Inline 24h ---
+        el = document.querySelector('.timepicker-inline-24');
+        if (el) new Nimbus.Timepicker(el, { format12: false, inline: true });
+
+        // --- Without icon ---
+        el = document.querySelector('#timepicker-without-icon');
+        if (el) {
+          var tpNoIcon = new Nimbus.Timepicker(el, { withIcon: false });
+          var btnNoIcon = document.querySelector('#btn-timepicker-without-icon');
+          if (btnNoIcon) btnNoIcon.addEventListener('click', function () { tpNoIcon.open(); });
+        }
+
+        // --- Default time ---
+        el = document.querySelector('.timepicker-default-time-string-am');
+        if (el) new Nimbus.Timepicker(el, { defaultHour: 9, defaultMinute: 15 });
+
+        el = document.querySelector('.timepicker-default-time-string-pm');
+        if (el) new Nimbus.Timepicker(el, { defaultHour: 14, defaultMinute: 30 });
+
+        el = document.querySelector('.timepicker-default-time-string-24h');
+        if (el) new Nimbus.Timepicker(el, { defaultHour: 23, defaultMinute: 44, format12: false });
+
+        now = new Date();
+        el = document.querySelector('.timepicker-default-time-with-new-date-12h');
+        if (el) new Nimbus.Timepicker(el, { defaultHour: now.getHours(), defaultMinute: now.getMinutes() });
+
+        // --- Handle input value ---
+        var timepickerValueEl = document.querySelector('#timepicker-value');
+        if (timepickerValueEl) {
+          new Nimbus.Timepicker(timepickerValueEl);
+          timepickerValueEl.addEventListener('change.cnds.timepicker', function (e) {
+            var span = document.querySelector('#span-input-value');
+            if (span) span.textContent = e.detail ? e.detail.formatted : '';
+          });
+        }
+
+        // --- Just input ---
+        el = document.querySelector('#tp-just-input');
+        if (el) {
+          var tpJustInput = new Nimbus.Timepicker(el, { withIcon: false });
+          el.querySelector('input').addEventListener('click', function () { tpJustInput.open(); });
+        }
+
+        // --- Increment (minuteStep: 5) ---
+        el = document.querySelector('.timepicker-inc');
+        if (el) new Nimbus.Timepicker(el, { minuteStep: 5 });
+
+        // --- Max time ---
+        el = document.querySelector('.timepicker-max-time');
+        if (el) new Nimbus.Timepicker(el, { maxTime: '6:35', format12: false });
+
+        el = document.querySelector('.timepicker-max-time-pm');
+        if (el) new Nimbus.Timepicker(el, { maxTime: '6:35 PM' });
+
+        el = document.querySelector('.timepicker-max-time-am');
+        if (el) new Nimbus.Timepicker(el, { maxTime: '6:35 AM' });
+
+        // --- Min time ---
+        el = document.querySelector('.timepicker-min-time');
+        if (el) new Nimbus.Timepicker(el, { minTime: '10:15', format12: false });
+
+        el = document.querySelector('.timepicker-min-time-pm');
+        if (el) new Nimbus.Timepicker(el, { minTime: '6:35 PM' });
+
+        el = document.querySelector('.timepicker-min-time-am');
+        if (el) new Nimbus.Timepicker(el, { minTime: '6:35 AM' });
+
+        // --- Disable past: minTime = current time ---
+        el = document.querySelector('.timepicker-disable-past');
+        if (el) {
+          var np = new Date();
+          new Nimbus.Timepicker(el, { minTime: np.getHours() + ':' + String(np.getMinutes()).padStart(2, '0') });
+        }
+
+        // --- Disable future: maxTime = current time ---
+        el = document.querySelector('.timepicker-disable-future');
+        if (el) {
+          var nf = new Date();
+          new Nimbus.Timepicker(el, { maxTime: nf.getHours() + ':' + String(nf.getMinutes()).padStart(2, '0') });
+        }
+      });
+    </script>
+    <!-- Inline: populate the footer copyright year dynamically so the page never needs a manual update -->
+    <script type="text/javascript">
+      var currentYearElement = document.getElementById("currentYear");
+      if (currentYearElement) {
+        currentYearElement.textContent = new Date().getFullYear();
+      }
+    </script>
+  </body>
+</html>

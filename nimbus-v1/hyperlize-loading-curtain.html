@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Loading Curtain</title>
+
+    <!-- Google Fonts: Nunito Sans for loading text -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      /* ===================================
+         LAYOUT & CONTAINER STYLES
+         =================================== */
+
+      /* Full viewport centering */
+      body {
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background-color: #f5f5f5;
+      }
+
+      /* Main loader container */
+      .loader-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      /* Wrapper to stack SVG and text vertically */
+      .loader-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      /* ===================================
+         SVG LOADER STYLES
+         =================================== */
+
+      /* 
+       * SVG dimensions (100px × 113px)
+       * Maintains original aspect ratio of 32:36 viewBox
+       */
+      .loader-svg {
+        width: 100px;
+        height: 113px;
+      }
+
+      /* ===================================
+         DOT ANIMATIONS
+         =================================== */
+
+      /* 
+       * Top-right yellow dot animation
+       * Slides 24px left toward center curtain shape
+       * Animation timing: 2.5s total (0.75s in, 0.75s out, 1s pause)
+       */
+      .dot-top-right {
+        animation: slideInward 2.5s ease-in-out infinite;
+        transform-origin: center;
+      }
+
+      /* 
+       * Bottom-left yellow dot animation
+       * Slides 24px right toward center (opposite of top-right)
+       * Creates mirrored "curtain opening" effect
+       */
+      .dot-bottom-left {
+        animation: slideInwardOpposite 2.5s ease-in-out infinite;
+        transform-origin: center;
+      }
+
+      /* 
+       * Keyframes for top-right dot
+       * 0-30%: Slide inward (left)
+       * 30-60%: Return to original position
+       * 60-100%: Pause at rest
+       */
+      @keyframes slideInward {
+        0% {
+          transform: translateX(0);
+        }
+        30% {
+          transform: translateX(-24px);
+        }
+        60%,
+        100% {
+          transform: translateX(0);
+        }
+      }
+
+      /* 
+       * Keyframes for bottom-left dot
+       * Same timing as slideInward but in opposite direction (right)
+       */
+      @keyframes slideInwardOpposite {
+        0% {
+          transform: translateX(0);
+        }
+        30% {
+          transform: translateX(24px);
+        }
+        60%,
+        100% {
+          transform: translateX(0);
+        }
+      }
+
+      /* ===================================
+         LOADING TEXT STYLES
+         =================================== */
+
+      /* 
+       * "LOADING" text styling
+       * Font: Nunito Sans, 24px, normal weight
+       * Color: #efb00c (matches curtain color)
+       * Spacing: 24px from animation
+       */
+      .loader-text {
+        margin-top: 24px;
+        text-align: center;
+        color: #efb00c;
+        font-family: "Nunito Sans", sans-serif;
+        font-size: 24px;
+        font-weight: 400;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Main loader container: centers everything in viewport -->
+    <div class="loader-container">
+      <!-- Wrapper: stacks SVG and text vertically with centered alignment -->
+      <div class="loader-wrapper">
+        <!-- 
+          Loading Curtain SVG
+          - ViewBox: 0 0 32 36 (original SVG dimensions)
+          - Rendered: 100px × 113px (scaled proportionally)
+          - Three elements: top-right dot, bottom-left dot, center curtain shape
+        -->
+        <svg
+          class="loader-svg"
+          viewBox="0 0 32 36"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <!-- 
+            Top-right yellow dot (#F0C808)
+            Animated with class "dot-top-right"
+            Slides 24px left toward center, then returns
+          -->
+          <path
+            class="dot-top-right"
+            d="M27.7989 8.70545C30.1087 8.70545 31.992 6.75817 31.992 4.3609C31.992 1.96363 30.1087 0.0163574 27.7989 0.0163574C25.489 0.0163574 23.6057 1.96363 23.6057 4.3609C23.6057 6.75817 25.489 8.70545 27.7989 8.70545Z"
+            fill="#F0C808"
+          />
+
+          <!-- 
+            Bottom-left yellow dot (#F0C808)
+            Animated with class "dot-bottom-left"
+            Slides 24px right toward center (opposite of top dot)
+          -->
+          <path
+            class="dot-bottom-left"
+            d="M4.20927 27.3108C1.89941 27.3108 0.0161133 29.2581 0.0161133 31.6553C0.0161133 34.0526 1.89941 35.9999 4.20927 35.9999C6.51913 35.9999 8.40243 34.0526 8.40243 31.6553C8.40243 29.2581 6.51913 27.3108 4.20927 27.3108Z"
+            fill="#F0C808"
+          />
+
+          <!-- 
+            Center curtain shape (#EFB00C)
+            Static element - provides visual anchor for animated dots
+          -->
+          <path
+            d="M31.992 16.6664C31.992 15.4555 31.0262 14.4736 29.835 14.4736H26.4064C26.4064 14.4736 26.3903 14.4736 26.3823 14.4736H8.40241V0H4.20925C1.8994 0 0.0160954 1.94727 0.0160954 4.34455V15.5209C0.0160954 15.5782 0 15.6355 0 15.7009V19.3336C0 20.5445 0.965795 21.5264 2.15694 21.5264H4.16901C4.16901 21.5264 4.20121 21.5264 4.2173 21.5264H23.6137V36H27.8068C30.1167 36 32 34.0527 32 31.6555V18.8182C32 18.8182 32 18.81 32 18.8018V16.6582L31.992 16.6664Z"
+            fill="#EFB00C"
+          />
+        </svg>
+
+        <!-- Loading text: 24px Nunito Sans in curtain color (#efb00c) -->
+        <div class="loader-text">LOADING</div>
+      </div>
+    </div>
+  </body>
+</html>

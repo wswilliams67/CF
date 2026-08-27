@@ -1,0 +1,749 @@
+<!doctype html>
+<html lang="en" data-cnds-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Case Administrator Dashboard — Redwell v1.5</title>
+  <style>
+    :root {
+      --bg: #252525;
+      --surface-1: #171717;
+      --surface-2: #1e1e1e;
+      --border: #4a4a4a;
+      --text: #e8e8e8;
+      --muted: #b8b8b8;
+      --brand: #5ccb59;
+      --link: #6790ca;
+      --warn: #f3bc00;
+      --danger: #c23400;
+      --ok: #72b23e;
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 14px/1.4 "Nunito Sans", "Segoe UI", Arial, sans-serif;
+    }
+
+    @font-face {
+      font-family: "Material Design Icons";
+      src: url("fonts/mdi/materialdesignicons-webfont.woff") format("woff"),
+        url("fonts/mdi/materialdesignicons-webfont.ttf") format("truetype");
+      font-weight: normal;
+      font-style: normal;
+    }
+    .mdi::before {
+      display: inline-block;
+      font-family: "Material Design Icons";
+      font-style: normal;
+      font-weight: normal;
+      font-variant: normal;
+      text-transform: none;
+      line-height: 1;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    .mdi-chevron-down::before { content: "\F0140"; }
+    .mdi-bell-outline::before { content: "\F009C"; }
+    .mdi-weather-night::before { content: "\F0594"; }
+    .mdi-view-dashboard::before { content: "\F056E"; }
+    .mdi-folder-account::before { content: "\F024C"; }
+    .mdi-home-account::before { content: "\F0826"; }
+    .mdi-key-chain::before { content: "\F1574"; }
+
+    .app {
+      padding: 132px 8px 18px;
+    }
+    .main-content {
+      width: 100%;
+      max-width: none;
+      margin: 0 auto;
+    }
+
+    .sticky-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      padding-bottom: 8px;
+      background: var(--bg);
+      transition: box-shadow 0.2s ease;
+    }
+    .sticky-header.scrolled {
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    }
+
+    .utility-nav {
+      display: flex;
+      align-items: center;
+      height: 50px;
+      padding: 8px 12px;
+      background: var(--surface-1);
+      gap: 48px;
+    }
+    .utility-nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+    }
+    .product-name {
+      display: flex;
+      align-items: center;
+      text-transform: uppercase;
+      font-size: 22px;
+      color: var(--text);
+      white-space: nowrap;
+    }
+    .product-name-bold {
+      font-family: "Nunito Sans", sans-serif;
+      font-weight: 800;
+      letter-spacing: 11.5px;
+    }
+    .product-name-light {
+      font-family: "Nunito Sans", sans-serif;
+      font-weight: 300;
+      letter-spacing: 9px;
+    }
+    .utility-nav-tools {
+      display: flex;
+      flex: 1;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      font-size: 14px;
+    }
+    .portal-switcher {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--text);
+      margin-left: auto;
+    }
+    .utility-divider {
+      width: 1px;
+      height: 24px;
+      background: #787878;
+    }
+    .nav-icon-btn {
+      border: 0;
+      background: transparent;
+      color: var(--text);
+      padding: 4px;
+      cursor: pointer;
+    }
+    .nav-icon-btn .mdi { font-size: 24px; }
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text);
+    }
+    .user-avatar {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 1.5px solid #5ccb59;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: #e8e8e8;
+      background: #4a4a4a;
+    }
+    .portal-icon {
+      width: 24px;
+      height: 24px;
+      color: var(--text);
+    }
+    .portal-icon path { fill: currentColor; }
+
+    .main-nav-wrapper {
+      background: var(--bg);
+      padding: 8px;
+    }
+    .main-nav {
+      display: flex;
+      align-items: center;
+      height: 56px;
+      background: var(--surface-1);
+      border-radius: var(--radius);
+      padding: 0 8px;
+      overflow: hidden;
+    }
+    .main-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 16px 24px;
+      height: 56px;
+      font-family: "Nunito", sans-serif;
+      font-weight: 400;
+      font-size: 14px;
+      color: var(--text);
+      text-decoration: none;
+      white-space: nowrap;
+      text-transform: capitalize;
+      border-bottom: 3px solid transparent;
+    }
+    .main-nav-item.active {
+      border-bottom-color: var(--brand);
+    }
+
+    .page-title-bar {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 8px 16px;
+      background: var(--bg);
+    }
+    .page-title {
+      letter-spacing: 8px;
+      text-transform: uppercase;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.429;
+      white-space: nowrap;
+      padding-bottom: 16px;
+    }
+    .page-title-stripe {
+      flex: 1;
+      padding-top: 10px;
+    }
+    .page-title-stripe-line {
+      height: 1px;
+      background: #5ccb59;
+    }
+
+    .toolbar {
+      border: 1px solid var(--border);
+      background: var(--surface-1);
+      border-radius: var(--radius);
+      padding: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .search {
+      flex: 1;
+      height: 30px;
+      background: #3f3f3f;
+      border: 1px solid #575757;
+      color: #eee;
+      border-radius: 6px;
+      padding: 0 10px;
+      font-size: 12px;
+    }
+    .adv {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #cfcfcf;
+      white-space: nowrap;
+      padding-right: 6px;
+    }
+    .switch {
+      width: 26px;
+      height: 14px;
+      border-radius: 14px;
+      background: #626262;
+      position: relative;
+    }
+    .switch::after {
+      content: "";
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #ddd;
+      top: 2px;
+      left: 2px;
+    }
+
+    .section {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface-2);
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+    .section-head {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .section-head .name { font-size: 22px; line-height: 1; }
+
+    .task-grid {
+      padding: 12px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .task {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px;
+      min-height: 154px;
+      background: #1b1d21;
+    }
+    .task-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .task-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 6px;
+      border: 1px solid #5f636a;
+      display: grid;
+      place-items: center;
+      color: #d6d6d6;
+      font-size: 18px;
+    }
+    .task-title {
+      font-size: 20px;
+      line-height: 1.2;
+      font-weight: 600;
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .badge {
+      min-width: 24px;
+      padding: 4px 8px 2px;
+      border-radius: 4px;
+      background: #50545b;
+      text-align: center;
+      font-size: 25px;
+      line-height: 1;
+      font-weight: 700;
+    }
+    .task-sub { color: #d2d2d2; font-size: 13px; margin-bottom: 8px; }
+    .status-label {
+      font-size: 18px;
+      margin-bottom: 2px;
+      font-weight: 700;
+    }
+    .status-row {
+      display: grid;
+      grid-template-columns: 12px 1fr auto;
+      gap: 8px;
+      align-items: center;
+      font-size: 13px;
+      margin: 2px 0;
+    }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot.ok { background: var(--ok); }
+    .dot.warn { background: var(--warn); }
+    .dot.danger { background: var(--danger); }
+
+    .triple {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .panel {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface-2);
+      overflow: hidden;
+      min-height: 404px;
+    }
+    .panel-head {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 25px;
+      font-weight: 600;
+    }
+    .panel-body { padding: 10px; }
+
+    .cases-hero {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .donut {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: conic-gradient(#9acd32 0 42%, #6655de 42% 66%, #2d99fe 66% 84%, #2ddac1 84% 100%);
+      position: relative;
+      flex: 0 0 auto;
+    }
+    .donut::after {
+      content: "";
+      position: absolute;
+      inset: 34px;
+      border-radius: 50%;
+      background: var(--surface-2);
+      border: 1px solid #656565;
+    }
+    .legend { font-size: 12px; }
+    .legend div { margin: 5px 0; display: flex; align-items: center; gap: 6px; }
+    .legend .sw { width: 10px; height: 10px; border-radius: 50%; }
+
+    .mini-filter {
+      width: 100%;
+      height: 28px;
+      margin: 10px 0;
+      border-radius: 6px;
+      background: #404040;
+      color: #e7e7e7;
+      border: 1px solid #575757;
+      font-size: 12px;
+    }
+
+    .list {
+      display: grid;
+      gap: 8px;
+      max-height: 248px;
+      overflow: auto;
+      padding-right: 2px;
+    }
+    .item {
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: #1a1c21;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      min-height: 34px;
+    }
+    .item .left { padding: 6px 9px; }
+    .item .title-sm { font-size: 13px; font-weight: 600; }
+    .item .sub-sm { font-size: 11px; color: #bdbdbd; }
+    .item .view {
+      padding: 0 11px;
+      border-left: 1px solid var(--border);
+      color: var(--link);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .interview {
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: #1a1c21;
+      display: grid;
+      grid-template-columns: 54px 1fr auto;
+      align-items: stretch;
+      min-height: 60px;
+    }
+    .date-box {
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: #d2d2d2;
+    }
+    .date-box b { font-size: 21px; line-height: 1; }
+    .interview .left { padding: 6px 9px; }
+    .warn-card {
+      background: #fff3cc;
+      border-color: #f3bc00;
+      color: #9a5b00;
+    }
+    .warn-card .view,
+    .warn-card .sub-sm,
+    .warn-card .title-sm { color: #9a5b00; border-color: #f3bc00; }
+    .danger-card {
+      background: #ebbfc7;
+      border-color: #942700;
+      color: #942700;
+    }
+    .danger-card .view,
+    .danger-card .sub-sm,
+    .danger-card .title-sm { color: #942700; border-color: #942700; }
+
+    /* ===== RESPONSIVE MAIN CONTENT ===== */
+    @media (max-width: 1200px) {
+      .task-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .triple { grid-template-columns: 1fr 1fr; }
+      .panel:last-child { grid-column: 1 / -1; }
+    }
+
+    @media (max-width: 900px) {
+      .app {
+        padding-top: 148px;
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+      .toolbar {
+        flex-wrap: wrap;
+        align-items: stretch;
+      }
+      .search { min-width: 220px; }
+      .adv {
+        width: 100%;
+        justify-content: flex-end;
+        padding-right: 2px;
+      }
+      .task-grid,
+      .triple { grid-template-columns: 1fr; }
+      .panel:last-child { grid-column: auto; }
+      .cases-hero {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .list { max-height: none; }
+    }
+
+    @media (max-width: 640px) {
+      .app { padding-top: 156px; }
+      .panel-head {
+        font-size: 20px;
+        padding: 10px;
+      }
+      .task-title { font-size: 18px; }
+      .badge {
+        font-size: 20px;
+        padding: 3px 7px 2px;
+      }
+      .main-nav {
+        overflow-x: auto;
+        scrollbar-width: thin;
+      }
+      .main-nav-item { padding: 16px 16px; }
+      .item .title-sm { font-size: 12px; }
+      .item .sub-sm { font-size: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="sticky-header" id="stickyHeader">
+    <nav class="utility-nav">
+      <div class="utility-nav-logo">
+        <span class="brand-mark"></span>
+        <span class="product-name"><span class="product-name-bold">CASE</span><span class="product-name-light">FUSION</span></span>
+      </div>
+      <div class="utility-nav-tools">
+        <span class="portal-switcher">
+          <svg class="portal-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <g clip-path="url(#cmp)">
+              <path d="M14.247 12.798C19.5433 7.97851 12.948 2.26838 12.3846 2.00378L11.3548 3.71872C11.3548 3.71872 18.5185 6.97571 14.247 12.798Z" fill="currentColor"/>
+              <path d="M8.26486 2.73425C8.88689 2.74635 17.23 5.27509 14.3481 11.8363C15.8867 4.77667 8.0202 4.72054 8.0202 4.72054L8.26486 2.73425Z" fill="currentColor"/>
+              <path d="M14.0493 10.914C14.0186 3.74561 5.37013 4.83553 4.79706 5.07796L5.37989 6.99225C5.37989 6.99225 12.5891 3.83775 14.0493 10.914Z" fill="currentColor"/>
+              <path d="M2.58105 8.63235C3.00619 8.17735 10.4644 3.65723 13.4026 10.1933C9.19599 4.32388 3.89061 10.1436 3.89061 10.1436L2.58105 8.63235Z" fill="currentColor"/>
+              <path d="M12.5197 9.80237C7.18225 5.02872 2.20368 12.1974 2 12.7864L3.80986 13.6333C3.80986 13.6333 6.29406 6.15468 12.5197 9.80237Z" fill="currentColor"/>
+              <path d="M3.15431 16.814C3.10126 16.1929 4.73924 7.61504 11.5532 9.80088C4.38489 9.00564 5.15148 16.8502 5.15148 16.8502L3.15431 16.814Z" fill="currentColor"/>
+              <path d="M10.6702 10.1952C3.55802 10.9751 5.54385 19.4789 5.84437 20.0247L7.68359 19.2438C7.68359 19.2438 3.79878 12.3899 10.6702 10.1952Z" fill="currentColor"/>
+              <path d="M9.60519 21.8601C9.10914 21.4841 3.84284 14.5249 10.0235 10.9139C4.63721 15.7192 10.9684 20.3973 10.9684 20.3973L9.60519 21.8601Z" fill="currentColor"/>
+              <path d="M9.72479 11.8319C5.54435 17.6494 13.1804 21.8608 13.7864 22.0023L14.4379 20.1103C14.4379 20.1103 6.75484 18.4167 9.72479 11.8319Z" fill="currentColor"/>
+              <path d="M11.0911 14.2061C15.3212 19.9874 21.6786 14.0124 22 13.4787L20.4055 12.2733C20.4055 12.2733 16.4237 19.071 11.0911 14.2061Z" fill="currentColor"/>
+              <path d="M10.3091 13.6366C11.8267 20.6421 20.0599 17.7743 20.5702 17.4178L19.6029 15.6668C19.6029 15.6668 13.2058 20.2542 10.3091 13.6366Z" fill="currentColor"/>
+              <path d="M17.6649 20.4365C17.054 20.5543 8.36837 19.8188 9.82583 12.8007C9.78581 20.0265 17.492 18.4427 17.492 18.4427L17.6649 20.4365Z" fill="currentColor"/>
+              <path d="M16.4444 3.0155C16.8516 3.48674 20.5586 11.391 13.7637 13.6354C20.0295 10.0573 14.8075 4.16247 14.8075 4.16247L16.4444 3.0155Z" fill="currentColor"/>
+              <path d="M12.9818 14.2068C20.1004 14.9255 19.9226 6.19393 19.7418 5.59753L17.7808 5.97821C17.7808 5.97821 20.1584 13.4915 12.9818 14.2068Z" fill="currentColor"/>
+              <path d="M21.7069 9.29498C21.6299 9.91354 18.2478 17.9627 12.0364 14.4052C18.8829 16.6763 19.761 8.84363 19.761 8.84363L21.7069 9.29498Z" fill="currentColor"/>
+            </g>
+            <defs><clipPath id="cmp"><rect width="24" height="24" fill="white"/></clipPath></defs>
+          </svg>
+          <span>${portal_name}</span>
+          <span class="mdi mdi-chevron-down"></span>
+        </span>
+        <span class="utility-divider"></span>
+        <button class="nav-icon-btn" aria-label="Notifications">
+          <span class="mdi mdi-bell"></span>
+        </button>
+        <span class="utility-divider"></span>
+        <button class="nav-icon-btn" aria-label="Theme">
+          <span class="mdi mdi-weather-night"></span>
+        </button>
+        <span class="utility-divider"></span>
+        <span class="user-info"><span class="user-avatar">SW</span><span>Scott Williams</span></span>
+      </div>
+    </nav>
+
+    <div class="main-nav-wrapper">
+      <nav class="main-nav">
+        <a class="main-nav-item active" href="#"><span class="mdi mdi-view-dashboard"></span> Dashboard</a>
+        <a class="main-nav-item" href="#"><span class="mdi mdi-folder-account"></span> My Cases</a>
+        <a class="main-nav-item" href="#"><span class="mdi mdi-home-account"></span> Tenants</a>
+        <a class="main-nav-item" href="#"><span class="mdi mdi-key-chain"></span> Admin</a>
+      </nav>
+    </div>
+
+    <div class="page-title-bar">
+      <span class="page-title">Dashboard</span>
+      <div class="page-title-stripe">
+        <div class="page-title-stripe-line"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="app">
+    <main class="main-content">
+    <div class="toolbar">
+      <input class="search" type="text" placeholder="Search ..." />
+      <div class="adv">
+        <span class="switch"></span>
+        <span>Advanced Search</span>
+      </div>
+    </div>
+
+    <section class="section">
+      <div class="section-head"><span class="name">Workflow Tasks</span><span>⌃</span></div>
+      <div class="task-grid">
+        <article class="task">
+          <div class="task-top">
+            <div class="task-icon">🗂</div>
+            <div class="task-title">Legal Hold Notifications</div>
+            <div class="badge">9</div>
+          </div>
+          <div class="task-sub">Across ${count} cases &amp; ${count} custodians</div>
+          <div class="status-label">Status</div>
+          <div class="status-row"><span class="dot ok"></span><span>Completed:</span><span>${count}</span></div>
+          <div class="status-row"><span class="dot warn"></span><span>Pending:</span><span>${count}</span></div>
+          <div class="status-row"><span class="dot danger"></span><span>Failed:</span><span>${count}</span></div>
+        </article>
+
+        <article class="task">
+          <div class="task-top">
+            <div class="task-icon">📄</div>
+            <div class="task-title">Preserve In-Place Holds</div>
+            <div class="badge">0</div>
+          </div>
+          <div class="task-sub" style="padding-top: 8px;">Not configured.</div>
+        </article>
+
+        <article class="task">
+          <div class="task-top">
+            <div class="task-icon">🧠</div>
+            <div class="task-title">Data Collection Requests</div>
+            <div class="badge">9</div>
+          </div>
+          <div class="task-sub">Across ${count} cases &amp; ${count} custodians</div>
+          <div class="status-label">Status</div>
+          <div class="status-row"><span class="dot ok"></span><span>Completed:</span><span>${count}</span></div>
+          <div class="status-row"><span class="dot warn"></span><span>Pending:</span><span>${count}</span></div>
+          <div class="status-row"><span class="dot danger"></span><span>Overdue:</span><span>${count}</span></div>
+        </article>
+
+        <article class="task">
+          <div class="task-top">
+            <div class="task-icon">👥</div>
+            <div class="task-title">Information Requests</div>
+            <div class="badge">9</div>
+          </div>
+          <div class="task-sub">Across ${count} cases &amp; ${count} custodians</div>
+          <div class="status-label">Status</div>
+          <div class="status-row"><span class="dot ok"></span><span>Completed:</span><span>${count}</span></div>
+          <div class="status-row"><span class="dot warn"></span><span>Pending:</span><span>${count}</span></div>
+          <div class="status-row"><span class="dot danger"></span><span>Overdue:</span><span>${count}</span></div>
+        </article>
+
+        <article class="task">
+          <div class="task-top">
+            <div class="task-icon">🧍</div>
+            <div class="task-title">Custodian Interviews</div>
+            <div class="badge">9</div>
+          </div>
+          <div class="task-sub">Across ${count} cases</div>
+          <div class="status-label">Status</div>
+          <div class="status-row"><span class="dot ok"></span><span>Completed:</span><span>${count}</span></div>
+          <div class="status-row"><span class="dot warn"></span><span>Pending:</span><span>${count}</span></div>
+          <div class="status-row"><span class="dot danger"></span><span>Overdue:</span><span>${count}</span></div>
+        </article>
+
+        <article class="task">
+          <div class="task-top">
+            <div class="task-icon">☑️</div>
+            <div class="task-title">Custodian Surveys</div>
+            <div class="badge">9</div>
+          </div>
+          <div class="task-sub">Across ${count} cases &amp; ${count} recipients</div>
+          <div class="status-label">Status</div>
+          <div class="status-row"><span class="dot ok"></span><span>Completed:</span><span>${count}</span></div>
+          <div class="status-row"><span class="dot warn"></span><span>Pending:</span><span>${count}</span></div>
+          <div class="status-row"><span class="dot danger"></span><span>Overdue:</span><span>${count}</span></div>
+        </article>
+      </div>
+    </section>
+
+    <div class="triple">
+      <section class="panel">
+        <div class="panel-head"><span>Cases</span><span class="badge">8</span></div>
+        <div class="panel-body">
+          <div class="cases-hero">
+            <div class="donut"></div>
+            <div class="legend">
+              <div><span class="sw" style="background:#9acd32"></span>Employment</div>
+              <div><span class="sw" style="background:#6655de"></span>Commercial</div>
+              <div><span class="sw" style="background:#2d99fe"></span>Audit</div>
+              <div><span class="sw" style="background:#2ddac1"></span>Investigation</div>
+            </div>
+          </div>
+          <select class="mini-filter"><option>Category - All</option></select>
+          <div class="list">
+            <div class="item"><div class="left"><div class="title-sm">Coyote v. ACME</div><div class="sub-sm">${case_category}</div></div><div class="view">View</div></div>
+            <div class="item"><div class="left"><div class="title-sm">${case_name}</div><div class="sub-sm">${case_category}</div></div><div class="view">View</div></div>
+            <div class="item"><div class="left"><div class="title-sm">${case_name}</div><div class="sub-sm">${case_category}</div></div><div class="view">View</div></div>
+            <div class="item"><div class="left"><div class="title-sm">${case_name}</div><div class="sub-sm">${case_category}</div></div><div class="view">View</div></div>
+            <div class="item"><div class="left"><div class="title-sm">${case_name}</div><div class="sub-sm">${case_category}</div></div><div class="view">View</div></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head"><span>Upcoming Interviews</span><span class="badge">6</span></div>
+        <div class="panel-body">
+          <div class="list">
+            <div class="interview"><div class="date-box"><span>Jan</span><b>31</b><span>2025</span></div><div class="left"><div class="sub-sm">07:00 AM EST (5:00 GMT)</div><div class="title-sm">ACME Products Litigation</div><div class="sub-sm">Tyrion Lannister</div><div class="sub-sm">Deposition</div></div><div class="view">View</div></div>
+            <div class="interview"><div class="date-box"><span>MMM</span><b>DD</b><span>YYYY</span></div><div class="left"><div class="sub-sm">${interview_time}</div><div class="title-sm">${case_name}</div><div class="sub-sm">${first_name} ${last_name}</div><div class="sub-sm">${interview_purpose_subject}</div></div><div class="view">View</div></div>
+            <div class="interview"><div class="date-box"><span>MMM</span><b>DD</b><span>YYYY</span></div><div class="left"><div class="sub-sm">${interview_time}</div><div class="title-sm">${case_name}</div><div class="sub-sm">${first_name} ${last_name}</div><div class="sub-sm">${interview_purpose_subject}</div></div><div class="view">View</div></div>
+            <div class="interview"><div class="date-box"><span>MMM</span><b>DD</b><span>YYYY</span></div><div class="left"><div class="sub-sm">${interview_time}</div><div class="title-sm">${case_name}</div><div class="sub-sm">${first_name} ${last_name}</div><div class="sub-sm">${interview_purpose_subject}</div></div><div class="view">View</div></div>
+            <div class="interview"><div class="date-box"><span>MMM</span><b>DD</b><span>YYYY</span></div><div class="left"><div class="sub-sm">${interview_time}</div><div class="title-sm">${case_name}</div><div class="sub-sm">${first_name} ${last_name}</div><div class="sub-sm">${interview_purpose_subject}</div></div><div class="view">View</div></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head"><span>Requires Action</span><span class="badge">5</span></div>
+        <div class="panel-body">
+          <div class="list">
+            <div class="item"><div class="left"><div class="title-sm">Feedback Survey</div></div><div class="view">View</div></div>
+            <div class="item"><div class="left"><div class="title-sm">Satisfaction Survey</div></div><div class="view">View</div></div>
+            <div class="item danger-card"><div class="left"><div class="title-sm">Coyote v. ACME Legal Hold</div><div class="sub-sm">SLA Exceeded</div></div><div class="view">View</div></div>
+            <div class="item warn-card"><div class="left"><div class="title-sm">Stark v. Lannister Legal Hold</div><div class="sub-sm">7 days remaining in SLA</div></div><div class="view">View</div></div>
+            <div class="item"><div class="left"><div class="title-sm">Hatfield v. McCoy Legal Hold Escalation</div></div><div class="view">View</div></div>
+          </div>
+        </div>
+      </section>
+    </div>
+    </main>
+  </div>
+  <script>
+    (function () {
+      var header = document.getElementById("stickyHeader");
+      function onScroll() {
+        if (!header) return;
+        header.classList.toggle("scrolled", window.scrollY > 2);
+      }
+      window.addEventListener("scroll", onScroll, { passive: true });
+      onScroll();
+    })();
+  </script>
+</body>
+</html>

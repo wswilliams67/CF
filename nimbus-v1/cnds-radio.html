@@ -1,0 +1,1259 @@
+<!--
+* CNDS Nimbus Design System — Radio
+* Version: 1.0.0
+* Layout: Application with SideNav
+*
+* Component CSS:  css/components/forms.css
+* Theme overrides: css/themes/light.css | css/themes/dark.css
+*
+* SECTIONS (in document order)
+*   #section-introduction      — Overview and when to use
+*   #section-basic-example     — Default and pre-checked states
+*   #section-disabled          — Disabled and checked-disabled states
+*   #section-invalid           — Invalid / validation state
+*   #section-inline            — Horizontal inline layout
+*   #section-without-labels    — Label-free radios with ARIA
+*   #section-toggle-buttons    — Button group toggle pattern
+*   #section-product-example   — CaseFusion context example
+*   #section-accessibility     — WAI-ARIA guidance
+*   #section-api-docs          — API Documentation
+*     #api-section-introduction    — Component model overview
+*     #api-section-usage           — Minimum markup pattern
+*     #api-section-css-classes     — Class reference table
+*     #api-section-css-variables   — Custom property reference table
+*     #api-section-theme-variables — Light/dark contrast values
+*     #api-section-accessibility   — Required ARIA attributes
+*
+* NOTES
+* - Pure HTML5, CSS3, vanilla JavaScript — zero external dependencies
+* - All data-cnds-* attributes are processed by nimbus.js / app.js
+* - Uses Nimbus.* namespace
+* - Default product theme: CaseFusion (cnds-product-casefusion on <body>; change to cnds-product-hyperlize or cnds-product-expireon)
+-->
+<!doctype html>
+<!-- data-cnds-theme: sets the initial theme ("light" | "dark"). nimbus.js syncs this attribute when the user toggles. -->
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta
+      name="description"
+      content="Radio | Cloudficient Nimbus Design System v1.0.0"
+    />
+    <title>Radio | CNDS v1.0.0 | Cloudficient Nimbus Design System</title>
+    <!-- Nimbus CSS -->
+    <link rel="stylesheet" href="css/nimbus.css" media="all" type="text/css" />
+    <!-- Custom styles | All custom classes/styles/overrides go here! -->
+    <link rel="stylesheet" href="css/app.css" media="all" type="text/css" />
+    <!-- Prism syntax highlighting -->
+    <link
+      rel="stylesheet"
+      href="plugins/css/prism.min.css"
+      media="all"
+      type="text/css"
+    />
+    <!-- Favicons -->
+    <link
+      rel="apple-touch-icon"
+      sizes="57x57"
+      href="img/favicon/apple-icon-57x57.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="60x60"
+      href="img/favicon/apple-icon-60x60.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="72x72"
+      href="img/favicon/apple-icon-72x72.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="76x76"
+      href="img/favicon/apple-icon-76x76.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="114x114"
+      href="img/favicon/apple-icon-114x114.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="120x120"
+      href="img/favicon/apple-icon-120x120.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="144x144"
+      href="img/favicon/apple-icon-144x144.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="152x152"
+      href="img/favicon/apple-icon-152x152.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="img/favicon/apple-icon-180x180.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="192x192"
+      href="img/favicon/android-icon-192x192.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="img/favicon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="96x96"
+      href="img/favicon/favicon-96x96.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="img/favicon/favicon-16x16.png"
+    />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta
+      name="msapplication-TileImage"
+      content="img/favicon/ms-icon-144x144.png"
+    />
+    <!-- ./Favicons -->
+    <!-- Design tokens — load order matters:
+         1. primitives.css  — raw color/spacing values (no theming)
+         2. light.css       — semantic tokens for [data-cnds-theme="light"] / :root
+         3. dark.css        — semantic token overrides for [data-cnds-theme="dark"]
+         All three must appear AFTER nimbus.css so component variables resolve correctly. -->
+    <link rel="stylesheet" href="css/themes/primitives.css" />
+    <link rel="stylesheet" href="css/themes/light.css" />
+    <link rel="stylesheet" href="css/themes/dark.css" />
+  </head>
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 Bypass Blocks; renders visually hidden until focused -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+    <!-- Header -->
+    <div class="sticky-top">
+      <!-- Utility Navigation -->
+      <nav id="UtilityNav" class="nav nav-cf-utility">
+        <div class="w-100 gx-3 px-sm-0 px-lg-3">
+          <ul class="nav nav-cf-utility-ul"></ul>
+        </div>
+      </nav>
+      <!-- ./Utility Navigation -->
+      <!-- Main Navigation -->
+      <nav id="MainNav" class="navbar navbar-expand-xl navbar-cf">
+        <div class="container-fluid p-0 px-3 d-flex">
+          <div class="d-flex flex-fill align-items-center text-truncate">
+            <div class="text-center d-none d-md-block me-3 border-end">
+              <a href="index.html"
+                ><img src="img/cf/core/logo_nimbus.png" class="me-3 mt-n1"
+              alt="Cloudficient Nimbus Design System" /></a>
+            </div>
+            <div class="flex-fill text-truncate">
+              <div class="navbar-cf-title-block">
+                <div
+                  class="navbar-cf-title cf-page-title text-truncate"
+                  style="padding-bottom: 0"
+                >
+                  <span class="cf-page-title-text cf-page-title-brand">v1</span
+                  ><span class="cf-page-title-divider"></span
+                  ><span class="cf-page-title-text">Radio</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- data-cnds-toggle="theme": wired by nimbus.js — flips data-cnds-theme on <html> between "light" and "dark" -->
+          <button
+            class="btn btn-sm btn-outline-secondary ms-2"
+            data-cnds-toggle="theme"
+            aria-label="Toggle theme"
+            title="Toggle theme"
+          >
+            <i class="mdi mdi-weather-night mdi-18px" aria-hidden="true"></i>
+          </button>
+        </div>
+      </nav>
+      <!-- ./Main Navigation -->
+    </div>
+    <!-- ./Header -->
+    <!-- Content -->
+    <main id="main-content" class="cf-main-app">
+      <!-- Mobile viewport warning -->
+      <div class="d-block d-md-none p-4">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>This application is not
+          optimized for small screens. Please use a large tablet, laptop, or
+          desktop computer to continue.
+        </div>
+      </div>
+      <div class="d-none d-md-block">
+        <!-- Sidenav — markup is intentionally empty; sidenav-loader.js fetches and injects the shared nav HTML.
+             data-cnds-mode="side"           : renders as a persistent side panel (not an overlay/drawer)
+             data-cnds-slim / slim-collapsed : controls compact/icon-only collapsed state
+             data-cnds-content="#slim-content": the sibling panel that shrinks/expands as the nav opens/closes
+             data-cnds-accordion="true"      : collapses other open nav groups when a new one is expanded -->
+        <nav
+          id="sidebar-cf"
+          class="sidenav"
+          data-cnds-mode="side"
+          data-cnds-slim="false"
+          data-cnds-slim-collapsed="false"
+          data-cnds-content="#slim-content"
+          data-cnds-accordion="true"
+        ></nav>
+        <div id="slim-content">
+          <div class="slim-content-box">
+            <!-- Content Row -->
+            <div class="row">
+              <!-- Main column — 80% of the row width; the remaining 20% is the right sidebar.
+                   The inline flex overrides pin the ratio regardless of grid breakpoints
+                   so the sidebar never wraps on large viewports. -->
+              <div class="col-12 col-lg" style="flex: 0 0 80%; max-width: 80%">
+                <!--Section: Docs content-->
+                <section class="container-fluid">
+
+                  <!--Section: Introduction-->
+                  <section id="section-introduction">
+
+                    <!-- Description -->
+                    <p class="mb-4">
+                      A radio button is a form control that allows a user to select exactly one
+                      option from a group. Use radios when the user must commit to a single choice —
+                      use <a href="cnds-checkbox.html">Checkboxes</a> when multiple selections are
+                      permitted.
+                    </p>
+                    <p class="my-4">
+                      Nimbus radios replace the browser default with a consistent cross-browser
+                      appearance via <code>.form-check</code> and <code>.form-check-input</code>.
+                      The checked indicator is a white SVG dot rendered as a CSS background image,
+                      keeping the markup clean and the visual fully theme-aware.
+                    </p>
+
+                    <p class="note note-light">
+                      <strong>Note:</strong> Read the
+                      <a href="#api-section-introduction">API Documentation</a> to find all available
+                      options and advanced customization.
+                    </p>
+
+                    <p class="note note-info"><strong class="note-label">Note:</strong> To preview components in different themes, click the theme toggle button <i class="mdi mdi-weather-night" aria-hidden="true"></i> / <i class="mdi mdi-weather-sunny" aria-hidden="true"></i> in the header navigation bar.</p>
+                  </section>
+                  <!--/Section: Introduction-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Basic example-->
+                  <section id="section-basic-example">
+                    <!-- Section title -->
+                    <h3 class="mb-3">Basic example</h3>
+
+                    <p>
+                      Apply <code>.form-check</code> to the wrapper element and
+                      <code>.form-check-input</code> to the <code>&lt;input type="radio"&gt;</code>.
+                      Pair each input with a <code>.form-check-label</code> on the sibling
+                      <code>&lt;label&gt;</code>, linked via matching <code>id</code> and
+                      <code>for</code> attributes. All inputs in a group must share the same
+                      <code>name</code> attribute so the browser enforces mutual exclusivity.
+                    </p>
+
+                    <p>
+                      CNDS uses the sibling selector (<code>~</code>) to style the label in
+                      response to the input's state — <code>:checked</code>, <code>:disabled</code>,
+                      and <code>:focus</code> — without any JavaScript.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                          <div>
+                            <!-- Unchecked radio -->
+                            <div class="form-check">
+                              <input
+                                class="form-check-input"
+                                type="radio"
+                                name="flexRadioDefault"
+                                id="flexRadioDefault1"
+                              />
+                              <label class="form-check-label" for="flexRadioDefault1">
+                                Default radio
+                              </label>
+                            </div>
+
+                            <!-- Pre-checked radio -->
+                            <div class="form-check">
+                              <input
+                                class="form-check-input"
+                                type="radio"
+                                name="flexRadioDefault"
+                                id="flexRadioDefault2"
+                                checked
+                              />
+                              <label class="form-check-label" for="flexRadioDefault2">
+                                Default checked radio
+                              </label>
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+                    <!-- Angular: Use [(ngModel)] with a shared name attribute on each radio input to create a two-way-bound radio group; alternatively use RadioControlValueAccessor with a FormControl to integrate with reactive forms.
+                         Example: <div class="form-check" *ngFor="let opt of options"><input class="form-check-input" type="radio" [name]="groupName" [id]="opt.id" [value]="opt.value" [(ngModel)]="selectedValue" /><label class="form-check-label" [for]="opt.id">{{ opt.label }}</label></div>
+                         Keep selectedValue in the component and subscribe to valueChanges on the FormControl to react to selection changes without additional event bindings. -->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;!-- Unchecked radio --&gt;
+&lt;div class="form-check"&gt;
+    &lt;input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1" /&gt;
+    &lt;label class="form-check-label" for="flexRadioDefault1"&gt;Default radio&lt;/label&gt;
+&lt;/div&gt;
+
+&lt;!-- Pre-checked radio --&gt;
+&lt;div class="form-check"&gt;
+    &lt;input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" checked /&gt;
+    &lt;label class="form-check-label" for="flexRadioDefault2"&gt;Default checked radio&lt;/label&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Basic example-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Disabled-->
+                  <section id="section-disabled">
+                    <!-- Section title -->
+                    <h3 class="mb-3">Disabled</h3>
+
+                    <p>
+                      Add the <code>disabled</code> attribute to the <code>&lt;input&gt;</code> to
+                      prevent interaction. The sibling <code>.form-check-label</code> is
+                      automatically dimmed to 50% opacity via the CSS sibling selector
+                      (<code>~</code>), signalling the unavailable state without any JavaScript.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                          <div>
+                            <div class="form-check">
+                              <input
+                                class="form-check-input"
+                                type="radio"
+                                name="flexRadioDisabled"
+                                id="flexRadioDisabled"
+                                disabled
+                              />
+                              <label class="form-check-label" for="flexRadioDisabled">
+                                Disabled radio
+                              </label>
+                            </div>
+
+                            <div class="form-check">
+                              <input
+                                class="form-check-input"
+                                type="radio"
+                                name="flexRadioDisabled"
+                                id="flexRadioCheckedDisabled"
+                                checked
+                                disabled
+                              />
+                              <label class="form-check-label" for="flexRadioCheckedDisabled">
+                                Disabled checked radio
+                              </label>
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+                    <!-- Angular: Bind the disabled state of each radio input with [disabled]="isDisabled" driven by a component property or @Input() so the group can be toggled programmatically without touching the template.
+                         Example: <div class="form-check"><input class="form-check-input" type="radio" name="flexRadioDisabled" id="flexRadioDisabled" [disabled]="isDisabled" [(ngModel)]="selectedValue" value="opt1" /><label class="form-check-label" for="flexRadioDisabled">Disabled radio</label></div>
+                         Set isDisabled on the parent FormGroup with group.disable() rather than binding [disabled] individually when disabling an entire reactive radio group. -->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div class="form-check"&gt;
+    &lt;input class="form-check-input" type="radio" name="flexRadioDisabled" id="flexRadioDisabled" disabled /&gt;
+    &lt;label class="form-check-label" for="flexRadioDisabled"&gt;Disabled radio&lt;/label&gt;
+&lt;/div&gt;
+
+&lt;div class="form-check"&gt;
+    &lt;input class="form-check-input" type="radio" name="flexRadioDisabled" id="flexRadioCheckedDisabled" checked disabled /&gt;
+    &lt;label class="form-check-label" for="flexRadioCheckedDisabled"&gt;Disabled checked radio&lt;/label&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Disabled-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Invalid / Validation-->
+                  <section id="section-invalid">
+                    <!-- Section title -->
+                    <h3 class="mb-3">Invalid / Validation</h3>
+
+                    <p>
+                      Add <code>.is-invalid</code> to the radio input to signal a validation
+                      error. The <code>.invalid-feedback</code> element switches to
+                      <code>--cnds-form-invalid-color</code>. The radio border and label both
+                      remain in their default theme styles.
+                    </p>
+
+                    <p>
+                      Prefer server-side or submit-time validation over real-time invalid state
+                      to avoid flagging fields the user has not yet interacted with. Associate
+                      the feedback message with the input via <code>aria-describedby</code> for
+                      screen reader support.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                          <div>
+                            <div class="form-check">
+                              <input
+                                class="form-check-input is-invalid"
+                                type="radio"
+                                name="flexRadioInvalid"
+                                id="invalidRadio"
+                                aria-describedby="invalidRadio-feedback"
+                              />
+                              <label class="form-check-label" for="invalidRadio">
+                                Accept terms and conditions
+                              </label>
+                              <div id="invalidRadio-feedback" class="invalid-feedback">
+                                You must select an option before submitting.
+                              </div>
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+                    <!-- Angular: Apply the invalid class conditionally using [class.is-invalid] bound to a FormControl's invalid state.
+                         Example: <input class="form-check-input" type="radio" name="flexRadioInvalid" id="invalidRadio" [class.is-invalid]="control.invalid && control.touched" [formControl]="control" />
+                         Show validation feedback with *ngIf="control.invalid && control.touched" on the error message element. -->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div class="form-check"&gt;
+    &lt;input class="form-check-input is-invalid" type="radio" name="flexRadioInvalid" id="invalidRadio"
+        aria-describedby="invalidRadio-feedback" /&gt;
+    &lt;label class="form-check-label" for="invalidRadio"&gt;Accept terms and conditions&lt;/label&gt;
+    &lt;div id="invalidRadio-feedback" class="invalid-feedback"&gt;You must select an option before submitting.&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Invalid / Validation-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Inline-->
+                  <section id="section-inline">
+                    <!-- Section title -->
+                    <h3 class="mb-3">Inline</h3>
+
+                    <p>
+                      Add <code>.form-check-inline</code> to each <code>.form-check</code> wrapper
+                      to place options on a single horizontal row. Each item is rendered as
+                      <code>display: inline-block</code> with a right margin between options.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 text-center pb-4">
+                          <div class="form-check form-check-inline">
+                            <input
+                              class="form-check-input"
+                              type="radio"
+                              name="inlineRadioOptions"
+                              id="inlineRadio1"
+                              value="option1"
+                            />
+                            <label class="form-check-label" for="inlineRadio1">1</label>
+                          </div>
+
+                          <div class="form-check form-check-inline">
+                            <input
+                              class="form-check-input"
+                              type="radio"
+                              name="inlineRadioOptions"
+                              id="inlineRadio2"
+                              value="option2"
+                            />
+                            <label class="form-check-label" for="inlineRadio2">2</label>
+                          </div>
+
+                          <div class="form-check form-check-inline">
+                            <input
+                              class="form-check-input"
+                              type="radio"
+                              name="inlineRadioOptions"
+                              id="inlineRadio3"
+                              value="option3"
+                              disabled
+                            />
+                            <label class="form-check-label" for="inlineRadio3">3 (disabled)</label>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+                    <!-- Angular: Render inline radio options with *ngFor over an options array, adding form-check-inline to each wrapper div; bind the shared name attribute with a component property so the group name stays consistent without duplication.
+                         Example: <div *ngFor="let opt of options" class="form-check form-check-inline"><input class="form-check-input" type="radio" [name]="groupName" [id]="opt.id" [value]="opt.value" [disabled]="opt.disabled" [(ngModel)]="selectedValue" /><label class="form-check-label" [for]="opt.id">{{ opt.label }}</label></div>
+                         Generate unique id values for each radio in the loop (e.g. groupName + '_' + opt.value) to prevent id collisions when the same inline group is rendered multiple times on a page. -->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div class="form-check form-check-inline"&gt;
+    &lt;input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1" /&gt;
+    &lt;label class="form-check-label" for="inlineRadio1"&gt;1&lt;/label&gt;
+&lt;/div&gt;
+
+&lt;div class="form-check form-check-inline"&gt;
+    &lt;input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2" /&gt;
+    &lt;label class="form-check-label" for="inlineRadio2"&gt;2&lt;/label&gt;
+&lt;/div&gt;
+
+&lt;div class="form-check form-check-inline"&gt;
+    &lt;input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio3" value="option3" disabled /&gt;
+    &lt;label class="form-check-label" for="inlineRadio3"&gt;3 (disabled)&lt;/label&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Inline-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Without labels-->
+                  <section id="section-without-labels">
+                    <!-- Section title -->
+                    <h3 class="mb-3">Without labels</h3>
+
+                    <p>
+                      Omit the <code>.form-check</code> wrapper and the <code>&lt;label&gt;</code>
+                      when no visible label text is needed. Always supply an
+                      <code>aria-label</code> attribute on the <code>&lt;input&gt;</code> so the
+                      option remains accessible to screen readers.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 text-center p-4 pb-4">
+                          <div class="mx-auto">
+                            <div>
+                              <input
+                                class="form-check-input"
+                                type="radio"
+                                name="radioNoLabel"
+                                id="radioNoLabel1"
+                                value=""
+                                aria-label="Option one"
+                              />
+                            </div>
+                            <br />
+                            <div>
+                              <input
+                                class="form-check-input"
+                                type="radio"
+                                name="radioNoLabel"
+                                id="radioNoLabel2"
+                                value=""
+                                aria-label="Option two"
+                              />
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+                    <!-- Angular: When rendering label-free radios, bind [attr.aria-label]="opt.ariaLabel" on each input so the accessible name is driven by the component's data model and updates automatically when option descriptions change.
+                         Example: <div *ngFor="let opt of options"><input class="form-check-input" type="radio" [name]="groupName" [id]="opt.id" [value]="opt.value" [attr.aria-label]="opt.ariaLabel" [(ngModel)]="selectedValue" /></div>
+                         Always provide a meaningful ariaLabel in the data model — never leave it empty — so screen readers can announce each unlabelled option meaningfully. -->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div&gt;
+    &lt;input class="form-check-input" type="radio" name="radioNoLabel" id="radioNoLabel1" value="" aria-label="Option one" /&gt;
+&lt;/div&gt;
+
+&lt;div&gt;
+    &lt;input class="form-check-input" type="radio" name="radioNoLabel" id="radioNoLabel2" value="" aria-label="Option two" /&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Without labels-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Toggle buttons-->
+                  <section id="section-toggle-buttons">
+                    <!-- Section title -->
+                    <h3 class="mb-3">Toggle buttons</h3>
+
+                    <p>
+                      Style radio inputs as button-group toggles by pairing <code>.btn-check</code>
+                      on the hidden <code>&lt;input&gt;</code> with a <code>.btn</code> class on the
+                      sibling <code>&lt;label&gt;</code>. Wrap the group in
+                      <code>.btn-group</code> to join the buttons visually. The browser still
+                      enforces mutual exclusivity via the shared <code>name</code> attribute;
+                      no JavaScript is required.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 text-center pb-4">
+                          <div class="btn-group" role="group" aria-label="Toggle button group">
+                            <input
+                              type="radio"
+                              class="btn-check"
+                              name="options"
+                              id="option1"
+                              autocomplete="off"
+                              checked
+                            />
+                            <label class="btn btn-secondary" for="option1">Checked</label>
+
+                            <input
+                              type="radio"
+                              class="btn-check"
+                              name="options"
+                              id="option2"
+                              autocomplete="off"
+                            />
+                            <label class="btn btn-secondary" for="option2">Radio</label>
+
+                            <input
+                              type="radio"
+                              class="btn-check"
+                              name="options"
+                              id="option3"
+                              autocomplete="off"
+                            />
+                            <label class="btn btn-secondary" for="option3">Radio</label>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+                    <!-- Angular: Bind the toggle button radio group with [(ngModel)]="selectedOption" on each hidden .btn-check input and emit the value through an @Output() (selectionChange) EventEmitter when the selection changes.
+                         Example: <div class="btn-group" role="group"><ng-container *ngFor="let opt of options"><input type="radio" class="btn-check" [name]="groupName" [id]="opt.id" [value]="opt.value" autocomplete="off" [(ngModel)]="selectedOption" (change)="onToggleChange(opt.value)" /><label class="btn btn-secondary" [for]="opt.id">{{ opt.label }}</label></ng-container></div>
+                         Use a FormControl instead of [(ngModel)] when the toggle group is part of a larger reactive form so the selection participates in form validation and reset automatically. -->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div class="btn-group" role="group" aria-label="Toggle button group"&gt;
+    &lt;input type="radio" class="btn-check" name="options" id="option1" autocomplete="off" checked /&gt;
+    &lt;label class="btn btn-secondary" for="option1"&gt;Checked&lt;/label&gt;
+
+    &lt;input type="radio" class="btn-check" name="options" id="option2" autocomplete="off" /&gt;
+    &lt;label class="btn btn-secondary" for="option2"&gt;Radio&lt;/label&gt;
+
+    &lt;input type="radio" class="btn-check" name="options" id="option3" autocomplete="off" /&gt;
+    &lt;label class="btn btn-secondary" for="option3"&gt;Radio&lt;/label&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Toggle buttons-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Product example-->
+                  <section id="section-product-example">
+                    <!-- Section title -->
+                    <h3 class="mb-3">Product example</h3>
+
+                    <p>
+                      The examples below show how radio buttons appear in a
+                      <strong>CaseFusion</strong> context. The first example uses the standard
+                      radio pattern to let an operator select a migration type before starting a
+                      job. The second shows the toggle button pattern used as a view filter — a
+                      common pattern in CaseFusion list views.
+                    </p>
+
+                    <!--Section: Demo — Standard radio-->
+                    <h3 class="mb-3">Migration type selection</h3>
+                    <p>Standard radio buttons let an operator choose exactly one migration type before starting a job. All options in the group share the same <code>name</code> attribute to enforce mutual exclusivity.</p>
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 pb-4">
+                          <p class="fw-semibold mb-3">Select migration type</p>
+
+                          <div class="form-check">
+                            <input
+                              class="form-check-input"
+                              type="radio"
+                              name="migrationType"
+                              id="migrationFull"
+                              checked
+                            />
+                            <label class="form-check-label" for="migrationFull">
+                              Full migration
+                            </label>
+                          </div>
+
+                          <div class="form-check">
+                            <input
+                              class="form-check-input"
+                              type="radio"
+                              name="migrationType"
+                              id="migrationIncremental"
+                            />
+                            <label class="form-check-label" for="migrationIncremental">
+                              Incremental migration
+                            </label>
+                          </div>
+
+                          <div class="form-check">
+                            <input
+                              class="form-check-input"
+                              type="radio"
+                              name="migrationType"
+                              id="migrationTest"
+                            />
+                            <label class="form-check-label" for="migrationTest">
+                              Test migration (dry run)
+                            </label>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo — Standard radio-->
+                    <!-- Angular: Bind the migration type selection with a FormControl using RadioControlValueAccessor; use *ngFor over a migrationTypes array to render each option and drive the selected state with [value] matching the FormControl value.
+                         Example: <div class="form-check" *ngFor="let type of migrationTypes"><input class="form-check-input" type="radio" [name]="'migrationType'" [id]="type.id" [value]="type.value" [formControl]="migrationTypeControl" /><label class="form-check-label" [for]="type.id">{{ type.label }}</label></div>
+                         Define migrationTypeControl = new FormControl('full', Validators.required) so the form stays invalid until the operator explicitly chooses a migration type. -->
+
+                    <!--Section: Code — Standard radio-->
+                    <section class="mb-5">
+                      <h5><span class="badge badge-code-html">HTML</span></h5>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;p class="fw-semibold mb-3"&gt;Select migration type&lt;/p&gt;
+
+&lt;div class="form-check"&gt;
+    &lt;input class="form-check-input" type="radio" name="migrationType" id="migrationFull" checked /&gt;
+    &lt;label class="form-check-label" for="migrationFull"&gt;Full migration&lt;/label&gt;
+&lt;/div&gt;
+
+&lt;div class="form-check"&gt;
+    &lt;input class="form-check-input" type="radio" name="migrationType" id="migrationIncremental" /&gt;
+    &lt;label class="form-check-label" for="migrationIncremental"&gt;Incremental migration&lt;/label&gt;
+&lt;/div&gt;
+
+&lt;div class="form-check"&gt;
+    &lt;input class="form-check-input" type="radio" name="migrationType" id="migrationTest" /&gt;
+    &lt;label class="form-check-label" for="migrationTest"&gt;Test migration (dry run)&lt;/label&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code — Standard radio-->
+
+                    <!--Section: Demo — Toggle filter-->
+                    <h3 class="mb-3">Migration status filter</h3>
+                    <p>The toggle button pattern applies <code>.btn-check</code> radio inputs to a <code>.btn-group</code>, creating a segmented filter control — a common pattern in CaseFusion list views where users switch between All, Active, and Completed states.</p>
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 text-center pb-4">
+                          <div class="btn-group" role="group" aria-label="Filter migrations by status">
+                            <input
+                              type="radio"
+                              class="btn-check"
+                              name="statusFilter"
+                              id="filterAll"
+                              autocomplete="off"
+                              checked
+                            />
+                            <label class="btn btn-secondary" for="filterAll">All</label>
+
+                            <input
+                              type="radio"
+                              class="btn-check"
+                              name="statusFilter"
+                              id="filterActive"
+                              autocomplete="off"
+                            />
+                            <label class="btn btn-secondary" for="filterActive">Active</label>
+
+                            <input
+                              type="radio"
+                              class="btn-check"
+                              name="statusFilter"
+                              id="filterCompleted"
+                              autocomplete="off"
+                            />
+                            <label class="btn btn-secondary" for="filterCompleted">Completed</label>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo — Toggle filter-->
+                    <!-- Angular: Bind the status filter toggle group with a FormControl so the selected filter value can be passed to a service and used to filter the migration list reactively; emit (change) events to trigger a re-fetch or list filter in the parent component.
+                         Example: <div class="btn-group" role="group"><ng-container *ngFor="let filter of statusFilters"><input type="radio" class="btn-check" name="statusFilter" [id]="filter.id" [value]="filter.value" autocomplete="off" [formControl]="statusFilterControl" /><label class="btn btn-secondary" [for]="filter.id">{{ filter.label }}</label></ng-container></div>
+                         Subscribe to statusFilterControl.valueChanges in the component and pipe through distinctUntilChanged() to avoid redundant API calls when the same filter is clicked twice. -->
+
+                    <!--Section: Code — Toggle filter-->
+                    <section class="mb-4">
+                      <h5><span class="badge badge-code-html">HTML</span></h5>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div class="btn-group" role="group" aria-label="Filter migrations by status"&gt;
+    &lt;input type="radio" class="btn-check" name="statusFilter" id="filterAll" autocomplete="off" checked /&gt;
+    &lt;label class="btn btn-secondary" for="filterAll"&gt;All&lt;/label&gt;
+
+    &lt;input type="radio" class="btn-check" name="statusFilter" id="filterActive" autocomplete="off" /&gt;
+    &lt;label class="btn btn-secondary" for="filterActive"&gt;Active&lt;/label&gt;
+
+    &lt;input type="radio" class="btn-check" name="statusFilter" id="filterCompleted" autocomplete="off" /&gt;
+    &lt;label class="btn btn-secondary" for="filterCompleted"&gt;Completed&lt;/label&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code — Toggle filter-->
+                  </section>
+                  <!--/Section: Product example-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Accessibility-->
+                  <section id="section-accessibility">
+                    <!-- Section title -->
+                    <h3 class="mb-3">Accessibility</h3>
+
+                    <p>
+                      Radio buttons are native interactive elements with strong built-in
+                      accessibility. Follow these practices to ensure the best experience for
+                      assistive technology users:
+                    </p>
+
+                    <ul>
+                      <li>
+                        Always associate each <code>&lt;input type="radio"&gt;</code> with a
+                        <code>&lt;label&gt;</code> via matching <code>id</code> and
+                        <code>for</code> attributes, or use <code>aria-label</code> when no
+                        visible label is present.
+                      </li>
+                      <li>
+                        Group related radios by giving them the same <code>name</code> attribute.
+                        Screen readers announce the group name as the user navigates between
+                        options.
+                      </li>
+                      <li>
+                        Wrap a set of related radios in a <code>&lt;fieldset&gt;</code> with a
+                        <code>&lt;legend&gt;</code> to provide context about what the group
+                        represents — for example, <em>"Select migration type"</em>.
+                      </li>
+                      <li>
+                        For the toggle button pattern, add <code>role="group"</code> and an
+                        <code>aria-label</code> to the <code>.btn-group</code> wrapper so the
+                        purpose of the control set is announced.
+                      </li>
+                      <li>
+                        Never rely on color alone to convey state — the checked indicator (SVG dot),
+                        focus ring, and label opacity change all provide non-color cues.
+                      </li>
+                    </ul>
+
+                    <p>
+                      For the full specification, see the
+                      <a rel="nofollow" target="_blank" href="https://www.w3.org/TR/wai-aria-practices/#radiobutton">WAI-ARIA Authoring Practices for the radio group pattern</a>.
+                    </p>
+                  </section>
+                  <!--/Section: Accessibility-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: API Documentation-->
+                  <section id="section-api-docs">
+                    <h3 class="mb-3">API Documentation</h3>
+
+                    <!--Section: API Introduction-->
+                    <section id="api-section-introduction">
+                      <h4 class="mb-4">Introduction</h4>
+                      <p>
+                        The Nimbus radio component is CSS-only — no JavaScript initialization is
+                        required. Appearance is controlled entirely through CSS custom properties
+                        defined on <code>.form-check-input</code> and overridden per-theme in
+                        <code>light.css</code> and <code>dark.css</code>. The checked indicator is
+                        a white SVG circle rendered via <code>background-image</code>, keeping
+                        markup free of extra elements. The toggle button pattern (<code>.btn-check</code>)
+                        is also CSS-only — the visually hidden <code>&lt;input&gt;</code> drives
+                        the adjacent <code>.btn</code> label via the <code>:checked + .btn</code>
+                        sibling selector.
+                      </p>
+                    </section>
+                    <!--/Section: API Introduction-->
+
+                    <!--Section: API Usage-->
+                    <section id="api-section-usage">
+                      <h4 class="mb-4">Usage</h4>
+                      <p>
+                        Wrap each radio in <code>.form-check</code>, apply
+                        <code>.form-check-input</code> to the <code>&lt;input&gt;</code>, and link
+                        a <code>.form-check-label</code> via <code>for</code>/<code>id</code>. All
+                        inputs in a group must share the same <code>name</code> value.
+                      </p>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-html">&lt;div class="form-check"&gt;
+    &lt;input class="form-check-input" type="radio" name="group" id="radio1" /&gt;
+    &lt;label class="form-check-label" for="radio1"&gt;Option one&lt;/label&gt;
+&lt;/div&gt;
+
+&lt;div class="form-check"&gt;
+    &lt;input class="form-check-input" type="radio" name="group" id="radio2" checked /&gt;
+    &lt;label class="form-check-label" for="radio2"&gt;Option two&lt;/label&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Section: API Usage-->
+
+                    <!--Section: API CSS Classes-->
+                    <section id="api-section-css-classes">
+                      <h4 class="mb-4">CSS classes</h4>
+                      <p>
+                        All classes below are CSS-only and require no JavaScript. Classes
+                        sourced from <code>css/components/forms.css</code> and
+                        <code>css/components/buttons.css</code>.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped" aria-label="CSS classes">
+                          <thead>
+                            <tr>
+                              <th>Class</th>
+                              <th>Element</th>
+                              <th>Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>.form-check</code></td>
+                              <td><code>&lt;div&gt;</code></td>
+                              <td>Wrapper that establishes the left-padding gutter for the floating input. Sets <code>min-height: 1.5rem</code> and <code>margin-bottom: 0.125rem</code>.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.form-check-input</code></td>
+                              <td><code>&lt;input type="radio"&gt;</code></td>
+                              <td>Replaces the browser default. Renders 18 × 18 px, fully circular (<code>border-radius: 50%</code>). Hosts all <code>--cnds-form-check-*</code> custom properties.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.form-check-label</code></td>
+                              <td><code>&lt;label&gt;</code></td>
+                              <td>Label paired with the input. Font size 0.875 rem, weight 600. Opacity is automatically reduced to 0.5 when the sibling input is <code>:disabled</code>.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.form-check-inline</code></td>
+                              <td><code>.form-check</code></td>
+                              <td>Modifier that changes the wrapper to <code>display: inline-block</code> with a right margin, placing multiple options on one row.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.form-check-reverse</code></td>
+                              <td><code>.form-check</code></td>
+                              <td>Mirrors the layout so the input floats to the right and the label aligns left. Useful for right-to-left or right-aligned form designs.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.btn-check</code></td>
+                              <td><code>&lt;input type="radio"&gt;</code></td>
+                              <td>Visually hides the radio while keeping it focusable and interactive. Drives the adjacent <code>.btn</code> label via the <code>:checked + .btn</code> CSS sibling selector.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.btn-group</code></td>
+                              <td><code>&lt;div&gt;</code></td>
+                              <td>Wraps a set of <code>.btn-check</code> + <code>.btn</code> pairs into a joined button toolbar. Add <code>role="group"</code> and <code>aria-label</code> for accessibility.</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: API CSS Classes-->
+
+                    <!--Section: API CSS Custom Properties-->
+                    <section id="api-section-css-variables">
+                      <h4 class="mb-4">CSS custom properties</h4>
+                      <p>
+                        All custom properties are defined on <code>.form-check-input</code> in
+                        <code>css/components/forms.css</code>. Theme-specific values are set in
+                        <code>css/themes/light.css</code> and overridden in
+                        <code>css/themes/dark.css</code>. Override per-instance with an inline
+                        <code>style</code> attribute, or globally by targeting
+                        <code>.form-check-input</code> in a custom stylesheet.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped" aria-label="CSS custom properties">
+                          <thead>
+                            <tr>
+                              <th>Property</th>
+                              <th>Default</th>
+                              <th>Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>--cnds-form-check-bg</code></td>
+                              <td><code>var(--cnds-input-bg, #fff)</code></td>
+                              <td>Background fill of the unchecked input. Inherits the shared input background token so it adapts to theme automatically.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-form-check-bg-image</code></td>
+                              <td><em>none (unset)</em></td>
+                              <td>SVG background image applied by <code>:checked[type="radio"]</code> — a white circle centered in the input. Set automatically; do not override manually.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-form-check-input-width</code></td>
+                              <td><code>18px</code></td>
+                              <td>Width and height of the radio input. Both dimensions use this single token.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-form-check-input-border-color</code></td>
+                              <td><code>#787878</code> (light)</td>
+                              <td>Border color of the unchecked input. Overridden in dark mode. Sourced from <code>light.css</code> / <code>dark.css</code>.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-form-check-input-checked-bg</code></td>
+                              <td><code>var(--cnds-surface-blue-500, #355d97)</code></td>
+                              <td>Fill color of the checked input. Overridden in dark mode to <code>var(--cnds-surface-blue-400, #6790ca)</code>.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-form-check-input-checked-border-color</code></td>
+                              <td><code>var(--cnds-surface-blue-500, #355d97)</code></td>
+                              <td>Border color of the checked input. Matches <code>--cnds-form-check-input-checked-bg</code> by default so the border disappears visually.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-form-check-input-focus-border-color</code></td>
+                              <td><code>var(--cnds-surface-blue-500, #355d97)</code></td>
+                              <td>Border color applied on <code>:focus</code>. Overridden in dark mode.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-form-check-input-focus-box-shadow</code></td>
+                              <td><code>0 0 0 0.25rem rgba(53,93,151,0.25)</code></td>
+                              <td>Focus ring applied on <code>:focus</code>. Provides a visible keyboard navigation indicator. Overridden in dark mode with the dark-mode blue.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-form-check-input-border-color-invalid</code></td>
+                              <td><code>#ff97aa</code></td>
+                              <td>Border color applied when <code>.is-invalid</code> or <code>:invalid</code> is present. Overridden in dark mode.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-form-check-label-color</code></td>
+                              <td><code>inherit</code></td>
+                              <td>Text color of <code>.form-check-label</code>. Inherits from the parent by default; overridden to <code>--cnds-body-color</code> in dark mode via <code>dark.css</code>.</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: API CSS Custom Properties-->
+
+                    <!--Section: API Theme Variables-->
+                    <section id="api-section-theme-variables">
+                      <h4 class="mb-4">Theme variables</h4>
+                      <p>
+                        The radio component adapts to the active theme via tokens set in
+                        <code>light.css</code> and overridden in <code>dark.css</code>. The
+                        component-level dark overrides are applied on
+                        <code>[data-cnds-theme="dark"] .form-check-input</code> selectors.
+                        All values below meet WCAG AA contrast requirements against their
+                        respective theme backgrounds.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Theme variables">
+                          <thead>
+                            <tr>
+                              <th>Token</th>
+                              <th>Light value</th>
+                              <th>Light contrast</th>
+                              <th>Dark value</th>
+                              <th>Dark contrast</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>--cnds-form-check-input-border-color</code></td>
+                              <td><code>#787878</code></td>
+                              <td>4.0:1 on <code>#ffffff</code> — AA (UI)</td>
+                              <td><code>var(--cnds-input-border-color, #6b6b6b)</code></td>
+                              <td>3.1:1 on <code>#252525</code> — AA (UI)</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-form-check-input-checked-bg</code></td>
+                              <td><code>var(--cnds-surface-blue-500, #355d97)</code></td>
+                              <td>6.0:1 white dot on <code>#355d97</code> — AA</td>
+                              <td><code>var(--cnds-surface-blue-400, #6790ca)</code></td>
+                              <td>3.0:1 white dot on <code>#6790ca</code> — AA (UI)</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-form-check-label-color</code></td>
+                              <td>inherits <code>--cnds-body-color</code> (<code>#4f4f4f</code>)</td>
+                              <td>11.5:1 on <code>#ffffff</code> — AAA</td>
+                              <td><code>var(--cnds-body-color, #ebebeb)</code></td>
+                              <td>13.6:1 on <code>#1e1e1e</code> — AAA</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: API Theme Variables-->
+
+                    <!--Section: API Accessibility-->
+                    <section id="api-section-accessibility">
+                      <h4 class="mb-4">Accessibility</h4>
+                      <p>
+                        The following practices ensure an accessible radio implementation:
+                      </p>
+                      <ul>
+                        <li>
+                          Link every <code>&lt;input type="radio"&gt;</code> to its
+                          <code>&lt;label&gt;</code> via matching <code>id</code> and
+                          <code>for</code> attributes. When no visible label is used, provide
+                          <code>aria-label</code> directly on the input.
+                        </li>
+                        <li>
+                          All radios in a mutually exclusive group must share the same
+                          <code>name</code> attribute. This is both a browser requirement for
+                          mutual exclusivity and an ARIA grouping signal.
+                        </li>
+                        <li>
+                          Wrap a set of related radios in a <code>&lt;fieldset&gt;</code> with
+                          a <code>&lt;legend&gt;</code> to give screen readers the group label
+                          alongside each option.
+                        </li>
+                        <li>
+                          For toggle button groups, add <code>role="group"</code> and
+                          <code>aria-label</code> to the <code>.btn-group</code> wrapper. The
+                          visually hidden <code>.btn-check</code> input retains full keyboard
+                          and screen-reader operability.
+                        </li>
+                        <li>
+                          Do not use the <code>disabled</code> attribute to hide irrelevant
+                          options — remove them from the DOM instead. Disabled inputs are still
+                          discoverable to screen readers and may cause confusion.
+                        </li>
+                      </ul>
+                      <p>
+                        For the full specification, see the
+                        <a rel="nofollow" target="_blank" href="https://www.w3.org/TR/wai-aria-practices/#radiobutton">WAI-ARIA Authoring Practices for the radio group pattern</a>.
+                      </p>
+                    </section>
+                    <!--/Section: API Accessibility-->
+
+                  </section>
+                  <!--/Section: API Documentation-->
+
+                </section>
+                <!--/Section: Docs content-->
+              </div>
+              <!-- ./Main column -->
+
+              <!-- Right Sidebar — 20% of the row width; hidden below lg breakpoint.
+                   Sticky attributes (processed by nimbus.js):
+                     data-cnds-sticky="true"           : activates sticky positioning
+                     data-cnds-sticky-boundary="true"  : constrains sticky to its parent container
+                     data-cnds-sticky-direction="both" : sticks when scrolling up OR down
+                     data-cnds-sticky-offset="56"      : clears the 56 px fixed header
+                     data-cnds-sticky-delay="125"      : debounce delay (ms) to reduce scroll jank
+                   data-cnds-allow-hashes="true" on the <ul>: nimbus.js watches the URL hash
+                     and highlights the matching nav-link as the user scrolls through sections. -->
+              <div class="col-lg-2 d-none d-lg-block">
+                <div class="sticky-top" style="top: 100px; z-index: 1">
+                  <ul
+                    class="nav flex-column nav-pills menu-sidebar"
+                    id="rightNav"
+                    data-cnds-allow-hashes="true"
+                  >
+                    <li class="nav-item"><a class="nav-link" href="#section-introduction">Introduction</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-basic-example">Basic example</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-disabled">Disabled</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-invalid">Invalid / Validation</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-inline">Inline</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-without-labels">Without labels</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-toggle-buttons">Toggle buttons</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-product-example">Product example</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-accessibility">Accessibility</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-api-docs">API Documentation</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-introduction">Introduction</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-usage">Usage</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-css-classes">CSS classes</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-css-variables">CSS custom properties</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-theme-variables">Theme variables</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-accessibility">Accessibility</a></li>
+                  </ul>
+                </div>
+              </div>
+              <!-- ./Right Sidebar -->
+            </div>
+            <!-- ./Content Row -->
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- ./Content -->
+    <!-- Footer -->
+    <div class="cf-footer cf-footer-app">
+      <footer class="page-footer main-footer" aria-label="Site footer">
+        <div class="w-100 px-3 d-flex align-items-center">
+          <img src="img/cf/core/cloudficient_logo_light.svg" class="cf-logo-light" style="width: 135px;" alt="Cloudficient" />
+          <img src="img/cf/core/cloudficient_logo_dark.svg" class="cf-logo-dark" style="width: 135px;" alt="Cloudficient" />
+          <span class="footer-copyright ms-auto">&copy; <span id="currentYear"></span> Cloudficient</span>
+        </div>
+      </footer>
+    </div>
+    <!-- ./Footer -->
+    <!-- SCRIPTS — load order matters:
+         1. nimbus.js       — core framework: processes all data-cnds-* attributes (theme, sticky, sidenav, tooltips…)
+         2. app.js          — application-level overrides and custom initialisation
+         3. prism.min.js    — syntax highlighting for <code class="language-*"> blocks; must run after DOM is ready
+         4. sidenav-loader.js — fetches shared sidenav HTML and injects it into #sidebar-cf -->
+    <script type="text/javascript" src="js/nimbus.js?v=9.0.4"></script>
+    <script type="text/javascript" src="js/app.js?v=9.0.4"></script>
+    <script type="text/javascript" src="plugins/js/prism.min.js"></script>
+    <script type="text/javascript" src="js/sidenav-loader.js"></script>
+    <!-- Inline: populate the footer copyright year dynamically so the page never needs a manual update -->
+    <script type="text/javascript">
+      var currentYearElement = document.getElementById("currentYear");
+      if (currentYearElement) {
+        currentYearElement.textContent = new Date().getFullYear();
+      }
+    </script>
+  </body>
+</html>

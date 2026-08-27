@@ -1,0 +1,968 @@
+<!--
+* CNDS Nimbus Design System — Smooth Scroll
+* Version: 1.0.0
+* Layout: Application with SideNav (migrated from Nimbus v8 template)
+* NOTES
+- Pure HTML5, CSS3, vanilla JavaScript — zero external dependencies
+- Uses data-cnds-* attributes (replaces data-mdb-*)
+- Uses Nimbus.* namespace (replaces mdb.*)
+- Default product theme: CaseFusion (cnds-product-casefusion on <body>; change to cnds-product-hyperlize or cnds-product-expireon)
+-->
+<!doctype html>
+<!-- data-cnds-theme: sets the initial theme ("light" | "dark"). nimbus.js syncs this attribute when the user toggles. -->
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta
+      name="description"
+      content="Smooth Scroll | Cloudficient Nimbus Design System v1.0.0"
+    />
+    <title>Smooth Scroll | CNDS v1.0.0 | Cloudficient Nimbus Design System</title>
+    <!-- Nimbus CSS -->
+    <link rel="stylesheet" href="css/nimbus.css" media="all" type="text/css" />
+    <!-- Custom styles | All custom classes/styles/overrides go here! -->
+    <link rel="stylesheet" href="css/app.css" media="all" type="text/css" />
+    <!-- Prism syntax highlighting -->
+    <link
+      rel="stylesheet"
+      href="plugins/css/prism.min.css"
+      media="all"
+      type="text/css"
+    />
+    <!-- Favicons -->
+    <link
+      rel="apple-touch-icon"
+      sizes="57x57"
+      href="img/favicon/apple-icon-57x57.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="60x60"
+      href="img/favicon/apple-icon-60x60.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="72x72"
+      href="img/favicon/apple-icon-72x72.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="76x76"
+      href="img/favicon/apple-icon-76x76.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="114x114"
+      href="img/favicon/apple-icon-114x114.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="120x120"
+      href="img/favicon/apple-icon-120x120.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="144x144"
+      href="img/favicon/apple-icon-144x144.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="152x152"
+      href="img/favicon/apple-icon-152x152.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="img/favicon/apple-icon-180x180.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="192x192"
+      href="img/favicon/android-icon-192x192.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="img/favicon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="96x96"
+      href="img/favicon/favicon-96x96.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="img/favicon/favicon-16x16.png"
+    />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta
+      name="msapplication-TileImage"
+      content="img/favicon/ms-icon-144x144.png"
+    />
+    <!-- ./Favicons -->
+    <!-- Design tokens — load order matters:
+         1. primitives.css  — raw color/spacing values (no theming)
+         2. light.css       — semantic tokens for [data-cnds-theme="light"] / :root
+         3. dark.css        — semantic token overrides for [data-cnds-theme="dark"]
+         All three must appear AFTER nimbus.css so component variables resolve correctly. -->
+    <link rel="stylesheet" href="css/themes/primitives.css" />
+    <link rel="stylesheet" href="css/themes/light.css" />
+    <link rel="stylesheet" href="css/themes/dark.css" />
+  </head>
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 Bypass Blocks; renders visually hidden until focused -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+    <!-- Header -->
+    <div class="sticky-top">
+      <!-- Utility Navigation -->
+      <nav id="UtilityNav" class="nav nav-cf-utility">
+        <div class="w-100 gx-3 px-sm-0 px-lg-3">
+          <ul class="nav nav-cf-utility-ul"></ul>
+        </div>
+      </nav>
+      <!-- ./Utility Navigation -->
+      <!-- Main Navigation -->
+      <nav id="MainNav" class="navbar navbar-expand-xl navbar-cf">
+        <div class="container-fluid p-0 px-3 d-flex">
+          <div class="d-flex flex-fill align-items-center text-truncate">
+            <div class="text-center d-none d-md-block me-3 border-end">
+              <a href="index.html"
+                ><img src="img/cf/core/logo_nimbus.png" class="me-3 mt-n1"
+              alt="Cloudficient Nimbus Design System" /></a>
+            </div>
+            <div class="flex-fill text-truncate">
+              <div class="navbar-cf-title-block">
+                <div
+                  class="navbar-cf-title cf-page-title text-truncate"
+                  style="padding-bottom: 0"
+                >
+                  <span class="cf-page-title-text cf-page-title-brand">v1</span
+                  ><span class="cf-page-title-divider"></span
+                  ><span class="cf-page-title-text">Smooth Scroll</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- data-cnds-toggle="theme": wired by nimbus.js — flips data-cnds-theme on <html> between "light" and "dark" -->
+          <button
+            class="btn btn-sm btn-outline-secondary ms-2"
+            data-cnds-toggle="theme"
+            aria-label="Toggle theme"
+            title="Toggle theme"
+          >
+            <i class="mdi mdi-weather-night mdi-18px" aria-hidden="true"></i>
+          </button>
+        </div>
+      </nav>
+      <!-- ./Main Navigation -->
+    </div>
+    <!-- ./Header -->
+    <!-- Content -->
+    <main id="main-content" class="cf-main-app">
+      <!-- Mobile viewport warning -->
+      <div class="d-block d-md-none p-4">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>This application is not
+          optimized for small screens. Please use a large tablet, laptop, or
+          desktop computer to continue.
+        </div>
+      </div>
+      <div class="d-none d-md-block">
+        <!-- Sidenav — markup is intentionally empty; sidenav-loader.js fetches and injects the shared nav HTML.
+             data-cnds-mode="side"           : renders as a persistent side panel (not an overlay/drawer)
+             data-cnds-slim / slim-collapsed : controls compact/icon-only collapsed state
+             data-cnds-content="#slim-content": the sibling panel that shrinks/expands as the nav opens/closes
+             data-cnds-accordion="true"      : collapses other open nav groups when a new one is expanded -->
+        <nav
+          id="sidebar-cf"
+          class="sidenav"
+          data-cnds-mode="side"
+          data-cnds-slim="false"
+          data-cnds-slim-collapsed="false"
+          data-cnds-content="#slim-content"
+          data-cnds-accordion="true"
+        ></nav>
+        <div id="slim-content">
+          <div class="slim-content-box">
+            <!-- Content Row -->
+            <div class="row">
+              <!-- Main column — 80% of the row width; the remaining 20% is the right sidebar.
+                   Inline flex overrides pin the ratio regardless of Bootstrap's grid breakpoints
+                   so the sidebar never wraps on large viewports. -->
+              <div class="col-12 col-lg" style="flex: 0 0 80%; max-width: 80%">
+                <!--Section: Docs content-->
+                <section class="container-fluid">
+
+                  <!--Section: Introduction-->
+                  <section id="section-introduction">
+
+                    <p class="mb-4">
+                      Smooth scroll produces an animated glide from any clickable trigger — a
+                      link, button, or other element — to a target section on the same page.
+                      It replaces the browser's default instant jump with a configurable animation
+                      driven by duration, easing curve, and pixel offset, keeping users visually
+                      oriented as the page moves.
+                    </p>
+
+                    <p class="mb-4">
+                      Add <code>data-cnds-smooth-scroll-init</code> to any anchor whose
+                      <code>href</code> points to an on-page <code>id</code> to activate smooth
+                      scrolling with no additional JavaScript. Use
+                      <code>data-cnds-container</code> to scope the animation to a specific
+                      scrollable element rather than the page body — useful for scroll areas inside
+                      panels, modals, or data tables. For programmatic control, instantiate
+                      <code>new Nimbus.SmoothScroll(element, options)</code> and call
+                      <code>scrollTo()</code> directly.
+                    </p>
+
+                    <!-- API docs note — shown first so developers locate the reference before reading examples -->
+                    <p class="note note-light">
+                      <strong>Note:</strong> Read the
+                      <a href="#api-section-introduction">API Documentation</a> to
+                      find all available options and advanced customization.
+                    </p>
+
+                    <!-- Theme note — informs designers and reviewers how to preview in both themes -->
+                    <p class="note note-info"><strong class="note-label">Note:</strong> To preview components in different themes, click the theme toggle button <i class="mdi mdi-weather-night" aria-hidden="true"></i> / <i class="mdi mdi-weather-sunny" aria-hidden="true"></i> in the header navigation bar.</p>
+
+                  </section>
+                  <!--/Section: Introduction-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Basic example-->
+                  <section id="section-basic-example">
+                    <h3 class="mb-4">Basic example</h3>
+
+                    <p>
+                      Add <code>data-cnds-smooth-scroll-init</code> to any <code>&lt;a&gt;</code>
+                      element whose <code>href</code> points to an on-page anchor. Nimbus intercepts
+                      the click and animates the scroll instead of jumping instantly. No JavaScript
+                      is required — all options are read from <code>data-cnds-*</code> attributes at
+                      click time. The demo below also uses <code>data-cnds-container</code> to scope
+                      the animation to a fixed-height scrollable div rather than the page body.
+                      Click the link in the preview to see the effect.
+                    </p>
+
+                    <!-- Angular: Import NimbusSmoothScrollModule and apply the cndsSmoothScrollInit directive to the anchor; for container-scoped scrolling add [cndsSmoothScrollContainer] with the container's CSS selector.
+                         Example: <a href="#section-1" cndsSmoothScrollInit [cndsSmoothScrollContainer]="'#my-container'">Scroll to target</a>
+                         For page-level scrolling the container binding is not required — omit [cndsSmoothScrollContainer] and the directive scrolls the document body. -->
+
+                    <!--Section: Demo-->
+                    <section class="pb-4" aria-label="Basic smooth scroll demo">
+                      <div class="border rounded-5">
+                        <div class="w-100 p-4 pb-4">
+                          <!-- Scrollable container — tabindex="0" lets keyboard users scroll with
+                               arrow keys, satisfying WCAG 2.1.1 / Section 508 §1194.22(a). -->
+                          <div
+                            id="demo-example-1"
+                            tabindex="0"
+                            role="region"
+                            aria-label="Scrollable demo area 1"
+                            style="overflow-y: auto; height: 200px; width: 100%; text-align: center;"
+                          >
+                            <a
+                              href="#section-1"
+                              data-cnds-smooth-scroll-init
+                              data-cnds-container="#demo-example-1"
+                              >Smooth Scroll to #section-1</a
+                            >
+                            <div style="height: 250px" aria-hidden="true"></div>
+                            <div id="section-1" class="text-center">
+                              <p>Here it is #section-1</p>
+                            </div>
+                            <div style="height: 200px" aria-hidden="true"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+
+                    <!--Section: Code-->
+                    <section class="mb-4" aria-label="Basic smooth scroll code example">
+                      <h5><span class="badge badge-code-html">HTML</span></h5>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;a href="#section-1" data-cnds-smooth-scroll-init data-cnds-container="#demo-example-1"&gt;Smooth Scroll to #section-1&lt;/a&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                  </section>
+                  <!--/Section: Basic example-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Custom container-->
+                  <section id="section-custom-container">
+                    <h3 class="mb-4">Custom container</h3>
+
+                    <p>
+                      By default, smooth scroll animates the document body (the page itself).
+                      Use <code>data-cnds-container</code> with a CSS selector to scope the
+                      animation to a specific element instead — for example, a fixed-height
+                      panel with <code>overflow: auto</code>. This is essential when the scroll
+                      target lives inside a clipped, independently scrolling container rather than
+                      the main page.
+                    </p>
+
+                    <!-- Angular: Bind a CSS selector string to [cndsSmoothScrollContainer] to scope the scroll to any overflow-scrollable element rather than the page body.
+                         Example: <a href="#section-2" cndsSmoothScrollInit [cndsSmoothScrollContainer]="'#my-panel'">Scroll to target</a>
+                         The value must be a valid CSS selector pointing to the scrollable parent; the directive resolves the element at click time, not at init. -->
+
+                    <!--Section: Demo-->
+                    <section class="pb-4" aria-label="Custom container smooth scroll demo">
+                      <div class="border rounded-5">
+                        <div class="w-100 p-4 pb-4">
+                          <div
+                            id="demo-example-2"
+                            tabindex="0"
+                            role="region"
+                            aria-label="Scrollable demo area 2"
+                            style="overflow-y: auto; height: 200px; width: 100%; text-align: center;"
+                          >
+                            <a
+                              href="#section-2"
+                              data-cnds-smooth-scroll-init
+                              data-cnds-container="#demo-example-2"
+                              >Smooth Scroll to #section-2</a
+                            >
+                            <div style="height: 250px" aria-hidden="true"></div>
+                            <div id="section-2" class="text-center">
+                              <p>Here it is #section-2</p>
+                            </div>
+                            <div style="height: 200px" aria-hidden="true"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+
+                    <!--Section: Code-->
+                    <section class="mb-4" aria-label="Custom container code example">
+                      <h5><span class="badge badge-code-html">HTML</span></h5>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;a href="#section-2" data-cnds-smooth-scroll-init data-cnds-container="#demo-example-2"&gt;Smooth Scroll to #section-2&lt;/a&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                  </section>
+                  <!--/Section: Custom container-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Custom offset-->
+                  <section id="section-custom-offset">
+                    <h3 class="mb-4">Custom offset</h3>
+
+                    <p>
+                      <code>data-cnds-offset</code> adds a pixel gap between the scroll destination
+                      and the top edge of the container. Use a positive integer to stop short of the
+                      target — for example, to clear a sticky header — or a negative value to
+                      overshoot it. The default offset is <code>0</code>. The example below uses an
+                      offset of <code>25</code> px.
+                    </p>
+
+                    <!-- Angular: Bind the pixel offset as a number to [cndsSmoothScrollOffset]; positive values stop short of the target (e.g. to clear a sticky header), negative values overshoot.
+                         Example: <a href="#section-3" cndsSmoothScrollInit [cndsSmoothScrollContainer]="'#my-panel'" [cndsSmoothScrollOffset]="25">Scroll to target</a>
+                         Expose the offset as an @Input() on the host component to allow parent components to configure the clearance dynamically at runtime. -->
+
+                    <!--Section: Demo-->
+                    <section class="pb-4" aria-label="Custom offset smooth scroll demo">
+                      <div class="border rounded-5">
+                        <div class="w-100 p-4 pb-4">
+                          <div
+                            id="demo-example-3"
+                            tabindex="0"
+                            role="region"
+                            aria-label="Scrollable demo area 3"
+                            style="overflow-y: auto; height: 200px; width: 100%; text-align: center;"
+                          >
+                            <a
+                              href="#section-3"
+                              data-cnds-smooth-scroll-init
+                              data-cnds-container="#demo-example-3"
+                              data-cnds-offset="25"
+                              >Smooth Scroll to #section-3</a
+                            >
+                            <div style="height: 250px" aria-hidden="true"></div>
+                            <div id="section-3" class="text-center">
+                              <p>Here it is #section-3</p>
+                            </div>
+                            <div style="height: 200px" aria-hidden="true"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+
+                    <!--Section: Code-->
+                    <section class="mb-4" aria-label="Custom offset code example">
+                      <h5><span class="badge badge-code-html">HTML</span></h5>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;a href="#section-3" data-cnds-smooth-scroll-init data-cnds-container="#demo-example-3" data-cnds-offset="25"&gt;Smooth Scroll to #section-3&lt;/a&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                  </section>
+                  <!--/Section: Custom offset-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Custom duration-->
+                  <section id="section-custom-duration">
+                    <h3 class="mb-4">Custom duration</h3>
+
+                    <p>
+                      <code>data-cnds-duration</code> controls how long the scroll animation runs,
+                      in milliseconds. Shorter values feel snappier; longer values produce a more
+                      cinematic glide. The default is <code>500</code> ms. The example below uses
+                      <code>3000</code> ms — a noticeably slow scroll useful for demonstrating the
+                      easing curve at work.
+                    </p>
+
+                    <!-- Angular: Bind the animation duration in milliseconds as a number to [cndsSmoothScrollDuration]; shorter values feel snappier, longer values produce a cinematic glide.
+                         Example: <a href="#section-4" cndsSmoothScrollInit [cndsSmoothScrollContainer]="'#my-panel'" [cndsSmoothScrollDuration]="3000">Scroll to target</a>
+                         The default duration is 500 ms; expose the value as an @Input() to let parent components tune it per use-case without modifying the template. -->
+
+                    <!--Section: Demo-->
+                    <section class="pb-4" aria-label="Custom duration smooth scroll demo">
+                      <div class="border rounded-5">
+                        <div class="w-100 p-4 pb-4">
+                          <div
+                            id="demo-example-4"
+                            tabindex="0"
+                            role="region"
+                            aria-label="Scrollable demo area 4"
+                            style="overflow-y: auto; height: 200px; width: 100%; text-align: center;"
+                          >
+                            <a
+                              href="#section-4"
+                              data-cnds-smooth-scroll-init
+                              data-cnds-container="#demo-example-4"
+                              data-cnds-duration="3000"
+                              >Smooth Scroll to #section-4</a
+                            >
+                            <div style="height: 250px" aria-hidden="true"></div>
+                            <div id="section-4" class="text-center">
+                              <p>Here it is #section-4</p>
+                            </div>
+                            <div style="height: 200px" aria-hidden="true"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+
+                    <!--Section: Code-->
+                    <section class="mb-4" aria-label="Custom duration code example">
+                      <h5><span class="badge badge-code-html">HTML</span></h5>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;a href="#section-4" data-cnds-smooth-scroll-init data-cnds-container="#demo-example-4" data-cnds-duration="3000"&gt;Smooth Scroll to #section-4&lt;/a&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                  </section>
+                  <!--/Section: Custom duration-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Custom easing-->
+                  <section id="section-custom-easing">
+                    <h3 class="mb-4">Custom easing</h3>
+
+                    <p>
+                      <code>data-cnds-easing</code> selects the motion curve applied to the scroll
+                      animation. The default is <code>linear</code> (constant speed throughout).
+                      The <code>easeInOutQuart</code> curve used below accelerates slowly, reaches
+                      peak speed at the midpoint, then decelerates — producing a natural feel
+                      for longer scrolls. See the <a href="#api-section-options">Options</a> table
+                      for the complete list of available easing names.
+                    </p>
+
+                    <!-- Angular: Bind the easing curve name as a string to [cndsSmoothScrollEasing]; accepted values include 'linear', 'easeInOutQuart', 'easeOutQuint', and other standard CSS-timing equivalents.
+                         Example: <a href="#section-5" cndsSmoothScrollInit [cndsSmoothScrollContainer]="'#my-panel'" [cndsSmoothScrollDuration]="1000" [cndsSmoothScrollEasing]="'easeInOutQuart'">Scroll to target</a>
+                         The default is 'linear'; pair with a longer duration (1000–1500 ms) to make easeInOut curves perceptible to users. -->
+
+                    <!--Section: Demo-->
+                    <section class="pb-4" aria-label="Custom easing smooth scroll demo">
+                      <div class="border rounded-5">
+                        <div class="w-100 p-4 pb-4">
+                          <div
+                            id="demo-example-5"
+                            tabindex="0"
+                            role="region"
+                            aria-label="Scrollable demo area 5"
+                            style="overflow-y: auto; height: 200px; width: 100%; text-align: center;"
+                          >
+                            <a
+                              href="#section-5"
+                              data-cnds-smooth-scroll-init
+                              data-cnds-container="#demo-example-5"
+                              data-cnds-duration="1000"
+                              data-cnds-easing="easeInOutQuart"
+                              >Smooth Scroll to #section-5</a
+                            >
+                            <div style="height: 250px" aria-hidden="true"></div>
+                            <div id="section-5" class="text-center">
+                              <p>Here it is #section-5</p>
+                            </div>
+                            <div style="height: 200px" aria-hidden="true"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+
+                    <!--Section: Code-->
+                    <section class="mb-4" aria-label="Custom easing code example">
+                      <h5><span class="badge badge-code-html">HTML</span></h5>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;a href="#section-5" data-cnds-smooth-scroll-init data-cnds-container="#demo-example-5" data-cnds-duration="1000" data-cnds-easing="easeInOutQuart"&gt;Smooth Scroll to #section-5&lt;/a&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                  </section>
+                  <!--/Section: Custom easing-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Container away from viewport-->
+                  <section id="section-scroll-to-viewport">
+                    <h3 class="mb-4">Container away from viewport</h3>
+
+                    <p>
+                      The trigger link and the scrollable container do not need to be co-located.
+                      Use <code>data-cnds-container</code> to point from a link anywhere on the
+                      page to any scrollable element — the component locates the container and
+                      animates its internal scroll regardless of where the link appears. In the
+                      demo below, the trigger link sits in the demo box above while the scrollable
+                      panel is positioned separately further down the page. Click the link to see
+                      the internal scroll play within the separate panel.
+                    </p>
+
+                    <!-- Angular: No special configuration is needed — [cndsSmoothScrollContainer] works the same whether the container is adjacent to the trigger link or elsewhere on the page.
+                         Example: <a href="#section-6" cndsSmoothScrollInit [cndsSmoothScrollContainer]="'#demo-example-6'" [cndsSmoothScrollDuration]="1200" [cndsSmoothScrollEasing]="'easeInQuart'">Scroll to section 6</a>
+                         Ensure the container element is in the DOM before the directive initialises — use *ngIf with an async guard or Angular 17+ @defer blocks if the container is conditionally rendered. -->
+
+                    <!--Section: Demo-->
+                    <section class="pb-4" aria-label="Container away from viewport demo">
+                      <div class="border rounded-5">
+                        <div class="w-100 p-4 pb-4 d-flex justify-content-center">
+                          <a
+                            href="#section-6"
+                            data-cnds-smooth-scroll-init
+                            data-cnds-container="#demo-example-6"
+                            data-cnds-duration="1200"
+                            data-cnds-easing="easeInQuart"
+                          >
+                            Smooth Scroll to #section-6
+                          </a>
+                        </div>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+
+                    <!--Section: Code-->
+                    <section class="mb-4" aria-label="Container away from viewport code example">
+                      <h5><span class="badge badge-code-html">HTML</span></h5>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;a href="#section-6"
+   data-cnds-smooth-scroll-init
+   data-cnds-container="#demo-example-6"
+   data-cnds-duration="1200"
+   data-cnds-easing="easeInQuart"&gt;
+  Smooth Scroll to #section-6
+&lt;/a&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                    <p class="my-4">The scrollable panel below is the scroll target container:</p>
+
+                    <!-- Target container — positioned below the trigger link to demonstrate
+                         the two-phase scroll: page scrolls to bring this panel into view, then
+                         the panel scrolls internally to #section-6. tabindex="0" preserves
+                         keyboard scrollability (WCAG 2.1.1). -->
+                    <div
+                      id="demo-example-6"
+                      tabindex="0"
+                      role="region"
+                      aria-label="Scrollable target panel for section 6"
+                      class="border p-2"
+                      style="overflow-y: auto; height: 200px; width: 100%; text-align: center;"
+                    >
+                      <div style="height: 250px" aria-hidden="true"></div>
+                      <div id="section-6" class="text-center">
+                        <p>Here it is #section-6</p>
+                      </div>
+                      <div style="height: 200px" aria-hidden="true"></div>
+                    </div>
+
+                  </section>
+                  <!--/Section: Container away from viewport-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: API Documentation-->
+                  <section id="section-api-docs">
+                    <h3 class="mb-3">API Documentation</h3>
+
+                    <!--Section: API Introduction-->
+                    <section id="api-section-introduction">
+                      <h4 class="mb-4">Introduction</h4>
+                      <p>
+                        <code>Nimbus.SmoothScroll</code> intercepts clicks on any
+                        <code>&lt;a&gt;</code> element whose <code>href</code> begins with
+                        <code>#</code> and replaces the browser's default instant-jump behavior
+                        with a configurable animation. Add
+                        <code>data-cnds-smooth-scroll-init</code> to mark links in your content
+                        explicitly; all page navigation links (sidenav, scrollspy) are also
+                        covered automatically. Internally, a
+                        <code>requestAnimationFrame</code> loop drives the animation using one of
+                        thirteen easing functions — no CSS transitions or third-party libraries
+                        required. When <code>data-cnds-container</code> is specified, the
+                        component scrolls that element's <code>scrollTop</code> rather than the
+                        window. All options are read from <code>data-cnds-*</code> attributes at
+                        click time. A class-based JavaScript API is also available for
+                        programmatic control, with <code>cancelScroll()</code>,
+                        <code>dispose()</code>, and static <code>getInstance()</code> /
+                        <code>getOrCreateInstance()</code> methods.
+                      </p>
+                    </section>
+                    <!--/Section: API Introduction-->
+
+                    <!--Section: API Usage-->
+                    <section id="api-section-usage">
+                      <h4 class="mb-4">Usage</h4>
+
+                      <h5 class="mb-3">Via data attributes</h5>
+                      <p>
+                        Add <code>data-cnds-smooth-scroll-init</code> to an
+                        <code>&lt;a&gt;</code> element whose <code>href</code> targets an on-page
+                        anchor. Nimbus reads all other <code>data-cnds-*</code> options from the
+                        same element at click time — no JavaScript initialisation is required.
+                      </p>
+                      <section class="mb-4">
+                        <h6><span class="badge badge-code-html">HTML</span></h6>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-html">&lt;a href="#section-1" data-cnds-smooth-scroll-init data-cnds-container="#container-1"&gt;Smooth Scroll&lt;/a&gt;</code></pre>
+                        </div>
+                      </section>
+
+                      <h5 class="mb-3">Via JavaScript</h5>
+                      <p>
+                        Instantiate <code>Nimbus.SmoothScroll</code> directly when you need
+                        programmatic control — for example, to listen for scroll events, cancel
+                        an animation mid-flight, or trigger a scroll from application logic. The
+                        constructor registers the element so that <code>getInstance()</code> can
+                        retrieve it later, and attaches a click listener that reads all
+                        <code>data-cnds-*</code> options at the time of each click. Options
+                        passed to the constructor serve as defaults that individual
+                        <code>data-cnds-*</code> attributes can override per click.
+                      </p>
+                      <section class="mb-4">
+                        <h6><span class="badge badge-code-js">JAVASCRIPT</span></h6>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-js">const scrollLink = document.getElementById('my-scroll-link');
+const smoothScroll = new Nimbus.SmoothScroll(scrollLink, {
+  container: '#my-container',
+  duration: 500,
+  easing: 'easeInOutQuart',
+  offset: 0,
+});</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Section: API Usage-->
+
+                    <!--Section: API Options-->
+                    <section id="api-section-options">
+                      <h4 class="mb-4">Options</h4>
+                      <p>
+                        Options can be passed via data attributes or the JavaScript constructor.
+                        For data attributes, append the option name to <code>data-cnds-</code> —
+                        for example, <code>data-cnds-container="#my-panel"</code>.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Options">
+                          <thead>
+                            <tr>
+                              <th scope="col" class="th-sm">Name</th>
+                              <th scope="col" class="th-sm">Type</th>
+                              <th scope="col" class="th-sm">Default</th>
+                              <th scope="col" class="th-sm">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="text-nowrap"><code>container</code></td>
+                              <td><em>String</em></td>
+                              <td><code>'body'</code></td>
+                              <td>
+                                CSS selector for the scrollable container. Smooth scroll animates
+                                within this element. Defaults to the document body when omitted.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>duration</code></td>
+                              <td><em>Number</em></td>
+                              <td><code>500</code></td>
+                              <td>
+                                Animation duration in milliseconds. Increase for a slower, more
+                                cinematic scroll; decrease for a snappier response.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>easing</code></td>
+                              <td><em>String</em></td>
+                              <td><code>'linear'</code></td>
+                              <td>
+                                Motion curve applied to the scroll animation. Available values:
+                                <code>'linear'</code>, <code>'easeInQuad'</code>,
+                                <code>'easeInCubic'</code>, <code>'easeInQuart'</code>,
+                                <code>'easeInQuint'</code>, <code>'easeInOutQuad'</code>,
+                                <code>'easeInOutCubic'</code>, <code>'easeInOutQuart'</code>,
+                                <code>'easeInOutQuint'</code>, <code>'easeOutQuad'</code>,
+                                <code>'easeOutCubic'</code>, <code>'easeOutQuart'</code>,
+                                <code>'easeOutQuint'</code>.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>offset</code></td>
+                              <td><em>Number</em></td>
+                              <td><code>0</code></td>
+                              <td>
+                                Pixel gap between the scroll destination and the top of the
+                                container. Use a positive value to clear a sticky header;
+                                use a negative value to overshoot the target.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: API Options-->
+
+                    <!--Section: API Methods-->
+                    <section id="api-section-methods">
+                      <h4 class="mb-4">Methods</h4>
+                      <p>
+                        All instance methods are available on the object returned by the
+                        constructor. Static methods (<code>getInstance</code>,
+                        <code>getOrCreateInstance</code>) are called directly on
+                        <code>Nimbus.SmoothScroll</code>.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Methods">
+                          <thead>
+                            <tr>
+                              <th scope="col" class="th-sm">Name</th>
+                              <th scope="col" class="th-sm">Description</th>
+                              <th scope="col" class="th-sm">Example</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="text-nowrap"><code>cancelScroll</code></td>
+                              <td>Cancels an in-progress scroll animation immediately.</td>
+                              <td><code>instance.cancelScroll();</code></td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>dispose</code></td>
+                              <td>
+                                Destroys the instance and removes all internal event listeners.
+                                Call when the trigger element is removed from the DOM to prevent
+                                memory leaks.
+                              </td>
+                              <td><code>instance.dispose();</code></td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>getInstance</code></td>
+                              <td>
+                                Static method. Returns the <code>SmoothScroll</code> instance
+                                already bound to a DOM element, or <code>null</code> if none
+                                exists.
+                              </td>
+                              <td><code>Nimbus.SmoothScroll.getInstance(el);</code></td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>getOrCreateInstance</code></td>
+                              <td>
+                                Static method. Returns the existing instance for a DOM element
+                                or creates and returns a new one if none exists yet.
+                              </td>
+                              <td><code>Nimbus.SmoothScroll.getOrCreateInstance(el);</code></td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-js">const scrollEl = document.getElementById('my-scroll-link');
+const instance = Nimbus.SmoothScroll.getInstance(scrollEl);
+
+// Cancel the scroll 100 ms after the animation starts
+setTimeout(() => {
+  instance.cancelScroll();
+}, 100);</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Section: API Methods-->
+
+                    <!--Section: API Events-->
+                    <section id="api-section-events">
+                      <h4 class="mb-4">Events</h4>
+                      <p>
+                        All events fire on the trigger <code>&lt;a&gt;</code> element. Listen for
+                        them with <code>addEventListener</code> on the trigger directly, or on a
+                        parent element using event delegation.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Events">
+                          <thead>
+                            <tr>
+                              <th scope="col" class="th-sm">Name</th>
+                              <th scope="col" class="th-sm">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="text-nowrap"><code>scrollCancel.cnds.smoothScroll</code></td>
+                              <td>
+                                Fires immediately when a scroll animation is cancelled —
+                                programmatically via <code>cancelScroll()</code> or because
+                                the user interrupted it.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>scrollEnd.cnds.smoothScroll</code></td>
+                              <td>
+                                Fires when the scroll animation completes and the target element
+                                is fully in position.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>scrollStart.cnds.smoothScroll</code></td>
+                              <td>
+                                Fires at the very start of the animation, before the first
+                                frame is rendered.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-js">const scrollLink = document.getElementById('my-scroll-link');
+
+scrollLink.addEventListener('scrollStart.cnds.smoothScroll', () => {
+  // Fires at the beginning of the animation
+});
+
+scrollLink.addEventListener('scrollEnd.cnds.smoothScroll', () => {
+  // Fires when the animation completes
+});
+
+scrollLink.addEventListener('scrollCancel.cnds.smoothScroll', () => {
+  // Fires if the animation is cancelled mid-scroll
+});</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Section: API Events-->
+
+                  </section>
+                  <!--/Section: API Documentation-->
+
+                </section>
+                <!--/Section: Docs content-->
+              </div>
+              <!-- ./Main column -->
+
+              <!-- Right Sidebar — 20% of the row width; hidden below lg breakpoint.
+                   Sticky attributes (processed by nimbus.js):
+                     data-cnds-sticky="true"           : activates sticky positioning
+                     data-cnds-sticky-boundary="true"  : constrains sticky to its parent container
+                     data-cnds-sticky-direction="both" : sticks when scrolling up OR down
+                     data-cnds-sticky-offset="56"      : clears the 56 px fixed header
+                     data-cnds-sticky-delay="125"      : debounce delay (ms) to reduce scroll jank
+                   data-cnds-allow-hashes="true" on the <ul>: nimbus.js watches the URL hash
+                     and highlights the matching nav-link as the user scrolls through sections. -->
+              <div class="col-lg-2 d-none d-lg-block">
+                <div class="sticky-top" style="top: 100px; z-index: 1">
+                  <ul
+                    class="nav flex-column nav-pills menu-sidebar"
+                    id="rightNav"
+                    data-cnds-allow-hashes="true"
+                  >
+                    <li class="nav-item"><a class="nav-link" href="#section-introduction">Introduction</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-basic-example">Basic example</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-custom-container">Custom container</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-custom-offset">Custom offset</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-custom-duration">Custom duration</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-custom-easing">Custom easing</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-scroll-to-viewport">Container away from viewport</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-api-docs">API Documentation</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-introduction">Introduction</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-usage">Usage</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-options">Options</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-methods">Methods</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-events">Events</a></li>
+                  </ul>
+                </div>
+              </div>
+              <!-- ./Right Sidebar -->
+            </div>
+            <!-- ./Content Row -->
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- ./Content -->
+    <!-- Footer -->
+    <div class="cf-footer cf-footer-app">
+      <footer class="page-footer main-footer" aria-label="Site footer">
+        <div class="w-100 px-3 d-flex align-items-center">
+          <img src="img/cf/core/cloudficient_logo_light.svg" class="cf-logo-light" style="width: 135px;" alt="Cloudficient" />
+          <img src="img/cf/core/cloudficient_logo_dark.svg" class="cf-logo-dark" style="width: 135px;" alt="Cloudficient" />
+          <span class="footer-copyright ms-auto">&copy; <span id="currentYear"></span> Cloudficient</span>
+        </div>
+      </footer>
+    </div>
+    <!-- ./Footer -->
+    <!-- SCRIPTS — load order matters:
+         1. nimbus.js       — core framework: processes all data-cnds-* attributes
+                              (theme, sticky, sidenav, smooth scroll, tooltips, etc.)
+         2. app.js          — application-level overrides and custom initialisation
+         3. prism.min.js    — syntax highlighting for <code class="language-*"> blocks;
+                              must run after DOM is ready
+         4. sidenav-loader.js — fetches shared sidenav HTML and injects it into #sidebar-cf -->
+    <script type="text/javascript" src="js/nimbus.js?v=9.0.4"></script>
+    <script type="text/javascript" src="js/app.js?v=9.0.4"></script>
+    <script type="text/javascript" src="plugins/js/prism.min.js"></script>
+    <script type="text/javascript" src="js/sidenav-loader.js"></script>
+    <!-- Inline: populate the footer copyright year dynamically so the page never needs a manual update -->
+    <script type="text/javascript">
+      var currentYearElement = document.getElementById("currentYear");
+      if (currentYearElement) {
+        currentYearElement.textContent = new Date().getFullYear();
+      }
+    </script>
+  </body>
+</html>

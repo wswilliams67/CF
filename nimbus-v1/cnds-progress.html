@@ -1,0 +1,1495 @@
+<!--
+  CNDS Nimbus Design System — Progress Bar
+  Version: 1.0.0
+  Layout: Application Shell with SideNav (80 % content / 20 % right-sidebar column split)
+
+  Architecture notes for developers:
+  - Pure HTML5, CSS3, vanilla JavaScript — zero external dependencies beyond Nimbus CSS/JS
+  - data-cnds-* attributes replace all legacy data-mdb-* Bootstrap attributes; processed by nimbus.js
+  - Nimbus.* JS namespace replaces the mdb.* namespace from v8
+  - Default product theme: cnds-product-casefusion on <body>
+    To change the accent color sitewide swap to cnds-product-hyperlize or cnds-product-expireon
+  - data-cnds-theme="light" on <html> sets the initial theme; nimbus.js syncs it on toggle
+  - All demo sections follow the pattern:
+      <!--Section: Demo-->  live component preview
+      <!-- Angular: ... --> Angular conversion hint (developer reference only)
+      <!--Section: Code-->  Prism-highlighted HTML snippet matching the demo
+-->
+<!doctype html>
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta
+      name="description"
+      content="Progress Bar | Cloudficient Nimbus Design System v1.0.0"
+    />
+    <title>
+      Progress Bar | CNDS v1.0.0 | Cloudficient Nimbus Design System
+    </title>
+    <!-- Nimbus CSS -->
+    <link rel="stylesheet" href="css/nimbus.css" media="all" type="text/css" />
+    <!-- Custom styles -->
+    <link rel="stylesheet" href="css/app.css" media="all" type="text/css" />
+    <!-- Prism syntax highlighting -->
+    <link rel="stylesheet" href="plugins/css/prism.min.css" media="all" type="text/css" />
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="img/favicon/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="60x60" href="img/favicon/apple-icon-60x60.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="img/favicon/apple-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76" href="img/favicon/apple-icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="img/favicon/apple-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="img/favicon/apple-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="img/favicon/apple-icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="img/favicon/apple-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-icon-180x180.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="img/favicon/android-icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="img/favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="img/favicon/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="msapplication-TileImage" content="img/favicon/ms-icon-144x144.png" />
+    <!-- Design Tokens / Primitives & Themes -->
+    <link rel="stylesheet" href="css/themes/primitives.css" />
+    <link rel="stylesheet" href="css/themes/light.css" />
+    <link rel="stylesheet" href="css/themes/dark.css" />
+  </head>
+
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 Bypass Blocks; renders visually hidden until focused -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+    <!-- Header -->
+    <div class="sticky-top">
+      <!-- Utility Navigation -->
+      <nav id="UtilityNav" class="nav nav-cf-utility">
+        <div class="w-100 gx-3 px-sm-0 px-lg-3">
+          <ul class="nav nav-cf-utility-ul"></ul>
+        </div>
+      </nav>
+      <!-- Main Navigation -->
+      <nav id="MainNav" class="navbar navbar-expand-xl navbar-cf">
+        <div class="container-fluid p-0 px-3 d-flex">
+          <div class="d-flex flex-fill align-items-center text-truncate">
+            <div class="text-center d-none d-md-block me-3 border-end">
+              <a href="index.html"><img src="img/cf/core/logo_nimbus.png" class="me-3 mt-n1" alt="Cloudficient Nimbus Design System" /></a>
+            </div>
+            <div class="flex-fill text-truncate">
+              <div class="navbar-cf-title-block">
+                <div class="navbar-cf-title cf-page-title text-truncate" style="padding-bottom: 0;">
+                  <span class="cf-page-title-text cf-page-title-brand">v1</span>
+                  <span class="cf-page-title-divider"></span>
+                  <span class="cf-page-title-text">Progress Bar</span>
+                  </div>
+              </div>
+            </div>
+          </div>
+          <!-- data-cnds-toggle="theme": wired by nimbus.js — flips data-cnds-theme on <html> between "light" and "dark" -->
+          <button class="btn btn-sm btn-outline-secondary ms-2" data-cnds-toggle="theme" aria-label="Toggle theme" title="Toggle theme">
+            <i class="mdi mdi-weather-night mdi-18px" aria-hidden="true"></i>
+          </button>
+        </div>
+      </nav>
+    </div>
+    <!-- Content -->
+    <main id="main-content" class="cf-main-app">
+      <!-- Mobile viewport warning — hidden on md+ screens -->
+      <div class="d-block d-md-none p-4">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>This application is not optimized for small screens. Please use a large tablet, laptop, or desktop computer to continue.
+        </div>
+      </div>
+      <div class="d-none d-md-block">
+        <!-- Sidenav — markup is intentionally empty; sidenav-loader.js fetches and injects the shared nav HTML.
+             data-cnds-mode="side"           : renders as a persistent side panel (not an overlay/drawer)
+             data-cnds-slim / slim-collapsed : controls compact/icon-only collapsed state
+             data-cnds-content="#slim-content": the sibling panel that shrinks/expands as the nav opens/closes
+             data-cnds-accordion="true"      : collapses other open nav groups when a new one is expanded -->
+        <nav id="sidebar-cf" class="sidenav" data-cnds-mode="side" data-cnds-slim="false" data-cnds-slim-collapsed="false" data-cnds-content="#slim-content" data-cnds-accordion="true"></nav>
+      <div id="slim-content">
+        <div class="slim-content-box">
+          <div class="row">
+            <!-- Main column — 80 % of the row width; the remaining 20 % is the right sidebar.
+                 The inline flex overrides pin the ratio regardless of Bootstrap grid breakpoints
+                 so the sidebar never wraps on large viewports. -->
+            <div class="col-md-12 col-lg" style="flex: 0 0 80%; max-width: 80%">
+              <!--Section: Docs content-->
+              <section class="container-fluid">
+                <!--Section: Introduction-->
+                <section id="section-introduction">
+                  <!-- Description -->
+
+                  <p class="mb-4">
+                    Progress bars provide a visual indication of how far along a process is. Nimbus offers both linear and circular variants built on the Nimbus™ Design System — use them to communicate task completion, loading states, or any bounded numeric value.
+                  </p>
+
+                  <p class="my-4">
+                    All variants support labelled text, custom heights, semantic color utilities, product theme tokens, multiple stacked segments, and both static and animated striped fills.
+                  </p>
+                
+                    <p class="note note-light">
+                      <strong>Note:</strong> Read the
+                      <a href="#api-section-introduction">API Documentation</a> to find all available options and advanced customization.
+                    </p>
+
+                    <p class="note note-info"><strong>Note:</strong> To preview components in different themes, click the theme toggle button <i class="mdi mdi-weather-night" aria-hidden="true"></i> / <i class="mdi mdi-weather-sunny" aria-hidden="true"></i> in the header navigation bar.</p>
+                </section>
+                <!--/Section: Introduction-->
+
+                <hr class="my-5" />
+
+                <!--Section: Basic example-->
+                <section id="section-basic-example">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Basic example</h3>
+
+                  <p>
+                    Set the bar's fill by adding an inline <code>style="width: N%"</code> to <code>.progress-bar</code> and keep <code>aria-valuenow</code> in sync so assistive technologies can read the current value.
+                  </p>
+
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section class="p-4 text-center w-100">
+                        <div class="progress">
+                          <div
+                            class="progress-bar"
+                            role="progressbar"
+                            aria-label="Example progress"
+                            style="width: 75%"
+                            aria-valuenow="75"
+                            aria-valuemin="0"
+                            aria-valuemax="100"
+                          ></div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+
+                  <!--Section: Demo-->
+                  <!-- Angular: Bind the progress bar width with [style.width.%]="progressValue" and keep accessibility in sync with [attr.aria-valuenow]="progressValue" so screen readers always reflect the current value.
+                       Example: <div class="progress"><div class="progress-bar" role="progressbar" [style.width.%]="progressValue" [attr.aria-valuenow]="progressValue" aria-valuemin="0" aria-valuemax="100"></div></div>
+                       Drive progressValue from a component property updated by a service or timer so the bar reacts automatically to state changes without manual DOM manipulation. -->
+
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div class="progress"&gt;
+    &lt;div class="progress-bar" role="progressbar" style="width: 75%;" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"&gt;&lt;/div&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--/Section: Basic example-->
+
+                <hr class="my-5" />
+
+                <!--Section: How it works-->
+                <section id="section-how-it-works">
+                  <!--Section title-->
+                  <h3 class="mb-4">How it works</h3>
+
+                  <!-- Section description -->
+                  <p>
+                    Progress bars use two elements: an outer <code>.progress</code> wrapper that defines the track, and an inner <code>.progress-bar</code> whose width represents the current value. Nimbus uses this two-element pattern — rather than the native <code>&lt;progress&gt;</code> element — so bars can be stacked, animated, and overlaid with text labels.
+                  </p>
+
+                  <ul>
+                    <li>
+                      <code>.progress</code> is the outer wrapper; its dimensions define the full track.
+                    </li>
+                    <li>
+                      <code>.progress-bar</code> is the filled segment whose width reflects progress so far.
+                    </li>
+                    <li>
+                      Width is set via an inline style, a <code>w-*</code> utility class, or custom CSS on <code>.progress-bar</code>.
+                    </li>
+                    <li>
+                      Add <code>role="progressbar"</code> plus <code>aria-valuenow</code>, <code>aria-valuemin</code>, and <code>aria-valuemax</code> so assistive technologies can announce the current state.
+                    </li>
+                  </ul>
+
+                  <p>
+                    The examples below show the full range from 0 % to 100 %.
+                  </p>
+
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section class="p-4 text-center w-100">
+                        <div class="progress mb-3">
+                          <div
+                            class="progress-bar"
+                            role="progressbar"
+                            aria-label="Example progress"
+                            aria-valuenow="0"
+                            aria-valuemin="0"
+                            aria-valuemax="100"
+                          ></div>
+                        </div>
+                        <div class="progress mb-3">
+                          <div
+                            class="progress-bar"
+                            role="progressbar"
+                            aria-label="Example progress"
+                            style="width: 25%"
+                            aria-valuenow="25"
+                            aria-valuemin="0"
+                            aria-valuemax="100"
+                          ></div>
+                        </div>
+                        <div class="progress mb-3">
+                          <div
+                            class="progress-bar"
+                            role="progressbar"
+                            aria-label="Example progress"
+                            style="width: 50%"
+                            aria-valuenow="50"
+                            aria-valuemin="0"
+                            aria-valuemax="100"
+                          ></div>
+                        </div>
+                        <div class="progress mb-3">
+                          <div
+                            class="progress-bar"
+                            role="progressbar"
+                            aria-label="Example progress"
+                            style="width: 75%"
+                            aria-valuenow="75"
+                            aria-valuemin="0"
+                            aria-valuemax="100"
+                          ></div>
+                        </div>
+                        <div class="progress">
+                          <div
+                            class="progress-bar"
+                            role="progressbar"
+                            aria-label="Example progress"
+                            style="width: 100%"
+                            aria-valuenow="100"
+                            aria-valuemin="0"
+                            aria-valuemax="100"
+                          ></div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!-- Angular: Render a set of progress bars from a component array using *ngFor; bind each bar's [style.width.%] and [attr.aria-valuenow] to the corresponding item value so all bars stay in sync with the data model.
+                       Example: <div *ngFor="let bar of progressBars" class="progress mb-3"><div class="progress-bar" role="progressbar" [style.width.%]="bar.value" [attr.aria-valuenow]="bar.value" aria-valuemin="0" aria-valuemax="100"></div></div>
+                       Keep the progressBars array in the component class and update individual items to trigger change detection without recreating the entire list. -->
+
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div class="progress"&gt;
+    &lt;div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="progress"&gt;
+    &lt;div class="progress-bar" role="progressbar" style="width: 25%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="progress"&gt;
+    &lt;div class="progress-bar" role="progressbar" style="width: 50%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="progress"&gt;
+    &lt;div class="progress-bar" role="progressbar" style="width: 75%;" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="progress"&gt;
+    &lt;div class="progress-bar" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"&gt;&lt;/div&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                  <p>
+                    Nimbus includes <a href="cnds-sizing.html">width utility classes</a> (<code>w-25</code>, <code>w-50</code>, <code>w-75</code>, <code>w-100</code>) that can replace inline styles when the value maps to a fixed breakpoint.
+                  </p>
+
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section class="p-4 text-center w-100">
+                        <div class="progress">
+                          <div
+                            class="progress-bar w-75"
+                            role="progressbar"
+                            aria-label="Example progress"
+                            aria-valuenow="75"
+                            aria-valuemin="0"
+                            aria-valuemax="100"
+                          ></div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+
+                  <!--Section: Demo-->
+                  <!-- Angular: Apply a Nimbus width utility class conditionally with [class]="'progress-bar w-' + widthStep" or use [style.width.%]="progressValue" — prefer the style binding for dynamic values and utility classes only for fixed breakpoints.
+                       Example: <div class="progress"><div class="progress-bar" role="progressbar" [style.width.%]="progressValue" [attr.aria-valuenow]="progressValue" aria-valuemin="0" aria-valuemax="100"></div></div>
+                       Avoid mixing static utility classes like w-75 with dynamic [style.width] on the same element — choose one approach to prevent specificity conflicts. -->
+
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div class="progress"&gt;
+    &lt;div class="progress-bar w-75" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"&gt;&lt;/div&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--/Section: How it works-->
+
+                <hr class="my-5" />
+
+                <!--Section: Labels-->
+                <section id="section-labels">
+                  <!--Section title-->
+                  <h3 class="mb-4">Labels</h3>
+
+                  <!-- Section description -->
+                  <p>
+                    Place text inside <code>.progress-bar</code> to overlay a percentage or status label on the filled portion. Set the bar height to at least <code>20px</code> to ensure the label is legible.
+                  </p>
+
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section class="p-4 text-center w-100">
+                        <div class="progress" style="height: 20px">
+                          <div
+                            class="progress-bar"
+                            role="progressbar"
+                            style="width: 25%"
+                            aria-valuenow="25"
+                            aria-valuemin="0"
+                            aria-valuemax="100"
+                          >
+                            25%
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!-- Angular: Display the label inside the progress bar with {{ progressValue }}%; bind the bar width with [style.width.%]="progressValue" and set a fixed height via [style.height.px]="barHeight" driven by a component @Input().
+                       Example: <div class="progress" [style.height.px]="barHeight"><div class="progress-bar" role="progressbar" [style.width.%]="progressValue" [attr.aria-valuenow]="progressValue" aria-valuemin="0" aria-valuemax="100">{{ progressValue }}%</div></div>
+                       Expose barHeight as an @Input() with a default value so consuming components can customise the labelled bar height without changing the template. -->
+
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div class="progress" style="height: 20px;"&gt;
+    &lt;div class="progress-bar" role="progressbar" style="width: 25%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"&gt;25%&lt;/div&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--/Section: Labels-->
+
+                <hr class="my-5" />
+
+                <!--Section: Height-->
+                <section id="section-height">
+                  <!--Section title-->
+                  <h3 class="mb-4">Height</h3>
+
+                  <!-- Section description -->
+                  <p>
+                    Set <code>height</code> only on the outer <code>.progress</code> wrapper. The inner <code>.progress-bar</code> inherits that height automatically, so a single property change scales both elements together. Use a thin bar (e.g. <code>1px</code>) for ambient indicators and a taller bar (e.g. <code>20px</code>) when a text label is present.
+                  </p>
+
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section class="p-4 text-center w-100">
+                        <div class="progress" style="height: 1px">
+                          <div
+                            class="progress-bar"
+                            role="progressbar"
+                            aria-label="Thin-track example"
+                            style="width: 25%"
+                            aria-valuenow="25"
+                            aria-valuemin="0"
+                            aria-valuemax="100"
+                          ></div>
+                        </div>
+
+                        <br />
+
+                        <div class="progress" style="height: 20px">
+                          <div
+                            class="progress-bar"
+                            role="progressbar"
+                            aria-label="Tall-track example"
+                            style="width: 25%"
+                            aria-valuenow="25"
+                            aria-valuemin="0"
+                            aria-valuemax="100"
+                          ></div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+
+                  <!--Section: Demo-->
+                  <!-- Angular: Control progress bar height via [style.height.px]="barHeight" on the outer .progress wrapper — the inner .progress-bar resizes automatically, so only bind height on the container.
+                       Example: <div class="progress" [style.height.px]="barHeight"><div class="progress-bar" role="progressbar" [style.width.%]="progressValue" [attr.aria-valuenow]="progressValue" aria-valuemin="0" aria-valuemax="100"></div></div>
+                       Expose barHeight as an @Input() with a sensible default (e.g. 8) so the component is reusable at different visual weights across the application. -->
+
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div class="progress" style="height: 1px;"&gt;
+    &lt;div class="progress-bar" role="progressbar" style="width: 25%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="progress" style="height: 20px;"&gt;
+    &lt;div class="progress-bar" role="progressbar" style="width: 25%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"&gt;&lt;/div&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--/Section: Height-->
+
+                <hr class="my-5" />
+
+                <!--Section: Colors-->
+                <section id="section-colors">
+                  <!--Section title-->
+                  <h3 class="mb-4">Colors</h3>
+
+                  <!-- Section description -->
+                  <p>
+                    Apply Bootstrap semantic color utilities — <code>bg-success</code>, <code>bg-info</code>, <code>bg-warning</code>, <code>bg-danger</code>, <code>bg-working</code> — to <code>.progress-bar</code> to signal status or urgency at a glance.
+                  </p>
+
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section class="p-4 text-center w-100">
+                        <div class="progress">
+                          <div
+                            class="progress-bar bg-success"
+                            role="progressbar"
+                            aria-label="Success"
+                            style="width: 25%"
+                            aria-valuenow="25"
+                            aria-valuemin="0"
+                            aria-valuemax="100"
+                          ></div>
+                        </div>
+
+                        <br />
+
+                        <div class="progress">
+                          <div
+                            class="progress-bar bg-info"
+                            role="progressbar"
+                            aria-label="Info"
+                            style="width: 50%"
+                            aria-valuenow="50"
+                            aria-valuemin="0"
+                            aria-valuemax="100"
+                          ></div>
+                        </div>
+
+                        <br />
+
+                        <div class="progress">
+                          <div
+                            class="progress-bar bg-warning"
+                            role="progressbar"
+                            aria-label="Warning"
+                            style="width: 75%"
+                            aria-valuenow="75"
+                            aria-valuemin="0"
+                            aria-valuemax="100"
+                          ></div>
+                        </div>
+
+                        <br />
+
+                        <div class="progress">
+                          <div
+                            class="progress-bar bg-danger"
+                            role="progressbar"
+                            aria-label="Danger"
+                            style="width: 100%"
+                            aria-valuenow="100"
+                            aria-valuemin="0"
+                            aria-valuemax="100"
+                          ></div>
+                        </div>
+
+                        <br />
+
+                        <div class="progress">
+                          <div
+                            class="progress-bar bg-working"
+                            role="progressbar"
+                            aria-label="Working"
+                            style="width: 40%"
+                            aria-valuenow="40"
+                            aria-valuemin="0"
+                            aria-valuemax="100"
+                          ></div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+
+                  <!--Section: Demo-->
+                  <!-- Angular: Bind the color class dynamically with [ngClass]="{'bg-success': isSuccess, 'bg-info': isInfo, 'bg-warning': isWarning, 'bg-danger': isDanger, 'bg-working': isWorking}" or use a computed getter that returns the appropriate class string based on the progress value.
+                       Example: <div class="progress"><div class="progress-bar" [ngClass]="progressColorClass" role="progressbar" [style.width.%]="progressValue" [attr.aria-valuenow]="progressValue" aria-valuemin="0" aria-valuemax="100"></div></div>
+                       Define a get progressColorClass() getter that returns 'bg-danger' below 25, 'bg-warning' below 50, 'bg-info' below 75, 'bg-working' while an operation is actively in-progress, and 'bg-success' otherwise to centralise the coloring logic in the component. -->
+
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div class="progress"&gt;
+    &lt;div class="progress-bar bg-success" role="progressbar" style="width: 25%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="progress"&gt;
+    &lt;div class="progress-bar bg-info" role="progressbar" style="width: 50%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="progress"&gt;
+    &lt;div class="progress-bar bg-warning" role="progressbar" style="width: 75%;" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="progress"&gt;
+    &lt;div class="progress-bar bg-danger" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="progress"&gt;
+    &lt;div class="progress-bar bg-working" role="progressbar" style="width: 40%;" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"&gt;&lt;/div&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--/Section: Colors-->
+
+                <hr class="my-5" />
+
+                <!--Section: Product themes-->
+                <section id="section-product-themes">
+                  <!--Section title-->
+                  <h3 class="mb-4">Product themes</h3>
+
+                  <!-- Section description -->
+                  <p>
+                    Each Cloudficient product has a designated accent color defined in the design
+                    system. Setting a product class on <code>&lt;body&gt;</code> activates that
+                    color for all components at once:
+                  </p>
+                  <ul>
+                    <li><code>&lt;body class="cnds-product-casefusion"&gt;</code> — CaseFusion green</li>
+                    <li><code>&lt;body class="cnds-product-hyperlize"&gt;</code> — Hyperlize gold</li>
+                    <li><code>&lt;body class="cnds-product-expireon"&gt;</code> — Expireon indigo</li>
+                  </ul>
+                  <p>
+                    The class maps <code>--cnds-primary</code> to the product's accent color token.
+                    Progress bars consume <code>--cnds-primary</code> for their fill, so they
+                    update automatically with no additional markup.
+                  </p>
+
+                  <!--Section: Demo-->
+                  <!-- Angular: Apply the product theme class on the host <body> for the entire application, or scope it to a wrapper <div> when comparing themes side by side. Bind the active product class with [class]="'cnds-product-' + productName" on the wrapper, where productName is a component property ('casefusion' | 'hyperlize' | 'expireon') driven by a product selector or route data.
+                       Example: <div [class]="'cnds-product-' + product"><div class="progress"><div class="progress-bar" role="progressbar" [style.width.%]="value" [attr.aria-valuenow]="value" aria-valuemin="0" aria-valuemax="100"></div></div></div>
+                       When the product class lives on <body>, set it in AppComponent using Renderer2: this.renderer.addClass(document.body, 'cnds-product-' + product); remove the previous class before adding the new one to avoid stacking themes. -->
+
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section class="p-4 w-100">
+
+                        <p class="mb-1 text-muted" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: .05em;">CaseFusion</p>
+                        <div class="cnds-product-casefusion mb-4">
+                          <div class="progress">
+                            <div
+                              class="progress-bar"
+                              role="progressbar"
+                              aria-label="CaseFusion progress"
+                              style="width: 60%"
+                              aria-valuenow="60"
+                              aria-valuemin="0"
+                              aria-valuemax="100"
+                            ></div>
+                          </div>
+                        </div>
+
+                        <p class="mb-1 text-muted" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: .05em;">Hyperlize</p>
+                        <div class="cnds-product-hyperlize mb-4">
+                          <div class="progress">
+                            <div
+                              class="progress-bar"
+                              role="progressbar"
+                              aria-label="Hyperlize progress"
+                              style="width: 75%"
+                              aria-valuenow="75"
+                              aria-valuemin="0"
+                              aria-valuemax="100"
+                            ></div>
+                          </div>
+                        </div>
+
+                        <p class="mb-1 text-muted" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: .05em;">Expireon</p>
+                        <div class="cnds-product-expireon">
+                          <div class="progress">
+                            <div
+                              class="progress-bar"
+                              role="progressbar"
+                              aria-label="Expireon progress"
+                              style="width: 45%"
+                              aria-valuenow="45"
+                              aria-valuemin="0"
+                              aria-valuemax="100"
+                            ></div>
+                          </div>
+                        </div>
+
+                      </section>
+                    </div>
+                  </section>
+                  <!--/Section: Demo-->
+
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;!-- Apply one product class to &lt;body&gt; for the whole page --&gt;
+&lt;body class="cnds-product-casefusion"&gt;
+
+&lt;!-- Or scope to a wrapper element for side-by-side comparisons --&gt;
+&lt;div class="cnds-product-casefusion"&gt;
+    &lt;div class="progress"&gt;
+        &lt;div class="progress-bar" role="progressbar" style="width: 60%;" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="cnds-product-hyperlize"&gt;
+    &lt;div class="progress"&gt;
+        &lt;div class="progress-bar" role="progressbar" style="width: 75%;" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="cnds-product-expireon"&gt;
+    &lt;div class="progress"&gt;
+        &lt;div class="progress-bar" role="progressbar" style="width: 45%;" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--/Section: Code-->
+                </section>
+                <!--/Section: Product themes-->
+
+                <hr class="my-5" />
+
+                <!--Section: Multiple bars-->
+                <section id="section-multiple-bars">
+                  <!--Section title-->
+                  <h3 class="mb-4">Multiple bars</h3>
+
+                  <!-- Section description -->
+                  <p>
+                    Place two or more <code>.progress-bar</code> elements inside a single <code>.progress</code> wrapper to create a stacked bar. Each segment fills left to right; the combined widths should not exceed 100%. Assign different <code>bg-*</code> classes to visually distinguish each segment.
+                  </p>
+
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section class="p-4 text-center w-100">
+                        <div class="progress">
+                          <div
+                            class="progress-bar"
+                            role="progressbar"
+                            aria-label="Primary segment"
+                            style="width: 15%"
+                            aria-valuenow="15"
+                            aria-valuemin="0"
+                            aria-valuemax="100"
+                          ></div>
+                          <div
+                            class="progress-bar bg-success"
+                            role="progressbar"
+                            aria-label="Success segment"
+                            style="width: 30%"
+                            aria-valuenow="30"
+                            aria-valuemin="0"
+                            aria-valuemax="100"
+                          ></div>
+                          <div
+                            class="progress-bar bg-info"
+                            role="progressbar"
+                            aria-label="Info segment"
+                            style="width: 20%"
+                            aria-valuenow="20"
+                            aria-valuemin="0"
+                            aria-valuemax="100"
+                          ></div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!-- Angular: Use *ngFor over a bars array to render multiple progress-bar divs inside a single .progress wrapper, binding each bar's [style.width.%], [attr.aria-valuenow], and [ngClass] to the corresponding item's value and color properties.
+                       Example: <div class="progress"><div *ngFor="let bar of bars" class="progress-bar" [ngClass]="bar.colorClass" role="progressbar" [style.width.%]="bar.value" [attr.aria-valuenow]="bar.value" aria-valuemin="0" aria-valuemax="100"></div></div>
+                       Model each bar as { value: number; colorClass: string } so the template stays clean and adding or reordering bars only requires changing the component's data array. -->
+
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div class="progress"&gt;
+    &lt;div class="progress-bar" role="progressbar" style="width: 15%;" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"&gt;&lt;/div&gt;
+    &lt;div class="progress-bar bg-success" role="progressbar" style="width: 30%;" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"&gt;&lt;/div&gt;
+    &lt;div class="progress-bar bg-info" role="progressbar" style="width: 20%;" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"&gt;&lt;/div&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--/Section: Multiple bars-->
+
+                <hr class="my-5" />
+
+                <!--Section: Striped-->
+                <section id="section-striped">
+                  <!--Section title-->
+                  <h3 class="mb-4">Striped</h3>
+
+                  <!-- Section description -->
+                  <p>
+                    Add <code>.progress-bar-striped</code> to any <code>.progress-bar</code> to overlay a diagonal stripe pattern on the filled segment. Combine with any <code>bg-*</code> utility to stripe a semantically colored bar.
+                  </p>
+
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section class="p-4 text-center w-100">
+                        <div class="progress">
+                          <div
+                            class="progress-bar progress-bar-striped"
+                            role="progressbar"
+                            aria-label="Striped example"
+                            style="width: 10%"
+                            aria-valuenow="10"
+                            aria-valuemin="0"
+                            aria-valuemax="100"
+                          ></div>
+                        </div>
+                        <br />
+                        <div class="progress">
+                          <div
+                            class="progress-bar progress-bar-striped bg-success"
+                            role="progressbar"
+                            aria-label="Success striped"
+                            style="width: 25%"
+                            aria-valuenow="25"
+                            aria-valuemin="0"
+                            aria-valuemax="100"
+                          ></div>
+                        </div>
+                        <br />
+                        <div class="progress">
+                          <div
+                            class="progress-bar progress-bar-striped bg-info"
+                            role="progressbar"
+                            aria-label="Info striped"
+                            style="width: 50%"
+                            aria-valuenow="50"
+                            aria-valuemin="0"
+                            aria-valuemax="100"
+                          ></div>
+                        </div>
+                        <br />
+                        <div class="progress">
+                          <div
+                            class="progress-bar progress-bar-striped bg-warning"
+                            role="progressbar"
+                            aria-label="Warning striped"
+                            style="width: 75%"
+                            aria-valuenow="75"
+                            aria-valuemin="0"
+                            aria-valuemax="100"
+                          ></div>
+                        </div>
+                        <br />
+                        <div class="progress">
+                          <div
+                            class="progress-bar progress-bar-striped bg-danger"
+                            role="progressbar"
+                            aria-label="Danger striped"
+                            style="width: 100%"
+                            aria-valuenow="100"
+                            aria-valuemin="0"
+                            aria-valuemax="100"
+                          ></div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+
+                  <!--Section: Demo-->
+                  <!-- Angular: Toggle the striped appearance with [class.progress-bar-striped]="isStriped" as an @Input() boolean; combine with a color class via [ngClass] so both stripe and color can be controlled independently from the parent component.
+                       Example: <div class="progress"><div class="progress-bar" [class.progress-bar-striped]="isStriped" [ngClass]="colorClass" role="progressbar" [style.width.%]="progressValue" [attr.aria-valuenow]="progressValue" aria-valuemin="0" aria-valuemax="100"></div></div>
+                       Keep isStriped as a separate @Input() from the color class so consumers can opt into stripes without coupling it to a specific color variant. -->
+
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div class="progress"&gt;
+    &lt;div class="progress-bar progress-bar-striped" role="progressbar" style="width: 10%;" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="progress"&gt;
+    &lt;div class="progress-bar progress-bar-striped bg-success" role="progressbar" style="width: 25%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="progress"&gt;
+    &lt;div class="progress-bar progress-bar-striped bg-info" role="progressbar" style="width: 50%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="progress"&gt;
+    &lt;div class="progress-bar progress-bar-striped bg-warning" role="progressbar" style="width: 75%;" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="progress"&gt;
+    &lt;div class="progress-bar progress-bar-striped bg-danger" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"&gt;&lt;/div&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--/Section: Striped-->
+
+                <hr class="my-5" />
+
+                <!--Section: Animated stripes-->
+                <section id="section-animated-stripes">
+                  <!--Section title-->
+                  <h3 class="mb-4">Animated stripes</h3>
+
+                  <!-- Section description -->
+                  <p>
+                    Pair <code>.progress-bar-animated</code> with <code>.progress-bar-striped</code> to move the stripe pattern right to left via CSS animation. Use this to signal an in-progress or indeterminate operation where the exact completion percentage is unknown.
+                  </p>
+
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section class="p-4 text-center w-100">
+                        <div class="progress" style="height: 20px">
+                          <div
+                            class="progress-bar progress-bar-striped progress-bar-animated"
+                            role="progressbar"
+                            aria-label="Animated progress"
+                            aria-valuenow="75"
+                            aria-valuemin="0"
+                            aria-valuemax="100"
+                            style="width: 75%"
+                          ></div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!-- Angular: Toggle the animated stripe with [class.progress-bar-animated]="isAnimated" bound to a boolean @Input(); drive the progress value from an Observable<number> via the async pipe to animate the bar in real time without manual subscriptions.
+                       Example: <div class="progress"><div class="progress-bar progress-bar-striped" [class.progress-bar-animated]="isAnimated" role="progressbar" [style.width.%]="progress$ | async" [attr.aria-valuenow]="progress$ | async" aria-valuemin="0" aria-valuemax="100"></div></div>
+                       Emit values from an interval() Observable and takeUntil(this.destroy$) to automatically stop the animation when the component is destroyed. -->
+
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div class="progress" style="height: 20px;"&gt;
+    &lt;div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 75%;" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"&gt;&lt;/div&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--/Section: Animated stripes-->
+
+                <hr class="my-5" />
+
+                <!--Section: Circular Progress -->
+                <section id="section-progress-circular">
+                  <!--Section title-->
+                  <h3 class="mb-4">Progress Circular</h3>
+
+                  <!-- Section description -->
+                  <p>
+                    Add <code>.progress-circular</code> to <code>.progress</code> and set the <code>--percentage</code> CSS custom property (0–100) as an inline style to control arc fill. Place a <code>.progress-bar</code> inside with an optional <code>bg-*</code> utility to set the arc color — this element is not rendered visually; it acts as a color carrier read by CSS <code>:has()</code>. Add a <code>.progress-label</code> sibling to display text in the center of the ring.
+                  </p>
+
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="border rounded-5">
+                      <section class="p-4 text-center w-100">
+                        <div
+                          class="progress progress-circular my-2"
+                          role="img"
+                          aria-label="10% complete"
+                          style="--percentage: 10"
+                        >
+                          <div class="progress-bar"></div>
+                          <div class="progress-label">10%</div>
+                        </div>
+
+                        <div
+                          class="progress progress-circular my-2"
+                          role="img"
+                          aria-label="20% complete"
+                          style="--percentage: 20"
+                        >
+                          <div class="progress-bar bg-warning"></div>
+                          <div class="progress-label">20%</div>
+                        </div>
+
+                        <div
+                          class="progress progress-circular my-2"
+                          role="img"
+                          aria-label="30% complete"
+                          style="--percentage: 30"
+                        >
+                          <div class="progress-bar bg-danger"></div>
+                          <div class="progress-label">30%</div>
+                        </div>
+
+                        <div
+                          class="progress progress-circular my-2"
+                          role="img"
+                          aria-label="40% complete"
+                          style="--percentage: 40"
+                        >
+                          <div class="progress-bar bg-success"></div>
+                          <div class="progress-label">40%</div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+
+                  <!--Section: Demo-->
+                  <!-- Angular: Bind the fill amount with [style.--percentage]="progressValue" on the .progress element; set the arc color by passing a bg-* utility class via [ngClass]="colorClass" on the nested .progress-bar (supported values: bg-success, bg-warning, bg-danger, bg-info — omit for the default product primary color); display the label with {{ progressValue }}% inside .progress-label.
+                       Example: <div class="progress progress-circular my-2" [style.--percentage]="progressValue"><div class="progress-bar" [ngClass]="colorClass"></div><div class="progress-label">{{ progressValue }}%</div></div>
+                       Expose progressValue as an @Input() number and colorClass as an @Input() string (defaulting to '') so the component is fully data-driven and reusable across dashboard widgets. The .progress-bar is not rendered visually — it is a color carrier read by CSS :has(). -->
+
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div class="progress progress-circular my-2" style="--percentage: 10"&gt;
+    &lt;div class="progress-bar"&gt;&lt;/div&gt;
+    &lt;div class="progress-label"&gt;10%&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="progress progress-circular my-2" style="--percentage: 20"&gt;
+    &lt;div class="progress-bar bg-warning"&gt;&lt;/div&gt;
+    &lt;div class="progress-label"&gt;20%&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="progress progress-circular my-2" style="--percentage: 30"&gt;
+    &lt;div class="progress-bar bg-danger"&gt;&lt;/div&gt;
+    &lt;div class="progress-label"&gt;30%&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="progress progress-circular my-2" style="--percentage: 40"&gt;
+    &lt;div class="progress-bar bg-success"&gt;&lt;/div&gt;
+    &lt;div class="progress-label"&gt;40%&lt;/div&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+
+                <hr class="my-5" />
+
+                <!--Section: API Documentation-->
+                <section id="section-api-docs">
+                  <h3 class="mb-3">API Documentation</h3>
+
+                  <!--Section: API Introduction-->
+                  <section id="api-section-introduction">
+                    <h4 class="mb-4">Introduction</h4>
+                    <p>
+                      The Nimbus progress bar component is CSS-only — no JavaScript initialisation
+                      is required. Both the linear and circular variants are built entirely with CSS
+                      custom properties, utility classes, and layout primitives.
+                    </p>
+                    <p>
+                      The linear variant uses a two-element pattern (outer <code>.progress</code>
+                      track + inner <code>.progress-bar</code> fill) that supports multiple stacked
+                      segments, diagonal stripe overlays, animated fills, and text labels. The
+                      circular variant uses a <code>conic-gradient</code> driven by the
+                      <code>--percentage</code> CSS custom property to render an arc ring.
+                    </p>
+                    <p>
+                      Both variants are fully theme-aware. The fill color defaults to
+                      <code>--cnds-primary</code>, which resolves to the active product theme's
+                      accent color when a <code>cnds-product-*</code> class is present on
+                      <code>&lt;body&gt;</code> or a wrapper element. The track background adapts
+                      automatically between light and dark modes.
+                    </p>
+                  </section>
+                  <!--/Section: API Introduction-->
+
+                  <!--Section: API Usage-->
+                  <section id="api-section-usage">
+                    <h4 class="mb-4">Usage</h4>
+                    <p>
+                      Wrap a <code>.progress-bar</code> inside a <code>.progress</code> container.
+                      Set the fill width with an inline <code>style</code> or a width utility class,
+                      and add the three required ARIA attributes so assistive technologies can
+                      announce the current value.
+                    </p>
+                    <section class="mb-4">
+                      <h5><span class="badge badge-code-html">HTML</span></h5>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;!-- Linear --&gt;
+&lt;div class="progress"&gt;
+    &lt;div class="progress-bar" role="progressbar" style="width: 60%;" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"&gt;&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Circular --&gt;
+&lt;div class="progress progress-circular" style="--percentage: 60"&gt;
+    &lt;div class="progress-bar"&gt;&lt;/div&gt;
+    &lt;div class="progress-label"&gt;60%&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                  </section>
+                  <!--/Section: API Usage-->
+
+                  <!--Section: API CSS Classes-->
+                  <section id="api-section-css-classes">
+                    <h4 class="mb-4">CSS classes</h4>
+                    <p>
+                      The following classes control progress bar structure and appearance. All
+                      classes are CSS-only and require no JavaScript.
+                    </p>
+                    <div class="table-responsive">
+                      <table class="table table-striped" aria-label="CSS classes">
+                        <thead>
+                          <tr>
+                            <th>Class</th>
+                            <th>Element</th>
+                            <th>Description</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td><code>.progress</code></td>
+                            <td><code>&lt;div&gt;</code></td>
+                            <td>
+                              Outer track wrapper. Sets height, background color, border radius, and
+                              box shadow. Hosts all <code>--cnds-progress-*</code> custom properties.
+                            </td>
+                          </tr>
+                          <tr>
+                            <td><code>.progress-stacked</code></td>
+                            <td><code>&lt;div&gt;</code></td>
+                            <td>
+                              Alias for <code>.progress</code>. Use when assembling a multi-segment
+                              bar from separate <code>.progress</code> wrappers placed side by side.
+                            </td>
+                          </tr>
+                          <tr>
+                            <td><code>.progress-bar</code></td>
+                            <td><code>&lt;div&gt;</code></td>
+                            <td>
+                              Filled segment. Width is set via an inline style or a <code>w-*</code>
+                              utility class. Fill color is controlled by
+                              <code>--cnds-progress-bar-bg</code>.
+                            </td>
+                          </tr>
+                          <tr>
+                            <td><code>.progress-bar-striped</code></td>
+                            <td><code>.progress-bar</code></td>
+                            <td>
+                              Adds a diagonal <code>linear-gradient</code> stripe pattern over the
+                              fill. Can be combined with any <code>bg-*</code> utility class.
+                            </td>
+                          </tr>
+                          <tr>
+                            <td><code>.progress-bar-animated</code></td>
+                            <td><code>.progress-bar</code></td>
+                            <td>
+                              Animates the stripe pattern from right to left. Requires
+                              <code>.progress-bar-striped</code>. Animation is automatically
+                              suppressed when <code>prefers-reduced-motion: reduce</code> is active.
+                            </td>
+                          </tr>
+                          <tr>
+                            <td><code>.progress-circular</code></td>
+                            <td><code>.progress</code></td>
+                            <td>
+                              Circular variant modifier. Converts the element to an inline
+                              <code>conic-gradient</code> ring. Arc fill is controlled by the
+                              <code>--percentage</code> CSS custom property (0–100).
+                            </td>
+                          </tr>
+                          <tr>
+                            <td><code>.progress-label</code></td>
+                            <td><code>&lt;div&gt;</code></td>
+                            <td>
+                              Center label for the circular variant. Positioned over the ring via
+                              <code>z-index</code>. Renders at 0.75 rem / 600 weight by default.
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </section>
+                  <!--/Section: API CSS Classes-->
+
+                  <!--Section: API CSS Custom Properties-->
+                  <section id="api-section-css-variables">
+                    <h4 class="mb-4">CSS custom properties</h4>
+                    <p>
+                      Linear progress custom properties are defined on <code>.progress</code> and
+                      <code>.progress-stacked</code>. Override them per-instance via an inline
+                      <code>style</code> attribute or globally via a CSS rule targeting
+                      <code>.progress</code>.
+                    </p>
+                    <h5 class="mt-4 mb-3">Linear</h5>
+                    <div class="table-responsive">
+                      <table class="table table-striped" aria-label="CSS custom properties">
+                        <thead>
+                          <tr>
+                            <th>Property</th>
+                            <th>Default</th>
+                            <th>Description</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td><code>--cnds-progress-height</code></td>
+                            <td><code>0.5rem</code></td>
+                            <td>Track height. Set on <code>.progress</code>; <code>.progress-bar</code> inherits it automatically.</td>
+                          </tr>
+                          <tr>
+                            <td><code>--cnds-progress-font-size</code></td>
+                            <td><code>0.75rem</code></td>
+                            <td>Font size for text labels placed inside <code>.progress-bar</code>.</td>
+                          </tr>
+                          <tr>
+                            <td><code>--cnds-progress-bg</code></td>
+                            <td><code>var(--cnds-gray-200, #e0e0e0)</code></td>
+                            <td>Track background color. Overridden in dark mode — see <a href="#api-section-theme-variables">Theme variables</a>.</td>
+                          </tr>
+                          <tr>
+                            <td><code>--cnds-progress-border-radius</code></td>
+                            <td><code>var(--cnds-border-radius, 0.375rem)</code></td>
+                            <td>Corner radius of the track and filled bar.</td>
+                          </tr>
+                          <tr>
+                            <td><code>--cnds-progress-box-shadow</code></td>
+                            <td><code>inset 0 1px 2px rgba(0,0,0,0.075)</code></td>
+                            <td>Inset shadow applied to the track. Overridden in dark mode.</td>
+                          </tr>
+                          <tr>
+                            <td><code>--cnds-progress-bar-color</code></td>
+                            <td><code>#fff</code></td>
+                            <td>Text color for labels rendered inside the filled segment.</td>
+                          </tr>
+                          <tr>
+                            <td><code>--cnds-progress-bar-bg</code></td>
+                            <td><code>var(--cnds-primary)</code></td>
+                            <td>Fill color of the bar. Defaults to the active product theme's primary color. Override with a <code>bg-*</code> utility or a custom CSS value.</td>
+                          </tr>
+                          <tr>
+                            <td><code>--cnds-progress-bar-transition</code></td>
+                            <td><code>width 0.6s ease</code></td>
+                            <td>CSS transition applied when the bar width changes programmatically.</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    <h5 class="mt-4 mb-3">Circular</h5>
+                    <p>
+                      The following additional custom properties are scoped to
+                      <code>.progress.progress-circular</code>.
+                    </p>
+                    <div class="table-responsive">
+                      <table class="table table-striped" aria-label="CSS custom properties">
+                        <thead>
+                          <tr>
+                            <th>Property</th>
+                            <th>Default</th>
+                            <th>Description</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td><code>--percentage</code></td>
+                            <td><code>0</code></td>
+                            <td>Arc fill amount from 0 to 100. Set as an inline style on the <code>.progress.progress-circular</code> element.</td>
+                          </tr>
+                          <tr>
+                            <td><code>--size</code></td>
+                            <td><code>80px</code></td>
+                            <td>Diameter of the circular widget.</td>
+                          </tr>
+                          <tr>
+                            <td><code>--track-width</code></td>
+                            <td><code>10px</code></td>
+                            <td>Ring stroke width, rendered as a circular pseudo-element cutout over the conic gradient.</td>
+                          </tr>
+                          <tr>
+                            <td><code>--progress-fill</code></td>
+                            <td><code>var(--cnds-progress-bar-bg)</code></td>
+                            <td>Arc fill color. Set automatically via CSS <code>:has()</code> when a <code>bg-success</code>, <code>bg-warning</code>, <code>bg-danger</code>, or <code>bg-info</code> class is applied to the inner <code>.progress-bar</code>.</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </section>
+                  <!--/Section: API CSS Custom Properties-->
+
+                  <!--Section: API Theme Variables-->
+                  <section id="api-section-theme-variables">
+                    <h4 class="mb-4">Theme variables</h4>
+                    <p>
+                      The progress bar adapts to the active theme via custom properties overridden
+                      in <code>dark.css</code> on the
+                      <code>[data-cnds-theme="dark"] .progress</code> selector. The fill color is
+                      inherited from <code>--cnds-primary</code>, which is set by the active product
+                      theme class on <code>&lt;body&gt;</code>.
+                    </p>
+                    <div class="table-responsive">
+                      <table class="table table-striped table-bordered" aria-label="Theme variables">
+                        <thead>
+                          <tr>
+                            <th>Token</th>
+                            <th>Light value</th>
+                            <th>Dark value</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td><code>--cnds-progress-bg</code></td>
+                            <td><code>var(--cnds-gray-200, #e0e0e0)</code></td>
+                            <td><code>var(--cnds-surface-dark-300, #4a4a4a)</code></td>
+                          </tr>
+                          <tr>
+                            <td><code>--cnds-progress-box-shadow</code></td>
+                            <td><code>inset 0 1px 2px rgba(0,0,0,0.075)</code></td>
+                            <td><code>inset 0 1px 2px rgba(0,0,0,0.2)</code></td>
+                          </tr>
+                          <tr>
+                            <td><code>--cnds-progress-bar-bg</code></td>
+                            <td><code>var(--cnds-primary)</code> — CaseFusion green, Hyperlize gold, or Expireon indigo depending on the active product class</td>
+                            <td>Same — <code>--cnds-primary</code> resolves to the same product token in dark mode</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </section>
+                  <!--/Section: API Theme Variables-->
+
+                  <!--Section: API Accessibility-->
+                  <section id="api-section-accessibility">
+                    <h4 class="mb-4">Accessibility</h4>
+                    <p>
+                      The following attributes are required for an accessible linear progress bar
+                      implementation:
+                    </p>
+                    <ul>
+                      <li>
+                        Add <code>role="progressbar"</code> to <code>.progress-bar</code> so
+                        assistive technologies identify the element as a progress indicator.
+                      </li>
+                      <li>
+                        Set <code>aria-valuenow</code> to the current numeric value, keeping it in
+                        sync with the element's visual width whenever the value changes.
+                      </li>
+                      <li>
+                        Set <code>aria-valuemin="0"</code> and <code>aria-valuemax="100"</code> to
+                        define the range. Use different values when the scale is not 0–100.
+                      </li>
+                      <li>
+                        For bars that carry no visible text label, add <code>aria-label</code> or
+                        <code>aria-labelledby</code> to describe the bar's purpose — for example,
+                        <code>aria-label="Upload progress"</code>.
+                      </li>
+                    </ul>
+                    <p>
+                      The circular variant renders via CSS only and carries no ARIA role by default.
+                      When the ring is meaningful to the user (not purely decorative), add
+                      <code>role="img"</code> and <code>aria-label</code> to the
+                      <code>.progress.progress-circular</code> element to expose it to assistive
+                      technologies.
+                    </p>
+                    <p>
+                      The <code>.progress-bar-animated</code> animation is automatically suppressed
+                      when the user's operating system reports
+                      <code>prefers-reduced-motion: reduce</code>, ensuring the component respects
+                      vestibular and motion-sensitivity preferences without additional configuration.
+                    </p>
+                  </section>
+                  <!--/Section: API Accessibility-->
+
+                </section>
+                <!--/Section: API Documentation-->
+
+              </section>
+              <!--Section: Docs content-->
+            </div>
+            <!-- ./Main column -->
+
+            <!-- Right Sidebar — 20 % of the row width; hidden below lg breakpoint.
+                 Sticky attributes (processed by nimbus.js):
+                   data-cnds-sticky="true"          : activates sticky positioning
+                   data-cnds-sticky-boundary="true" : constrains sticky to its parent container
+                   data-cnds-sticky-direction="both" : sticks when scrolling up OR down
+                   data-cnds-sticky-offset="56"     : clears the 56 px fixed header
+                   data-cnds-sticky-delay="125"     : debounce delay (ms) to reduce scroll jank
+                 data-cnds-allow-hashes="true" on the <ul>: nimbus.js watches the URL hash
+                   and highlights the matching nav-link as the user scrolls through sections. -->
+            <div class="col-lg-2 d-none d-lg-block">
+              <div class="sticky-top" style="top: 100px; z-index: 1">
+                <ul
+                  class="nav flex-column nav-pills menu-sidebar"
+                  id="rightNav"
+                  data-cnds-allow-hashes="true"
+                >
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-introduction"
+                      >Introduction</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-basic-example"
+                      >Basic example</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-how-it-works"
+                      >How it works</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-labels">Labels</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-height">Height</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-colors">Colors</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-product-themes">Product themes</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-multiple-bars"
+                      >Multiple bars</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-striped">Striped</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-animated-stripes"
+                      >Animated stripes</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-progress-circular"
+                      >Progress Circular</a
+                    >
+                  </li>
+                  <li class="nav-item"><a class="nav-link" href="#section-api-docs">API Documentation</a></li>
+                  <li class="nav-item ms-3"><a class="nav-link" href="#api-section-introduction">Introduction</a></li>
+                  <li class="nav-item ms-3"><a class="nav-link" href="#api-section-usage">Usage</a></li>
+                  <li class="nav-item ms-3"><a class="nav-link" href="#api-section-css-classes">CSS classes</a></li>
+                  <li class="nav-item ms-3"><a class="nav-link" href="#api-section-css-variables">CSS custom properties</a></li>
+                  <li class="nav-item ms-3"><a class="nav-link" href="#api-section-theme-variables">Theme variables</a></li>
+                  <li class="nav-item ms-3"><a class="nav-link" href="#api-section-accessibility">Accessibility</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Togglers -->
+    </main>
+      <!-- ./Togglers -->
+      </div>
+    </main>
+    <!-- Footer -->
+    <div class="cf-footer cf-footer-app">
+      <footer class="page-footer main-footer" aria-label="Site footer">
+        <div class="w-100 px-3 d-flex align-items-center">
+          <img src="img/cf/core/cloudficient_logo_light.svg" class="cf-logo-light" style="width: 135px;" alt="Cloudficient" />
+          <img src="img/cf/core/cloudficient_logo_dark.svg" class="cf-logo-dark" style="width: 135px;" alt="Cloudficient" />
+          <span class="footer-copyright ms-auto">&copy; <span id="currentYear"></span> Cloudficient</span>
+        </div>
+      </footer>
+    </div>
+    <!-- SCRIPTS — load order matters:
+         1. nimbus.js         — core framework: processes all data-cnds-* attributes (theme, sticky, sidenav, tooltips…)
+         2. app.js            — application-level overrides and custom initialisation
+         3. prism.min.js      — syntax highlighting for <code class="language-*"> blocks; must run after DOM is ready
+         4. sidenav-loader.js — fetches shared sidenav HTML and injects it into #sidebar-cf -->
+    <script type="text/javascript" src="js/nimbus.js?v=9.0.4"></script>
+    <script type="text/javascript" src="js/app.js?v=9.0.4"></script>
+    <script type="text/javascript" src="plugins/js/prism.min.js"></script>
+    <script type="text/javascript" src="js/sidenav-loader.js"></script>
+    <script type="text/javascript">
+      var currentYearElement = document.getElementById("currentYear");
+      if (currentYearElement) {
+        currentYearElement.textContent = new Date().getFullYear();
+      }
+    </script>
+  </body>
+</html>

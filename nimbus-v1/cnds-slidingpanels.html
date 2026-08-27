@@ -1,0 +1,1824 @@
+<!--
+* CNDS Nimbus Design System — Sliding Panels (aka Offcanvas)
+* Version: 1.0.0
+* Layout: Application with SideNav (migrated from Nimbus v8 template)
+* NOTES
+- Pure HTML5, CSS3, vanilla JavaScript — zero external dependencies
+- Uses data-cnds-* attributes (replaces data-bs-* from Bootstrap 5)
+- Uses Nimbus.* namespace (replaces mdb.*)
+- Default product theme: CaseFusion (cnds-product-casefusion on <body>; change to cnds-product-hyperlize or cnds-product-expireon)
+-->
+<!doctype html>
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta
+      name="description"
+      content="Sliding Panels (aka Offcanvas) | Cloudficient Nimbus Design System v1.0.0"
+    />
+    <title>
+      Sliding Panels (aka Offcanvas) | CNDS v1.0.0 | Cloudficient Nimbus Design System
+    </title>
+    <!-- Nimbus CSS -->
+    <link rel="stylesheet" href="css/nimbus.css?v=9.0.97" media="all" type="text/css" />
+    <!-- Custom styles -->
+    <link rel="stylesheet" href="css/app.css?v=9.0.97" media="all" type="text/css" />
+    <!-- Prism syntax highlighting -->
+    <link rel="stylesheet" href="plugins/css/prism.min.css" media="all" type="text/css" />
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="img/favicon/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="60x60" href="img/favicon/apple-icon-60x60.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="img/favicon/apple-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76" href="img/favicon/apple-icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="img/favicon/apple-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="img/favicon/apple-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="img/favicon/apple-icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="img/favicon/apple-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-icon-180x180.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="img/favicon/android-icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="img/favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="img/favicon/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="msapplication-TileImage" content="img/favicon/ms-icon-144x144.png" />
+    <!-- Design Tokens / Primitives & Themes -->
+    <link rel="stylesheet" href="css/themes/primitives.css?v=9.0.97" />
+    <link rel="stylesheet" href="css/themes/light.css?v=9.0.97" />
+    <link rel="stylesheet" href="css/themes/dark.css?v=9.0.97" />
+  </head>
+
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 Bypass Blocks; renders visually hidden until focused -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+    <!-- Header -->
+    <div class="sticky-top">
+      <!-- Utility Navigation -->
+      <nav id="UtilityNav" class="nav nav-cf-utility" aria-label="Utility navigation">
+        <div class="w-100 gx-3 px-sm-0 px-lg-3">
+          <ul class="nav nav-cf-utility-ul"></ul>
+        </div>
+      </nav>
+      <!-- ./Utility Navigation -->
+      <!-- Main Navigation -->
+      <nav id="MainNav" class="navbar navbar-expand-xl navbar-cf" aria-label="Main navigation">
+        <div class="container-fluid p-0 px-3 d-flex">
+          <div class="d-flex flex-fill align-items-center text-truncate">
+            <div class="text-center d-none d-md-block me-3 border-end">
+              <a href="index.html"><img src="img/cf/core/logo_nimbus.png" class="me-3 mt-n1" alt="Cloudficient Nimbus Design System" /></a>
+            </div>
+            <div class="flex-fill text-truncate">
+              <div class="navbar-cf-title-block">
+                <div class="navbar-cf-title cf-page-title text-truncate" style="padding-bottom: 0;">
+                  <span class="cf-page-title-text cf-page-title-brand">v1</span>
+                  <span class="cf-page-title-divider"></span>
+                  <span class="cf-page-title-text">Sliding Panels (aka Offcanvas)</span>
+                  </div>
+              </div>
+            </div>
+          </div>
+          <button class="btn btn-sm btn-outline-secondary ms-2" data-cnds-toggle="theme" aria-label="Toggle theme" title="Toggle theme">
+            <i class="mdi mdi-weather-night mdi-18px" aria-hidden="true"></i>
+          </button>
+        </div>
+      </nav>
+      <!-- ./Main Navigation -->
+    </div>
+    <!-- ./Header -->
+    <!-- Content -->
+    <main id="main-content" class="cf-main-app">
+      <div class="d-block d-md-none p-4">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>This application is not optimized for small screens. Please use a large tablet, laptop, or desktop computer to continue.
+        </div>
+      </div>
+      <div class="d-none d-md-block">
+        <!-- Sidenav: initialized by sidenav-loader.js; slim mode controlled by data-cnds-slim -->
+        <nav id="sidebar-cf" class="sidenav" data-cnds-mode="side" data-cnds-slim="false" data-cnds-slim-collapsed="false" data-cnds-content="#slim-content" data-cnds-accordion="true"></nav>
+        <div id="slim-content">
+            <div class="slim-content-box">
+                <div class="row">
+                    <!-- Main content column (80%) / right sticky nav column (20%) -->
+                    <div class="col-12 col-lg" style="flex: 0 0 80%; max-width: 80%">
+
+                        <!--Section: Docs content-->
+                        <section class="container-fluid">
+                            <!--Section: Introduction-->
+                            <section id="section-introduction">
+
+                                <!-- Description -->
+                                <p class="mb-4">
+                                    Sliding panels (also called offcanvas) are used for workflow tasks where a modal dialog would interrupt the user too heavily. The panel slides in from an edge of the viewport — by default the right — keeping the underlying page visible and partially interactive so users maintain context while completing focused tasks such as filling a form, reviewing item details, or accessing a secondary navigation menu.
+                                </p>
+                                <p class="mb-4">
+                                    Sliding panels support configurable placement (<code>.offcanvas-start</code>, <code>.offcanvas-end</code>, <code>.offcanvas-top</code>, <code>.offcanvas-bottom</code>), width customization via sizing utilities, and independent backdrop and body-scroll options. Nimbus defaults all sliding panels to open from the right edge of the screen unless UX specifies otherwise.
+                                </p>
+
+                                <p class="note note-light">
+                                    <strong>Note:</strong> Read the
+                                    <a href="#section-api-docs">API Documentation</a> to find all available
+                                    options and advanced customization.
+                                </p>
+
+                                <p class="note note-info"><strong class="note-label">Note:</strong> To preview components in different themes, click the theme toggle button <i class="mdi mdi-weather-night" aria-hidden="true"></i> / <i class="mdi mdi-weather-sunny" aria-hidden="true"></i> in the header navigation bar.</p>
+                            </section>
+                            <!--Section: Introduction-->
+
+                            <hr class="my-5">
+
+                            <!--Section: How it works-->
+                            <section id="section-how-it-works">
+                                <!-- Section title -->
+                                <h3 class="mb-4">How it works</h3>
+                                <p>
+                                    Offcanvas is a sidebar component that can be toggled via JavaScript to appear from the top, left,
+                                    right, or bottom edge of the viewport. Buttons or anchors are used as triggers that are
+                                    attached to specific elements you toggle, and <code>data</code> attributes are used to invoke our JavaScript.
+                                </p>
+                                <ul>
+                                    <li>Offcanvas must be initialized using the <code>data-cnds-offcanvas-init</code> data attribute</li>
+                                    <li>
+                                        Offcanvas shares some of the same JavaScript code as modals. Conceptually, they are quite
+                                        similar, but they are separate plugins.
+                                    </li>
+                                    <li>
+                                        When shown, offcanvas includes a default backdrop that can be clicked to hide the offcanvas.
+                                    </li>
+                                    <li>
+                                        Similar to modals, only one offcanvas can be shown at a time.
+                                    </li>
+                                </ul>
+                                <p class="note note-warning">
+                                    <strong>Heads up!</strong> Given how CSS handles animations, you cannot use
+                                    <code>margin</code> or <code>translate</code> on an <code>.offcanvas</code> element. Instead,
+                                    use the class as an independent wrapping element.
+                                </p>
+                            </section>
+                            <!--Section: How it works-->
+
+                            <hr class="my-5">
+
+                            <!--Section: Examples-->
+                            <section id="section-examples">
+                                <!-- Section title -->
+                                <h3 class="mb-4">Examples</h3>
+
+                                <p>
+                                    The two examples below cover the static component structure and an interactive live demonstration. The static example shows the complete panel markup with header, body, and footer regions. The live demo shows how to attach trigger elements — either a link using <code>href</code> or a button using <code>data-cnds-target</code> — to open and close the panel programmatically.
+                                </p>
+
+                                <!--Subsection: Offcanvas components-->
+                                <section id="subsection-offcanvas-components">
+                                    <!--Subsection title-->
+                                    <h4 class="mt-5">Offcanvas components</h4>
+
+                                    <!--Description-->
+                                    <p>
+                                        Below is an offcanvas example that is shown by default (via
+                                        <code>.show</code> on <code>.offcanvas</code>). Offcanvas includes support for a header with
+                                        a close button and an optional body class for some initial <code>padding</code>. We suggest
+                                        that you include offcanvas headers with dismiss actions whenever possible, or provide an
+                                        explicit dismiss action. An optional footer is shown for call to action buttons.
+                                    </p>
+
+                                    <!--Section: Demo-->
+                                    <section class="pb-4">
+                                        <div class="border">
+
+                                            <section class="w-100 offcanvas-example bg-light" data-cnds-toggle="offcanvas" data-cnds-target="#offcanvas" aria-controls="offcanvas">
+                                                <div class="offcanvas offcanvas-end" tabindex="-1" aria-modal="true" id="offcanvas" aria-labelledby="offcanvasLabel">
+                                                    <div class="offcanvas-header">
+                                                        <h3 class="offcanvas-title" id="offcanvasLabel">Panel</h3>
+                                                        <button type="button" class="btn-close" data-cnds-dismiss="offcanvas" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="offcanvas-body">
+                                                        Content for the offcanvas goes here. You can place any Nimbus component or custom elements here.
+                                                    </div>
+                                                    <div class="offcanvas-footer">
+                                                        <button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas">Cancel</button>
+                                                        <button type="button" class="btn btn-primary">Submit</button>
+                                                        <div class="dropup">
+                                                            <i class="mdi mdi-dots-vertical text-primary" data-cnds-toggle="dropdown" role="button" tabindex="0" aria-expanded="false" aria-haspopup="menu" aria-label="More actions" style="font-size: 24px; line-height: 1; cursor: pointer; display: inline-block; width: 32px; text-align: center;" aria-hidden="true"></i>
+                                                            <ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion dropdown-menu-end">
+                                                                <li><a class="dropdown-item" href="#">Save as Draft</a></li>
+                                                                <li><a class="dropdown-item" href="#">Reset Form</a></li>
+                                                                <li><a class="dropdown-item" href="#">Help</a></li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </section>
+
+                                        </div>
+                                    </section>
+
+                                    <!--Section: Demo-->
+<!-- Angular: In Angular, use a custom OffcanvasService or the CDK Overlay to manage sliding panel state.
+     Example: <div class="offcanvas offcanvas-end" [class.show]="panelOpen" tabindex="-1"></div>
+     Call panelService.open() / panelService.close() from your component rather than relying on data-cnds-offcanvas-init directly. -->
+                                    <!--Section: Code-->
+                                    <section class="mb-4">
+                                        <h4><span class="badge badge-code-html">HTML</span></h4>
+                                        <!-- snippet -->
+                                        <div class="p-0">
+                                            <pre class="line-numbers m-0">
+									<code class="language-html">
+&lt;div class="offcanvas offcanvas-end" tabindex="-1" aria-modal="true" id="offcanvas" aria-labelledby="offcanvasLabel"&gt;
+    &lt;div class="offcanvas-header"&gt;
+        &lt;h3 class="offcanvas-title" id="offcanvasLabel"&gt;Panel&lt;/h3&gt;
+        &lt;button type="button" class="btn-close" data-cnds-dismiss="offcanvas" aria-label="Close"&gt;&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class="offcanvas-body"&gt;
+        Content for the offcanvas goes here. You can place any Nimbus component or custom elements here.
+    &lt;/div&gt;
+    &lt;div class="offcanvas-footer"&gt;
+        &lt;button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas"&gt;Cancel&lt;/button&gt;
+        &lt;button type="button" class="btn btn-primary"&gt;Submit&lt;/button&gt;
+        &lt;div class="dropup"&gt;
+            &lt;i class="mdi mdi-dots-vertical text-primary" data-cnds-toggle="dropdown" role="button" tabindex="0" aria-expanded="false" aria-haspopup="menu" aria-label="More actions" style="font-size: 24px; line-height: 1; cursor: pointer; display: inline-block; width: 32px; text-align: center;"&gt;&lt;/i&gt;
+            &lt;ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion dropdown-menu-end"&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Save as Draft&lt;/a&gt;&lt;/li&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Reset Form&lt;/a&gt;&lt;/li&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Help&lt;/a&gt;&lt;/li&gt;
+            &lt;/ul&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+									</code>
+									</pre>
+                                        </div>
+                                        <!-- /.snippet -->
+                                    </section>
+                                    <!--Section: Code-->
+                                </section>
+                                <!--Subsection: Offcanvas components-->
+
+                                <!--Subsection: Live demo-->
+                                <section id="subsection-live-demo">
+                                    <!--Subsection title-->
+                                    <h4 class="mt-5">Live demo</h4>
+
+                                    <!--Description-->
+                                    <p>
+                                        Use the buttons below to show and hide an offcanvas element via JavaScript that toggles the
+                                        <code>.show</code> class on an element with the <code>.offcanvas</code> class.
+                                    </p>
+                                    <ul>
+                                        <li><code>.offcanvas</code> hides content (default)</li>
+                                        <li><code>.offcanvas.show</code> shows content</li>
+                                    </ul>
+                                    <p>
+                                        You can use a link with the <code>href</code> attribute, or a button with the
+                                        <code>data-cnds-target</code> attribute. In both cases, the <code>data-cnds-offcanvas-init</code> and
+                                        <code>data-cnds-toggle="offcanvas"</code> is required.
+                                    </p>
+
+                                    <!--Section: Demo-->
+                                    <section class="pb-4">
+                                        <div class="border rounded-5">
+
+                                            <section class="p-4 text-center w-100">
+                                                <a class="btn btn-primary" data-cnds-offcanvas-init data-cnds-toggle="offcanvas" href="#offcanvasExample" role="button" aria-controls="offcanvasExample">
+                                                    Link with href
+                                                </a>
+                                                <button class="btn btn-primary" type="button" data-cnds-offcanvas-init data-cnds-toggle="offcanvas" data-cnds-target="#offcanvasExample" aria-controls="offcanvasExample">
+                                                    Button with data-cnds-target
+                                                </button>
+                                            </section>
+
+                                            <div class="offcanvas offcanvas-end" tabindex="-1" aria-modal="true" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+                                                <div class="offcanvas-header">
+                                                    <h3 class="offcanvas-title" id="offcanvasExampleLabel">Panel</h3>
+                                                    <button type="button" class="btn-close" data-cnds-dismiss="offcanvas" aria-label="Close"></button>
+                                                </div>
+                                                <div class="offcanvas-body">
+                                                    <div>
+                                                        Some text as placeholder. In real life you can have the elements you have chosen. Like, text, images,
+                                                        lists, etc.
+                                                    </div>
+                                                    <div class="dropdown mt-3">
+                                                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-cnds-dropdown-init data-cnds-toggle="dropdown">
+                                                            Dropdown button <i class="mdi mdi-chevron-down" aria-hidden="true"></i>
+                                                        </button>
+                                                        <ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion" aria-labelledby="dropdownMenuButton">
+                                                            <li><a class="dropdown-item" href="#">Action</a></li>
+                                                            <li><a class="dropdown-item" href="#">Another action</a></li>
+                                                            <li><a class="dropdown-item" href="#">Something else here</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <div class="offcanvas-footer">
+                                                    <button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas">Cancel</button>
+                                                    <button type="button" class="btn btn-primary">Submit</button>
+                                                    <div class="dropup">
+                                                        <i class="mdi mdi-dots-vertical text-primary" data-cnds-toggle="dropdown" role="button" tabindex="0" aria-expanded="false" aria-haspopup="menu" aria-label="More actions" style="font-size: 24px; line-height: 1; cursor: pointer; display: inline-block; width: 32px; text-align: center;" aria-hidden="true"></i>
+                                                        <ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion dropdown-menu-end">
+                                                            <li><a class="dropdown-item" href="#">Save as Draft</a></li>
+                                                            <li><a class="dropdown-item" href="#">Reset Form</a></li>
+                                                            <li><a class="dropdown-item" href="#">Help</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </section>
+
+                                    <!--Section: Demo-->
+<!-- Angular: Bind the offcanvas trigger to an (click) handler that calls offcanvasService.open('#offcanvasExample').
+     Example: <button class="btn btn-primary" (click)="openPanel()">Open</button>
+     The service wraps Nimbus.Offcanvas to keep Angular in control of panel lifecycle. -->
+                                    <!--Section: Code-->
+                                    <section class="mb-4">
+                                        <h4><span class="badge badge-code-html">HTML</span></h4>
+                                        <!-- snippet -->
+                                        <div class="p-0">
+                                            <pre class="line-numbers m-0">
+									<code class="language-html">
+&lt;a class="btn btn-primary" data-cnds-offcanvas-init data-cnds-toggle="offcanvas" href="#offcanvasExample" role="button" aria-controls="offcanvasExample"&gt;
+    Link with href
+&lt;/a&gt;
+&lt;button class="btn btn-primary" type="button" data-cnds-offcanvas-init data-cnds-toggle="offcanvas" data-cnds-target="#offcanvasExample" aria-controls="offcanvasExample"&gt;
+    Button with data-cnds-target
+&lt;/button&gt;
+
+&lt;div class="offcanvas offcanvas-end" tabindex="-1" aria-modal="true" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel"&gt;
+    &lt;div class="offcanvas-header"&gt;
+        &lt;h3 class="offcanvas-title" id="offcanvasExampleLabel"&gt;Panel&lt;/h3&gt;
+        &lt;button type="button" class="btn-close" data-cnds-dismiss="offcanvas" aria-label="Close"&gt;&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class="offcanvas-body"&gt;
+        &lt;div&gt;
+            Some text as placeholder. In real life you can have the elements you have chosen. Like, text, images,
+            lists, etc.
+        &lt;/div&gt;
+        &lt;div class="dropdown mt-3"&gt;
+            &lt;button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-cnds-dropdown-init data-cnds-toggle="dropdown"&gt;
+                Dropdown button &lt;i class="mdi mdi-chevron-down"&gt;&lt;/i&gt;
+            &lt;/button&gt;
+            &lt;ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion" aria-labelledby="dropdownMenuButton"&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Action&lt;/a&gt;&lt;/li&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Another action&lt;/a&gt;&lt;/li&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Something else here&lt;/a&gt;&lt;/li&gt;
+            &lt;/ul&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="offcanvas-footer"&gt;
+        &lt;button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas"&gt;Cancel&lt;/button&gt;
+        &lt;button type="button" class="btn btn-primary"&gt;Submit&lt;/button&gt;
+        &lt;div class="dropup"&gt;
+            &lt;i class="mdi mdi-dots-vertical text-primary" data-cnds-toggle="dropdown" role="button" tabindex="0" aria-expanded="false" aria-haspopup="menu" aria-label="More actions" style="font-size: 24px; line-height: 1; cursor: pointer; display: inline-block; width: 32px; text-align: center;"&gt;&lt;/i&gt;
+            &lt;ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion dropdown-menu-end"&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Save as Draft&lt;/a&gt;&lt;/li&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Reset Form&lt;/a&gt;&lt;/li&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Help&lt;/a&gt;&lt;/li&gt;
+            &lt;/ul&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+									</code>
+									</pre>
+                                        </div>
+                                        <!-- /.snippet -->
+                                    </section>
+                                    <!--Section: Code-->
+                                </section>
+                                <!--Subsection: Live demo-->
+                            </section>
+                            <!--Section: Examples-->
+
+                            <hr class="my-5">
+
+                            <!--Section: Placement-->
+                            <section id="section-placement">
+                                <!-- Section title -->
+                                <h3 class="mb-4">Placement</h3>
+
+                                <!--Description-->
+                                <p>Use modifier classes to control which edge the panel slides in from. Nimbus uses the right edge as the default — use <code>.offcanvas-end</code> unless UX explicitly requires another direction:</p>
+
+                                <ul>
+                                    <li><code>.offcanvas-start</code> — slides in from the left of the viewport</li>
+                                    <li><code>.offcanvas-end</code> — slides in from the right of the viewport <strong>(Nimbus default)</strong></li>
+                                    <li><code>.offcanvas-top</code> — slides in from the top of the viewport</li>
+                                    <li><code>.offcanvas-bottom</code> — slides in from the bottom of the viewport</li>
+                                </ul>
+
+                                <p>Try all four placements below.</p>
+
+                                <!--Section: Demo-->
+                                <section class="pb-4">
+                                    <div class="border">
+
+                                        <section class="p-4 d-flex gap-2 justify-content-center w-100">
+
+                                            <!-- Left -->
+                                            <button class="btn btn-primary" type="button" data-cnds-offcanvas-init data-cnds-toggle="offcanvas" data-cnds-target="#offcanvasLeft" aria-controls="offcanvasLeft">Left panel</button>
+
+                                            <!-- Top -->
+                                            <button class="btn btn-primary" type="button" data-cnds-offcanvas-init data-cnds-toggle="offcanvas" data-cnds-target="#offcanvasTop" aria-controls="offcanvasTop">Top panel</button>
+
+                                            <!-- Right -->
+                                            <button class="btn btn-primary" type="button" data-cnds-offcanvas-init data-cnds-toggle="offcanvas" data-cnds-target="#offcanvasRight" aria-controls="offcanvasRight">Right panel</button>
+
+                                            <!-- Bottom -->
+                                            <button class="btn btn-primary" type="button" data-cnds-offcanvas-init data-cnds-toggle="offcanvas" data-cnds-target="#offcanvasBottom" aria-controls="offcanvasBottom">Bottom panel</button>
+
+                                            <!-- Left panel -->
+                                            <div class="offcanvas offcanvas-start" tabindex="-1" aria-modal="true" id="offcanvasLeft" aria-labelledby="offcanvasLeftLabel">
+                                                <div class="offcanvas-header">
+                                                    <h3 class="offcanvas-title" id="offcanvasLeftLabel">Left panel</h3>
+                                                    <button type="button" class="btn-close" data-cnds-dismiss="offcanvas" aria-label="Close"></button>
+                                                </div>
+                                                <div class="offcanvas-body">...</div>
+                                                <div class="offcanvas-footer">
+                                                    <button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas">Cancel</button>
+                                                    <button type="button" class="btn btn-primary">Submit</button>
+                                                    <div class="dropup">
+                                                        <i class="mdi mdi-dots-vertical text-primary" data-cnds-toggle="dropdown" role="button" tabindex="0" aria-expanded="false" aria-haspopup="menu" aria-label="More actions" style="font-size: 24px; line-height: 1; cursor: pointer; display: inline-block; width: 32px; text-align: center;" aria-hidden="true"></i>
+                                                        <ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion dropdown-menu-end">
+                                                            <li><a class="dropdown-item" href="#">Save as Draft</a></li>
+                                                            <li><a class="dropdown-item" href="#">Reset Form</a></li>
+                                                            <li><a class="dropdown-item" href="#">Help</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Top panel -->
+                                            <div class="offcanvas offcanvas-top" tabindex="-1" aria-modal="true" id="offcanvasTop" aria-labelledby="offcanvasTopLabel">
+                                                <div class="offcanvas-header">
+                                                    <h3 class="offcanvas-title" id="offcanvasTopLabel">Top panel</h3>
+                                                    <button type="button" class="btn-close" data-cnds-dismiss="offcanvas" aria-label="Close"></button>
+                                                </div>
+                                                <div class="offcanvas-body">...</div>
+                                                <div class="offcanvas-footer">
+                                                    <button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas">Cancel</button>
+                                                    <button type="button" class="btn btn-primary">Submit</button>
+                                                    <div class="dropup">
+                                                        <i class="mdi mdi-dots-vertical text-primary" data-cnds-toggle="dropdown" role="button" tabindex="0" aria-expanded="false" aria-haspopup="menu" aria-label="More actions" style="font-size: 24px; line-height: 1; cursor: pointer; display: inline-block; width: 32px; text-align: center;" aria-hidden="true"></i>
+                                                        <ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion dropdown-menu-end">
+                                                            <li><a class="dropdown-item" href="#">Save as Draft</a></li>
+                                                            <li><a class="dropdown-item" href="#">Reset Form</a></li>
+                                                            <li><a class="dropdown-item" href="#">Help</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Right panel -->
+                                            <div class="offcanvas offcanvas-end" tabindex="-1" aria-modal="true" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
+                                                <div class="offcanvas-header">
+                                                    <h3 class="offcanvas-title" id="offcanvasRightLabel">Right panel</h3>
+                                                    <button type="button" class="btn-close" data-cnds-dismiss="offcanvas" aria-label="Close"></button>
+                                                </div>
+                                                <div class="offcanvas-body">...</div>
+                                                <div class="offcanvas-footer">
+                                                    <button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas">Cancel</button>
+                                                    <button type="button" class="btn btn-primary">Submit</button>
+                                                    <div class="dropup">
+                                                        <i class="mdi mdi-dots-vertical text-primary" data-cnds-toggle="dropdown" role="button" tabindex="0" aria-expanded="false" aria-haspopup="menu" aria-label="More actions" style="font-size: 24px; line-height: 1; cursor: pointer; display: inline-block; width: 32px; text-align: center;" aria-hidden="true"></i>
+                                                        <ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion dropdown-menu-end">
+                                                            <li><a class="dropdown-item" href="#">Save as Draft</a></li>
+                                                            <li><a class="dropdown-item" href="#">Reset Form</a></li>
+                                                            <li><a class="dropdown-item" href="#">Help</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Bottom panel -->
+                                            <div class="offcanvas offcanvas-bottom" tabindex="-1" aria-modal="true" id="offcanvasBottom" aria-labelledby="offcanvasBottomLabel">
+                                                <div class="offcanvas-header">
+                                                    <h3 class="offcanvas-title" id="offcanvasBottomLabel">Bottom panel</h3>
+                                                    <button type="button" class="btn-close" data-cnds-dismiss="offcanvas" aria-label="Close"></button>
+                                                </div>
+                                                <div class="offcanvas-body small">...</div>
+                                                <div class="offcanvas-footer">
+                                                    <button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas">Cancel</button>
+                                                    <button type="button" class="btn btn-primary">Submit</button>
+                                                    <div class="dropup">
+                                                        <i class="mdi mdi-dots-vertical text-primary" data-cnds-toggle="dropdown" role="button" tabindex="0" aria-expanded="false" aria-haspopup="menu" aria-label="More actions" style="font-size: 24px; line-height: 1; cursor: pointer; display: inline-block; width: 32px; text-align: center;" aria-hidden="true"></i>
+                                                        <ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion dropdown-menu-end">
+                                                            <li><a class="dropdown-item" href="#">Save as Draft</a></li>
+                                                            <li><a class="dropdown-item" href="#">Reset Form</a></li>
+                                                            <li><a class="dropdown-item" href="#">Help</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </section>
+
+                                    </div>
+                                </section>
+                                <!--/Section: Demo-->
+<!-- Angular: Use a single SlidingPanelComponent with an @Input() placement: 'start'|'end'|'top'|'bottom'.
+     Apply [class]="'offcanvas offcanvas-' + placement" and open via a shared OffcanvasService.
+     Bind (click) on each button: (click)="panelService.open('left')" etc. -->
+                                <!--Section: Code-->
+                                <section class="mb-4">
+                                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                                    <!-- snippet -->
+                                    <div class="p-0">
+                                        <pre class="line-numbers m-0">
+									<code class="language-html">
+&lt;!-- Left: .offcanvas-start --&gt;
+&lt;button class="btn btn-primary" type="button" data-cnds-offcanvas-init data-cnds-toggle="offcanvas" data-cnds-target="#offcanvasLeft" aria-controls="offcanvasLeft"&gt;Left panel&lt;/button&gt;
+
+&lt;div class="offcanvas offcanvas-start" tabindex="-1" aria-modal="true" id="offcanvasLeft" aria-labelledby="offcanvasLeftLabel"&gt;
+    &lt;div class="offcanvas-header"&gt;
+        &lt;h3 class="offcanvas-title" id="offcanvasLeftLabel"&gt;Left panel&lt;/h3&gt;
+        &lt;button type="button" class="btn-close" data-cnds-dismiss="offcanvas" aria-label="Close"&gt;&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class="offcanvas-body"&gt;...&lt;/div&gt;
+    &lt;div class="offcanvas-footer"&gt;
+        &lt;button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas"&gt;Cancel&lt;/button&gt;
+        &lt;button type="button" class="btn btn-primary"&gt;Submit&lt;/button&gt;
+        &lt;div class="dropup"&gt;
+            &lt;i class="mdi mdi-dots-vertical text-primary" data-cnds-toggle="dropdown" role="button" tabindex="0" aria-expanded="false" aria-haspopup="menu" aria-label="More actions" style="font-size: 24px; line-height: 1; cursor: pointer; display: inline-block; width: 32px; text-align: center;"&gt;&lt;/i&gt;
+            &lt;ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion dropdown-menu-end"&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Save as Draft&lt;/a&gt;&lt;/li&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Reset Form&lt;/a&gt;&lt;/li&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Help&lt;/a&gt;&lt;/li&gt;
+            &lt;/ul&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Top: .offcanvas-top --&gt;
+&lt;button class="btn btn-primary" type="button" data-cnds-offcanvas-init data-cnds-toggle="offcanvas" data-cnds-target="#offcanvasTop" aria-controls="offcanvasTop"&gt;Top panel&lt;/button&gt;
+
+&lt;div class="offcanvas offcanvas-top" tabindex="-1" aria-modal="true" id="offcanvasTop" aria-labelledby="offcanvasTopLabel"&gt;
+    &lt;div class="offcanvas-header"&gt;
+        &lt;h3 class="offcanvas-title" id="offcanvasTopLabel"&gt;Top panel&lt;/h3&gt;
+        &lt;button type="button" class="btn-close" data-cnds-dismiss="offcanvas" aria-label="Close"&gt;&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class="offcanvas-body"&gt;...&lt;/div&gt;
+    &lt;div class="offcanvas-footer"&gt;
+        &lt;button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas"&gt;Cancel&lt;/button&gt;
+        &lt;button type="button" class="btn btn-primary"&gt;Submit&lt;/button&gt;
+        &lt;div class="dropup"&gt;
+            &lt;i class="mdi mdi-dots-vertical text-primary" data-cnds-toggle="dropdown" role="button" tabindex="0" aria-expanded="false" aria-haspopup="menu" aria-label="More actions" style="font-size: 24px; line-height: 1; cursor: pointer; display: inline-block; width: 32px; text-align: center;"&gt;&lt;/i&gt;
+            &lt;ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion dropdown-menu-end"&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Save as Draft&lt;/a&gt;&lt;/li&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Reset Form&lt;/a&gt;&lt;/li&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Help&lt;/a&gt;&lt;/li&gt;
+            &lt;/ul&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Right: .offcanvas-end (Nimbus default) --&gt;
+&lt;button class="btn btn-primary" type="button" data-cnds-offcanvas-init data-cnds-toggle="offcanvas" data-cnds-target="#offcanvasRight" aria-controls="offcanvasRight"&gt;Right panel&lt;/button&gt;
+
+&lt;div class="offcanvas offcanvas-end" tabindex="-1" aria-modal="true" id="offcanvasRight" aria-labelledby="offcanvasRightLabel"&gt;
+    &lt;div class="offcanvas-header"&gt;
+        &lt;h3 class="offcanvas-title" id="offcanvasRightLabel"&gt;Right panel&lt;/h3&gt;
+        &lt;button type="button" class="btn-close" data-cnds-dismiss="offcanvas" aria-label="Close"&gt;&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class="offcanvas-body"&gt;...&lt;/div&gt;
+    &lt;div class="offcanvas-footer"&gt;
+        &lt;button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas"&gt;Cancel&lt;/button&gt;
+        &lt;button type="button" class="btn btn-primary"&gt;Submit&lt;/button&gt;
+        &lt;div class="dropup"&gt;
+            &lt;i class="mdi mdi-dots-vertical text-primary" data-cnds-toggle="dropdown" role="button" tabindex="0" aria-expanded="false" aria-haspopup="menu" aria-label="More actions" style="font-size: 24px; line-height: 1; cursor: pointer; display: inline-block; width: 32px; text-align: center;"&gt;&lt;/i&gt;
+            &lt;ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion dropdown-menu-end"&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Save as Draft&lt;/a&gt;&lt;/li&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Reset Form&lt;/a&gt;&lt;/li&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Help&lt;/a&gt;&lt;/li&gt;
+            &lt;/ul&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Bottom: .offcanvas-bottom --&gt;
+&lt;button class="btn btn-primary" type="button" data-cnds-offcanvas-init data-cnds-toggle="offcanvas" data-cnds-target="#offcanvasBottom" aria-controls="offcanvasBottom"&gt;Bottom panel&lt;/button&gt;
+
+&lt;div class="offcanvas offcanvas-bottom" tabindex="-1" aria-modal="true" id="offcanvasBottom" aria-labelledby="offcanvasBottomLabel"&gt;
+    &lt;div class="offcanvas-header"&gt;
+        &lt;h3 class="offcanvas-title" id="offcanvasBottomLabel"&gt;Bottom panel&lt;/h3&gt;
+        &lt;button type="button" class="btn-close" data-cnds-dismiss="offcanvas" aria-label="Close"&gt;&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class="offcanvas-body"&gt;...&lt;/div&gt;
+    &lt;div class="offcanvas-footer"&gt;
+        &lt;button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas"&gt;Cancel&lt;/button&gt;
+        &lt;button type="button" class="btn btn-primary"&gt;Submit&lt;/button&gt;
+        &lt;div class="dropup"&gt;
+            &lt;i class="mdi mdi-dots-vertical text-primary" data-cnds-toggle="dropdown" role="button" tabindex="0" aria-expanded="false" aria-haspopup="menu" aria-label="More actions" style="font-size: 24px; line-height: 1; cursor: pointer; display: inline-block; width: 32px; text-align: center;"&gt;&lt;/i&gt;
+            &lt;ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion dropdown-menu-end"&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Save as Draft&lt;/a&gt;&lt;/li&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Reset Form&lt;/a&gt;&lt;/li&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Help&lt;/a&gt;&lt;/li&gt;
+            &lt;/ul&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+									</code>
+									</pre>
+                                    </div>
+                                    <!-- /.snippet -->
+                                </section>
+                                <!--Section: Code-->
+
+                            </section>
+                            <!--Section: Placement-->
+
+                            <hr class="my-5">
+
+                            <!--Section: Sizing-->
+                            <section id="section-sizing">
+                                <!-- Section title -->
+                                <h3 class="mb-4">Sizing</h3>
+
+                                <!--Description-->
+                                <p>
+                                    The default width for offcanvas components is <code>400px</code>. To make a panel narrower or wider, apply a width utility class directly on the <code>.offcanvas</code> element using the <a href="cnds-sizing.html">Sizing Utilities</a>. Width utilities (<code>w-25</code>, <code>w-50</code>, <code>w-75</code>, <code>w-100</code>) are expressed as a percentage of the viewport, so panels respond to the user's screen size automatically. The default <code>400px</code> is recommended for task panels; use wider breakpoints only when the content genuinely requires it.
+                                </p>
+
+                                <p>Try the width examples below:</p>
+
+                                <!--Section: Demo-->
+                                <section class="pb-4">
+                                    <div class="border rounded-5">
+
+                                        <section class="p-4 text-center w-100">
+                                            <button class="btn btn-primary" type="button" data-cnds-offcanvas-init data-cnds-toggle="offcanvas" data-cnds-target="#offcanvasWidthDefault" aria-controls="offcanvasWidthDefault">Default width</button>
+                                            <button class="btn btn-primary" type="button" data-cnds-offcanvas-init data-cnds-toggle="offcanvas" data-cnds-target="#offcanvasWidth25" aria-controls="offcanvasWidth25">25% width</button>
+                                            <button class="btn btn-primary" type="button" data-cnds-offcanvas-init data-cnds-toggle="offcanvas" data-cnds-target="#offcanvasWidth50" aria-controls="offcanvasWidth50">50% width</button>
+                                            <button class="btn btn-primary" type="button" data-cnds-offcanvas-init data-cnds-toggle="offcanvas" data-cnds-target="#offcanvasWidth75" aria-controls="offcanvasWidth75">75% width</button>
+                                            <button class="btn btn-primary" type="button" data-cnds-offcanvas-init data-cnds-toggle="offcanvas" data-cnds-target="#offcanvasWidth100" aria-controls="offcanvasWidth100">100% width</button>
+
+                                            <div class="offcanvas offcanvas-end" tabindex="-1" aria-modal="true" id="offcanvasWidthDefault" aria-labelledby="offcanvasWidthDefaultLabel">
+                                                <div class="offcanvas-header">
+                                                    <h3 class="offcanvas-title" id="offcanvasWidthDefaultLabel">Default width</h3>
+                                                    <button type="button" class="btn-close" data-cnds-dismiss="offcanvas" aria-label="Close"></button>
+                                                </div>
+                                                <div class="offcanvas-body">
+                                                    ...
+                                                </div>
+                                                <div class="offcanvas-footer">
+                                                    <button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas">Cancel</button>
+                                                    <button type="button" class="btn btn-primary">Submit</button>
+                                                    <div class="dropup">
+                                                        <i class="mdi mdi-dots-vertical text-primary" data-cnds-toggle="dropdown" role="button" tabindex="0" aria-expanded="false" aria-haspopup="menu" aria-label="More actions" style="font-size: 24px; line-height: 1; cursor: pointer; display: inline-block; width: 32px; text-align: center;" aria-hidden="true"></i>
+                                                        <ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion dropdown-menu-end">
+                                                            <li><a class="dropdown-item" href="#">Save as Draft</a></li>
+                                                            <li><a class="dropdown-item" href="#">Reset Form</a></li>
+                                                            <li><a class="dropdown-item" href="#">Help</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="offcanvas offcanvas-end w-25" tabindex="-1" aria-modal="true" id="offcanvasWidth25" aria-labelledby="offcanvasWidth25Label">
+                                                <div class="offcanvas-header">
+                                                    <h3 class="offcanvas-title" id="offcanvasWidth25Label">25% width</h3>
+                                                    <button type="button" class="btn-close" data-cnds-dismiss="offcanvas" aria-label="Close"></button>
+                                                </div>
+                                                <div class="offcanvas-body">
+                                                    ...
+                                                </div>
+                                                <div class="offcanvas-footer">
+                                                    <button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas">Cancel</button>
+                                                    <button type="button" class="btn btn-primary">Submit</button>
+                                                    <div class="dropup">
+                                                        <i class="mdi mdi-dots-vertical text-primary" data-cnds-toggle="dropdown" role="button" tabindex="0" aria-expanded="false" aria-haspopup="menu" aria-label="More actions" style="font-size: 24px; line-height: 1; cursor: pointer; display: inline-block; width: 32px; text-align: center;" aria-hidden="true"></i>
+                                                        <ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion dropdown-menu-end">
+                                                            <li><a class="dropdown-item" href="#">Save as Draft</a></li>
+                                                            <li><a class="dropdown-item" href="#">Reset Form</a></li>
+                                                            <li><a class="dropdown-item" href="#">Help</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="offcanvas offcanvas-end w-50" tabindex="-1" aria-modal="true" id="offcanvasWidth50" aria-labelledby="offcanvasWidth50Label">
+                                                <div class="offcanvas-header">
+                                                    <h3 class="offcanvas-title" id="offcanvasWidth50Label">50% width</h3>
+                                                    <button type="button" class="btn-close" data-cnds-dismiss="offcanvas" aria-label="Close"></button>
+                                                </div>
+                                                <div class="offcanvas-body">
+                                                    ...
+                                                </div>
+                                                <div class="offcanvas-footer">
+                                                    <button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas">Cancel</button>
+                                                    <button type="button" class="btn btn-primary">Submit</button>
+                                                    <div class="dropup">
+                                                        <i class="mdi mdi-dots-vertical text-primary" data-cnds-toggle="dropdown" role="button" tabindex="0" aria-expanded="false" aria-haspopup="menu" aria-label="More actions" style="font-size: 24px; line-height: 1; cursor: pointer; display: inline-block; width: 32px; text-align: center;" aria-hidden="true"></i>
+                                                        <ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion dropdown-menu-end">
+                                                            <li><a class="dropdown-item" href="#">Save as Draft</a></li>
+                                                            <li><a class="dropdown-item" href="#">Reset Form</a></li>
+                                                            <li><a class="dropdown-item" href="#">Help</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="offcanvas offcanvas-end w-75" tabindex="-1" aria-modal="true" id="offcanvasWidth75" aria-labelledby="offcanvasWidth75Label">
+                                                <div class="offcanvas-header">
+                                                    <h3 class="offcanvas-title" id="offcanvasWidth75Label">75% width</h3>
+                                                    <button type="button" class="btn-close" data-cnds-dismiss="offcanvas" aria-label="Close"></button>
+                                                </div>
+                                                <div class="offcanvas-body">
+                                                    ...
+                                                </div>
+                                                <div class="offcanvas-footer">
+                                                    <button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas">Cancel</button>
+                                                    <button type="button" class="btn btn-primary">Submit</button>
+                                                    <div class="dropup">
+                                                        <i class="mdi mdi-dots-vertical text-primary" data-cnds-toggle="dropdown" role="button" tabindex="0" aria-expanded="false" aria-haspopup="menu" aria-label="More actions" style="font-size: 24px; line-height: 1; cursor: pointer; display: inline-block; width: 32px; text-align: center;" aria-hidden="true"></i>
+                                                        <ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion dropdown-menu-end">
+                                                            <li><a class="dropdown-item" href="#">Save as Draft</a></li>
+                                                            <li><a class="dropdown-item" href="#">Reset Form</a></li>
+                                                            <li><a class="dropdown-item" href="#">Help</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="offcanvas offcanvas-end w-100" tabindex="-1" aria-modal="true" id="offcanvasWidth100" aria-labelledby="offcanvasWidth100Label">
+                                                <div class="offcanvas-header">
+                                                    <h3 class="offcanvas-title" id="offcanvasWidth100Label">100% width</h3>
+                                                    <button type="button" class="btn-close" data-cnds-dismiss="offcanvas" aria-label="Close"></button>
+                                                </div>
+                                                <div class="offcanvas-body">
+                                                    ...
+                                                </div>
+                                                <div class="offcanvas-footer">
+                                                    <button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas">Cancel</button>
+                                                    <button type="button" class="btn btn-primary">Submit</button>
+                                                    <div class="dropup">
+                                                        <i class="mdi mdi-dots-vertical text-primary" data-cnds-toggle="dropdown" role="button" tabindex="0" aria-expanded="false" aria-haspopup="menu" aria-label="More actions" style="font-size: 24px; line-height: 1; cursor: pointer; display: inline-block; width: 32px; text-align: center;" aria-hidden="true"></i>
+                                                        <ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion dropdown-menu-end">
+                                                            <li><a class="dropdown-item" href="#">Save as Draft</a></li>
+                                                            <li><a class="dropdown-item" href="#">Reset Form</a></li>
+                                                            <li><a class="dropdown-item" href="#">Help</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </section>
+
+                                    </div>
+                                </section>
+                                <!--/Section: Demo-->
+<!-- Angular: Control panel width via a dynamic style binding: [style.width]="panelWidth".
+     Example: <div class="offcanvas offcanvas-end" [style.width]="selectedWidth"></div>
+     Pass the desired width value from a parent component @Input() for reusable panel components. -->
+                                <!--Section: Code-->
+                                <section class="mb-4">
+                                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                                    <!-- snippet -->
+                                    <div class="p-0">
+                                        <pre class="line-numbers m-0">
+											<code class="language-html">
+&lt;button 
+	class="btn btn-primary" 
+	type="button" 
+	data-cnds-offcanvas-init 
+	data-cnds-toggle="offcanvas" 
+	data-cnds-target="#offcanvasWidthDefault" 
+	aria-controls="offcanvasWidthDefault"&gt;
+Default width
+&lt;/button&gt;
+
+&lt;button 
+	class="btn btn-primary" 
+	type="button" 
+	data-cnds-offcanvas-init 
+	data-cnds-toggle="offcanvas" 
+	data-cnds-target="#offcanvasWidth25" 
+	aria-controls="offcanvasWidth25"&gt;
+25% width
+&lt;/button&gt;
+
+&lt;button 
+	class="btn btn-primary" 
+	type="button" 
+	data-cnds-offcanvas-init 
+	data-cnds-toggle="offcanvas" 
+	data-cnds-target="#offcanvasWidth50" 
+	aria-controls="offcanvasWidth50"&gt;
+50% width
+&lt;/button&gt;
+
+&lt;button 
+	class="btn btn-primary" 
+	type="button" 
+	data-cnds-offcanvas-init 
+	data-cnds-toggle="offcanvas" 
+	data-cnds-target="#offcanvasWidth75" 
+	aria-controls="offcanvasWidth75"&gt;
+75% width
+&lt;/button&gt;
+
+&lt;button 
+	class="btn btn-primary" 
+	type="button" 
+	data-cnds-offcanvas-init 
+	data-cnds-toggle="offcanvas" 
+	data-cnds-target="#offcanvasWidth100" 
+	aria-controls="offcanvasWidth100"&gt;
+100% width
+&lt;/button&gt;
+
+&lt;div class="offcanvas offcanvas-end" tabindex="-1" aria-modal="true" id="offcanvasWidthDefault" aria-labelledby="offcanvasWidthDefaultLabel"&gt;
+    &lt;div class="offcanvas-header"&gt;
+        &lt;h3 class="offcanvas-title" id="offcanvasWidthDefaultLabel"&gt;Default width&lt;/h3&gt;
+        &lt;button type="button" class="btn-close" data-cnds-dismiss="offcanvas" aria-label="Close"&gt;&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class="offcanvas-body"&gt;
+        ...
+    &lt;/div&gt;
+    &lt;div class="offcanvas-footer"&gt;
+        &lt;button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas"&gt;Cancel&lt;/button&gt;
+        &lt;button type="button" class="btn btn-primary"&gt;Submit&lt;/button&gt;
+        &lt;div class="dropup"&gt;
+            &lt;i class="mdi mdi-dots-vertical text-primary" data-cnds-toggle="dropdown" role="button" tabindex="0" aria-expanded="false" aria-haspopup="menu" aria-label="More actions" style="font-size: 24px; line-height: 1; cursor: pointer; display: inline-block; width: 32px; text-align: center;"&gt;&lt;/i&gt;
+            &lt;ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion dropdown-menu-end"&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Save as Draft&lt;/a&gt;&lt;/li&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Reset Form&lt;/a&gt;&lt;/li&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Help&lt;/a&gt;&lt;/li&gt;
+            &lt;/ul&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="offcanvas offcanvas-end w-25" tabindex="-1" aria-modal="true" id="offcanvasWidth25" aria-labelledby="offcanvasWidth25Label"&gt;
+    &lt;div class="offcanvas-header"&gt;
+        &lt;h3 class="offcanvas-title" id="offcanvasWidth25Label"&gt;25% width&lt;/h3&gt;
+        &lt;button type="button" class="btn-close" data-cnds-dismiss="offcanvas" aria-label="Close"&gt;&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class="offcanvas-body"&gt;
+        ...
+    &lt;/div&gt;
+    &lt;div class="offcanvas-footer"&gt;
+        &lt;button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas"&gt;Cancel&lt;/button&gt;
+        &lt;button type="button" class="btn btn-primary"&gt;Submit&lt;/button&gt;
+        &lt;div class="dropup"&gt;
+            &lt;i class="mdi mdi-dots-vertical text-primary" data-cnds-toggle="dropdown" role="button" tabindex="0" aria-expanded="false" aria-haspopup="menu" aria-label="More actions" style="font-size: 24px; line-height: 1; cursor: pointer; display: inline-block; width: 32px; text-align: center;"&gt;&lt;/i&gt;
+            &lt;ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion dropdown-menu-end"&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Save as Draft&lt;/a&gt;&lt;/li&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Reset Form&lt;/a&gt;&lt;/li&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Help&lt;/a&gt;&lt;/li&gt;
+            &lt;/ul&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="offcanvas offcanvas-end w-50" tabindex="-1" aria-modal="true" id="offcanvasWidth50" aria-labelledby="offcanvasWidth50Label"&gt;
+    &lt;div class="offcanvas-header"&gt;
+        &lt;h3 class="offcanvas-title" id="offcanvasWidth50Label"&gt;50% width&lt;/h3&gt;
+        &lt;button type="button" class="btn-close" data-cnds-dismiss="offcanvas" aria-label="Close"&gt;&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class="offcanvas-body"&gt;
+        ...
+    &lt;/div&gt;
+    &lt;div class="offcanvas-footer"&gt;
+        &lt;button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas"&gt;Cancel&lt;/button&gt;
+        &lt;button type="button" class="btn btn-primary"&gt;Submit&lt;/button&gt;
+        &lt;div class="dropup"&gt;
+            &lt;i class="mdi mdi-dots-vertical text-primary" data-cnds-toggle="dropdown" role="button" tabindex="0" aria-expanded="false" aria-haspopup="menu" aria-label="More actions" style="font-size: 24px; line-height: 1; cursor: pointer; display: inline-block; width: 32px; text-align: center;"&gt;&lt;/i&gt;
+            &lt;ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion dropdown-menu-end"&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Save as Draft&lt;/a&gt;&lt;/li&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Reset Form&lt;/a&gt;&lt;/li&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Help&lt;/a&gt;&lt;/li&gt;
+            &lt;/ul&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="offcanvas offcanvas-end w-75" tabindex="-1" aria-modal="true" id="offcanvasWidth75" aria-labelledby="offcanvasWidth75Label"&gt;
+    &lt;div class="offcanvas-header"&gt;
+        &lt;h3 class="offcanvas-title" id="offcanvasWidth75Label"&gt;75% width&lt;/h3&gt;
+        &lt;button type="button" class="btn-close" data-cnds-dismiss="offcanvas" aria-label="Close"&gt;&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class="offcanvas-body"&gt;
+        ...
+    &lt;/div&gt;
+    &lt;div class="offcanvas-footer"&gt;
+        &lt;button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas"&gt;Cancel&lt;/button&gt;
+        &lt;button type="button" class="btn btn-primary"&gt;Submit&lt;/button&gt;
+        &lt;div class="dropup"&gt;
+            &lt;i class="mdi mdi-dots-vertical text-primary" data-cnds-toggle="dropdown" role="button" tabindex="0" aria-expanded="false" aria-haspopup="menu" aria-label="More actions" style="font-size: 24px; line-height: 1; cursor: pointer; display: inline-block; width: 32px; text-align: center;"&gt;&lt;/i&gt;
+            &lt;ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion dropdown-menu-end"&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Save as Draft&lt;/a&gt;&lt;/li&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Reset Form&lt;/a&gt;&lt;/li&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Help&lt;/a&gt;&lt;/li&gt;
+            &lt;/ul&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="offcanvas offcanvas-end w-100" tabindex="-1" aria-modal="true" id="offcanvasWidth100" aria-labelledby="offcanvasWidth100Label"&gt;
+    &lt;div class="offcanvas-header"&gt;
+        &lt;h3 class="offcanvas-title" id="offcanvasWidth100Label"&gt;100% width&lt;/h3&gt;
+        &lt;button type="button" class="btn-close" data-cnds-dismiss="offcanvas" aria-label="Close"&gt;&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class="offcanvas-body"&gt;
+        ...
+    &lt;/div&gt;
+    &lt;div class="offcanvas-footer"&gt;
+        &lt;button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas"&gt;Cancel&lt;/button&gt;
+        &lt;button type="button" class="btn btn-primary"&gt;Submit&lt;/button&gt;
+        &lt;div class="dropup"&gt;
+            &lt;i class="mdi mdi-dots-vertical text-primary" data-cnds-toggle="dropdown" role="button" tabindex="0" aria-expanded="false" aria-haspopup="menu" aria-label="More actions" style="font-size: 24px; line-height: 1; cursor: pointer; display: inline-block; width: 32px; text-align: center;"&gt;&lt;/i&gt;
+            &lt;ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion dropdown-menu-end"&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Save as Draft&lt;/a&gt;&lt;/li&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Reset Form&lt;/a&gt;&lt;/li&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Help&lt;/a&gt;&lt;/li&gt;
+            &lt;/ul&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+											</code>
+										</pre>
+                                    </div>
+                                    <!-- /.snippet -->
+                                </section>
+                                <!--Section: Code-->
+
+                            </section>
+                            <!--Section: Sizing-->
+
+                            <hr class="my-5">
+
+                            <!--Section: Backdrop-->
+                            <section id="section-backdrop">
+                                <!-- Section title -->
+                                <h3 class="mb-4">Backdrop</h3>
+
+                                <!--Description-->
+                                <p>
+                                    Scrolling the <code>&lt;body&gt;</code> element is disabled when an offcanvas and its backdrop
+                                    are visible. Use the <code>data-cnds-scroll</code> attribute to toggle
+                                    <code>&lt;body&gt;</code> scrolling and <code>data-cnds-backdrop</code> to toggle the backdrop.
+                                </p>
+
+                                <!--Section: Demo-->
+                                <section class="pb-4">
+                                    <div class="border rounded-5">
+
+                                        <section class="p-4 text-center w-100">
+                                            <button class="btn btn-primary" type="button" data-cnds-offcanvas-init data-cnds-toggle="offcanvas" data-cnds-target="#offcanvasScrolling" aria-controls="offcanvasScrolling">
+                                                Enable body scrolling
+                                            </button>
+                                            <button class="btn btn-primary" type="button" data-cnds-offcanvas-init data-cnds-toggle="offcanvas" data-cnds-target="#offcanvasWithBackdrop" aria-controls="offcanvasWithBackdrop">
+                                                Enable backdrop (default)
+                                            </button>
+                                            <button class="btn btn-primary" type="button" data-cnds-offcanvas-init data-cnds-toggle="offcanvas" data-cnds-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions">
+                                                Enable both scrolling &amp; backdrop
+                                            </button>
+
+                                            <div class="offcanvas offcanvas-end" data-cnds-scroll="true" data-cnds-backdrop="false" tabindex="-1" aria-modal="true" id="offcanvasScrolling" aria-labelledby="offcanvasScrollingLabel">
+                                                <div class="offcanvas-header">
+                                                    <h3 class="offcanvas-title" id="offcanvasScrollingLabel">
+                                                        Colored with scrolling
+                                                    </h3>
+                                                    <button type="button" class="btn-close" data-cnds-dismiss="offcanvas" aria-label="Close"></button>
+                                                </div>
+                                                <div class="offcanvas-body">
+                                                    <p>
+                                                        Try scrolling the rest of the page to see this option in action.
+                                                    </p>
+                                                </div>
+                                                <div class="offcanvas-footer">
+                                                    <button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas">Cancel</button>
+                                                    <button type="button" class="btn btn-primary">Submit</button>
+                                                    <div class="dropup">
+                                                        <i class="mdi mdi-dots-vertical text-primary" data-cnds-toggle="dropdown" role="button" tabindex="0" aria-expanded="false" aria-haspopup="menu" aria-label="More actions" style="font-size: 24px; line-height: 1; cursor: pointer; display: inline-block; width: 32px; text-align: center;" aria-hidden="true"></i>
+                                                        <ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion dropdown-menu-end">
+                                                            <li><a class="dropdown-item" href="#">Save as Draft</a></li>
+                                                            <li><a class="dropdown-item" href="#">Reset Form</a></li>
+                                                            <li><a class="dropdown-item" href="#">Help</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="offcanvas offcanvas-end" tabindex="-1" aria-modal="true" id="offcanvasWithBackdrop" aria-labelledby="offcanvasWithBackdropLabel">
+                                                <div class="offcanvas-header">
+                                                    <h3 class="offcanvas-title" id="offcanvasWithBackdropLabel">
+                                                        Panel with backdrop
+                                                    </h3>
+                                                    <button type="button" class="btn-close" data-cnds-dismiss="offcanvas" aria-label="Close"></button>
+                                                </div>
+                                                <div class="offcanvas-body">
+                                                    <p>.....</p>
+                                                </div>
+                                                <div class="offcanvas-footer">
+                                                    <button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas">Cancel</button>
+                                                    <button type="button" class="btn btn-primary">Submit</button>
+                                                    <div class="dropup">
+                                                        <i class="mdi mdi-dots-vertical text-primary" data-cnds-toggle="dropdown" role="button" tabindex="0" aria-expanded="false" aria-haspopup="menu" aria-label="More actions" style="font-size: 24px; line-height: 1; cursor: pointer; display: inline-block; width: 32px; text-align: center;" aria-hidden="true"></i>
+                                                        <ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion dropdown-menu-end">
+                                                            <li><a class="dropdown-item" href="#">Save as Draft</a></li>
+                                                            <li><a class="dropdown-item" href="#">Reset Form</a></li>
+                                                            <li><a class="dropdown-item" href="#">Help</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="offcanvas offcanvas-end" data-cnds-scroll="true" tabindex="-1" aria-modal="true" id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel">
+                                                <div class="offcanvas-header">
+                                                    <h3 class="offcanvas-title" id="offcanvasWithBothOptionsLabel">
+                                                        Backdrop with scrolling
+                                                    </h3>
+                                                    <button type="button" class="btn-close" data-cnds-dismiss="offcanvas" aria-label="Close"></button>
+                                                </div>
+                                                <div class="offcanvas-body">
+                                                    <p>
+                                                        Try scrolling the rest of the page to see this option in action.
+                                                    </p>
+                                                </div>
+                                                <div class="offcanvas-footer">
+                                                    <button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas">Cancel</button>
+                                                    <button type="button" class="btn btn-primary">Submit</button>
+                                                    <div class="dropup">
+                                                        <i class="mdi mdi-dots-vertical text-primary" data-cnds-toggle="dropdown" role="button" tabindex="0" aria-expanded="false" aria-haspopup="menu" aria-label="More actions" style="font-size: 24px; line-height: 1; cursor: pointer; display: inline-block; width: 32px; text-align: center;" aria-hidden="true"></i>
+                                                        <ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion dropdown-menu-end">
+                                                            <li><a class="dropdown-item" href="#">Save as Draft</a></li>
+                                                            <li><a class="dropdown-item" href="#">Reset Form</a></li>
+                                                            <li><a class="dropdown-item" href="#">Help</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </section>
+
+                                    </div>
+                                </section>
+
+                                <!--Section: Demo-->
+<!-- Angular: Toggle backdrop and scroll behaviour via options passed to the Nimbus.Offcanvas constructor in a service.
+     Example: new Nimbus.Offcanvas(el, { backdrop: true, scroll: false })
+     Expose these as @Input() properties on your Angular panel component for flexible configuration. -->
+                                <!--Section: Code-->
+                                <section class="mb-4">
+                                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                                    <!-- snippet -->
+                                    <div class="p-0">
+                                        <pre class="line-numbers m-0">
+									<code class="language-html">
+&lt;button class="btn btn-primary" type="button" data-cnds-offcanvas-init data-cnds-toggle="offcanvas" data-cnds-target="#offcanvasScrolling" aria-controls="offcanvasScrolling"&gt;
+    Enable body scrolling
+&lt;/button&gt;
+&lt;button class="btn btn-primary" type="button" data-cnds-offcanvas-init data-cnds-toggle="offcanvas" data-cnds-target="#offcanvasWithBackdrop" aria-controls="offcanvasWithBackdrop"&gt;
+    Enable backdrop (default)
+&lt;/button&gt;
+&lt;button class="btn btn-primary" type="button" data-cnds-offcanvas-init data-cnds-toggle="offcanvas" data-cnds-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions"&gt;
+    Enable both scrolling &amp; backdrop
+&lt;/button&gt;
+
+&lt;div class="offcanvas offcanvas-end" data-cnds-scroll="true" data-cnds-backdrop="false" tabindex="-1" aria-modal="true" id="offcanvasScrolling" aria-labelledby="offcanvasScrollingLabel"&gt;
+    &lt;div class="offcanvas-header"&gt;
+        &lt;h3 class="offcanvas-title" id="offcanvasScrollingLabel"&gt;
+            Colored with scrolling
+        &lt;/h3&gt;
+        &lt;button type="button" class="btn-close" data-cnds-dismiss="offcanvas" aria-label="Close"&gt;&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class="offcanvas-body"&gt;
+        &lt;p&gt;.....&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;div class="offcanvas-footer"&gt;
+        &lt;button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas"&gt;Cancel&lt;/button&gt;
+        &lt;button type="button" class="btn btn-primary"&gt;Submit&lt;/button&gt;
+        &lt;div class="dropup"&gt;
+            &lt;i class="mdi mdi-dots-vertical text-primary" data-cnds-toggle="dropdown" role="button" tabindex="0" aria-expanded="false" aria-haspopup="menu" aria-label="More actions" style="font-size: 24px; line-height: 1; cursor: pointer; display: inline-block; width: 32px; text-align: center;"&gt;&lt;/i&gt;
+            &lt;ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion dropdown-menu-end"&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Save as Draft&lt;/a&gt;&lt;/li&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Reset Form&lt;/a&gt;&lt;/li&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Help&lt;/a&gt;&lt;/li&gt;
+            &lt;/ul&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="offcanvas offcanvas-end" tabindex="-1" aria-modal="true" id="offcanvasWithBackdrop" aria-labelledby="offcanvasWithBackdropLabel"&gt;
+    &lt;div class="offcanvas-header"&gt;
+        &lt;h3 class="offcanvas-title" id="offcanvasWithBackdropLabel"&gt;
+            Panel with backdrop
+        &lt;/h3&gt;
+        &lt;button type="button" class="btn-close" data-cnds-dismiss="offcanvas" aria-label="Close"&gt;&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class="offcanvas-body"&gt;
+        &lt;p&gt;.....&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;div class="offcanvas-footer"&gt;
+        &lt;button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas"&gt;Cancel&lt;/button&gt;
+        &lt;button type="button" class="btn btn-primary"&gt;Submit&lt;/button&gt;
+        &lt;div class="dropup"&gt;
+            &lt;i class="mdi mdi-dots-vertical text-primary" data-cnds-toggle="dropdown" role="button" tabindex="0" aria-expanded="false" aria-haspopup="menu" aria-label="More actions" style="font-size: 24px; line-height: 1; cursor: pointer; display: inline-block; width: 32px; text-align: center;"&gt;&lt;/i&gt;
+            &lt;ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion dropdown-menu-end"&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Save as Draft&lt;/a&gt;&lt;/li&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Reset Form&lt;/a&gt;&lt;/li&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Help&lt;/a&gt;&lt;/li&gt;
+            &lt;/ul&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="offcanvas offcanvas-end" data-cnds-scroll="true" tabindex="-1" aria-modal="true" id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel"&gt;
+    &lt;div class="offcanvas-header"&gt;
+        &lt;h3 class="offcanvas-title" id="offcanvasWithBothOptionsLabel"&gt;
+            Backdrop with scrolling
+        &lt;/h3&gt;
+        &lt;button type="button" class="btn-close" data-cnds-dismiss="offcanvas" aria-label="Close"&gt;&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class="offcanvas-body"&gt;
+        &lt;p&gt;.....&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;div class="offcanvas-footer"&gt;
+        &lt;button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas"&gt;Cancel&lt;/button&gt;
+        &lt;button type="button" class="btn btn-primary"&gt;Submit&lt;/button&gt;
+        &lt;div class="dropup"&gt;
+            &lt;i class="mdi mdi-dots-vertical text-primary" data-cnds-toggle="dropdown" role="button" tabindex="0" aria-expanded="false" aria-haspopup="menu" aria-label="More actions" style="font-size: 24px; line-height: 1; cursor: pointer; display: inline-block; width: 32px; text-align: center;"&gt;&lt;/i&gt;
+            &lt;ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion dropdown-menu-end"&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Save as Draft&lt;/a&gt;&lt;/li&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Reset Form&lt;/a&gt;&lt;/li&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Help&lt;/a&gt;&lt;/li&gt;
+            &lt;/ul&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+									</code>
+									</pre>
+                                    </div>
+                                    <!-- /.snippet -->
+                                </section>
+                                <!--Section: Code-->
+                            </section>
+                            <!--Section: Backdrop-->
+
+                            <hr class="my-5">
+
+                            <!--Section: Accessibility-->
+                            <section id="section-accessibility">
+                                <!-- Section title -->
+                                <h3 class="mb-4">Accessibility</h3>
+
+                                <!--Description-->
+                                <p>
+                                    Since the offcanvas panel is conceptually a modal dialog, the following ARIA attributes and patterns are required for an accessible implementation:
+                                </p>
+                                <ul>
+                                    <li>
+                                        Always add <code>aria-labelledby="..."</code> to the <code>.offcanvas</code> element, referencing the <code>id</code> of the panel’s visible title. This connects the panel to its heading for assistive technologies.
+                                    </li>
+                                    <li>
+                                        You do not need to add <code>role="dialog"</code> manually — Nimbus adds it automatically via JavaScript when the panel is initialized.
+                                    </li>
+                                    <li>
+                                        Always include a clearly labeled dismiss action inside the panel header (the <code>.btn-close</code> button with <code>aria-label="Close"</code>) so keyboard and screen-reader users can close the panel without relying on the backdrop click.
+                                    </li>
+                                    <li>
+                                        Focus is trapped within the open panel automatically by Nimbus. When the panel closes, focus returns to the trigger element that opened it.
+                                    </li>
+                                    <li>
+                                        The panel can be dismissed with the <kbd>Escape</kbd> key by default. This behavior is controlled by the <code>keyboard</code> option.
+                                    </li>
+                                </ul>
+                            </section>
+                            <!--Section: Accessibility-->
+                            <hr class="my-5">
+                            <!--Section: API Documentation-->
+                            <section id="section-api-docs">
+                                <h3 class="mb-3">API Documentation</h3>
+                                <p>
+                                    The Nimbus Sliding Panel component is JavaScript-driven and must be initialized before trigger elements will function. Initialization can be declarative — by adding <code>data-cnds-offcanvas-init</code> to a trigger element — or programmatic, using <code>new Nimbus.Offcanvas(el)</code>. Options for backdrop behavior, keyboard dismissal, and body scrolling are configurable per instance via data attributes or the JavaScript constructor.
+                                </p>
+
+                                <!--Section: Introduction-->
+                                <section id="api-section-introduction">
+                                    <h4 class="mb-4">Introduction</h4>
+                                    <p>
+                                        The offcanvas plugin utilizes a few classes and attributes to handle the heavy lifting:
+                                    </p>
+                                    <ul>
+                                        <li><code>data-cnds-offcanvas-init</code> initializes the offcanvas plugin</li>
+                                        <li><code>.offcanvas</code> hides the content</li>
+                                        <li><code>.offcanvas.show</code> shows the content</li>
+                                        <li><code>.offcanvas-end</code> slides the panel in from the right (Nimbus default)</li>
+                                        <li><code>.offcanvas-start</code> slides the panel in from the left</li>
+                                        <li><code>.offcanvas-top</code> slides the panel in from the top</li>
+                                        <li><code>.offcanvas-bottom</code> slides the panel in from the bottom</li>
+                                    </ul>
+                                </section>
+                                <!--/Section: Introduction-->
+
+                                <!--Section: Usage-->
+                                <section id="api-section-usage">
+                                    <h4 class="mb-4">Usage</h4>
+                                    <p>
+                                        Add a dismiss button with the <code>data-cnds-dismiss="offcanvas"</code> attribute, which triggers the JavaScript functionality. Be sure to use the <code>&lt;button&gt;</code> element with it for proper behavior across all devices.
+                                    </p>
+
+                                    <h5 class="mt-5">Via data attributes</h5>
+                                    <p>
+                                        Add <code>data-cnds-offcanvas-init</code> with <code>data-cnds-toggle="offcanvas"</code> and a <code>data-cnds-target</code> or <code>href</code> to the element to automatically assign control of one panel element. The <code>data-cnds-target</code> attribute accepts a CSS selector to apply the panel to. Be sure to add the class <code>offcanvas</code> to the panel element. If you'd like it to default open, add the additional class <code>show</code>.
+                                    </p>
+
+                                    <h5 class="mt-5">Dismiss</h5>
+                                    <p>
+                                        Dismissal can be achieved with <strong>data</strong> attributes on a button <strong>within the panel</strong> as demonstrated below:
+                                    </p>
+                                    <!--Section: Code-->
+                                    <section class="mb-4">
+                                        <h6><span class="badge badge-code-html">HTML</span></h6>
+                                        <!-- snippet -->
+                                        <div class="p-0">
+                                            <pre class="line-numbers m-0">
+									<code class="language-html">
+									&lt;button type="button" class="btn-close" data-cnds-dismiss="offcanvas" aria-label="Close"&gt;&lt;/button&gt;
+									</code>
+									</pre>
+                                        </div>
+                                        <!-- /.snippet -->
+                                    </section>
+                                    <!--/Section: Code-->
+                                    <p>or on a button <strong>outside the panel</strong> using the <code>data-cnds-target</code> as demonstrated below:</p>
+                                    <!--Section: Code-->
+                                    <section class="mb-4">
+                                        <h6><span class="badge badge-code-html">HTML</span></h6>
+                                        <!-- snippet -->
+                                        <div class="p-0">
+                                            <pre class="line-numbers m-0">
+									<code class="language-html">
+									&lt;button type="button" class="btn-close" data-cnds-dismiss="offcanvas" data-cnds-target="#my-offcanvas" aria-label="Close"&gt;&lt;/button&gt;
+									</code>
+									</pre>
+                                        </div>
+                                        <!-- /.snippet -->
+                                    </section>
+                                    <!--/Section: Code-->
+                                    <p class="note note-warning">
+                                        While both ways to dismiss a panel are supported, keep in mind that dismissing from outside a panel does not match <a href="https://www.w3.org/TR/wai-aria-practices-1.1/#dialog_modal">the WAI-ARIA modal dialog design pattern</a>. Do this at your own risk.
+                                    </p>
+
+                                    <h5 class="mt-5">Via JavaScript</h5>
+                                    <p>Enable manually with:</p>
+                                    <!--Section: Code-->
+                                    <section class="mb-4">
+                                        <h6><span class="badge badge-code-js">JAVASCRIPT</span></h6>
+                                        <!-- snippet -->
+                                        <div class="p-0">
+                                            <pre class="line-numbers m-0">
+									<code class="language-js">
+									const offcanvasElements = Array.from(document.querySelectorAll('.offcanvas'));
+									const offcanvasList = offcanvasElements.map(el => new Nimbus.Offcanvas(el));
+									</code>
+									</pre>
+                                        </div>
+                                        <!-- /.snippet -->
+                                    </section>
+                                    <!--/Section: Code-->
+                                </section>
+                                <!--/Section: Usage-->
+
+                                <!--Section: Options-->
+                                <section id="api-section-options">
+                                    <h4 class="mb-4">Options</h4>
+                                    <p>
+                                        Options can be passed via data attributes or JavaScript. For data attributes, append the option name to <code>data-cnds-</code>, as in <code>data-cnds-backdrop=""</code>.
+                                    </p>
+                                    <table class="table table-striped" aria-label="Options">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Type</th>
+                                                <th>Default</th>
+                                                <th>Description</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><code>backdrop</code></td>
+                                                <td>boolean</td>
+                                                <td><code>true</code></td>
+                                                <td>Apply a backdrop on body while the panel is open</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>keyboard</code></td>
+                                                <td>boolean</td>
+                                                <td><code>true</code></td>
+                                                <td>Closes the panel when the Escape key is pressed</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>scroll</code></td>
+                                                <td>boolean</td>
+                                                <td><code>false</code></td>
+                                                <td>Allow body scrolling while the panel is open</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </section>
+                                <!--/Section: Options-->
+
+                                <!--Section: CSS classes-->
+                                <section id="api-section-css-classes">
+                                    <h4 class="mb-4">CSS classes</h4>
+                                    <table class="table table-striped" aria-label="CSS classes">
+                                        <thead>
+                                            <tr>
+                                                <th>Class</th>
+                                                <th>Applied to</th>
+                                                <th>Description</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><code>.offcanvas</code></td>
+                                                <td>Panel element</td>
+                                                <td>Base class; initializes the panel in a hidden state</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>.offcanvas.show</code></td>
+                                                <td>Panel element</td>
+                                                <td>Makes the panel visible</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>.offcanvas-end</code></td>
+                                                <td>Panel element</td>
+                                                <td>Places the panel on the right edge (Nimbus default)</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>.offcanvas-start</code></td>
+                                                <td>Panel element</td>
+                                                <td>Places the panel on the left edge</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>.offcanvas-top</code></td>
+                                                <td>Panel element</td>
+                                                <td>Places the panel at the top of the viewport</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>.offcanvas-bottom</code></td>
+                                                <td>Panel element</td>
+                                                <td>Places the panel at the bottom of the viewport</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>.offcanvas-header</code></td>
+                                                <td>Panel child</td>
+                                                <td>Header strip with title and close button; uses the nav background token</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>.offcanvas-title</code></td>
+                                                <td>&lt;h3&gt; in header</td>
+                                                <td>Panel title; truncates with ellipsis when too long</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>.offcanvas-body</code></td>
+                                                <td>Panel child</td>
+                                                <td>Scrollable content area; uses the surface background token</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>.offcanvas-footer</code></td>
+                                                <td>Panel child</td>
+                                                <td>Footer strip with action buttons; uses the nav background token with a top border</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>.offcanvas-backdrop</code></td>
+                                                <td>Injected overlay</td>
+                                                <td>Full-viewport overlay injected by JavaScript when a panel is open</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>.offcanvas-open</code></td>
+                                                <td>&lt;body&gt;</td>
+                                                <td>Added to &lt;body&gt; to lock scrolling while a panel is open</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </section>
+                                <!--/Section: CSS classes-->
+
+                                <!--Section: CSS custom properties-->
+                                <section id="api-section-css-variables">
+                                    <h4 class="mb-4">CSS custom properties</h4>
+                                    <p>
+                                        These custom properties are declared on <code>.offcanvas</code> and can be overridden per instance by setting them on the panel element directly.
+                                    </p>
+                                    <table class="table table-striped" aria-label="CSS custom properties">
+                                        <thead>
+                                            <tr>
+                                                <th>Property</th>
+                                                <th>Default</th>
+                                                <th>Description</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><code>--cnds-offcanvas-zindex</code></td>
+                                                <td><code>1045</code></td>
+                                                <td>Stacking order of the panel</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>--cnds-offcanvas-width</code></td>
+                                                <td><code>400px</code></td>
+                                                <td>Width of left/right panels</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>--cnds-offcanvas-height</code></td>
+                                                <td><code>30vh</code></td>
+                                                <td>Height of top/bottom panels</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>--cnds-offcanvas-bg</code></td>
+                                                <td><code>#fafafa</code></td>
+                                                <td>Body area background color</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>--cnds-offcanvas-color</code></td>
+                                                <td><code>#141414</code></td>
+                                                <td>Body area text color</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>--cnds-offcanvas-nav-bg</code></td>
+                                                <td><code>#ebebeb</code></td>
+                                                <td>Header and footer background color</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>--cnds-offcanvas-nav-color</code></td>
+                                                <td><code>#141414</code></td>
+                                                <td>Header and footer text color</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>--cnds-offcanvas-border-color</code></td>
+                                                <td><code>#cccccc</code></td>
+                                                <td>Footer top border color</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>--cnds-offcanvas-border-width</code></td>
+                                                <td><code>1px</code></td>
+                                                <td>Footer top border width</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>--cnds-offcanvas-title-font-size</code></td>
+                                                <td><code>16px</code></td>
+                                                <td>Panel title font size</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>--cnds-offcanvas-title-font-weight</code></td>
+                                                <td><code>500</code></td>
+                                                <td>Panel title font weight</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>--cnds-offcanvas-body-font-size</code></td>
+                                                <td><code>14px</code></td>
+                                                <td>Body text font size</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>--cnds-offcanvas-header-height</code></td>
+                                                <td><code>50px</code></td>
+                                                <td>Fixed height of the header strip</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>--cnds-offcanvas-header-padding-x</code></td>
+                                                <td><code>15px</code></td>
+                                                <td>Header horizontal padding</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>--cnds-offcanvas-header-padding-y</code></td>
+                                                <td><code>8px</code></td>
+                                                <td>Header vertical padding</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>--cnds-offcanvas-body-padding-x</code></td>
+                                                <td><code>24px</code></td>
+                                                <td>Body horizontal padding</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>--cnds-offcanvas-body-padding-y</code></td>
+                                                <td><code>24px</code></td>
+                                                <td>Body vertical padding</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>--cnds-offcanvas-footer-padding</code></td>
+                                                <td><code>8px</code></td>
+                                                <td>Footer padding (all sides)</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>--cnds-offcanvas-footer-gap</code></td>
+                                                <td><code>8px</code></td>
+                                                <td>Gap between footer action buttons</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>--cnds-offcanvas-box-shadow</code></td>
+                                                <td><code><em>Directional</em></code></td>
+                                                <td>Box shadow; set automatically per placement class</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </section>
+                                <!--/Section: CSS custom properties-->
+
+                                <!--Section: Theme variables-->
+                                <section id="api-section-theme-variables">
+                                    <h4 class="mb-4">Theme variables</h4>
+                                    <p>
+                                        These variables are overridden by the light and dark themes. Customize them on <code>[data-cnds-theme]</code> or any scoped ancestor element.
+                                    </p>
+                                    <table class="table table-striped" aria-label="Theme variables">
+                                        <thead>
+                                            <tr>
+                                                <th>Property</th>
+                                                <th>Light</th>
+                                                <th>Dark</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><code>--cnds-offcanvas-bg</code></td>
+                                                <td><code>#fafafa</code></td>
+                                                <td><code>#252525</code></td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>--cnds-offcanvas-color</code></td>
+                                                <td><code>#141414</code></td>
+                                                <td><code>#e8e8e8</code></td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>--cnds-offcanvas-nav-bg</code></td>
+                                                <td><code>#ebebeb</code></td>
+                                                <td><code>#171717</code></td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>--cnds-offcanvas-nav-color</code></td>
+                                                <td><code>#141414</code></td>
+                                                <td><code>#e8e8e8</code></td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>--cnds-offcanvas-border-color</code></td>
+                                                <td><code>#cccccc</code></td>
+                                                <td><code>#787878</code></td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>--cnds-offcanvas-backdrop-bg</code></td>
+                                                <td><code>#fff</code></td>
+                                                <td><code>#000</code></td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>--cnds-offcanvas-backdrop-opacity</code></td>
+                                                <td><code>0.8</code></td>
+                                                <td><code>0.65</code></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </section>
+                                <!--/Section: Theme variables-->
+
+                                <!--Section: Methods-->
+                                <section id="api-section-methods">
+                                    <h4 class="mb-4">Methods</h4>
+                                    <p class="note note-danger">
+                                        <strong>Asynchronous methods and transitions:</strong> All API methods are asynchronous and start a transition. They return to the caller as soon as the transition is started but before it ends. In addition, a method call on a transitioning component will be ignored.
+                                    </p>
+                                    <p>You can create a panel instance with the constructor, for example:</p>
+                                    <!--Section: Code-->
+                                    <section class="mb-4">
+                                        <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                                        <!-- snippet -->
+                                        <div class="p-0">
+                                            <pre class="line-numbers m-0">
+									<code class="language-js">
+									const myOffcanvas = document.getElementById('myOffcanvas');
+									const offcanvasInstance = new Nimbus.Offcanvas(myOffcanvas);
+									</code>
+									</pre>
+                                        </div>
+                                        <!-- /.snippet -->
+                                    </section>
+                                    <!--/Section: Code-->
+                                    <table class="table table-striped" aria-label="Methods">
+                                        <thead>
+                                            <tr>
+                                                <th>Method</th>
+                                                <th>Description</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><code>toggle</code></td>
+                                                <td>Toggles a panel element to shown or hidden. <strong>Returns to the caller before the panel has actually been shown or hidden</strong> (i.e. before the <code>shown.cnds.offcanvas</code> or <code>hidden.cnds.offcanvas</code> event occurs).</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>show</code></td>
+                                                <td>Shows a panel element. <strong>Returns to the caller before the panel has actually been shown</strong> (i.e. before the <code>shown.cnds.offcanvas</code> event occurs).</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>hide</code></td>
+                                                <td>Hides a panel element. <strong>Returns to the caller before the panel has actually been hidden</strong> (i.e. before the <code>hidden.cnds.offcanvas</code> event occurs).</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>getInstance</code></td>
+                                                <td><em>Static</em> method which allows you to get the panel instance associated with a DOM element.</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </section>
+                                <!--/Section: Methods-->
+
+                                <!--Section: Events-->
+                                <section id="api-section-events">
+                                    <h4 class="mb-4">Events</h4>
+                                    <p>
+                                        Nimbus's Sliding Panel component exposes a few events for hooking into panel functionality.
+                                    </p>
+                                    <table class="table table-striped" aria-label="Events">
+                                        <thead>
+                                            <tr>
+                                                <th>Event type</th>
+                                                <th>Description</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><code>show.cnds.offcanvas</code></td>
+                                                <td>This event fires immediately when the <code>show</code> instance method is called.</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>shown.cnds.offcanvas</code></td>
+                                                <td>This event is fired when a panel has been made visible to the user (will wait for CSS transitions to complete).</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>hide.cnds.offcanvas</code></td>
+                                                <td>This event is fired immediately when the <code>hide</code> method has been called.</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>hidden.cnds.offcanvas</code></td>
+                                                <td>This event is fired when a panel has been hidden from the user (will wait for CSS transitions to complete).</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <!--Section: Code-->
+                                    <section class="mb-4">
+                                        <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                                        <!-- snippet -->
+                                        <div class="p-0">
+                                            <pre class="line-numbers m-0">
+									<code class="language-js">
+									const myOffcanvas = document.getElementById('myOffcanvas');
+									myOffcanvas.addEventListener('hidden.cnds.offcanvas', () => {
+									  // do something...
+									});
+									</code>
+									</pre>
+                                        </div>
+                                        <!-- /.snippet -->
+                                    </section>
+                                    <!--/Section: Code-->
+                                </section>
+                                <!--/Section: Events-->
+
+                                <!--Section: Accessibility-->
+                                <section id="api-section-accessibility">
+                                    <h4 class="mb-4">Accessibility</h4>
+                                    <p>
+                                        Nimbus's Sliding Panel is built with accessibility in mind, using standard ARIA roles and attributes to communicate panel state to assistive technologies.
+                                    </p>
+                                    <table class="table table-striped" aria-label="Accessibility">
+                                        <thead>
+                                            <tr>
+                                                <th>Attribute</th>
+                                                <th>Applied to</th>
+                                                <th>Description</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><code>role="dialog"</code></td>
+                                                <td>Panel element</td>
+                                                <td>Identifies the panel as a dialog region</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>aria-labelledby</code></td>
+                                                <td>Panel element</td>
+                                                <td>References the <code>id</code> of the <code>.offcanvas-title</code> element</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>aria-hidden="true"</code></td>
+                                                <td>Panel element</td>
+                                                <td>Set when the panel is hidden; removed when visible</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>aria-controls</code></td>
+                                                <td>Trigger button</td>
+                                                <td>References the <code>id</code> of the controlled panel element</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>aria-expanded</code></td>
+                                                <td>Trigger button</td>
+                                                <td>Reflects the open/closed state of the panel (<code>true</code> / <code>false</code>)</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>aria-label="Close"</code></td>
+                                                <td>Close button</td>
+                                                <td>Provides an accessible name for the close button</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <p>
+                                        The panel can be dismissed with the <kbd>Escape</kbd> key by default. This behavior is controlled by the <code>keyboard</code> option. When open, focus is trapped within the panel until it is dismissed.
+                                    </p>
+                                </section>
+                                <!--/Section: Accessibility-->
+
+                            </section>
+                            <!--/Section: API Documentation-->
+                        </section>
+                        <!--Section: Docs content-->
+                    </div>
+                    <!-- Sticky right-side nav: hides below lg breakpoint -->
+                    <div class="col-lg-2 d-none d-lg-block">
+                        <div class="sticky-top" style="top: 100px; z-index: 1">
+                            <ul class="nav flex-column nav-pills menu-sidebar" id="rightNav" data-cnds-allow-hashes="true">
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#section-introduction">Introduction</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#section-how-it-works">How it works</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#section-examples">Examples</a>
+                                    <ul class="nav flex-column list-unstyled ps-3">
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="#subsection-offcanvas-components">Offcanvas components</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="#subsection-live-demo">Live demo</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#section-placement">Placement</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#section-sizing">Sizing</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#section-backdrop">Backdrop</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#section-accessibility">Accessibility</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#section-api-docs">API Documentation</a>
+                                </li>
+                                <li class="nav-item ms-3">
+                                    <a class="nav-link" href="#api-section-introduction">Introduction</a>
+                                </li>
+                                <li class="nav-item ms-3">
+                                    <a class="nav-link" href="#api-section-usage">Usage</a>
+                                </li>
+                                <li class="nav-item ms-3">
+                                    <a class="nav-link" href="#api-section-options">Options</a>
+                                </li>
+                                <li class="nav-item ms-3">
+                                    <a class="nav-link" href="#api-section-css-classes">CSS classes</a>
+                                </li>
+                                <li class="nav-item ms-3">
+                                    <a class="nav-link" href="#api-section-css-variables">CSS custom properties</a>
+                                </li>
+                                <li class="nav-item ms-3">
+                                    <a class="nav-link" href="#api-section-theme-variables">Theme variables</a>
+                                </li>
+                                <li class="nav-item ms-3">
+                                    <a class="nav-link" href="#api-section-methods">Methods</a>
+                                </li>
+                                <li class="nav-item ms-3">
+                                    <a class="nav-link" href="#api-section-events">Events</a>
+                                </li>
+                                <li class="nav-item ms-3">
+                                    <a class="nav-link" href="#api-section-accessibility">Accessibility</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
+    </main>
+    <!-- Footer -->
+    <div class="cf-footer cf-footer-app">
+      <footer class="page-footer main-footer" aria-label="Site footer">
+        <div class="w-100 px-3 d-flex align-items-center">
+          <img src="img/cf/core/cloudficient_logo_light.svg" class="cf-logo-light" style="width: 135px;" alt="Cloudficient" />
+          <img src="img/cf/core/cloudficient_logo_dark.svg" class="cf-logo-dark" style="width: 135px;" alt="Cloudficient" />
+          <span class="footer-copyright ms-auto">&copy; <span id="currentYear"></span> Cloudficient</span>
+        </div>
+      </footer>
+    </div>
+    <!-- SCRIPTS: nimbus.js initializes all data-cnds-*-init components; app.js handles layout and theme toggle -->
+    <script type="text/javascript" src="js/nimbus.js?v=9.0.4"></script>
+    <script type="text/javascript" src="js/app.js?v=9.0.4"></script>
+    <script type="text/javascript" src="plugins/js/prism.min.js"></script>
+    <script type="text/javascript" src="js/sidenav-loader.js"></script>
+    <script type="text/javascript">
+      var currentYearElement = document.getElementById("currentYear");
+      if (currentYearElement) {
+        currentYearElement.textContent = new Date().getFullYear();
+      }
+    </script>
+  </body>
+</html>

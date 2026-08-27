@@ -1,0 +1,1151 @@
+<!--
+* CNDS Nimbus Design System — Scrollbar
+* Version: 1.0.0
+* Layout: Application with SideNav (migrated from Nimbus v8 template)
+* NOTES
+- Pure HTML5, CSS3, vanilla JavaScript — zero external dependencies
+- Uses data-cnds-* attributes (replaces data-mdb-*)
+- Uses Nimbus.* namespace (replaces mdb.*)
+- Default product theme: CaseFusion (cnds-product-casefusion on <body>; change to cnds-product-hyperlize or cnds-product-expireon)
+-->
+<!doctype html>
+<!-- data-cnds-theme: sets the initial theme ("light" | "dark"). nimbus.js syncs this attribute when the user toggles. -->
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta
+      name="description"
+      content="Scrollbar | Cloudficient Nimbus Design System v1.0.0"
+    />
+    <title>Scrollbar | CNDS v1.0.0 | Cloudficient Nimbus Design System</title>
+    <!-- Nimbus CSS -->
+    <link rel="stylesheet" href="css/nimbus.css" media="all" type="text/css" />
+    <!-- Custom styles | All custom classes/styles/overrides go here! -->
+    <link rel="stylesheet" href="css/app.css" media="all" type="text/css" />
+    <!-- Prism syntax highlighting -->
+    <link
+      rel="stylesheet"
+      href="plugins/css/prism.min.css"
+      media="all"
+      type="text/css"
+    />
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="57x57"   href="img/favicon/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="60x60"   href="img/favicon/apple-icon-60x60.png" />
+    <link rel="apple-touch-icon" sizes="72x72"   href="img/favicon/apple-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76"   href="img/favicon/apple-icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="img/favicon/apple-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="img/favicon/apple-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="img/favicon/apple-icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="img/favicon/apple-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-icon-180x180.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="img/favicon/android-icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="32x32"   href="img/favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="96x96"   href="img/favicon/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="16x16"   href="img/favicon/favicon-16x16.png" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="msapplication-TileImage" content="img/favicon/ms-icon-144x144.png" />
+    <!-- ./Favicons -->
+    <!-- Design tokens — load order matters:
+         1. primitives.css  — raw color/spacing values (no theming)
+         2. light.css       — semantic tokens for [data-cnds-theme="light"] / :root
+         3. dark.css        — semantic token overrides for [data-cnds-theme="dark"]
+         All three must appear AFTER nimbus.css so component variables resolve correctly. -->
+    <link rel="stylesheet" href="css/themes/primitives.css" />
+    <link rel="stylesheet" href="css/themes/light.css" />
+    <link rel="stylesheet" href="css/themes/dark.css" />
+    <!--
+      Scrollbar component styles — page-scoped until promoted to css/components/scrollbar.css.
+      When moving to the component library:
+        1. Extract this block into css/components/scrollbar.css.
+        2. Add a @import in nimbus.css: @import "components/scrollbar.css";
+        3. Remove this <style> block.
+    -->
+    <style>
+      /* ─── .cnds-scrollbar ──────────────────────────────────────────────────
+         Applies Nimbus-themed scrollbar styling to any fixed-size container.
+         Works on Chrome/Edge/Safari via ::-webkit-scrollbar pseudo-elements
+         and on Firefox via the standard scrollbar-width / scrollbar-color.
+         ─────────────────────────────────────────────────────────────────── */
+      .cnds-scrollbar {
+        overflow: auto;
+
+        /* Scrollbar dimensions */
+        --cnds-scrollbar-width:        8px;
+        --cnds-scrollbar-height:       8px;
+
+        /* Colors — light mode.
+           #7f7f7f on white = 3.95:1 contrast (WCAG AA non-text: 3:1 required). */
+        --cnds-scrollbar-thumb-bg:       var(--cnds-primary-gray-500, #7f7f7f);
+        --cnds-scrollbar-thumb-bg-hover: var(--cnds-primary-gray-700, #4d4d4d);
+        --cnds-scrollbar-track-bg:       transparent;
+        --cnds-scrollbar-border-radius:  4px;
+
+        /* Firefox standard scrollbar shorthand */
+        scrollbar-width: thin;
+        scrollbar-color: var(--cnds-scrollbar-thumb-bg, #7f7f7f)
+                         var(--cnds-scrollbar-track-bg, transparent);
+      }
+
+      /* Webkit / Blink (Chrome, Edge, Safari) */
+      .cnds-scrollbar::-webkit-scrollbar {
+        width:  var(--cnds-scrollbar-width,  8px);
+        height: var(--cnds-scrollbar-height, 8px);
+      }
+      .cnds-scrollbar::-webkit-scrollbar-track {
+        background-color: var(--cnds-scrollbar-track-bg, transparent);
+        border-radius:    var(--cnds-scrollbar-border-radius, 4px);
+      }
+      .cnds-scrollbar::-webkit-scrollbar-thumb {
+        background-color: var(--cnds-scrollbar-thumb-bg, #7f7f7f);
+        border-radius:    var(--cnds-scrollbar-border-radius, 4px);
+      }
+      .cnds-scrollbar::-webkit-scrollbar-thumb:hover {
+        background-color: var(--cnds-scrollbar-thumb-bg-hover, #4d4d4d);
+      }
+
+      /* Dark theme overrides.
+         #a3a3a3 on #1e1e1e = 6.41:1 contrast (WCAG AA non-text). */
+      [data-cnds-theme="dark"] .cnds-scrollbar {
+        --cnds-scrollbar-thumb-bg:       var(--cnds-surface-light-600, #a3a3a3);
+        --cnds-scrollbar-thumb-bg-hover: #d0d0d0;
+        --cnds-scrollbar-track-bg:       var(--cnds-surface-dark-400, #252525);
+      }
+
+      /* Events demo — scroll log panel */
+      .scroll-event-log {
+        font-size: 0.8125rem;
+        line-height: 1.6;
+        min-width: 160px;
+      }
+      .scroll-event-log .badge {
+        font-size: 0.75rem;
+        font-weight: 400;
+        width: 100%;
+        text-align: left;
+        white-space: nowrap;
+      }
+    </style>
+  </head>
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 Bypass Blocks; renders visually hidden until focused -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+
+    <!-- Header -->
+    <div class="sticky-top">
+      <!-- Utility Navigation -->
+      <nav id="UtilityNav" class="nav nav-cf-utility" aria-label="Utility navigation">
+        <div class="w-100 gx-3 px-sm-0 px-lg-3">
+          <ul class="nav nav-cf-utility-ul"></ul>
+        </div>
+      </nav>
+      <!-- ./Utility Navigation -->
+
+      <!-- Main Navigation -->
+      <nav id="MainNav" class="navbar navbar-expand-xl navbar-cf" aria-label="Main navigation">
+        <div class="container-fluid p-0 px-3 d-flex">
+          <div class="d-flex flex-fill align-items-center text-truncate">
+            <div class="text-center d-none d-md-block me-3 border-end">
+              <a href="index.html"
+                ><img src="img/cf/core/logo_nimbus.png" class="me-3 mt-n1"
+              alt="Cloudficient Nimbus Design System" /></a>
+            </div>
+            <div class="flex-fill text-truncate">
+              <div class="navbar-cf-title-block">
+                <div
+                  class="navbar-cf-title cf-page-title text-truncate"
+                  style="padding-bottom: 0"
+                >
+                  <span class="cf-page-title-text cf-page-title-brand">v1</span
+                  ><span class="cf-page-title-divider"></span
+                  ><span class="cf-page-title-text">Scrollbar</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- data-cnds-toggle="theme": wired by nimbus.js — flips data-cnds-theme on <html> between "light" and "dark" -->
+          <button
+            class="btn btn-sm btn-outline-secondary ms-2"
+            data-cnds-toggle="theme"
+            aria-label="Toggle theme"
+            title="Toggle theme"
+          >
+            <!-- MDI icon for theme toggle -->
+            <i class="mdi mdi-weather-night mdi-18px" aria-hidden="true"></i>
+          </button>
+        </div>
+      </nav>
+      <!-- ./Main Navigation -->
+    </div>
+    <!-- ./Header -->
+
+    <!-- Content -->
+    <main id="main-content" class="cf-main-app">
+
+      <!-- Mobile viewport warning -->
+      <div class="d-block d-md-none p-4">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>This application is not
+          optimized for small screens. Please use a large tablet, laptop, or
+          desktop computer to continue.
+        </div>
+      </div>
+
+      <div class="d-none d-md-block">
+        <!-- Sidenav — markup is intentionally empty; sidenav-loader.js fetches and injects the shared nav HTML.
+             data-cnds-mode="side"           : renders as a persistent side panel (not an overlay/drawer)
+             data-cnds-slim / slim-collapsed : controls compact/icon-only collapsed state
+             data-cnds-content="#slim-content": the sibling panel that shrinks/expands as the nav opens/closes
+             data-cnds-accordion="true"      : collapses other open nav groups when a new one is expanded -->
+        <nav
+          id="sidebar-cf"
+          class="sidenav"
+          data-cnds-mode="side"
+          data-cnds-slim="false"
+          data-cnds-slim-collapsed="false"
+          data-cnds-content="#slim-content"
+          data-cnds-accordion="true"
+          aria-label="Component navigation"
+        ></nav>
+
+        <div id="slim-content">
+          <div class="slim-content-box">
+            <!-- Content Row -->
+            <div class="row">
+
+              <!-- Main column — 80% of the row width; remaining 20% is the right sidebar.
+                   Inline flex overrides pin the ratio regardless of Bootstrap breakpoints. -->
+              <div class="col-12 col-lg" style="flex: 0 0 80%; max-width: 80%">
+                <!--Section: Docs content-->
+                <section class="container-fluid">
+
+                  <!--Section: Introduction-->
+                  <section id="section-introduction" aria-label="Introduction">
+
+                    <p class="mb-4">
+                      The Nimbus <strong>Scrollbar</strong> component provides a consistently styled scrollable
+                      container using CSS-only techniques — no JavaScript required. Apply the
+                      <code>.cnds-scrollbar</code> class to any element with a constrained size to activate
+                      Nimbus-themed scrollbar styling. Scrollbar appearance adapts automatically to the active
+                      theme and is implemented for both WebKit/Blink browsers (Chrome, Edge, Safari) and
+                      Firefox.
+                    </p>
+
+                    <p class="mb-4">
+                      Use <code>.cnds-scrollbar</code> on panels, data grids, code blocks, side drawers, and any
+                      overflow container where the browser's default system scrollbar would look out of place in the
+                      Nimbus UI. The component exposes three CSS custom properties —
+                      <code>--cnds-scrollbar-width</code>, <code>--cnds-scrollbar-thumb-bg</code>, and
+                      <code>--cnds-scrollbar-track-bg</code> — that let you adjust the appearance per container
+                      without writing custom scrollbar CSS from scratch.
+                    </p>
+
+                    <p class="note note-light">
+                      <strong>Note:</strong> Read the
+                      <a href="#api-section-introduction">API Documentation</a> to find all available
+                      options and advanced customization.
+                    </p>
+
+                    <p class="note note-info">
+                      <strong class="note-label">Note:</strong> To preview components in different themes,
+                      click the theme toggle button
+                      <i class="mdi mdi-weather-night" aria-hidden="true"></i> /
+                      <i class="mdi mdi-weather-sunny" aria-hidden="true"></i>
+                      in the header navigation bar.
+                    </p>
+
+                  </section>
+                  <!--/Section: Introduction-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Basic example-->
+                  <section id="section-basic-example" aria-labelledby="section-basic-example-heading">
+                    <h3 class="mb-3" id="section-basic-example-heading">Basic example</h3>
+
+                    <p>
+                      Add <code>.cnds-scrollbar</code> to any block element, then constrain it with
+                      explicit <code>width</code> and <code>height</code> values. When the content
+                      is larger than the container in either axis, scrollbars appear automatically.
+                      The example below shows both horizontal and vertical scrollbars active on an
+                      image that exceeds the container bounds.
+                    </p>
+
+                    <!-- Angular: Custom scrollbar styles apply via global CSS — no Angular module import or
+                         directive is required. Include nimbus.css (and the scrollbar component CSS) in the
+                         styles array in angular.json so .cnds-scrollbar is available globally:
+                           "styles": ["src/css/nimbus.css", "src/css/themes/primitives.css",
+                                      "src/css/themes/light.css", "src/css/themes/dark.css"]
+                         Bind dimensions via [style] and use [attr.aria-label] for dynamic accessible labels:
+                         Example: <div class="cnds-scrollbar"
+                                       [style.width.px]="containerWidth"
+                                       [style.height.px]="containerHeight"
+                                       tabindex="0" role="region"
+                                       [attr.aria-label]="scrollLabel">
+                                    <img [src]="imageUrl" [alt]="imageAlt"
+                                         style="width: 900px; height: 520px;" alt="">
+                                  </div>
+                         No ngAfterViewInit initialisation is needed — the class applies static CSS only. -->
+
+                    <!--Section: Demo-->
+                    <section class="pb-4" aria-label="Basic example demo">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                          <div
+                            class="cnds-scrollbar"
+                            style="width: 600px; height: 300px;"
+                            tabindex="0"
+                            role="region"
+                            aria-label="Scrollable landscape photo — scroll horizontally and vertically"
+                          >
+                            <img
+                              src="img/cf/styleguide/scroll-01.jpg"
+                              alt="Landscape photograph used to demonstrate scrollable container"
+                              style="width: 900px; height: 520px; display: block; object-fit: cover;"
+                            />
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div class="cnds-scrollbar"
+     style="width: 600px; height: 300px;"
+     tabindex="0"
+     role="region"
+     aria-label="Scrollable content"&gt;
+  &lt;img src="..." alt="..." style="width: 900px; height: 520px;" /&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Basic example-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Options-->
+                  <section id="section-options" aria-labelledby="section-options-heading">
+                    <h3 class="mb-3" id="section-options-heading">Options</h3>
+
+                    <p>
+                      Scrolling can be constrained to a single axis by combining
+                      <code>.cnds-scrollbar</code> with an overflow utility class.
+                      Use <code>overflow-x-hidden</code> to disable horizontal scrolling
+                      or <code>overflow-y-hidden</code> to disable vertical scrolling.
+                    </p>
+
+                    <!--Subsection: Suppress X-->
+                    <section id="subsection-suppress-x" aria-labelledby="subsection-suppress-x-heading">
+                      <h4 class="mt-5" id="subsection-suppress-x-heading">Vertical only</h4>
+
+                      <p>
+                        Add <code>overflow-x-hidden</code> to restrict scrolling to the Y axis.
+                        The container in this example holds a tall list that overflows vertically;
+                        the horizontal scrollbar is suppressed entirely.
+                      </p>
+
+                      <!-- Angular: Combine .cnds-scrollbar with overflow-x-hidden to restrict scrolling to the Y axis.
+                           Toggle the axis-suppression class conditionally with [class.overflow-x-hidden].
+                           Example: <div class="cnds-scrollbar"
+                                         [class.overflow-x-hidden]="suppressScrollX"
+                                         [style.width.px]="400" [style.height.px]="240"
+                                         tabindex="0" role="region" aria-label="Vertically scrollable list">
+                                      <ul class="list-group list-group-flush">
+                                        <li *ngFor="let item of items" class="list-group-item">{{ item }}</li>
+                                      </ul>
+                                    </div>
+                           No directive is required — the class applies CSS only. -->
+
+                      <!--Section: Demo-->
+                      <section class="pb-4" aria-label="Vertical-only scrollbar demo">
+                        <div class="border rounded-5">
+                          <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                            <div
+                              class="cnds-scrollbar overflow-x-hidden"
+                              style="width: 400px; height: 240px;"
+                              tabindex="0"
+                              role="region"
+                              aria-label="Vertically scrollable list — 15 items"
+                            >
+                              <ul class="list-group list-group-flush">
+                                <li class="list-group-item">Case #1001 — Exchange Migration</li>
+                                <li class="list-group-item">Case #1002 — SharePoint Consolidation</li>
+                                <li class="list-group-item">Case #1003 — Teams Archive Import</li>
+                                <li class="list-group-item">Case #1004 — OneDrive Bulk Transfer</li>
+                                <li class="list-group-item">Case #1005 — Mailbox Decommission</li>
+                                <li class="list-group-item">Case #1006 — PST Ingestion</li>
+                                <li class="list-group-item">Case #1007 — Hybrid Migration</li>
+                                <li class="list-group-item">Case #1008 — Tenant-to-Tenant Move</li>
+                                <li class="list-group-item">Case #1009 — Governance Review</li>
+                                <li class="list-group-item">Case #1010 — Compliance Export</li>
+                                <li class="list-group-item">Case #1011 — Email Archive Restore</li>
+                                <li class="list-group-item">Case #1012 — Distribution List Cleanup</li>
+                                <li class="list-group-item">Case #1013 — Domain Consolidation</li>
+                                <li class="list-group-item">Case #1014 — Calendar Migration</li>
+                                <li class="list-group-item">Case #1015 — Contacts Transfer</li>
+                              </ul>
+                            </div>
+                          </section>
+                        </div>
+                      </section>
+                      <!--/Section: Demo-->
+
+                      <!--Section: Code-->
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-html">&lt;!-- overflow-x-hidden suppresses the horizontal scrollbar --&gt;
+&lt;div class="cnds-scrollbar overflow-x-hidden"
+     style="width: 400px; height: 240px;"
+     tabindex="0"
+     role="region"
+     aria-label="Vertically scrollable list"&gt;
+  &lt;ul class="list-group list-group-flush"&gt;
+    &lt;li class="list-group-item"&gt;Item 1&lt;/li&gt;
+    &lt;li class="list-group-item"&gt;Item 2&lt;/li&gt;
+    &lt;!-- ... --&gt;
+  &lt;/ul&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+                      <!--/Section: Code-->
+                    </section>
+                    <!--/Subsection: Suppress X-->
+
+                    <hr class="my-5" />
+
+                    <!--Subsection: Suppress Y-->
+                    <section id="subsection-suppress-y" aria-labelledby="subsection-suppress-y-heading">
+                      <h4 class="mt-5" id="subsection-suppress-y-heading">Horizontal only</h4>
+
+                      <p>
+                        Add <code>overflow-y-hidden</code> to restrict scrolling to the X axis.
+                        The container below holds a row of images wider than the viewport;
+                        the vertical scrollbar is suppressed entirely.
+                      </p>
+
+                      <!-- Angular: Combine .cnds-scrollbar with overflow-y-hidden to restrict scrolling to the X axis.
+                           Toggle the axis-suppression class conditionally with [class.overflow-y-hidden].
+                           Example: <div class="cnds-scrollbar"
+                                         [class.overflow-y-hidden]="suppressScrollY"
+                                         [style.width.px]="600" [style.height.px]="164"
+                                         tabindex="0" role="region" aria-label="Horizontally scrollable photo strip">
+                                      <div style="display: flex; gap: 12px; width: max-content;">
+                                        <img *ngFor="let photo of photos"
+                                             [src]="photo.src" [alt]="photo.alt"
+                                             style="height: 140px; width: 220px; object-fit: cover;" alt="">
+                                      </div>
+                                    </div>
+                           No directive is required — the class applies CSS only. -->
+
+                      <!--Section: Demo-->
+                      <section class="pb-4" aria-label="Horizontal-only scrollbar demo">
+                        <div class="border rounded-5">
+                          <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                            <div
+                              class="cnds-scrollbar overflow-y-hidden"
+                              style="width: 600px; height: 164px;"
+                              tabindex="0"
+                              role="region"
+                              aria-label="Horizontally scrollable photo strip — 8 photos"
+                            >
+                              <div style="display: flex; gap: 12px; padding: 4px; width: max-content; align-items: center;">
+                                <img src="img/cf/styleguide/scroll-01.jpg" alt="Photo 1" style="height: 140px; width: 220px; object-fit: cover; border-radius: 4px; flex-shrink: 0;" />
+                                <img src="img/cf/styleguide/scroll-02.jpg" alt="Photo 2" style="height: 140px; width: 220px; object-fit: cover; border-radius: 4px; flex-shrink: 0;" />
+                                <img src="img/cf/styleguide/scroll-03.jpg" alt="Photo 3" style="height: 140px; width: 220px; object-fit: cover; border-radius: 4px; flex-shrink: 0;" />
+                                <img src="img/cf/styleguide/scroll-04.jpg" alt="Photo 4" style="height: 140px; width: 220px; object-fit: cover; border-radius: 4px; flex-shrink: 0;" />
+                                <img src="img/cf/styleguide/scroll-05.jpg" alt="Photo 5" style="height: 140px; width: 220px; object-fit: cover; border-radius: 4px; flex-shrink: 0;" />
+                                <img src="img/cf/styleguide/scroll-06.jpg" alt="Photo 6" style="height: 140px; width: 220px; object-fit: cover; border-radius: 4px; flex-shrink: 0;" />
+                                <img src="img/cf/styleguide/scroll-07.jpg" alt="Photo 7" style="height: 140px; width: 220px; object-fit: cover; border-radius: 4px; flex-shrink: 0;" />
+                                <img src="img/cf/styleguide/scroll-08.jpg" alt="Photo 8" style="height: 140px; width: 220px; object-fit: cover; border-radius: 4px; flex-shrink: 0;" />
+                              </div>
+                            </div>
+                          </section>
+                        </div>
+                      </section>
+                      <!--/Section: Demo-->
+
+                      <!--Section: Code-->
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-html">&lt;!-- overflow-y-hidden suppresses the vertical scrollbar --&gt;
+&lt;div class="cnds-scrollbar overflow-y-hidden"
+     style="width: 600px; height: 164px;"
+     tabindex="0"
+     role="region"
+     aria-label="Horizontally scrollable photo strip"&gt;
+  &lt;div style="display: flex; gap: 12px; width: max-content;"&gt;
+    &lt;img src="..." alt="Photo 1" style="height: 140px; width: 220px; object-fit: cover;" /&gt;
+    &lt;img src="..." alt="Photo 2" style="height: 140px; width: 220px; object-fit: cover;" /&gt;
+    &lt;!-- ... --&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+                      <!--/Section: Code-->
+                    </section>
+                    <!--/Subsection: Suppress Y-->
+                  </section>
+                  <!--/Section: Options-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Custom colors-->
+                  <section id="section-colors-example" aria-labelledby="section-colors-heading">
+                    <h3 class="mb-3" id="section-colors-heading">Custom colors</h3>
+
+                    <p>
+                      Override <code>--cnds-scrollbar-thumb-bg</code>,
+                      <code>--cnds-scrollbar-thumb-bg-hover</code>, and
+                      <code>--cnds-scrollbar-track-bg</code> inline on the container element or
+                      via a CSS rule targeting the element. Any valid CSS color value — including
+                      design-token references — is accepted.
+                    </p>
+
+                    <!-- Angular: Bind CSS custom properties via [ngStyle] to override scrollbar colors per instance.
+                         Example: <div class="cnds-scrollbar"
+                                       [ngStyle]="{
+                                         '--cnds-scrollbar-thumb-bg':       thumbColor,
+                                         '--cnds-scrollbar-thumb-bg-hover': thumbColorHover,
+                                         '--cnds-scrollbar-track-bg':       trackColor
+                                       }"
+                                       tabindex="0" role="region"
+                                       aria-label="Custom-colored scrollable container">
+                                    <ng-content></ng-content>
+                                  </div>
+                         Alternatively, use @HostBinding in a wrapper component:
+                           @HostBinding('style.--cnds-scrollbar-thumb-bg') @Input() thumbColor = '';
+                           @HostBinding('style.--cnds-scrollbar-thumb-bg-hover') @Input() thumbColorHover = '';
+                           @HostBinding('style.--cnds-scrollbar-track-bg') @Input() trackColor = '';
+                         No directive is required for static color overrides — set the properties inline or via a CSS class. -->
+
+                    <!--Section: Demo-->
+                    <section class="pb-4" aria-label="Custom color scrollbar demo">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                          <div
+                            class="cnds-scrollbar"
+                            style="
+                              width: 600px;
+                              height: 300px;
+                              --cnds-scrollbar-thumb-bg:       var(--cnds-surface-blue-500, #355d97);
+                              --cnds-scrollbar-thumb-bg-hover: var(--cnds-surface-blue-700, #1a4480);
+                              --cnds-scrollbar-track-bg:       var(--cnds-surface-light-100, #f5f5f5);
+                            "
+                            tabindex="0"
+                            role="region"
+                            aria-label="Custom blue-themed scrollable container"
+                          >
+                            <img
+                              src="img/cf/styleguide/scroll-02.jpg"
+                              alt="Landscape photograph demonstrating custom-colored scrollbars"
+                              style="width: 900px; height: 520px; display: block; object-fit: cover;"
+                            />
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+
+                    <!--Section: Code - HTML-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div class="cnds-scrollbar"
+     style="
+       width: 600px; height: 300px;
+       --cnds-scrollbar-thumb-bg:       var(--cnds-surface-blue-500, #355d97);
+       --cnds-scrollbar-thumb-bg-hover: var(--cnds-surface-blue-700, #1a4480);
+       --cnds-scrollbar-track-bg:       var(--cnds-surface-light-100, #f5f5f5);
+     "
+     tabindex="0"
+     role="region"
+     aria-label="Custom-colored scrollable container"&gt;
+  &lt;img src="..." alt="..." style="width: 900px; height: 520px;" /&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code - HTML-->
+
+                    <!--Section: Code - CSS (global override approach)-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-css">CSS</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-css">/* Override scrollbar colors for a specific container via a class */
+.my-scrollbar-brand {
+  --cnds-scrollbar-thumb-bg:       var(--cnds-surface-blue-500, #355d97);
+  --cnds-scrollbar-thumb-bg-hover: var(--cnds-surface-blue-700, #1a4480);
+  --cnds-scrollbar-track-bg:       var(--cnds-surface-light-100, #f5f5f5);
+}</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code - CSS-->
+                  </section>
+                  <!--/Section: Custom colors-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Scroll events-->
+                  <section id="section-scroll-events" aria-labelledby="section-events-heading">
+                    <h3 class="mb-3" id="section-events-heading">Scroll events</h3>
+
+                    <p>
+                      Scroll behavior is handled by the browser's native scroll engine.
+                      Listen for the standard <code>scroll</code> event on the container
+                      element to respond to position changes. Use the
+                      <code>scrollLeft</code> / <code>scrollTop</code> properties to read
+                      the current offset and <code>scrollWidth</code> / <code>scrollHeight</code>
+                      to detect boundary conditions.
+                    </p>
+
+                    <p>The following native scroll events are available on any scrollable element:</p>
+
+                    <ul>
+                      <li><code>scroll</code> — fires continuously as the user scrolls in any direction</li>
+                      <li><code>scrollend</code> — fires once when scrolling has settled (Chrome 114+, Firefox 109+)</li>
+                    </ul>
+
+                    <!--Subsection: Live event demo-->
+                    <section id="subsection-scroll-events-example" aria-labelledby="subsection-events-heading">
+                      <h4 class="mt-5" id="subsection-events-heading">Example</h4>
+
+                      <p>
+                        Scroll the container below. The event log on the right updates in real time,
+                        showing the current X/Y offset, scroll direction, and whether a boundary has
+                        been reached.
+                      </p>
+
+                      <!-- Angular: Bind the native scroll event with (scroll) in the template; use @HostListener on a
+                           scrollable host element to emit position and direction data as @Output() EventEmitters.
+                           Example: <div class="cnds-scrollbar" (scroll)="onScroll($event)"
+                                         tabindex="0" role="region" aria-label="Scrollable events demo">
+                                      <img [src]="imageUrl" [alt]="imageAlt" style="width: 800px; height: 550px;" alt="">
+                                    </div>
+                           Component class:
+                             onScroll(event: Event): void {
+                               const el = event.target as HTMLElement;
+                               this.scrollX   = el.scrollLeft;
+                               this.scrollY   = el.scrollTop;
+                               this.direction = this.detectDirection(el);
+                               this.boundary  = this.detectBoundary(el);
+                             }
+                           No Nimbus JS initialisation is required — the scroll event is native browser behavior. -->
+
+                      <!--Section: Demo-->
+                      <section class="pb-4" aria-label="Scroll events live demo">
+                        <div class="border rounded-5">
+                          <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                            <div class="d-flex gap-4 align-items-start">
+
+                              <!-- Scrollable container watched by the events script -->
+                              <div
+                                id="events-demo"
+                                class="cnds-scrollbar"
+                                style="width: 480px; height: 300px;"
+                                tabindex="0"
+                                role="region"
+                                aria-label="Scrollable events demo — scroll to see live event log"
+                                aria-describedby="events-demo-log"
+                              >
+                                <img
+                                  src="img/cf/styleguide/scroll-03.jpg"
+                                  alt="Landscape photograph used for scroll events demo"
+                                  style="width: 800px; height: 550px; display: block; object-fit: cover;"
+                                />
+                              </div>
+
+                              <!-- Live event log — reads from the events-demo container -->
+                              <div
+                                id="events-demo-log"
+                                class="scroll-event-log"
+                                aria-live="polite"
+                                aria-label="Scroll event log"
+                              >
+                                <p class="mb-2 fw-semibold small">Scroll log</p>
+                                <div class="d-flex flex-column gap-2">
+                                  <span class="badge bg-secondary">X offset: <span id="evt-x">0</span>px</span>
+                                  <span class="badge bg-secondary">Y offset: <span id="evt-y">0</span>px</span>
+                                  <span class="badge bg-secondary">Direction: <span id="evt-direction">—</span></span>
+                                  <span class="badge bg-secondary">Boundary: <span id="evt-boundary">—</span></span>
+                                </div>
+                              </div>
+
+                            </div>
+                          </section>
+                        </div>
+                      </section>
+                      <!--/Section: Demo-->
+
+                      <!--Section: Code - HTML-->
+                      <section class="mb-4">
+                        <h4><span class="badge badge-code-html">HTML</span></h4>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-html">&lt;div id="my-scroll-container"
+     class="cnds-scrollbar"
+     style="width: 480px; height: 300px;"
+     tabindex="0"
+     role="region"
+     aria-label="Scrollable events demo"&gt;
+  &lt;img src="..." alt="..." style="width: 800px; height: 550px;" /&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+                      <!--/Section: Code - HTML-->
+
+                      <!--Section: Code - JavaScript-->
+                      <section class="mb-4">
+                        <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-js">const container = document.getElementById('my-scroll-container');
+let prevScrollLeft = 0;
+let prevScrollTop  = 0;
+
+container.addEventListener('scroll', function () {
+  const x = this.scrollLeft;
+  const y = this.scrollTop;
+
+  // Determine scroll direction
+  const direction =
+    y &gt; prevScrollTop  ? 'Down'  :
+    y &lt; prevScrollTop  ? 'Up'    :
+    x &gt; prevScrollLeft ? 'Right' : 'Left';
+
+  // Detect boundary conditions
+  const atBottom = y + this.clientHeight &gt;= this.scrollHeight - 2;
+  const atTop    = y === 0;
+  const atRight  = x + this.clientWidth  &gt;= this.scrollWidth  - 2;
+  const atLeft   = x === 0;
+
+  const boundary =
+    atBottom ? 'Bottom' :
+    atRight  ? 'Right'  :
+    atTop    ? 'Top'    :
+    atLeft   ? 'Left'   : '—';
+
+  console.log({ x, y, direction, boundary });
+
+  prevScrollLeft = x;
+  prevScrollTop  = y;
+});</code></pre>
+                        </div>
+                      </section>
+                      <!--/Section: Code - JavaScript-->
+                    </section>
+                    <!--/Subsection: Live event demo-->
+                  </section>
+                  <!--/Section: Scroll events-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: API Documentation-->
+                  <section id="section-api-docs" aria-labelledby="section-api-docs-heading">
+                    <h3 class="mb-3" id="section-api-docs-heading">API Documentation</h3>
+
+                    <!--Section: API Introduction-->
+                    <section id="api-section-introduction" aria-labelledby="api-intro-heading">
+                      <h4 class="mb-4" id="api-intro-heading">Introduction</h4>
+                      <p>
+                        The Nimbus scrollbar component is a CSS-only utility — no JavaScript
+                        initialisation is required. Applying the <code>.cnds-scrollbar</code> class
+                        sets <code>overflow: auto</code> and attaches the
+                        <code>::-webkit-scrollbar</code> family of pseudo-element rules that style
+                        the scrollbar track, thumb, and hover state in Chrome, Edge, and Safari.
+                        Firefox receives equivalent styling via the standard
+                        <code>scrollbar-width: thin</code> and <code>scrollbar-color</code>
+                        shorthand properties.
+                      </p>
+                      <p>
+                        All color values are expressed as CSS custom properties scoped to
+                        <code>.cnds-scrollbar</code>. They adapt automatically when
+                        <code>data-cnds-theme="dark"</code> is present on the
+                        <code>&lt;html&gt;</code> element, so no JavaScript theme switching is
+                        needed on the scrollbar itself.
+                      </p>
+                    </section>
+                    <!--/Section: API Introduction-->
+
+                    <!--Section: API Usage-->
+                    <section id="api-section-usage" aria-labelledby="api-usage-heading">
+                      <h4 class="mb-4" id="api-usage-heading">Usage</h4>
+                      <p>
+                        Add <code>.cnds-scrollbar</code> to any container element and constrain its
+                        size with explicit <code>width</code> and <code>height</code> values. The
+                        container must have content that overflows in at least one axis for a
+                        scrollbar to appear. For accessibility, always include
+                        <code>tabindex="0"</code>, <code>role="region"</code>, and a descriptive
+                        <code>aria-label</code> — see the <a href="#api-section-accessibility">Accessibility</a>
+                        section for full requirements.
+                      </p>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-html">&lt;div class="cnds-scrollbar"
+     style="width: 600px; height: 300px;"
+     tabindex="0"
+     role="region"
+     aria-label="Scrollable content"&gt;
+  &lt;!-- content larger than the container --&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Section: API Usage-->
+
+                    <!--Section: API CSS Classes-->
+                    <section id="api-section-css-classes" aria-labelledby="api-css-classes-heading">
+                      <h4 class="mb-4" id="api-css-classes-heading">CSS classes</h4>
+                      <p>
+                        The following classes control scrollbar activation and axis suppression.
+                        All classes are CSS-only and require no JavaScript.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped" aria-label="CSS classes">
+                          <thead>
+                            <tr>
+                              <th scope="col">Class</th>
+                              <th scope="col">Element</th>
+                              <th scope="col">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>.cnds-scrollbar</code></td>
+                              <td>any block element</td>
+                              <td>
+                                Activates Nimbus scrollbar styling. Sets
+                                <code>overflow: auto</code> and applies themed
+                                <code>::-webkit-scrollbar</code> pseudo-element rules.
+                                All component CSS custom properties are scoped here.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.overflow-x-hidden</code></td>
+                              <td>any block element</td>
+                              <td>
+                                Suppresses horizontal scrolling. Combine with
+                                <code>.cnds-scrollbar</code> on the same element to create
+                                a vertical-only scrollbar.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.overflow-y-hidden</code></td>
+                              <td>any block element</td>
+                              <td>
+                                Suppresses vertical scrolling. Combine with
+                                <code>.cnds-scrollbar</code> on the same element to create
+                                a horizontal-only scrollbar.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: API CSS Classes-->
+
+                    <!--Section: API CSS Custom Properties-->
+                    <section id="api-section-css-variables" aria-labelledby="api-css-vars-heading">
+                      <h4 class="mb-4" id="api-css-vars-heading">CSS custom properties</h4>
+                      <p>
+                        All custom properties are scoped to <code>.cnds-scrollbar</code> and can
+                        be overridden per-instance (inline <code>style</code> attribute) or globally
+                        via a CSS rule targeting <code>.cnds-scrollbar</code> or a parent selector.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped" aria-label="CSS custom properties">
+                          <thead>
+                            <tr>
+                              <th scope="col">Property</th>
+                              <th scope="col">Default</th>
+                              <th scope="col">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>--cnds-scrollbar-width</code></td>
+                              <td><code>8px</code></td>
+                              <td>Width of the vertical scrollbar track and thumb.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-scrollbar-height</code></td>
+                              <td><code>8px</code></td>
+                              <td>Height of the horizontal scrollbar track and thumb.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-scrollbar-thumb-bg</code></td>
+                              <td><code>var(--cnds-primary-gray-500, #7f7f7f)</code></td>
+                              <td>
+                                Background color of the scrollbar thumb.
+                                Theme-aware — overridden in dark mode.
+                                Light-mode value meets WCAG AA non-text contrast (3.95:1 on
+                                <code>#ffffff</code>).
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-scrollbar-thumb-bg-hover</code></td>
+                              <td><code>var(--cnds-primary-gray-700, #4d4d4d)</code></td>
+                              <td>Background color of the scrollbar thumb on pointer hover.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-scrollbar-track-bg</code></td>
+                              <td><code>transparent</code></td>
+                              <td>
+                                Background color of the scrollbar track. Transparent by default
+                                so the container background shows through. Theme-aware — overridden
+                                in dark mode.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-scrollbar-border-radius</code></td>
+                              <td><code>4px</code></td>
+                              <td>Border radius applied to both the thumb and the track.</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: API CSS Custom Properties-->
+
+                    <!--Section: API Theme Variables-->
+                    <section id="api-section-theme-variables" aria-labelledby="api-theme-vars-heading">
+                      <h4 class="mb-4" id="api-theme-vars-heading">Theme variables</h4>
+                      <p>
+                        Two custom properties are overridden in dark mode on the
+                        <code>[data-cnds-theme="dark"] .cnds-scrollbar</code> selector.
+                        Both values satisfy WCAG SC 1.4.11 Non-text Contrast (minimum 3:1
+                        against their respective theme backgrounds).
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Theme variables">
+                          <thead>
+                            <tr>
+                              <th scope="col">Token</th>
+                              <th scope="col">Light value</th>
+                              <th scope="col">Light contrast</th>
+                              <th scope="col">Dark value</th>
+                              <th scope="col">Dark contrast</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>--cnds-scrollbar-thumb-bg</code></td>
+                              <td><code>var(--cnds-primary-gray-500, #7f7f7f)</code></td>
+                              <td>3.95:1 on <code>#ffffff</code></td>
+                              <td><code>var(--cnds-surface-light-600, #a3a3a3)</code></td>
+                              <td>6.41:1 on <code>#1e1e1e</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-scrollbar-track-bg</code></td>
+                              <td><code>transparent</code></td>
+                              <td>—</td>
+                              <td><code>var(--cnds-surface-dark-400, #252525)</code></td>
+                              <td>—</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: API Theme Variables-->
+
+                    <!--Section: API Accessibility-->
+                    <section id="api-section-accessibility" aria-labelledby="api-a11y-heading">
+                      <h4 class="mb-4" id="api-a11y-heading">Accessibility</h4>
+                      <p>
+                        Scrollable regions must be reachable and operable by keyboard users
+                        (WCAG 2.1 SC 2.1.1 Keyboard, Section 508 §1194.21(a)):
+                      </p>
+                      <ul>
+                        <li>
+                          Add <code>tabindex="0"</code> so the container can receive keyboard focus.
+                          Once focused, users can scroll with the arrow keys, Page Up/Down, Home, and End.
+                        </li>
+                        <li>
+                          Add <code>role="region"</code> to expose the container as a navigable
+                          landmark to assistive technologies.
+                        </li>
+                        <li>
+                          Add a descriptive <code>aria-label</code> (or <code>aria-labelledby</code>
+                          pointing to a visible heading) so screen-reader users understand the purpose
+                          of the region before entering it.
+                        </li>
+                        <li>
+                          Do not rely on color alone to indicate that a region is scrollable. Ensure a
+                          visible cue — partial content, a shadow edge, or an explicit overflow indicator
+                          — is present for sighted users.
+                        </li>
+                      </ul>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-html">&lt;div class="cnds-scrollbar"
+     style="width: 600px; height: 300px;"
+     tabindex="0"
+     role="region"
+     aria-label="Scrollable photo gallery"&gt;
+  &lt;!-- content --&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+                      <p>
+                        For further guidance see
+                        <a rel="nofollow" target="_blank"
+                           href="https://www.w3.org/WAI/WCAG21/Understanding/keyboard.html">
+                          WCAG 2.1 — Understanding SC 2.1.1 Keyboard</a>
+                        and
+                        <a rel="nofollow" target="_blank"
+                           href="https://www.w3.org/WAI/WCAG21/Understanding/non-text-contrast.html">
+                          SC 1.4.11 Non-text Contrast</a>.
+                      </p>
+                    </section>
+                    <!--/Section: API Accessibility-->
+
+                  </section>
+                  <!--/Section: API Documentation-->
+
+                </section>
+                <!--/Section: Docs content-->
+              </div>
+              <!-- ./Main column -->
+
+              <!-- Right Sidebar — 20% of the row width; hidden below lg breakpoint.
+                   Sticky attributes (processed by nimbus.js):
+                     data-cnds-sticky="true"          : activates sticky positioning
+                     data-cnds-sticky-boundary="true" : constrains sticky to its parent container
+                     data-cnds-sticky-direction="both" : sticks when scrolling up OR down
+                     data-cnds-sticky-offset="56"     : clears the 56 px fixed header
+                     data-cnds-sticky-delay="125"     : debounce delay (ms) to reduce scroll jank
+                   data-cnds-allow-hashes="true" on the <ul>: nimbus.js watches the URL hash
+                     and highlights the matching nav-link as the user scrolls through sections. -->
+              <div class="col-lg-2 d-none d-lg-block">
+                <div class="sticky-top" style="top: 100px; z-index: 1">
+                  <nav aria-label="Page sections">
+                    <ul
+                      class="nav flex-column nav-pills menu-sidebar"
+                      id="rightNav"
+                      data-cnds-allow-hashes="true"
+                    >
+                      <li class="nav-item"><a class="nav-link" href="#section-introduction">Introduction</a></li>
+                      <li class="nav-item"><a class="nav-link" href="#section-basic-example">Basic example</a></li>
+                      <li class="nav-item"><a class="nav-link" href="#section-options">Options</a></li>
+                      <li class="nav-item ms-3"><a class="nav-link" href="#subsection-suppress-x">Vertical only</a></li>
+                      <li class="nav-item ms-3"><a class="nav-link" href="#subsection-suppress-y">Horizontal only</a></li>
+                      <li class="nav-item"><a class="nav-link" href="#section-colors-example">Custom colors</a></li>
+                      <li class="nav-item"><a class="nav-link" href="#section-scroll-events">Scroll events</a></li>
+                      <li class="nav-item ms-3"><a class="nav-link" href="#subsection-scroll-events-example">Example</a></li>
+                      <li class="nav-item"><a class="nav-link" href="#section-api-docs">API Documentation</a></li>
+                      <li class="nav-item ms-3"><a class="nav-link" href="#api-section-introduction">Introduction</a></li>
+                      <li class="nav-item ms-3"><a class="nav-link" href="#api-section-usage">Usage</a></li>
+                      <li class="nav-item ms-3"><a class="nav-link" href="#api-section-css-classes">CSS classes</a></li>
+                      <li class="nav-item ms-3"><a class="nav-link" href="#api-section-css-variables">CSS custom properties</a></li>
+                      <li class="nav-item ms-3"><a class="nav-link" href="#api-section-theme-variables">Theme variables</a></li>
+                      <li class="nav-item ms-3"><a class="nav-link" href="#api-section-accessibility">Accessibility</a></li>
+                    </ul>
+                  </nav>
+                </div>
+              </div>
+              <!-- ./Right Sidebar -->
+
+            </div>
+            <!-- ./Content Row -->
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- ./Content -->
+
+    <!-- Footer -->
+    <div class="cf-footer cf-footer-app">
+      <footer class="page-footer main-footer" aria-label="Site footer">
+        <div class="w-100 px-3 d-flex align-items-center">
+          <img src="img/cf/core/cloudficient_logo_light.svg" class="cf-logo-light" style="width: 135px;" alt="Cloudficient" />
+          <img src="img/cf/core/cloudficient_logo_dark.svg" class="cf-logo-dark" style="width: 135px;" alt="Cloudficient" />
+          <span class="footer-copyright ms-auto">&copy; <span id="currentYear"></span> Cloudficient</span>
+        </div>
+      </footer>
+    </div>
+    <!-- ./Footer -->
+
+    <!-- SCRIPTS — load order matters:
+         1. nimbus.js    — core framework: processes all data-cnds-* attributes (theme, sticky, sidenav, tooltips…)
+         2. app.js       — application-level overrides and custom initialisation
+         3. prism.min.js — syntax highlighting for <code class="language-*"> blocks; must run after DOM is ready
+         4. sidenav-loader.js — fetches shared sidenav HTML and injects it into #sidebar-cf -->
+    <script type="text/javascript" src="js/nimbus.js?v=9.0.4"></script>
+    <script type="text/javascript" src="js/app.js?v=9.0.4"></script>
+    <script type="text/javascript" src="plugins/js/prism.min.js"></script>
+    <script type="text/javascript" src="js/sidenav-loader.js"></script>
+
+    <!-- Page scripts — run after nimbus.js and app.js have finished loading -->
+    <script type="text/javascript">
+      /* ── Footer: year ─────────────────────────────────────────────────────── */
+      (function () {
+        var el = document.getElementById('currentYear');
+        if (el) el.textContent = new Date().getFullYear();
+      })();
+
+      /* ── Scroll events demo ───────────────────────────────────────────────── *
+       * Tracks scrollLeft/scrollTop on the #events-demo container and updates   *
+       * the live log panel with offset values, direction, and boundary state.   *
+       * No external dependencies — uses native browser scroll events only.      *
+       * ─────────────────────────────────────────────────────────────────────── */
+      (function () {
+        var container = document.getElementById('events-demo');
+        if (!container) return; // guard: demo not in DOM
+
+        var xEl  = document.getElementById('evt-x');
+        var yEl  = document.getElementById('evt-y');
+        var dirEl = document.getElementById('evt-direction');
+        var bndEl = document.getElementById('evt-boundary');
+
+        var prevX = 0;
+        var prevY = 0;
+
+        container.addEventListener('scroll', function () {
+          var x = this.scrollLeft;
+          var y = this.scrollTop;
+
+          /* ── Direction ──────────────────────────────────────────────────────
+             Compare current position to the previous tick.
+             Y takes precedence over X when both change in the same event. */
+          var direction =
+            y > prevY ? 'Down'  :
+            y < prevY ? 'Up'    :
+            x > prevX ? 'Right' : 'Left';
+
+          /* ── Boundary detection ─────────────────────────────────────────────
+             A 2 px tolerance handles sub-pixel rounding in some browsers. */
+          var atBottom = y + this.clientHeight >= this.scrollHeight - 2;
+          var atRight  = x + this.clientWidth  >= this.scrollWidth  - 2;
+          var atTop    = y === 0;
+          var atLeft   = x === 0;
+
+          var boundary =
+            atBottom ? 'Bottom' :
+            atRight  ? 'Right'  :
+            atTop    ? 'Top'    :
+            atLeft   ? 'Left'   : '—';
+
+          /* ── Update log panel ───────────────────────────────────────────────
+             aria-live="polite" on the log container announces these changes
+             to screen readers without interrupting current speech. */
+          if (xEl)   xEl.textContent   = x + 'px';
+          if (yEl)   yEl.textContent   = y + 'px';
+          if (dirEl) dirEl.textContent = direction;
+          if (bndEl) bndEl.textContent = boundary;
+
+          prevX = x;
+          prevY = y;
+        });
+      })();
+    </script>
+  </body>
+</html>

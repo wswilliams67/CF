@@ -1,0 +1,721 @@
+<!--
+* CNDS Nimbus Design System — Embeds / Ratio
+* Version: 1.0.0
+* Layout: Application with SideNav (migrated from Nimbus v8 template)
+*
+* SECTIONS (in document order)
+*   #section-introduction       — Overview and when to use
+*   #section-basic-example      — Basic iframe embed example
+*   #section-aspect-ratios      — Aspect ratio modifier classes and SCSS map
+*   #section-api-docs           — API Documentation
+*     #api-section-introduction   — How the ratio helper works
+*     #api-section-usage          — Usage pattern
+*     #api-section-custom-ratio   — Inline and CSS custom ratio override
+*     #api-section-css-classes    — CSS class reference table
+*     #api-section-css-variables  — CSS custom property reference table
+*     #api-section-sass-variables — Sass $aspect-ratios map
+*     #api-section-accessibility  — Accessibility requirements
+*
+* NOTES
+* - Pure HTML5, CSS3, vanilla JavaScript — zero external dependencies
+* - All data-cnds-* attributes are processed by nimbus.js / app.js
+* - Uses Nimbus.* namespace
+* - Default product theme: CaseFusion (cnds-product-casefusion on <body>; change to cnds-product-hyperlize or cnds-product-expireon)
+-->
+<!doctype html>
+<!-- data-cnds-theme: sets the initial theme ("light" | "dark"). nimbus.js syncs this attribute when the user toggles. -->
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <!-- shrink-to-fit=no: legacy iOS 9 / Safari 9 fix — prevents the viewport shrinking on
+         orientation change. Has no effect on modern browsers; safe to keep for compatibility. -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta
+      name="description"
+      content="Embeds / Ratio | Cloudficient Nimbus Design System v1.0.0"
+    />
+    <title>Embeds / Ratio | CNDS v1.0.0 | Cloudficient Nimbus Design System</title>
+    <!-- Nimbus CSS -->
+    <link rel="stylesheet" href="css/nimbus.css" />
+    <!-- Custom styles | All custom classes/styles/overrides go here! -->
+    <link rel="stylesheet" href="css/app.css" />
+    <!-- Prism syntax highlighting -->
+    <link rel="stylesheet" href="plugins/css/prism.min.css" />
+    <!-- Favicons -->
+    <link
+      rel="apple-touch-icon"
+      sizes="57x57"
+      href="img/favicon/apple-icon-57x57.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="60x60"
+      href="img/favicon/apple-icon-60x60.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="72x72"
+      href="img/favicon/apple-icon-72x72.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="76x76"
+      href="img/favicon/apple-icon-76x76.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="114x114"
+      href="img/favicon/apple-icon-114x114.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="120x120"
+      href="img/favicon/apple-icon-120x120.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="144x144"
+      href="img/favicon/apple-icon-144x144.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="152x152"
+      href="img/favicon/apple-icon-152x152.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="img/favicon/apple-icon-180x180.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="192x192"
+      href="img/favicon/android-icon-192x192.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="img/favicon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="96x96"
+      href="img/favicon/favicon-96x96.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="img/favicon/favicon-16x16.png"
+    />
+    <!-- Windows pinned-site tile (legacy IE / old Edge) — ignored by modern browsers; safe to keep -->
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta
+      name="msapplication-TileImage"
+      content="img/favicon/ms-icon-144x144.png"
+    />
+    <!-- ./Favicons -->
+    <!-- Design tokens — load order matters:
+         1. primitives.css  — raw color/spacing values (no theming)
+         2. light.css       — semantic tokens for [data-cnds-theme="light"] / :root
+         3. dark.css        — semantic token overrides for [data-cnds-theme="dark"]
+         All three must appear AFTER nimbus.css so component variables resolve correctly. -->
+    <link rel="stylesheet" href="css/themes/primitives.css" />
+    <link rel="stylesheet" href="css/themes/light.css" />
+    <link rel="stylesheet" href="css/themes/dark.css" />
+  </head>
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 Bypass Blocks; renders visually hidden until focused -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+    <!-- Header -->
+    <div class="sticky-top">
+      <!-- Utility Navigation -->
+      <nav id="UtilityNav" class="nav nav-cf-utility" aria-label="Utility navigation">
+        <div class="w-100 gx-3 px-sm-0 px-lg-3">
+          <ul class="nav nav-cf-utility-ul"></ul>
+        </div>
+      </nav>
+      <!-- ./Utility Navigation -->
+      <!-- Main Navigation -->
+      <nav id="MainNav" class="navbar navbar-expand-xl navbar-cf" aria-label="Main navigation">
+        <div class="container-fluid p-0 px-3 d-flex">
+          <div class="d-flex flex-fill align-items-center text-truncate">
+            <div class="text-center d-none d-md-block me-3 border-end">
+              <a href="index.html"
+                ><img src="img/cf/core/logo_nimbus.png" class="me-3 mt-n1"
+              alt="Cloudficient Nimbus Design System" /></a>
+            </div>
+            <div class="flex-fill text-truncate">
+              <div class="navbar-cf-title-block">
+                <div
+                  class="navbar-cf-title cf-page-title text-truncate"
+                  style="padding-bottom: 0"
+                >
+                  <span class="cf-page-title-text cf-page-title-brand">v1</span
+                  ><span class="cf-page-title-divider"></span
+                  ><span class="cf-page-title-text">Embeds / Ratio</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- data-cnds-toggle="theme": wired by nimbus.js — flips data-cnds-theme on <html> between "light" and "dark" -->
+          <button
+            class="btn btn-sm btn-outline-secondary ms-2"
+            data-cnds-toggle="theme"
+            aria-label="Toggle theme"
+            title="Toggle theme"
+          >
+            <i class="mdi mdi-weather-night mdi-18px" aria-hidden="true"></i>
+          </button>
+        </div>
+      </nav>
+      <!-- ./Main Navigation -->
+    </div>
+    <!-- ./Header -->
+    <!-- Content -->
+    <main id="main-content" class="cf-main-app">
+      <!-- Mobile viewport warning — hidden on md+ breakpoints via d-block d-md-none -->
+      <div class="d-block d-md-none p-4">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>This application is not
+          optimized for small screens. Please use a large tablet, laptop, or
+          desktop computer to continue.
+        </div>
+      </div>
+      <!-- ./Mobile viewport warning -->
+      <div class="d-none d-md-block">
+        <!-- Sidenav — markup is intentionally empty; sidenav-loader.js fetches and injects the shared nav HTML.
+             data-cnds-mode="side"           : renders as a persistent side panel (not an overlay/drawer)
+             data-cnds-slim / slim-collapsed : controls compact/icon-only collapsed state
+             data-cnds-content="#slim-content": the sibling panel that shrinks/expands as the nav opens/closes
+             data-cnds-accordion="true"      : collapses other open nav groups when a new one is expanded -->
+        <nav
+          id="sidebar-cf"
+          class="sidenav"
+          aria-label="Site navigation"
+          data-cnds-mode="side"
+          data-cnds-slim="false"
+          data-cnds-slim-collapsed="false"
+          data-cnds-content="#slim-content"
+          data-cnds-accordion="true"
+        ></nav>
+        <div id="slim-content">
+          <div class="slim-content-box">
+            <!-- Content Row -->
+            <div class="row">
+              <!-- Main column — 80 % of the row width; the remaining 20 % is the right sidebar.
+                   The inline flex overrides are intentional: they pin the ratio regardless of Bootstrap's
+                   grid breakpoints so the sidebar never wraps on large viewports. -->
+              <div class="col-12 col-lg" style="flex: 0 0 80%; max-width: 80%">
+                <!--Section: Docs content-->
+                <section class="container-fluid">
+                  <!--Section: Introduction-->
+                  <section id="section-introduction">
+                    <h3 class="visually-hidden">Embeds / Ratio</h3>
+
+                    <!-- Description -->
+                    <p class="mb-4">
+                      The ratio helper enforces a fixed aspect ratio on a container so that
+                      embedded content — videos, maps, and other iframes — scales fluidly
+                      with its parent without distorting. Apply <code>.ratio</code> to a
+                      wrapper element and add one of the aspect-ratio modifier classes. The
+                      browser then uses a CSS custom property to maintain the chosen ratio
+                      at every container width, and the universal child selector
+                      <code>.ratio &gt; *</code> positions and sizes the immediate child to
+                      fill the wrapper exactly. No explicit width or height attributes are
+                      needed on the embedded element itself.
+                    </p>
+                    <p class="my-4">
+                      Use the ratio helper whenever embedded content must scale fluidly with
+                      its container while preserving a fixed aspect ratio — most commonly for
+                      video iframes, interactive maps, and responsive image placeholders in
+                      fluid layouts.
+                    </p>
+
+                    <p class="note note-light">
+                      <strong>Note:</strong> Read the
+                      <a href="#api-section-introduction">API Documentation</a> to find all available
+                      options and advanced customization.
+                    </p>
+
+                    <p class="note note-info"><strong class="note-label">Note:</strong> To preview components in different themes, click the theme toggle button <i class="mdi mdi-weather-night" aria-hidden="true"></i> / <i class="mdi mdi-weather-sunny" aria-hidden="true"></i> in the header navigation bar.</p>
+                  </section>
+                  <!--/Section: Introduction-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Basic example-->
+                  <section id="section-basic-example">
+                    <!-- Section title -->
+                    <h3 class="mb-4">Basic example</h3>
+
+                    <p>
+                      The example below wraps a YouTube <code>&lt;iframe&gt;</code> in a
+                      <code>.ratio.ratio-16x9</code> container to produce a standard
+                      widescreen embed. The same pattern works with any embeddable element:
+                      <code>&lt;embed&gt;</code>, <code>&lt;video&gt;</code>,
+                      <code>&lt;object&gt;</code>, or even a plain
+                      <code>&lt;div&gt;</code> or <code>&lt;img&gt;</code>. Place the child
+                      directly inside the wrapper with no width or height attributes — the
+                      <code>.ratio &gt; *</code> selector handles all sizing automatically.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <!-- Angular: Bind [src] using SafeResourceUrl to satisfy Angular's XSS sanitizer.
+                         Example: <div class="ratio ratio-16x9">
+                                    <iframe [src]="videoUrl" title="YouTube video" allowfullscreen></iframe>
+                                  </div>
+                         Inject DomSanitizer and assign: videoUrl = sanitizer.bypassSecurityTrustResourceUrl('https://...'); -->
+                    <div class="pb-4">
+                      <div class="bg-white border rounded-5">
+                        <div class="p-4 text-center pb-4 w-100">
+                          <div class="ratio ratio-16x9">
+                            <iframe
+                              src="https://www.youtube.com/embed/vlDzYIIOYmM"
+                              title="YouTube video"
+                              allowfullscreen
+                            ></iframe>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <!--/Section: Demo-->
+
+                    <!--Section: Code-->
+                    <div class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div class="ratio ratio-16x9"&gt;
+    &lt;iframe src="https://www.youtube.com/embed/vlDzYIIOYmM" title="YouTube video" allowfullscreen&gt;&lt;/iframe&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </div>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Basic example-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Aspect ratios-->
+                  <section id="section-aspect-ratios">
+                    <!--Section title-->
+                    <h3 class="mb-4">Aspect ratios</h3>
+
+                    <!-- Section description -->
+                    <p>
+                      Four modifier classes are provided out of the box. Choose the class
+                      that matches the natural dimensions of the content being embedded:
+                      <code>.ratio-1x1</code> for square content such as avatars or map
+                      tiles; <code>.ratio-4x3</code> for legacy television and
+                      document-style formats; <code>.ratio-16x9</code> for standard
+                      widescreen video — the correct choice for most YouTube, Vimeo, and
+                      conference-recording embeds; and <code>.ratio-21x9</code> for
+                      ultra-wide cinematic content or full-bleed hero banners.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <!-- Angular: Use ratio modifier classes statically, or generate them with *ngFor from a ratios array.
+                         Example: <div *ngFor="let r of ratios" [class]="'ratio ratio-' + r"><div>{{ r }}</div></div>
+                         For static usage copy markup directly into any component template with no changes. -->
+                    <div class="pb-4">
+                      <div class="bg-white border rounded-5">
+                        <div class="p-4 text-center pb-4 w-100">
+                          <div
+                            class="d-flex align-items-center justify-content-center gap-3"
+                          >
+                            <div
+                              class="border bg-light ratio ratio-1x1 d-flex align-items-center justify-content-center"
+                            >
+                              1x1
+                            </div>
+                            <div
+                              class="border bg-light ratio ratio-4x3 d-flex align-items-center justify-content-center"
+                            >
+                              4x3
+                            </div>
+                            <div
+                              class="border bg-light ratio ratio-16x9 d-flex align-items-center justify-content-center"
+                            >
+                              16x9
+                            </div>
+                            <div
+                              class="border bg-light ratio ratio-21x9 d-flex align-items-center justify-content-center"
+                            >
+                              21x9
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <!--/Section: Demo-->
+
+                    <!--Section: Code-->
+                    <div class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div class="ratio ratio-1x1"&gt;
+    &lt;div&gt;1x1&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="ratio ratio-4x3"&gt;
+    &lt;div&gt;4x3&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="ratio ratio-16x9"&gt;
+    &lt;div&gt;16x9&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="ratio ratio-21x9"&gt;
+    &lt;div&gt;21x9&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </div>
+                    <!--/Section: Code-->
+
+                    <p>
+                      Each modifier class sets <code>--cnds-aspect-ratio</code> on the
+                      wrapper to a <code>calc()</code> percentage that encodes the desired
+                      height-to-width relationship. To add a custom ratio or remove an
+                      unused one, edit the <code>$aspect-ratios</code> Sass map in
+                      <code>_variables.scss</code> before compiling. Each entry maps a
+                      string key — used as the modifier class suffix — to its corresponding
+                      percentage value:
+                    </p>
+
+                    <!--Section: Code-->
+                    <div class="mb-4">
+                      <h4><span class="badge badge-code-scss">SCSS</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-scss">$aspect-ratios: (
+  "1x1": 100%,
+  "4x3": calc(3 / 4 * 100%),
+  "16x9": calc(9 / 16 * 100%),
+  "21x9": calc(9 / 21 * 100%)
+);</code></pre>
+                      </div>
+                    </div>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Aspect ratios-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: API Documentation-->
+                  <section id="section-api-docs">
+                    <h3 class="mb-3">API Documentation</h3>
+
+                    <!--Section: API Introduction-->
+                    <section id="api-section-introduction">
+                      <h4 class="mb-4">Introduction</h4>
+                      <p>
+                        The ratio helper is a CSS-only component — no JavaScript
+                        initialisation is required. It sets
+                        <code>--cnds-aspect-ratio</code> on the wrapper element
+                        using a <code>calc()</code> percentage, then a universal
+                        child selector (<code>.ratio &gt; *</code>) uses absolute
+                        positioning to fill the container at exactly that ratio.
+                        No explicit <code>width</code> or <code>height</code>
+                        attributes are needed on the embedded element. The
+                        component is fully theme-aware: it relies entirely on
+                        structural CSS with no color or theme-specific rules.
+                      </p>
+                    </section>
+                    <!--/Section: API Introduction-->
+
+                    <!--Section: API Usage-->
+                    <section id="api-section-usage">
+                      <h4 class="mb-4">Usage</h4>
+                      <p>
+                        Add <code>.ratio</code> to a block-level wrapper element
+                        and apply one of the aspect-ratio modifier classes. Place
+                        the embedded element — <code>&lt;iframe&gt;</code>,
+                        <code>&lt;video&gt;</code>, <code>&lt;embed&gt;</code>,
+                        <code>&lt;object&gt;</code>, or a plain
+                        <code>&lt;div&gt;</code> — directly inside the wrapper
+                        with no <code>width</code> or <code>height</code>
+                        attributes. The <code>.ratio &gt; *</code> selector
+                        handles all sizing automatically.
+                      </p>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-html">&lt;div class="ratio ratio-16x9"&gt;
+    &lt;iframe src="..." title="Video title" allowfullscreen&gt;&lt;/iframe&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Section: API Usage-->
+
+                    <!--Section: API Custom Ratio-->
+                    <section id="api-section-custom-ratio">
+                      <h4 class="mb-4">Custom ratio</h4>
+                      <p>
+                        Any aspect ratio not included in the Sass map can be
+                        applied inline by overriding
+                        <code>--cnds-aspect-ratio</code> directly on the wrapper.
+                        The value must be a valid CSS <code>calc()</code>
+                        expression or a plain percentage. No additional class or
+                        Sass compilation is required.
+                      </p>
+                      <p class="fw-semibold mb-3">Custom 2:3 portrait ratio</p>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-html">&lt;div class="ratio" style="--cnds-aspect-ratio: calc(3 / 2 * 100%)"&gt;
+    &lt;iframe src="..." title="Portrait embed" allowfullscreen&gt;&lt;/iframe&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+                      <p class="fw-semibold mb-3">Global override via CSS</p>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-css">CSS</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-css">.ratio-custom {
+    --cnds-aspect-ratio: calc(3 / 2 * 100%);
+}</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Section: API Custom Ratio-->
+
+                    <!--Section: API CSS Classes-->
+                    <section id="api-section-css-classes">
+                      <h4 class="mb-4">CSS classes</h4>
+                      <p>
+                        The following classes control the ratio wrapper and its
+                        aspect-ratio modifiers. All classes are CSS-only and
+                        require no JavaScript.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped" aria-label="CSS classes">
+                          <thead>
+                            <tr>
+                              <th>Class</th>
+                              <th>Element</th>
+                              <th>Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>.ratio</code></td>
+                              <td>block wrapper</td>
+                              <td>
+                                Establishes the ratio container. Sets
+                                <code>position: relative</code> and uses a
+                                <code>::before</code> pseudo-element with
+                                <code>padding-top: var(--cnds-aspect-ratio)</code>
+                                to reserve vertical space.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.ratio-1x1</code></td>
+                              <td>block wrapper</td>
+                              <td>
+                                Sets <code>--cnds-aspect-ratio: 100%</code>. Use
+                                for square content: avatars, map tiles, icon
+                                placeholders.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.ratio-4x3</code></td>
+                              <td>block wrapper</td>
+                              <td>
+                                Sets <code>--cnds-aspect-ratio: calc(3 / 4 * 100%)</code>.
+                                Use for legacy television and document-style formats.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.ratio-16x9</code></td>
+                              <td>block wrapper</td>
+                              <td>
+                                Sets <code>--cnds-aspect-ratio: calc(9 / 16 * 100%)</code>.
+                                Use for standard widescreen video — the correct
+                                choice for most YouTube, Vimeo, and
+                                conference-recording embeds.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.ratio-21x9</code></td>
+                              <td>block wrapper</td>
+                              <td>
+                                Sets <code>--cnds-aspect-ratio: calc(9 / 21 * 100%)</code>.
+                                Use for ultra-wide cinematic content or full-bleed
+                                hero banners.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: API CSS Classes-->
+
+                    <!--Section: API CSS Custom Properties-->
+                    <section id="api-section-css-variables">
+                      <h4 class="mb-4">CSS custom properties</h4>
+                      <p>
+                        The ratio helper exposes a single CSS custom property
+                        defined on the <code>.ratio</code> wrapper. It is set
+                        automatically by the modifier classes and can be
+                        overridden inline for a custom aspect ratio.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped" aria-label="CSS custom properties">
+                          <thead>
+                            <tr>
+                              <th>Property</th>
+                              <th>Default</th>
+                              <th>Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>--cnds-aspect-ratio</code></td>
+                              <td><code>100%</code></td>
+                              <td>
+                                Controls the height-to-width ratio via a
+                                <code>calc()</code> percentage. Set by each
+                                modifier class. Override inline — e.g.
+                                <code>style="--cnds-aspect-ratio: calc(2 / 3 * 100%)"</code>
+                                — for non-standard ratios without adding a new
+                                Sass entry.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: API CSS Custom Properties-->
+
+                    <!--Section: API Sass Variables-->
+                    <section id="api-section-sass-variables">
+                      <h4 class="mb-4">Sass variables</h4>
+                      <p>
+                        The modifier classes are generated from the
+                        <code>$aspect-ratios</code> Sass map in
+                        <code>_variables.scss</code>. Each key becomes the class
+                        suffix and each value is assigned to
+                        <code>--cnds-aspect-ratio</code>. Add, remove, or rename
+                        entries in this map before compiling to customise the
+                        available modifier classes.
+                      </p>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-scss">SCSS</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-scss">$aspect-ratios: (
+  "1x1": 100%,
+  "4x3": calc(3 / 4 * 100%),
+  "16x9": calc(9 / 16 * 100%),
+  "21x9": calc(9 / 21 * 100%)
+);</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Section: API Sass Variables-->
+
+                    <!--Section: API Accessibility-->
+                    <section id="api-section-accessibility">
+                      <h4 class="mb-4">Accessibility</h4>
+                      <p>
+                        The ratio helper is a layout-only wrapper and carries no
+                        inherent semantics. Accessibility responsibility rests
+                        entirely on the embedded element:
+                      </p>
+                      <ul>
+                        <li>
+                          Always include a descriptive <code>title</code>
+                          attribute on <code>&lt;iframe&gt;</code> elements so
+                          assistive technologies can identify the embedded
+                          content.
+                        </li>
+                        <li>
+                          For purely decorative or non-informative embeds, add
+                          <code>aria-hidden="true"</code> to the
+                          <code>&lt;iframe&gt;</code> so screen readers skip it.
+                        </li>
+                        <li>
+                          The <code>.ratio</code> wrapper element requires no
+                          ARIA role or label — it is a presentational container
+                          only.
+                        </li>
+                      </ul>
+                    </section>
+                    <!--/Section: API Accessibility-->
+
+                  </section>
+                  <!--/Section: API Documentation-->
+                </section>
+                <!--/Section: Docs content-->
+              </div>
+              <!-- ./Main column-->
+
+              <!-- Right Sidebar — 20 % of the row width; hidden below lg breakpoint.
+                   Sticky attributes (processed by nimbus.js):
+                     data-cnds-sticky="true"          : activates sticky positioning
+                     data-cnds-sticky-boundary="true" : constrains sticky to its parent container
+                     data-cnds-sticky-direction="both" : sticks when scrolling up OR down
+                     data-cnds-sticky-offset="56"     : clears the 56 px fixed header
+                     data-cnds-sticky-delay="125"     : debounce delay (ms) to reduce scroll jank
+                   data-cnds-allow-hashes="true" on the <ul>: nimbus.js watches the URL hash
+                     and highlights the matching nav-link as the user scrolls through sections. -->
+              <div class="col-lg-2 d-none d-lg-block">
+                <div class="sticky-top" style="top: 100px; z-index: 1">
+                  <ul
+                    class="nav flex-column nav-pills menu-sidebar"
+                    id="rightNav"
+                    data-cnds-allow-hashes="true"
+                  >
+                    <li class="nav-item"><a class="nav-link" href="#section-introduction">Introduction</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-basic-example">Basic example</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-aspect-ratios">Aspect ratios</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-api-docs">API Documentation</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-introduction">Introduction</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-usage">Usage</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-custom-ratio">Custom ratio</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-css-classes">CSS classes</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-css-variables">CSS custom properties</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-sass-variables">Sass variables</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-accessibility">Accessibility</a></li>
+                  </ul>
+                </div>
+              </div>
+              <!-- ./Right Sidebar -->
+            </div>
+            <!-- ./Content Row -->
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- ./Content -->
+    <!-- Footer -->
+    <div class="cf-footer cf-footer-app">
+      <footer class="page-footer main-footer" aria-label="Site footer">
+        <div class="w-100 px-3 d-flex align-items-center">
+          <img src="img/cf/core/cloudficient_logo_light.svg" class="cf-logo-light" style="width: 135px;" alt="Cloudficient" />
+          <img src="img/cf/core/cloudficient_logo_dark.svg" class="cf-logo-dark" style="width: 135px;" alt="Cloudficient" />
+          <span class="footer-copyright ms-auto">&copy; <span id="currentYear"></span> Cloudficient</span>
+        </div>
+      </footer>
+    </div>
+    <!-- ./Footer -->
+    <!-- SCRIPTS — load order matters:
+         1. nimbus.js    — core framework: processes all data-cnds-* attributes (theme, sticky, sidenav, tooltips…)
+         2. app.js       — application-level overrides and custom initialisation
+         3. prism.min.js — syntax highlighting for <code class="language-*"> blocks; must run after DOM is ready
+         4. sidenav-loader.js — fetches shared sidenav HTML and injects it into #sidebar-cf -->
+    <script src="js/nimbus.js?v=9.0.4"></script>
+    <script src="js/app.js?v=9.0.4"></script>
+    <script src="plugins/js/prism.min.js"></script>
+    <script src="js/sidenav-loader.js"></script>
+    <!-- Inline: populate the footer copyright year dynamically so the page never needs a manual update -->
+    <script>
+      var currentYearElement = document.getElementById("currentYear");
+      if (currentYearElement) {
+        currentYearElement.textContent = new Date().getFullYear();
+      }
+    </script>
+  </body>
+</html>

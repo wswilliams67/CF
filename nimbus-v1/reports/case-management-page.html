@@ -1,0 +1,677 @@
+<!doctype html>
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Case Management Dashboard — CNDS Nimbus v1</title>
+    <!-- Nimbus Design System -->
+    <link rel="stylesheet" href="../css/nimbus.css" />
+    <link rel="stylesheet" href="../css/reports.css" />
+    <style>
+      /* Report-specific styles */
+      .info-grid {
+        display: table;
+        width: 100%;
+        margin-bottom: 16px;
+      }
+
+      .detail-row td {
+        padding-bottom: 8px;
+      }
+
+      .detail-label {
+        font-family: "Nunito", var(--cnds-font-heading, sans-serif);
+        font-weight: 600;
+        font-size: 14px;
+        line-height: 1.2em;
+        color: #141414;
+        width: 100%;
+      }
+
+      .detail-value {
+        font-family: "Nunito", var(--cnds-font-heading, sans-serif);
+        font-weight: 400;
+        font-size: 14px;
+        line-height: 1.2em;
+        color: #141414;
+        white-space: nowrap;
+        text-align: right;
+      }
+
+      .status-section {
+        text-align: right;
+      }
+
+      .status-text {
+        font-family: "Nunito", var(--cnds-font-heading, sans-serif);
+        font-weight: 400;
+        font-size: 14px;
+        line-height: 1.2em;
+        color: #141414;
+        display: inline-block;
+        margin-right: 10px;
+      }
+
+      .status-dot {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        vertical-align: middle;
+      }
+
+      .status-active {
+        background-color: #2d682f;
+      }
+      .status-inactive {
+        background-color: #942700;
+      }
+      .status-pending {
+        background-color: #f59e0b;
+      }
+
+      .action-card {
+        background-color: #f5f5f5;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 4px;
+      }
+
+      .action-card > tbody > tr > td {
+        padding: 0;
+        background-color: #f5f5f5;
+        border-radius: 8px;
+      }
+
+      .action-header {
+        margin-bottom: 16px;
+      }
+
+      .action-name {
+        font-family: "Nunito", var(--cnds-font-heading, sans-serif);
+        font-weight: 600;
+        font-size: 20px;
+        line-height: 1.2em;
+        text-transform: capitalize;
+        color: #141414;
+        width: 406px;
+      }
+
+      .action-description {
+        font-family: "Nunito", var(--cnds-font-heading, sans-serif);
+        font-weight: 300;
+        font-size: 14px;
+        line-height: 1.2em;
+        color: #141414;
+      }
+
+      .priority-badge {
+        font-family: "Nunito", var(--cnds-font-heading, sans-serif);
+        font-weight: 700;
+        font-size: 12px;
+        line-height: 1em;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        padding: 6px 10px;
+        border-radius: 4px;
+        margin-left: 24px;
+        width: fit-content;
+        color: #ffffff;
+      }
+
+      .priority-high {
+        background-color: #dc2626;
+      }
+      .priority-medium {
+        background-color: #f59e0b;
+      }
+      .priority-low {
+        background-color: #10b981;
+      }
+
+      .metrics-grid {
+        display: table;
+        width: 100%;
+        margin-bottom: 16px;
+      }
+
+      .metric-card {
+        background-color: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 16px;
+        text-align: center;
+        margin: 0 4px;
+      }
+
+      .metric-value {
+        font-family: "Nunito", var(--cnds-font-heading, sans-serif);
+        font-weight: 800;
+        font-size: 24px;
+        line-height: 1em;
+        color: var(--cnds-success, #2e892a);
+        margin-bottom: 4px;
+      }
+
+      .metric-label {
+        font-family: "Nunito", var(--cnds-font-heading, sans-serif);
+        font-weight: 400;
+        font-size: 12px;
+        line-height: 1.2em;
+        color: #525252;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .case-title {
+        font-family: "Nunito", var(--cnds-font-heading, sans-serif);
+        font-weight: 600;
+        font-size: 20px;
+        line-height: 1.2em;
+        text-transform: capitalize;
+        color: #141414;
+        height: 24px;
+        margin-bottom: 4px;
+      }
+
+      .case-subtitle {
+        font-family: "Nunito", var(--cnds-font-heading, sans-serif);
+        font-weight: 400;
+        font-size: 14px;
+        line-height: 1.43em;
+        color: #141414;
+        height: 24px;
+      }
+
+      .action-spacing {
+        padding-bottom: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <table class="report-container" cellpadding="0" cellspacing="0">
+      <tr>
+        <td>
+          <!-- Page Title -->
+          <table width="100%" cellpadding="0" cellspacing="0">
+            <tr>
+              <td class="report-page-title">Case Management Dashboard</td>
+            </tr>
+          </table>
+
+          <!-- Metrics Section -->
+          <table width="100%" class="report-section-header">
+            <tr>
+              <td class="report-category-title">Overview</td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td class="report-content-section">
+          <table width="100%">
+            <tr class="report-card-spacing">
+              <td>
+                <table width="100%" class="metrics-grid">
+                  <tr>
+                    <td width="25%">
+                      <table class="metric-card" width="100%">
+                        <tr>
+                          <td>
+                            <table width="100%">
+                              <tr>
+                                <td class="metric-value">24</td>
+                              </tr>
+                              <tr>
+                                <td class="metric-label">Active Cases</td>
+                              </tr>
+                            </table>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                    <td width="25%">
+                      <table class="metric-card" width="100%">
+                        <tr>
+                          <td>
+                            <table width="100%">
+                              <tr>
+                                <td class="metric-value">8</td>
+                              </tr>
+                              <tr>
+                                <td class="metric-label">Pending Review</td>
+                              </tr>
+                            </table>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                    <td width="25%">
+                      <table class="metric-card" width="100%">
+                        <tr>
+                          <td>
+                            <table width="100%">
+                              <tr>
+                                <td class="metric-value">156</td>
+                              </tr>
+                              <tr>
+                                <td class="metric-label">Total Custodians</td>
+                              </tr>
+                            </table>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                    <td width="25%">
+                      <table class="metric-card" width="100%">
+                        <tr>
+                          <td>
+                            <table width="100%">
+                              <tr>
+                                <td class="metric-value">3</td>
+                              </tr>
+                              <tr>
+                                <td class="metric-label">Urgent Actions</td>
+                              </tr>
+                            </table>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <!-- Recent Cases Section -->
+          <table width="100%" class="report-section-header">
+            <tr>
+              <td class="report-category-title">Recent Cases</td>
+              <td class="report-badge">3</td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td class="report-content-section">
+          <table width="100%">
+            <!-- Case Card 1 -->
+            <tr class="report-card-spacing">
+              <td>
+                <table class="report-card" width="100%">
+                  <tr>
+                    <td>
+                      <table width="100%">
+                        <tr>
+                          <td class="case-title">
+                            Acme Corp vs. TechStart Litigation
+                          </td>
+                          <td class="status-section">
+                            <span class="status-text">Active</span>
+                            <span class="status-dot status-active"></span>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="case-subtitle">
+                            Intellectual property dispute requiring
+                            comprehensive data preservation
+                          </td>
+                          <td></td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <table width="100%" class="info-grid">
+                        <tr class="detail-row">
+                          <td class="detail-label">Case ID</td>
+                          <td class="detail-value">CASE-2024-001</td>
+                        </tr>
+                        <tr class="detail-row">
+                          <td class="detail-label">Created</td>
+                          <td class="detail-value">
+                            Sarah Johnson on Mon Jan 15, 2024
+                          </td>
+                        </tr>
+                        <tr class="detail-row">
+                          <td class="detail-label">Last Updated</td>
+                          <td class="detail-value">Wed Jan 17, 2024 2:30 PM</td>
+                        </tr>
+                        <tr class="detail-row">
+                          <td class="detail-label">Custodians</td>
+                          <td class="detail-value">12 Active</td>
+                        </tr>
+                        <tr class="detail-row">
+                          <td class="detail-label">Data Sources</td>
+                          <td class="detail-value">Email, SharePoint, Teams</td>
+                        </tr>
+                        <tr class="detail-row">
+                          <td class="detail-label">Priority</td>
+                          <td class="detail-value">High</td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Case Card 2 -->
+            <tr class="report-card-spacing">
+              <td>
+                <table class="report-card" width="100%">
+                  <tr>
+                    <td>
+                      <table width="100%">
+                        <tr>
+                          <td class="case-title">
+                            Internal Investigation - Finance Dept
+                          </td>
+                          <td class="status-section">
+                            <span class="status-text">Pending</span>
+                            <span class="status-dot status-pending"></span>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="case-subtitle">
+                            Compliance investigation requiring financial records
+                            review
+                          </td>
+                          <td></td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <table width="100%" class="info-grid">
+                        <tr class="detail-row">
+                          <td class="detail-label">Case ID</td>
+                          <td class="detail-value">CASE-2024-002</td>
+                        </tr>
+                        <tr class="detail-row">
+                          <td class="detail-label">Created</td>
+                          <td class="detail-value">
+                            Michael Chen on Tue Jan 16, 2024
+                          </td>
+                        </tr>
+                        <tr class="detail-row">
+                          <td class="detail-label">Last Updated</td>
+                          <td class="detail-value">Tue Jan 16, 2024 4:15 PM</td>
+                        </tr>
+                        <tr class="detail-row">
+                          <td class="detail-label">Custodians</td>
+                          <td class="detail-value">5 Pending</td>
+                        </tr>
+                        <tr class="detail-row">
+                          <td class="detail-label">Data Sources</td>
+                          <td class="detail-value">Financial Systems, Email</td>
+                        </tr>
+                        <tr class="detail-row">
+                          <td class="detail-label">Priority</td>
+                          <td class="detail-value">Medium</td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Case Card 3 -->
+            <tr class="report-card-spacing">
+              <td>
+                <table class="report-card" width="100%">
+                  <tr>
+                    <td>
+                      <table width="100%">
+                        <tr>
+                          <td class="case-title">
+                            Employment Dispute - HR Review
+                          </td>
+                          <td class="status-section">
+                            <span class="status-text">Inactive</span>
+                            <span class="status-dot status-inactive"></span>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="case-subtitle">
+                            HR investigation completed, awaiting final
+                            documentation
+                          </td>
+                          <td></td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <table width="100%" class="info-grid">
+                        <tr class="detail-row">
+                          <td class="detail-label">Case ID</td>
+                          <td class="detail-value">CASE-2024-003</td>
+                        </tr>
+                        <tr class="detail-row">
+                          <td class="detail-label">Created</td>
+                          <td class="detail-value">
+                            Lisa Rodriguez on Mon Jan 8, 2024
+                          </td>
+                        </tr>
+                        <tr class="detail-row">
+                          <td class="detail-label">Last Updated</td>
+                          <td class="detail-value">
+                            Fri Jan 12, 2024 11:45 AM
+                          </td>
+                        </tr>
+                        <tr class="detail-row">
+                          <td class="detail-label">Custodians</td>
+                          <td class="detail-value">3 Completed</td>
+                        </tr>
+                        <tr class="detail-row">
+                          <td class="detail-label">Data Sources</td>
+                          <td class="detail-value">HR Systems, Email, Slack</td>
+                        </tr>
+                        <tr class="detail-row">
+                          <td class="detail-label">Priority</td>
+                          <td class="detail-value">Low</td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <!-- Action Items Section -->
+          <table width="100%" class="report-section-header">
+            <tr>
+              <td class="report-category-title">Pending Actions</td>
+              <td class="report-badge">4</td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td class="report-content-section">
+          <table width="100%">
+            <!-- Action 1 -->
+            <tr class="action-spacing">
+              <td>
+                <table class="action-card" width="100%">
+                  <tr>
+                    <td>
+                      <table width="100%">
+                        <tr>
+                          <td class="action-name">
+                            Review Custodian Responses
+                          </td>
+                          <td class="priority-badge priority-high">High</td>
+                        </tr>
+                        <tr>
+                          <td class="action-description">
+                            3 custodians have submitted preservation
+                            confirmations requiring review
+                          </td>
+                          <td></td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <table width="100%" class="info-grid">
+                        <tr class="detail-row">
+                          <td class="detail-label">Due Date</td>
+                          <td class="detail-value">Jan 18, 2024</td>
+                        </tr>
+                        <tr class="detail-row">
+                          <td class="detail-label">Assigned To</td>
+                          <td class="detail-value">Sarah Johnson</td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Action 2 -->
+            <tr class="action-spacing">
+              <td>
+                <table class="action-card" width="100%">
+                  <tr>
+                    <td>
+                      <table width="100%">
+                        <tr>
+                          <td class="action-name">
+                            Update Data Collection Status
+                          </td>
+                          <td class="priority-badge priority-medium">Medium</td>
+                        </tr>
+                        <tr>
+                          <td class="action-description">
+                            Weekly status update for ongoing data collection
+                            activities
+                          </td>
+                          <td></td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <table width="100%" class="info-grid">
+                        <tr class="detail-row">
+                          <td class="detail-label">Due Date</td>
+                          <td class="detail-value">Jan 19, 2024</td>
+                        </tr>
+                        <tr class="detail-row">
+                          <td class="detail-label">Assigned To</td>
+                          <td class="detail-value">Michael Chen</td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Action 3 -->
+            <tr class="action-spacing">
+              <td>
+                <table class="action-card" width="100%">
+                  <tr>
+                    <td>
+                      <table width="100%">
+                        <tr>
+                          <td class="action-name">Generate Monthly Report</td>
+                          <td class="priority-badge priority-low">Low</td>
+                        </tr>
+                        <tr>
+                          <td class="action-description">
+                            Compile monthly case management and preservation
+                            statistics
+                          </td>
+                          <td></td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <table width="100%" class="info-grid">
+                        <tr class="detail-row">
+                          <td class="detail-label">Due Date</td>
+                          <td class="detail-value">Jan 31, 2024</td>
+                        </tr>
+                        <tr class="detail-row">
+                          <td class="detail-label">Assigned To</td>
+                          <td class="detail-value">Lisa Rodriguez</td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Action 4 -->
+            <tr>
+              <td>
+                <table class="action-card" width="100%">
+                  <tr>
+                    <td>
+                      <table width="100%">
+                        <tr>
+                          <td class="action-name">System Maintenance Window</td>
+                          <td class="priority-badge priority-medium">Medium</td>
+                        </tr>
+                        <tr>
+                          <td class="action-description">
+                            Schedule and coordinate planned system maintenance
+                            activities
+                          </td>
+                          <td></td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <table width="100%" class="info-grid">
+                        <tr class="detail-row">
+                          <td class="detail-label">Due Date</td>
+                          <td class="detail-value">Jan 20, 2024</td>
+                        </tr>
+                        <tr class="detail-row">
+                          <td class="detail-label">Assigned To</td>
+                          <td class="detail-value">IT Operations</td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td class="report-footer">Privileged and Confidential</td>
+      </tr>
+    </table>
+
+    <!-- Nimbus JS -->
+    <script src="../js/nimbus.js"></script>
+  </body>
+</html>

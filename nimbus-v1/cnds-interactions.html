@@ -1,0 +1,653 @@
+<!--
+* CNDS Nimbus Design System — Interactions
+* Version: 1.0.0
+* Layout: Application with SideNav (migrated from Nimbus v8 template)
+*
+* SECTIONS (in document order)
+*   #section-introduction      — Overview and notes
+*   #section-text-selection    — user-select utility demos
+*   #section-pointer-events    — pointer-events utility demos
+*   #section-api-docs          — API Documentation
+*     #api-section-introduction   — How utilities work
+*     #api-section-css-classes    — Class reference table
+*     #api-section-accessibility  — Accessibility guidance
+*
+* CSS SOURCE
+*   All interaction utility classes are defined in css/core/interactions.css.
+*   Each class maps to a single CSS property and uses !important for specificity.
+*
+* NOTES
+* - Pure HTML5, CSS3, vanilla JavaScript — zero external dependencies
+* - All data-cnds-* attributes are processed by nimbus.js / app.js
+* - Uses Nimbus.* namespace
+* - Section 508 / WCAG 2.1 AA compliant
+* - Default product theme: CaseFusion (cnds-product-casefusion on <body>; change to cnds-product-hyperlize or cnds-product-expireon)
+-->
+<!doctype html>
+<!-- data-cnds-theme: sets the initial theme ("light" | "dark"). nimbus.js syncs this attribute on toggle. -->
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="Interactions | Cloudficient Nimbus Design System v1.0.0" />
+    <title>Interactions | CNDS v1.0.0 | Cloudficient Nimbus Design System</title>
+
+    <!-- Nimbus CSS — base framework styles -->
+    <link rel="stylesheet" href="css/nimbus.css" />
+    <!-- App CSS — custom classes, overrides, and page-specific styles -->
+    <link rel="stylesheet" href="css/app.css" />
+    <!-- Prism — syntax highlighting for .language-* code blocks -->
+    <link rel="stylesheet" href="plugins/css/prism.min.css" />
+
+    <!-- Favicons — multi-resolution set covering iOS (apple-touch-icon),
+         Android (192 × 192), Windows tile (ms-icon), and standard browsers -->
+    <link rel="apple-touch-icon" sizes="57x57"   href="img/favicon/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="60x60"   href="img/favicon/apple-icon-60x60.png" />
+    <link rel="apple-touch-icon" sizes="72x72"   href="img/favicon/apple-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76"   href="img/favicon/apple-icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="img/favicon/apple-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="img/favicon/apple-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="img/favicon/apple-icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="img/favicon/apple-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-icon-180x180.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="img/favicon/android-icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="32x32"   href="img/favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="96x96"   href="img/favicon/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="16x16"   href="img/favicon/favicon-16x16.png" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="msapplication-TileImage" content="img/favicon/ms-icon-144x144.png" />
+    <!-- ./Favicons -->
+
+    <!-- Design tokens — load order matters:
+         1. primitives.css  — raw color/spacing values (no theming)
+         2. light.css       — semantic tokens for [data-cnds-theme="light"] / :root
+         3. dark.css        — semantic token overrides for [data-cnds-theme="dark"]
+         All three must appear AFTER nimbus.css so component variables resolve correctly. -->
+    <link rel="stylesheet" href="css/themes/primitives.css" />
+    <link rel="stylesheet" href="css/themes/light.css" />
+    <link rel="stylesheet" href="css/themes/dark.css" />
+  </head>
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 Bypass Blocks; visually hidden until focused -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+
+    <!-- Header -->
+    <div class="sticky-top">
+
+      <!-- Utility Navigation — top bar populated by app.js -->
+      <nav id="UtilityNav" class="nav nav-cf-utility">
+        <div class="w-100 gx-3 px-sm-0 px-lg-3">
+          <ul class="nav nav-cf-utility-ul"></ul>
+        </div>
+      </nav>
+      <!-- ./Utility Navigation -->
+
+      <!-- Main Navigation -->
+      <nav id="MainNav" class="navbar navbar-expand-xl navbar-cf">
+        <div class="container-fluid p-0 px-3 d-flex">
+          <div class="d-flex flex-fill align-items-center text-truncate">
+
+            <!-- Logo — hidden on mobile to save horizontal space -->
+            <div class="text-center d-none d-md-block me-3 border-end">
+              <a href="index.html">
+                <img src="img/cf/core/logo_nimbus.png" class="me-3 mt-n1"
+                     alt="Cloudficient Nimbus Design System" />
+              </a>
+            </div>
+
+            <!-- Page title — "v9 | Interactions" -->
+            <div class="flex-fill text-truncate">
+              <div class="navbar-cf-title-block">
+                <div class="navbar-cf-title cf-page-title text-truncate" style="padding-bottom: 0">
+                  <span class="cf-page-title-text cf-page-title-brand">v1</span
+                  ><span class="cf-page-title-divider"></span
+                  ><span class="cf-page-title-text">Interactions</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Mobile nav toggler — collapses/expands #navbarMain -->
+          </div>
+
+          <!-- Collapsible nav links — populated by app.js -->
+
+          <!-- Theme toggle — nimbus.js flips data-cnds-theme on <html> between "light" and "dark" -->
+          <button
+            class="btn btn-sm btn-outline-secondary ms-2"
+            data-cnds-toggle="theme"
+            aria-label="Toggle theme"
+            title="Toggle theme"
+          >
+            <i class="mdi mdi-weather-night mdi-18px" aria-hidden="true"></i>
+          </button>
+        </div>
+      </nav>
+      <!-- ./Main Navigation -->
+
+    </div>
+    <!-- ./Header -->
+
+    <!-- Content -->
+    <main id="main-content" class="cf-main-app">
+
+      <!-- Mobile viewport warning — hidden at md+ breakpoint -->
+      <div class="d-block d-md-none p-4">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>This application is not
+          optimized for small screens. Please use a large tablet, laptop, or
+          desktop computer to continue.
+        </div>
+      </div>
+
+      <!-- Desktop layout — hidden below md breakpoint -->
+      <div class="d-none d-md-block">
+
+        <!-- Sidenav — markup is intentionally empty; sidenav-loader.js fetches and injects the shared nav HTML.
+             data-cnds-mode="side"            : renders as a persistent side panel (not an overlay/drawer)
+             data-cnds-slim / slim-collapsed  : controls compact/icon-only collapsed state
+             data-cnds-content="#slim-content" : the sibling panel that shrinks/expands as the nav opens/closes
+             data-cnds-accordion="true"       : collapses other open nav groups when a new one is expanded -->
+        <nav
+          id="sidebar-cf"
+          class="sidenav"
+          data-cnds-mode="side"
+          data-cnds-slim="false"
+          data-cnds-slim-collapsed="false"
+          data-cnds-content="#slim-content"
+          data-cnds-accordion="true"
+        ></nav>
+
+        <!-- slim-content: the main content panel paired with #sidebar-cf.
+             nimbus.js adjusts its left margin as the sidenav expands or collapses. -->
+        <div id="slim-content">
+          <div class="slim-content-box">
+
+            <!-- Content Row — 80/20 split: main content left, section nav right.
+                 Inline flex overrides pin the ratio regardless of grid breakpoints
+                 so the sidebar never wraps on large viewports. -->
+            <div class="row">
+
+              <!-- Main column (80 %) -->
+              <div class="col-12 col-lg" style="flex: 0 0 80%; max-width: 80%">
+                <!--Section: Docs content-->
+                <section class="container-fluid">
+
+                  <!-- visually-hidden h1 satisfies WCAG 1.3.1 / 2.4.6 (page-level heading for screen readers);
+                       the visual title is rendered in the navbar title block above. -->
+                  <h3 class="visually-hidden">Interactions</h3>
+
+                  <!--Section: Introduction-->
+                  <section id="section-introduction">
+                    <p class="mb-4">
+                      Interaction utilities are CSS-only classes that give you precise control over
+                      how users engage with elements on the page — whether they can select text,
+                      trigger pointer events, or respond to cursor changes. Because they map
+                      directly to CSS properties, no JavaScript is required and they compose
+                      cleanly with every other Nimbus utility class.
+                    </p>
+                    <p class="my-4">
+                      This page documents two utility groups:
+                      <a href="#section-text-selection">Text selection</a> controls whether and
+                      how a user can highlight text inside an element, and
+                      <a href="#section-pointer-events">Pointer events</a> controls whether an
+                      element responds to mouse clicks, touch taps, and stylus interactions at all.
+                    </p>
+
+                    <!-- note-light: dark text on light gray — 13.61:1 contrast (WCAG AAA).
+                         Defined in css/components/notes.css; same colors in both themes. -->
+                    <p class="note note-light">
+                      <strong>Note:</strong> Read the
+                      <a href="#api-section-introduction">API Documentation</a> to find all
+                      available options and advanced customization.
+                    </p>
+
+                    <!-- note-info: blue text on blue-tint background — 7.40:1 contrast (WCAG AAA).
+                         Defined in css/components/notes.css; same colors in both themes. -->
+                    <p class="note note-info">
+                      <strong class="note-label">Note:</strong> To preview components in different
+                      themes, click the theme toggle button
+                      <i class="mdi mdi-weather-night" aria-hidden="true"></i> /
+                      <i class="mdi mdi-weather-sunny" aria-hidden="true"></i>
+                      in the header navigation bar.
+                    </p>
+                  </section>
+                  <!--/Section: Introduction-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Text selection-->
+                  <section id="section-text-selection">
+                    <h3 class="mb-4">Text selection</h3>
+
+                    <p>
+                      The <code>user-select</code> CSS property controls whether and how a user
+                      can select text inside an element. Nimbus exposes three utility classes that
+                      cover the most common scenarios:
+                    </p>
+                    <ul>
+                      <li>
+                        <code>.user-select-all</code> — the element's entire text content is
+                        selected in a single click. Use this for copy-friendly targets such as API
+                        keys, terminal commands, or shareable URLs.
+                      </li>
+                      <li>
+                        <code>.user-select-auto</code> — restores the browser's default
+                        selection behaviour, inheriting from the parent element. Use this to opt a
+                        child element back in when its parent has <code>.user-select-none</code>.
+                      </li>
+                      <li>
+                        <code>.user-select-none</code> — prevents text from being selected.
+                        Apply this to UI chrome such as button labels, icon labels, and drag-handle
+                        regions where accidental text selection would degrade usability.
+                      </li>
+                    </ul>
+
+                    <!--Section: Demo-->
+                    <!--
+                      ANGULAR CONVERSION — Text selection
+                      ─────────────────────────────────────────────────────────
+                      These classes are pure CSS utilities. In an Angular template
+                      they can be applied statically (identical to plain HTML) or
+                      bound dynamically.
+
+                      Static (no component logic required):
+                        <p class="user-select-all">...</p>
+                        <p class="user-select-auto">...</p>
+                        <p class="user-select-none">...</p>
+
+                      Dynamic — single class binding:
+                        <p [class.user-select-none]="isReadOnly">...</p>
+
+                      Dynamic — mutually exclusive modes via [ngClass]:
+                        <p [ngClass]="{
+                          'user-select-all':  selectMode === 'all',
+                          'user-select-auto': selectMode === 'auto',
+                          'user-select-none': selectMode === 'none'
+                        }">...</p>
+
+                      No @Component, pipe, or directive is required.
+                      No NgModule import is needed for static usage; import
+                      NgClass from @angular/common for [ngClass] bindings.
+                    -->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 pb-4">
+                          <p class="user-select-all">
+                            This paragraph will be entirely selected when clicked
+                            by the user.
+                          </p>
+                          <p class="user-select-auto">
+                            This paragraph has default select behavior.
+                          </p>
+                          <p class="user-select-none">
+                            This paragraph will not be selectable when clicked by
+                            the user.
+                          </p>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+                    <!-- Angular: These are pure CSS utilities requiring no directives. Apply statically in any
+                         component template, or bind dynamically with [ngClass] from @angular/common:
+                         [ngClass]="{ 'user-select-all': mode==='all', 'user-select-none': mode==='none' }". -->
+
+                    <!-- line-numbers: Prism plugin class that renders the gutter line counter.
+                         m-0: removes default pre margins so the block flushes against its parent border. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;p class="user-select-all"&gt;This paragraph will be entirely selected when clicked by the user.&lt;/p&gt;
+&lt;p class="user-select-auto"&gt;This paragraph has default select behavior.&lt;/p&gt;
+&lt;p class="user-select-none"&gt;This paragraph will not be selectable when clicked by the user.&lt;/p&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Text selection-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Pointer events-->
+                  <section id="section-pointer-events">
+                    <h3 class="mb-4">Pointer events</h3>
+
+                    <p>
+                      Nimbus provides <code>.pe-none</code> and <code>.pe-auto</code> utility
+                      classes to disable or restore an element's response to pointer input —
+                      mouse clicks, touch taps, and stylus interactions. Both classes map
+                      directly to the CSS <code>pointer-events</code> property and can be applied
+                      to any element or used on a parent to affect an entire subtree.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <!--
+                      ANGULAR CONVERSION — Pointer events
+                      ─────────────────────────────────────────────────────────
+                      These classes are pure CSS utilities. In an Angular template
+                      they can be applied statically (identical to plain HTML) or
+                      bound dynamically.
+
+                      Static (no component logic required):
+                        <a href="/path" class="pe-none">...</a>
+                        <a href="/path" class="pe-auto">...</a>
+
+                      Dynamic — single class binding:
+                        <a href="/path" [class.pe-none]="isDisabled">...</a>
+
+                      Dynamic — parent suppresses entire subtree:
+                        <p [class.pe-none]="isDisabled">
+                          <a href="/path">blocked by parent</a>
+                          <a href="/path" [class.pe-auto]="!isDisabled">re-enabled child</a>
+                        </p>
+
+                      Fully accessible disabled link pattern:
+                        <a
+                          href="/path"
+                          [class.pe-none]="isDisabled"
+                          [attr.tabindex]="isDisabled ? -1 : null"
+                          [attr.aria-disabled]="isDisabled || null"
+                          (click)="isDisabled && $event.preventDefault()">
+                          ...
+                        </a>
+
+                      For form controls, prefer the native binding instead:
+                        <button [disabled]="isDisabled">...</button>
+
+                      For routerLink-based navigation, use routerLink with a
+                      conditional and HostListener rather than href + pe-none:
+                        <a [routerLink]="isDisabled ? null : '/path'">...</a>
+
+                      No NgModule import is needed for static usage; import
+                      NgClass from @angular/common for [ngClass] bindings.
+                    -->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 pb-4">
+                          <p>
+                            <a href="#" class="pe-none">This link</a> can not be
+                            clicked.
+                          </p>
+                          <p>
+                            <a href="#" class="pe-auto">This link</a> can be
+                            clicked (this is default behavior).
+                          </p>
+                          <p class="pe-none">
+                            <a href="#">This link</a> can not be clicked because
+                            the <code>pointer-events</code> property is inherited
+                            from its parent. However,
+                            <a href="#" class="pe-auto">this link</a> has a
+                            <code>pe-auto</code> class and can be clicked.
+                          </p>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+                    <!-- Angular: .pe-none and .pe-auto are pure CSS utilities; no module import needed. Bind
+                         conditionally with [class.pe-none]="isDisabled" on links or containers. For full
+                         accessibility, combine with [attr.tabindex]="isDisabled ? -1 : null" and
+                         [attr.aria-disabled]="isDisabled || null". For form controls, use the native [disabled] binding. -->
+
+                    <!-- line-numbers: Prism plugin class that renders the gutter line counter.
+                         m-0: removes default pre margins so the block flushes against its parent border. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;p&gt;
+    &lt;a href="#" class="pe-none"&gt;This link&lt;/a&gt; can not be clicked.
+&lt;/p&gt;
+&lt;p&gt;
+    &lt;a href="#" class="pe-auto"&gt;This link&lt;/a&gt; can be clicked (this is default behavior).
+&lt;/p&gt;
+&lt;p class="pe-none"&gt;
+    &lt;a href="#"&gt;This link&lt;/a&gt; can not be clicked because
+    the &lt;code&gt;pointer-events&lt;/code&gt; property is inherited
+    from its parent. However,
+    &lt;a href="#" class="pe-auto"&gt;this link&lt;/a&gt; has a
+    &lt;code&gt;pe-auto&lt;/code&gt; class and can be clicked.
+&lt;/p&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                    <p>
+                      The <code>.pe-none</code> class (and the
+                      <code>pointer-events</code> CSS property it sets) only
+                      prevents interactions with a pointer (mouse, stylus, touch).
+                      Links and controls with <code>.pe-none</code> are, by
+                      default, still focusable and actionable for keyboard users.
+                      To ensure that they are completely neutralized even for
+                      keyboard users, you may need to add further attributes such
+                      as <code>tabindex="-1"</code> (to prevent them from
+                      receiving keyboard focus) and
+                      <code>aria-disabled="true"</code> (to convey the fact they
+                      are effectively disabled to assistive technologies), and
+                      possibly use JavaScript to completely prevent them from
+                      being actionable. If possible, the simpler solution is:
+                    </p>
+                    <ul>
+                      <li>
+                        For form controls, add the <code>disabled</code> HTML
+                        attribute.
+                      </li>
+                      <li>
+                        For links, remove the <code>href</code> attribute, making
+                        it a non-interactive anchor or placeholder link.
+                      </li>
+                    </ul>
+                  </section>
+                  <!--/Section: Pointer events-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: API Documentation-->
+                  <section id="section-api-docs">
+                    <h3 class="mb-3">API Documentation</h3>
+
+                    <!--Section: API Introduction-->
+                    <section id="api-section-introduction">
+                      <h4 class="mb-4">Introduction</h4>
+                      <p>
+                        The Nimbus interaction utilities are CSS-only — no JavaScript initialisation
+                        is required. Each class maps directly to a single CSS property and applies
+                        <code>!important</code> to ensure the declaration always wins regardless of
+                        selector specificity. The utilities are stateless and composable: they
+                        combine cleanly with any other Nimbus class and work in both light and dark
+                        themes without modification.
+                      </p>
+                      <p>
+                        Because <code>user-select</code> and <code>pointer-events</code> are
+                        inherited CSS properties, applying a utility class to a parent element
+                        automatically cascades the value to all descendants. A child may override
+                        the inherited value by applying the corresponding <code>-auto</code> class.
+                      </p>
+                    </section>
+                    <!--/Section: API Introduction-->
+
+                    <!--Section: API CSS Classes-->
+                    <section id="api-section-css-classes">
+                      <h4 class="mb-4">CSS classes</h4>
+                      <p>
+                        The following classes control text selection and pointer interaction
+                        behaviour. All classes are defined in
+                        <code>css/core/interactions.css</code> and require no JavaScript.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped" aria-label="CSS classes">
+                          <thead>
+                            <tr>
+                              <th scope="col">Class</th>
+                              <th scope="col">CSS property</th>
+                              <th scope="col">Value</th>
+                              <th scope="col">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>.user-select-all</code></td>
+                              <td><code>user-select</code></td>
+                              <td><code>all</code></td>
+                              <td>
+                                Selects the element's entire text content in a single click.
+                                Use for copy-friendly targets such as API keys, terminal
+                                commands, or shareable URLs.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.user-select-auto</code></td>
+                              <td><code>user-select</code></td>
+                              <td><code>auto</code></td>
+                              <td>
+                                Restores the browser's default text-selection behaviour,
+                                inheriting from the parent. Use to opt a child element back in
+                                when its parent has <code>.user-select-none</code>.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.user-select-none</code></td>
+                              <td><code>user-select</code></td>
+                              <td><code>none</code></td>
+                              <td>
+                                Prevents the element's text from being selected. Apply to UI
+                                chrome such as button labels, icon labels, and drag-handle
+                                regions where accidental text selection degrades usability.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.pe-none</code></td>
+                              <td><code>pointer-events</code></td>
+                              <td><code>none</code></td>
+                              <td>
+                                Disables all pointer interactions — mouse clicks, touch taps,
+                                and stylus input. Inherited by descendants; a child can
+                                override with <code>.pe-auto</code>.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.pe-auto</code></td>
+                              <td><code>pointer-events</code></td>
+                              <td><code>auto</code></td>
+                              <td>
+                                Restores the element's default pointer-events behaviour.
+                                Use on a child to re-enable clicks inside a
+                                <code>.pe-none</code> parent.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: API CSS Classes-->
+
+                    <!--Section: API Accessibility-->
+                    <section id="api-section-accessibility">
+                      <h4 class="mb-4">Accessibility</h4>
+                      <p>
+                        <code>.pe-none</code> only suppresses pointer input — it does not remove
+                        an element from the keyboard focus order or hide it from assistive
+                        technologies. An element with <code>.pe-none</code> remains reachable via
+                        <kbd>Tab</kbd> and fully actionable via <kbd>Enter</kbd> or
+                        <kbd>Space</kbd>. To completely neutralise an element for all users,
+                        combine pointer-events suppression with the following:
+                      </p>
+                      <ul>
+                        <li>
+                          Add <code>tabindex="-1"</code> to remove the element from the keyboard
+                          focus order.
+                        </li>
+                        <li>
+                          Add <code>aria-disabled="true"</code> to convey the disabled state to
+                          screen readers.
+                        </li>
+                        <li>
+                          For form controls, use the native <code>disabled</code> HTML attribute
+                          instead — it handles focus removal, ARIA state, and pointer suppression
+                          in a single step.
+                        </li>
+                        <li>
+                          For links, remove the <code>href</code> attribute to make the element a
+                          non-interactive placeholder anchor.
+                        </li>
+                      </ul>
+                      <p>
+                        <code>.user-select-none</code> has no direct impact for keyboard or
+                        screen-reader users. Avoid applying it to content that users legitimately
+                        need to copy, such as code snippets, error messages, or contact details.
+                      </p>
+                    </section>
+                    <!--/Section: API Accessibility-->
+
+                  </section>
+                  <!--/Section: API Documentation-->
+
+                </section>
+                <!--/Section: Docs content-->
+              </div>
+              <!-- ./Main column -->
+
+              <!-- Right Sidebar (20 %) — hidden below lg breakpoint.
+                   Sticky attributes (processed by nimbus.js):
+                     data-cnds-sticky="true"           : activates sticky positioning
+                     data-cnds-sticky-boundary="true"  : constrains sticky to its parent container
+                     data-cnds-sticky-direction="both" : sticks when scrolling up OR down
+                     data-cnds-sticky-offset="56"      : clears the 56 px fixed header
+                     data-cnds-sticky-delay="125"      : debounce delay (ms) to reduce scroll jank
+                   data-cnds-allow-hashes="true" on the <ul>: nimbus.js watches the URL hash
+                     and highlights the matching nav-link as the user scrolls through sections. -->
+              <div class="col-lg-2 d-none d-lg-block">
+                <div class="sticky-top" style="top: 100px; z-index: 1">
+                  <nav aria-label="Page sections">
+                    <ul class="nav flex-column nav-pills menu-sidebar" id="rightNav" data-cnds-allow-hashes="true">
+                      <li class="nav-item"><a class="nav-link" href="#section-introduction">Introduction</a></li>
+                      <li class="nav-item"><a class="nav-link" href="#section-text-selection">Text selection</a></li>
+                      <li class="nav-item"><a class="nav-link" href="#section-pointer-events">Pointer events</a></li>
+                      <li class="nav-item"><a class="nav-link" href="#section-api-docs">API Documentation</a></li>
+                      <li class="nav-item ms-3"><a class="nav-link" href="#api-section-introduction">Introduction</a></li>
+                      <li class="nav-item ms-3"><a class="nav-link" href="#api-section-css-classes">CSS classes</a></li>
+                      <li class="nav-item ms-3"><a class="nav-link" href="#api-section-accessibility">Accessibility</a></li>
+                    </ul>
+                  </nav>
+                </div>
+              </div>
+              <!-- ./Right Sidebar -->
+
+            </div>
+            <!-- ./Content Row -->
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- ./Content -->
+
+    <!-- Footer -->
+    <div class="cf-footer cf-footer-app">
+      <footer class="page-footer main-footer" aria-label="Site footer">
+        <div class="w-100 px-3 d-flex align-items-center">
+          <img src="img/cf/core/cloudficient_logo_light.svg" class="cf-logo-light" style="width: 135px;" alt="Cloudficient" />
+          <img src="img/cf/core/cloudficient_logo_dark.svg" class="cf-logo-dark" style="width: 135px;" alt="Cloudficient" />
+          <span class="footer-copyright ms-auto">&copy; <span id="currentYear"></span> Cloudficient</span>
+        </div>
+      </footer>
+    </div>
+    <!-- ./Footer -->
+
+    <!-- Scripts — load order matters:
+         1. nimbus.js       — core framework: processes all data-cnds-* attributes (theme, sticky, sidenav, tooltips…)
+         2. app.js          — application-level overrides and custom initialisation
+         3. prism.min.js    — syntax highlighting for <code class="language-*"> blocks; must run after DOM is ready
+         4. sidenav-loader.js — fetches shared sidenav HTML and injects it into #sidebar-cf -->
+    <script src="js/nimbus.js?v=9.0.4"></script>
+    <script src="js/app.js?v=9.0.4"></script>
+    <script src="plugins/js/prism.min.js"></script>
+    <script src="js/sidenav-loader.js"></script>
+
+    <!-- Inline: populate the footer copyright year dynamically so the page never needs a manual update -->
+    <script>
+      var currentYearElement = document.getElementById("currentYear");
+      if (currentYearElement) {
+        currentYearElement.textContent = new Date().getFullYear();
+      }
+    </script>
+  </body>
+</html>

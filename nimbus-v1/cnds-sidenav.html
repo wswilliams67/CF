@@ -1,0 +1,2296 @@
+<!--
+* CNDS Nimbus Design System — Sidenav
+* Version: 1.0.0
+* Layout: Application with SideNav (migrated from Nimbus v8 template)
+* NOTES
+- Pure HTML5, CSS3, vanilla JavaScript — zero external dependencies
+- Uses data-cnds-* attributes (replaces data-mdb-*)
+- Uses Nimbus.* namespace (replaces mdb.*)
+- Default product theme: CaseFusion (cnds-product-casefusion on <body>; change to cnds-product-hyperlize or cnds-product-expireon)
+-->
+<!doctype html>
+<!-- data-cnds-theme: sets the initial theme ("light" | "dark"). nimbus.js syncs this attribute when the user toggles. -->
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta
+      name="description"
+      content="Sidenav | Cloudficient Nimbus Design System v1.0.0"
+    />
+    <title>Sidenav | CNDS v1.0.0 | Cloudficient Nimbus Design System</title>
+    <!-- Nimbus CSS -->
+    <link rel="stylesheet" href="css/nimbus.css" media="all" type="text/css" />
+    <!-- Custom styles | All custom classes/styles/overrides go here! -->
+    <link rel="stylesheet" href="css/app.css" media="all" type="text/css" />
+    <!-- Prism syntax highlighting -->
+    <link
+      rel="stylesheet"
+      href="plugins/css/prism.min.css"
+      media="all"
+      type="text/css"
+    />
+    <!-- Favicons -->
+    <link
+      rel="apple-touch-icon"
+      sizes="57x57"
+      href="img/favicon/apple-icon-57x57.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="60x60"
+      href="img/favicon/apple-icon-60x60.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="72x72"
+      href="img/favicon/apple-icon-72x72.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="76x76"
+      href="img/favicon/apple-icon-76x76.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="114x114"
+      href="img/favicon/apple-icon-114x114.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="120x120"
+      href="img/favicon/apple-icon-120x120.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="144x144"
+      href="img/favicon/apple-icon-144x144.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="152x152"
+      href="img/favicon/apple-icon-152x152.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="img/favicon/apple-icon-180x180.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="192x192"
+      href="img/favicon/android-icon-192x192.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="img/favicon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="96x96"
+      href="img/favicon/favicon-96x96.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="img/favicon/favicon-16x16.png"
+    />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta
+      name="msapplication-TileImage"
+      content="img/favicon/ms-icon-144x144.png"
+    />
+    <!-- ./Favicons -->
+    <!-- Design tokens — load order matters:
+         1. primitives.css  — raw color/spacing values (no theming)
+         2. light.css       — semantic tokens for [data-cnds-theme="light"] / :root
+         3. dark.css        — semantic token overrides for [data-cnds-theme="dark"]
+         All three must appear AFTER nimbus.css so component variables resolve correctly. -->
+    <link rel="stylesheet" href="css/themes/primitives.css" />
+    <link rel="stylesheet" href="css/themes/light.css" />
+    <link rel="stylesheet" href="css/themes/dark.css" />
+  </head>
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 Bypass Blocks; renders visually hidden until focused -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+    <!-- Header -->
+    <div class="sticky-top">
+      <!-- Utility Navigation -->
+      <nav id="UtilityNav" class="nav nav-cf-utility">
+        <div class="w-100 gx-3 px-sm-0 px-lg-3">
+          <ul class="nav nav-cf-utility-ul"></ul>
+        </div>
+      </nav>
+      <!-- ./Utility Navigation -->
+      <!-- Main Navigation -->
+      <nav id="MainNav" class="navbar navbar-expand-xl navbar-cf">
+        <div class="container-fluid p-0 px-3 d-flex">
+          <div class="d-flex flex-fill align-items-center text-truncate">
+            <div class="text-center d-none d-md-block me-3 border-end">
+              <a href="index.html"
+                ><img src="img/cf/core/logo_nimbus.png" class="me-3 mt-n1"
+              alt="Cloudficient Nimbus Design System" /></a>
+            </div>
+            <div class="flex-fill text-truncate">
+              <div class="navbar-cf-title-block">
+                <div
+                  class="navbar-cf-title cf-page-title text-truncate"
+                  style="padding-bottom: 0"
+                >
+                  <span class="cf-page-title-text cf-page-title-brand">v1</span
+                  ><span class="cf-page-title-divider"></span
+                  ><span class="cf-page-title-text">Sidenav</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- data-cnds-toggle="theme": wired by nimbus.js — flips data-cnds-theme on <html> between "light" and "dark" -->
+          <button
+            class="btn btn-sm btn-outline-secondary ms-2"
+            data-cnds-toggle="theme"
+            aria-label="Toggle theme"
+            title="Toggle theme"
+          >
+            <i class="mdi mdi-weather-night mdi-18px" aria-hidden="true"></i>
+          </button>
+        </div>
+      </nav>
+      <!-- ./Main Navigation -->
+    </div>
+    <!-- ./Header -->
+    <!-- Content -->
+    <main id="main-content" class="cf-main-app">
+      <!-- Mobile viewport warning -->
+      <div class="d-block d-md-none p-4">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>This application is not
+          optimized for small screens. Please use a large tablet, laptop, or
+          desktop computer to continue.
+        </div>
+      </div>
+      <div class="d-none d-md-block">
+        <!-- Sidenav — markup is intentionally empty; sidenav-loader.js fetches and injects the shared nav HTML.
+             data-cnds-mode="side"           : renders as a persistent side panel (not an overlay/drawer)
+             data-cnds-slim / slim-collapsed : controls compact/icon-only collapsed state
+             data-cnds-content="#slim-content": the sibling panel that shrinks/expands as the nav opens/closes
+             data-cnds-accordion="true"      : collapses other open nav groups when a new one is expanded -->
+        <nav
+          id="sidebar-cf"
+          class="sidenav"
+          data-cnds-mode="side"
+          data-cnds-slim="false"
+          data-cnds-slim-collapsed="false"
+          data-cnds-content="#slim-content"
+          data-cnds-accordion="true"
+        ></nav>
+        <div id="slim-content">
+          <div class="slim-content-box">
+            <!-- Content Row -->
+            <div class="row">
+              <!-- Main column — 80 % of the row width; the remaining 20 % is the right sidebar.
+                   The inline flex overrides are intentional: they pin the ratio regardless of Bootstrap's
+                   grid breakpoints so the sidebar never wraps on large viewports. -->
+              <div class="col-12 col-lg" style="flex: 0 0 80%; max-width: 80%">
+                <!--Section: Docs content-->
+                <section class="container-fluid">
+
+                  <!--Section: Introduction-->
+                  <section id="section-introduction">
+
+                    <!-- Description -->
+                    <p class="mb-4">
+                      The Sidenav provides persistent, structured navigation for the main sections and pages of an application. It supports three display modes — <strong>overlay</strong> (slides over content), <strong>push</strong> (shifts content aside), and <strong>side</strong> (fixed alongside content) — and can be collapsed to a slim icon-only ribbon to reclaim horizontal space. Categories expand and collapse in accordion style so users can focus on the active section without the nav becoming crowded.
+                    </p>
+
+                    <p class="mb-4">
+                      Product themes (CaseFusion, Hyperlize, ExpireOn) supply the active highlight color. The component derives all other colors from CNDS semantic tokens and automatically adapts to light and dark themes without any additional configuration.
+                    </p>
+
+                    <p class="note note-light">
+                      <strong>Note:</strong> Read the
+                      <a href="#api-section-introduction">API Documentation</a> to find all available options, data attributes, CSS custom properties, and JavaScript instance methods.
+                    </p>
+
+                    <p class="note note-info"><strong class="note-label">Note:</strong> To preview components in different themes, click the theme toggle button <i class="mdi mdi-weather-night" aria-hidden="true"></i> / <i class="mdi mdi-weather-sunny" aria-hidden="true"></i> in the header navigation bar.</p>
+                  </section>
+                  <!--/Section: Introduction-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Basic example-->
+                  <section id="section-basic-example">
+                    <!-- Section title -->
+                    <h3 class="mb-4">Basic example</h3>
+
+                    <p>
+                      The demo below shows the Sidenav in its two width states. Click the hamburger button to toggle between the full-width and slim (icon-only) modes. In slim mode the nav collapses to show only icons, with labels appearing as tooltips on hover. Clicking a nav item marks it as active with a product-themed highlight and a left accent bar; when a child item is active, its parent category inherits a lighter highlight without the accent bar. Use the product switcher to preview the active-state color scheme for each Cloudficient product.
+                    </p>
+
+                    <p>
+                      The Nimbus application template ships with a working Sidenav implementation. Add your navigation structure following the naming conventions in the next section, then set the two initialization variables described in the Initialization section to automatically mark the correct page and category on load.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <style>
+                        /* Outer demo shell: secondary-bg is light gray in light mode, dark in dark mode */
+                        .cnds-demo-outer { background-color: var(--cnds-secondary-bg); }
+                        /* Sidenav floating wrapper — owns the border-radius, shadow, and overflow clip */
+                        .cnds-demo-nav-wrap {
+                          flex-shrink: 0;
+                          display: flex;
+                          flex-direction: column;
+                          border-radius: 12px;
+                          overflow: hidden;
+                          box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+                        }
+                        [data-cnds-theme="dark"] .cnds-demo-nav-wrap {
+                          box-shadow: 0 4px 24px rgba(0, 0, 0, 0.55);
+                        }
+                        /* Scoped to .cnds-demo-box — position/size only; colors come from base sidenav.css vars */
+                        .cnds-demo-box .sidenav {
+                          position: relative;
+                          top: auto;
+                          left: auto;
+                          height: 100%; /* override base height:100vh — fill the wrapper, not the viewport */
+                          transform: none;
+                          z-index: 1;
+                          box-shadow: none;
+                          transition: width 0.3s ease-in-out;
+                          /* Figma light theme sidenav bg = surface-light-200 (#ebebeb), not white */
+                          --cnds-sidenav-bg: var(--cnds-surface-light-200, #ebebeb);
+                        }
+                        [data-cnds-theme="dark"] .cnds-demo-box .sidenav {
+                          --cnds-sidenav-bg: var(--cnds-surface-dark-500, #1e1e1e);
+                        }
+                        .cnds-demo-box .sidenav .sidenav-link {
+                          text-decoration: none;
+                          white-space: nowrap;
+                        }
+                        /* Labels fade in with a delay on expand */
+                        .cnds-demo-box .sidenav .sidenav-link span:not(.sidenav-chevron) {
+                          opacity: 1;
+                          transition: opacity 0.2s ease-in 0.12s;
+                        }
+                        /* Chevrons: fade + rotate */
+                        .cnds-demo-box .sidenav .sidenav-chevron {
+                          opacity: 1;
+                          transition: opacity 0.2s ease-in 0.12s, transform 0.3s ease;
+                        }
+                        /* Active: accent bar + product highlight bg */
+                        .cnds-demo-box .sidenav .sidenav-link.active {
+                          box-shadow: inset 3px 0 0 var(--demo-nav-accent);
+                          background-color: var(--demo-nav-hover-bg);
+                          color: var(--demo-nav-hover-color);
+                          font-weight: 500;
+                        }
+                        [data-cnds-theme="dark"] .cnds-demo-box .sidenav .sidenav-link.active {
+                          background-color: var(--demo-nav-hover-bg);
+                          color: var(--demo-nav-hover-color);
+                        }
+                        /* Hover (non-active): neutral gray bg */
+                        .cnds-demo-box .sidenav .sidenav-link:hover {
+                          background-color: rgba(0, 0, 0, 0.05);
+                          color: var(--cnds-sidenav-color);
+                        }
+                        [data-cnds-theme="dark"] .cnds-demo-box .sidenav .sidenav-link:hover {
+                          background-color: rgba(255, 255, 255, 0.06);
+                          color: var(--cnds-sidenav-color);
+                        }
+                        /* Active + hovered: keep product bg, not gray — hover ties .active in specificity
+                           and wins by source order, so this (0,5,0) rule locks the product bg */
+                        .cnds-demo-box .sidenav .sidenav-link.active:hover {
+                          background-color: var(--demo-nav-hover-bg);
+                          color: var(--demo-nav-hover-color);
+                        }
+                        [data-cnds-theme="dark"] .cnds-demo-box .sidenav .sidenav-link.active:hover {
+                          background-color: var(--demo-nav-hover-bg);
+                          color: var(--demo-nav-hover-color);
+                        }
+                        /* Category toggle with active child — product highlight, no accent bar (0,5,0) */
+                        .cnds-demo-box .sidenav .sidenav-link[data-cnds-toggle="sidenav-collapse"].active {
+                          background-color: var(--demo-nav-hover-bg);
+                          color: var(--demo-nav-hover-color);
+                          box-shadow: none;
+                        }
+                        [data-cnds-theme="dark"] .cnds-demo-box .sidenav .sidenav-link[data-cnds-toggle="sidenav-collapse"].active {
+                          background-color: var(--demo-nav-hover-bg);
+                          color: var(--demo-nav-hover-color);
+                          box-shadow: none;
+                        }
+                        /* sidebar-header: app.css sets body-bg; pin to sidenav-bg so it matches in both themes */
+                        .cnds-demo-box .sidenav .sidebar-header {
+                          background-color: var(--cnds-sidenav-bg);
+                        }
+                        /* Reset Bootstrap .btn styles; match production #sidebar-cf .navbar-btn */
+                        .cnds-demo-box .sidenav .btn.navbar-btn {
+                          border: none;
+                          box-shadow: none;
+                          background: transparent;
+                          color: var(--cnds-sidenav-color);
+                          cursor: pointer;
+                          width: 100%;
+                          justify-content: flex-start;
+                          min-width: auto;
+                          padding-left: calc(1.5rem + 2px);
+                          border-radius: 0;
+                        }
+                        .cnds-demo-box .sidenav .btn.navbar-btn:hover {
+                          background-color: transparent;
+                        }
+                        .cnds-demo-box .sidenav .btn.navbar-btn:focus,
+                        .cnds-demo-box .sidenav .btn.navbar-btn:focus-visible {
+                          outline: none;
+                          box-shadow: none;
+                        }
+                        .cnds-demo-box .sidenav .btn.navbar-btn .mdi {
+                          display: inline-block;
+                          width: 1.5rem;
+                          text-align: center;
+                          flex-shrink: 0;
+                        }
+                        /* Slim mode — shrink width only; cancel base sidenav-slim layout changes */
+                        .cnds-demo-box .sidenav.sidenav-slim {
+                          --cnds-sidenav-width: 70px;
+                        }
+                        /* Slim mode: fade out labels only; chevrons stay visible so category items are identifiable */
+                        .cnds-demo-box .sidenav.sidenav-slim .sidenav-link span:not(.sidenav-chevron) {
+                          display: inline;
+                          opacity: 0;
+                          width: 0;
+                          overflow: hidden;
+                          transition: opacity 0.15s ease-in;
+                        }
+                        /* All chevrons point down in slim — reset any open-category rotation */
+                        .cnds-demo-box .sidenav.sidenav-slim .sidenav-link[data-cnds-toggle="sidenav-collapse"] .sidenav-chevron {
+                          transform: translateY(-50%) rotate(0deg);
+                        }
+                        .cnds-demo-box .sidenav.sidenav-slim .sidenav-link {
+                          justify-content: flex-start;
+                        }
+                        .cnds-demo-box .sidenav.sidenav-slim .sidenav-link i,
+                        .cnds-demo-box .sidenav.sidenav-slim .sidenav-link .mdi {
+                          margin-right: 0 !important;
+                        }
+                        .cnds-demo-box .sidenav.sidenav-slim .sidenav-chevron {
+                          margin-right: 0;
+                        }
+                        .cnds-demo-box .sidenav.sidenav-slim .sidenav-collapse {
+                          display: none !important;
+                        }
+                        /* Child items: compact font, 36px height — matches production */
+                        .cnds-demo-box .sidenav .sidenav-collapse .sidenav-link {
+                          font-size: 0.78rem;
+                          height: 2.25rem;
+                          padding-left: 3.4rem;
+                        }
+                        /* Content area: tertiary-bg is #f8f9fa light / #4a4a4a dark */
+                        .cnds-demo-content {
+                          flex: 1;
+                          min-width: 0;
+                          overflow-y: auto;
+                          padding: 1.5rem 2rem;
+                          background-color: var(--cnds-tertiary-bg);
+                          color: var(--cnds-body-color);
+                          border-radius: 12px;
+                        }
+                        .cnds-demo-skel {
+                          height: 11px;
+                          border-radius: 4px;
+                          margin-bottom: 10px;
+                          background-color: rgba(0, 0, 0, 0.07);
+                        }
+                        [data-cnds-theme="dark"] .cnds-demo-skel {
+                          background-color: rgba(255, 255, 255, 0.08);
+                        }
+                        /* Product variables — light defaults (from Figma node 825-11292) */
+                        #demo-sidebar.sidenav-product-casefusion {
+                          --demo-nav-accent:      #2e892a;
+                          --demo-nav-hover-bg:    #beebbd;
+                          --demo-nav-hover-color: #1d5a1d;
+                        }
+                        #demo-sidebar.sidenav-product-hyperlize {
+                          --demo-nav-accent:      #eeb00d;
+                          --demo-nav-hover-bg:    #f9cf6d;
+                          --demo-nav-hover-color: #614706;
+                        }
+                        #demo-sidebar.sidenav-product-expireon {
+                          --demo-nav-accent:      #3029b8;
+                          --demo-nav-hover-bg:    #b6b4ee;
+                          --demo-nav-hover-color: #241e89;
+                        }
+                        /* Product variables — dark overrides (from Figma node 4027-892) */
+                        [data-cnds-theme="dark"] #demo-sidebar.sidenav-product-casefusion {
+                          --demo-nav-accent:      #5ccb59;
+                          --demo-nav-hover-bg:    #1d5a1d;
+                          --demo-nav-hover-color: #7dd67a;
+                        }
+                        [data-cnds-theme="dark"] #demo-sidebar.sidenav-product-hyperlize {
+                          --demo-nav-accent:      #eeb00d;
+                          --demo-nav-hover-bg:    #5e4f03;
+                          --demo-nav-hover-color: #fae166;
+                        }
+                        [data-cnds-theme="dark"] #demo-sidebar.sidenav-product-expireon {
+                          --demo-nav-accent:      #938ee6;
+                          --demo-nav-hover-bg:    #241e89;
+                          --demo-nav-hover-color: #b6b4ee;
+                        }
+                        /* Product selector pill buttons */
+                        .cnds-product-btn {
+                          display: inline-flex;
+                          align-items: center;
+                          gap: 6px;
+                          padding: 4px 14px;
+                          border-radius: 100px;
+                          border: 1px solid transparent;
+                          background: transparent;
+                          font-size: 0.8125rem;
+                          font-weight: 500;
+                          cursor: pointer;
+                          transition: all 0.15s ease;
+                          color: inherit;
+                          opacity: 0.5;
+                        }
+                        .cnds-product-btn .product-dot {
+                          width: 8px;
+                          height: 8px;
+                          border-radius: 50%;
+                          flex-shrink: 0;
+                        }
+                        .cnds-product-btn[data-product="casefusion"] .product-dot { background: #5ccc59; }
+                        .cnds-product-btn[data-product="hyperlize"]  .product-dot { background: #eeb00d; }
+                        .cnds-product-btn[data-product="expireon"]   .product-dot { background: #4e45d6; }
+                        .cnds-product-btn.active { opacity: 1; }
+                        .cnds-product-btn[data-product="casefusion"].active { color: #5ccc59; border-color: #5ccc59; }
+                        .cnds-product-btn[data-product="hyperlize"].active  { color: #eeb00d; border-color: #eeb00d; }
+                        .cnds-product-btn[data-product="expireon"].active   { color: #4e45d6; border-color: #4e45d6; }
+                      </style>
+
+                      <!-- Product selector -->
+                      <div class="d-flex align-items-center gap-2 mb-3">
+                        <span class="small opacity-50 me-1">Product:</span>
+                        <button class="cnds-product-btn active" data-product="casefusion">
+                          <span class="product-dot"></span>CaseFusion
+                        </button>
+                        <button class="cnds-product-btn" data-product="hyperlize">
+                          <span class="product-dot"></span>Hyperlize
+                        </button>
+                        <button class="cnds-product-btn" data-product="expireon">
+                          <span class="product-dot"></span>ExpireOn
+                        </button>
+                      </div>
+
+                      <div class="border rounded-5 overflow-hidden cnds-demo-outer">
+                        <div class="cnds-demo-box" style="display: flex; align-items: stretch; height: 380px; padding: 16px; gap: 16px;">
+                          <!-- Sidenav in its own floating container — 16px gap from parent on all sides -->
+                          <div class="cnds-demo-nav-wrap">
+                          <nav id="demo-sidebar" class="sidenav show sidenav-product-casefusion" aria-label="Application navigation">
+                            <div class="sidebar-header">
+                              <button
+                                type="button"
+                                id="demo-slim-toggler"
+                                class="btn navbar-btn py-3"
+                                aria-label="Toggle slim mode"
+                              >
+                                <span class="mdi mdi-menu-open mdi-18px"></span>
+                              </button>
+                            </div>
+                            <ul class="sidenav-menu">
+                              <li class="sidenav-item" data-original-title="Dashboard">
+                                <a id="demo-navlink-Dashboard" class="sidenav-link ps-4 active" href="#" aria-current="page">
+                                  <i class="mdi mdi-home mdi-18px me-2" aria-hidden="true"></i>
+                                  <span>Dashboard</span>
+                                </a>
+                              </li>
+                              <li class="sidenav-item" data-original-title="Cases">
+                                <a id="demo-navlink-Cases" class="sidenav-link ps-4" href="#">
+                                  <i class="mdi mdi-briefcase mdi-18px me-2" aria-hidden="true"></i>
+                                  <span>Cases</span>
+                                </a>
+                              </li>
+                              <li class="sidenav-item" data-original-title="Reports">
+                                <a id="demo-navlink-Reports" class="sidenav-link ps-4" href="#">
+                                  <i class="mdi mdi-chart-bar mdi-18px me-2" aria-hidden="true"></i>
+                                  <span>Reports</span>
+                                </a>
+                              </li>
+                              <li class="sidenav-item" data-original-title="Settings">
+                                <a id="demo-navlink-Settings" class="sidenav-link ps-4" href="#">
+                                  <i class="mdi mdi-cog mdi-18px me-2" aria-hidden="true"></i>
+                                  <span>Settings</span>
+                                </a>
+                              </li>
+                              <li class="sidenav-item" data-original-title="Help">
+                                <a id="demo-navlink-Help" class="sidenav-link ps-4" href="#">
+                                  <i class="mdi mdi-help-circle-outline mdi-18px me-2" aria-hidden="true"></i>
+                                  <span>Help</span>
+                                </a>
+                              </li>
+                            </ul>
+                            <div class="pb-3"></div>
+                          </nav>
+                          </div><!-- /cnds-demo-nav-wrap -->
+                          <!-- Demo Content Area -->
+                          <div class="cnds-demo-content">
+                            <p class="mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.7;">Current page</p>
+                            <p id="demo-active-label" class="fw-semibold mb-4" style="font-size: 1rem;">Dashboard</p>
+                            <div class="cnds-demo-skel" style="width: 60%;"></div>
+                            <div class="cnds-demo-skel" style="width: 82%;"></div>
+                            <div class="cnds-demo-skel" style="width: 48%;"></div>
+                            <div class="cnds-demo-skel mt-4" style="width: 35%;"></div>
+                            <div class="cnds-demo-skel" style="width: 70%;"></div>
+                            <div class="cnds-demo-skel" style="width: 55%;"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+                    <script>
+                    (function () {
+                      var sidebar    = document.getElementById('demo-sidebar');
+                      var toggler    = document.getElementById('demo-slim-toggler');
+                      var activeLabel = document.getElementById('demo-active-label');
+                      var links      = sidebar.querySelectorAll('.sidenav-link');
+                      var productBtns = document.querySelectorAll('.cnds-product-btn');
+                      var productClasses = ['sidenav-product-casefusion', 'sidenav-product-hyperlize', 'sidenav-product-expireon'];
+
+                      /* Slim mode toggle */
+                      toggler.addEventListener('click', function () {
+                        var goingSlim = !sidebar.classList.contains('sidenav-slim');
+                        sidebar.classList.toggle('sidenav-slim');
+                        var icon = toggler.querySelector('span');
+                        icon.className = goingSlim
+                          ? 'mdi mdi-menu-close mdi-18px'
+                          : 'mdi mdi-menu-open mdi-18px';
+                        if (goingSlim) { initSlimTooltips(); } else { disposeSlimTooltips(); }
+                      });
+
+                      /* Nav link selection */
+                      links.forEach(function (link) {
+                        link.addEventListener('click', function (e) {
+                          e.preventDefault();
+                          links.forEach(function (l) {
+                            l.classList.remove('active');
+                            l.removeAttribute('aria-current');
+                          });
+                          link.classList.add('active');
+                          link.setAttribute('aria-current', 'page');
+                          var span = link.querySelector('span');
+                          if (span && activeLabel) {
+                            activeLabel.textContent = span.textContent.trim();
+                          }
+                        });
+                      });
+
+                      /* Product switcher */
+                      productBtns.forEach(function (btn) {
+                        btn.addEventListener('click', function () {
+                          productBtns.forEach(function (b) { b.classList.remove('active'); });
+                          btn.classList.add('active');
+                          var product = btn.getAttribute('data-product');
+                          productClasses.forEach(function (cls) { sidebar.classList.remove(cls); });
+                          sidebar.classList.add('sidenav-product-' + product);
+                        });
+                      });
+
+                      function initSlimTooltips() {
+                        if (!window.Nimbus || !window.Nimbus.Tooltip) return;
+                        var links = sidebar.querySelectorAll('.sidenav-link');
+                        for (var i = 0; i < links.length; i++) {
+                          var link = links[i];
+                          var span = link.querySelector('span');
+                          var label = span ? span.textContent.trim() : '';
+                          if (!label) continue;
+                          if (!link.getAttribute('data-cnds-original-title')) {
+                            link.setAttribute('title', label);
+                          }
+                          window.Nimbus.Tooltip.getOrCreateInstance(link, {
+                            placement: 'right',
+                            trigger: 'hover',
+                            offset: [0, 12]
+                          });
+                        }
+                      }
+
+                      function disposeSlimTooltips() {
+                        if (!window.Nimbus || !window.Nimbus.Tooltip) return;
+                        var links = sidebar.querySelectorAll('.sidenav-link');
+                        for (var i = 0; i < links.length; i++) {
+                          var instance = window.Nimbus.Tooltip.getInstance(links[i]);
+                          if (instance) instance.dispose();
+                          links[i].removeAttribute('title');
+                        }
+                      }
+                    }());
+                    </script>
+<!-- Angular: Declare <cnds-sidenav> in your AppComponent template and bind [mode]="sidenavMode" (one of 'side' | 'push' | 'overlay') and [slim]="isSlim" to toggle the icon-only ribbon.
+     Example: <cnds-sidenav [mode]="'side'" [slim]="isSlim" [accordion]="true" [productTheme]="productTheme" [activeItem]="currentRoute" (slimChange)="isSlim=$event"></cnds-sidenav>
+     Store slim state and the active route in a shared LayoutService so every component that needs to react to nav width changes can subscribe to the same observable. -->
+                  </section>
+                  <!--/Section: Basic example-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Naming Navigation Items-->
+                  <section id="section-namimg">
+                    <!-- Section title -->
+                    <h3 class="mb-4">Naming Navigation Items</h3>
+
+                    <p>
+                      Correct naming of Sidenav elements is required for the component's JavaScript to automatically mark the active page and expand the correct category on load. The structure is a nested unordered list: top-level items are either direct navigation links or expandable category toggles that contain a child list.
+                    </p>
+
+                    <p>
+                      Three attributes on each element must follow a strict naming convention: the <code>title</code>, <code>data-original-title</code>, and <code>id</code> attributes must all share the same unique identifier value. This is how the initialization script knows which item and category to highlight when the page loads.
+                    </p>
+
+                    <h4 class="mt-5">Main Nav Container</h4>
+                    <p>
+                      The <code>nav</code> element is pre-configured with the <code>id</code>, <code>class</code>, and <code>data-cnds-*</code> attributes the component requires. Copy it as-is from the application template. The <code>id</code> (<code>sidebar-cf</code>), the mode and accordion settings, and the content target (<code>data-cnds-content</code>) must not be changed — the initialization script and the slim-toggler depend on them.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <style>
+                        #demo2-sidebar.sidenav-product-casefusion {
+                          --demo-nav-accent:      #2e892a;
+                          --demo-nav-hover-bg:    #beebbd;
+                          --demo-nav-hover-color: #1d5a1d;
+                        }
+                        [data-cnds-theme="dark"] #demo2-sidebar.sidenav-product-casefusion {
+                          --demo-nav-accent:      #5ccb59;
+                          --demo-nav-hover-bg:    #1d5a1d;
+                          --demo-nav-hover-color: #7dd67a;
+                        }
+                      </style>
+
+                      <div class="border rounded-5 overflow-hidden cnds-demo-outer">
+                        <div class="cnds-demo-box" style="display: flex; align-items: stretch; height: 380px; padding: 16px; gap: 16px;">
+                          <div class="cnds-demo-nav-wrap">
+                            <nav id="demo2-sidebar" class="sidenav show sidenav-product-casefusion" aria-label="Application navigation">
+                              <div class="sidebar-header">
+                                <button
+                                  type="button"
+                                  id="demo2-slim-toggler"
+                                  class="btn navbar-btn py-3"
+                                  aria-label="Toggle slim mode"
+                                >
+                                  <span class="mdi mdi-menu-open mdi-18px"></span>
+                                </button>
+                              </div>
+                              <ul class="sidenav-menu">
+                                <li class="sidenav-item" data-original-title="Dashboard">
+                                  <a id="demo2-navlink-Dashboard" class="sidenav-link ps-4 active" href="#" aria-current="page">
+                                    <i class="mdi mdi-home mdi-18px me-2" aria-hidden="true"></i>
+                                    <span>Dashboard</span>
+                                  </a>
+                                </li>
+                                <li class="sidenav-item" data-original-title="Cases">
+                                  <a id="demo2-navlink-Cases" class="sidenav-link ps-4" href="#">
+                                    <i class="mdi mdi-briefcase mdi-18px me-2" aria-hidden="true"></i>
+                                    <span>Cases</span>
+                                  </a>
+                                </li>
+                                <li class="sidenav-item" data-original-title="Reports">
+                                  <a id="demo2-navlink-Reports" class="sidenav-link ps-4" href="#">
+                                    <i class="mdi mdi-chart-bar mdi-18px me-2" aria-hidden="true"></i>
+                                    <span>Reports</span>
+                                  </a>
+                                </li>
+                                <li class="sidenav-item" data-original-title="Settings">
+                                  <a id="demo2-navlink-Settings" class="sidenav-link ps-4" href="#">
+                                    <i class="mdi mdi-cog mdi-18px me-2" aria-hidden="true"></i>
+                                    <span>Settings</span>
+                                  </a>
+                                </li>
+                                <li class="sidenav-item" data-original-title="Help">
+                                  <a id="demo2-navlink-Help" class="sidenav-link ps-4" href="#">
+                                    <i class="mdi mdi-help-circle-outline mdi-18px me-2" aria-hidden="true"></i>
+                                    <span>Help</span>
+                                  </a>
+                                </li>
+                              </ul>
+                              <div class="pb-3"></div>
+                            </nav>
+                          </div><!-- /cnds-demo-nav-wrap -->
+                          <div class="cnds-demo-content">
+                            <p class="mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.7;">Current page</p>
+                            <p id="demo2-active-label" class="fw-semibold mb-4" style="font-size: 1rem;">Dashboard</p>
+                            <div class="cnds-demo-skel" style="width: 60%;"></div>
+                            <div class="cnds-demo-skel" style="width: 82%;"></div>
+                            <div class="cnds-demo-skel" style="width: 48%;"></div>
+                            <div class="cnds-demo-skel mt-4" style="width: 35%;"></div>
+                            <div class="cnds-demo-skel" style="width: 70%;"></div>
+                            <div class="cnds-demo-skel" style="width: 55%;"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+                    <script>
+                    (function () {
+                      var sidebar     = document.getElementById('demo2-sidebar');
+                      var toggler     = document.getElementById('demo2-slim-toggler');
+                      var activeLabel = document.getElementById('demo2-active-label');
+                      var links       = sidebar.querySelectorAll('.sidenav-link');
+
+                      toggler.addEventListener('click', function () {
+                        var goingSlim = !sidebar.classList.contains('sidenav-slim');
+                        sidebar.classList.toggle('sidenav-slim');
+                        var icon = toggler.querySelector('span');
+                        icon.className = goingSlim
+                          ? 'mdi mdi-menu-close mdi-18px'
+                          : 'mdi mdi-menu-open mdi-18px';
+                        if (goingSlim) { initSlimTooltips(); } else { disposeSlimTooltips(); }
+                      });
+
+                      links.forEach(function (link) {
+                        link.addEventListener('click', function (e) {
+                          e.preventDefault();
+                          links.forEach(function (l) {
+                            l.classList.remove('active');
+                            l.removeAttribute('aria-current');
+                          });
+                          link.classList.add('active');
+                          link.setAttribute('aria-current', 'page');
+                          var span = link.querySelector('span');
+                          if (span && activeLabel) {
+                            activeLabel.textContent = span.textContent.trim();
+                          }
+                        });
+                      });
+
+                      function initSlimTooltips() {
+                        if (!window.Nimbus || !window.Nimbus.Tooltip) return;
+                        var links = sidebar.querySelectorAll('.sidenav-link');
+                        for (var i = 0; i < links.length; i++) {
+                          var link = links[i];
+                          var span = link.querySelector('span');
+                          var label = span ? span.textContent.trim() : '';
+                          if (!label) continue;
+                          if (!link.getAttribute('data-cnds-original-title')) {
+                            link.setAttribute('title', label);
+                          }
+                          window.Nimbus.Tooltip.getOrCreateInstance(link, {
+                            placement: 'right',
+                            trigger: 'hover',
+                            offset: [0, 12]
+                          });
+                        }
+                      }
+
+                      function disposeSlimTooltips() {
+                        if (!window.Nimbus || !window.Nimbus.Tooltip) return;
+                        var links = sidebar.querySelectorAll('.sidenav-link');
+                        for (var i = 0; i < links.length; i++) {
+                          var instance = window.Nimbus.Tooltip.getInstance(links[i]);
+                          if (instance) instance.dispose();
+                          links[i].removeAttribute('title');
+                        }
+                      }
+                    }());
+                    </script>
+<!-- Angular: Replace <nav id="sidebar-cf"> with <cnds-sidenav [mode]="'side'" [slim]="layoutService.isSlim$ | async" (slimChange)="layoutService.setSlim($event)" [accordion]="true"> from the Nimbus Angular library.
+     Example: <cnds-sidenav id="sidebar-cf" [mode]="'side'" [slim]="isSlim" [accordion]="true" [productTheme]="'casefusion'" [activeItem]="router.url" (slimChange)="isSlim=$event"></cnds-sidenav>
+     Slim state must be stored in a shared LayoutService so both the sidenav and the content area respond to the same value. -->
+
+                    <!--Section: Code-->
+                    <section>
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;nav id="sidebar-cf" class="sidenav" data-cnds-mode="side" data-cnds-slim="false" data-cnds-slim-collapsed="false" data-cnds-content="#slim-content" data-cnds-accordion="true"&gt;
+&lt;/nav&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                    <h4 class="mt-5">Top Level Items</h4>
+                    <p>
+                      The navigation menu is a <code>ul</code> with the class <code>sidenav-menu</code>. Each direct child <code>li</code> represents one top-level navigation item and carries the class <code>sidenav-item</code>.
+                    </p>
+                    <p>
+                      Each <code>li</code> must have both a <code>title</code> and a <code>data-original-title</code> attribute set to the <strong>same unique value</strong> — this value is the item's identifier and is used by the slim-mode tooltip and the initialization script.
+                    </p>
+                    <p>
+                      Inside each <code>li</code> is an anchor (<code>a</code>) with an <code>id</code> prefixed with <code>navlink_</code>. <b>This prefix must not be changed.</b> The portion after the prefix must exactly match the identifier used in that item's <code>title</code> and <code>data-original-title</code> attributes. Each identifier must be unique across the entire navigation.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <style>
+                        #demo3-sidebar.sidenav-product-casefusion {
+                          --demo-nav-accent:      #2e892a;
+                          --demo-nav-hover-bg:    #beebbd;
+                          --demo-nav-hover-color: #1d5a1d;
+                        }
+                        [data-cnds-theme="dark"] #demo3-sidebar.sidenav-product-casefusion {
+                          --demo-nav-accent:      #5ccb59;
+                          --demo-nav-hover-bg:    #1d5a1d;
+                          --demo-nav-hover-color: #7dd67a;
+                        }
+                      </style>
+
+                      <div class="border rounded-5 overflow-hidden cnds-demo-outer">
+                        <div class="cnds-demo-box" style="display: flex; align-items: stretch; height: 380px; padding: 16px; gap: 16px;">
+                          <div class="cnds-demo-nav-wrap">
+                            <nav id="demo3-sidebar" class="sidenav show sidenav-product-casefusion" aria-label="Application navigation">
+                              <div class="sidebar-header">
+                                <button
+                                  type="button"
+                                  id="demo3-slim-toggler"
+                                  class="btn navbar-btn py-3"
+                                  aria-label="Toggle slim mode"
+                                >
+                                  <span class="mdi mdi-menu-open mdi-18px"></span>
+                                </button>
+                              </div>
+                              <ul id="scroll-container-demo3" class="sidenav-menu">
+                                <li class="sidenav-item" data-original-title="Dashboard">
+                                  <a id="navlink_Dashboard" class="sidenav-link ps-4 active" href="#" aria-current="page">
+                                    <i class="mdi mdi-home mdi-18px me-2" aria-hidden="true"></i>
+                                    <span>Dashboard</span>
+                                  </a>
+                                </li>
+                                <li class="sidenav-item" data-original-title="Cases">
+                                  <a id="navlink_Cases" class="sidenav-link ps-4" href="#">
+                                    <i class="mdi mdi-briefcase mdi-18px me-2" aria-hidden="true"></i>
+                                    <span>Cases</span>
+                                  </a>
+                                </li>
+                                <li class="sidenav-item" data-original-title="Reports">
+                                  <a id="navlink_Reports" class="sidenav-link ps-4" href="#">
+                                    <i class="mdi mdi-chart-bar mdi-18px me-2" aria-hidden="true"></i>
+                                    <span>Reports</span>
+                                  </a>
+                                </li>
+                                <li class="sidenav-item" data-original-title="Settings">
+                                  <a id="navlink_Settings" class="sidenav-link ps-4" href="#">
+                                    <i class="mdi mdi-cog mdi-18px me-2" aria-hidden="true"></i>
+                                    <span>Settings</span>
+                                  </a>
+                                </li>
+                              </ul>
+                              <div class="pb-3"></div>
+                            </nav>
+                          </div><!-- /cnds-demo-nav-wrap -->
+                          <div class="cnds-demo-content">
+                            <p class="mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.7;">Current page</p>
+                            <p id="demo3-active-label" class="fw-semibold mb-4" style="font-size: 1rem;">Dashboard</p>
+                            <div class="cnds-demo-skel" style="width: 60%;"></div>
+                            <div class="cnds-demo-skel" style="width: 82%;"></div>
+                            <div class="cnds-demo-skel" style="width: 48%;"></div>
+                            <div class="cnds-demo-skel mt-4" style="width: 35%;"></div>
+                            <div class="cnds-demo-skel" style="width: 70%;"></div>
+                            <div class="cnds-demo-skel" style="width: 55%;"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+                    <script>
+                    (function () {
+                      var sidebar     = document.getElementById('demo3-sidebar');
+                      var toggler     = document.getElementById('demo3-slim-toggler');
+                      var activeLabel = document.getElementById('demo3-active-label');
+                      var links       = sidebar.querySelectorAll('.sidenav-link');
+
+                      toggler.addEventListener('click', function () {
+                        var goingSlim = !sidebar.classList.contains('sidenav-slim');
+                        sidebar.classList.toggle('sidenav-slim');
+                        var icon = toggler.querySelector('span');
+                        icon.className = goingSlim
+                          ? 'mdi mdi-menu-close mdi-18px'
+                          : 'mdi mdi-menu-open mdi-18px';
+                        if (goingSlim) { initSlimTooltips(); } else { disposeSlimTooltips(); }
+                      });
+
+                      links.forEach(function (link) {
+                        link.addEventListener('click', function (e) {
+                          e.preventDefault();
+                          links.forEach(function (l) {
+                            l.classList.remove('active');
+                            l.removeAttribute('aria-current');
+                          });
+                          link.classList.add('active');
+                          link.setAttribute('aria-current', 'page');
+                          var span = link.querySelector('span');
+                          if (span && activeLabel) {
+                            activeLabel.textContent = span.textContent.trim();
+                          }
+                        });
+                      });
+
+                      function initSlimTooltips() {
+                        if (!window.Nimbus || !window.Nimbus.Tooltip) return;
+                        var links = sidebar.querySelectorAll('.sidenav-link');
+                        for (var i = 0; i < links.length; i++) {
+                          var link = links[i];
+                          var span = link.querySelector('span');
+                          var label = span ? span.textContent.trim() : '';
+                          if (!label) continue;
+                          if (!link.getAttribute('data-cnds-original-title')) {
+                            link.setAttribute('title', label);
+                          }
+                          window.Nimbus.Tooltip.getOrCreateInstance(link, {
+                            placement: 'right',
+                            trigger: 'hover',
+                            offset: [0, 12]
+                          });
+                        }
+                      }
+
+                      function disposeSlimTooltips() {
+                        if (!window.Nimbus || !window.Nimbus.Tooltip) return;
+                        var links = sidebar.querySelectorAll('.sidenav-link');
+                        for (var i = 0; i < links.length; i++) {
+                          var instance = window.Nimbus.Tooltip.getInstance(links[i]);
+                          if (instance) instance.dispose();
+                          links[i].removeAttribute('title');
+                        }
+                      }
+                    }());
+                    </script>
+<!-- Angular: Define a navItems array in the component and use *ngFor to render <cnds-sidenav-item> directives; bind [active]="router.isActive(item.route, true)" — no manual .active class management needed.
+     Example: <cnds-sidenav-item *ngFor="let item of navItems" [id]="'navlink_' + item.id" [icon]="item.icon" [label]="item.label" [active]="router.isActive(item.route, true)" [routerLink]="item.route"></cnds-sidenav-item>
+     Angular handles all DOM interactions through change detection — remove all imperative classList manipulation. -->
+
+                    <!--Section: Code-->
+                    <section>
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;ul id="scroll-container" class="sidenav-menu"&gt;
+    &lt;li class="sidenav-item" title="Dashboard" data-original-title="Dashboard"&gt;
+        &lt;a id="navlink_Dashboard" class="sidenav-link ps-4" href="#"&gt;
+            &lt;i class="mdi mdi-home mdi-18px me-2"&gt;&lt;/i&gt;&lt;span&gt;Dashboard&lt;/span&gt;
+        &lt;/a&gt;
+    &lt;/li&gt;
+    &lt;li class="sidenav-item" title="Cases" data-original-title="Cases"&gt;
+        &lt;a id="navlink_Cases" class="sidenav-link ps-4" href="#"&gt;
+            &lt;i class="mdi mdi-briefcase mdi-18px me-2"&gt;&lt;/i&gt;&lt;span&gt;Cases&lt;/span&gt;
+        &lt;/a&gt;
+    &lt;/li&gt;
+    &lt;li class="sidenav-item" title="Reports" data-original-title="Reports"&gt;
+        &lt;a id="navlink_Reports" class="sidenav-link ps-4" href="#"&gt;
+            &lt;i class="mdi mdi-chart-bar mdi-18px me-2"&gt;&lt;/i&gt;&lt;span&gt;Reports&lt;/span&gt;
+        &lt;/a&gt;
+    &lt;/li&gt;
+&lt;/ul&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                    <h4 class="mt-5">Category Items</h4>
+                    <p>
+                      Categories group related navigation links under a collapsible heading. A category is not itself a navigation link — it is an accordion toggle that expands or collapses its child list. By default the Sidenav operates in accordion mode: opening one category automatically closes any other that is open.
+                    </p>
+                    <p>
+                      The <code>li</code> and its <code>title</code> / <code>data-original-title</code> attributes follow the same naming convention as top-level items. The key difference is the <code>id</code> prefix on the anchor: category toggles use <code>tog_submenu_</code> instead of <code>navlink_</code>. The anchor also requires <code>data-cnds-toggle="sidenav-collapse"</code> and an initial <code>aria-expanded</code> value. The sibling <code>ul</code> must carry the class <code>sidenav-collapse</code>.
+                    </p>
+                    <p>
+                      Child items inside the <code>sidenav-collapse</code> list follow exactly the same naming pattern as top-level items — each <code>li</code> has matching <code>title</code> and <code>data-original-title</code> values, and each anchor uses the <code>navlink_</code> prefix with the same identifier. All identifiers across the entire navigation must remain unique.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <style>
+                        #demo4-sidebar.sidenav-product-casefusion {
+                          --demo-nav-accent:      #2e892a;
+                          --demo-nav-hover-bg:    #beebbd;
+                          --demo-nav-hover-color: #1d5a1d;
+                        }
+                        [data-cnds-theme="dark"] #demo4-sidebar.sidenav-product-casefusion {
+                          --demo-nav-accent:      #5ccb59;
+                          --demo-nav-hover-bg:    #1d5a1d;
+                          --demo-nav-hover-color: #7dd67a;
+                        }
+                      </style>
+
+                      <div class="border rounded-5 overflow-hidden cnds-demo-outer">
+                        <div class="cnds-demo-box" style="display: flex; align-items: stretch; height: 420px; padding: 16px; gap: 16px;">
+                          <div class="cnds-demo-nav-wrap">
+                            <nav id="demo4-sidebar" class="sidenav show sidenav-product-casefusion" aria-label="Application navigation">
+                              <div class="sidebar-header">
+                                <button
+                                  type="button"
+                                  id="demo4-slim-toggler"
+                                  class="btn navbar-btn py-3"
+                                  aria-label="Toggle slim mode"
+                                >
+                                  <span class="mdi mdi-menu-open mdi-18px"></span>
+                                </button>
+                              </div>
+                              <ul id="scroll-container-demo4" class="sidenav-menu">
+                                <li class="sidenav-item" data-original-title="Dashboard">
+                                  <a id="navlink_d4_Dashboard" class="sidenav-link ps-4" href="#">
+                                    <i class="mdi mdi-home mdi-18px me-2" aria-hidden="true"></i>
+                                    <span>Dashboard</span>
+                                  </a>
+                                </li>
+                                <li class="sidenav-item" data-original-title="Cases">
+                                  <a id="tog_submenu_d4_Cases" class="sidenav-link ps-4 active" data-cnds-toggle="sidenav-collapse" aria-expanded="true">
+                                    <i class="mdi mdi-briefcase mdi-18px me-2" aria-hidden="true"></i>
+                                    <span>Cases</span>
+                                    <span class="mdi mdi-chevron-down sidenav-chevron" aria-hidden="true"></span>
+                                  </a>
+                                  <ul class="sidenav-collapse show">
+                                    <li class="sidenav-item" data-original-title="AllCases">
+                                      <a id="navlink_d4_AllCases" class="sidenav-link ps-4 active" href="#" aria-current="page">
+                                        <i class="mdi mdi-folder-open mdi-18px me-2" aria-hidden="true"></i>
+                                        <span>All Cases</span>
+                                      </a>
+                                    </li>
+                                    <li class="sidenav-item" data-original-title="ActiveCases">
+                                      <a id="navlink_d4_ActiveCases" class="sidenav-link ps-4" href="#">
+                                        <i class="mdi mdi-folder mdi-18px me-2" aria-hidden="true"></i>
+                                        <span>Active Cases</span>
+                                      </a>
+                                    </li>
+                                    <li class="sidenav-item" data-original-title="ClosedCases">
+                                      <a id="navlink_d4_ClosedCases" class="sidenav-link ps-4" href="#">
+                                        <i class="mdi mdi-folder-check mdi-18px me-2" aria-hidden="true"></i>
+                                        <span>Closed Cases</span>
+                                      </a>
+                                    </li>
+                                  </ul>
+                                </li>
+                                <li class="sidenav-item" data-original-title="Reports">
+                                  <a id="tog_submenu_d4_Reports" class="sidenav-link ps-4" data-cnds-toggle="sidenav-collapse" aria-expanded="false">
+                                    <i class="mdi mdi-chart-bar mdi-18px me-2" aria-hidden="true"></i>
+                                    <span>Reports</span>
+                                    <span class="mdi mdi-chevron-down sidenav-chevron" aria-hidden="true"></span>
+                                  </a>
+                                  <ul class="sidenav-collapse">
+                                    <li class="sidenav-item" data-original-title="Summary">
+                                      <a id="navlink_d4_Summary" class="sidenav-link ps-4" href="#">
+                                        <i class="mdi mdi-chart-pie mdi-18px me-2" aria-hidden="true"></i>
+                                        <span>Summary</span>
+                                      </a>
+                                    </li>
+                                    <li class="sidenav-item" data-original-title="Detailed">
+                                      <a id="navlink_d4_Detailed" class="sidenav-link ps-4" href="#">
+                                        <i class="mdi mdi-table mdi-18px me-2" aria-hidden="true"></i>
+                                        <span>Detailed</span>
+                                      </a>
+                                    </li>
+                                  </ul>
+                                </li>
+                                <li class="sidenav-item" data-original-title="Settings">
+                                  <a id="navlink_d4_Settings" class="sidenav-link ps-4" href="#">
+                                    <i class="mdi mdi-cog mdi-18px me-2" aria-hidden="true"></i>
+                                    <span>Settings</span>
+                                  </a>
+                                </li>
+                              </ul>
+                              <div class="pb-3"></div>
+                            </nav>
+                          </div><!-- /cnds-demo-nav-wrap -->
+                          <div class="cnds-demo-content">
+                            <p class="mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.7;">Current page</p>
+                            <p id="demo4-active-label" class="fw-semibold mb-4" style="font-size: 1rem;">All Cases</p>
+                            <div class="cnds-demo-skel" style="width: 60%;"></div>
+                            <div class="cnds-demo-skel" style="width: 82%;"></div>
+                            <div class="cnds-demo-skel" style="width: 48%;"></div>
+                            <div class="cnds-demo-skel mt-4" style="width: 35%;"></div>
+                            <div class="cnds-demo-skel" style="width: 70%;"></div>
+                            <div class="cnds-demo-skel" style="width: 55%;"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+                    <script>
+                    (function () {
+                      var sidebar         = document.getElementById('demo4-sidebar');
+                      var toggler         = document.getElementById('demo4-slim-toggler');
+                      var activeLabel     = document.getElementById('demo4-active-label');
+                      var categoryToggles = sidebar.querySelectorAll('[id^="tog_submenu_"]');
+                      var navLinks        = sidebar.querySelectorAll('[id^="navlink_"]');
+
+                      /* Slim toggle — slide any open submenu closed first, then shrink the nav */
+                      toggler.addEventListener('click', function () {
+                        var isExpanded = !sidebar.classList.contains('sidenav-slim');
+                        if (isExpanded) {
+                          var openToggle = null, openSubmenu = null;
+                          categoryToggles.forEach(function (t) {
+                            var s = t.parentElement.querySelector('.sidenav-collapse');
+                            if (s && s.classList.contains('show')) { openToggle = t; openSubmenu = s; }
+                          });
+                          var doSlim = function () {
+                            sidebar.classList.add('sidenav-slim');
+                            toggler.querySelector('span').className = 'mdi mdi-menu-close mdi-18px';
+                            initSlimTooltips();
+                          };
+                          if (openSubmenu) { collapseSubmenu(openToggle, openSubmenu); setTimeout(doSlim, 380); }
+                          else { doSlim(); }
+                        } else {
+                          disposeSlimTooltips();
+                          sidebar.classList.remove('sidenav-slim');
+                          toggler.querySelector('span').className = 'mdi mdi-menu-open mdi-18px';
+                          /* After the width transition, re-open the active category's submenu */
+                          setTimeout(function () {
+                            categoryToggles.forEach(function (t) {
+                              if (t.classList.contains('active')) {
+                                var s = t.parentElement.querySelector('.sidenav-collapse');
+                                if (s && !s.classList.contains('show')) expandSubmenu(t, s);
+                              }
+                            });
+                          }, 320);
+                        }
+                      });
+
+                      /* Slide-down: height 0 → scrollHeight, then settle to display:block via .show */
+                      function expandSubmenu(toggle, submenu) {
+                        toggle.setAttribute('aria-expanded', 'true');
+                        submenu.style.display  = 'block';
+                        submenu.style.overflow = 'hidden';
+                        submenu.style.height   = '0px';
+                        submenu.classList.add('collapsing');
+                        submenu.classList.remove('show');
+                        void submenu.offsetHeight; // force reflow before measuring
+                        var target = submenu.scrollHeight;
+                        submenu.style.height     = target + 'px';
+                        submenu.style.transition = 'height 0.35s ease';
+                        var done = false;
+                        var onEnd = function () {
+                          if (done) return;
+                          done = true;
+                          submenu.removeEventListener('transitionend', onEnd);
+                          submenu.classList.remove('collapsing');
+                          submenu.classList.add('show');
+                          submenu.style.height = submenu.style.overflow =
+                            submenu.style.transition = submenu.style.display = '';
+                        };
+                        submenu.addEventListener('transitionend', onEnd);
+                        setTimeout(onEnd, 400);
+                      }
+
+                      /* Slide-up: height scrollHeight → 0, then hide via .show removal */
+                      function collapseSubmenu(toggle, submenu) {
+                        toggle.setAttribute('aria-expanded', 'false');
+                        /* Keep .active if this category still contains the selected page */
+                        if (!submenu.querySelector('.sidenav-link.active')) {
+                          toggle.classList.remove('active');
+                        }
+                        submenu.style.height     = submenu.scrollHeight + 'px';
+                        submenu.style.overflow   = 'hidden';
+                        submenu.style.transition = 'height 0.35s ease';
+                        submenu.classList.add('collapsing');
+                        void submenu.offsetHeight; // force reflow before animating to 0
+                        submenu.style.height = '0px';
+                        var done = false;
+                        var onEnd = function () {
+                          if (done) return;
+                          done = true;
+                          submenu.removeEventListener('transitionend', onEnd);
+                          submenu.classList.remove('collapsing');
+                          submenu.classList.remove('show');
+                          submenu.style.height = submenu.style.overflow =
+                            submenu.style.transition = submenu.style.display = '';
+                        };
+                        submenu.addEventListener('transitionend', onEnd);
+                        setTimeout(onEnd, 400);
+                      }
+
+                      /* Close all open submenus except the one we're about to open */
+                      function closeOthers(exceptToggle) {
+                        categoryToggles.forEach(function (t) {
+                          if (t === exceptToggle) return;
+                          var s = t.parentElement.querySelector('.sidenav-collapse');
+                          if (s && s.classList.contains('show')) collapseSubmenu(t, s);
+                        });
+                      }
+
+                      /* Accordion category toggles — matches production sidenav.js behaviour */
+                      categoryToggles.forEach(function (toggle) {
+                        toggle.addEventListener('click', function (e) {
+                          e.preventDefault();
+                          var submenu = toggle.parentElement.querySelector('.sidenav-collapse');
+                          if (!submenu) return;
+                          if (submenu.classList.contains('collapsing')) return; // animation in progress
+                          var isOpen  = submenu.classList.contains('show');
+                          var wasSlim = sidebar.classList.contains('sidenav-slim');
+                          if (wasSlim) {
+                            /* Expand nav first; measure height after one rAF so scrollHeight is accurate */
+                            disposeSlimTooltips();
+                            sidebar.classList.remove('sidenav-slim');
+                            toggler.querySelector('span').className = 'mdi mdi-menu-open mdi-18px';
+                            requestAnimationFrame(function () {
+                              closeOthers(toggle);
+                              expandSubmenu(toggle, submenu);
+                            });
+                            return;
+                          }
+                          closeOthers(toggle);
+                          if (isOpen) {
+                            collapseSubmenu(toggle, submenu);
+                          } else {
+                            expandSubmenu(toggle, submenu);
+                          }
+                        });
+                      });
+
+                      /* Nav link active state — clears all toggles then re-marks the parent */
+                      navLinks.forEach(function (link) {
+                        link.addEventListener('click', function (e) {
+                          e.preventDefault();
+                          navLinks.forEach(function (l) { l.classList.remove('active'); l.removeAttribute('aria-current'); });
+                          categoryToggles.forEach(function (t) { t.classList.remove('active'); });
+                          link.classList.add('active');
+                          link.setAttribute('aria-current', 'page');
+                          var parentCollapse = link.closest('.sidenav-collapse');
+                          if (parentCollapse) {
+                            var parentToggle = parentCollapse.previousElementSibling;
+                            if (parentToggle) parentToggle.classList.add('active');
+                          }
+                          var span = link.querySelector('span');
+                          if (span && activeLabel) activeLabel.textContent = span.textContent.trim();
+                        });
+                      });
+
+                      function initSlimTooltips() {
+                        if (!window.Nimbus || !window.Nimbus.Tooltip) return;
+                        var links = sidebar.querySelectorAll('.sidenav-link');
+                        for (var i = 0; i < links.length; i++) {
+                          var link = links[i];
+                          var span = link.querySelector('span');
+                          var label = span ? span.textContent.trim() : '';
+                          if (!label) continue;
+                          if (!link.getAttribute('data-cnds-original-title')) {
+                            link.setAttribute('title', label);
+                          }
+                          window.Nimbus.Tooltip.getOrCreateInstance(link, {
+                            placement: 'right',
+                            trigger: 'hover',
+                            offset: [0, 12]
+                          });
+                        }
+                      }
+
+                      function disposeSlimTooltips() {
+                        if (!window.Nimbus || !window.Nimbus.Tooltip) return;
+                        var links = sidebar.querySelectorAll('.sidenav-link');
+                        for (var i = 0; i < links.length; i++) {
+                          var instance = window.Nimbus.Tooltip.getInstance(links[i]);
+                          if (instance) instance.dispose();
+                          links[i].removeAttribute('title');
+                        }
+                      }
+                    }());
+                    </script>
+<!-- Angular: Model categories as items with a children array; items with children render as accordion toggles driven by [expandedSection] and (itemSelected) EventEmitter — no manual sidenav-collapse toggling.
+     Example: <cnds-sidenav-item *ngFor="let item of navItems" [item]="item" [accordion]="true" [activeItem]="router.url" (itemSelected)="router.navigate([$event.route])"></cnds-sidenav-item>
+     Pass [activeItem]="currentRoute" so slim-mode category re-expansion works automatically. -->
+
+                    <!--Section: Code-->
+                    <section>
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;li class="sidenav-item" title="Cases" data-original-title="Cases"&gt;
+    &lt;a id="tog_submenu_Cases" class="sidenav-link ps-4"
+       data-cnds-toggle="sidenav-collapse" aria-expanded="false"&gt;
+        &lt;i class="mdi mdi-briefcase mdi-18px me-2"&gt;&lt;/i&gt;
+        &lt;span&gt;Cases&lt;/span&gt;
+        &lt;span class="mdi mdi-chevron-down sidenav-chevron" aria-hidden="true"&gt;&lt;/span&gt;
+    &lt;/a&gt;
+    &lt;ul class="sidenav-collapse"&gt;
+        &lt;li class="sidenav-item" title="AllCases" data-original-title="AllCases"&gt;
+            &lt;a id="navlink_AllCases" class="sidenav-link ps-4" href="#"&gt;
+                &lt;i class="mdi mdi-folder-open mdi-18px me-2"&gt;&lt;/i&gt;
+                &lt;span&gt;All Cases&lt;/span&gt;
+            &lt;/a&gt;
+        &lt;/li&gt;
+        &lt;li class="sidenav-item" title="ActiveCases" data-original-title="ActiveCases"&gt;
+            &lt;a id="navlink_ActiveCases" class="sidenav-link ps-4" href="#"&gt;
+                &lt;i class="mdi mdi-folder mdi-18px me-2"&gt;&lt;/i&gt;
+                &lt;span&gt;Active Cases&lt;/span&gt;
+            &lt;/a&gt;
+        &lt;/li&gt;
+    &lt;/ul&gt;
+&lt;/li&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                    <h4 class="mt-5">Full Example</h4>
+
+                    <p>
+                      The example below shows a complete navigation structure combining direct links, category toggles, and child items. Note how each identifier is unique across the entire list, and how the <code>navlink_</code> and <code>tog_submenu_</code> prefixes distinguish page links from category toggles. This is the pattern to follow when building the navigation for any application using the Nimbus Sidenav.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <style>
+                        #demo5-sidebar.sidenav-product-casefusion {
+                          --demo-nav-accent:      #2e892a;
+                          --demo-nav-hover-bg:    #beebbd;
+                          --demo-nav-hover-color: #1d5a1d;
+                        }
+                        [data-cnds-theme="dark"] #demo5-sidebar.sidenav-product-casefusion {
+                          --demo-nav-accent:      #5ccb59;
+                          --demo-nav-hover-bg:    #1d5a1d;
+                          --demo-nav-hover-color: #7dd67a;
+                        }
+                      </style>
+
+                      <div class="border rounded-5 overflow-hidden cnds-demo-outer">
+                        <div class="cnds-demo-box" style="display: flex; align-items: stretch; height: 440px; padding: 16px; gap: 16px;">
+                          <div class="cnds-demo-nav-wrap">
+                            <nav id="demo5-sidebar" class="sidenav show sidenav-product-casefusion" aria-label="Application navigation">
+                              <div class="sidebar-header">
+                                <button
+                                  type="button"
+                                  id="demo5-slim-toggler"
+                                  class="btn navbar-btn py-3"
+                                  aria-label="Toggle slim mode"
+                                >
+                                  <span class="mdi mdi-menu-open mdi-18px"></span>
+                                </button>
+                              </div>
+                              <ul id="scroll-container-demo5" class="sidenav-menu">
+                                <li class="sidenav-item" data-original-title="Home">
+                                  <a id="navlink_d5_Home" class="sidenav-link ps-4 active" href="#" aria-current="page">
+                                    <i class="mdi mdi-home mdi-18px me-2" aria-hidden="true"></i>
+                                    <span>Home</span>
+                                  </a>
+                                </li>
+                                <li class="sidenav-item" data-original-title="CategoryName1">
+                                  <a id="tog_submenu_d5_CategoryName1" class="sidenav-link ps-4" data-cnds-toggle="sidenav-collapse" aria-expanded="false">
+                                    <i class="mdi mdi-view-grid mdi-18px me-2" aria-hidden="true"></i>
+                                    <span>Category 1</span>
+                                    <span class="mdi mdi-chevron-down sidenav-chevron" aria-hidden="true"></span>
+                                  </a>
+                                  <ul class="sidenav-collapse">
+                                    <li class="sidenav-item" data-original-title="Link1">
+                                      <a id="navlink_d5_Link1" class="sidenav-link ps-4" href="#">
+                                        <i class="mdi mdi-grid mdi-18px me-2" aria-hidden="true"></i>
+                                        <span>Link 1</span>
+                                      </a>
+                                    </li>
+                                    <li class="sidenav-item" data-original-title="Link2">
+                                      <a id="navlink_d5_Link2" class="sidenav-link ps-4" href="#">
+                                        <i class="mdi mdi-format-page-break mdi-18px me-2" aria-hidden="true"></i>
+                                        <span>Link 2</span>
+                                      </a>
+                                    </li>
+                                    <li class="sidenav-item" data-original-title="Link3">
+                                      <a id="navlink_d5_Link3" class="sidenav-link ps-4" href="#">
+                                        <i class="mdi mdi-format-page-break mdi-18px me-2" aria-hidden="true"></i>
+                                        <span>Link 3</span>
+                                      </a>
+                                    </li>
+                                  </ul>
+                                </li>
+                                <li class="sidenav-item" data-original-title="CategoryName2">
+                                  <a id="tog_submenu_d5_CategoryName2" class="sidenav-link ps-4" data-cnds-toggle="sidenav-collapse" aria-expanded="false">
+                                    <i class="mdi mdi-view-grid mdi-18px me-2" aria-hidden="true"></i>
+                                    <span>Category 2</span>
+                                    <span class="mdi mdi-chevron-down sidenav-chevron" aria-hidden="true"></span>
+                                  </a>
+                                  <ul class="sidenav-collapse">
+                                    <li class="sidenav-item" data-original-title="Link4">
+                                      <a id="navlink_d5_Link4" class="sidenav-link ps-4" href="#">
+                                        <i class="mdi mdi-grid mdi-18px me-2" aria-hidden="true"></i>
+                                        <span>Link 4</span>
+                                      </a>
+                                    </li>
+                                    <li class="sidenav-item" data-original-title="Link5">
+                                      <a id="navlink_d5_Link5" class="sidenav-link ps-4" href="#">
+                                        <i class="mdi mdi-format-page-break mdi-18px me-2" aria-hidden="true"></i>
+                                        <span>Link 5</span>
+                                      </a>
+                                    </li>
+                                    <li class="sidenav-item" data-original-title="Link6">
+                                      <a id="navlink_d5_Link6" class="sidenav-link ps-4" href="#">
+                                        <i class="mdi mdi-format-page-break mdi-18px me-2" aria-hidden="true"></i>
+                                        <span>Link 6</span>
+                                      </a>
+                                    </li>
+                                  </ul>
+                                </li>
+                              </ul>
+                              <div class="pb-3"></div>
+                            </nav>
+                          </div><!-- /cnds-demo-nav-wrap -->
+                          <div class="cnds-demo-content">
+                            <p class="mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.7;">Current page</p>
+                            <p id="demo5-active-label" class="fw-semibold mb-4" style="font-size: 1rem;">Home</p>
+                            <div class="cnds-demo-skel" style="width: 60%;"></div>
+                            <div class="cnds-demo-skel" style="width: 82%;"></div>
+                            <div class="cnds-demo-skel" style="width: 48%;"></div>
+                            <div class="cnds-demo-skel mt-4" style="width: 35%;"></div>
+                            <div class="cnds-demo-skel" style="width: 70%;"></div>
+                            <div class="cnds-demo-skel" style="width: 55%;"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+                    <script>
+                    (function () {
+                      var sidebar         = document.getElementById('demo5-sidebar');
+                      var toggler         = document.getElementById('demo5-slim-toggler');
+                      var activeLabel     = document.getElementById('demo5-active-label');
+                      var categoryToggles = sidebar.querySelectorAll('[id^="tog_submenu_"]');
+                      var navLinks        = sidebar.querySelectorAll('[id^="navlink_"]');
+
+                      /* Slim toggle — slide any open submenu closed first, then shrink the nav */
+                      toggler.addEventListener('click', function () {
+                        var isExpanded = !sidebar.classList.contains('sidenav-slim');
+                        if (isExpanded) {
+                          var openToggle = null, openSubmenu = null;
+                          categoryToggles.forEach(function (t) {
+                            var s = t.parentElement.querySelector('.sidenav-collapse');
+                            if (s && s.classList.contains('show')) { openToggle = t; openSubmenu = s; }
+                          });
+                          var doSlim = function () {
+                            sidebar.classList.add('sidenav-slim');
+                            toggler.querySelector('span').className = 'mdi mdi-menu-close mdi-18px';
+                            initSlimTooltips();
+                          };
+                          if (openSubmenu) { collapseSubmenu(openToggle, openSubmenu); setTimeout(doSlim, 380); }
+                          else { doSlim(); }
+                        } else {
+                          disposeSlimTooltips();
+                          sidebar.classList.remove('sidenav-slim');
+                          toggler.querySelector('span').className = 'mdi mdi-menu-open mdi-18px';
+                          /* After the width transition, re-open the active category's submenu */
+                          setTimeout(function () {
+                            categoryToggles.forEach(function (t) {
+                              if (t.classList.contains('active')) {
+                                var s = t.parentElement.querySelector('.sidenav-collapse');
+                                if (s && !s.classList.contains('show')) expandSubmenu(t, s);
+                              }
+                            });
+                          }, 320);
+                        }
+                      });
+
+                      function expandSubmenu(toggle, submenu) {
+                        toggle.setAttribute('aria-expanded', 'true');
+                        submenu.style.display  = 'block';
+                        submenu.style.overflow = 'hidden';
+                        submenu.style.height   = '0px';
+                        submenu.classList.add('collapsing');
+                        submenu.classList.remove('show');
+                        void submenu.offsetHeight;
+                        var target = submenu.scrollHeight;
+                        submenu.style.height     = target + 'px';
+                        submenu.style.transition = 'height 0.35s ease';
+                        var done = false;
+                        var onEnd = function () {
+                          if (done) return;
+                          done = true;
+                          submenu.removeEventListener('transitionend', onEnd);
+                          submenu.classList.remove('collapsing');
+                          submenu.classList.add('show');
+                          submenu.style.height = submenu.style.overflow =
+                            submenu.style.transition = submenu.style.display = '';
+                        };
+                        submenu.addEventListener('transitionend', onEnd);
+                        setTimeout(onEnd, 400);
+                      }
+
+                      function collapseSubmenu(toggle, submenu) {
+                        toggle.setAttribute('aria-expanded', 'false');
+                        if (!submenu.querySelector('.sidenav-link.active')) {
+                          toggle.classList.remove('active');
+                        }
+                        submenu.style.height     = submenu.scrollHeight + 'px';
+                        submenu.style.overflow   = 'hidden';
+                        submenu.style.transition = 'height 0.35s ease';
+                        submenu.classList.add('collapsing');
+                        void submenu.offsetHeight;
+                        submenu.style.height = '0px';
+                        var done = false;
+                        var onEnd = function () {
+                          if (done) return;
+                          done = true;
+                          submenu.removeEventListener('transitionend', onEnd);
+                          submenu.classList.remove('collapsing');
+                          submenu.classList.remove('show');
+                          submenu.style.height = submenu.style.overflow =
+                            submenu.style.transition = submenu.style.display = '';
+                        };
+                        submenu.addEventListener('transitionend', onEnd);
+                        setTimeout(onEnd, 400);
+                      }
+
+                      function closeOthers(exceptToggle) {
+                        categoryToggles.forEach(function (t) {
+                          if (t === exceptToggle) return;
+                          var s = t.parentElement.querySelector('.sidenav-collapse');
+                          if (s && s.classList.contains('show')) collapseSubmenu(t, s);
+                        });
+                      }
+
+                      categoryToggles.forEach(function (toggle) {
+                        toggle.addEventListener('click', function (e) {
+                          e.preventDefault();
+                          var submenu = toggle.parentElement.querySelector('.sidenav-collapse');
+                          if (!submenu) return;
+                          if (submenu.classList.contains('collapsing')) return;
+                          var isOpen  = submenu.classList.contains('show');
+                          var wasSlim = sidebar.classList.contains('sidenav-slim');
+                          if (wasSlim) {
+                            disposeSlimTooltips();
+                            sidebar.classList.remove('sidenav-slim');
+                            toggler.querySelector('span').className = 'mdi mdi-menu-open mdi-18px';
+                            requestAnimationFrame(function () {
+                              closeOthers(toggle);
+                              expandSubmenu(toggle, submenu);
+                            });
+                            return;
+                          }
+                          closeOthers(toggle);
+                          if (isOpen) {
+                            collapseSubmenu(toggle, submenu);
+                          } else {
+                            expandSubmenu(toggle, submenu);
+                          }
+                        });
+                      });
+
+                      navLinks.forEach(function (link) {
+                        link.addEventListener('click', function (e) {
+                          e.preventDefault();
+                          navLinks.forEach(function (l) { l.classList.remove('active'); l.removeAttribute('aria-current'); });
+                          categoryToggles.forEach(function (t) { t.classList.remove('active'); });
+                          link.classList.add('active');
+                          link.setAttribute('aria-current', 'page');
+                          var parentCollapse = link.closest('.sidenav-collapse');
+                          if (parentCollapse) {
+                            var parentToggle = parentCollapse.previousElementSibling;
+                            if (parentToggle) parentToggle.classList.add('active');
+                          }
+                          var span = link.querySelector('span');
+                          if (span && activeLabel) activeLabel.textContent = span.textContent.trim();
+                        });
+                      });
+
+                      function initSlimTooltips() {
+                        if (!window.Nimbus || !window.Nimbus.Tooltip) return;
+                        var links = sidebar.querySelectorAll('.sidenav-link');
+                        for (var i = 0; i < links.length; i++) {
+                          var link = links[i];
+                          var span = link.querySelector('span');
+                          var label = span ? span.textContent.trim() : '';
+                          if (!label) continue;
+                          if (!link.getAttribute('data-cnds-original-title')) {
+                            link.setAttribute('title', label);
+                          }
+                          window.Nimbus.Tooltip.getOrCreateInstance(link, {
+                            placement: 'right',
+                            trigger: 'hover',
+                            offset: [0, 12]
+                          });
+                        }
+                      }
+
+                      function disposeSlimTooltips() {
+                        if (!window.Nimbus || !window.Nimbus.Tooltip) return;
+                        var links = sidebar.querySelectorAll('.sidenav-link');
+                        for (var i = 0; i < links.length; i++) {
+                          var instance = window.Nimbus.Tooltip.getInstance(links[i]);
+                          if (instance) instance.dispose();
+                          links[i].removeAttribute('title');
+                        }
+                      }
+                    }());
+                    </script>
+<!-- Angular: Replace the entire <nav> block with <cnds-sidenav> from the Nimbus Angular library; pass items via [items]="navService.items$ | async" and route via [activeItem]="router.url" — remove sidenavSection / sidenavTopic initialization variables.
+     Example: <cnds-sidenav id="sidebar-cf" [mode]="'side'" [slim]="layoutService.isSlim$ | async" [accordion]="true" [items]="navService.items$ | async" [activeItem]="router.url" [productTheme]="appConfig.product" (slimChange)="layoutService.setSlim($event)" (itemSelected)="router.navigate([$event.route])"></cnds-sidenav>
+     Angular Router drives the active item automatically via the [activeItem] binding. -->
+
+                    <!--Section: Code-->
+                    <section>
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;nav id="sidebar-cf" class="sidenav" data-cnds-mode="side" data-cnds-slim="false" data-cnds-slim-collapsed="false" data-cnds-content="#slim-content" data-cnds-accordion="true"&gt;
+    &lt;div class="sidebar-header"&gt;
+        &lt;button type="button" id="slim-toggler" class="btn navbar-btn py-3"&gt;
+            &lt;span class="mdi mdi-menu"&gt;&lt;/span&gt;
+        &lt;/button&gt;
+    &lt;/div&gt;
+    &lt;ul id="scroll-container" class="sidenav-menu"&gt;
+    &lt;li class="sidenav-item" title="Home" data-original-title="Home"&gt;
+        &lt;a id="navlink_Home" class="sidenav-link ps-4" href="#"&gt;
+            &lt;i class="mdi mdi-home mdi-18px me-2"&gt;&lt;/i&gt;&lt;span&gt;Home&lt;/span&gt;
+        &lt;/a&gt;
+    &lt;/li&gt;
+    &lt;li class="sidenav-item" title="CategoryName1" data-original-title="CategoryName1"&gt;
+        &lt;a id="tog_submenu_CategoryName1" class="sidenav-link ps-4" data-cnds-toggle="sidenav-collapse" aria-expanded="false"&gt;
+            &lt;i class="mdi mdi-view-grid mdi-18px me-2"&gt;&lt;/i&gt;
+            &lt;span&gt;Category 1&lt;/span&gt;
+            &lt;span class="mdi mdi-chevron-down sidenav-chevron" aria-hidden="true"&gt;&lt;/span&gt;
+        &lt;/a&gt;
+        &lt;ul class="sidenav-collapse"&gt;
+            &lt;li class="sidenav-item" title="Link1" data-original-title="Link1"&gt;
+                &lt;a id="navlink_Link1" class="sidenav-link ps-4" href="#"&gt;&lt;i class="mdi mdi-grid mdi-18px me-2"&gt;&lt;/i&gt;&lt;span&gt;Link 1&lt;/span&gt;&lt;/a&gt;
+            &lt;/li&gt;
+            &lt;li class="sidenav-item" title="Link2" data-original-title="Link2"&gt;
+                &lt;a id="navlink_Link2" class="sidenav-link ps-4" href="#"&gt;&lt;i class="mdi mdi-format-page-break mdi-18px me-2"&gt;&lt;/i&gt;&lt;span&gt;Link 2&lt;/span&gt;&lt;/a&gt;
+            &lt;/li&gt;
+            &lt;li class="sidenav-item" title="Link3" data-original-title="Link3"&gt;
+                &lt;a id="navlink_Link3" class="sidenav-link ps-4" href="#"&gt;&lt;i class="mdi mdi-format-page-break mdi-18px me-2"&gt;&lt;/i&gt;&lt;span&gt;Link 3&lt;/span&gt;&lt;/a&gt;
+            &lt;/li&gt;
+        &lt;/ul&gt;
+    &lt;/li&gt;
+    &lt;li class="sidenav-item" title="CategoryName2" data-original-title="CategoryName2"&gt;
+        &lt;a id="tog_submenu_CategoryName2" class="sidenav-link ps-4" data-cnds-toggle="sidenav-collapse" aria-expanded="false"&gt;
+            &lt;i class="mdi mdi-view-grid mdi-18px me-2"&gt;&lt;/i&gt;
+            &lt;span&gt;Category 2&lt;/span&gt;
+            &lt;span class="mdi mdi-chevron-down sidenav-chevron" aria-hidden="true"&gt;&lt;/span&gt;
+        &lt;/a&gt;
+        &lt;ul class="sidenav-collapse"&gt;
+            &lt;li class="sidenav-item" title="Link4" data-original-title="Link4"&gt;
+                &lt;a id="navlink_Link4" class="sidenav-link ps-4" href="#"&gt;&lt;i class="mdi mdi-grid mdi-18px me-2"&gt;&lt;/i&gt;&lt;span&gt;Link 4&lt;/span&gt;&lt;/a&gt;
+            &lt;/li&gt;
+            &lt;li class="sidenav-item" title="Link5" data-original-title="Link5"&gt;
+                &lt;a id="navlink_Link5" class="sidenav-link ps-4" href="#"&gt;&lt;i class="mdi mdi-format-page-break mdi-18px me-2"&gt;&lt;/i&gt;&lt;span&gt;Link 5&lt;/span&gt;&lt;/a&gt;
+            &lt;/li&gt;
+            &lt;li class="sidenav-item" title="Link6" data-original-title="Link6"&gt;
+                &lt;a id="navlink_Link6" class="sidenav-link ps-4" href="#"&gt;&lt;i class="mdi mdi-format-page-break mdi-18px me-2"&gt;&lt;/i&gt;&lt;span&gt;Link 6&lt;/span&gt;&lt;/a&gt;
+            &lt;/li&gt;
+        &lt;/ul&gt;
+    &lt;/li&gt;
+    &lt;/ul&gt;
+    &lt;div class="pb-3"&gt;&lt;/div&gt;
+&lt;/nav&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Naming Navigation Items-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Initialization-->
+                  <section id="section-initialization">
+                    <!-- Section title -->
+                    <h3 class="mb-4">Initialization</h3>
+
+                    <p>
+                      The Sidenav initializes after the full page load. The application template is pre-configured to handle this — no additional setup is required beyond setting two page-level JavaScript variables. These variables tell the initialization script which category to expand and which item to mark as active when the page loads. This is where the naming convention pays off.
+                    </p>
+
+                    <p>
+                      In the JavaScript section at the bottom of the application template, set the following two variables before the page loads:
+                    </p>
+
+                    <!--Section: Code-->
+                    <section>
+                      <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">var sidenavSection = "";
+var sidenavTopic = "";</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                    <p class="mt-3">
+                      <code>sidenavSection</code> is the identifier of the category the current page belongs to — the portion of the <code>tog_submenu_</code> anchor's <code>id</code> after the prefix. <code>sidenavTopic</code> is the identifier of the current page's nav link — the portion of the <code>navlink_</code> anchor's <code>id</code> after the prefix. Both values must exactly match their corresponding identifiers in the navigation markup.
+                    </p>
+
+                    <p class="note note-info">
+                      <strong>Note:</strong> If the variables are left blank the
+                      application will assume this is the home screen and mark the
+                      Sidenav accordingly.
+                    </p>
+
+                    <p>
+                      Using the list example from earlier, we set the variables to
+                      their corresponding values.
+                    </p>
+
+                    <!--Section: Code-->
+                    <section>
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;li class="sidenav-item" title="CategoryName1" data-original-title="CategoryName1"&gt;
+    &lt;a id="tog_submenu_CategoryName1" class="sidenav-link ps-4"
+       data-cnds-toggle="sidenav-collapse" aria-expanded="false"&gt;
+        &lt;i class="mdi mdi-view-grid mdi-18px me-2"&gt;&lt;/i&gt;
+        &lt;span&gt;Category 1&lt;/span&gt;
+        &lt;span class="mdi mdi-chevron-down sidenav-chevron" aria-hidden="true"&gt;&lt;/span&gt;
+    &lt;/a&gt;
+    &lt;ul class="sidenav-collapse"&gt;
+        &lt;li class="sidenav-item" title="Link1" data-original-title="Link1"&gt;
+            &lt;a id="navlink_Link1" class="sidenav-link ps-4" href="#"&gt;
+                &lt;i class="mdi mdi-grid mdi-18px me-2"&gt;&lt;/i&gt;
+                &lt;span&gt;Link 1&lt;/span&gt;
+            &lt;/a&gt;
+        &lt;/li&gt;
+    &lt;/ul&gt;
+&lt;/li&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                    <!--Section: Code-->
+                    <section>
+                      <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">var sidenavSection = "CategoryName1";
+var sidenavTopic = "Link1";</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                    <p class="mt-3">
+                      Keep the navigation structure as simple as possible. One level of nesting — a category with its child links — is the recommended maximum. Deeper nesting makes the Sidenav harder to scan and is not supported by the slim-mode tooltip behavior.
+                    </p>
+                  </section>
+                  <!--/Section: Initialization-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: API Documentation-->
+                  <section id="section-api-docs">
+                    <h3 class="mb-3">API Documentation</h3>
+
+                    <!--Section: API Introduction-->
+                    <section id="api-section-introduction">
+                      <h4 class="mb-3">Introduction</h3>
+                      <p>
+                        The Nimbus Sidenav is a JavaScript-driven component registered as <code>Nimbus.Sidenav</code>. It is initialized automatically by <code>nimbus.js</code> for any <code>&lt;nav&gt;</code> element that carries <code>data-cnds-mode</code>. The component manages three display modes (overlay, push, side), slim/icon-only mode, submenu accordion behavior, backdrop, and keyboard dismissal. All behavior is configurable via <code>data-cnds-*</code> attributes on the <code>&lt;nav&gt;</code> element or via options passed to the constructor. The component dispatches lifecycle events and exposes instance methods for programmatic control.
+                      </p>
+                    </section>
+                    <!--/Section: API Introduction-->
+
+                    <!--Section: API Usage-->
+                    <section id="api-section-usage">
+                      <h4 class="mb-3">Usage</h3>
+                      <p>
+                        Place the <code>&lt;nav&gt;</code> element as a direct sibling of your main content wrapper. Set <code>data-cnds-mode</code> to choose how the sidenav interacts with surrounding content. The component is initialized automatically on page load; no additional JavaScript is required. Use <code>data-cnds-content</code> to point to the content element that should shift when the nav opens in <code>push</code> or <code>side</code> mode.
+                      </p>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-html">&lt;nav id="sidebar-cf" class="sidenav"
+     data-cnds-mode="side"
+     data-cnds-slim="false"
+     data-cnds-slim-collapsed="false"
+     data-cnds-content="#slim-content"
+     data-cnds-accordion="true"
+     aria-label="Application navigation"&gt;
+    &lt;!-- sidenav content injected by sidenav-loader.js --&gt;
+&lt;/nav&gt;
+&lt;div id="slim-content"&gt;
+    &lt;!-- page content --&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Section: API Usage-->
+
+                    <!--Section: API Data Attributes-->
+                    <section id="api-section-data-attributes">
+                      <h4 class="mb-3">Data attributes</h3>
+                      <p>
+                        All options can be set declaratively via <code>data-cnds-*</code> attributes on the <code>&lt;nav&gt;</code> element. Values are read at initialization time and merged with any options passed to the constructor.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped" aria-label="Data attributes">
+                          <thead>
+                            <tr>
+                              <th scope="col">Attribute</th>
+                              <th scope="col">Type</th>
+                              <th scope="col">Default</th>
+                              <th scope="col">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>data-cnds-mode</code></td>
+                              <td><code>string</code></td>
+                              <td><code>"over"</code></td>
+                              <td>Display mode. <code>"over"</code> — slides over content with backdrop; <code>"push"</code> — shifts content aside; <code>"side"</code> — fixed alongside content.</td>
+                            </tr>
+                            <tr>
+                              <td><code>data-cnds-accordion</code></td>
+                              <td><code>boolean</code></td>
+                              <td><code>true</code></td>
+                              <td>When <code>true</code>, opening one category automatically closes all others.</td>
+                            </tr>
+                            <tr>
+                              <td><code>data-cnds-slim</code></td>
+                              <td><code>boolean</code></td>
+                              <td><code>false</code></td>
+                              <td>Initializes the sidenav in slim (icon-only) mode.</td>
+                            </tr>
+                            <tr>
+                              <td><code>data-cnds-slim-collapsed</code></td>
+                              <td><code>boolean</code></td>
+                              <td><code>false</code></td>
+                              <td>Runtime flag written by the slim toggler. Reflects current slim state; read by the initialization script.</td>
+                            </tr>
+                            <tr>
+                              <td><code>data-cnds-content</code></td>
+                              <td><code>string</code></td>
+                              <td>—</td>
+                              <td>CSS selector for the content element to push or margin when in <code>"push"</code> mode.</td>
+                            </tr>
+                            <tr>
+                              <td><code>data-cnds-backdrop</code></td>
+                              <td><code>boolean</code></td>
+                              <td><code>true</code></td>
+                              <td>Show a backdrop overlay when the sidenav is open in <code>"over"</code> mode. Clicking the backdrop closes the sidenav.</td>
+                            </tr>
+                            <tr>
+                              <td><code>data-cnds-keyboard</code></td>
+                              <td><code>boolean</code></td>
+                              <td><code>true</code></td>
+                              <td>Close the sidenav when the <kbd>Escape</kbd> key is pressed.</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: API Data Attributes-->
+
+                    <!--Section: API CSS Classes-->
+                    <section id="api-section-css-classes">
+                      <h4 class="mb-3">CSS classes</h3>
+                      <p>
+                        The following classes control sidenav structure and appearance. All structural classes are required for correct behavior; modifier classes are optional.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped" aria-label="CSS classes">
+                          <thead>
+                            <tr>
+                              <th scope="col">Class</th>
+                              <th scope="col">Element</th>
+                              <th scope="col">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>.sidenav</code></td>
+                              <td><code>&lt;nav&gt;</code></td>
+                              <td>Base class. Positions the sidenav fixed to the left edge, sets width, height, background, and transition.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.sidenav.show</code></td>
+                              <td><code>&lt;nav&gt;</code></td>
+                              <td>Toggles the sidenav into its visible state (<code>transform: translateX(0)</code>).</td>
+                            </tr>
+                            <tr>
+                              <td><code>.sidenav-right</code></td>
+                              <td><code>&lt;nav&gt;</code></td>
+                              <td>Modifier. Anchors the sidenav to the right edge instead of the left.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.sidenav-slim</code></td>
+                              <td><code>&lt;nav&gt;</code></td>
+                              <td>Modifier. Collapses width to icon-only mode (<code>70px</code>). Labels are hidden; tooltips activate on hover.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.sidenav-menu</code></td>
+                              <td><code>&lt;ul&gt;</code></td>
+                              <td>The navigation list container. Required on the top-level <code>&lt;ul&gt;</code> inside the sidenav.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.sidenav-item</code></td>
+                              <td><code>&lt;li&gt;</code></td>
+                              <td>Each navigation list item.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.sidenav-link</code></td>
+                              <td><code>&lt;a&gt;</code></td>
+                              <td>Navigation link or category toggle. Provides hover, focus, and active styles.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.sidenav-link.active</code></td>
+                              <td><code>&lt;a&gt;</code></td>
+                              <td>Marks the current page item. Applies the product accent bar and highlight background.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.sidenav-collapse</code></td>
+                              <td><code>&lt;ul&gt;</code></td>
+                              <td>Collapsible child list inside a category item. Hidden by default; toggled by the parent <code>.sidenav-link</code>.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.sidenav-collapse.show</code></td>
+                              <td><code>&lt;ul&gt;</code></td>
+                              <td>Expanded state of a category submenu.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.sidenav-header</code></td>
+                              <td><code>&lt;div&gt;</code></td>
+                              <td>Optional header area at the top of the sidenav — typically contains the slim-toggle button or a logo.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.sidenav-divider</code></td>
+                              <td><code>&lt;hr&gt;</code> or <code>&lt;li&gt;</code></td>
+                              <td>Horizontal rule separating groups of navigation items.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.sidenav-subheading</code></td>
+                              <td><code>&lt;span&gt;</code></td>
+                              <td>Uppercase label that groups related items visually. Not a navigation target.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.sidenav-backdrop</code></td>
+                              <td><code>&lt;div&gt;</code></td>
+                              <td>Injected by the component in <code>"over"</code> mode. Clicking it closes the sidenav.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.sidenav-content</code></td>
+                              <td><code>&lt;div&gt;</code></td>
+                              <td>Content sibling whose left margin is adjusted in <code>"push"</code> mode.</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: API CSS Classes-->
+
+                    <!--Section: API CSS Custom Properties-->
+                    <section id="api-section-css-variables">
+                      <h4 class="mb-3">CSS custom properties</h3>
+                      <p>
+                        All custom properties are defined on <code>.sidenav</code> in <code>sidenav.css</code> and can be overridden per-instance via an inline <code>style</code> attribute or globally via a CSS rule targeting <code>.sidenav</code>.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped" aria-label="CSS custom properties">
+                          <thead>
+                            <tr>
+                              <th scope="col">Property</th>
+                              <th scope="col">Default</th>
+                              <th scope="col">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>--cnds-sidenav-width</code></td>
+                              <td><code>240px</code></td>
+                              <td>Full-width of the sidenav. Override on <code>.sidenav-slim</code> to change the collapsed width (default slim: <code>70px</code>).</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-sidenav-bg</code></td>
+                              <td><code>#fff</code></td>
+                              <td>Background color. Theme overrides this to <code>--cnds-surface-light-200</code> in light and <code>--cnds-surface-dark-500</code> in dark mode.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-sidenav-color</code></td>
+                              <td><code>#4f4f4f</code></td>
+                              <td>Default text and icon color for navigation links.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-sidenav-padding-y</code></td>
+                              <td><code>0.5rem</code></td>
+                              <td>Top and bottom padding of the sidenav container.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-sidenav-padding-x</code></td>
+                              <td><code>0</code></td>
+                              <td>Left and right padding of the sidenav container.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-sidenav-transition</code></td>
+                              <td><code>transform 0.3s ease-in-out, width 0.3s ease-in-out</code></td>
+                              <td>CSS transition applied to open/close and slim/expand animations.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-sidenav-zindex</code></td>
+                              <td><code>var(--cnds-zindex-offcanvas, 1045)</code></td>
+                              <td>Stack order. Ensure this exceeds any fixed headers or modals it should appear above.</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: API CSS Custom Properties-->
+
+                    <!--Section: API Theme Variables-->
+                    <section id="api-section-theme-variables">
+                      <h4 class="mb-3">Theme variables</h3>
+                      <p>
+                        The sidenav adapts to the active theme via custom properties overridden in <code>dark.css</code> on the <code>[data-cnds-theme="dark"] .sidenav</code> selector. All values meet WCAG AA contrast requirements against their respective theme backgrounds.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Theme variables">
+                          <thead>
+                            <tr>
+                              <th scope="col">Token</th>
+                              <th scope="col">Light value</th>
+                              <th scope="col">Light contrast</th>
+                              <th scope="col">Dark value</th>
+                              <th scope="col">Dark contrast</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>--cnds-sidenav-bg</code></td>
+                              <td><code>var(--cnds-surface-light-200, #ebebeb)</code></td>
+                              <td>—</td>
+                              <td><code>var(--cnds-surface-dark-500, #1e1e1e)</code></td>
+                              <td>—</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-sidenav-color</code> (link text)</td>
+                              <td><code>#4f4f4f</code></td>
+                              <td>6.87:1 on <code>#ebebeb</code></td>
+                              <td><code>var(--cnds-surface-light-300, #d4d4d4)</code></td>
+                              <td>10.52:1 on <code>#1e1e1e</code></td>
+                            </tr>
+                            <tr>
+                              <td>Active item text (CaseFusion)</td>
+                              <td><code>#1d5a1d</code></td>
+                              <td>6.25:1 on <code>#beebbd</code></td>
+                              <td><code>#7dd67a</code></td>
+                              <td>4.66:1 on <code>#1d5a1d</code></td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: API Theme Variables-->
+
+                    <!--Section: API Instance Methods-->
+                    <section id="api-section-instance">
+                      <h4 class="mb-3">Instance methods</h3>
+                      <p>
+                        Retrieve the component instance with <code>Nimbus.Sidenav.getInstance(element)</code> or create one with <code>Nimbus.Sidenav.getOrCreateInstance(element, options)</code>. All methods return the instance for chaining.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped" aria-label="Instance methods">
+                          <thead>
+                            <tr>
+                              <th scope="col">Method</th>
+                              <th scope="col">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>.toggle()</code></td>
+                              <td>Toggles the sidenav between the shown and hidden states.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.show()</code></td>
+                              <td>Opens the sidenav. Fires <code>show.cnds.sidenav</code> before and <code>shown.cnds.sidenav</code> after the transition.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.hide()</code></td>
+                              <td>Closes the sidenav. Fires <code>hide.cnds.sidenav</code> before and <code>hidden.cnds.sidenav</code> after the transition.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.toggleSlim()</code></td>
+                              <td>Toggles the <code>.sidenav-slim</code> class, switching between full-width and icon-only modes.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.dispose()</code></td>
+                              <td>Destroys the component instance, removes event listeners, and removes the backdrop if present.</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-js">var el = document.getElementById('sidebar-cf');
+
+// Get the existing instance (null if not yet initialized)
+var sidenav = Nimbus.Sidenav.getInstance(el);
+
+// Or create one programmatically with options
+var sidenav = Nimbus.Sidenav.getOrCreateInstance(el, {
+    mode: 'side',
+    accordion: true,
+    backdrop: false
+});
+
+// Instance methods
+sidenav.show();
+sidenav.hide();
+sidenav.toggle();
+sidenav.toggleSlim();
+sidenav.dispose();</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Section: API Instance Methods-->
+
+                    <!--Section: API Events-->
+                    <section id="api-section-events">
+                      <h4 class="mb-3">Events</h3>
+                      <p>
+                        The component fires four lifecycle events on the <code>&lt;nav&gt;</code> element. All events are cancelable: calling <code>event.preventDefault()</code> in a <code>show</code> or <code>hide</code> handler stops the transition from beginning.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped" aria-label="Events">
+                          <thead>
+                            <tr>
+                              <th scope="col">Event</th>
+                              <th scope="col">Fires when…</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>show.cnds.sidenav</code></td>
+                              <td>The sidenav is about to open (before the CSS transition starts).</td>
+                            </tr>
+                            <tr>
+                              <td><code>shown.cnds.sidenav</code></td>
+                              <td>The sidenav has fully opened (after the CSS transition ends).</td>
+                            </tr>
+                            <tr>
+                              <td><code>hide.cnds.sidenav</code></td>
+                              <td>The sidenav is about to close (before the CSS transition starts).</td>
+                            </tr>
+                            <tr>
+                              <td><code>hidden.cnds.sidenav</code></td>
+                              <td>The sidenav has fully closed (after the CSS transition ends).</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-js">var el = document.getElementById('sidebar-cf');
+
+el.addEventListener('show.cnds.sidenav', function (event) {
+    // Cancel the open by calling event.preventDefault()
+    console.log('Sidenav is about to open');
+});
+
+el.addEventListener('shown.cnds.sidenav', function () {
+    console.log('Sidenav is now fully visible');
+});
+
+el.addEventListener('hide.cnds.sidenav', function () {
+    console.log('Sidenav is about to close');
+});
+
+el.addEventListener('hidden.cnds.sidenav', function () {
+    console.log('Sidenav is fully hidden');
+});</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Section: API Events-->
+
+                    <!--Section: API Accessibility-->
+                    <section id="api-section-accessibility">
+                      <h4 class="mb-3">Accessibility &amp; Section 508</h3>
+                      <p>
+                        The following requirements apply to all Sidenav implementations. The demos on this page are configured to meet these requirements.
+                      </p>
+                      <ul>
+                        <li>
+                          The <code>&lt;nav&gt;</code> element creates a navigation landmark automatically. Add <code>aria-label="Application navigation"</code> to distinguish it from other navigation regions on the page (header, breadcrumbs, right sidebar).
+                        </li>
+                        <li>
+                          The current page link must carry <code>aria-current="page"</code>. The initialization script applies this attribute automatically based on <code>sidenavTopic</code>.
+                        </li>
+                        <li>
+                          Category toggle anchors must carry <code>aria-expanded="false"</code> initially and <code>aria-expanded="true"</code> when their submenu is open. The component manages this attribute automatically.
+                        </li>
+                        <li>
+                          The slim-toggle button must have <code>aria-label="Toggle slim mode"</code> since its only visible content is an icon. The icon itself must carry <code>aria-hidden="true"</code> to prevent it being announced by screen readers.
+                        </li>
+                        <li>
+                          In <code>"over"</code> mode (drawer), add a focus trap so keyboard users cannot reach content behind the open sidenav. The <code>data-cnds-keyboard="true"</code> attribute enables <kbd>Escape</kbd> to dismiss; implement a focus trap in your application shell for full Section 508 compliance.
+                        </li>
+                        <li>
+                          All nav link text must meet WCAG 2.1 AA contrast requirements (minimum 4.5:1 for normal text). See <a href="#api-section-theme-variables">Theme variables</a> for verified contrast ratios.
+                        </li>
+                        <li>
+                          Icons within links must carry <code>aria-hidden="true"</code> — the link's visible text label is the accessible name. Never use icon-only links without a tooltip or visually hidden label.
+                        </li>
+                      </ul>
+                      <p>
+                        For the WAI-ARIA navigation landmark specification, see the
+                        <a rel="nofollow" target="_blank" href="https://www.w3.org/TR/wai-aria-practices/#aria_lh_navigation">WAI-ARIA Authoring Practices — Navigation Landmark</a>.
+                      </p>
+                    </section>
+                    <!--/Section: API Accessibility-->
+
+                  </section>
+                  <!--/Section: API Documentation-->
+
+                </section>
+                <!--/Section: Docs content-->
+              </div>
+              <!-- ./Main column-->
+
+              <!-- Right Sidebar — 20 % of the row width; hidden below lg breakpoint.
+                   Sticky attributes (processed by nimbus.js):
+                     data-cnds-sticky="true"          : activates sticky positioning
+                     data-cnds-sticky-boundary="true" : constrains sticky to its parent container
+                     data-cnds-sticky-direction="both" : sticks when scrolling up OR down
+                     data-cnds-sticky-offset="56"     : clears the 56 px fixed header
+                     data-cnds-sticky-delay="125"     : debounce delay (ms) to reduce scroll jank
+                   data-cnds-allow-hashes="true" on the <ul>: nimbus.js watches the URL hash
+                     and highlights the matching nav-link as the user scrolls through sections. -->
+              <div class="col-lg-2 d-none d-lg-block">
+                <div class="sticky-top" style="top: 100px; z-index: 1">
+                  <ul
+                    class="nav flex-column nav-pills menu-sidebar"
+                    id="rightNav"
+                    data-cnds-allow-hashes="true"
+                    aria-label="Page sections"
+                  >
+                    <li class="nav-item"><a class="nav-link" href="#section-introduction">Introduction</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-basic-example">Basic example</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-namimg">Naming Navigation Items</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-initialization">Initialization</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-api-docs">API Documentation</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-introduction">Introduction</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-usage">Usage</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-data-attributes">Data attributes</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-css-classes">CSS classes</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-css-variables">CSS custom properties</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-theme-variables">Theme variables</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-instance">Instance methods</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-events">Events</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-accessibility">Accessibility</a></li>
+                  </ul>
+                </div>
+              </div>
+              <!-- ./Right Sidebar -->
+            </div>
+            <!-- ./Content Row -->
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- ./Content -->
+    <!-- Footer -->
+    <div class="cf-footer cf-footer-app">
+      <footer class="page-footer main-footer" aria-label="Site footer">
+        <div class="w-100 px-3 d-flex align-items-center">
+          <img src="img/cf/core/cloudficient_logo_light.svg" class="cf-logo-light" style="width: 135px;" alt="Cloudficient" />
+          <img src="img/cf/core/cloudficient_logo_dark.svg" class="cf-logo-dark" style="width: 135px;" alt="Cloudficient" />
+          <span class="footer-copyright ms-auto">&copy; <span id="currentYear"></span> Cloudficient</span>
+        </div>
+      </footer>
+    </div>
+    <!-- ./Footer -->
+    <!-- SCRIPTS — load order matters:
+         1. nimbus.js    — core framework: processes all data-cnds-* attributes (theme, sticky, sidenav, tooltips…)
+         2. app.js       — application-level overrides and custom initialisation
+         3. prism.min.js — syntax highlighting for <code class="language-*"> blocks; must run after DOM is ready
+         4. sidenav-loader.js — fetches shared sidenav HTML and injects it into #sidebar-cf -->
+    <script type="text/javascript" src="js/nimbus.js?v=9.0.4"></script>
+    <script type="text/javascript" src="js/app.js?v=9.0.4"></script>
+    <script type="text/javascript" src="plugins/js/prism.min.js"></script>
+    <script type="text/javascript" src="js/sidenav-loader.js"></script>
+    <!-- Inline: populate the footer copyright year dynamically so the page never needs a manual update -->
+    <script type="text/javascript">
+      var currentYearElement = document.getElementById("currentYear");
+      if (currentYearElement) {
+        currentYearElement.textContent = new Date().getFullYear();
+      }
+    </script>
+  </body>
+</html>

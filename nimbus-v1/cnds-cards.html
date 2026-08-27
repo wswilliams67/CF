@@ -1,0 +1,3093 @@
+<!--
+* CNDS Nimbus Design System — Cards
+* Version: 1.0.0
+* Layout: Application with SideNav (migrated from Nimbus v8 template)
+* NOTES
+- Pure HTML5, CSS3, vanilla JavaScript — zero external dependencies
+- Uses data-cnds-* attributes (replaces data-mdb-*)
+- Uses Nimbus.* namespace (replaces mdb.*)
+- Default product theme: CaseFusion (cnds-product-casefusion on <body>; change to cnds-product-hyperlize or cnds-product-expireon)
+-->
+<!doctype html>
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta
+      name="description"
+      content="Cards | Cloudficient Nimbus Design System v1.0.0"
+    />
+    <title>Cards | CNDS v1.0.0 | Cloudficient Nimbus Design System</title>
+    <!-- Nimbus CSS -->
+    <link rel="stylesheet" href="css/nimbus.css" media="all" type="text/css" />
+    <!-- Custom styles -->
+    <link rel="stylesheet" href="css/app.css" media="all" type="text/css" />
+    <!-- Prism syntax highlighting -->
+    <link
+      rel="stylesheet"
+      href="plugins/css/prism.min.css"
+      media="all"
+      type="text/css"
+    />
+    <!-- Favicons -->
+    <link
+      rel="apple-touch-icon"
+      sizes="57x57"
+      href="img/favicon/apple-icon-57x57.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="60x60"
+      href="img/favicon/apple-icon-60x60.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="72x72"
+      href="img/favicon/apple-icon-72x72.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="76x76"
+      href="img/favicon/apple-icon-76x76.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="114x114"
+      href="img/favicon/apple-icon-114x114.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="120x120"
+      href="img/favicon/apple-icon-120x120.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="144x144"
+      href="img/favicon/apple-icon-144x144.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="152x152"
+      href="img/favicon/apple-icon-152x152.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="img/favicon/apple-icon-180x180.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="192x192"
+      href="img/favicon/android-icon-192x192.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="img/favicon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="96x96"
+      href="img/favicon/favicon-96x96.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="img/favicon/favicon-16x16.png"
+    />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta
+      name="msapplication-TileImage"
+      content="img/favicon/ms-icon-144x144.png"
+    />
+    <!-- Design Tokens / Primitives & Themes -->
+    <link rel="stylesheet" href="css/themes/primitives.css" />
+    <link rel="stylesheet" href="css/themes/light.css" />
+    <link rel="stylesheet" href="css/themes/dark.css" />
+    <!-- Drawer Card: collapse/expand animation, chevron rotation, and padding transition -->
+    <style>
+      /* Smooth padding collapse on .card-top when drawer is toggled */
+      .card-drawer .card-top {
+        transition: padding-bottom 0.3s ease;
+      }
+      .card-drawer .card-top.card-top--collapsed {
+        padding-bottom: 0;
+      }
+      .card-drawer-toggle {
+        position: absolute;
+        top: 0;
+        right: -8px;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        background: none;
+        border: none;
+        padding: 0;
+        color: var(--cnds-link-color);
+      }
+      .card-drawer-toggle .mdi {
+        transition: transform 0.25s ease;
+      }
+      .card-drawer-toggle[aria-expanded="false"] .mdi {
+        transform: rotate(180deg);
+      }
+      .card-drawer-body {
+        overflow: hidden;
+        transition: max-height 0.3s ease, opacity 0.2s ease;
+        max-height: 1000px;
+        opacity: 1;
+      }
+      .card-drawer-body.collapsed {
+        max-height: 0;
+        opacity: 0;
+      }
+    </style>
+  </head>
+
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 Bypass Blocks; renders visually hidden until focused -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+    <!-- Header -->
+    <div class="sticky-top">
+      <!-- Utility Navigation -->
+      <nav id="UtilityNav" class="nav nav-cf-utility">
+        <div class="w-100 gx-3 px-sm-0 px-lg-3">
+          <ul class="nav nav-cf-utility-ul"></ul>
+        </div>
+      </nav>
+      <!-- Main Navigation -->
+      <nav id="MainNav" class="navbar navbar-expand-xl navbar-cf">
+        <div class="container-fluid p-0 px-3 d-flex">
+          <div class="d-flex flex-fill align-items-center text-truncate">
+            <div class="text-center d-none d-md-block me-3 border-end">
+              <a href="index.html"
+                ><img src="img/cf/core/logo_nimbus.png" class="me-3 mt-n1"
+              alt="Cloudficient Nimbus Design System" /></a>
+            </div>
+            <div class="flex-fill text-truncate">
+              <div class="navbar-cf-title-block">
+                <div
+                  class="navbar-cf-title cf-page-title text-truncate"
+                  style="padding-bottom: 0"
+                >
+                  <span class="cf-page-title-text cf-page-title-brand">v1</span>
+                  <span class="cf-page-title-divider"></span>
+                  <span class="cf-page-title-text">Cards</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <button
+            class="btn btn-sm btn-outline-secondary ms-2"
+            data-cnds-toggle="theme"
+            aria-label="Toggle theme"
+            title="Toggle theme"
+          >
+            <i class="mdi mdi-weather-night mdi-18px" aria-hidden="true"></i>
+          </button>
+        </div>
+      </nav>
+    </div>
+    <!-- Content -->
+    <main id="main-content" class="cf-main-app">
+      <div class="d-block d-md-none p-4">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>This application is not
+          optimized for small screens. Please use a large tablet, laptop, or
+          desktop computer to continue.
+        </div>
+      </div>
+      <div class="d-none d-md-block">
+        <nav
+          id="sidebar-cf"
+          class="sidenav"
+          data-cnds-mode="side"
+          data-cnds-slim="false"
+          data-cnds-slim-collapsed="false"
+          data-cnds-content="#slim-content"
+          data-cnds-accordion="true"
+        >
+          <!-- Sidenav content loaded by js/sidenav-loader.js -->
+        </nav>
+        <div id="slim-content">
+          <div class="slim-content-box">
+            <div class="row">
+              <div
+                class="col-md-12 col-lg"
+                style="flex: 0 0 80%; max-width: 80%"
+              >
+                <!--Section: Docs content-->
+                <section class="container-fluid">
+                  <!--Section: Introduction-->
+                  <section id="section-introduction">                    <p class="mb-4">
+                      Cards are slightly elevated sections of information used
+                      to display grouped content. They support titles,
+                      subtitles, body text, images, icons, avatars, action
+                      buttons, links, headers, and footers. Cards come in five
+                      types:
+                      <strong>default</strong>, <strong>basic</strong>,
+                      <strong>drawer</strong>, <strong>alert</strong>, and <strong>outline</strong>, each
+                      with multiple color variants and alignment options.
+                    </p>
+                    <p class="mb-4">
+                      Use the default card when you need a container with background, border, and box shadow. Choose
+                      <code>.card-basic</code> for a flatter appearance without a shadow, <code>.card-drawer</code>
+                      for a collapsible panel with an expand/collapse chevron, <code>.card-alert</code>
+                      for a solid-color card that draws attention to status information, and <code>.card-outline</code>
+                      when you want a colored border without filling the background. All types support horizontal
+                      layout, header/footer sections, and text alignment utilities.
+                    </p>
+
+                    <p class="note note-light">
+                      <strong>Note:</strong> The API Documentation section at the bottom of this page
+                      contains complete CSS class references, custom properties, theme variables, and
+                      JavaScript initialization details.
+                    </p>
+
+                    <p class="note note-light">
+                      <strong>Note:</strong> Read the
+                      <a href="#api-section-introduction">API Documentation</a> to find all available
+                      options and advanced customization.
+                    </p>
+
+                    <p class="note note-info">
+                      <strong>Note:</strong> To preview components in different
+                      themes, click the theme toggle button
+                      <i class="mdi mdi-weather-night" aria-hidden="true"></i> / <i class="mdi mdi-weather-sunny" aria-hidden="true"></i> in the header navigation bar.
+                    </p>
+                  </section>
+                  <!--/Section: Introduction-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Default Card-->
+                  <section id="section-default">
+                    <h3 class="mb-4">Default Card</h3>
+                    <p>
+                      The default card has a background color, border, and box
+                      shadow.
+                    </p>
+
+                    <!--Subsection: Simple-->
+                    <section id="subsection-simple">
+                      <h4 class="mt-5">Simple</h4>
+                      <p>
+                        A basic card with title, subtitle, body text, and a
+                        button:
+                      </p>
+
+                      <!--Section: Demo-->
+                      <section class="pb-4">
+                        <div class="border rounded-5">
+                          <section
+                            class="p-4 d-flex justify-content-center w-100 contrasting-bg"
+                          >
+                            <div class="card" style="max-width: 22rem">
+                              <div class="card-body">
+                                <div class="card-top">
+                                  <div class="card-titles">
+                                    <h4 class="card-title">Title</h4>
+                                    <h5 class="card-subtitle">Subtitle</h5>
+                                  </div>
+                                </div>
+                                <p class="card-text">
+                                  Lorem ipsum dolor sit amet, consectetur
+                                  adipiscing elit. Praesent sagittis finibus
+                                  ligula. Donec ac sapien porta, dignissim mi
+                                  in, eleifend lectus.
+                                </p>
+                                <div class="card-actions">
+                                  <button type="button" class="btn btn-primary">
+                                    Button Label
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </section>
+                        </div>
+                      </section>
+                      <!--Section: Demo-->
+<!-- Angular: Bind card title, subtitle, and body text via @Input() properties on a CardComponent; use {{ }} interpolation in the template.
+     Example: <app-card [title]="item.title" [subtitle]="item.subtitle" [body]="item.description"></app-card>
+     Define a CardComponent with @Input() title, subtitle, and body strings to keep card templates reusable across views. -->
+                      <!--Section: Code-->
+                      <section class="mb-4">
+                        <h4><span class="badge badge-code-html">HTML</span></h4>
+                        <div class="p-0">
+                          <pre
+                            class="line-numbers m-0"
+                          ><code class="language-html">&lt;div class="card"&gt;
+  &lt;div class="card-body"&gt;
+    &lt;div class="card-top"&gt;
+      &lt;div class="card-titles"&gt;
+        &lt;h5 class="card-title"&gt;Title&lt;/h5&gt;
+        &lt;h6 class="card-subtitle"&gt;Subtitle&lt;/h6&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;p class="card-text"&gt;Card body text...&lt;/p&gt;
+    &lt;div class="card-actions"&gt;
+      &lt;button type="button" class="btn btn-primary"&gt;Button Label&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Subsection: Simple-->
+
+                    <!--Subsection: With Image-->
+                    <section id="subsection-image">
+                      <h4 class="mt-5">With Image</h4>
+                      <p>
+                        Add an image to the top of the card using
+                        <code>.card-img-top</code>:
+                      </p>
+
+                      <!--Section: Demo-->
+                      <section class="pb-4">
+                        <div class="border rounded-5">
+                          <section
+                            class="p-4 d-flex justify-content-center w-100 contrasting-bg"
+                          >
+                            <div class="card" style="max-width: 22rem">
+                              <img
+                                src="img/cf/styleguide/card-image.png"
+                                class="card-img-top"
+                                alt="Card image"
+                              />
+                              <div class="card-body">
+                                <div class="card-top">
+                                  <div class="card-titles">
+                                    <h4 class="card-title">Title</h4>
+                                    <h5 class="card-subtitle">Subtitle</h5>
+                                  </div>
+                                </div>
+                                <p class="card-text">
+                                  Lorem ipsum dolor sit amet, consectetur
+                                  adipiscing elit. Praesent sagittis finibus
+                                  ligula.
+                                </p>
+                                <div class="card-actions">
+                                  <button type="button" class="btn btn-primary">
+                                    Button Label
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </section>
+                        </div>
+                      </section>
+                      <!--Section: Demo-->
+<!-- Angular: Pass the image URL via @Input() imageUrl and bind it with [src]="imageUrl"; use (load) event on the <img alt=""> for lazy-loading callbacks.
+     Example: <img [src]="card.imageUrl" class="card-img-top" [alt]="card.imageAlt" (load)="onImageLoaded()" alt="">
+     Always provide a fallback [alt] binding to satisfy accessibility requirements in Angular templates. -->
+                      <!--Section: Code-->
+                      <section class="mb-4">
+                        <h4><span class="badge badge-code-html">HTML</span></h4>
+                        <div class="p-0">
+                          <pre
+                            class="line-numbers m-0"
+                          ><code class="language-html">&lt;div class="card"&gt;
+  &lt;img src="..." class="card-img-top" alt="Card image" /&gt;
+  &lt;div class="card-body"&gt;
+    &lt;div class="card-top"&gt;
+      &lt;div class="card-titles"&gt;
+        &lt;h5 class="card-title"&gt;Title&lt;/h5&gt;
+        &lt;h6 class="card-subtitle"&gt;Subtitle&lt;/h6&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;p class="card-text"&gt;Card body text...&lt;/p&gt;
+    &lt;div class="card-actions"&gt;
+      &lt;button type="button" class="btn btn-primary"&gt;Button Label&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Subsection: With Image-->
+
+                    <!--Subsection: With Icon-->
+                    <section id="subsection-icon">
+                      <h4 class="mt-5">With Icon</h4>
+                      <p>
+                        Add an icon before the title using
+                        <code>.card-icon</code>:
+                      </p>
+
+                      <!--Section: Demo-->
+                      <section class="pb-4">
+                        <div class="border rounded-5">
+                          <section
+                            class="p-4 d-flex justify-content-center w-100 contrasting-bg"
+                          >
+                            <div class="card" style="max-width: 22rem">
+                              <div class="card-body">
+                                <div class="card-top">
+                                  <div class="card-icon">
+                                    <i class="mdi mdi-bullseye mdi-48px" aria-hidden="true"></i>
+                                  </div>
+                                  <div class="card-titles">
+                                    <h4 class="card-title">Title</h4>
+                                    <h5 class="card-subtitle">Subtitle</h5>
+                                  </div>
+                                </div>
+                                <p class="card-text">
+                                  Lorem ipsum dolor sit amet, consectetur
+                                  adipiscing elit. Praesent sagittis finibus
+                                  ligula.
+                                </p>
+                                <div class="card-actions">
+                                  <button type="button" class="btn btn-primary">
+                                    Button Label
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </section>
+                        </div>
+                      </section>
+                      <!--Section: Demo-->
+<!-- Angular: Bind the icon class dynamically via @Input() iconClass and apply it with [ngClass]; pass the icon name from the parent component.
+     Example: <i [ngClass]="['mdi', card.iconClass, 'mdi-48px']"></i>
+     Centralise icon-to-meaning mappings in a shared constants file so templates stay decoupled from icon library specifics. -->
+                      <!--Section: Code-->
+                      <section class="mb-4">
+                        <h4><span class="badge badge-code-html">HTML</span></h4>
+                        <div class="p-0">
+                          <pre
+                            class="line-numbers m-0"
+                          ><code class="language-html">&lt;div class="card"&gt;
+  &lt;div class="card-body"&gt;
+    &lt;div class="card-top"&gt;
+      &lt;div class="card-icon"&gt;&lt;i class="mdi mdi-bullseye mdi-48px"&gt;&lt;/i&gt;&lt;/div&gt;
+      &lt;div class="card-titles"&gt;
+        &lt;h5 class="card-title"&gt;Title&lt;/h5&gt;
+        &lt;h6 class="card-subtitle"&gt;Subtitle&lt;/h6&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;p class="card-text"&gt;Card body text...&lt;/p&gt;
+    &lt;div class="card-actions"&gt;
+      &lt;button type="button" class="btn btn-primary"&gt;Button Label&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Subsection: With Icon-->
+
+                    <!--Subsection: With Links-->
+                    <section id="subsection-links">
+                      <h4 class="mt-5">With Links</h4>
+                      <p>
+                        Replace the button with action links using
+                        <code>.card-links</code>:
+                      </p>
+
+                      <!--Section: Demo-->
+                      <section class="pb-4">
+                        <div class="border rounded-5">
+                          <section
+                            class="p-4 d-flex justify-content-center w-100 contrasting-bg"
+                          >
+                            <div class="card" style="max-width: 22rem">
+                              <div class="card-body">
+                                <div class="card-top">
+                                  <div class="card-titles">
+                                    <h4 class="card-title">Title</h4>
+                                    <h5 class="card-subtitle">Subtitle</h5>
+                                  </div>
+                                </div>
+                                <p class="card-text">
+                                  Lorem ipsum dolor sit amet, consectetur
+                                  adipiscing elit. Praesent sagittis finibus
+                                  ligula.
+                                </p>
+                                <div class="card-links">
+                                  <a href="#!" class="card-link">Link 1</a>
+                                  <a href="#!" class="card-link">Link 2</a>
+                                </div>
+                              </div>
+                            </div>
+                          </section>
+                        </div>
+                      </section>
+                      <!--Section: Demo-->
+<!-- Angular: Use [routerLink] on .card-link anchors for internal navigation; pass the route as an @Input() to keep the card component reusable.
+     Example: <a [routerLink]="card.link1Route" class="card-link">{{ card.link1Label }}</a>
+     Prefer routerLink over href for SPA navigation so Angular handles route resolution without a full page reload. -->
+                      <!--Section: Code-->
+                      <section class="mb-4">
+                        <h4><span class="badge badge-code-html">HTML</span></h4>
+                        <div class="p-0">
+                          <pre
+                            class="line-numbers m-0"
+                          ><code class="language-html">&lt;div class="card"&gt;
+  &lt;div class="card-body"&gt;
+    &lt;div class="card-top"&gt;
+      &lt;div class="card-titles"&gt;
+        &lt;h5 class="card-title"&gt;Title&lt;/h5&gt;
+        &lt;h6 class="card-subtitle"&gt;Subtitle&lt;/h6&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;p class="card-text"&gt;Card body text...&lt;/p&gt;
+    &lt;div class="card-links"&gt;
+      &lt;a href="#!" class="card-link"&gt;Link 1&lt;/a&gt;
+      &lt;a href="#!" class="card-link"&gt;Link 2&lt;/a&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Subsection: With Links-->
+
+                    <!--Subsection: Header and Footer-->
+                    <section id="subsection-header-footer">
+                      <h4 class="mt-5">Header and Footer</h4>
+                      <p>
+                        Add optional header and footer sections to the card:
+                      </p>
+
+                      <!--Section: Demo-->
+                      <section class="pb-4">
+                        <div class="border rounded-5">
+                          <section
+                            class="p-4 d-flex justify-content-center w-100 contrasting-bg"
+                          >
+                            <div class="card" style="max-width: 22rem">
+                              <div class="card-header">Header</div>
+                              <div class="card-body">
+                                <div class="card-top">
+                                  <div class="card-titles">
+                                    <h4 class="card-title">Title</h4>
+                                    <h5 class="card-subtitle">Subtitle</h5>
+                                  </div>
+                                </div>
+                                <p class="card-text">
+                                  Lorem ipsum dolor sit amet, consectetur
+                                  adipiscing elit.
+                                </p>
+                                <div class="card-actions">
+                                  <button type="button" class="btn btn-primary">
+                                    Button Label
+                                  </button>
+                                </div>
+                              </div>
+                              <div class="card-footer">Footer</div>
+                            </div>
+                          </section>
+                        </div>
+                      </section>
+                      <!--Section: Demo-->
+<!-- Angular: Bind header and footer text via @Input() headerText and @Input() footerText; conditionally render them with *ngIf when not provided.
+     Example: <div *ngIf="headerText" class="card-header">{{ headerText }}</div>
+     Using *ngIf prevents empty .card-header and .card-footer elements from affecting the card's visual styling. -->
+                      <!--Section: Code-->
+                      <section class="mb-4">
+                        <h4><span class="badge badge-code-html">HTML</span></h4>
+                        <div class="p-0">
+                          <pre
+                            class="line-numbers m-0"
+                          ><code class="language-html">&lt;div class="card"&gt;
+  &lt;div class="card-header"&gt;Header&lt;/div&gt;
+  &lt;div class="card-body"&gt;
+    &lt;div class="card-top"&gt;
+      &lt;div class="card-titles"&gt;
+        &lt;h5 class="card-title"&gt;Title&lt;/h5&gt;
+        &lt;h6 class="card-subtitle"&gt;Subtitle&lt;/h6&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;p class="card-text"&gt;Card body text...&lt;/p&gt;
+    &lt;div class="card-actions"&gt;
+      &lt;button type="button" class="btn btn-primary"&gt;Button Label&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="card-footer"&gt;Footer&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Subsection: Header and Footer-->
+                  </section>
+                  <!--/Section: Default Card-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Text Alignment-->
+                  <section id="section-text-alignment">
+                    <h3 class="mb-4">Text Alignment</h3>
+                    <p>
+                      Cards support three alignment options:
+                      <strong>left</strong> (default), <strong>center</strong>,
+                      and <strong>right</strong>.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section
+                          class="p-4 d-flex gap-3 flex-wrap justify-content-center w-100 contrasting-bg"
+                        >
+                          <div class="card" style="max-width: 20rem">
+                            <div class="card-body">
+                              <div class="card-top">
+                                <div class="card-titles">
+                                  <h4 class="card-title">Left Aligned</h4>
+                                  <h5 class="card-subtitle">Subtitle</h5>
+                                </div>
+                              </div>
+                              <p class="card-text">
+                                Lorem ipsum dolor sit amet, consectetur
+                                adipiscing elit.
+                              </p>
+                              <div class="card-actions">
+                                <button type="button" class="btn btn-primary">
+                                  Button Label
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                          <div
+                            class="card text-center"
+                            style="max-width: 20rem"
+                          >
+                            <div class="card-body">
+                              <div class="card-top">
+                                <div class="card-titles">
+                                  <h4 class="card-title">Center Aligned</h4>
+                                  <h5 class="card-subtitle">Subtitle</h5>
+                                </div>
+                              </div>
+                              <p class="card-text">
+                                Lorem ipsum dolor sit amet, consectetur
+                                adipiscing elit.
+                              </p>
+                              <div class="card-actions">
+                                <button type="button" class="btn btn-primary">
+                                  Button Label
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="card text-end" style="max-width: 20rem">
+                            <div class="card-body">
+                              <div class="card-top">
+                                <div class="card-titles">
+                                  <h4 class="card-title">Right Aligned</h4>
+                                  <h5 class="card-subtitle">Subtitle</h5>
+                                </div>
+                              </div>
+                              <p class="card-text">
+                                Lorem ipsum dolor sit amet, consectetur
+                                adipiscing elit.
+                              </p>
+                              <div class="card-actions">
+                                <button type="button" class="btn btn-primary">
+                                  Button Label
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--Section: Demo-->
+<!-- Angular: Bind the alignment class conditionally via [ngClass] when alignment is determined at runtime from an @Input() property.
+     Example: <div class="card" [ngClass]="{'text-center': card.align === 'center', 'text-end': card.align === 'right'}">
+     Accept 'left' | 'center' | 'right' as a typed union in your @Input() to avoid invalid class bindings. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre
+                          class="line-numbers m-0"
+                        ><code class="language-html">&lt;!-- Left aligned (default) --&gt;
+&lt;div class="card"&gt;...&lt;/div&gt;
+
+&lt;!-- Center aligned --&gt;
+&lt;div class="card text-center"&gt;...&lt;/div&gt;
+
+&lt;!-- Right aligned --&gt;
+&lt;div class="card text-end"&gt;...&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                  </section>
+                  <!--/Section: Text Alignment-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Basic Card-->
+                  <section id="section-basic">
+                    <h3 class="mb-4">Basic Card</h3>
+                    <p>
+                      The basic card type is identical to the default card but
+                      without the box shadow. Add <code>.card-basic</code> to
+                      the card element.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section
+                          class="p-4 d-flex justify-content-center w-100 contrasting-bg"
+                        >
+                          <div class="card card-basic" style="max-width: 22rem">
+                            <div class="card-body">
+                              <div class="card-top">
+                                <div class="card-titles">
+                                  <h4 class="card-title">Title</h4>
+                                  <h5 class="card-subtitle">Subtitle</h5>
+                                </div>
+                              </div>
+                              <p class="card-text">
+                                Lorem ipsum dolor sit amet, consectetur
+                                adipiscing elit. Praesent sagittis finibus
+                                ligula. Donec ac sapien porta, dignissim mi in,
+                                eleifend lectus.
+                              </p>
+                              <div class="card-actions">
+                                <button type="button" class="btn btn-primary">
+                                  Button Label
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--Section: Demo-->
+<!-- Angular: Use a CardBasicComponent with @Input() properties for title, subtitle, body, and button label; render a list with *ngFor.
+     Example: <app-card-basic *ngFor="let item of cards" [title]="item.title" [body]="item.body"></app-card-basic>
+     The .card-basic variant is well-suited to data-driven lists where each card is constructed from a uniform data model. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre
+                          class="line-numbers m-0"
+                        ><code class="language-html">&lt;div class="card card-basic"&gt;
+  &lt;div class="card-body"&gt;
+    &lt;div class="card-top"&gt;
+      &lt;div class="card-titles"&gt;
+        &lt;h5 class="card-title"&gt;Title&lt;/h5&gt;
+        &lt;h6 class="card-subtitle"&gt;Subtitle&lt;/h6&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;p class="card-text"&gt;Card body text...&lt;/p&gt;
+    &lt;div class="card-actions"&gt;
+      &lt;button type="button" class="btn btn-primary"&gt;Button Label&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                  </section>
+                  <!--/Section: Basic Card-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Drawer Card-->
+                  <section id="section-drawer">
+                    <h3 class="mb-4">Drawer Card</h3>
+                    <p>
+                      The drawer card is a <code>.card-basic</code> variant that adds
+                      expand/collapse behavior. Apply <code>.card-drawer</code> alongside
+                      <code>.card-basic</code> on the root element, then place a
+                      <code>.card-drawer-toggle</code> button inside <code>.card-top</code>
+                      and wrap all collapsible content in <code>.card-drawer-body</code>.
+                      The chevron rotates 180° on toggle. Any <code>.card-header</code>
+                      or <code>.card-footer</code> always remains visible.
+                    </p>
+
+                    <!--Subsection: Simple-->
+                    <section id="subsection-drawer-simple">
+                      <h4 class="mt-5">Simple</h4>
+                      <p>Click the chevron to collapse or expand the card body content:</p>
+
+                      <!--Section: Demo-->
+                      <section class="pb-4">
+                        <div class="border rounded-5">
+                          <section
+                            class="p-4 d-flex justify-content-center w-100 contrasting-bg"
+                          >
+                            <div class="card card-basic card-drawer" style="max-width: 22rem; width: 100%">
+                              <div class="card-body">
+                                <div class="card-top">
+                                  <div class="card-titles">
+                                    <h4 class="card-title">Title</h4>
+                                    <h5 class="card-subtitle">Subtitle</h5>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    class="card-drawer-toggle"
+                                    aria-expanded="true"
+                                    aria-controls="drawer-demo-1"
+                                    aria-label="Collapse card"
+                                  >
+                                    <i class="mdi mdi-chevron-up mdi-24px" aria-hidden="true"></i>
+                                  </button>
+                                </div>
+                                <div class="card-drawer-body" id="drawer-demo-1">
+                                  <p class="card-text">
+                                    Lorem ipsum dolor sit amet, consectetur
+                                    adipiscing elit. Praesent sagittis finibus
+                                    ligula. Donec ac sapien porta, dignissim mi
+                                    in, eleifend lectus.
+                                  </p>
+                                  <div class="card-actions">
+                                    <button type="button" class="btn btn-primary">
+                                      Button Label
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </section>
+                        </div>
+                      </section>
+                      <!--/Section: Demo-->
+<!-- Angular: Wire the toggle with (click) on .card-drawer-toggle; bind [attr.aria-expanded] from a component boolean and toggle [class.collapsed] on the drawer body using *ngIf or [@collapse] animation.
+     Example: <button class="card-drawer-toggle" [attr.aria-expanded]="isOpen" [attr.aria-controls]="drawerId" [attr.aria-label]="isOpen ? 'Collapse card' : 'Expand card'" (click)="isOpen = !isOpen"><i class="mdi mdi-chevron-up mdi-24px"></i></button>
+     Use a unique id per card instance (e.g. drawerId = 'drawer-' + card.id) and pass it into the component via @Input() to satisfy aria-controls. -->
+
+                      <!--Section: Code-->
+                      <section class="mb-4">
+                        <h4><span class="badge badge-code-html">HTML</span></h4>
+                        <div class="p-0">
+                          <pre
+                            class="line-numbers m-0"
+                          ><code class="language-html">&lt;div class="card card-basic card-drawer"&gt;
+  &lt;div class="card-body"&gt;
+    &lt;div class="card-top"&gt;
+      &lt;div class="card-titles"&gt;
+        &lt;h5 class="card-title"&gt;Title&lt;/h5&gt;
+        &lt;h6 class="card-subtitle"&gt;Subtitle&lt;/h6&gt;
+      &lt;/div&gt;
+      &lt;button type="button" class="card-drawer-toggle"
+              aria-expanded="true" aria-controls="drawer-id"
+              aria-label="Collapse card"&gt;
+        &lt;i class="mdi mdi-chevron-up mdi-24px" aria-hidden="true"&gt;&lt;/i&gt;
+      &lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class="card-drawer-body" id="drawer-id"&gt;
+      &lt;p class="card-text"&gt;Card body text...&lt;/p&gt;
+      &lt;div class="card-actions"&gt;
+        &lt;button type="button" class="btn btn-primary"&gt;Button Label&lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+                      <!--/Section: Code-->
+                    </section>
+                    <!--/Subsection: Simple-->
+
+                    <!--Subsection: With Header and Footer-->
+                    <section id="subsection-drawer-header-footer">
+                      <h4 class="mt-5">With Header and Footer</h4>
+                      <p>
+                        The <code>.card-header</code> and <code>.card-footer</code>
+                        remain visible when the drawer is collapsed — only the
+                        <code>.card-drawer-body</code> content is toggled.
+                      </p>
+
+                      <!--Section: Demo-->
+                      <section class="pb-4">
+                        <div class="border rounded-5">
+                          <section
+                            class="p-4 d-flex justify-content-center w-100 contrasting-bg"
+                          >
+                            <div class="card card-basic card-drawer" style="max-width: 22rem; width: 100%">
+                              <div class="card-header">Header</div>
+                              <div class="card-body">
+                                <div class="card-top">
+                                  <div class="card-titles">
+                                    <h4 class="card-title">Title</h4>
+                                    <h5 class="card-subtitle">Subtitle</h5>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    class="card-drawer-toggle"
+                                    aria-expanded="true"
+                                    aria-controls="drawer-demo-2"
+                                    aria-label="Collapse card"
+                                  >
+                                    <i class="mdi mdi-chevron-up mdi-24px" aria-hidden="true"></i>
+                                  </button>
+                                </div>
+                                <div class="card-drawer-body" id="drawer-demo-2">
+                                  <p class="card-text">
+                                    Lorem ipsum dolor sit amet, consectetur
+                                    adipiscing elit. Praesent sagittis finibus
+                                    ligula.
+                                  </p>
+                                  <div class="card-actions">
+                                    <button type="button" class="btn btn-primary">
+                                      Button Label
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="card-footer">Footer</div>
+                            </div>
+                          </section>
+                        </div>
+                      </section>
+                      <!--/Section: Demo-->
+<!-- Angular: Declare @Input() headerText and @Input() footerText alongside the drawer toggle state; conditionally render header/footer with *ngIf so they always stay visible regardless of drawer state.
+     Example: <div *ngIf="headerText" class="card-header">{{ headerText }}</div>
+     Because header and footer are outside .card-drawer-body, they are never hidden by the collapse — no extra Angular logic is needed to keep them visible. -->
+
+                      <!--Section: Code-->
+                      <section class="mb-4">
+                        <h4><span class="badge badge-code-html">HTML</span></h4>
+                        <div class="p-0">
+                          <pre
+                            class="line-numbers m-0"
+                          ><code class="language-html">&lt;div class="card card-basic card-drawer"&gt;
+  &lt;div class="card-header"&gt;Header&lt;/div&gt;
+  &lt;div class="card-body"&gt;
+    &lt;div class="card-top"&gt;
+      &lt;div class="card-titles"&gt;
+        &lt;h5 class="card-title"&gt;Title&lt;/h5&gt;
+        &lt;h6 class="card-subtitle"&gt;Subtitle&lt;/h6&gt;
+      &lt;/div&gt;
+      &lt;button type="button" class="card-drawer-toggle"
+              aria-expanded="true" aria-controls="drawer-id"
+              aria-label="Collapse card"&gt;
+        &lt;i class="mdi mdi-chevron-up mdi-24px" aria-hidden="true"&gt;&lt;/i&gt;
+      &lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class="card-drawer-body" id="drawer-id"&gt;
+      &lt;p class="card-text"&gt;Card body text...&lt;/p&gt;
+      &lt;div class="card-actions"&gt;
+        &lt;button type="button" class="btn btn-primary"&gt;Button Label&lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="card-footer"&gt;Footer&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+                      <!--/Section: Code-->
+                    </section>
+                    <!--/Subsection: With Header and Footer-->
+                  </section>
+                  <!--/Section: Drawer Card-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Alert Card-->
+                  <section id="section-alert">
+                    <h3 class="mb-4">Alert Card</h3>
+                    <p>
+                      Alert cards have a solid background color with no border.
+                      Add <code>.card-alert</code> along with a color class like
+                      <code>.card-brand-blue</code>, <code>.card-primary</code>,
+                      etc.
+                    </p>
+
+                    <!--Subsection: Brand Colors-->
+                    <section id="subsection-alert-brand">
+                      <h4 class="mt-5">Brand Colors</h4>
+                      <p>Apply <code>.card-brand-blue</code> or <code>.card-brand-green</code> to render an alert card in the Cloudficient brand palette.</p>
+
+                      <!--Section: Demo-->
+                      <section class="pb-4">
+                        <div class="border rounded-5">
+                          <section
+                            class="p-4 d-flex gap-3 flex-wrap justify-content-center w-100 contrasting-bg"
+                          >
+                            <div
+                              class="card card-alert card-brand-blue"
+                              style="max-width: 22rem"
+                            >
+                              <div class="card-body">
+                                <div class="card-top">
+                                  <div class="card-titles">
+                                    <h4 class="card-title">Brand Blue</h4>
+                                    <h5 class="card-subtitle">Subtitle</h5>
+                                  </div>
+                                </div>
+                                <p class="card-text">
+                                  Lorem ipsum dolor sit amet, consectetur
+                                  adipiscing elit. Praesent sagittis finibus
+                                  ligula.
+                                </p>
+                                <div class="card-actions">
+                                  <button
+                                    type="button"
+                                    class="btn btn-outline-secondary"
+                                  >
+                                    Button Label
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                            <div
+                              class="card card-alert card-brand-green"
+                              style="max-width: 22rem"
+                            >
+                              <div class="card-body">
+                                <div class="card-top">
+                                  <div class="card-titles">
+                                    <h4 class="card-title">Brand Green</h4>
+                                    <h5 class="card-subtitle">Subtitle</h5>
+                                  </div>
+                                </div>
+                                <p class="card-text">
+                                  Lorem ipsum dolor sit amet, consectetur
+                                  adipiscing elit. Praesent sagittis finibus
+                                  ligula.
+                                </p>
+                                <div class="card-actions">
+                                  <button
+                                    type="button"
+                                    class="btn btn-outline-secondary"
+                                  >
+                                    Button Label
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </section>
+                        </div>
+                      </section>
+                      <!--Section: Demo-->
+<!-- Angular: Bind the brand color modifier class via @Input() colorVariant and apply it with [ngClass]; drive the variant from a data model.
+     Example: <div class="card card-alert" [ngClass]="'card-' + card.colorVariant">
+     Validate colorVariant against a known list of brand color tokens in the component to prevent invalid class names. -->
+                      <!--Section: Code-->
+                      <section class="mb-4">
+                        <h4><span class="badge badge-code-html">HTML</span></h4>
+                        <div class="p-0">
+                          <pre
+                            class="line-numbers m-0"
+                          ><code class="language-html">&lt;div class="card card-alert card-brand-blue"&gt;
+  &lt;div class="card-body"&gt;
+    &lt;div class="card-top"&gt;
+      &lt;div class="card-titles"&gt;
+        &lt;h5 class="card-title"&gt;Brand Blue&lt;/h5&gt;
+        &lt;h6 class="card-subtitle"&gt;Subtitle&lt;/h6&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;p class="card-text"&gt;Card body text...&lt;/p&gt;
+    &lt;div class="card-actions"&gt;
+      &lt;button type="button" class="btn btn-outline-secondary"&gt;Button Label&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="card card-alert card-brand-green"&gt;...&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Subsection: Brand Colors-->
+
+                    <!--Subsection: Semantic Colors-->
+                    <section id="subsection-alert-semantic">
+                      <h4 class="mt-5">Semantic Colors</h4>
+                      <p>Use semantic color classes such as <code>.card-primary</code>, <code>.card-success</code>, <code>.card-danger</code>, or <code>.card-warning</code> to convey meaning alongside the visual color.</p>
+
+                      <!--Section: Demo-->
+                      <section class="pb-4">
+                        <div class="border rounded-5">
+                          <section
+                            class="p-4 d-flex gap-3 flex-wrap justify-content-center w-100 contrasting-bg"
+                          >
+                            <div
+                              class="card card-alert card-primary"
+                              style="width: 18rem"
+                            >
+                              <div class="card-body">
+                                <div class="card-top">
+                                  <div class="card-titles">
+                                    <h4 class="card-title">Primary</h4>
+                                    <h5 class="card-subtitle">Subtitle</h5>
+                                  </div>
+                                </div>
+                                <p class="card-text">
+                                  Lorem ipsum dolor sit amet, consectetur
+                                  adipiscing elit.
+                                </p>
+                                <div class="card-actions">
+                                  <button
+                                    type="button"
+                                    class="btn btn-outline-secondary"
+                                  >
+                                    Button Label
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                            <div
+                              class="card card-alert card-secondary"
+                              style="width: 18rem"
+                            >
+                              <div class="card-body">
+                                <div class="card-top">
+                                  <div class="card-titles">
+                                    <h4 class="card-title">Secondary</h4>
+                                    <h5 class="card-subtitle">Subtitle</h5>
+                                  </div>
+                                </div>
+                                <p class="card-text">
+                                  Lorem ipsum dolor sit amet, consectetur
+                                  adipiscing elit.
+                                </p>
+                                <div class="card-actions">
+                                  <button
+                                    type="button"
+                                    class="btn btn-outline-secondary"
+                                  >
+                                    Button Label
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                            <div
+                              class="card card-alert card-success"
+                              style="width: 18rem"
+                            >
+                              <div class="card-body">
+                                <div class="card-top">
+                                  <div class="card-titles">
+                                    <h4 class="card-title">Success</h4>
+                                    <h5 class="card-subtitle">Subtitle</h5>
+                                  </div>
+                                </div>
+                                <p class="card-text">
+                                  Lorem ipsum dolor sit amet, consectetur
+                                  adipiscing elit.
+                                </p>
+                                <div class="card-actions">
+                                  <button
+                                    type="button"
+                                    class="btn btn-outline-secondary"
+                                  >
+                                    Button Label
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                            <div
+                              class="card card-alert card-danger"
+                              style="width: 18rem"
+                            >
+                              <div class="card-body">
+                                <div class="card-top">
+                                  <div class="card-titles">
+                                    <h4 class="card-title">Danger</h4>
+                                    <h5 class="card-subtitle">Subtitle</h5>
+                                  </div>
+                                </div>
+                                <p class="card-text">
+                                  Lorem ipsum dolor sit amet, consectetur
+                                  adipiscing elit.
+                                </p>
+                                <div class="card-actions">
+                                  <button
+                                    type="button"
+                                    class="btn btn-outline-secondary"
+                                  >
+                                    Button Label
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                            <div
+                              class="card card-alert card-warning"
+                              style="width: 18rem"
+                            >
+                              <div class="card-body">
+                                <div class="card-top">
+                                  <div class="card-titles">
+                                    <h4 class="card-title">Warning</h4>
+                                    <h5 class="card-subtitle">Subtitle</h5>
+                                  </div>
+                                </div>
+                                <p class="card-text">
+                                  Lorem ipsum dolor sit amet, consectetur
+                                  adipiscing elit.
+                                </p>
+                                <div class="card-actions">
+                                  <button
+                                    type="button"
+                                    class="btn btn-outline-secondary"
+                                  >
+                                    Button Label
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                            <div
+                              class="card card-alert card-caution"
+                              style="width: 18rem"
+                            >
+                              <div class="card-body">
+                                <div class="card-top">
+                                  <div class="card-titles">
+                                    <h4 class="card-title">Caution</h4>
+                                    <h5 class="card-subtitle">Subtitle</h5>
+                                  </div>
+                                </div>
+                                <p class="card-text">
+                                  Lorem ipsum dolor sit amet, consectetur
+                                  adipiscing elit.
+                                </p>
+                                <div class="card-actions">
+                                  <button
+                                    type="button"
+                                    class="btn btn-outline-secondary"
+                                  >
+                                    Button Label
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                            <div
+                              class="card card-alert card-info"
+                              style="width: 18rem"
+                            >
+                              <div class="card-body">
+                                <div class="card-top">
+                                  <div class="card-titles">
+                                    <h4 class="card-title">Info</h4>
+                                    <h5 class="card-subtitle">Subtitle</h5>
+                                  </div>
+                                </div>
+                                <p class="card-text">
+                                  Lorem ipsum dolor sit amet, consectetur
+                                  adipiscing elit.
+                                </p>
+                                <div class="card-actions">
+                                  <button
+                                    type="button"
+                                    class="btn btn-outline-secondary"
+                                  >
+                                    Button Label
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                            <div
+                              class="card card-alert card-light"
+                              style="width: 18rem"
+                            >
+                              <div class="card-body">
+                                <div class="card-top">
+                                  <div class="card-titles">
+                                    <h4 class="card-title">Light</h4>
+                                    <h5 class="card-subtitle">Subtitle</h5>
+                                  </div>
+                                </div>
+                                <p class="card-text">
+                                  Lorem ipsum dolor sit amet, consectetur
+                                  adipiscing elit.
+                                </p>
+                                <div class="card-actions">
+                                  <button
+                                    type="button"
+                                    class="btn btn-outline-secondary"
+                                  >
+                                    Button Label
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                            <div
+                              class="card card-alert card-dark"
+                              style="width: 18rem"
+                            >
+                              <div class="card-body">
+                                <div class="card-top">
+                                  <div class="card-titles">
+                                    <h4 class="card-title">Dark</h4>
+                                    <h5 class="card-subtitle">Subtitle</h5>
+                                  </div>
+                                </div>
+                                <p class="card-text">
+                                  Lorem ipsum dolor sit amet, consectetur
+                                  adipiscing elit.
+                                </p>
+                                <div class="card-actions">
+                                  <button
+                                    type="button"
+                                    class="btn btn-outline-secondary"
+                                  >
+                                    Button Label
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </section>
+                        </div>
+                      </section>
+                      <!--Section: Demo-->
+<!-- Angular: Bind the semantic color class via @Input() severity ('primary' | 'success' | 'error' | 'warning' | 'info') and compose the class string.
+     Example: <div class="card card-alert" [ngClass]="'card-' + card.severity">
+     Map severity values to ARIA roles or live-region attributes so screen readers also announce the card's status to users. -->
+                      <!--Section: Code-->
+                      <section class="mb-4">
+                        <h4><span class="badge badge-code-html">HTML</span></h4>
+                        <div class="p-0">
+                          <pre
+                            class="line-numbers m-0"
+                          ><code class="language-html">&lt;div class="card card-alert card-primary"&gt;...&lt;/div&gt;
+&lt;div class="card card-alert card-secondary"&gt;...&lt;/div&gt;
+&lt;div class="card card-alert card-success"&gt;...&lt;/div&gt;
+&lt;div class="card card-alert card-danger"&gt;...&lt;/div&gt;
+&lt;div class="card card-alert card-warning"&gt;...&lt;/div&gt;
+&lt;div class="card card-alert card-caution"&gt;...&lt;/div&gt;
+&lt;div class="card card-alert card-info"&gt;...&lt;/div&gt;
+&lt;div class="card card-alert card-light"&gt;...&lt;/div&gt;
+&lt;div class="card card-alert card-dark"&gt;...&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Subsection: Semantic Colors-->
+                  </section>
+                  <!--/Section: Alert Card-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Outline Card-->
+                  <section id="section-outline">
+                    <h3 class="mb-4">Outline Card</h3>
+                    <p>
+                      Outline cards have a colored border with a transparent
+                      background. Add <code>.card-outline</code> along with a
+                      color class.
+                    </p>
+
+                    <!--Subsection: Brand Colors-->
+                    <section id="subsection-outline-brand">
+                      <h4 class="mt-5">Brand Colors</h4>
+                      <p>Apply <code>.card-brand-blue</code> or <code>.card-brand-green</code> to give the outline card a border in the Cloudficient brand palette while keeping the background transparent.</p>
+
+                      <!--Section: Demo-->
+                      <section class="pb-4">
+                        <div class="border rounded-5">
+                          <section
+                            class="p-4 d-flex gap-3 flex-wrap justify-content-center w-100 contrasting-bg"
+                          >
+                            <div
+                              class="card card-outline card-brand-blue"
+                              style="max-width: 22rem"
+                            >
+                              <div class="card-body">
+                                <div class="card-top">
+                                  <div class="card-titles">
+                                    <h4 class="card-title">Brand Blue</h4>
+                                    <h5 class="card-subtitle">Subtitle</h5>
+                                  </div>
+                                </div>
+                                <p class="card-text">
+                                  Lorem ipsum dolor sit amet, consectetur
+                                  adipiscing elit. Praesent sagittis finibus
+                                  ligula.
+                                </p>
+                                <div class="card-actions">
+                                  <button
+                                    type="button"
+                                    class="btn btn-outline-secondary"
+                                  >
+                                    Button Label
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                            <div
+                              class="card card-outline card-brand-green"
+                              style="max-width: 22rem"
+                            >
+                              <div class="card-body">
+                                <div class="card-top">
+                                  <div class="card-titles">
+                                    <h4 class="card-title">Brand Green</h4>
+                                    <h5 class="card-subtitle">Subtitle</h5>
+                                  </div>
+                                </div>
+                                <p class="card-text">
+                                  Lorem ipsum dolor sit amet, consectetur
+                                  adipiscing elit. Praesent sagittis finibus
+                                  ligula.
+                                </p>
+                                <div class="card-actions">
+                                  <button
+                                    type="button"
+                                    class="btn btn-outline-secondary"
+                                  >
+                                    Button Label
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </section>
+                        </div>
+                      </section>
+                      <!--Section: Demo-->
+<!-- Angular: Bind the outline color variant via @Input() colorVariant and compose the class with [ngClass]; use *ngFor to render a set of outline cards.
+     Example: <div class="card card-outline" [ngClass]="'card-' + card.colorVariant">
+     The .card-outline class pairs well with a typed @Input() so the parent can drive variant selection from a strongly-typed data model. -->
+                      <!--Section: Code-->
+                      <section class="mb-4">
+                        <h4><span class="badge badge-code-html">HTML</span></h4>
+                        <div class="p-0">
+                          <pre
+                            class="line-numbers m-0"
+                          ><code class="language-html">&lt;div class="card card-outline card-brand-blue"&gt;
+  &lt;div class="card-body"&gt;
+    &lt;div class="card-top"&gt;
+      &lt;div class="card-titles"&gt;
+        &lt;h5 class="card-title"&gt;Brand Blue&lt;/h5&gt;
+        &lt;h6 class="card-subtitle"&gt;Subtitle&lt;/h6&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;p class="card-text"&gt;Card body text...&lt;/p&gt;
+    &lt;div class="card-actions"&gt;
+      &lt;button type="button" class="btn btn-outline-secondary"&gt;Button Label&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="card card-outline card-brand-green"&gt;...&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Subsection: Brand Colors-->
+
+                    <!--Subsection: Semantic Colors-->
+                    <section id="subsection-outline-semantic">
+                      <h4 class="mt-5">Semantic Colors</h4>
+                      <p>Use semantic color classes such as <code>.card-primary</code>, <code>.card-success</code>, <code>.card-danger</code>, or <code>.card-warning</code> to communicate intent through the card's border color alone.</p>
+
+                      <!--Section: Demo-->
+                      <section class="pb-4">
+                        <div class="border rounded-5">
+                          <section
+                            class="p-4 d-flex gap-3 flex-wrap justify-content-center w-100 contrasting-bg"
+                          >
+                            <div
+                              class="card card-outline card-primary"
+                              style="width: 18rem"
+                            >
+                              <div class="card-body">
+                                <div class="card-top">
+                                  <div class="card-titles">
+                                    <h4 class="card-title">Primary</h4>
+                                    <h5 class="card-subtitle">Subtitle</h5>
+                                  </div>
+                                </div>
+                                <p class="card-text">
+                                  Lorem ipsum dolor sit amet, consectetur
+                                  adipiscing elit.
+                                </p>
+                                <div class="card-actions">
+                                  <button
+                                    type="button"
+                                    class="btn btn-outline-secondary"
+                                  >
+                                    Button Label
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                            <div
+                              class="card card-outline card-secondary"
+                              style="width: 18rem"
+                            >
+                              <div class="card-body">
+                                <div class="card-top">
+                                  <div class="card-titles">
+                                    <h4 class="card-title">Secondary</h4>
+                                    <h5 class="card-subtitle">Subtitle</h5>
+                                  </div>
+                                </div>
+                                <p class="card-text">
+                                  Lorem ipsum dolor sit amet, consectetur
+                                  adipiscing elit.
+                                </p>
+                                <div class="card-actions">
+                                  <button
+                                    type="button"
+                                    class="btn btn-outline-secondary"
+                                  >
+                                    Button Label
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                            <div
+                              class="card card-outline card-success"
+                              style="width: 18rem"
+                            >
+                              <div class="card-body">
+                                <div class="card-top">
+                                  <div class="card-titles">
+                                    <h4 class="card-title">Success</h4>
+                                    <h5 class="card-subtitle">Subtitle</h5>
+                                  </div>
+                                </div>
+                                <p class="card-text">
+                                  Lorem ipsum dolor sit amet, consectetur
+                                  adipiscing elit.
+                                </p>
+                                <div class="card-actions">
+                                  <button
+                                    type="button"
+                                    class="btn btn-outline-secondary"
+                                  >
+                                    Button Label
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                            <div
+                              class="card card-outline card-danger"
+                              style="width: 18rem"
+                            >
+                              <div class="card-body">
+                                <div class="card-top">
+                                  <div class="card-titles">
+                                    <h4 class="card-title">Danger</h4>
+                                    <h5 class="card-subtitle">Subtitle</h5>
+                                  </div>
+                                </div>
+                                <p class="card-text">
+                                  Lorem ipsum dolor sit amet, consectetur
+                                  adipiscing elit.
+                                </p>
+                                <div class="card-actions">
+                                  <button
+                                    type="button"
+                                    class="btn btn-outline-secondary"
+                                  >
+                                    Button Label
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                            <div
+                              class="card card-outline card-warning"
+                              style="width: 18rem"
+                            >
+                              <div class="card-body">
+                                <div class="card-top">
+                                  <div class="card-titles">
+                                    <h4 class="card-title">Warning</h4>
+                                    <h5 class="card-subtitle">Subtitle</h5>
+                                  </div>
+                                </div>
+                                <p class="card-text">
+                                  Lorem ipsum dolor sit amet, consectetur
+                                  adipiscing elit.
+                                </p>
+                                <div class="card-actions">
+                                  <button
+                                    type="button"
+                                    class="btn btn-outline-secondary"
+                                  >
+                                    Button Label
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                            <div
+                              class="card card-outline card-caution"
+                              style="width: 18rem"
+                            >
+                              <div class="card-body">
+                                <div class="card-top">
+                                  <div class="card-titles">
+                                    <h4 class="card-title">Caution</h4>
+                                    <h5 class="card-subtitle">Subtitle</h5>
+                                  </div>
+                                </div>
+                                <p class="card-text">
+                                  Lorem ipsum dolor sit amet, consectetur
+                                  adipiscing elit.
+                                </p>
+                                <div class="card-actions">
+                                  <button
+                                    type="button"
+                                    class="btn btn-outline-secondary"
+                                  >
+                                    Button Label
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                            <div
+                              class="card card-outline card-info"
+                              style="width: 18rem"
+                            >
+                              <div class="card-body">
+                                <div class="card-top">
+                                  <div class="card-titles">
+                                    <h4 class="card-title">Info</h4>
+                                    <h5 class="card-subtitle">Subtitle</h5>
+                                  </div>
+                                </div>
+                                <p class="card-text">
+                                  Lorem ipsum dolor sit amet, consectetur
+                                  adipiscing elit.
+                                </p>
+                                <div class="card-actions">
+                                  <button
+                                    type="button"
+                                    class="btn btn-outline-secondary"
+                                  >
+                                    Button Label
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                            <div
+                              class="card card-outline card-light"
+                              style="width: 18rem"
+                            >
+                              <div class="card-body">
+                                <div class="card-top">
+                                  <div class="card-titles">
+                                    <h4 class="card-title">Light</h4>
+                                    <h5 class="card-subtitle">Subtitle</h5>
+                                  </div>
+                                </div>
+                                <p class="card-text">
+                                  Lorem ipsum dolor sit amet, consectetur
+                                  adipiscing elit.
+                                </p>
+                                <div class="card-actions">
+                                  <button
+                                    type="button"
+                                    class="btn btn-outline-secondary"
+                                  >
+                                    Button Label
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                            <div
+                              class="card card-outline card-dark"
+                              style="width: 18rem"
+                            >
+                              <div class="card-body">
+                                <div class="card-top">
+                                  <div class="card-titles">
+                                    <h4 class="card-title">Dark</h4>
+                                    <h5 class="card-subtitle">Subtitle</h5>
+                                  </div>
+                                </div>
+                                <p class="card-text">
+                                  Lorem ipsum dolor sit amet, consectetur
+                                  adipiscing elit.
+                                </p>
+                                <div class="card-actions">
+                                  <button
+                                    type="button"
+                                    class="btn btn-outline-secondary"
+                                  >
+                                    Button Label
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </section>
+                        </div>
+                      </section>
+                      <!--Section: Demo-->
+<!-- Angular: Drive outline card severity variants the same way as alert cards — bind @Input() severity to [ngClass] for the color modifier class.
+     Example: <div class="card card-outline" [ngClass]="'card-' + card.severity">
+     Sharing a severity @Input() type between alert and outline card components enforces consistency across the design system. -->
+                      <!--Section: Code-->
+                      <section class="mb-4">
+                        <h4><span class="badge badge-code-html">HTML</span></h4>
+                        <div class="p-0">
+                          <pre
+                            class="line-numbers m-0"
+                          ><code class="language-html">&lt;div class="card card-outline card-primary"&gt;...&lt;/div&gt;
+&lt;div class="card card-outline card-secondary"&gt;...&lt;/div&gt;
+&lt;div class="card card-outline card-success"&gt;...&lt;/div&gt;
+&lt;div class="card card-outline card-danger"&gt;...&lt;/div&gt;
+&lt;div class="card card-outline card-warning"&gt;...&lt;/div&gt;
+&lt;div class="card card-outline card-caution"&gt;...&lt;/div&gt;
+&lt;div class="card card-outline card-info"&gt;...&lt;/div&gt;
+&lt;div class="card card-outline card-light"&gt;...&lt;/div&gt;
+&lt;div class="card card-outline card-dark"&gt;...&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Subsection: Semantic Colors-->
+                  </section>
+                  <!--/Section: Outline Card-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Horizontal-->
+                  <section id="section-horizontal">
+                    <h3 class="mb-4">Horizontal Card</h3>
+                    <p>
+                      Cards can be made horizontal using grid classes. Add
+                      <code>.card-horizontal</code> to the card element.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section
+                          class="p-4 d-flex justify-content-center w-100 contrasting-bg"
+                        >
+                          <div
+                            class="card card-horizontal"
+                            style="max-width: 540px"
+                          >
+                            <div class="row g-0">
+                              <div class="col-md-4">
+                                <img
+                                  src="img/cf/styleguide/card-image.png"
+                                  alt="Card image"
+                                  class="img-fluid rounded-start"
+                                />
+                              </div>
+                              <div class="col-md-8">
+                                <div class="card-body">
+                                  <div class="card-top">
+                                    <div class="card-titles">
+                                      <h4 class="card-title">Title</h4>
+                                      <h5 class="card-subtitle">Subtitle</h5>
+                                    </div>
+                                  </div>
+                                  <p class="card-text">
+                                    Lorem ipsum dolor sit amet, consectetur
+                                    adipiscing elit.
+                                  </p>
+                                  <div class="card-actions">
+                                    <button
+                                      type="button"
+                                      class="btn btn-primary"
+                                    >
+                                      Button Label
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+
+                    <!--Section: Demo-->
+<!-- Angular: Bind the image source via @Input() imageUrl and pass the route for [routerLink] as @Input() on the horizontal card component.
+     Example: <div class="card card-horizontal" [style.maxWidth]="'540px'"><img [src]="card.imageUrl" class="img-fluid rounded-start" alt=""></div>
+     Use lazy loading with (load) on the image to defer rendering until the card is visible, reducing initial paint time for long lists. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre
+                          class="line-numbers m-0"
+                        ><code class="language-html">&lt;div class="card card-horizontal" style="max-width: 540px"&gt;
+  &lt;div class="row g-0"&gt;
+    &lt;div class="col-md-4"&gt;
+      &lt;img src="..." alt="..." class="img-fluid rounded-start" /&gt;
+    &lt;/div&gt;
+    &lt;div class="col-md-8"&gt;
+      &lt;div class="card-body"&gt;
+        &lt;div class="card-top"&gt;
+          &lt;div class="card-titles"&gt;
+            &lt;h5 class="card-title"&gt;Title&lt;/h5&gt;
+            &lt;h6 class="card-subtitle"&gt;Subtitle&lt;/h6&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+        &lt;p class="card-text"&gt;Card body text...&lt;/p&gt;
+        &lt;div class="card-actions"&gt;
+          &lt;button type="button" class="btn btn-primary"&gt;Button Label&lt;/button&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                  </section>
+                  <!--/Section: Horizontal-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Sizing-->
+                  <section id="section-sizing">
+                    <h3 class="mb-4">Sizing</h3>
+                    <p>
+                      Cards assume no specific <code>width</code> to start.
+                      Control width with grid classes, sizing utilities, or
+                      inline styles.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="p-4 w-100 contrasting-bg">
+                          <div class="row">
+                            <div class="col-sm-6">
+                              <div class="card">
+                                <div class="card-body">
+                                  <h4 class="card-title">Card title</h4>
+                                  <p class="card-text">
+                                    With supporting text below as a natural
+                                    lead-in to additional content.
+                                  </p>
+                                  <a href="#" class="btn btn-primary"
+                                    >Go somewhere</a
+                                  >
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-sm-6">
+                              <div class="card">
+                                <div class="card-body">
+                                  <h4 class="card-title">Card title</h4>
+                                  <p class="card-text">
+                                    With supporting text below as a natural
+                                    lead-in to additional content.
+                                  </p>
+                                  <a href="#" class="btn btn-primary"
+                                    >Go somewhere</a
+                                  >
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--Section: Demo-->
+<!-- Angular: Use Bootstrap grid @Input() colClass binding to set column width per card; pass it from the parent when generating responsive layouts.
+     Example: <div class="row"><div [class]="colClass" *ngFor="let item of cards"><app-card [title]="item.title"></app-card></div></div>
+     Prefer row-cols-* responsive classes over inline styles when the column count is data-driven. -->
+                  </section>
+                  <!--/Section: Sizing-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Card Layout-->
+                  <section id="section-card-layout">
+                    <h3 class="mb-4">Card Layout</h3>
+
+                    <section id="subsection-card-groups">
+                      <h4 class="mt-5">Card Groups</h4>
+                      <p>
+                        Use card groups to render cards as a single, attached
+                        element with equal width and height columns.
+                      </p>
+
+                      <!--Section: Demo-->
+                      <section class="pb-4">
+                        <div class="border rounded-5">
+                          <section class="p-4 w-100 contrasting-bg">
+                            <div class="card-group">
+                              <div class="card">
+                                <img
+                                  src="img/cf/styleguide/card-image.png"
+                                  class="card-img-top"
+                                  alt="Card image"
+                                />
+                                <div class="card-body">
+                                  <h4 class="card-title">Card title</h4>
+                                  <p class="card-text">
+                                    This is a wider card with supporting text
+                                    below.
+                                  </p>
+                                  <p class="card-text">
+                                    <small class="text-muted"
+                                      >Last updated 3 mins ago</small
+                                    >
+                                  </p>
+                                </div>
+                              </div>
+                              <div class="card">
+                                <img
+                                  src="img/cf/styleguide/card-image.png"
+                                  class="card-img-top"
+                                  alt="Card image"
+                                />
+                                <div class="card-body">
+                                  <h4 class="card-title">Card title</h4>
+                                  <p class="card-text">
+                                    This card has supporting text below.
+                                  </p>
+                                  <p class="card-text">
+                                    <small class="text-muted"
+                                      >Last updated 3 mins ago</small
+                                    >
+                                  </p>
+                                </div>
+                              </div>
+                              <div class="card">
+                                <img
+                                  src="img/cf/styleguide/card-image.png"
+                                  class="card-img-top"
+                                  alt="Card image"
+                                />
+                                <div class="card-body">
+                                  <h4 class="card-title">Card title</h4>
+                                  <p class="card-text">
+                                    This is a wider card with even longer
+                                    content.
+                                  </p>
+                                  <p class="card-text">
+                                    <small class="text-muted"
+                                      >Last updated 3 mins ago</small
+                                    >
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </section>
+                        </div>
+                      </section>
+                      <!--Section: Demo-->
+<!-- Angular: Use *ngFor on .card-group children with a cards @Input() array; each card component receives a data object via [card]="item".
+     Example: <div class="card-group"><app-card *ngFor="let item of cards" [card]="item"></app-card></div>
+     Card groups work best with a fixed-length array; use a grid layout instead when the item count is variable. -->
+                    </section>
+
+                    <section id="subsection-grid-cards">
+                      <h4 class="mt-5">Grid Cards</h4>
+                      <p>
+                        Use the grid system and <code>.row-cols</code> classes
+                        to control how many cards per row.
+                      </p>
+
+                      <!--Section: Demo-->
+                      <section class="pb-4">
+                        <div class="border rounded-5">
+                          <section class="p-4 w-100 contrasting-bg">
+                            <div class="row row-cols-1 row-cols-md-3 g-4">
+                              <div class="col">
+                                <div class="card h-100">
+                                  <img
+                                    src="img/cf/styleguide/card-image.png"
+                                    class="card-img-top"
+                                    alt="Card image"
+                                  />
+                                  <div class="card-body">
+                                    <h4 class="card-title">Card title</h4>
+                                    <p class="card-text">
+                                      This is a longer card with supporting text
+                                      below.
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="col">
+                                <div class="card h-100">
+                                  <img
+                                    src="img/cf/styleguide/card-image.png"
+                                    class="card-img-top"
+                                    alt="Card image"
+                                  />
+                                  <div class="card-body">
+                                    <h4 class="card-title">Card title</h4>
+                                    <p class="card-text">
+                                      This is a short card.
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="col">
+                                <div class="card h-100">
+                                  <img
+                                    src="img/cf/styleguide/card-image.png"
+                                    class="card-img-top"
+                                    alt="Card image"
+                                  />
+                                  <div class="card-body">
+                                    <h4 class="card-title">Card title</h4>
+                                    <p class="card-text">
+                                      This is a longer card with supporting text
+                                      below.
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </section>
+                        </div>
+                      </section>
+                      <!--Section: Demo-->
+<!-- Angular: Use *ngFor with row-cols-* classes to render a responsive grid of cards; bind each card's data via a CardComponent @Input().
+     Example: <div class="row row-cols-1 row-cols-md-3 g-4"><div class="col" *ngFor="let item of cards"><app-card [card]="item"></app-card></div></div>
+     Wrap the grid in an Angular CDK virtual scroller when the card list is long to avoid rendering all cards up front. -->
+                    </section>
+                  </section>
+                  <!--/Section: Card Layout-->
+
+                  <hr class="my-5" />
+
+                  <!-- Section: API -->
+                  <section id="section-api-docs">
+                    <h3 class="mb-3">API Documentation</h3>
+
+                    <!--Section: Introduction-->
+                    <section id="api-section-introduction">
+                      <h4 class="mb-4">Introduction</h4>
+                    </section>
+                    <!--Section: Introduction-->
+
+                    <!--Section: Usage-->
+                    <section id="api-section-usage">
+                      <h4 class="mb-4">Usage</h4>
+                      <p>
+                        Cards are a pure CSS component — no JavaScript
+                        initialization is required. Simply use the appropriate
+                        HTML structure and CSS classes.
+                      </p>
+
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre
+                            class="line-numbers m-0"
+                          ><code class="language-html">&lt;div class="card"&gt;
+  &lt;div class="card-body"&gt;
+    &lt;div class="card-top"&gt;
+      &lt;div class="card-titles"&gt;
+        &lt;h5 class="card-title"&gt;Title&lt;/h5&gt;
+        &lt;h6 class="card-subtitle"&gt;Subtitle&lt;/h6&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;p class="card-text"&gt;Card body text...&lt;/p&gt;
+    &lt;div class="card-actions"&gt;
+      &lt;button type="button" class="btn btn-primary"&gt;Button Label&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--Section: Usage-->
+
+
+                    <!--Section: CSS Classes-->
+                    <section id="api-section-classes">
+                      <h4 class="mb-4">CSS Classes</h4>
+                      <p>
+                        The following CSS classes are available for building
+                        cards.
+                      </p>
+
+                      <h5 class="mt-4 mb-3">Structure Classes</h5>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="CSS Classes">
+                          <thead>
+                            <tr>
+                              <th scope="col">Class</th>
+                              <th scope="col">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>.card</code></td>
+                              <td>
+                                Base card container. Required on the outermost
+                                element.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.card-body</code></td>
+                              <td>
+                                Main content area of the card. Contains title,
+                                text, and actions.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.card-top</code></td>
+                              <td>
+                                Wrapper for the icon and titles area at the top
+                                of the card body.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.card-titles</code></td>
+                              <td>
+                                Container for the card title and subtitle.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.card-title</code></td>
+                              <td>
+                                Card title element (typically
+                                <code>&lt;h5&gt;</code>).
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.card-subtitle</code></td>
+                              <td>
+                                Card subtitle element (typically
+                                <code>&lt;h6&gt;</code>).
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.card-text</code></td>
+                              <td>Card body text paragraph.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.card-icon</code></td>
+                              <td>
+                                Container for an icon displayed before the
+                                titles.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.card-img-top</code></td>
+                              <td>
+                                Image placed at the top of the card, above the
+                                body.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.card-actions</code></td>
+                              <td>
+                                Container for action buttons at the bottom of
+                                the card body.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.card-links</code></td>
+                              <td>
+                                Container for action links (alternative to
+                                buttons).
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.card-link</code></td>
+                              <td>
+                                Individual link within <code>.card-links</code>.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.card-header</code></td>
+                              <td>
+                                Optional header section above the card body.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.card-footer</code></td>
+                              <td>
+                                Optional footer section below the card body.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.card-drawer-toggle</code></td>
+                              <td>
+                                Chevron button placed inside <code>.card-top</code>. Controls collapse state of
+                                <code>.card-drawer-body</code> via <code>aria-expanded</code>. Chevron rotates
+                                180° when collapsed.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.card-drawer-body</code></td>
+                              <td>
+                                Wraps the collapsible content within a drawer card. Animates
+                                to height 0 when its sibling <code>.card-drawer-toggle</code>
+                                sets <code>aria-expanded="false"</code>.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.card-top--collapsed</code></td>
+                              <td>
+                                State modifier toggled on <code>.card-top</code> by the drawer
+                                JavaScript when the drawer is collapsed. Removes the bottom
+                                padding from <code>.card-top</code> so no gap remains.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <h5 class="mt-4 mb-3">Type Classes</h5>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="CSS Type Classes">
+                          <thead>
+                            <tr>
+                              <th scope="col">Class</th>
+                              <th scope="col">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>.card</code> (default)</td>
+                              <td>
+                                Default card with background, border, and box
+                                shadow.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.card-basic</code></td>
+                              <td>
+                                Same as default but without the box shadow.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.card-drawer</code></td>
+                              <td>
+                                Collapsible drawer variant. Add alongside <code>.card-basic</code>;
+                                requires <code>.card-drawer-toggle</code> inside <code>.card-top</code>
+                                and <code>.card-drawer-body</code> wrapping collapsible content.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.card-alert</code></td>
+                              <td>
+                                Solid background color card with no border.
+                                Requires a color class.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.card-outline</code></td>
+                              <td>
+                                Colored border with transparent background.
+                                Requires a color class.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.card-horizontal</code></td>
+                              <td>
+                                Horizontal layout with image on the left and
+                                content on the right.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <h5 class="mt-4 mb-3">Color Classes</h5>
+                      <p>
+                        Used with <code>.card-alert</code> and
+                        <code>.card-outline</code> to set the card color
+                        variant.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="CSS Color Classes">
+                          <thead>
+                            <tr>
+                              <th scope="col">Class</th>
+                              <th scope="col">Type</th>
+                              <th scope="col">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>.card-brand-blue</code></td>
+                              <td>Brand</td>
+                              <td>Cloudficient brand blue color.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.card-brand-green</code></td>
+                              <td>Brand</td>
+                              <td>Cloudficient brand green color.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.card-primary</code></td>
+                              <td>Semantic</td>
+                              <td>Primary / neutral color.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.card-secondary</code></td>
+                              <td>Semantic</td>
+                              <td>Secondary / muted color.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.card-success</code></td>
+                              <td>Semantic</td>
+                              <td>Success / positive color.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.card-danger</code></td>
+                              <td>Semantic</td>
+                              <td>Danger color. <code>.card-error</code> is a deprecated alias — prefer <code>.card-danger</code>, which matches every other component and Figma's <code>Nimbus/Card</code> <code>Color=danger</code>.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.card-warning</code></td>
+                              <td>Semantic</td>
+                              <td>Warning / caution color.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.card-caution</code></td>
+                              <td>Semantic</td>
+                              <td>Caution color &mdash; the &ldquo;needs a human look&rdquo; step between warning and danger.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.card-info</code></td>
+                              <td>Semantic</td>
+                              <td>Informational color.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.card-light</code></td>
+                              <td>Semantic</td>
+                              <td>Light / subtle color.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.card-dark</code></td>
+                              <td>Semantic</td>
+                              <td>Dark / strong color.</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <h5 class="mt-4 mb-3">Layout Classes</h5>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="CSS Layout Classes">
+                          <thead>
+                            <tr>
+                              <th scope="col">Class</th>
+                              <th scope="col">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>.card-group</code></td>
+                              <td>
+                                Groups cards into a single row with equal
+                                heights and no gutters.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.text-center</code></td>
+                              <td>Center-aligns card content.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.text-end</code></td>
+                              <td>Right-aligns card content.</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--Section: CSS Classes-->
+
+
+                    <!--Section: CSS Custom Properties-->
+                    <section id="api-section-properties">
+                      <h4 class="mb-4">CSS Custom Properties</h4>
+                      <p>
+                        The following CSS custom properties are defined on the
+                        <code>.card</code> element and can be overridden to
+                        customize card appearance.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="CSS Custom Properties">
+                          <thead>
+                            <tr>
+                              <th scope="col">Property</th>
+                              <th scope="col">Default</th>
+                              <th scope="col">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>--cnds-card-spacer-y</code></td>
+                              <td><code>1.5rem</code></td>
+                              <td>Vertical padding inside the card body.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-card-spacer-x</code></td>
+                              <td><code>1.5rem</code></td>
+                              <td>Horizontal padding inside the card body.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-card-title-spacer-y</code></td>
+                              <td><code>0.25rem</code></td>
+                              <td>
+                                Vertical spacing between title and subtitle.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-card-title-color</code></td>
+                              <td>(inherited)</td>
+                              <td>Color of the card title.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-card-subtitle-color</code></td>
+                              <td>(inherited)</td>
+                              <td>Color of the card subtitle.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-card-border-width</code></td>
+                              <td><code>1px</code></td>
+                              <td>Border width of the card.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-card-border-color</code></td>
+                              <td><code>#e0e0e0</code></td>
+                              <td>Border color of the card.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-card-border-radius</code></td>
+                              <td><code>8px</code></td>
+                              <td>Border radius of the card.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-card-box-shadow</code></td>
+                              <td><code>none</code></td>
+                              <td>
+                                Box shadow. Default cards use
+                                <code>var(--cnds-box-shadow)</code>.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-card-color</code></td>
+                              <td>(inherited)</td>
+                              <td>Text color of the card.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-card-bg</code></td>
+                              <td><code>#f5f5f5</code></td>
+                              <td>Background color of the card.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-card-cap-padding-y</code></td>
+                              <td><code>0.25rem</code></td>
+                              <td>Vertical padding for header/footer caps.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-card-cap-padding-x</code></td>
+                              <td><code>1.5rem</code></td>
+                              <td>
+                                Horizontal padding for header/footer caps.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-card-cap-bg</code></td>
+                              <td><code>transparent</code></td>
+                              <td>Background color for header/footer caps.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-card-cap-color</code></td>
+                              <td>(inherited)</td>
+                              <td>Text color for header/footer caps.</td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>--cnds-card-img-overlay-padding</code>
+                              </td>
+                              <td><code>1.5rem</code></td>
+                              <td>Padding for image overlay content.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-card-group-margin</code></td>
+                              <td><code>0.75rem</code></td>
+                              <td>Margin between cards in a card group.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-link-color</code></td>
+                              <td>(theme token)</td>
+                              <td>
+                                Text/Link token. Applied to the <code>.card-drawer-toggle</code>
+                                chevron color so it follows the active theme's link color.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--Section: CSS Custom Properties-->
+
+
+                    <!--Section: Theme Variables-->
+                    <section id="api-section-theme-variables">
+                      <h4 class="mb-4">Theme Variables</h4>
+                      <p>
+                        The following overrides are defined in
+                        <code>dark.css</code> and applied when
+                        <code>data-cnds-theme="dark"</code> is set on the root
+                        element. The <strong>Light Default</strong> column shows
+                        the values from <code>cards.css</code>.
+                      </p>
+
+                      <h5 class="mt-4 mb-3">Base Card</h5>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Theme Variables">
+                          <thead>
+                            <tr>
+                              <th scope="col">Property</th>
+                              <th scope="col">Light Default</th>
+                              <th scope="col">Dark Override</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>--cnds-card-bg</code></td>
+                              <td><code>#f5f5f5</code></td>
+                              <td><code>#252525</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-card-border-color</code></td>
+                              <td><code>#e0e0e0</code></td>
+                              <td><code>#4a4a4a</code></td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <h5 class="mt-4 mb-3">Outline Cards — Brand Colors</h5>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Theme Variables — Outline Brand Colors">
+                          <thead>
+                            <tr>
+                              <th scope="col">Selector</th>
+                              <th scope="col">Property</th>
+                              <th scope="col">Light Default</th>
+                              <th scope="col">Dark Override</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td rowspan="2">
+                                <code>.card-outline.card-brand-blue</code>
+                              </td>
+                              <td><code>--cnds-card-border-color</code></td>
+                              <td><code>#3a41a8</code></td>
+                              <td><code>#5e65c5</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-card-color</code></td>
+                              <td><code>#3a41a8</code></td>
+                              <td><code>#9297d8</code></td>
+                            </tr>
+                            <tr>
+                              <td rowspan="2">
+                                <code>.card-outline.card-brand-green</code>
+                              </td>
+                              <td><code>--cnds-card-border-color</code></td>
+                              <td><code>#56842f</code></td>
+                              <td><code>#91c964</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-card-color</code></td>
+                              <td><code>#56842f</code></td>
+                              <td><code>#a7d382</code></td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <h5 class="mt-4 mb-3">Outline Cards — Semantic Colors</h5>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Theme Variables — Outline Semantic Colors">
+                          <thead>
+                            <tr>
+                              <th scope="col">Selector</th>
+                              <th scope="col">Property</th>
+                              <th scope="col">Light Default</th>
+                              <th scope="col">Dark Override</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td rowspan="2">
+                                <code>.card-outline.card-primary</code>
+                              </td>
+                              <td><code>--cnds-card-border-color</code></td>
+                              <td><code>#7a7a7a</code></td>
+                              <td><code>#787878</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-card-color</code></td>
+                              <td><code>#4a4a4a</code></td>
+                              <td><code>#cccccc</code></td>
+                            </tr>
+                            <tr>
+                              <td rowspan="2">
+                                <code>.card-outline.card-secondary</code>
+                              </td>
+                              <td><code>--cnds-card-border-color</code></td>
+                              <td><code>#7a7a7a</code></td>
+                              <td><code>#787878</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-card-color</code></td>
+                              <td><code>#787878</code></td>
+                              <td><code>#a3a3a3</code></td>
+                            </tr>
+                            <tr>
+                              <td rowspan="2">
+                                <code>.card-outline.card-success</code>
+                              </td>
+                              <td><code>--cnds-card-border-color</code></td>
+                              <td><code>#2d682f</code></td>
+                              <td><code>#2d682f</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-card-color</code></td>
+                              <td><code>#2d682f</code></td>
+                              <td><code>#69be6b</code></td>
+                            </tr>
+                            <tr>
+                              <td rowspan="2">
+                                <code>.card-outline.card-danger</code>
+                              </td>
+                              <td><code>--cnds-card-border-color</code></td>
+                              <td><code>#942700</code></td>
+                              <td><code>#942700</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-card-color</code></td>
+                              <td><code>#942700</code></td>
+                              <td><code>#ff5e24</code></td>
+                            </tr>
+                            <tr>
+                              <td rowspan="2">
+                                <code>.card-outline.card-warning</code>
+                              </td>
+                              <td><code>--cnds-card-border-color</code></td>
+                              <td><code>#957100</code></td>
+                              <td><code>#f3bc00</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-card-color</code></td>
+                              <td><code>#957100</code></td>
+                              <td><code>#f3bc00</code></td>
+                            </tr>
+                            <tr>
+                              <td rowspan="2">
+                                <code>.card-outline.card-info</code>
+                              </td>
+                              <td><code>--cnds-card-border-color</code></td>
+                              <td><code>#0037c3</code></td>
+                              <td><code>#0037c3</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-card-color</code></td>
+                              <td><code>#0037c3</code></td>
+                              <td><code>#80a4ff</code></td>
+                            </tr>
+                            <tr>
+                              <td rowspan="2">
+                                <code>.card-outline.card-light</code>
+                              </td>
+                              <td><code>--cnds-card-border-color</code></td>
+                              <td><code>#7a7a7a</code></td>
+                              <td><code>#787878</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-card-color</code></td>
+                              <td><code>#a3a3a3</code></td>
+                              <td><code>#cccccc</code></td>
+                            </tr>
+                            <tr>
+                              <td rowspan="2">
+                                <code>.card-outline.card-dark</code>
+                              </td>
+                              <td><code>--cnds-card-border-color</code></td>
+                              <td><code>#141414</code></td>
+                              <td><code>#141414</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-card-color</code></td>
+                              <td><code>#141414</code></td>
+                              <td><code>#e8e8e8</code></td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--Section: Theme Variables-->
+
+                    <!--Section: JavaScript-->
+                    <section id="api-section-javascript">
+                      <h4 class="mb-4">JavaScript — Drawer Card</h4>
+                      <p>
+                        The standard card variants (default, basic, alert, outline) require no JavaScript.
+                        The <strong>Drawer Card</strong> variant uses a small vanilla JavaScript
+                        initialization block to wire up expand/collapse behavior. The script is included
+                        at the bottom of the page and runs on <code>DOMContentLoaded</code>.
+                      </p>
+
+                      <h5 class="mt-4 mb-3">Initialization</h5>
+                      <p>
+                        Query all <code>.card-drawer-toggle</code> elements and attach a <code>click</code>
+                        listener to each. No manual call is needed — the listener is wired automatically
+                        for any drawer cards present on the page at load time.
+                      </p>
+
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-js">JS</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-javascript">document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".card-drawer-toggle").forEach(function (toggle) {
+    toggle.addEventListener("click", function () {
+      var expanded = this.getAttribute("aria-expanded") === "true";
+      var targetId = this.getAttribute("aria-controls");
+      var target   = document.getElementById(targetId);
+      var cardTop  = this.closest(".card-top");
+
+      // Flip aria-expanded
+      this.setAttribute("aria-expanded", String(!expanded));
+
+      // Toggle collapsed class on the body and the top wrapper
+      if (target)  { target.classList.toggle("collapsed", expanded); }
+      if (cardTop) { cardTop.classList.toggle("card-top--collapsed", expanded); }
+    });
+  });
+});</code></pre>
+                        </div>
+                      </section>
+
+                      <h5 class="mt-4 mb-3">ARIA Attributes</h5>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Drawer Card ARIA Attributes">
+                          <thead>
+                            <tr>
+                              <th scope="col">Attribute</th>
+                              <th scope="col">Element</th>
+                              <th scope="col">Values</th>
+                              <th scope="col">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>aria-expanded</code></td>
+                              <td><code>.card-drawer-toggle</code></td>
+                              <td><code>"true"</code> / <code>"false"</code></td>
+                              <td>
+                                Indicates whether the drawer body is currently expanded. Set to
+                                <code>"true"</code> by default (open on load). The JS listener
+                                toggles this value on each click.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>aria-controls</code></td>
+                              <td><code>.card-drawer-toggle</code></td>
+                              <td>ID of <code>.card-drawer-body</code></td>
+                              <td>
+                                Associates the toggle button with the collapsible region it controls.
+                                The value must match the <code>id</code> on the corresponding
+                                <code>.card-drawer-body</code> element.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>aria-label</code></td>
+                              <td><code>.card-drawer-toggle</code></td>
+                              <td><code>"Collapse card"</code> / <code>"Expand card"</code></td>
+                              <td>
+                                Provides an accessible name for the icon-only toggle button.
+                                Update this label dynamically (or use <code>aria-expanded</code>
+                                alone) so screen-reader users know the current state.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>aria-hidden="true"</code></td>
+                              <td><code>.mdi</code> icon inside toggle</td>
+                              <td><code>"true"</code></td>
+                              <td>
+                                Hides the decorative chevron icon from assistive technology.
+                                The toggle button's <code>aria-label</code> provides the
+                                accessible label instead.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <h5 class="mt-4 mb-3">CSS State Classes (set by JS)</h5>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Drawer Card JS-controlled CSS classes">
+                          <thead>
+                            <tr>
+                              <th scope="col">Class</th>
+                              <th scope="col">Applied to</th>
+                              <th scope="col">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>.collapsed</code></td>
+                              <td><code>.card-drawer-body</code></td>
+                              <td>
+                                Added when the drawer is collapsed. CSS transitions
+                                <code>max-height</code> to <code>0</code> and <code>opacity</code>
+                                to <code>0</code> to animate the content out of view.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.card-top--collapsed</code></td>
+                              <td><code>.card-top</code></td>
+                              <td>
+                                Added in sync with <code>.collapsed</code>. Removes the bottom
+                                padding from <code>.card-top</code> so no visual gap remains
+                                when the drawer body is hidden.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <h5 class="mt-4 mb-3">Dynamic Drawers</h5>
+                      <p>
+                        The initialization runs once on <code>DOMContentLoaded</code>. If drawer cards
+                        are inserted into the DOM after page load (e.g., via an Angular component or a
+                        fetch response), call the initialization logic again on the newly inserted
+                        elements, or delegate the event listener to a stable ancestor:
+                      </p>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-js">JS</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-javascript">// Event delegation — works for dynamically inserted drawer cards
+document.addEventListener("click", function (e) {
+  var toggle = e.target.closest(".card-drawer-toggle");
+  if (!toggle) { return; }
+
+  var expanded = toggle.getAttribute("aria-expanded") === "true";
+  var target   = document.getElementById(toggle.getAttribute("aria-controls"));
+  var cardTop  = toggle.closest(".card-top");
+
+  toggle.setAttribute("aria-expanded", String(!expanded));
+  if (target)  { target.classList.toggle("collapsed", expanded); }
+  if (cardTop) { cardTop.classList.toggle("card-top--collapsed", expanded); }
+});</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Section: JavaScript-->
+                  </section>
+                  <!-- ./Section: API -->
+                </section>
+                <!--/Section: Docs content-->
+              </div>
+              <div class="col-lg-2 d-none d-lg-block">
+                <div class="sticky-top" style="top: 100px; z-index: 1">
+                  <ul
+                    class="nav flex-column nav-pills menu-sidebar"
+                    id="rightNav"
+                    data-cnds-allow-hashes="true"
+                  >
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-introduction"
+                        >Introduction</a
+                      >
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-default"
+                        >Default Card</a
+                      >
+                      <ul class="nav flex-column ps-3 list-unstyled">
+                        <li class="nav-item">
+                          <a class="nav-link" href="#subsection-simple"
+                            >Simple</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="#subsection-image"
+                            >With Image</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="#subsection-icon"
+                            >With Icon</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="#subsection-links"
+                            >With Links</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="#subsection-header-footer"
+                            >Header &amp; Footer</a
+                          >
+                        </li>
+                      </ul>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-text-alignment"
+                        >Text Alignment</a
+                      >
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-basic">Basic Card</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-drawer">Drawer Card</a>
+                      <ul class="nav flex-column ps-3 list-unstyled">
+                        <li class="nav-item">
+                          <a class="nav-link" href="#subsection-drawer-simple">Simple</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="#subsection-drawer-header-footer">Header &amp; Footer</a>
+                        </li>
+                      </ul>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-alert">Alert Card</a>
+                      <ul class="nav flex-column ps-3 list-unstyled">
+                        <li class="nav-item">
+                          <a class="nav-link" href="#subsection-alert-brand"
+                            >Brand Colors</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="#subsection-alert-semantic"
+                            >Semantic Colors</a
+                          >
+                        </li>
+                      </ul>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-outline"
+                        >Outline Card</a
+                      >
+                      <ul class="nav flex-column ps-3 list-unstyled">
+                        <li class="nav-item">
+                          <a class="nav-link" href="#subsection-outline-brand"
+                            >Brand Colors</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a
+                            class="nav-link"
+                            href="#subsection-outline-semantic"
+                            >Semantic Colors</a
+                          >
+                        </li>
+                      </ul>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-horizontal"
+                        >Horizontal</a
+                      >
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-sizing">Sizing</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-card-layout"
+                        >Card Layout</a
+                      >
+                      <ul class="nav flex-column ps-3 list-unstyled">
+                        <li class="nav-item">
+                          <a class="nav-link" href="#subsection-card-groups"
+                            >Card Groups</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="#subsection-grid-cards"
+                            >Grid Cards</a
+                          >
+                        </li>
+                      </ul>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-api-docs"
+                        >API Documentation</a
+                      >
+                      <ul class="nav flex-column ps-3 list-unstyled">
+                        <li class="nav-item">
+                          <a class="nav-link" href="#api-section-introduction"
+                            >Introduction</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="#api-section-usage"
+                            >Usage</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="#api-section-classes"
+                            >CSS Classes</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="#api-section-properties"
+                            >CSS Custom Properties</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="#api-section-theme-variables"
+                            >Theme Variables</a
+                          >
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="#api-section-javascript"
+                            >JavaScript</a
+                          >
+                        </li>
+                      </ul>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- ./Togglers -->
+      </div>
+    </main>
+    <!-- Footer -->
+    <div class="cf-footer cf-footer-app">
+      <footer class="page-footer main-footer" aria-label="Site footer">
+        <div class="w-100 px-3 d-flex align-items-center">
+          <img src="img/cf/core/cloudficient_logo_light.svg" class="cf-logo-light" style="width: 135px;" alt="Cloudficient" />
+          <img src="img/cf/core/cloudficient_logo_dark.svg" class="cf-logo-dark" style="width: 135px;" alt="Cloudficient" />
+          <span class="footer-copyright ms-auto">&copy; <span id="currentYear"></span> Cloudficient</span>
+        </div>
+      </footer>
+    </div>
+    <!-- SCRIPTS -->
+    <script type="text/javascript" src="js/nimbus.js?v=9.0.4"></script>
+    <script type="text/javascript" src="js/app.js?v=9.0.4"></script>
+    <script type="text/javascript" src="plugins/js/prism.min.js"></script>
+    <script type="text/javascript" src="js/sidenav-loader.js"></script>
+    <script type="text/javascript">
+      document.addEventListener("DOMContentLoaded", function () {
+
+        // Initialization block 1: set the current year in the footer copyright notice
+        document.getElementById("currentYear").textContent =
+          new Date().getFullYear();
+
+        // Initialization block 2: wire up Drawer Card expand/collapse behavior
+        // Finds all .card-drawer-toggle buttons on the page and attaches a click
+        // listener that toggles aria-expanded, .collapsed on the body, and
+        // .card-top--collapsed on the card-top wrapper to drive CSS animations.
+        document.querySelectorAll(".card-drawer-toggle").forEach(function (toggle) {
+          toggle.addEventListener("click", function () {
+            var expanded = this.getAttribute("aria-expanded") === "true";
+            var targetId = this.getAttribute("aria-controls");
+            var target   = document.getElementById(targetId);
+            var cardTop  = this.closest(".card-top");
+
+            // Flip aria-expanded so assistive technology reflects new state
+            this.setAttribute("aria-expanded", String(!expanded));
+
+            // Toggle .collapsed on the drawer body (CSS animates max-height/opacity)
+            if (target) {
+              target.classList.toggle("collapsed", expanded);
+            }
+
+            // Toggle .card-top--collapsed to remove bottom padding when collapsed
+            if (cardTop) {
+              cardTop.classList.toggle("card-top--collapsed", expanded);
+            }
+          });
+        });
+
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,1446 @@
+<!--
+* CNDS Nimbus Design System — Transfer
+* Version: 1.0.0
+* Layout: Application with SideNav (migrated from Nimbus v8 template)
+* NOTES
+- Pure HTML5, CSS3, vanilla JavaScript — zero external dependencies
+- Uses data-cnds-* attributes (replaces data-mdb-*)
+- Uses Nimbus.* namespace (replaces mdb.*)
+- Default product theme: CaseFusion (cnds-product-casefusion on <body>; change to cnds-product-hyperlize or cnds-product-expireon)
+-->
+<!doctype html>
+<!-- data-cnds-theme: sets the initial theme ("light" | "dark"). nimbus.js syncs this attribute when the user toggles. -->
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta
+      name="description"
+      content="Transfer | Cloudficient Nimbus Design System v1.0.0"
+    />
+    <title>Transfer | CNDS v1.0.0 | Cloudficient Nimbus Design System</title>
+    <!-- Nimbus CSS — must load before plugin and theme sheets -->
+    <link rel="stylesheet" href="css/nimbus.css" media="all" type="text/css" />
+    <!-- Transfer plugin CSS — scoped component styles for the Transfer widget -->
+    <link rel="stylesheet" href="plugins/css/transfer.min.css" media="all" type="text/css" />
+    <!-- Custom styles | All custom classes/styles/overrides go here! -->
+    <link rel="stylesheet" href="css/app.css" media="all" type="text/css" />
+    <!-- Prism syntax highlighting for <code class="language-*"> blocks -->
+    <link
+      rel="stylesheet"
+      href="plugins/css/prism.min.css"
+      media="all"
+      type="text/css"
+    />
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="57x57"  href="img/favicon/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="60x60"  href="img/favicon/apple-icon-60x60.png" />
+    <link rel="apple-touch-icon" sizes="72x72"  href="img/favicon/apple-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76"  href="img/favicon/apple-icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="img/favicon/apple-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="img/favicon/apple-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="img/favicon/apple-icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="img/favicon/apple-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-icon-180x180.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="img/favicon/android-icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="32x32"   href="img/favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="96x96"   href="img/favicon/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="16x16"   href="img/favicon/favicon-16x16.png" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="msapplication-TileImage" content="img/favicon/ms-icon-144x144.png" />
+    <!-- ./Favicons -->
+    <!-- Design tokens — load order matters:
+         1. primitives.css  — raw color/spacing values (no theming)
+         2. light.css       — semantic tokens for [data-cnds-theme="light"] / :root
+         3. dark.css        — semantic token overrides for [data-cnds-theme="dark"]
+         All three must appear AFTER nimbus.css so component variables resolve correctly. -->
+    <link rel="stylesheet" href="css/themes/primitives.css" />
+    <link rel="stylesheet" href="css/themes/light.css" />
+    <link rel="stylesheet" href="css/themes/dark.css" />
+  </head>
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 / Section 508 §1194.22(o): bypass block to main content -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+
+    <!-- ============================================================
+         HEADER
+         sticky-top keeps the nav fixed while the page scrolls.
+         ============================================================ -->
+    <div class="sticky-top">
+      <!-- Utility Navigation — secondary links (support, account, etc.) -->
+      <nav id="UtilityNav" class="nav nav-cf-utility" aria-label="Utility navigation">
+        <div class="w-100 gx-3 px-sm-0 px-lg-3">
+          <ul class="nav nav-cf-utility-ul"></ul>
+        </div>
+      </nav>
+      <!-- ./Utility Navigation -->
+
+      <!-- Main Navigation -->
+      <nav id="MainNav" class="navbar navbar-expand-xl navbar-cf" aria-label="Main navigation">
+        <div class="container-fluid p-0 px-3 d-flex">
+          <div class="d-flex flex-fill align-items-center text-truncate">
+            <div class="text-center d-none d-md-block me-3 border-end">
+              <a href="index.html">
+                <img
+                  src="img/cf/core/logo_nimbus.png"
+                  class="me-3 mt-n1"
+                  alt="Cloudficient Nimbus Design System"
+                />
+              </a>
+            </div>
+            <div class="flex-fill text-truncate">
+              <div class="navbar-cf-title-block">
+                <div
+                  class="navbar-cf-title cf-page-title text-truncate"
+                  style="padding-bottom: 0"
+                >
+                  <!-- cf-page-title-brand: renders the "v9" version badge -->
+                  <span class="cf-page-title-text cf-page-title-brand">v1</span
+                  ><span class="cf-page-title-divider"></span
+                  ><span class="cf-page-title-text">Transfer</span>
+                </div>
+              </div>
+            </div>
+            <!-- Mobile hamburger — collapses nav below xl breakpoint -->
+          </div>
+          <!-- Theme toggle — data-cnds-toggle="theme" flips data-cnds-theme on <html>
+               between "light" and "dark" via nimbus.js.
+               Theme colors meet WCAG AA contrast ratios in both modes
+               (light mode #666666 on #fff = 5.74:1; dark mode #a3a3a3 on #1e1e1e = 6.60:1). -->
+          <button
+            class="btn btn-sm btn-outline-secondary ms-2"
+            data-cnds-toggle="theme"
+            aria-label="Toggle light/dark theme"
+            title="Toggle theme"
+          >
+            <!-- mdi-weather-night: MDI icon — moon glyph for dark-mode toggle -->
+            <i class="mdi mdi-weather-night mdi-18px" aria-hidden="true"></i>
+          </button>
+        </div>
+      </nav>
+      <!-- ./Main Navigation -->
+    </div>
+    <!-- ./Header -->
+
+    <!-- ============================================================
+         MAIN CONTENT
+         cf-main-app: root layout class that accounts for the fixed header
+         and sidenav widths via CSS custom properties.
+         ============================================================ -->
+    <main id="main-content" class="cf-main-app">
+
+      <!-- Mobile viewport warning — Transfer demos require a wide viewport -->
+      <div class="d-block d-md-none p-4" role="alert">
+        <div class="alert alert-warning">
+          <!-- mdi-alert: MDI icon — warning triangle -->
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>This
+          application is not optimized for small screens. Please use a large
+          tablet, laptop, or desktop computer to continue.
+        </div>
+      </div>
+
+      <!-- Desktop layout — sidenav + content grid (hidden on mobile) -->
+      <div class="d-none d-md-block">
+
+        <!-- Sidenav — markup is intentionally empty; sidenav-loader.js fetches
+             and injects the shared nav HTML at runtime.
+             data-cnds-mode="side"            : persistent side panel (not an overlay/drawer)
+             data-cnds-slim / slim-collapsed  : compact/icon-only collapsed state
+             data-cnds-content="#slim-content" : sibling panel that resizes as nav opens/closes
+             data-cnds-accordion="true"       : collapses open groups when a new one expands -->
+        <nav
+          id="sidebar-cf"
+          class="sidenav"
+          data-cnds-mode="side"
+          data-cnds-slim="false"
+          data-cnds-slim-collapsed="false"
+          data-cnds-content="#slim-content"
+          data-cnds-accordion="true"
+          aria-label="Section navigation"
+        ></nav>
+
+        <div id="slim-content">
+          <div class="slim-content-box">
+
+            <!-- Content Row — 80/20 split: docs column + right-rail TOC -->
+            <div class="row">
+
+              <!-- ======================================================
+                   DOCS COLUMN — 80 % of the row
+                   flex overrides pin the ratio regardless of breakpoints.
+                   ====================================================== -->
+              <div class="col-12 col-lg" style="flex: 0 0 80%; max-width: 80%">
+                <section class="container-fluid">
+
+                  <!-- ==================================================
+                       INTRODUCTION
+                       ================================================== -->
+                  <section id="section-introduction">
+
+                    <p class="mb-4">
+                      The <strong>Transfer</strong> component renders two scrollable
+                      lists — a <em>source</em> and a <em>target</em> — side by side with
+                      a vertical column of four buttons between them. The inner pair of
+                      single-chevron buttons move only the checked items in each direction;
+                      the outer pair of double-chevron buttons move every transferable item
+                      at once. Each item is represented as a checkbox row; a "select all"
+                      checkbox at the top of each list pre-selects all items in one click.
+                      Transfer buttons are automatically disabled when their source list
+                      contains no transferable items.
+                    </p>
+                    <p class="my-4">
+                      The plugin is built on vanilla JavaScript and requires no framework.
+                      It supports disabled items, pre-checked selections, one-way transfer,
+                      pagination, and real-time search. Use it wherever users need to
+                      explicitly assign items from a pool to a target set — for example,
+                      picking columns for a report, assigning permissions, or selecting
+                      recipients.
+                    </p>
+
+                    <!-- Prerequisites note — shown first because the plugin will silently
+                         fail if these files are not loaded. -->
+                    <p class="note note-light">
+                      <strong>Note:</strong> Read the
+                      <a href="#api-section-introduction">API Documentation</a> to
+                      find all available options and advanced customization.
+                    </p>
+                    <p class="note note-info">
+                      <strong class="note-label">Note:</strong> The files
+                      <code>plugins/js/transfer.min.js</code> and
+                      <code>plugins/css/transfer.min.css</code> must be included
+                      on the page for this component to function.
+                    </p>
+
+                    <!-- Theme note — informs users how to preview dark mode -->
+                    <p class="note note-info">
+                      <strong class="note-label">Note:</strong> To preview components
+                      in different themes, click the theme toggle button
+                      <!-- mdi-weather-night / mdi-weather-sunny: MDI icons — theme indicators -->
+                      <i class="mdi mdi-weather-night" aria-hidden="true"></i> /
+                      <i class="mdi mdi-weather-sunny" aria-hidden="true"></i>
+                      in the header navigation bar.
+                    </p>
+
+                  </section>
+                  <!--/Section: Introduction-->
+
+                  <hr class="my-5" />
+
+                  <!-- ==================================================
+                       BASIC EXAMPLE
+                       Minimal setup: source list only, no target pre-load.
+                       ================================================== -->
+
+                  <!-- Angular: Use @ViewChild to obtain the host element and instantiate Transfer with a dataSource array in ngAfterViewInit; expose the instance via a service or @Output() for parent access.
+                       Example: @ViewChild('transferHost') el!: ElementRef; ngAfterViewInit() { this.transfer = new Transfer(this.el.nativeElement, { dataSource: this.dataSource }); }
+                       The "move to source" and "move all to source" buttons are automatically disabled on init when the target list is empty, and re-enabled as soon as any item reaches the target.
+                       Call this.transfer.dispose() in ngOnDestroy() to remove event listeners and generated DOM and prevent memory leaks. -->
+                  <section id="section-basic-example">
+                    <h3 class="mb-3">Basic example</h3>
+
+                    <p>
+                      The simplest Transfer instance requires only a container
+                      <code>&lt;div class="transfer"&gt;</code> and a
+                      <code>dataSource</code> array. Each item in the array must include a
+                      <code>data</code> property containing the display text. The source list
+                      is populated on initialisation; the target list starts empty, so the
+                      two return buttons (<i class="mdi mdi-chevron-left" aria-hidden="true"></i>
+                      and <i class="mdi mdi-chevron-double-left" aria-hidden="true"></i>) are
+                      disabled until items have been moved to the target.
+                    </p>
+
+                    <!-- Demo -->
+                    <section class="pb-4" aria-label="Basic Transfer demo">
+                      <div class="border rounded-5">
+                        <section class="p-4 d-flex justify-content-center w-100">
+                          <div id="transfer-basic" class="transfer"></div>
+                        </section>
+                      </div>
+                    </section>
+
+                    <!-- HTML code snippet -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div id="transfer-basic" class="transfer"&gt;&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+
+                    <!-- JavaScript code snippet -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">const transferEl = document.getElementById('transfer-basic');
+const data = [
+  { data: 'Lorem ipsum' },
+  { data: 'Something special' },
+  { data: 'John Wick' },
+  { data: 'Poland' },
+  { data: 'Germany' },
+  { data: 'USA' },
+  { data: 'China' },
+  { data: 'Madagascar' },
+  { data: 'Argentina' },
+];
+new Transfer(transferEl, {
+  dataSource: data,
+});</code></pre>
+                      </div>
+                    </section>
+
+                  </section>
+                  <!--/Section: Basic example-->
+
+                  <hr class="my-5" />
+
+                  <!-- ==================================================
+                       DISABLED ITEMS
+                       Items with disabled:true are visible but inert.
+                       ================================================== -->
+
+                  <!-- Angular: Add disabled: true to specific items in the dataSource / dataTarget arrays; disabled items render as inert checkboxes in both lists.
+                       Example: dataSource = [{ data: 'Item A' }, { data: 'Locked', disabled: true }]; passed to new Transfer(el, { dataSource, dataTarget });
+                       The "move all" double-chevron buttons skip disabled items, so only transferable items are moved. If all items in a list are disabled, the corresponding move buttons remain disabled.
+                       To change disabled state dynamically, call dispose() and recreate the instance with the updated arrays. -->
+                  <section id="section-disabled-items">
+                    <h3 class="mb-3">Disabled items</h3>
+
+                    <p>
+                      Add <code>disabled: true</code> to any item in
+                      <code>dataSource</code> or <code>dataTarget</code> to prevent it from
+                      being selected or transferred. Disabled items are still visible in
+                      both lists — their checkboxes are rendered but inert — making it clear
+                      to users that the items exist but are locked. The double-chevron
+                      "move all" buttons respect this flag and transfer only the
+                      non-disabled items in the list.
+                    </p>
+
+                    <!-- Demo -->
+                    <section class="pb-4" aria-label="Disabled items Transfer demo">
+                      <div class="border rounded-5">
+                        <section class="p-4 d-flex justify-content-center w-100">
+                          <div id="transfer-disabled" class="transfer"></div>
+                        </section>
+                      </div>
+                    </section>
+
+                    <!-- HTML snippet -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div id="transfer-disabled" class="transfer"&gt;&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+
+                    <!-- JavaScript snippet -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">const transferEl = document.getElementById('transfer-disabled');
+const dataSource = [
+  { data: 'Lorem ipsum' },
+  { data: 'Something special', disabled: true },
+  { data: 'John Wick',         disabled: true },
+  { data: 'Poland' },
+  { data: 'Germany' },
+  { data: 'USA' },
+  { data: 'China' },
+  { data: 'Madagascar',        disabled: true },
+  { data: 'Argentina' },
+];
+const dataTarget = [
+  { data: 'Russia',  disabled: true },
+  { data: 'Australia' },
+  { data: 'Hungary', disabled: true },
+  { data: 'France' },
+];
+new Transfer(transferEl, {
+  dataSource: dataSource,
+  dataTarget: dataTarget,
+});</code></pre>
+                      </div>
+                    </section>
+
+                  </section>
+                  <!--/Section: Disabled items-->
+
+                  <hr class="my-5" />
+
+                  <!-- ==================================================
+                       CHECKED ITEMS
+                       Pre-selected items are ready to transfer immediately.
+                       ================================================== -->
+
+                  <!-- Angular: Add checked: true to pre-select items at init; bind the arrays as @Input() properties and re-initialise in ngOnChanges() when selections need to be driven by parent state.
+                       Example: @Input() dataSource: TransferItem[] = []; @Input() dataTarget: TransferItem[] = []; then pass them directly to new Transfer(el, { dataSource, dataTarget }).
+                       Pre-checked items are highlighted immediately on render with no extra selection step required. -->
+                  <section id="section-checked-items">
+                    <h3 class="mb-3">Checked items</h3>
+
+                    <p>
+                      Add <code>checked: true</code> to pre-select items at initialisation.
+                      Pre-checked items are highlighted in the list and are immediately ready
+                      to be transferred without requiring the user to click them first. This is
+                      useful for populating a target list with a default selection that users
+                      can then refine.
+                    </p>
+
+                    <!-- Demo -->
+                    <section class="pb-4" aria-label="Checked items Transfer demo">
+                      <div class="border rounded-5">
+                        <section class="p-4 d-flex justify-content-center w-100">
+                          <div id="transfer-checked" class="transfer"></div>
+                        </section>
+                      </div>
+                    </section>
+
+                    <!-- HTML snippet -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div id="transfer-checked" class="transfer"&gt;&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+
+                    <!-- JavaScript snippet -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">const transferEl = document.getElementById('transfer-checked');
+const dataSource = [
+  { data: 'Lorem ipsum',       checked: true },
+  { data: 'Something special', checked: true },
+  { data: 'John Wick',         checked: true },
+  { data: 'Poland' },
+  { data: 'Germany' },
+  { data: 'USA',               checked: true },
+  { data: 'China' },
+  { data: 'Madagascar' },
+  { data: 'Argentina' },
+];
+const dataTarget = [
+  { data: 'Russia',    checked: true },
+  { data: 'Australia', checked: true },
+  { data: 'Hungary' },
+  { data: 'France' },
+];
+new Transfer(transferEl, {
+  dataSource: dataSource,
+  dataTarget: dataTarget,
+});</code></pre>
+                      </div>
+                    </section>
+
+                  </section>
+                  <!--/Section: Checked items-->
+
+                  <hr class="my-5" />
+
+                  <!-- ==================================================
+                       ONE WAY
+                       Restricts movement to source → target only.
+                       ================================================== -->
+
+                  <!-- Angular: Pass oneWay: true in the options object; both return buttons (single-chevron and double-chevron) are permanently disabled automatically with no template change needed.
+                       Example: new Transfer(el, { dataSource, dataTarget, oneWay: true });
+                       To react to transfers, listen for the listChange.mdb.transfer DOM event on the host element and update a bound targetItems array in the component. -->
+                  <section id="section-one-way">
+                    <h3 class="mb-3">One way</h3>
+
+                    <p>
+                      Setting <code>oneWay: true</code> restricts transfer to a single
+                      direction — from source to target only. Both return buttons — the
+                      single-chevron "move selected to source"
+                      (<i class="mdi mdi-chevron-left" aria-hidden="true"></i>) and the
+                      double-chevron "move all to source"
+                      (<i class="mdi mdi-chevron-double-left" aria-hidden="true"></i>) —
+                      are permanently disabled, preventing users from moving items back.
+                      This pattern is useful when building a queue or permission list where
+                      additions are final, or where removals must be handled through a
+                      separate action.
+                    </p>
+
+                    <!-- Demo -->
+                    <section class="pb-4" aria-label="One-way Transfer demo">
+                      <div class="border rounded-5">
+                        <section class="p-4 d-flex justify-content-center w-100">
+                          <div id="transfer-one-way" class="transfer"></div>
+                        </section>
+                      </div>
+                    </section>
+
+                    <!-- HTML snippet -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div id="transfer-one-way" class="transfer"&gt;&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+
+                    <!-- JavaScript snippet -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">const transferEl = document.getElementById('transfer-one-way');
+const dataSource = [
+  { data: 'Lorem ipsum',       checked: true },
+  { data: 'Something special', checked: true },
+  { data: 'John Wick',         checked: true },
+  { data: 'Poland' },
+  { data: 'Germany' },
+  { data: 'USA',               checked: true },
+  { data: 'China' },
+  { data: 'Madagascar' },
+  { data: 'Argentina' },
+];
+const dataTarget = [
+  { data: 'Russia',    checked: true },
+  { data: 'Australia', checked: true },
+  { data: 'Hungary' },
+  { data: 'France' },
+];
+new Transfer(transferEl, {
+  dataSource: dataSource,
+  dataTarget: dataTarget,
+  oneWay: true,
+});</code></pre>
+                      </div>
+                    </section>
+
+                  </section>
+                  <!--/Section: One way-->
+
+                  <hr class="my-5" />
+
+                  <!-- ==================================================
+                       PAGINATION
+                       Breaks long lists into pages (default: 5 items/page).
+                       ================================================== -->
+
+                  <!-- Angular: Pass pagination: true in the options object; the plugin renders its own page controls with no Angular CDK pagination required.
+                       Example: new Transfer(el, { dataSource, dataTarget, pagination: true });
+                       The page indicator displays "current of total" (e.g. "2 of 4") and updates automatically when items are transferred between lists.
+                       Attach a listChange.mdb.transfer listener on the host element to inspect event.detail when page or transfer state changes. -->
+                  <section id="section-pagination">
+                    <h3 class="mb-3">Pagination</h3>
+
+                    <p>
+                      When a list contains many items, set <code>pagination: true</code> to
+                      break both the source and target lists into pages. Navigation controls
+                      appear below each list, showing the current page and total page count
+                      — for example, <strong>2 of 4</strong>. The total updates automatically
+                      as items are transferred so the indicator always reflects the current
+                      list size. By default each page displays five items. See
+                      <a href="#subsection-pagination-with-custom-quantity">Pagination with
+                      custom quantity</a> to change the page size.
+                    </p>
+
+                    <!-- Demo -->
+                    <section class="pb-4" aria-label="Paginated Transfer demo">
+                      <div class="border rounded-5">
+                        <section class="p-4 d-flex justify-content-center w-100">
+                          <div id="transfer-pagination" class="transfer"></div>
+                        </section>
+                      </div>
+                    </section>
+
+                    <!-- HTML snippet -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div id="transfer-pagination" class="transfer"&gt;&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+
+                    <!-- JavaScript snippet -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">const transferEl = document.getElementById('transfer-pagination');
+const dataSource = [
+  { data: 'Lorem ipsum',       checked: true },
+  { data: 'Something special', checked: true },
+  { data: 'John Wick',         checked: true },
+  { data: 'Poland' },
+  { data: 'Germany',           disabled: true },
+  { data: 'USA',               checked: true },
+  { data: 'China' },
+  { data: 'Madagascar' },
+  { data: 'Argentina' },
+];
+const dataTarget = [
+  { data: 'Russia',    checked: true },
+  { data: 'Australia', checked: true },
+  { data: 'Hungary' },
+  { data: 'France' },
+];
+new Transfer(transferEl, {
+  dataSource: dataSource,
+  dataTarget: dataTarget,
+  pagination: true,
+});</code></pre>
+                      </div>
+                    </section>
+
+                  </section>
+                  <!--/Section: Pagination-->
+
+                  <hr class="my-5" />
+
+                  <!-- ==================================================
+                       PAGINATION WITH CUSTOM QUANTITY
+                       Uses elementsPerPage to override the 5-item default.
+                       ================================================== -->
+
+                  <!-- Angular: Pass both pagination: true and elementsPerPage: N; to make the page size reactive, call dispose() and re-initialise on ngOnChanges when the @Input() value changes.
+                       Example: new Transfer(el, { dataSource, dataTarget, pagination: true, elementsPerPage: 7 });
+                       Store the Transfer instance in the component so dispose() can be called cleanly in ngOnDestroy(). -->
+                  <section id="subsection-pagination-with-custom-quantity">
+                    <h3 class="mb-3">Pagination with custom quantity</h3>
+
+                    <p>
+                      Use <code>elementsPerPage</code> together with
+                      <code>pagination: true</code> to control how many items appear on each
+                      page. The value applies to both the source and target lists. The example
+                      below sets seven items per page.
+                    </p>
+
+                    <!-- Demo -->
+                    <section class="pb-4" aria-label="Custom-quantity paginated Transfer demo">
+                      <div class="border rounded-5">
+                        <section class="p-4 d-flex justify-content-center w-100">
+                          <div id="transfer-pagination-with-custom-quantity" class="transfer"></div>
+                        </section>
+                      </div>
+                    </section>
+
+                    <!-- HTML snippet -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div id="transfer-pagination-with-custom-quantity" class="transfer"&gt;&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+
+                    <!-- JavaScript snippet -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">const transferEl = document.getElementById('transfer-pagination-with-custom-quantity');
+const dataSource = [
+  { data: 'Lorem ipsum',       checked: true },
+  { data: 'Something special', checked: true },
+  { data: 'John Wick',         checked: true },
+  { data: 'Poland' },
+  { data: 'Germany',           disabled: true },
+  { data: 'USA',               checked: true },
+  { data: 'China' },
+  { data: 'Madagascar' },
+  { data: 'Argentina' },
+];
+const dataTarget = [
+  { data: 'Russia',    checked: true },
+  { data: 'Australia', checked: true },
+  { data: 'Hungary' },
+  { data: 'France' },
+];
+new Transfer(transferEl, {
+  dataSource: dataSource,
+  dataTarget: dataTarget,
+  pagination: true,
+  elementsPerPage: 7,
+});</code></pre>
+                      </div>
+                    </section>
+
+                  </section>
+                  <!--/Section: Pagination with custom quantity-->
+
+                  <hr class="my-5" />
+
+                  <!-- ==================================================
+                       SEARCH
+                       Real-time keyword filtering within each list.
+                       ================================================== -->
+
+                  <!-- Angular: Pass search: true to render a CaseFusion-styled search field above each list automatically; no Angular FormControl is required for the search input.
+                       Example: new Transfer(el, { dataSource, dataTarget, pagination: true, search: true });
+                       Listen for search.mdb.transfer on the host element in ngAfterViewInit and remove the listener in ngOnDestroy() alongside dispose() to avoid memory leaks. -->
+                  <section id="section-search">
+                    <h3 class="mb-3">Search</h3>
+
+                    <p>
+                      Set <code>search: true</code> to add a search field above each list.
+                      The search fields use the CaseFusion <code>input-group form-outline-casefusion</code>
+                      styling. As the user types, the visible items are filtered in real time — items
+                      that do not match are hidden rather than removed, so they reappear when
+                      the search term is cleared. Combine with <code>pagination: true</code>
+                      to page through filtered results.
+                    </p>
+
+                    <!-- Demo -->
+                    <section class="pb-4" aria-label="Search-enabled Transfer demo">
+                      <div class="border rounded-5">
+                        <section class="p-4 d-flex justify-content-center w-100">
+                          <div id="transfer-search" class="transfer"></div>
+                        </section>
+                      </div>
+                    </section>
+
+                    <!-- HTML snippet -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div id="transfer-search" class="transfer"&gt;&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+
+                    <!-- JavaScript snippet -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">const transferEl = document.getElementById('transfer-search');
+const dataSource = [
+  { data: 'Lorem ipsum',       checked: true },
+  { data: 'Something special', checked: true },
+  { data: 'John Wick',         checked: true },
+  { data: 'Poland' },
+  { data: 'Germany',           disabled: true },
+  { data: 'USA',               checked: true },
+  { data: 'China' },
+  { data: 'Madagascar' },
+  { data: 'Argentina' },
+];
+const dataTarget = [
+  { data: 'Russia',    checked: true },
+  { data: 'Australia', checked: true },
+  { data: 'Hungary' },
+  { data: 'France' },
+];
+new Transfer(transferEl, {
+  dataSource: dataSource,
+  dataTarget: dataTarget,
+  pagination: true,
+  search: true,
+});</code></pre>
+                      </div>
+                    </section>
+
+                  </section>
+                  <!--/Section: Search-->
+
+                  <!-- hr separates demo sections from the API reference block -->
+                  <hr class="my-5" />
+
+                  <!-- ==================================================
+                       API DOCUMENTATION
+                       No <hr> elements within this section — spacing is
+                       handled by Bootstrap margin utilities on headings.
+                       ================================================== -->
+                  <section id="section-api-docs">
+                    <h3 class="mb-3">API Documentation</h3>
+
+                    <!-- ---- API: Introduction ---- -->
+                    <section id="api-section-introduction">
+                      <h3 class="mb-4">Introduction</h3>
+                      <p>
+                        The Transfer plugin exposes a constructor-style API via the global
+                        <code>Transfer</code> class. Pass the host element as the first
+                        argument and an options object as the second — all options are
+                        optional and fall back to their documented defaults. The plugin
+                        manages its own internal DOM; no additional HTML markup beyond the
+                        single wrapper <code>&lt;div class="transfer"&gt;</code> is required.
+                      </p>
+                      <p>
+                        The plugin requires both
+                        <code>plugins/js/transfer.min.js</code> and
+                        <code>plugins/css/transfer.min.css</code> to be loaded on the page
+                        before the constructor is called.
+                      </p>
+                    </section>
+                    <!--/Section: API Introduction-->
+
+                    <!-- ---- API: Usage ---- -->
+                    <section id="api-section-usage">
+                      <h3 class="mb-4">Usage</h3>
+                      <p>
+                        Obtain a reference to the host element and pass it to the
+                        <code>Transfer</code> constructor along with an options object.
+                        Options can also be set via <code>data-mdb-*</code> attributes on
+                        the host element, e.g. <code>data-mdb-search="true"</code>.
+                      </p>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-js">const transferEl = document.getElementById('cnds-transfer');
+const transfer = new Transfer(transferEl, options);</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Section: API Usage-->
+
+                    <!-- ---- API: Options ---- -->
+                    <section id="api-section-options">
+                      <h3 class="mb-4">Options</h3>
+                      <p>
+                        Pass options as properties of the second constructor argument.
+                        Alternatively, set any option as a <code>data-mdb-*</code> attribute
+                        on the host element, e.g. <code>data-mdb-pagination="true"</code>.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Options">
+                          <thead>
+                            <tr>
+                              <th scope="col">Name</th>
+                              <th scope="col">Type</th>
+                              <th scope="col">Default</th>
+                              <th scope="col">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>dataSource</code></td>
+                              <td><i>Array</i></td>
+                              <td><code>[]</code></td>
+                              <td>Array of item objects to populate the source (left) list.</td>
+                            </tr>
+                            <tr>
+                              <td><code>dataTarget</code></td>
+                              <td><i>Array</i></td>
+                              <td><code>[]</code></td>
+                              <td>Array of item objects to pre-populate the target (right) list.</td>
+                            </tr>
+                            <tr>
+                              <td><code>elementsPerPage</code></td>
+                              <td><i>Number</i></td>
+                              <td><code>5</code></td>
+                              <td>Number of items per page. Only applies when <code>pagination: true</code>.</td>
+                            </tr>
+                            <tr>
+                              <td><code>oneWay</code></td>
+                              <td><i>Boolean</i></td>
+                              <td><code>false</code></td>
+                              <td>When <code>true</code>, permanently disables both return buttons — the single-chevron "move selected to source" and the double-chevron "move all to source" — so items can only move from source to target.</td>
+                            </tr>
+                            <tr>
+                              <td><code>pagination</code></td>
+                              <td><i>Boolean</i></td>
+                              <td><code>false</code></td>
+                              <td>Enables pagination controls below each list. The page indicator shows the current page and total in <strong>X of N</strong> format (e.g. <code>2 of 4</code>) and recalculates the total after each transfer.</td>
+                            </tr>
+                            <tr>
+                              <td><code>search</code></td>
+                              <td><i>Boolean</i></td>
+                              <td><code>false</code></td>
+                              <td>Renders a CaseFusion-styled search field (<code>input-group form-outline-casefusion</code>) above each list that filters items in real time.</td>
+                            </tr>
+                            <tr>
+                              <td><code>selectAll</code></td>
+                              <td><i>Boolean</i></td>
+                              <td><code>true</code></td>
+                              <td>Renders a "select all" checkbox at the top of each list.</td>
+                            </tr>
+                            <tr>
+                              <td><code>titleSource</code></td>
+                              <td><i>String</i></td>
+                              <td><code>'Source'</code></td>
+                              <td>Label text displayed above the source list.</td>
+                            </tr>
+                            <tr>
+                              <td><code>titleTarget</code></td>
+                              <td><i>String</i></td>
+                              <td><code>'Target'</code></td>
+                              <td>Label text displayed above the target list.</td>
+                            </tr>
+                            <tr>
+                              <td><code>toTargetArrow</code></td>
+                              <td><i>String</i></td>
+                              <td><code>''</code></td>
+                              <td>Custom HTML for the single-item right (→ target) button. Defaults to an MDI <code>mdi-chevron-right</code> icon at 24 px. Does not affect the "move all to target" double-chevron button.</td>
+                            </tr>
+                            <tr>
+                              <td><code>toSourceArrow</code></td>
+                              <td><i>String</i></td>
+                              <td><code>''</code></td>
+                              <td>Custom HTML for the single-item left (← source) button. Defaults to an MDI <code>mdi-chevron-left</code> icon at 24 px. Does not affect the "move all to source" double-chevron button.</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: API Options-->
+
+                    <!-- ---- API: Element options ---- -->
+                    <section id="api-section-element-options">
+                      <h3 class="mb-4">Element options</h3>
+                      <p>
+                        Each item in a <code>dataSource</code> or <code>dataTarget</code>
+                        array is a plain object with a required <code>data</code> property
+                        and optional modifiers listed below.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Element options">
+                          <thead>
+                            <tr>
+                              <th scope="col">Name</th>
+                              <th scope="col">Type</th>
+                              <th scope="col">Default</th>
+                              <th scope="col">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>data</code></td>
+                              <td><i>String</i></td>
+                              <td>—</td>
+                              <td><strong>Required.</strong> The display text rendered inside the list row.</td>
+                            </tr>
+                            <tr>
+                              <td><code>disabled</code></td>
+                              <td><i>Boolean</i></td>
+                              <td><code>false</code></td>
+                              <td>Renders the item's checkbox in a disabled state. The item is visible but cannot be selected or transferred.</td>
+                            </tr>
+                            <tr>
+                              <td><code>checked</code></td>
+                              <td><i>Boolean</i></td>
+                              <td><code>false</code></td>
+                              <td>Pre-selects the item on initialisation so it is ready to transfer without a user click.</td>
+                            </tr>
+                            <tr>
+                              <td><code>customId</code></td>
+                              <td><i>String</i></td>
+                              <td><code>null</code></td>
+                              <td>Assigns a custom identifier to the item for tracking in <code>listChange.mdb.transfer</code> event payloads.</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: API Element options-->
+
+                    <!-- ---- API: Methods ---- -->
+                    <section id="api-section-methods">
+                      <h3 class="mb-4">Methods</h3>
+                      <p>
+                        Store the return value of <code>new Transfer()</code> to access
+                        the instance methods below.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Methods">
+                          <thead>
+                            <tr>
+                              <th scope="col">Name</th>
+                              <th scope="col">Description</th>
+                              <th scope="col">Example</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>dispose()</code></td>
+                              <td>Destroys the Transfer instance and removes all event listeners and generated DOM. Call this before removing the host element from the page.</td>
+                              <td><code>transfer.dispose()</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>Transfer.getInstance(element)</code></td>
+                              <td>Static method. Returns the Transfer instance associated with the given DOM element, or <code>null</code> if none exists.</td>
+                              <td><code>Transfer.getInstance(el)</code></td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-js">// Retrieve an existing Transfer instance, then dispose it
+const transferEl = document.getElementById('cnds-transfer');
+const transfer = Transfer.getInstance(transferEl);
+if (transfer) {
+  transfer.dispose();
+}</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Section: API Methods-->
+
+                    <!-- ---- API: Events ---- -->
+                    <section id="api-section-events">
+                      <h3 class="mb-4">Events</h3>
+                      <p>
+                        Transfer dispatches native DOM events on the host element.
+                        Use <code>addEventListener</code> to respond to them.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Events">
+                          <thead>
+                            <tr>
+                              <th scope="col">Event name</th>
+                              <th scope="col">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>listChange.mdb.transfer</code></td>
+                              <td>Fires immediately after items are moved between lists. The <code>event.detail</code> object contains the updated source and target arrays.</td>
+                            </tr>
+                            <tr>
+                              <td><code>search.mdb.transfer</code></td>
+                              <td>Fires each time the user changes the text in a search input. The <code>event.detail</code> object contains the current query string and the list that was searched.</td>
+                            </tr>
+                            <tr>
+                              <td><code>itemSelected.mdb.transfer</code></td>
+                              <td>Fires immediately when the user checks or unchecks a single item. The <code>event.detail</code> object contains the affected item data and its new checked state.</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-js">const transferEl = document.getElementById('cnds-transfer');
+transferEl.addEventListener('listChange.mdb.transfer', (event) => {
+  console.log('Transfer updated:', event.detail);
+});
+transferEl.addEventListener('itemSelected.mdb.transfer', (event) => {
+  console.log('Item selected:', event.detail);
+});</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Section: API Events-->
+
+                    <!-- ---- API: Accessibility ---- -->
+                    <section id="api-section-accessibility">
+                      <h3 class="mb-4">Accessibility</h3>
+                      <p>
+                        The Transfer plugin renders its internal markup with standard HTML
+                        form controls (checkboxes and buttons) that are natively keyboard-
+                        accessible. Users can tab through controls and activate them with
+                        <kbd>Space</kbd> or <kbd>Enter</kbd>. The four transfer buttons
+                        between the lists — "move all to target"
+                        (<code>mdi-chevron-double-right</code>), "move selected to target"
+                        (<code>mdi-chevron-right</code>), "move selected to source"
+                        (<code>mdi-chevron-left</code>), and "move all to source"
+                        (<code>mdi-chevron-double-left</code>) — are rendered as
+                        <code>&lt;button&gt;</code> elements with <code>aria-label</code>
+                        text and are automatically set to the native <code>disabled</code>
+                        state when their source list contains no transferable items, so
+                        assistive technologies correctly report them as unavailable.
+                        Pagination prev/next buttons use the same
+                        <code>mdi-chevron-left</code> / <code>mdi-chevron-right</code>
+                        icons at 18 px.
+                      </p>
+                      <p>
+                        When embedding Transfer in a form context, associate a visible heading
+                        with the component using <code>aria-labelledby</code> on the host
+                        element so screen readers announce its purpose:
+                      </p>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-html">&lt;h4 id="transfer-label"&gt;Assign Permissions&lt;/h4&gt;
+&lt;div id="cnds-transfer"
+     class="transfer"
+     aria-labelledby="transfer-label"&gt;&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+                      <p>
+                        For full WAI-ARIA guidance on composite list widgets, see the
+                        <a rel="nofollow" target="_blank"
+                           href="https://www.w3.org/TR/wai-aria-practices/">WAI-ARIA
+                        Authoring Practices</a>.
+                      </p>
+                    </section>
+                    <!--/Section: API Accessibility-->
+
+                  </section>
+                  <!--/Section: API Documentation-->
+
+                </section>
+                <!--/Section: Docs content-->
+              </div>
+              <!-- ./Docs column -->
+
+              <!-- ======================================================
+                   RIGHT SIDEBAR — 20 % of the row
+                   Sticky TOC; hidden below lg breakpoint.
+                   data-cnds-sticky-offset="56" clears the 56 px fixed header.
+                   data-cnds-allow-hashes="true" highlights the active section link
+                   as the user scrolls.
+                   ====================================================== -->
+              <div class="col-lg-2 d-none d-lg-block">
+                <div class="sticky-top" style="top: 100px; z-index: 1">
+                  <ul
+                    class="nav flex-column nav-pills menu-sidebar"
+                    data-cnds-allow-hashes="true"
+                    aria-label="Page sections"
+                  >
+                    <li class="nav-item"><a class="nav-link" href="#section-introduction">Introduction</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-basic-example">Basic example</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-disabled-items">Disabled items</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-checked-items">Checked items</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-one-way">One way</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-pagination">Pagination</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#subsection-pagination-with-custom-quantity">Custom quantity</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-search">Search</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-api-docs">API Documentation</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-introduction">Introduction</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-usage">Usage</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-options">Options</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-element-options">Element options</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-methods">Methods</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-events">Events</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-accessibility">Accessibility</a></li>
+                  </ul>
+                </div>
+              </div>
+              <!-- ./Right Sidebar -->
+
+            </div>
+            <!-- ./Content Row -->
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- ./Content -->
+
+    <!-- ============================================================
+         FOOTER
+         ============================================================ -->
+    <!-- Footer -->
+    <div class="cf-footer cf-footer-app">
+      <footer class="page-footer main-footer" aria-label="Site footer">
+        <div class="w-100 px-3 d-flex align-items-center">
+          <img src="img/cf/core/cloudficient_logo_light.svg" class="cf-logo-light" style="width: 135px;" alt="Cloudficient" />
+          <img src="img/cf/core/cloudficient_logo_dark.svg" class="cf-logo-dark" style="width: 135px;" alt="Cloudficient" />
+          <span class="footer-copyright ms-auto">&copy; <span id="currentYear"></span> Cloudficient</span>
+        </div>
+      </footer>
+    </div>
+    <!-- ./Footer -->
+            <div class="col-12 col-md-5 col-lg-7 col-xl-8 flex-column flex-md-row d-flex justify-content-center footer-links py-0 py-lg-3 py-xl-3">
+              <a href="#!" target="_blank" class="text-nowrap my-3 my-md-0 mb-0 me-0">Cloudficient</a>
+              <a href="#!" target="_blank" class="text-nowrap my-3 my-md-0 mb-0 me-0">Support</a>
+              <a href="#!" target="_blank" class="text-nowrap my-3 my-md-0 mb-0 me-0">Community</a>
+              <a href="#!" target="_blank" class="text-nowrap my-3 my-md-0 mb-0 me-0">Documentation</a>
+            </div>
+            <div class="col-12 col-md-4 col-lg-3 col-xl-2 d-flex justify-content-center justify-content-xl-end py-lg-1 py-xl-0 social-btns">
+              <div class="d-flex align-items-center justify-content-center justify-content-xl-end social-btns-container">
+                <!-- fa-x-twitter: Font Awesome brand icon — X (formerly Twitter) -->
+                <a href="https://twitter.com/cloudficient" target="_blank"
+                   data-cnds-toggle="tooltip" data-cnds-placement="top" title="X"
+                   class="social footer-fa-fix" aria-label="X Twitter">
+                  <i class="fab fa-x-twitter fa-lg" aria-hidden="true"></i>
+                </a>
+                <!-- mdi-linkedin: MDI icon — LinkedIn brand -->
+                <a href="https://www.linkedin.com/company/cloudficient" target="_blank"
+                   data-cnds-toggle="tooltip" data-cnds-placement="top" title="LinkedIn"
+                   class="social" aria-label="Linkedin">
+                  <i class="mdi mdi-24px mdi-linkedin" aria-hidden="true"></i>
+                </a>
+                <!-- mdi-youtube: MDI icon — YouTube brand -->
+                <a href="https://www.youtube.com/@cloudficient" target="_blank"
+                   data-cnds-toggle="tooltip" data-cnds-placement="top" title="YouTube"
+                   class="social" aria-label="Youtube">
+                  <i class="mdi mdi-24px mdi-youtube" aria-hidden="true"></i>
+                </a>
+              </div>
+            </div>
+            <div class="col-12">
+              <p class="caption text-nowrap p-0 mt-0 mt-lg-3 mb-0 mb-lg-3 text-center">
+                &copy; <span id="currentYear"></span> Cloudficient. All rights reserved.
+              </p>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+    <!-- ./Footer -->
+
+    <!-- ============================================================
+         SCRIPTS — load order matters:
+         1. nimbus.js        — core framework: data-cnds-* attributes, theme, sticky, sidenav
+         2. app.js           — application-level overrides and custom initialisation
+         3. prism.min.js     — syntax highlighting; must run after DOM is ready
+         4. sidenav-loader.js — fetches shared sidenav HTML and injects into #sidebar-cf
+         5. mdb shim         — transfer.min.js (v8 plugin) hard-references window.mdb;
+                               map to v9 Nimbus equivalents so the plugin initialises correctly
+         6. transfer.min.js  — Transfer plugin; must load before the init script below
+         ============================================================ -->
+    <script type="text/javascript" src="js/nimbus.js?v=9.0.4"></script>
+    <script type="text/javascript" src="js/app.js?v=9.0.4"></script>
+    <script type="text/javascript" src="plugins/js/prism.min.js"></script>
+    <script type="text/javascript" src="js/sidenav-loader.js"></script>
+
+    <!-- mdb shim: transfer.min.js destructures { initMDB, Ripple, Input } from window.mdb.
+         Nimbus v1 exposes window.Nimbus.Ripple (full implementation).
+         Input is shimmed as a no-op constructor — search boxes no longer call new mdb.Input()
+         (they use the v9 input-group pattern), but _setup() still destructures Input from mdb. -->
+    <script type="text/javascript">
+      window.mdb = window.mdb || (function () {
+        var NimbusRipple = (window.Nimbus && window.Nimbus.Ripple) ? window.Nimbus.Ripple : null;
+
+        var Ripple = NimbusRipple || {
+          getOrCreateInstance: function (el) { return { init: function () {}, update: function () {} }; }
+        };
+
+        function initFloatingLabel(container) {
+          var input = container.querySelector('.form-control');
+          var label = container.querySelector('.form-label');
+          if (!input || !label) { return; }
+          if (input.value) { label.classList.add('active'); }
+          input.addEventListener('focus', function () { label.classList.add('active'); });
+          input.addEventListener('blur', function () {
+            if (!input.value) { label.classList.remove('active'); }
+          });
+          input.addEventListener('input', function () {
+            if (input.value) { label.classList.add('active'); }
+            else { label.classList.remove('active'); }
+          });
+        }
+
+        function InputConstructor(el) {
+          this._element = el;
+          this.init = function () { initFloatingLabel(el); };
+          this.update = function () { initFloatingLabel(el); };
+        }
+
+        InputConstructor.getOrCreateInstance = function (el) {
+          return { init: function () { initFloatingLabel(el); }, update: function () { initFloatingLabel(el); } };
+        };
+
+        function initMDB(components) {
+          // Ripple is auto-initialised by Nimbus on data-cnds-ripple-init elements.
+          // This no-op satisfies the plugin's call without double-initialising.
+        }
+
+        return {
+          initMDB: initMDB,
+          Ripple: Ripple,
+          Input: InputConstructor
+        };
+      }());
+    </script>
+
+    <script type="text/javascript" src="plugins/js/transfer.min.js"></script>
+
+    <!-- Copyright year — updates the footer year span without a build step -->
+    <script type="text/javascript">
+      var currentYearElement = document.getElementById('currentYear');
+      if (currentYearElement) {
+        currentYearElement.textContent = new Date().getFullYear();
+      }
+    </script>
+
+    <!-- ============================================================
+         TRANSFER DEMO INITIALISATIONS
+         transfer.min.js is loaded synchronously above, so window.Transfer
+         is available immediately. All data arrays mirror the Prism code
+         examples shown in each section above — keep them in sync.
+         ============================================================ -->
+    <script type="text/javascript">
+      (function () {
+
+        function initTransferDemos() {
+
+          // ------------------------------------------------------------------
+          // Basic example — source list only; target starts empty
+          // ------------------------------------------------------------------
+          var elBasic = document.getElementById('transfer-basic');
+          if (elBasic) {
+            new Transfer(elBasic, {
+              dataSource: [
+                { data: 'Lorem ipsum' },
+                { data: 'Something special' },
+                { data: 'John Wick' },
+                { data: 'Poland' },
+                { data: 'Germany' },
+                { data: 'USA' },
+                { data: 'China' },
+                { data: 'Madagascar' },
+                { data: 'Argentina' },
+              ],
+            });
+          }
+
+          // ------------------------------------------------------------------
+          // Disabled items — some items in source and target are inert
+          // ------------------------------------------------------------------
+          var elDisabled = document.getElementById('transfer-disabled');
+          if (elDisabled) {
+            new Transfer(elDisabled, {
+              dataSource: [
+                { data: 'Lorem ipsum' },
+                { data: 'Something special', disabled: true },
+                { data: 'John Wick',         disabled: true },
+                { data: 'Poland' },
+                { data: 'Germany' },
+                { data: 'USA' },
+                { data: 'China' },
+                { data: 'Madagascar',        disabled: true },
+                { data: 'Argentina' },
+              ],
+              dataTarget: [
+                { data: 'Russia',  disabled: true },
+                { data: 'Australia' },
+                { data: 'Hungary', disabled: true },
+                { data: 'France' },
+              ],
+            });
+          }
+
+          // ------------------------------------------------------------------
+          // Checked items — pre-selected on load, ready to transfer immediately
+          // ------------------------------------------------------------------
+          var elChecked = document.getElementById('transfer-checked');
+          if (elChecked) {
+            new Transfer(elChecked, {
+              dataSource: [
+                { data: 'Lorem ipsum',       checked: true },
+                { data: 'Something special', checked: true },
+                { data: 'John Wick',         checked: true },
+                { data: 'Poland' },
+                { data: 'Germany' },
+                { data: 'USA',               checked: true },
+                { data: 'China' },
+                { data: 'Madagascar' },
+                { data: 'Argentina' },
+              ],
+              dataTarget: [
+                { data: 'Russia',    checked: true },
+                { data: 'Australia', checked: true },
+                { data: 'Hungary' },
+                { data: 'France' },
+              ],
+            });
+          }
+
+          // ------------------------------------------------------------------
+          // One way — return arrow hidden; source → target only
+          // ------------------------------------------------------------------
+          var elOneWay = document.getElementById('transfer-one-way');
+          if (elOneWay) {
+            new Transfer(elOneWay, {
+              dataSource: [
+                { data: 'Lorem ipsum',       checked: true },
+                { data: 'Something special', checked: true },
+                { data: 'John Wick',         checked: true },
+                { data: 'Poland' },
+                { data: 'Germany' },
+                { data: 'USA',               checked: true },
+                { data: 'China' },
+                { data: 'Madagascar' },
+                { data: 'Argentina' },
+              ],
+              dataTarget: [
+                { data: 'Russia',    checked: true },
+                { data: 'Australia', checked: true },
+                { data: 'Hungary' },
+                { data: 'France' },
+              ],
+              oneWay: true,
+            });
+          }
+
+          // ------------------------------------------------------------------
+          // Pagination — default page size (5 items per page)
+          // ------------------------------------------------------------------
+          var elPagination = document.getElementById('transfer-pagination');
+          if (elPagination) {
+            new Transfer(elPagination, {
+              dataSource: [
+                { data: 'Lorem ipsum',       checked: true },
+                { data: 'Something special', checked: true },
+                { data: 'John Wick',         checked: true },
+                { data: 'Poland' },
+                { data: 'Germany',           disabled: true },
+                { data: 'USA',               checked: true },
+                { data: 'China' },
+                { data: 'Madagascar' },
+                { data: 'Argentina' },
+              ],
+              dataTarget: [
+                { data: 'Russia',    checked: true },
+                { data: 'Australia', checked: true },
+                { data: 'Hungary' },
+                { data: 'France' },
+              ],
+              pagination: true,
+            });
+          }
+
+          // ------------------------------------------------------------------
+          // Pagination with custom quantity — 7 items per page
+          // ------------------------------------------------------------------
+          var elPaginationCustom = document.getElementById('transfer-pagination-with-custom-quantity');
+          if (elPaginationCustom) {
+            new Transfer(elPaginationCustom, {
+              dataSource: [
+                { data: 'Lorem ipsum',       checked: true },
+                { data: 'Something special', checked: true },
+                { data: 'John Wick',         checked: true },
+                { data: 'Poland' },
+                { data: 'Germany',           disabled: true },
+                { data: 'USA',               checked: true },
+                { data: 'China' },
+                { data: 'Madagascar' },
+                { data: 'Argentina' },
+              ],
+              dataTarget: [
+                { data: 'Russia',    checked: true },
+                { data: 'Australia', checked: true },
+                { data: 'Hungary' },
+                { data: 'France' },
+              ],
+              pagination: true,
+              elementsPerPage: 7,
+            });
+          }
+
+          // ------------------------------------------------------------------
+          // Search — real-time keyword filtering with pagination
+          // ------------------------------------------------------------------
+          var elSearch = document.getElementById('transfer-search');
+          if (elSearch) {
+            new Transfer(elSearch, {
+              dataSource: [
+                { data: 'Lorem ipsum',       checked: true },
+                { data: 'Something special', checked: true },
+                { data: 'John Wick',         checked: true },
+                { data: 'Poland' },
+                { data: 'Germany',           disabled: true },
+                { data: 'USA',               checked: true },
+                { data: 'China' },
+                { data: 'Madagascar' },
+                { data: 'Argentina' },
+              ],
+              dataTarget: [
+                { data: 'Russia',    checked: true },
+                { data: 'Australia', checked: true },
+                { data: 'Hungary' },
+                { data: 'France' },
+              ],
+              pagination: true,
+              search: true,
+            });
+          }
+
+        } // end initTransferDemos
+
+        // transfer.min.js is loaded synchronously before this script block,
+        // so window.Transfer is available immediately. The guard handles edge
+        // cases where the plugin file fails to load (e.g., 404 in development).
+        if (window.Transfer) {
+          initTransferDemos();
+        } else {
+          window.addEventListener('load', initTransferDemos);
+        }
+
+      })();
+    </script>
+
+  </body>
+</html>

@@ -1,0 +1,688 @@
+<!doctype html>
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Custodian Data Sources Report — CNDS Nimbus v1</title>
+    <!-- Nimbus Design System -->
+    <link rel="stylesheet" href="../css/nimbus.css" />
+    <link rel="stylesheet" href="../css/reports.css" />
+    <style>
+      /* Report-specific styles not covered by reports.css */
+      .page {
+        width: 816px;
+        height: 1056px;
+        margin: 0 auto;
+        padding: 16px;
+        background-color: #ffffff;
+        position: relative;
+      }
+
+      .person-title {
+        font-family: "Nunito", var(--cnds-font-heading, sans-serif);
+        font-weight: 600;
+        font-size: 20px;
+        line-height: 1.2em;
+        text-transform: capitalize;
+        color: #141414;
+        height: 24px;
+      }
+
+      .person-subtitle {
+        font-family: "Nunito Sans", var(--cnds-font-sans, sans-serif);
+        font-weight: 300;
+        font-size: 16px;
+        line-height: 1.2em;
+        text-transform: capitalize;
+        color: #141414;
+        height: 24px;
+      }
+
+      .employment-status {
+        font-family: "Nunito Sans", var(--cnds-font-sans, sans-serif);
+        font-weight: 400;
+        font-size: 14px;
+        line-height: 1.43em;
+        color: #000000;
+      }
+
+      .avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 26px;
+        background-color: var(--cnds-success, #2e892a);
+        color: #ffffff;
+        text-align: center;
+        vertical-align: middle;
+        font-family: "Nunito", var(--cnds-font-heading, sans-serif);
+        font-weight: 600;
+        font-size: 20px;
+        line-height: 48px;
+        border: 1px solid var(--cnds-success, #2e892a);
+      }
+
+      .highlight-bar {
+        width: 4px;
+        height: 28px;
+        background-color: var(--cnds-success, #2e892a);
+        position: absolute;
+        left: 0;
+        top: 0;
+      }
+
+      .card-padding {
+        padding: 24px;
+      }
+      .card-inner-padding {
+        padding: 8px 16px;
+      }
+      .person-section {
+        padding: 0 0 8px 0;
+      }
+      .category-section {
+        padding: 20px 0 0;
+      }
+      .category-header {
+        padding: 4px 0 16px;
+        position: relative;
+      }
+      .source-name-row {
+        height: 24px;
+      }
+      .metadata-row {
+        height: 21px;
+      }
+      .gap-4 {
+        height: 4px;
+      }
+      .gap-8 {
+        height: 8px;
+      }
+
+      .footer-text {
+        font-family: "Nunito Sans", var(--cnds-font-sans, sans-serif);
+        font-weight: 400;
+        font-size: 14px;
+        line-height: 1.2em;
+        color: #141414;
+        text-align: center;
+        position: absolute;
+        bottom: 16px;
+        left: 16px;
+        right: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <table width="100%" cellpadding="0" cellspacing="0">
+        <!-- Page Title -->
+        <tr>
+          <td class="report-page-title">Custodian Data Sources Report</td>
+        </tr>
+
+        <!-- Main Content -->
+        <tr>
+          <td style="padding-bottom: 24px">
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <!-- Person Section -->
+              <tr>
+                <td class="person-section">
+                  <table width="100%" cellpadding="0" cellspacing="0">
+                    <tr>
+                      <td style="vertical-align: top">
+                        <table cellpadding="0" cellspacing="0">
+                          <tr>
+                            <td>
+                              <div class="avatar">FL</div>
+                            </td>
+                            <td style="width: 8px"></td>
+                            <td style="vertical-align: top">
+                              <div class="person-title">
+                                ${firstname_Lastname}
+                              </div>
+                              <div class="gap-4"></div>
+                              <div class="person-subtitle">${title}</div>
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                      <td style="text-align: right; vertical-align: top">
+                        <div class="employment-status">
+                          Employment Status: ${Active/Terminated}
+                        </div>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+
+              <!-- Category Section -->
+              <tr>
+                <td class="category-section">
+                  <table width="100%" cellpadding="0" cellspacing="0">
+                    <!-- Category Header -->
+                    <tr>
+                      <td class="category-header" style="padding-left: 16px">
+                        <div class="highlight-bar"></div>
+                        <table
+                          cellpadding="0"
+                          cellspacing="0"
+                          style="width: 100%"
+                        >
+                          <tr style="vertical-align: middle">
+                            <td style="width: 24px">
+                              <svg
+                                class="report-icon report-icon-24"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  fill="currentColor"
+                                  d="M15 20C15 19.45 14.55 19 14 19H13V17H19C20.11 17 21 16.11 21 15V7C21 5.9 20.11 5 19 5H13L11 3H5C3.9 3 3 3.9 3 5V15C3 16.11 3.9 17 5 17H11V19H10C9.45 19 9 19.45 9 20H2V22H9C9 22.55 9.45 23 10 23H14C14.55 23 15 22.55 15 22H22V20H15M5 15V7H19V15H5Z"
+                                />
+                              </svg>
+                            </td>
+                            <td style="padding-left: 8px">
+                              <span
+                                class="report-category-title"
+                                style="padding-left: 0"
+                                >${source_type_name} Sources</span
+                              >
+                            </td>
+                            <td style="width: 100%"></td>
+                            <td>
+                              <span class="report-badge">1</span>
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+
+                    <!-- Main Card -->
+                    <tr>
+                      <td>
+                        <table
+                          width="100%"
+                          cellpadding="0"
+                          cellspacing="0"
+                          class="report-card"
+                        >
+                          <tr>
+                            <td class="card-padding">
+                              <table
+                                width="100%"
+                                cellpadding="0"
+                                cellspacing="0"
+                              >
+                                <!-- Card Header -->
+                                <tr>
+                                  <td style="padding-bottom: 16px">
+                                    <table
+                                      width="100%"
+                                      cellpadding="0"
+                                      cellspacing="0"
+                                    >
+                                      <tr style="vertical-align: middle">
+                                        <td style="width: 24px">
+                                          <svg
+                                            class="report-icon report-icon-24"
+                                            viewBox="0 0 24 24"
+                                          >
+                                            <path
+                                              fill="currentColor"
+                                              d="M15 20C15 19.45 14.55 19 14 19H13V17H19C20.11 17 21 16.11 21 15V7C21 5.9 20.11 5 19 5H13L11 3H5C3.9 3 3 3.9 3 5V15C3 16.11 3.9 17 5 17H11V19H10C9.45 19 9 19.45 9 20H2V22H9C9 22.55 9.45 23 10 23H14C14.55 23 15 22.55 15 22H22V20H15M5 15V7H19V15H5Z"
+                                            />
+                                          </svg>
+                                        </td>
+                                        <td
+                                          style="width: 100%; padding-left: 8px"
+                                        >
+                                          <div
+                                            class="report-text-bold"
+                                            style="font-size: 18px"
+                                          >
+                                            ${source_type_name}
+                                          </div>
+                                        </td>
+                                        <td style="padding-left: 8px">
+                                          <span class="report-badge">2</span>
+                                        </td>
+                                      </tr>
+                                    </table>
+                                  </td>
+                                </tr>
+
+                                <!-- Nested Source Cards -->
+                                <tr>
+                                  <td>
+                                    <table
+                                      width="100%"
+                                      cellpadding="0"
+                                      cellspacing="0"
+                                    >
+                                      <!-- Source Card 1 -->
+                                      <tr>
+                                        <td>
+                                          <table
+                                            width="100%"
+                                            cellpadding="0"
+                                            cellspacing="0"
+                                            class="report-card"
+                                          >
+                                            <tr>
+                                              <td class="card-inner-padding">
+                                                <table
+                                                  width="100%"
+                                                  cellpadding="0"
+                                                  cellspacing="0"
+                                                >
+                                                  <!-- Source Name Row -->
+                                                  <tr>
+                                                    <td>
+                                                      <table
+                                                        width="100%"
+                                                        cellpadding="0"
+                                                        cellspacing="0"
+                                                      >
+                                                        <tr
+                                                          class="source-name-row"
+                                                        >
+                                                          <td
+                                                            style="
+                                                              width: 100%;
+                                                              vertical-align: middle;
+                                                              height: 24px;
+                                                            "
+                                                          >
+                                                            <div
+                                                              class="report-text-bold"
+                                                              style="
+                                                                font-size: 16px;
+                                                              "
+                                                            >
+                                                              ${source_name}
+                                                            </div>
+                                                          </td>
+                                                          <td
+                                                            style="
+                                                              width: 8px;
+                                                              height: 24px;
+                                                            "
+                                                          >
+                                                            &nbsp;
+                                                          </td>
+                                                          <td
+                                                            style="
+                                                              vertical-align: middle;
+                                                              height: 24px;
+                                                            "
+                                                          >
+                                                            <div
+                                                              class="report-divider"
+                                                              style="
+                                                                height: 24px;
+                                                                width: 1px;
+                                                              "
+                                                            ></div>
+                                                          </td>
+                                                          <td
+                                                            style="
+                                                              width: 8px;
+                                                              height: 24px;
+                                                            "
+                                                          >
+                                                            &nbsp;
+                                                          </td>
+                                                          <td
+                                                            style="
+                                                              vertical-align: middle;
+                                                              white-space: nowrap;
+                                                              height: 24px;
+                                                            "
+                                                          >
+                                                            <table
+                                                              cellpadding="0"
+                                                              cellspacing="0"
+                                                            >
+                                                              <tr>
+                                                                <td
+                                                                  style="
+                                                                    vertical-align: middle;
+                                                                  "
+                                                                >
+                                                                  <svg
+                                                                    class="report-icon report-icon-18"
+                                                                    viewBox="0 0 24 24"
+                                                                  >
+                                                                    <path
+                                                                      fill="currentColor"
+                                                                      d="M4 7H2V21C2 22.1 2.9 23 4 23H18V21H4M20 3H16.8C16.4 1.8 15.3 1 14 1C12.7 1 11.6 1.8 11.2 3H8C6.9 3 6 3.9 6 5V17C6 18.1 6.9 19 8 19H20C21.1 19 22 18.1 22 17V5C22 3.9 21.1 3 20 3M14 3C14.6 3 15 3.5 15 4C15 4.5 14.5 5 14 5C13.5 5 13 4.5 13 4C13 3.5 13.4 3 14 3M12.3 15.1L9 11.8L10.4 10.4L12.3 12.3L17.6 7L19 8.4"
+                                                                    />
+                                                                  </svg>
+                                                                </td>
+                                                                <td
+                                                                  style="
+                                                                    width: 4px;
+                                                                  "
+                                                                >
+                                                                  &nbsp;
+                                                                </td>
+                                                                <td
+                                                                  style="
+                                                                    white-space: nowrap;
+                                                                    vertical-align: middle;
+                                                                  "
+                                                                >
+                                                                  <span
+                                                                    class="report-text"
+                                                                    >Audit
+                                                                    Log</span
+                                                                  >
+                                                                </td>
+                                                              </tr>
+                                                            </table>
+                                                          </td>
+                                                        </tr>
+                                                      </table>
+                                                    </td>
+                                                  </tr>
+                                                  <tr>
+                                                    <td>
+                                                      <div class="gap-8"></div>
+                                                    </td>
+                                                  </tr>
+                                                  <!-- Metadata -->
+                                                  <tr>
+                                                    <td>
+                                                      <table
+                                                        width="100%"
+                                                        cellpadding="0"
+                                                        cellspacing="0"
+                                                      >
+                                                        <tr
+                                                          class="metadata-row"
+                                                        >
+                                                          <td
+                                                            class="report-text-bold"
+                                                            style="
+                                                              white-space: nowrap;
+                                                              vertical-align: top;
+                                                            "
+                                                          >
+                                                            Source Location/Path
+                                                          </td>
+                                                          <td
+                                                            style="width: 4px"
+                                                          ></td>
+                                                          <td
+                                                            class="report-text"
+                                                            style="
+                                                              text-align: right;
+                                                              width: 100%;
+                                                              vertical-align: top;
+                                                            "
+                                                          >
+                                                            ${source_location_path}
+                                                          </td>
+                                                        </tr>
+                                                        <tr
+                                                          class="metadata-row"
+                                                        >
+                                                          <td
+                                                            class="report-text-bold"
+                                                            style="
+                                                              white-space: nowrap;
+                                                              vertical-align: top;
+                                                            "
+                                                          >
+                                                            Last Accessed
+                                                          </td>
+                                                          <td
+                                                            style="width: 4px"
+                                                          ></td>
+                                                          <td
+                                                            class="report-text"
+                                                            style="
+                                                              text-align: right;
+                                                              width: 100%;
+                                                              vertical-align: top;
+                                                            "
+                                                          >
+                                                            ${last_accessed}
+                                                          </td>
+                                                        </tr>
+                                                      </table>
+                                                    </td>
+                                                  </tr>
+                                                </table>
+                                              </td>
+                                            </tr>
+                                          </table>
+                                        </td>
+                                      </tr>
+
+                                      <tr>
+                                        <td><div class="gap-8"></div></td>
+                                      </tr>
+
+                                      <!-- Source Card 2 -->
+                                      <tr>
+                                        <td>
+                                          <table
+                                            width="100%"
+                                            cellpadding="0"
+                                            cellspacing="0"
+                                            class="report-card"
+                                          >
+                                            <tr>
+                                              <td class="card-inner-padding">
+                                                <table
+                                                  width="100%"
+                                                  cellpadding="0"
+                                                  cellspacing="0"
+                                                >
+                                                  <tr>
+                                                    <td>
+                                                      <table
+                                                        width="100%"
+                                                        cellpadding="0"
+                                                        cellspacing="0"
+                                                      >
+                                                        <tr
+                                                          class="source-name-row"
+                                                        >
+                                                          <td
+                                                            style="
+                                                              width: 100%;
+                                                              vertical-align: middle;
+                                                              height: 24px;
+                                                            "
+                                                          >
+                                                            <div
+                                                              class="report-text-bold"
+                                                              style="
+                                                                font-size: 16px;
+                                                              "
+                                                            >
+                                                              ${source_name}
+                                                            </div>
+                                                          </td>
+                                                          <td
+                                                            style="
+                                                              width: 8px;
+                                                              height: 24px;
+                                                            "
+                                                          >
+                                                            &nbsp;
+                                                          </td>
+                                                          <td
+                                                            style="
+                                                              vertical-align: middle;
+                                                              height: 24px;
+                                                            "
+                                                          >
+                                                            <div
+                                                              class="report-divider"
+                                                              style="
+                                                                height: 24px;
+                                                                width: 1px;
+                                                              "
+                                                            ></div>
+                                                          </td>
+                                                          <td
+                                                            style="
+                                                              width: 8px;
+                                                              height: 24px;
+                                                            "
+                                                          >
+                                                            &nbsp;
+                                                          </td>
+                                                          <td
+                                                            style="
+                                                              vertical-align: middle;
+                                                              white-space: nowrap;
+                                                              height: 24px;
+                                                            "
+                                                          >
+                                                            <table
+                                                              cellpadding="0"
+                                                              cellspacing="0"
+                                                            >
+                                                              <tr>
+                                                                <td
+                                                                  style="
+                                                                    vertical-align: middle;
+                                                                  "
+                                                                >
+                                                                  <svg
+                                                                    class="report-icon report-icon-18"
+                                                                    viewBox="0 0 24 24"
+                                                                  >
+                                                                    <path
+                                                                      fill="currentColor"
+                                                                      d="M7.5 5C9.43 5 11 6.57 11 8.5C11 10.43 9.43 12 7.5 12C5.57 12 4 10.43 4 8.5C4 6.57 5.57 5 7.5 5M1 19V16.5C1 14.57 4.46 13 7.5 13C8.68 13 9.92 13.24 11 13.64V19H1M22 19H14C13.45 19 13 18.55 13 18V6C13 5.45 13.45 5 14 5H19L23 9V18C23 18.55 22.55 19 22 19M18 10H21V9.83L18.17 7H18V10Z"
+                                                                    />
+                                                                  </svg>
+                                                                </td>
+                                                                <td
+                                                                  style="
+                                                                    width: 4px;
+                                                                  "
+                                                                >
+                                                                  &nbsp;
+                                                                </td>
+                                                                <td
+                                                                  style="
+                                                                    white-space: nowrap;
+                                                                    vertical-align: middle;
+                                                                  "
+                                                                >
+                                                                  <span
+                                                                    class="report-text"
+                                                                    >Manual</span
+                                                                  >
+                                                                </td>
+                                                              </tr>
+                                                            </table>
+                                                          </td>
+                                                        </tr>
+                                                      </table>
+                                                    </td>
+                                                  </tr>
+                                                  <tr>
+                                                    <td>
+                                                      <div class="gap-8"></div>
+                                                    </td>
+                                                  </tr>
+                                                  <tr>
+                                                    <td>
+                                                      <table
+                                                        width="100%"
+                                                        cellpadding="0"
+                                                        cellspacing="0"
+                                                      >
+                                                        <tr
+                                                          class="metadata-row"
+                                                        >
+                                                          <td
+                                                            class="report-text-bold"
+                                                            style="
+                                                              white-space: nowrap;
+                                                              vertical-align: top;
+                                                            "
+                                                          >
+                                                            Source Location/Path
+                                                          </td>
+                                                          <td
+                                                            style="width: 4px"
+                                                          ></td>
+                                                          <td
+                                                            class="report-text"
+                                                            style="
+                                                              text-align: right;
+                                                              width: 100%;
+                                                              vertical-align: top;
+                                                            "
+                                                          >
+                                                            ${source_location_path}
+                                                          </td>
+                                                        </tr>
+                                                        <tr
+                                                          class="metadata-row"
+                                                        >
+                                                          <td
+                                                            class="report-text-bold"
+                                                            style="
+                                                              white-space: nowrap;
+                                                              vertical-align: top;
+                                                            "
+                                                          >
+                                                            Last Accessed
+                                                          </td>
+                                                          <td
+                                                            style="width: 4px"
+                                                          ></td>
+                                                          <td
+                                                            class="report-text"
+                                                            style="
+                                                              text-align: right;
+                                                              width: 100%;
+                                                              vertical-align: top;
+                                                            "
+                                                          >
+                                                            ${last_accessed}
+                                                          </td>
+                                                        </tr>
+                                                      </table>
+                                                    </td>
+                                                  </tr>
+                                                </table>
+                                              </td>
+                                            </tr>
+                                          </table>
+                                        </td>
+                                      </tr>
+                                    </table>
+                                  </td>
+                                </tr>
+                              </table>
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+
+      <div class="footer-text">Privileged and Confidential</div>
+    </div>
+
+    <!-- Nimbus JS -->
+    <script src="../js/nimbus.js"></script>
+  </body>
+</html>

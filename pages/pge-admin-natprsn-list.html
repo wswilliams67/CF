@@ -1,0 +1,569 @@
+<!--
+* Nimbus v1 Portable Design System — CaseFusion Application Page
+* Page:       Admin › Natural Persons (list)
+* File:       pages/pge-admin-natprsn-list.html
+* Built on:   tmpl_ca_sidenav.html  ·  Role: Case Administrator
+* Figma:      CaseFusion v1.5 — Tenant Manager
+*             https://www.figma.com/design/opm1ShhZXGxIcrAsJytRB4/?node-id=11204-14901
+* Release:    1.6
+*
+* WHAT THIS BUILD COVERS
+* ──────────────────────
+* This is an EXISTING screen, rebuilt here as the entry point to two NEW 1.6
+* screens. Only these two controls are wired:
+*
+*   1. PENDING MATCH QUEUE  (toolbar)          → pge-admin-natprsn-pndmtchque.html
+*   2. IDENTITIES           (every person card) → pge-admin-natprsn-identities.html
+*
+* VIEW PROFILE, EDIT, DELETE and NEW NATURAL PERSON are drawn exactly as
+* designed but deliberately NOT wired — they are existing behaviour outside
+* this build. Each one has a TODO and its intended behaviour recorded at its
+* handler in js/pages/pge-admin-natprsn-list.js §6. They acknowledge with a
+* toast rather than failing silently, so nothing on the card reads as broken.
+*
+* NO INLINE CSS, NO INLINE JS
+* ───────────────────────────
+* Every rule and every line of script is in a linked file, so the page can be
+* handed to a dev as markup and nothing else:
+*
+*   css/pages/frame-ca-sidenav.css     AppFrame chrome — shared by all 1.6 pages
+*   css/pages/pge-admin-natprsn.css    this screen family
+*   js/pages/frame-ca-sidenav.js       AppFrame controller — shared
+*   js/pages/pge-admin-natprsn-list.js this screen
+*
+* The frame files were extracted verbatim from tmpl_ca_sidenav.html's <style>
+* and <script> blocks. The template still carries its inline copies; these are
+* the shared ones every 1.6 page links instead.
+*
+* PORTABLE DESIGN SYSTEM
+* ──────────────────────
+* All assets are self-contained within casefusion/1.6/. This page lives one
+* level deep (1.6/pages/), which is the "../" depth the Nimbus include blocks
+* assume. Assets: ../css/  ../js/  ../img/  ../fonts/  ../plugins/
+*
+*   css/nimbus.css  @imports every core, component and plugin stylesheet plus
+*                   the MDI + FontAwesome icon fonts.
+*   js/nimbus.js    loads core/*.js then every components/*.js and plugins/*.js
+*                   in dependency order, runs Nimbus.DataAPI.init(), and fires
+*                   `cnds.ready` on document.
+* Per-component <link>/<script> tags must NOT be added — they duplicate what
+* the entry points already pull in.
+*
+* NIMBUS COMPONENTS USED (page content only; the frame's are listed in the
+* template). Manifest keys, for the export step: buttons, badges, cards,
+* forms, toolbars, select, pagination, toasts, tooltips.
+*
+*   .cf-page-title                     core/typography.css   "NATURAL PERSONS"
+*   .btn-toolbar-gray.btn-toolbar-list components/toolbars.css  list toolbar
+*   .cf-input-field / .cf-input-control components/forms.css  search field
+*   select[data-cnds-select-init]      components/select.js  sort + page size
+*   .btn .btn-primary / -secondary
+*        / -tertiary / -sm / -lg       components/buttons.css
+*   .badge .badge-secondary            components/badges.css pending count
+*   .card                              components/cards.css  person card
+*   .pagination-toolbar                components/pagination.css  pager
+*   .toast (built by the page script)  components/toast.js   stub feedback
+*
+* LAYOUT
+* ──────
+* ┌──────────────────────────────────────────────────────────────────────┐
+* │ #caHeader  .sticky-top — Logo · Bell · Theme · Portal · Account       │
+* ├──────────┬───────────────────────────────────────────────────────────┤
+* │ ╭──────╮ │ NATURAL PERSONS                     ┐                     │
+* │ │ Side │ │ ┌ search · sort · asc · total · queue ┤ ← .np-header, sticky│
+* │ │ Nav  │ │ ┌───────────────────────────────────────────────────┐     │
+* │ │      │ │ │ avatar+name │ meta │ contact │ actions │  ← .np-card     │
+* │ ╰──────╯ │ └───────────────────────────────────────────────────┘     │
+* │          │ Cards per page · range · ⏮ ◀ ▶ ⏭   ← .np-pager, floating  │
+* └──────────┴───────────────────────────────────────────────────────────┘
+*
+* DATA
+* ────
+* Every record on this page is MOCK, defined in the page script (§1). The list
+* fills a whole default page of 10 so paging is real, and the totals in the
+* toolbar and the pager are derived from the same array — no hard-coded counts
+* anywhere in this markup.
+*
+* ANGULAR MIGRATION
+* ─────────────────
+* Frame:  AppFrameComponent — see tmpl_ca_sidenav.ANGULAR.md
+* Page:   NaturalPersonListComponent + PersonCardComponent
+* Notes for each block are inline below; the controller-side map (services,
+* routes, @Output()s) is at the head of js/pages/pge-admin-natprsn-list.js.
+-->
+<!doctype html>
+<html lang="en" data-cnds-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="CaseFusion — Admin, Natural Persons | Cloudficient Nimbus v1 Portable Design System" />
+    <title>Natural Persons — Case Administrator · CaseFusion</title>
+
+    <!-- ═══════════════════ NIMBUS v1 CORE CSS ═══════════════════
+         Matches includes/head-css-core.html. Order matters:
+         nimbus → app → themes (primitives → light → dark) → page CSS.
+
+         Do NOT add per-component <link>s here: css/nimbus.css already
+         @imports every component stylesheet (cards, toolbars, select,
+         pagination, badges, …) plus the MDI + FontAwesome icon fonts.
+         Re-linking a component after app.css inverts the cascade and lets
+         the raw component defaults win over the app overrides.
+         ═══════════════════════════════════════════════════════════ -->
+    <link rel="stylesheet" href="../css/nimbus.css" media="all" type="text/css" />
+    <link rel="stylesheet" href="../css/app.css" media="all" type="text/css" />
+    <link rel="stylesheet" href="../css/themes/primitives.css" media="all" type="text/css" />
+    <link rel="stylesheet" href="../css/themes/light.css" media="all" type="text/css" />
+    <link rel="stylesheet" href="../css/themes/dark.css" media="all" type="text/css" />
+
+    <!-- ═══════════════════ PAGE CSS ════════════════════════════
+         Frame first, screen second — the screen stylesheet adjusts a couple
+         of frame values (.cf-page-title margin) and must win.
+         ═════════════════════════════════════════════════════════ -->
+    <link rel="stylesheet" href="../css/pages/frame-ca-sidenav.css" media="all" type="text/css" />
+    <link rel="stylesheet" href="../css/pages/pge-admin-natprsn.css" media="all" type="text/css" />
+
+    <!-- ═══════════════════ FAVICONS ════════════════════════════ -->
+    <link rel="apple-touch-icon" sizes="57x57"   href="../img/favicon/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="60x60"   href="../img/favicon/apple-icon-60x60.png" />
+    <link rel="apple-touch-icon" sizes="72x72"   href="../img/favicon/apple-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76"   href="../img/favicon/apple-icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="../img/favicon/apple-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="../img/favicon/apple-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="../img/favicon/apple-icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="../img/favicon/apple-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="../img/favicon/apple-icon-180x180.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="../img/favicon/android-icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="32x32"   href="../img/favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="96x96"   href="../img/favicon/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="16x16"   href="../img/favicon/favicon-16x16.png" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="msapplication-TileImage" content="../img/favicon/ms-icon-144x144.png" />
+  </head>
+
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         SIDE NAV — fixed, below header, left of content; scrolls within
+
+         MARKUP CONTRACT (from tmpl_ca_sidenav.html — unchanged here):
+         a.sidenav-link ids MUST start "navlink_" for leaves and
+         "tog_submenu_" for category rows; §5 of the frame script finds each
+         kind by that prefix, so the ids are load-bearing, not cosmetic. The
+         <span> label is what becomes the slim-mode tooltip, so it must carry
+         the visible text.
+
+         `show` is the Nimbus open state for .sidenav; this frame's nav is
+         permanently open, so it is set in the markup rather than toggled.
+
+         The sections below replace the template's "Menu Item N" placeholders.
+         ADMIN is the current section: .active + aria-current="page". The
+         Figma board also draws a Dashboard row above Tenant Overview; it is
+         dropped here at Scott's direction (2026-08-26).
+
+         ANGULAR: SidenavComponent with a NavItem[]; `active` comes from
+         routerLinkActive, not a hard-coded class.
+         ════════════════════════════════════════════════════════════════ -->
+    <nav id="caSidenav" class="sidenav show" aria-label="Application navigation">
+
+      <!-- Slim/expand toggle. .sidebar-header (app.css) makes this row sticky
+           inside the scrolling panel so the control never scrolls away. -->
+      <div class="sidebar-header">
+        <button
+          type="button"
+          id="caSidenavToggle"
+          class="ca-nav-toggle"
+          aria-label="Collapse navigation"
+          aria-expanded="true"
+          aria-controls="caSidenav"
+        >
+          <span class="mdi mdi-menu-open" aria-hidden="true"></span>
+        </button>
+      </div>
+
+      <ul class="sidenav-menu" id="caSidenavMenu">
+
+        <li class="sidenav-item" title="Tenant Overview" data-original-title="Tenant Overview">
+          <a id="navlink_TenantOverview" class="sidenav-link" href="#!">
+            <i class="mdi mdi-home-account mdi-18px me-2" aria-hidden="true"></i>
+            <span>Tenant Overview</span>
+          </a>
+        </li>
+
+        <li class="sidenav-item" title="My Cases" data-original-title="My Cases">
+          <a id="navlink_MyCases" class="sidenav-link" href="#!">
+            <i class="mdi mdi-folder-account mdi-18px me-2" aria-hidden="true"></i>
+            <span>My Cases</span>
+          </a>
+        </li>
+
+        <li class="sidenav-item" title="Admin" data-original-title="Admin">
+          <a id="navlink_Admin" class="sidenav-link active" href="#!" aria-current="page">
+            <i class="mdi mdi-shield-account mdi-18px me-2" aria-hidden="true"></i>
+            <span>Admin</span>
+          </a>
+        </li>
+
+      </ul>
+    </nav><!-- /#caSidenav -->
+
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         STICKY HEADER — unchanged from tmpl_ca_sidenav.html.
+         Behaviour lives in js/pages/frame-ca-sidenav.js §2–§5.
+         ════════════════════════════════════════════════════════════════ -->
+    <div class="sticky-top" id="caHeader">
+
+      <!-- UTILITY NAV — app.css .nav-cf-utility, with its .fr_logo (left) /
+           .fr_tools (right) sub-structure. Keep the tool order: notifications,
+           theme, portal, account, each separated by .nav-cf-utility-divider. -->
+      <nav class="nav nav-cf-utility" id="UtilityNav" aria-label="Utility navigation">
+        <div class="fr_logo">
+          <img src="../img/cf/core/logo_casefusion.svg" width="32" height="36" alt="CaseFusion" />
+          <div class="fr_product-name">
+            <span class="product-bold">Case</span>
+            <span class="product-light">Fusion</span>
+          </div>
+        </div>
+        <div class="fr_tools">
+          <!-- NOTIFICATIONS. The popover is re-parented to <body> on init (it is
+               position:fixed and wider than the bar), so #navAlertWrapper is only
+               the pre-init home — outside-click is measured against the popover. -->
+          <div class="nav-alert-popover-wrapper" id="navAlertWrapper">
+            <button type="button" class="nav-icon-btn" id="navBellBtn" aria-label="Notifications" aria-haspopup="dialog" aria-expanded="false" aria-controls="navAlertPopover" data-cnds-toggle="tooltip" data-cnds-placement="bottom" data-cnds-delay="0" title="Notifications">
+              <span class="mdi mdi-bell" id="navBellIcon" aria-hidden="true"></span>
+              <span class="nav-bell-badge" id="navBellBadge" aria-live="polite" aria-atomic="true"></span>
+            </button>
+            <!-- No aria-modal: this is a non-modal popover. Focus is not trapped
+                 and an outside click dismisses it, so claiming modality would
+                 make assistive tech hide the rest of the page for no reason. -->
+            <div class="notif-popover" id="navAlertPopover" role="dialog" aria-label="Notifications" aria-hidden="true">
+              <div class="notif-header">
+                <span class="notif-header-title">Notifications</span>
+                <div class="notif-header-counts">
+                  <span class="notif-count-unread">0 Unread</span>
+                  <span class="notif-header-divider"></span>
+                  <span class="notif-count-total">0 Total</span>
+                </div>
+              </div>
+              <!-- Rows are rendered by §3 of the frame script. -->
+              <div class="notif-list" id="notifList"></div>
+            </div>
+          </div>
+
+          <span class="nav-cf-utility-divider" aria-hidden="true"></span>
+
+          <!-- THEME. data-cnds-toggle="theme" is handled by app.js: it flips
+               data-cnds-theme on <html> and persists the choice. §4 of the
+               frame script only mirrors the icon and the tooltip label. -->
+          <button type="button" class="nav-icon-btn" id="themeToggle" data-cnds-toggle="theme" aria-label="Toggle theme" title="Switch to light theme">
+            <span class="mdi mdi-weather-night" aria-hidden="true"></span>
+          </button>
+
+          <span class="nav-cf-utility-divider" aria-hidden="true"></span>
+
+          <!-- PORTAL SWITCHER. A span[role="button"] rather than a <button> so
+               the label can truncate mid-flex; the frame script wires Enter/Space. -->
+          <div class="portal-switcher-wrapper" id="portalSwitcherWrapper">
+            <span class="portal-switcher" id="portalSwitcherToggle" role="button" tabindex="0" aria-haspopup="menu" aria-expanded="false" aria-controls="portalMenu">
+              <span class="mdi mdi-account-switch-outline" aria-hidden="true"></span>
+              <span class="portal-switcher-label">{{Portal Name}}</span>
+              <span id="portalChevron" class="mdi mdi-chevron-down" aria-hidden="true"></span>
+            </span>
+            <div class="account-menu" id="portalMenu" role="menu" aria-hidden="true">
+              <div class="account-menu-header">Portal</div>
+              <a class="account-menu-item active" href="#!" role="menuitem">Tenant/Case Portal</a>
+              <a class="account-menu-item" href="#!" role="menuitem">Custodian Portal</a>
+              <a class="account-menu-item" href="#!" role="menuitem">SME Portal</a>
+            </div>
+          </div>
+          <span class="nav-cf-utility-divider" aria-hidden="true"></span>
+
+          <!-- ACCOUNT. .user-avatar holds the user's initials; aria-hidden
+               because the adjacent label already announces the name. -->
+          <div class="user-info-wrapper" id="userAccountWrapper">
+            <span class="user-info" id="userAccountToggle" role="button" tabindex="0" aria-haspopup="menu" aria-expanded="false" aria-controls="accountMenu">
+              <span class="user-avatar" aria-hidden="true">SW</span>
+              <span class="user-name-label">{{User Name}}</span>
+            </span>
+            <div class="account-menu" id="accountMenu" role="menu" aria-hidden="true">
+              <div class="account-menu-header">Account</div>
+              <a class="account-menu-item" href="#!" role="menuitem">Preferences</a>
+              <a class="account-menu-item" href="#!" role="menuitem">Sign Out</a>
+            </div>
+          </div>
+        </div><!-- /.fr_tools -->
+      </nav><!-- /#UtilityNav -->
+
+    </div><!-- /#caHeader / .sticky-top -->
+
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         MAIN CONTENT — a single slot. .ca-main carries the margin-left that
+         clears the fixed sidenav, and .ca-main-slim is added/removed by the
+         frame script in step with the panel's width.
+         ════════════════════════════════════════════════════════════════ -->
+    <main id="main-content" class="ca-main">
+      <!-- Small-screen notice. The frame assumes a fixed 220px sidenav plus a
+           content column, so it is not laid out for phones. d-block d-md-none
+           (core/display.css) shows this below the md breakpoint only. -->
+      <div class="d-block d-md-none mb-3">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>
+          This application is not optimised for small screens. Use a large tablet, laptop, or desktop to continue.
+        </div>
+      </div>
+
+      <div class="ca-content" id="caContent">
+        <div class="np-page">
+
+          <!-- ══ CONTENT HEADER — sticky ══════════════════════════════════
+               Page title + toolbar, pinned under the utility header so the
+               list scrolls beneath them and the search, sort and queue
+               controls stay reachable from anywhere in the list. Together
+               with the floating pager at the foot, every control on the
+               screen is reachable without returning to the top or bottom.
+
+               It sticks flush under #caHeader and carries the frame's 16px
+               top padding itself (see §2 of the stylesheet), so it does not
+               move at all as the list scrolls past — it starts where it
+               sticks. It is opaque for the same reason: cards pass behind it.
+
+               The .np-header-elevated shadow is added by the page script only
+               once the page has actually scrolled, and removed at scrollY 0 —
+               at the top there is nothing passing beneath the bar to lift away
+               from, so the shadow would be decoration. It is the same shadow
+               setting the frame's utility header used to carry; that bar no
+               longer elevates on scroll, because the elevation belongs to
+               whichever bar is last above the scrolling content.
+
+               ANGULAR: keep the title and toolbar in one wrapper element —
+               the sticky behaviour is the wrapper's, not either child's, and
+               the elevation is [class.np-header-elevated]="scrolled".
+               ════════════════════════════════════════════════════════════ -->
+          <div class="np-header" id="npHeader">
+
+          <!-- ══ PAGE TITLE — Nimbus/PageTitle ════════════════════════════
+               .cf-page-title is the component (uppercase, 8px tracking); the
+               <h1> inside it is the document's only level-1 heading, so each
+               person card's name can be an <h2>.
+               ANGULAR: <cf-page-title>Natural Persons</cf-page-title>
+               ════════════════════════════════════════════════════════════ -->
+          <div class="cf-page-title">
+            <h1 class="cf-page-title-text">Natural Persons</h1>
+          </div>
+
+          <!-- ══ TOOLBAR ROW ══════════════════════════════════════════════
+               Two elements: the grey list toolbar (grows) and the primary CTA
+               (fixed). The CTA sits OUTSIDE the toolbar because it creates a
+               record — it does not filter the list.
+
+               Order runs right-to-left by impact on data, per the CaseFusion
+               action-direction paradigm: read-only search and sort at the
+               left, the decision backlog next, record creation furthest right.
+
+               ANGULAR: the whole bar is a <cf-list-toolbar> with (search),
+               (sortChange) and (sortDirChange) outputs; the two buttons are
+               projected content so the toolbar stays generic.
+               ════════════════════════════════════════════════════════════ -->
+          <div class="np-toolbar-row">
+
+            <div class="btn-toolbar-gray btn-toolbar-list np-toolbar" role="toolbar"
+                 aria-label="Natural person list tools" aria-controls="npList">
+
+              <!-- SEARCH — Nimbus/InputField. type="search" gives the native
+                   clear affordance; the page script debounces input. -->
+              <div class="toolbar-list-search">
+                <div class="cf-input-field cf-input-field-sm cf-input-field-casefusion">
+                  <input
+                    id="npSearch"
+                    type="search"
+                    class="cf-input-control"
+                    placeholder="Search natural persons &hellip;"
+                    aria-label="Search natural persons"
+                    autocomplete="off"
+                  />
+                </div>
+              </div>
+
+              <span class="toolbar-list-divider" aria-hidden="true"></span>
+
+              <div class="toolbar-list-controls">
+
+                <!-- Plain <span>, not <label for> — Nimbus/Select absorbs an
+                     associated label into its own floating .select-label row,
+                     which is not what this toolbar wants. The select keeps its
+                     own aria-label. -->
+                <span class="toolbar-list-label">Sort By</span>
+                <!-- form-control-sm selects the Nimbus/Select SMALL size: the
+                     component's init copies the class onto its own wrapper and
+                     trigger (select.js), which is what drives .select-size-sm
+                     and .select-input.form-control-sm in components/select.css.
+                     Sizing it any other way would restyle the component.
+                     ANGULAR: <nimbus-select size="sm">. -->
+                <select id="npSort" class="form-control-sm" data-cnds-select-init aria-label="Sort by">
+                  <option value="name" selected>Name</option>
+                  <option value="employeeId">Employee ID</option>
+                  <option value="dateOfBirth">Date of Birth</option>
+                  <option value="location">Location</option>
+                </select>
+
+                <!-- ASC/DSC — tertiary button. Glyph, label and aria-label are
+                     kept in step by syncSortDirButton() in the page script;
+                     the direction is never signalled by the icon alone. -->
+                <button id="npSortDir" type="button" class="btn btn-tertiary btn-sm np-sort-dir"
+                        aria-label="Sort direction, ascending">
+                  <i class="mdi mdi-arrow-up-circle" aria-hidden="true"></i>
+                  <span class="np-sort-dir-label">Asc</span>
+                </button>
+
+                <span class="toolbar-list-divider" aria-hidden="true"></span>
+
+                <!-- Total is derived from the (filtered) record set by the page
+                     script — never hard-coded here. aria-live so a screen
+                     reader hears the count change when a search narrows it. -->
+                <span class="toolbar-list-total" id="npTotal" aria-live="polite">Total Persons: 0</span>
+
+                <span class="toolbar-list-divider" aria-hidden="true"></span>
+
+                <!-- ══ PENDING MATCH QUEUE — WIRED IN THIS BUILD ═══════════
+                     Opens the tenant-wide candidate queue: the backlog of
+                     candidate pairs the matcher refused to merge automatically,
+                     across ALL natural persons. It is NOT scoped to any person
+                     on this list, and the search box above does not filter it.
+
+                     The badge carries the PENDING count only — a pair that has
+                     already been decided is not outstanding work. The count is
+                     the reason to open the queue, so it must reflect live data;
+                     at zero the badge is hidden rather than rendered as "0"
+                     (handled by renderPendingBadge() in the page script).
+
+                     LABEL: the Figma label reads "Pending Match Queue" while
+                     the annotation and work item #17515 call the destination
+                     the Candidate Queue. Drawn label used verbatim; the
+                     mismatch is logged in pages-manifest.json for the product
+                     manager's glossary pass.
+
+                     <a>, not <button> — it is a navigation, so it must offer
+                     open-in-new-tab and show its target in the status bar. The
+                     script intercepts the click only to save the list state.
+
+                     ANGULAR:
+                       <a class="btn btn-secondary btn-sm"
+                          routerLink="/admin/natural-persons/pending-match-queue">
+                         Pending Match Queue
+                         <span class="badge badge-secondary"
+                               *ngIf="pendingCount$ | async as n">{{ n | number }}</span>
+                       </a>
+                     ══════════════════════════════════════════════════════ -->
+                <a id="npCandidateQueue" class="btn btn-secondary btn-sm np-btn-queue"
+                   href="pge-admin-natprsn-pndmtchque.html">
+                  Pending Match Queue
+                  <span class="badge badge-secondary" id="npQueueCount" aria-live="polite"></span>
+                </a>
+
+              </div><!-- /.toolbar-list-controls -->
+            </div><!-- /.np-toolbar -->
+
+            <!-- NEW NATURAL PERSON — existing behaviour, NOT wired here.
+                 TODO(#natprsn-new): opens the New Natural Person modal.
+                 ANGULAR: (click)="openCreateDialog()". -->
+            <button id="npNewPerson" type="button" class="btn btn-primary btn-lg np-btn-new">
+              New Natural Person
+            </button>
+
+          </div><!-- /.np-toolbar-row -->
+
+          </div><!-- /.np-header -->
+
+          <!-- ══ PERSON CARDS ═════════════════════════════════════════════
+               Rendered by cardHtml() in the page script — this container is
+               deliberately empty in the markup so there is exactly one
+               definition of a card and the dev never has to keep a static
+               sample in step with the renderer.
+
+               Each card is an <article> laid out in four columns:
+                 identity │ metadata │ contact │ actions
+               separated by 1px rules that stretch to the tallest column.
+
+               ANGULAR:
+                 <cf-person-card *ngFor="let p of persons; trackBy: byId"
+                                 [person]="p"
+                                 (viewProfile)="…" (identities)="…"
+                                 (edit)="…"       (delete)="…"></cf-person-card>
+
+               aria-busy is not set: the list renders synchronously from an
+               in-memory array. Add it once a real HTTP call is in front of it.
+               ════════════════════════════════════════════════════════════ -->
+          <div class="np-list" id="npList" aria-label="Natural persons"><!-- rendered by pge-admin-natprsn-list.js --></div>
+
+          <!-- ══ PAGER — Nimbus/Pagination, toolbar variant ═══════════════
+               CSS-only component; the page-size control is a Nimbus/Select and
+               the four nav buttons are wired by the page script. Defaults to
+               10 per page — CaseFusion pagers never default to 100.
+
+               The bar FLOATS: position:sticky holds it 16px off the bottom of
+               the viewport so the page controls stay reachable part-way down a
+               long list, and it settles into its natural place at the foot of
+               the list once the end is in view. See §4 of the stylesheet — no
+               ancestor may clip or scroll or the sticky pins to that box.
+
+               The design's numbered-page variant is not used: the record count
+               is unbounded, and a numbered strip stops being usable past a few
+               dozen pages.
+
+               ANGULAR: <cf-pagination [page]="page" [size]="size"
+                                       [total]="total" (pageChange)="…"></cf-pagination>
+               ════════════════════════════════════════════════════════════ -->
+          <div class="pagination-toolbar np-pager">
+            <label class="pagination-toolbar-label" for="npPageSize">Cards per page:</label>
+            <select id="npPageSize" data-cnds-select-init aria-label="Cards per page">
+              <option value="10" selected>10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+            </select>
+            <span class="pagination-toolbar-range" id="npPagerRange" aria-live="polite">0 of 0</span>
+            <nav class="pagination-toolbar-nav" aria-label="Page navigation">
+              <button id="npPageFirst" type="button" class="pagination-toolbar-btn" aria-label="First page" disabled><i class="mdi mdi-skip-previous" aria-hidden="true"></i></button>
+              <button id="npPagePrev"  type="button" class="pagination-toolbar-btn" aria-label="Previous page" disabled><i class="mdi mdi-chevron-left" aria-hidden="true"></i></button>
+              <button id="npPageNext"  type="button" class="pagination-toolbar-btn" aria-label="Next page"><i class="mdi mdi-chevron-right" aria-hidden="true"></i></button>
+              <button id="npPageLast"  type="button" class="pagination-toolbar-btn" aria-label="Last page"><i class="mdi mdi-skip-next" aria-hidden="true"></i></button>
+            </nav>
+          </div>
+
+        </div><!-- /.np-page -->
+      </div><!-- /#caContent -->
+    </main><!-- /#main-content -->
+
+
+    <!-- ═══════════════════ NIMBUS v1 CORE JS ═══════════════════
+         Matches includes/scripts-core.html, and must come BEFORE the page
+         scripts below so window.Nimbus exists when they run.
+
+         Do NOT add per-component <script>s here: js/nimbus.js is a loader that
+         fetches core/*.js and every components/*.js and plugins/*.js in
+         dependency order, runs Nimbus.DataAPI.init() over the data-cnds-*
+         attributes in the DOM, then dispatches `cnds.ready` on document.
+         Loading a component file again re-registers it with the DataAPI and
+         double-binds its handlers.
+
+         Because the components arrive asynchronously, anything that touches a
+         component class (Nimbus.Select, Nimbus.Toast, …) must run inside the
+         `cnds.ready` listener or an event handler — never at parse time. Both
+         page scripts below observe that rule.
+         ═════════════════════════════════════════════════════════ -->
+    <script type="text/javascript" src="../js/nimbus.js"></script>
+    <script type="text/javascript" src="../js/app.js"></script>
+
+    <!-- Frame controller — shared by every 1.6 page. Header menus, notifications,
+         theme sync, sidenav slim mode, fixed-sidenav top offset. -->
+    <script type="text/javascript" src="../js/pages/frame-ca-sidenav.js"></script>
+
+    <!-- Screen controller — this page only. Must load after the frame script:
+         both are IIFEs with no shared state, but the frame owns the layout
+         measurements the screen's scroll restore depends on. -->
+    <script type="text/javascript" src="../js/pages/pge-admin-natprsn-list.js"></script>
+
+  </body>
+</html>

@@ -1,0 +1,3941 @@
+<!doctype html>
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Color Palettes — CNDS Nimbus v1</title>
+    <link rel="stylesheet" href="css/nimbus.css" />
+    <link rel="stylesheet" href="css/app.css" />
+    <style>
+      body {
+        font-family: var(--cnds-font-family-base);
+        background: var(--cnds-body-bg);
+        color: var(--cnds-body-color);
+        margin: 0;
+        padding: 4.5rem 2rem 2rem;
+      }
+
+      .page-header {
+        max-width: 1400px;
+        margin: 0 auto 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid var(--cnds-border-color);
+      }
+
+      .page-header h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin: 0 0 0.25rem;
+        color: var(--cnds-primary);
+      }
+
+      .page-header p {
+        color: var(--cnds-gray-600);
+        margin: 0;
+        font-size: 1.1rem;
+      }
+
+      .palette-grid {
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      .palette-category {
+        margin-bottom: 3rem;
+      }
+
+      .palette-category h2 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0 0 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid var(--cnds-gray-300);
+        color: var(--cnds-gray-900);
+      }
+
+      .palette-row {
+        margin-bottom: 2rem;
+      }
+
+      .palette-row h3 {
+        font-size: 1rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem;
+        color: var(--cnds-gray-700);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .swatches {
+        display: flex;
+        gap: 0;
+        border-radius: 0.5rem;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+      }
+
+      .swatch {
+        flex: 1;
+        min-width: 0;
+        padding: 1.25rem 0.5rem 0.75rem;
+        text-align: center;
+        font-size: 0.7rem;
+        font-weight: 600;
+        line-height: 1.3;
+        transition: transform 0.15s ease;
+        cursor: pointer;
+        position: relative;
+      }
+
+      .swatch:hover {
+        transform: scaleY(1.08);
+        z-index: 1;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+      }
+
+      .swatch .shade {
+        display: block;
+        font-size: 0.65rem;
+        font-weight: 800;
+        margin-bottom: 0.25rem;
+        opacity: 0.8;
+      }
+
+      .swatch .hex {
+        display: block;
+        font-family: var(--cnds-font-family-code);
+        font-size: 0.6rem;
+        font-weight: 400;
+        opacity: 0.9;
+      }
+
+      .swatch.light-text {
+        color: #fff;
+      }
+
+      .swatch.dark-text {
+        color: #1a1a1a;
+      }
+
+      /* Copied toast */
+      .copy-toast {
+        position: fixed;
+        bottom: 2rem;
+        left: 50%;
+        transform: translateX(-50%) translateY(100px);
+        background: var(--cnds-surface-dark-500);
+        color: #fff;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        transition: transform 0.3s ease;
+        z-index: 9999;
+        pointer-events: none;
+      }
+
+      .copy-toast.show {
+        transform: translateX(-50%) translateY(0);
+      }
+
+      /* Page header bar */
+      .page-topbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.5rem 1.5rem;
+        background: var(--cnds-navbar-bg);
+        color: var(--cnds-navbar-color);
+        box-shadow: var(--cnds-shadow-1);
+      }
+
+      .page-topbar .topbar-brand {
+        font-weight: 700;
+        font-size: 1rem;
+        color: #fff;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .page-topbar .topbar-brand:hover {
+        opacity: 0.9;
+      }
+
+      .page-topbar .topbar-title {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.85);
+      }
+
+      .page-topbar .topbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      /* Back link */
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--cnds-primary);
+        text-decoration: none;
+        font-weight: 600;
+        margin-bottom: 1rem;
+      }
+
+      .back-link:hover {
+        text-decoration: underline;
+      }
+
+      /* Variable name display */
+      .var-name {
+        display: block;
+        font-family: var(--cnds-font-family-code);
+        font-size: 0.55rem;
+        font-weight: 400;
+        opacity: 0.7;
+        margin-top: 0.15rem;
+        word-break: break-all;
+      }
+
+      @media (max-width: 768px) {
+        body {
+          padding: 1rem;
+        }
+
+        .swatches {
+          flex-wrap: wrap;
+        }
+
+        .swatch {
+          flex: 0 0 calc(100% / 6);
+          min-height: 70px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Top bar with theme toggle -->
+    <header class="page-topbar">
+      <a href="index.html" class="topbar-brand">
+        <i class="fas fa-arrow-left"></i>
+        <span>CNDS v1</span>
+      </a>
+      <span class="topbar-title">Color Palettes</span>
+      <div class="topbar-actions">
+        <button
+          class="btn btn-sm btn-outline-secondary"
+          data-cnds-toggle="theme"
+          title="Toggle theme"
+          style="color: #fff; border-color: rgba(255, 255, 255, 0.4)"
+        >
+          <i class="fas fa-moon"></i>
+        </button>
+      </div>
+    </header>
+
+    <div class="palette-grid">
+      <div class="page-header">
+        <h1><i class="fas fa-palette me-2"></i>Color Palettes</h1>
+        <p>
+          Complete color system extracted from Figma — click any swatch to copy
+          the CSS variable name
+        </p>
+      </div>
+
+      <!-- ============================================
+           BRAND COLORS
+           ============================================ -->
+      <div class="palette-category">
+        <h2>Brand</h2>
+
+        <div class="palette-row">
+          <h4>Brand / Blue</h4>
+          <div class="swatches">
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-brand-blue-50)"
+              data-var="--cnds-brand-blue-50"
+              data-hex="#e5e6f6"
+            >
+              <span class="shade">50</span><span class="hex">#e5e6f6</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-brand-blue-100)"
+              data-var="--cnds-brand-blue-100"
+              data-hex="#cbcdec"
+            >
+              <span class="shade">100</span><span class="hex">#cbcdec</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-brand-blue-200)"
+              data-var="--cnds-brand-blue-200"
+              data-hex="#9297d8"
+            >
+              <span class="shade">200</span><span class="hex">#9297d8</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-brand-blue-300)"
+              data-var="--cnds-brand-blue-300"
+              data-hex="#5e65c5"
+            >
+              <span class="shade">300</span><span class="hex">#5e65c5</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-brand-blue-400)"
+              data-var="--cnds-brand-blue-400"
+              data-hex="#39409d"
+            >
+              <span class="shade">400</span><span class="hex">#39409d</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-brand-blue-500)"
+              data-var="--cnds-brand-blue-500"
+              data-hex="#262a69"
+            >
+              <span class="shade">500</span><span class="hex">#262a69</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-brand-blue-600)"
+              data-var="--cnds-brand-blue-600"
+              data-hex="#1f2152"
+            >
+              <span class="shade">600</span><span class="hex">#1f2152</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-brand-blue-700)"
+              data-var="--cnds-brand-blue-700"
+              data-hex="#181a40"
+            >
+              <span class="shade">700</span><span class="hex">#181a40</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-brand-blue-800)"
+              data-var="--cnds-brand-blue-800"
+              data-hex="#0f1129"
+            >
+              <span class="shade">800</span><span class="hex">#0f1129</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-brand-blue-900)"
+              data-var="--cnds-brand-blue-900"
+              data-hex="#080916"
+            >
+              <span class="shade">900</span><span class="hex">#080916</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-brand-blue-950)"
+              data-var="--cnds-brand-blue-950"
+              data-hex="#04050b"
+            >
+              <span class="shade">950</span><span class="hex">#04050b</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="palette-row">
+          <h4>Brand / Green</h4>
+          <div class="swatches">
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-brand-green-50)"
+              data-var="--cnds-brand-green-50"
+              data-hex="#f4faf0"
+            >
+              <span class="shade">50</span><span class="hex">#f4faf0</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-brand-green-100)"
+              data-var="--cnds-brand-green-100"
+              data-hex="#eaf4e1"
+            >
+              <span class="shade">100</span><span class="hex">#eaf4e1</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-brand-green-200)"
+              data-var="--cnds-brand-green-200"
+              data-hex="#d4eac3"
+            >
+              <span class="shade">200</span><span class="hex">#d4eac3</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-brand-green-300)"
+              data-var="--cnds-brand-green-300"
+              data-hex="#bcdea0"
+            >
+              <span class="shade">300</span><span class="hex">#bcdea0</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-brand-green-400)"
+              data-var="--cnds-brand-green-400"
+              data-hex="#a7d382"
+            >
+              <span class="shade">400</span><span class="hex">#a7d382</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-brand-green-500)"
+              data-var="--cnds-brand-green-500"
+              data-hex="#91c964"
+            >
+              <span class="shade">500</span><span class="hex">#91c964</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-brand-green-600)"
+              data-var="--cnds-brand-green-600"
+              data-hex="#72b23e"
+            >
+              <span class="shade">600</span><span class="hex">#72b23e</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-brand-green-700)"
+              data-var="--cnds-brand-green-700"
+              data-hex="#56842f"
+            >
+              <span class="shade">700</span><span class="hex">#56842f</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-brand-green-800)"
+              data-var="--cnds-brand-green-800"
+              data-hex="#3a5b20"
+            >
+              <span class="shade">800</span><span class="hex">#3a5b20</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-brand-green-900)"
+              data-var="--cnds-brand-green-900"
+              data-hex="#1c2d10"
+            >
+              <span class="shade">900</span><span class="hex">#1c2d10</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-brand-green-950)"
+              data-var="--cnds-brand-green-950"
+              data-hex="#0f1708"
+            >
+              <span class="shade">950</span><span class="hex">#0f1708</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================
+           PRIMARY COLORS
+           ============================================ -->
+      <div class="palette-category">
+        <h2>Primary</h2>
+
+        <div class="palette-row">
+          <h4>Primary / Darker Blue</h4>
+          <div class="swatches">
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-primary-darker-blue-50)"
+              data-var="--cnds-primary-darker-blue-50"
+              data-hex="#dddef3"
+            >
+              <span class="shade">50</span><span class="hex">#dddef3</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-primary-darker-blue-100)"
+              data-var="--cnds-primary-darker-blue-100"
+              data-hex="#bcbee6"
+            >
+              <span class="shade">100</span><span class="hex">#bcbee6</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-primary-darker-blue-200)"
+              data-var="--cnds-primary-darker-blue-200"
+              data-hex="#7579cc"
+            >
+              <span class="shade">200</span><span class="hex">#7579cc</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-primary-darker-blue-300)"
+              data-var="--cnds-primary-darker-blue-300"
+              data-hex="#3e43a8"
+            >
+              <span class="shade">300</span><span class="hex">#3e43a8</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-primary-darker-blue-400)"
+              data-var="--cnds-primary-darker-blue-400"
+              data-hex="#252761"
+            >
+              <span class="shade">400</span><span class="hex">#252761</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-primary-darker-blue-500)"
+              data-var="--cnds-primary-darker-blue-500"
+              data-hex="#0b0c1e"
+            >
+              <span class="shade">500</span><span class="hex">#0b0c1e</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="palette-row">
+          <h4>Primary / Blue</h4>
+          <div class="swatches">
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-primary-blue-50)"
+              data-var="--cnds-primary-blue-50"
+              data-hex="#e1e2f4"
+            >
+              <span class="shade">50</span><span class="hex">#e1e2f4</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-primary-blue-100)"
+              data-var="--cnds-primary-blue-100"
+              data-hex="#c4c6e9"
+            >
+              <span class="shade">100</span><span class="hex">#c4c6e9</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-primary-blue-200)"
+              data-var="--cnds-primary-blue-200"
+              data-hex="#8589d1"
+            >
+              <span class="shade">200</span><span class="hex">#8589d1</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-primary-blue-300)"
+              data-var="--cnds-primary-blue-300"
+              data-hex="#4a4fba"
+            >
+              <span class="shade">300</span><span class="hex">#4a4fba</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-primary-blue-400)"
+              data-var="--cnds-primary-blue-400"
+              data-hex="#30347f"
+            >
+              <span class="shade">400</span><span class="hex">#30347f</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-primary-blue-500)"
+              data-var="--cnds-primary-blue-500"
+              data-hex="#191b42"
+            >
+              <span class="shade">500</span><span class="hex">#191b42</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="palette-row">
+          <h4>Primary / Dark Blue</h4>
+          <div class="swatches">
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-primary-dark-blue-50)"
+              data-var="--cnds-primary-dark-blue-50"
+              data-hex="#dedff2"
+            >
+              <span class="shade">50</span><span class="hex">#dedff2</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-primary-dark-blue-100)"
+              data-var="--cnds-primary-dark-blue-100"
+              data-hex="#c1c2e6"
+            >
+              <span class="shade">100</span><span class="hex">#c1c2e6</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-primary-dark-blue-200)"
+              data-var="--cnds-primary-dark-blue-200"
+              data-hex="#8082cc"
+            >
+              <span class="shade">200</span><span class="hex">#8082cc</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-primary-dark-blue-300)"
+              data-var="--cnds-primary-dark-blue-300"
+              data-hex="#4549af"
+            >
+              <span class="shade">300</span><span class="hex">#4549af</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-primary-dark-blue-400)"
+              data-var="--cnds-primary-dark-blue-400"
+              data-hex="#2c2e6e"
+            >
+              <span class="shade">400</span><span class="hex">#2c2e6e</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-primary-dark-blue-500)"
+              data-var="--cnds-primary-dark-blue-500"
+              data-hex="#131430"
+            >
+              <span class="shade">500</span><span class="hex">#131430</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="palette-row">
+          <h4>Primary / Purple</h4>
+          <div class="swatches">
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-primary-purple-50)"
+              data-var="--cnds-primary-purple-50"
+              data-hex="#ebe4f7"
+            >
+              <span class="shade">50</span><span class="hex">#ebe4f7</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-primary-purple-100)"
+              data-var="--cnds-primary-purple-100"
+              data-hex="#d4c7ec"
+            >
+              <span class="shade">100</span><span class="hex">#d4c7ec</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-primary-purple-200)"
+              data-var="--cnds-primary-purple-200"
+              data-hex="#ae90da"
+            >
+              <span class="shade">200</span><span class="hex">#ae90da</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-primary-purple-300)"
+              data-var="--cnds-primary-purple-300"
+              data-hex="#8357c6"
+            >
+              <span class="shade">300</span><span class="hex">#8357c6</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-primary-purple-400)"
+              data-var="--cnds-primary-purple-400"
+              data-hex="#5e359c"
+            >
+              <span class="shade">400</span><span class="hex">#5e359c</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-primary-purple-500)"
+              data-var="--cnds-primary-purple-500"
+              data-hex="#3d2265"
+            >
+              <span class="shade">500</span><span class="hex">#3d2265</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-primary-purple-600)"
+              data-var="--cnds-primary-purple-600"
+              data-hex="#301b50"
+            >
+              <span class="shade">600</span><span class="hex">#301b50</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-primary-purple-700)"
+              data-var="--cnds-primary-purple-700"
+              data-hex="#25153d"
+            >
+              <span class="shade">700</span><span class="hex">#25153d</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-primary-purple-800)"
+              data-var="--cnds-primary-purple-800"
+              data-hex="#190e2a"
+            >
+              <span class="shade">800</span><span class="hex">#190e2a</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-primary-purple-900)"
+              data-var="--cnds-primary-purple-900"
+              data-hex="#0b0613"
+            >
+              <span class="shade">900</span><span class="hex">#0b0613</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-primary-purple-950)"
+              data-var="--cnds-primary-purple-950"
+              data-hex="#06040b"
+            >
+              <span class="shade">950</span><span class="hex">#06040b</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="palette-row">
+          <h4>Primary / Green (Teal)</h4>
+          <div class="swatches">
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-primary-green-50)"
+              data-var="--cnds-primary-green-50"
+              data-hex="#dfedf5"
+            >
+              <span class="shade">50</span><span class="hex">#dfedf5</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-primary-green-100)"
+              data-var="--cnds-primary-green-100"
+              data-hex="#c6dded"
+            >
+              <span class="shade">100</span><span class="hex">#c6dded</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-primary-green-200)"
+              data-var="--cnds-primary-green-200"
+              data-hex="#8abbdb"
+            >
+              <span class="shade">200</span><span class="hex">#8abbdb</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-primary-green-300)"
+              data-var="--cnds-primary-green-300"
+              data-hex="#5098c8"
+            >
+              <span class="shade">300</span><span class="hex">#5098c8</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-primary-green-400)"
+              data-var="--cnds-primary-green-400"
+              data-hex="#31719b"
+            >
+              <span class="shade">400</span><span class="hex">#31719b</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-primary-green-500)"
+              data-var="--cnds-primary-green-500"
+              data-hex="#1e4660"
+            >
+              <span class="shade">500</span><span class="hex">#1e4660</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-primary-green-600)"
+              data-var="--cnds-primary-green-600"
+              data-hex="#18384e"
+            >
+              <span class="shade">600</span><span class="hex">#18384e</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-primary-green-700)"
+              data-var="--cnds-primary-green-700"
+              data-hex="#122a3b"
+            >
+              <span class="shade">700</span><span class="hex">#122a3b</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-primary-green-800)"
+              data-var="--cnds-primary-green-800"
+              data-hex="#0c1c27"
+            >
+              <span class="shade">800</span><span class="hex">#0c1c27</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-primary-green-900)"
+              data-var="--cnds-primary-green-900"
+              data-hex="#070e14"
+            >
+              <span class="shade">900</span><span class="hex">#070e14</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-primary-green-950)"
+              data-var="--cnds-primary-green-950"
+              data-hex="#020608"
+            >
+              <span class="shade">950</span><span class="hex">#020608</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="palette-row">
+          <h4>Primary / Red</h4>
+          <div class="swatches">
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-primary-red-50)"
+              data-var="--cnds-primary-red-50"
+              data-hex="#ffece5"
+            >
+              <span class="shade">50</span><span class="hex">#ffece5</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-primary-red-100)"
+              data-var="--cnds-primary-red-100"
+              data-hex="#ffdacc"
+            >
+              <span class="shade">100</span><span class="hex">#ffdacc</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-primary-red-200)"
+              data-var="--cnds-primary-red-200"
+              data-hex="#ffb094"
+            >
+              <span class="shade">200</span><span class="hex">#ffb094</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-primary-red-300)"
+              data-var="--cnds-primary-red-300"
+              data-hex="#ff8b61"
+            >
+              <span class="shade">300</span><span class="hex">#ff8b61</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-primary-red-400)"
+              data-var="--cnds-primary-red-400"
+              data-hex="#ff612a"
+            >
+              <span class="shade">400</span><span class="hex">#ff612a</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-primary-red-500)"
+              data-var="--cnds-primary-red-500"
+              data-hex="#f44300"
+            >
+              <span class="shade">500</span><span class="hex">#f44300</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-primary-red-600)"
+              data-var="--cnds-primary-red-600"
+              data-hex="#c23400"
+            >
+              <span class="shade">600</span><span class="hex">#c23400</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-primary-red-700)"
+              data-var="--cnds-primary-red-700"
+              data-hex="#942700"
+            >
+              <span class="shade">700</span><span class="hex">#942700</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-primary-red-800)"
+              data-var="--cnds-primary-red-800"
+              data-hex="#611a00"
+            >
+              <span class="shade">800</span><span class="hex">#611a00</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-primary-red-900)"
+              data-var="--cnds-primary-red-900"
+              data-hex="#330e00"
+            >
+              <span class="shade">900</span><span class="hex">#330e00</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-primary-red-950)"
+              data-var="--cnds-primary-red-950"
+              data-hex="#190700"
+            >
+              <span class="shade">950</span><span class="hex">#190700</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="palette-row">
+          <h4>Primary / Yellow</h4>
+          <div class="swatches">
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-primary-yellow-50)"
+              data-var="--cnds-primary-yellow-50"
+              data-hex="#fff9e5"
+            >
+              <span class="shade">50</span><span class="hex">#fff9e5</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-primary-yellow-100)"
+              data-var="--cnds-primary-yellow-100"
+              data-hex="#fff3cc"
+            >
+              <span class="shade">100</span><span class="hex">#fff3cc</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-primary-yellow-200)"
+              data-var="--cnds-primary-yellow-200"
+              data-hex="#ffe693"
+            >
+              <span class="shade">200</span><span class="hex">#ffe693</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-primary-yellow-300)"
+              data-var="--cnds-primary-yellow-300"
+              data-hex="#ffda62"
+            >
+              <span class="shade">300</span><span class="hex">#ffda62</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-primary-yellow-400)"
+              data-var="--cnds-primary-yellow-400"
+              data-hex="#ffcd2a"
+            >
+              <span class="shade">400</span><span class="hex">#ffcd2a</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-primary-yellow-500)"
+              data-var="--cnds-primary-yellow-500"
+              data-hex="#f3bc00"
+            >
+              <span class="shade">500</span><span class="hex">#f3bc00</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-primary-yellow-600)"
+              data-var="--cnds-primary-yellow-600"
+              data-hex="#c29500"
+            >
+              <span class="shade">600</span><span class="hex">#c29500</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-primary-yellow-700)"
+              data-var="--cnds-primary-yellow-700"
+              data-hex="#957100"
+            >
+              <span class="shade">700</span><span class="hex">#957100</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-primary-yellow-800)"
+              data-var="--cnds-primary-yellow-800"
+              data-hex="#614a00"
+            >
+              <span class="shade">800</span><span class="hex">#614a00</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-primary-yellow-900)"
+              data-var="--cnds-primary-yellow-900"
+              data-hex="#332700"
+            >
+              <span class="shade">900</span><span class="hex">#332700</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-primary-yellow-950)"
+              data-var="--cnds-primary-yellow-950"
+              data-hex="#191400"
+            >
+              <span class="shade">950</span><span class="hex">#191400</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="palette-row">
+          <h4>Primary / Gray</h4>
+          <div class="swatches">
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-primary-gray-50)"
+              data-var="--cnds-primary-gray-50"
+              data-hex="#f2f2f2"
+            >
+              <span class="shade">50</span><span class="hex">#f2f2f2</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-primary-gray-100)"
+              data-var="--cnds-primary-gray-100"
+              data-hex="#e6e6e6"
+            >
+              <span class="shade">100</span><span class="hex">#e6e6e6</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-primary-gray-200)"
+              data-var="--cnds-primary-gray-200"
+              data-hex="#cccccc"
+            >
+              <span class="shade">200</span><span class="hex">#cccccc</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-primary-gray-300)"
+              data-var="--cnds-primary-gray-300"
+              data-hex="#b3b3b3"
+            >
+              <span class="shade">300</span><span class="hex">#b3b3b3</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-primary-gray-400)"
+              data-var="--cnds-primary-gray-400"
+              data-hex="#999999"
+            >
+              <span class="shade">400</span><span class="hex">#999999</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-primary-gray-500)"
+              data-var="--cnds-primary-gray-500"
+              data-hex="#7f7f7f"
+            >
+              <span class="shade">500</span><span class="hex">#7f7f7f</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-primary-gray-600)"
+              data-var="--cnds-primary-gray-600"
+              data-hex="#666666"
+            >
+              <span class="shade">600</span><span class="hex">#666666</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-primary-gray-700)"
+              data-var="--cnds-primary-gray-700"
+              data-hex="#4d4d4d"
+            >
+              <span class="shade">700</span><span class="hex">#4d4d4d</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-primary-gray-800)"
+              data-var="--cnds-primary-gray-800"
+              data-hex="#333333"
+            >
+              <span class="shade">800</span><span class="hex">#333333</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-primary-gray-900)"
+              data-var="--cnds-primary-gray-900"
+              data-hex="#1a1a1a"
+            >
+              <span class="shade">900</span><span class="hex">#1a1a1a</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-primary-gray-950)"
+              data-var="--cnds-primary-gray-950"
+              data-hex="#0d0d0d"
+            >
+              <span class="shade">950</span><span class="hex">#0d0d0d</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================
+           PRODUCT COLORS
+           ============================================ -->
+      <div class="palette-category">
+        <h2>Product</h2>
+
+        <div class="palette-row">
+          <h4>Product / Orange</h4>
+          <div class="swatches">
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-product-orange-50)"
+              data-var="--cnds-product-orange-50"
+              data-hex="#fef7e7"
+            >
+              <span class="shade">50</span><span class="hex">#fef7e7</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-product-orange-100)"
+              data-var="--cnds-product-orange-100"
+              data-hex="#feeecf"
+            >
+              <span class="shade">100</span><span class="hex">#feeecf</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-product-orange-200)"
+              data-var="--cnds-product-orange-200"
+              data-hex="#fae09e"
+            >
+              <span class="shade">200</span><span class="hex">#fae09e</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-product-orange-300)"
+              data-var="--cnds-product-orange-300"
+              data-hex="#f9cf6d"
+            >
+              <span class="shade">300</span><span class="hex">#f9cf6d</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-product-orange-400)"
+              data-var="--cnds-product-orange-400"
+              data-hex="#f6bf37"
+            >
+              <span class="shade">400</span><span class="hex">#f6bf37</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-product-orange-500)"
+              data-var="--cnds-product-orange-500"
+              data-hex="#eeb00d"
+            >
+              <span class="shade">500</span><span class="hex">#eeb00d</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-product-orange-600)"
+              data-var="--cnds-product-orange-600"
+              data-hex="#bd8a09"
+            >
+              <span class="shade">600</span><span class="hex">#bd8a09</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-product-orange-700)"
+              data-var="--cnds-product-orange-700"
+              data-hex="#926a08"
+            >
+              <span class="shade">700</span><span class="hex">#926a08</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-product-orange-800)"
+              data-var="--cnds-product-orange-800"
+              data-hex="#614706"
+            >
+              <span class="shade">800</span><span class="hex">#614706</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-product-orange-900)"
+              data-var="--cnds-product-orange-900"
+              data-hex="#312302"
+            >
+              <span class="shade">900</span><span class="hex">#312302</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-product-orange-950)"
+              data-var="--cnds-product-orange-950"
+              data-hex="#181202"
+            >
+              <span class="shade">950</span><span class="hex">#181202</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="palette-row">
+          <h4>Product / Purple</h4>
+          <div class="swatches">
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-product-purple-50)"
+              data-var="--cnds-product-purple-50"
+              data-hex="#f3f2fc"
+            >
+              <span class="shade">50</span><span class="hex">#f3f2fc</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-product-purple-100)"
+              data-var="--cnds-product-purple-100"
+              data-hex="#e7e6fa"
+            >
+              <span class="shade">100</span><span class="hex">#e7e6fa</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-product-purple-200)"
+              data-var="--cnds-product-purple-200"
+              data-hex="#cfcdf4"
+            >
+              <span class="shade">200</span><span class="hex">#cfcdf4</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-product-purple-300)"
+              data-var="--cnds-product-purple-300"
+              data-hex="#b3afee"
+            >
+              <span class="shade">300</span><span class="hex">#b3afee</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-product-purple-400)"
+              data-var="--cnds-product-purple-400"
+              data-hex="#9a96e8"
+            >
+              <span class="shade">400</span><span class="hex">#9a96e8</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-product-purple-500)"
+              data-var="--cnds-product-purple-500"
+              data-hex="#827de3"
+            >
+              <span class="shade">500</span><span class="hex">#827de3</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-product-purple-600)"
+              data-var="--cnds-product-purple-600"
+              data-hex="#4a42d6"
+            >
+              <span class="shade">600</span><span class="hex">#4a42d6</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-product-purple-700)"
+              data-var="--cnds-product-purple-700"
+              data-hex="#2c25ac"
+            >
+              <span class="shade">700</span><span class="hex">#2c25ac</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-product-purple-800)"
+              data-var="--cnds-product-purple-800"
+              data-hex="#1e1976"
+            >
+              <span class="shade">800</span><span class="hex">#1e1976</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-product-purple-900)"
+              data-var="--cnds-product-purple-900"
+              data-hex="#100d3a"
+            >
+              <span class="shade">900</span><span class="hex">#100d3a</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-product-purple-950)"
+              data-var="--cnds-product-purple-950"
+              data-hex="#07061e"
+            >
+              <span class="shade">950</span><span class="hex">#07061e</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="palette-row">
+          <h4>Product / Lime</h4>
+          <div class="swatches">
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-product-lime-50)"
+              data-var="--cnds-product-lime-50"
+              data-hex="#f4fbf3"
+            >
+              <span class="shade">50</span><span class="hex">#f4fbf3</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-product-lime-100)"
+              data-var="--cnds-product-lime-100"
+              data-hex="#e8f7e8"
+            >
+              <span class="shade">100</span><span class="hex">#e8f7e8</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-product-lime-200)"
+              data-var="--cnds-product-lime-200"
+              data-hex="#d1f0d0"
+            >
+              <span class="shade">200</span><span class="hex">#d1f0d0</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-product-lime-300)"
+              data-var="--cnds-product-lime-300"
+              data-hex="#bbe9b9"
+            >
+              <span class="shade">300</span><span class="hex">#bbe9b9</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-product-lime-400)"
+              data-var="--cnds-product-lime-400"
+              data-hex="#a4e2a2"
+            >
+              <span class="shade">400</span><span class="hex">#a4e2a2</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-product-lime-500)"
+              data-var="--cnds-product-lime-500"
+              data-hex="#8edb8b"
+            >
+              <span class="shade">500</span><span class="hex">#8edb8b</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-product-lime-600)"
+              data-var="--cnds-product-lime-600"
+              data-hex="#58ca54"
+            >
+              <span class="shade">600</span><span class="hex">#58ca54</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-product-lime-700)"
+              data-var="--cnds-product-lime-700"
+              data-hex="#38a333"
+            >
+              <span class="shade">700</span><span class="hex">#38a333</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-product-lime-800)"
+              data-var="--cnds-product-lime-800"
+              data-hex="#256c22"
+            >
+              <span class="shade">800</span><span class="hex">#256c22</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-product-lime-900)"
+              data-var="--cnds-product-lime-900"
+              data-hex="#133612"
+            >
+              <span class="shade">900</span><span class="hex">#133612</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="palette-row">
+          <h4>Product / Green</h4>
+          <div class="swatches">
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-product-green-50)"
+              data-var="--cnds-product-green-50"
+              data-hex="#f0faef"
+            >
+              <span class="shade">50</span><span class="hex">#f0faef</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-product-green-100)"
+              data-var="--cnds-product-green-100"
+              data-hex="#e1f5e0"
+            >
+              <span class="shade">100</span><span class="hex">#e1f5e0</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-product-green-200)"
+              data-var="--cnds-product-green-200"
+              data-hex="#beebbd"
+            >
+              <span class="shade">200</span><span class="hex">#beebbd</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-product-green-300)"
+              data-var="--cnds-product-green-300"
+              data-hex="#a0e19d"
+            >
+              <span class="shade">300</span><span class="hex">#a0e19d</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-product-green-400)"
+              data-var="--cnds-product-green-400"
+              data-hex="#7dd67a"
+            >
+              <span class="shade">400</span><span class="hex">#7dd67a</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-product-green-500)"
+              data-var="--cnds-product-green-500"
+              data-hex="#5ccb59"
+            >
+              <span class="shade">500</span><span class="hex">#5ccb59</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-product-green-600)"
+              data-var="--cnds-product-green-600"
+              data-hex="#3bb337"
+            >
+              <span class="shade">600</span><span class="hex">#3bb337</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-product-green-700)"
+              data-var="--cnds-product-green-700"
+              data-hex="#2e892a"
+            >
+              <span class="shade">700</span><span class="hex">#2e892a</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-product-green-800)"
+              data-var="--cnds-product-green-800"
+              data-hex="#1d5a1d"
+            >
+              <span class="shade">800</span><span class="hex">#1d5a1d</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-product-green-900)"
+              data-var="--cnds-product-green-900"
+              data-hex="#0f2f0e"
+            >
+              <span class="shade">900</span><span class="hex">#0f2f0e</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-product-green-950)"
+              data-var="--cnds-product-green-950"
+              data-hex="#091707"
+            >
+              <span class="shade">950</span><span class="hex">#091707</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="palette-row">
+          <h4>Product / Yellow</h4>
+          <div class="swatches">
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-product-yellow-50)"
+              data-var="--cnds-product-yellow-50"
+              data-hex="#fefae6"
+            >
+              <span class="shade">50</span><span class="hex">#fefae6</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-product-yellow-100)"
+              data-var="--cnds-product-yellow-100"
+              data-hex="#fef5ce"
+            >
+              <span class="shade">100</span><span class="hex">#fef5ce</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-product-yellow-200)"
+              data-var="--cnds-product-yellow-200"
+              data-hex="#fceb96"
+            >
+              <span class="shade">200</span><span class="hex">#fceb96</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-product-yellow-300)"
+              data-var="--cnds-product-yellow-300"
+              data-hex="#fae166"
+            >
+              <span class="shade">300</span><span class="hex">#fae166</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-product-yellow-400)"
+              data-var="--cnds-product-yellow-400"
+              data-hex="#f8d835"
+            >
+              <span class="shade">400</span><span class="hex">#f8d835</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-product-yellow-500)"
+              data-var="--cnds-product-yellow-500"
+              data-hex="#f1c70b"
+            >
+              <span class="shade">500</span><span class="hex">#f1c70b</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-product-yellow-600)"
+              data-var="--cnds-product-yellow-600"
+              data-hex="#c0a107"
+            >
+              <span class="shade">600</span><span class="hex">#c0a107</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-product-yellow-700)"
+              data-var="--cnds-product-yellow-700"
+              data-hex="#8f7803"
+            >
+              <span class="shade">700</span><span class="hex">#8f7803</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-product-yellow-800)"
+              data-var="--cnds-product-yellow-800"
+              data-hex="#5e4f03"
+            >
+              <span class="shade">800</span><span class="hex">#5e4f03</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-product-yellow-900)"
+              data-var="--cnds-product-yellow-900"
+              data-hex="#312902"
+            >
+              <span class="shade">900</span><span class="hex">#312902</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-product-yellow-950)"
+              data-var="--cnds-product-yellow-950"
+              data-hex="#181501"
+            >
+              <span class="shade">950</span><span class="hex">#181501</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="palette-row">
+          <h4>Product / Blue</h4>
+          <div class="swatches">
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-product-blue-50)"
+              data-var="--cnds-product-blue-50"
+              data-hex="#efeefb"
+            >
+              <span class="shade">50</span><span class="hex">#efeefb</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-product-blue-100)"
+              data-var="--cnds-product-blue-100"
+              data-hex="#dbd9f7"
+            >
+              <span class="shade">100</span><span class="hex">#dbd9f7</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-product-blue-200)"
+              data-var="--cnds-product-blue-200"
+              data-hex="#b6b4ee"
+            >
+              <span class="shade">200</span><span class="hex">#b6b4ee</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-product-blue-300)"
+              data-var="--cnds-product-blue-300"
+              data-hex="#938ee6"
+            >
+              <span class="shade">300</span><span class="hex">#938ee6</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-product-blue-400)"
+              data-var="--cnds-product-blue-400"
+              data-hex="#6e69de"
+            >
+              <span class="shade">400</span><span class="hex">#6e69de</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-product-blue-500)"
+              data-var="--cnds-product-blue-500"
+              data-hex="#4e45d6"
+            >
+              <span class="shade">500</span><span class="hex">#4e45d6</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-product-blue-600)"
+              data-var="--cnds-product-blue-600"
+              data-hex="#3029b8"
+            >
+              <span class="shade">600</span><span class="hex">#3029b8</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-product-blue-700)"
+              data-var="--cnds-product-blue-700"
+              data-hex="#241e89"
+            >
+              <span class="shade">700</span><span class="hex">#241e89</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-product-blue-800)"
+              data-var="--cnds-product-blue-800"
+              data-hex="#17145c"
+            >
+              <span class="shade">800</span><span class="hex">#17145c</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-product-blue-900)"
+              data-var="--cnds-product-blue-900"
+              data-hex="#0d0a2e"
+            >
+              <span class="shade">900</span><span class="hex">#0d0a2e</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-product-blue-950)"
+              data-var="--cnds-product-blue-950"
+              data-hex="#070619"
+            >
+              <span class="shade">950</span><span class="hex">#070619</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================
+           SECONDARY COLORS
+           ============================================ -->
+      <div class="palette-category">
+        <h2>Secondary</h2>
+
+        <div class="palette-row">
+          <h4>Secondary / Purple</h4>
+          <div class="swatches">
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-secondary-purple-50)"
+              data-var="--cnds-secondary-purple-50"
+              data-hex="#efeaf5"
+            >
+              <span class="shade">50</span><span class="hex">#efeaf5</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-secondary-purple-100)"
+              data-var="--cnds-secondary-purple-100"
+              data-hex="#dcd2ea"
+            >
+              <span class="shade">100</span><span class="hex">#dcd2ea</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-secondary-purple-200)"
+              data-var="--cnds-secondary-purple-200"
+              data-hex="#bba9d6"
+            >
+              <span class="shade">200</span><span class="hex">#bba9d6</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-secondary-purple-300)"
+              data-var="--cnds-secondary-purple-300"
+              data-hex="#977cc0"
+            >
+              <span class="shade">300</span><span class="hex">#977cc0</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-purple-400)"
+              data-var="--cnds-secondary-purple-400"
+              data-hex="#7653ad"
+            >
+              <span class="shade">400</span><span class="hex">#7653ad</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-purple-500)"
+              data-var="--cnds-secondary-purple-500"
+              data-hex="#583d80"
+            >
+              <span class="shade">500</span><span class="hex">#583d80</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-purple-600)"
+              data-var="--cnds-secondary-purple-600"
+              data-hex="#473168"
+            >
+              <span class="shade">600</span><span class="hex">#473168</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-purple-700)"
+              data-var="--cnds-secondary-purple-700"
+              data-hex="#34244c"
+            >
+              <span class="shade">700</span><span class="hex">#34244c</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-purple-800)"
+              data-var="--cnds-secondary-purple-800"
+              data-hex="#241934"
+            >
+              <span class="shade">800</span><span class="hex">#241934</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-purple-900)"
+              data-var="--cnds-secondary-purple-900"
+              data-hex="#110c18"
+            >
+              <span class="shade">900</span><span class="hex">#110c18</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-purple-950)"
+              data-var="--cnds-secondary-purple-950"
+              data-hex="#09070d"
+            >
+              <span class="shade">950</span><span class="hex">#09070d</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="palette-row">
+          <h4>Secondary / Blue</h4>
+          <div class="swatches">
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-secondary-blue-50)"
+              data-var="--cnds-secondary-blue-50"
+              data-hex="#eaebf5"
+            >
+              <span class="shade">50</span><span class="hex">#eaebf5</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-secondary-blue-100)"
+              data-var="--cnds-secondary-blue-100"
+              data-hex="#d6d7eb"
+            >
+              <span class="shade">100</span><span class="hex">#d6d7eb</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-secondary-blue-200)"
+              data-var="--cnds-secondary-blue-200"
+              data-hex="#aaacd5"
+            >
+              <span class="shade">200</span><span class="hex">#aaacd5</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-secondary-blue-300)"
+              data-var="--cnds-secondary-blue-300"
+              data-hex="#8185c1"
+            >
+              <span class="shade">300</span><span class="hex">#8185c1</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-blue-400)"
+              data-var="--cnds-secondary-blue-400"
+              data-hex="#585dad"
+            >
+              <span class="shade">400</span><span class="hex">#585dad</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-blue-500)"
+              data-var="--cnds-secondary-blue-500"
+              data-hex="#414584"
+            >
+              <span class="shade">500</span><span class="hex">#414584</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-blue-600)"
+              data-var="--cnds-secondary-blue-600"
+              data-hex="#34386a"
+            >
+              <span class="shade">600</span><span class="hex">#34386a</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-blue-700)"
+              data-var="--cnds-secondary-blue-700"
+              data-hex="#27294f"
+            >
+              <span class="shade">700</span><span class="hex">#27294f</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-blue-800)"
+              data-var="--cnds-secondary-blue-800"
+              data-hex="#191b33"
+            >
+              <span class="shade">800</span><span class="hex">#191b33</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-blue-900)"
+              data-var="--cnds-secondary-blue-900"
+              data-hex="#0d0e1b"
+            >
+              <span class="shade">900</span><span class="hex">#0d0e1b</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-blue-950)"
+              data-var="--cnds-secondary-blue-950"
+              data-hex="#07070e"
+            >
+              <span class="shade">950</span><span class="hex">#07070e</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="palette-row">
+          <h4>Secondary / Teal</h4>
+          <div class="swatches">
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-secondary-teal-50)"
+              data-var="--cnds-secondary-teal-50"
+              data-hex="#e6eff4"
+            >
+              <span class="shade">50</span><span class="hex">#e6eff4</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-secondary-teal-100)"
+              data-var="--cnds-secondary-teal-100"
+              data-hex="#d2e0ea"
+            >
+              <span class="shade">100</span><span class="hex">#d2e0ea</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-secondary-teal-200)"
+              data-var="--cnds-secondary-teal-200"
+              data-hex="#a4c2d5"
+            >
+              <span class="shade">200</span><span class="hex">#a4c2d5</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-secondary-teal-300)"
+              data-var="--cnds-secondary-teal-300"
+              data-hex="#78a4c0"
+            >
+              <span class="shade">300</span><span class="hex">#78a4c0</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-teal-400)"
+              data-var="--cnds-secondary-teal-400"
+              data-hex="#4b82a4"
+            >
+              <span class="shade">400</span><span class="hex">#4b82a4</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-teal-500)"
+              data-var="--cnds-secondary-teal-500"
+              data-hex="#375f78"
+            >
+              <span class="shade">500</span><span class="hex">#375f78</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-teal-600)"
+              data-var="--cnds-secondary-teal-600"
+              data-hex="#2b4b5e"
+            >
+              <span class="shade">600</span><span class="hex">#2b4b5e</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-teal-700)"
+              data-var="--cnds-secondary-teal-700"
+              data-hex="#223a4a"
+            >
+              <span class="shade">700</span><span class="hex">#223a4a</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-teal-800)"
+              data-var="--cnds-secondary-teal-800"
+              data-hex="#162731"
+            >
+              <span class="shade">800</span><span class="hex">#162731</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-teal-900)"
+              data-var="--cnds-secondary-teal-900"
+              data-hex="#0b1317"
+            >
+              <span class="shade">900</span><span class="hex">#0b1317</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-teal-950)"
+              data-var="--cnds-secondary-teal-950"
+              data-hex="#06080a"
+            >
+              <span class="shade">950</span><span class="hex">#06080a</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="palette-row">
+          <h4>Secondary / Green</h4>
+          <div class="swatches">
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-secondary-green-50)"
+              data-var="--cnds-secondary-green-50"
+              data-hex="#ddf8ee"
+            >
+              <span class="shade">50</span><span class="hex">#ddf8ee</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-secondary-green-100)"
+              data-var="--cnds-secondary-green-100"
+              data-hex="#c0f2de"
+            >
+              <span class="shade">100</span><span class="hex">#c0f2de</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-secondary-green-200)"
+              data-var="--cnds-secondary-green-200"
+              data-hex="#81e4bb"
+            >
+              <span class="shade">200</span><span class="hex">#81e4bb</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-secondary-green-300)"
+              data-var="--cnds-secondary-green-300"
+              data-hex="#42d79b"
+            >
+              <span class="shade">300</span><span class="hex">#42d79b</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-green-400)"
+              data-var="--cnds-secondary-green-400"
+              data-hex="#24a873"
+            >
+              <span class="shade">400</span><span class="hex">#24a873</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-green-500)"
+              data-var="--cnds-secondary-green-500"
+              data-hex="#166746"
+            >
+              <span class="shade">500</span><span class="hex">#166746</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-green-600)"
+              data-var="--cnds-secondary-green-600"
+              data-hex="#10543a"
+            >
+              <span class="shade">600</span><span class="hex">#10543a</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-green-700)"
+              data-var="--cnds-secondary-green-700"
+              data-hex="#0e3f2a"
+            >
+              <span class="shade">700</span><span class="hex">#0e3f2a</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-green-800)"
+              data-var="--cnds-secondary-green-800"
+              data-hex="#0a2a1d"
+            >
+              <span class="shade">800</span><span class="hex">#0a2a1d</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-green-900)"
+              data-var="--cnds-secondary-green-900"
+              data-hex="#04150d"
+            >
+              <span class="shade">900</span><span class="hex">#04150d</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-green-950)"
+              data-var="--cnds-secondary-green-950"
+              data-hex="#020806"
+            >
+              <span class="shade">950</span><span class="hex">#020806</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="palette-row">
+          <h4>Secondary / Gray</h4>
+          <div class="swatches">
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-secondary-gray-50)"
+              data-var="--cnds-secondary-gray-50"
+              data-hex="#f5f5f5"
+            >
+              <span class="shade">50</span><span class="hex">#f5f5f5</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-secondary-gray-100)"
+              data-var="--cnds-secondary-gray-100"
+              data-hex="#ededed"
+            >
+              <span class="shade">100</span><span class="hex">#ededed</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-secondary-gray-200)"
+              data-var="--cnds-secondary-gray-200"
+              data-hex="#dbdbdb"
+            >
+              <span class="shade">200</span><span class="hex">#dbdbdb</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-secondary-gray-300)"
+              data-var="--cnds-secondary-gray-300"
+              data-hex="#c9c9c9"
+            >
+              <span class="shade">300</span><span class="hex">#c9c9c9</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-secondary-gray-400)"
+              data-var="--cnds-secondary-gray-400"
+              data-hex="#b8b8b8"
+            >
+              <span class="shade">400</span><span class="hex">#b8b8b8</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-secondary-gray-500)"
+              data-var="--cnds-secondary-gray-500"
+              data-hex="#a5a5a5"
+            >
+              <span class="shade">500</span><span class="hex">#a5a5a5</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-secondary-gray-600)"
+              data-var="--cnds-secondary-gray-600"
+              data-hex="#858585"
+            >
+              <span class="shade">600</span><span class="hex">#858585</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-gray-700)"
+              data-var="--cnds-secondary-gray-700"
+              data-hex="#636363"
+            >
+              <span class="shade">700</span><span class="hex">#636363</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-gray-800)"
+              data-var="--cnds-secondary-gray-800"
+              data-hex="#424242"
+            >
+              <span class="shade">800</span><span class="hex">#424242</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-gray-900)"
+              data-var="--cnds-secondary-gray-900"
+              data-hex="#212121"
+            >
+              <span class="shade">900</span><span class="hex">#212121</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-gray-950)"
+              data-var="--cnds-secondary-gray-950"
+              data-hex="#0f0f0f"
+            >
+              <span class="shade">950</span><span class="hex">#0f0f0f</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="palette-row">
+          <h4>Secondary / Red</h4>
+          <div class="swatches">
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-secondary-red-50)"
+              data-var="--cnds-secondary-red-50"
+              data-hex="#fee1d7"
+            >
+              <span class="shade">50</span><span class="hex">#fee1d7</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-secondary-red-100)"
+              data-var="--cnds-secondary-red-100"
+              data-hex="#fec7b4"
+            >
+              <span class="shade">100</span><span class="hex">#fec7b4</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-secondary-red-200)"
+              data-var="--cnds-secondary-red-200"
+              data-hex="#fd9068"
+            >
+              <span class="shade">200</span><span class="hex">#fd9068</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-secondary-red-300)"
+              data-var="--cnds-secondary-red-300"
+              data-hex="#fa591c"
+            >
+              <span class="shade">300</span><span class="hex">#fa591c</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-red-400)"
+              data-var="--cnds-secondary-red-400"
+              data-hex="#c93803"
+            >
+              <span class="shade">400</span><span class="hex">#c93803</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-red-500)"
+              data-var="--cnds-secondary-red-500"
+              data-hex="#7b2202"
+            >
+              <span class="shade">500</span><span class="hex">#7b2202</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-red-600)"
+              data-var="--cnds-secondary-red-600"
+              data-hex="#641c02"
+            >
+              <span class="shade">600</span><span class="hex">#641c02</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-red-700)"
+              data-var="--cnds-secondary-red-700"
+              data-hex="#4b1501"
+            >
+              <span class="shade">700</span><span class="hex">#4b1501</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-red-800)"
+              data-var="--cnds-secondary-red-800"
+              data-hex="#320e01"
+            >
+              <span class="shade">800</span><span class="hex">#320e01</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-red-900)"
+              data-var="--cnds-secondary-red-900"
+              data-hex="#190700"
+            >
+              <span class="shade">900</span><span class="hex">#190700</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-red-950)"
+              data-var="--cnds-secondary-red-950"
+              data-hex="#0a0300"
+            >
+              <span class="shade">950</span><span class="hex">#0a0300</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="palette-row">
+          <h4>Secondary / Pink</h4>
+          <div class="swatches">
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-secondary-pink-50)"
+              data-var="--cnds-secondary-pink-50"
+              data-hex="#f9e1e8"
+            >
+              <span class="shade">50</span><span class="hex">#f9e1e8</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-secondary-pink-100)"
+              data-var="--cnds-secondary-pink-100"
+              data-hex="#f3c4d1"
+            >
+              <span class="shade">100</span><span class="hex">#f3c4d1</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-secondary-pink-200)"
+              data-var="--cnds-secondary-pink-200"
+              data-hex="#e88da6"
+            >
+              <span class="shade">200</span><span class="hex">#e88da6</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-pink-300)"
+              data-var="--cnds-secondary-pink-300"
+              data-hex="#dc5079"
+            >
+              <span class="shade">300</span><span class="hex">#dc5079</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-pink-400)"
+              data-var="--cnds-secondary-pink-400"
+              data-hex="#c32854"
+            >
+              <span class="shade">400</span><span class="hex">#c32854</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-pink-500)"
+              data-var="--cnds-secondary-pink-500"
+              data-hex="#891c3b"
+            >
+              <span class="shade">500</span><span class="hex">#891c3b</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-pink-600)"
+              data-var="--cnds-secondary-pink-600"
+              data-hex="#6e162f"
+            >
+              <span class="shade">600</span><span class="hex">#6e162f</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-pink-700)"
+              data-var="--cnds-secondary-pink-700"
+              data-hex="#501023"
+            >
+              <span class="shade">700</span><span class="hex">#501023</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-pink-800)"
+              data-var="--cnds-secondary-pink-800"
+              data-hex="#370b18"
+            >
+              <span class="shade">800</span><span class="hex">#370b18</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-pink-900)"
+              data-var="--cnds-secondary-pink-900"
+              data-hex="#18050b"
+            >
+              <span class="shade">900</span><span class="hex">#18050b</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-secondary-pink-950)"
+              data-var="--cnds-secondary-pink-950"
+              data-hex="#0d0305"
+            >
+              <span class="shade">950</span><span class="hex">#0d0305</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================
+           TERTIARY COLORS
+           ============================================ -->
+      <div class="palette-category">
+        <h2>Tertiary</h2>
+
+        <div class="palette-row">
+          <h4>Tertiary / Purple</h4>
+          <div class="swatches">
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-tertiary-purple-50)"
+              data-var="--cnds-tertiary-purple-50"
+              data-hex="#f1eff4"
+            >
+              <span class="shade">50</span><span class="hex">#f1eff4</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-tertiary-purple-100)"
+              data-var="--cnds-tertiary-purple-100"
+              data-hex="#e5e0eb"
+            >
+              <span class="shade">100</span><span class="hex">#e5e0eb</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-tertiary-purple-200)"
+              data-var="--cnds-tertiary-purple-200"
+              data-hex="#cac0d8"
+            >
+              <span class="shade">200</span><span class="hex">#cac0d8</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-tertiary-purple-300)"
+              data-var="--cnds-tertiary-purple-300"
+              data-hex="#afa2c4"
+            >
+              <span class="shade">300</span><span class="hex">#afa2c4</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-tertiary-purple-400)"
+              data-var="--cnds-tertiary-purple-400"
+              data-hex="#9582b0"
+            >
+              <span class="shade">400</span><span class="hex">#9582b0</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-tertiary-purple-500)"
+              data-var="--cnds-tertiary-purple-500"
+              data-hex="#7c649e"
+            >
+              <span class="shade">500</span><span class="hex">#7c649e</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-tertiary-purple-600)"
+              data-var="--cnds-tertiary-purple-600"
+              data-hex="#624f7d"
+            >
+              <span class="shade">600</span><span class="hex">#624f7d</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-tertiary-purple-700)"
+              data-var="--cnds-tertiary-purple-700"
+              data-hex="#4a3b5e"
+            >
+              <span class="shade">700</span><span class="hex">#4a3b5e</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-tertiary-purple-800)"
+              data-var="--cnds-tertiary-purple-800"
+              data-hex="#31273f"
+            >
+              <span class="shade">800</span><span class="hex">#31273f</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-tertiary-purple-900)"
+              data-var="--cnds-tertiary-purple-900"
+              data-hex="#19141f"
+            >
+              <span class="shade">900</span><span class="hex">#19141f</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-tertiary-purple-950)"
+              data-var="--cnds-tertiary-purple-950"
+              data-hex="#0c0a10"
+            >
+              <span class="shade">950</span><span class="hex">#0c0a10</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="palette-row">
+          <h4>Tertiary / Blue</h4>
+          <div class="swatches">
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-tertiary-blue-50)"
+              data-var="--cnds-tertiary-blue-50"
+              data-hex="#eff0f6"
+            >
+              <span class="shade">50</span><span class="hex">#eff0f6</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-tertiary-blue-100)"
+              data-var="--cnds-tertiary-blue-100"
+              data-hex="#e3e3ed"
+            >
+              <span class="shade">100</span><span class="hex">#e3e3ed</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-tertiary-blue-200)"
+              data-var="--cnds-tertiary-blue-200"
+              data-hex="#c3c4da"
+            >
+              <span class="shade">200</span><span class="hex">#c3c4da</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-tertiary-blue-300)"
+              data-var="--cnds-tertiary-blue-300"
+              data-hex="#a7a9c8"
+            >
+              <span class="shade">300</span><span class="hex">#a7a9c8</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-tertiary-blue-400)"
+              data-var="--cnds-tertiary-blue-400"
+              data-hex="#888ab4"
+            >
+              <span class="shade">400</span><span class="hex">#888ab4</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-tertiary-blue-500)"
+              data-var="--cnds-tertiary-blue-500"
+              data-hex="#6a6da2"
+            >
+              <span class="shade">500</span><span class="hex">#6a6da2</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-tertiary-blue-600)"
+              data-var="--cnds-tertiary-blue-600"
+              data-hex="#535584"
+            >
+              <span class="shade">600</span><span class="hex">#535584</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-tertiary-blue-700)"
+              data-var="--cnds-tertiary-blue-700"
+              data-hex="#3f4164"
+            >
+              <span class="shade">700</span><span class="hex">#3f4164</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-tertiary-blue-800)"
+              data-var="--cnds-tertiary-blue-800"
+              data-hex="#292a42"
+            >
+              <span class="shade">800</span><span class="hex">#292a42</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-tertiary-blue-900)"
+              data-var="--cnds-tertiary-blue-900"
+              data-hex="#161623"
+            >
+              <span class="shade">900</span><span class="hex">#161623</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-tertiary-blue-950)"
+              data-var="--cnds-tertiary-blue-950"
+              data-hex="#0a0a11"
+            >
+              <span class="shade">950</span><span class="hex">#0a0a11</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="palette-row">
+          <h4>Tertiary / Teal</h4>
+          <div class="swatches">
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-tertiary-teal-50)"
+              data-var="--cnds-tertiary-teal-50"
+              data-hex="#eff3f5"
+            >
+              <span class="shade">50</span><span class="hex">#eff3f5</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-tertiary-teal-100)"
+              data-var="--cnds-tertiary-teal-100"
+              data-hex="#dce5ea"
+            >
+              <span class="shade">100</span><span class="hex">#dce5ea</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-tertiary-teal-200)"
+              data-var="--cnds-tertiary-teal-200"
+              data-hex="#bdcdd6"
+            >
+              <span class="shade">200</span><span class="hex">#bdcdd6</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-tertiary-teal-300)"
+              data-var="--cnds-tertiary-teal-300"
+              data-hex="#9bb2c1"
+            >
+              <span class="shade">300</span><span class="hex">#9bb2c1</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-tertiary-teal-400)"
+              data-var="--cnds-tertiary-teal-400"
+              data-hex="#7b9aad"
+            >
+              <span class="shade">400</span><span class="hex">#7b9aad</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-tertiary-teal-500)"
+              data-var="--cnds-tertiary-teal-500"
+              data-hex="#5c7f95"
+            >
+              <span class="shade">500</span><span class="hex">#5c7f95</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-tertiary-teal-600)"
+              data-var="--cnds-tertiary-teal-600"
+              data-hex="#4a6678"
+            >
+              <span class="shade">600</span><span class="hex">#4a6678</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-tertiary-teal-700)"
+              data-var="--cnds-tertiary-teal-700"
+              data-hex="#364b58"
+            >
+              <span class="shade">700</span><span class="hex">#364b58</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-tertiary-teal-800)"
+              data-var="--cnds-tertiary-teal-800"
+              data-hex="#25333c"
+            >
+              <span class="shade">800</span><span class="hex">#25333c</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-tertiary-teal-900)"
+              data-var="--cnds-tertiary-teal-900"
+              data-hex="#12181c"
+            >
+              <span class="shade">900</span><span class="hex">#12181c</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-tertiary-teal-950)"
+              data-var="--cnds-tertiary-teal-950"
+              data-hex="#0b0d10"
+            >
+              <span class="shade">950</span><span class="hex">#0b0d10</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="palette-row">
+          <h4>Tertiary / Green</h4>
+          <div class="swatches">
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-tertiary-green-50)"
+              data-var="--cnds-tertiary-green-50"
+              data-hex="#edf6f3"
+            >
+              <span class="shade">50</span><span class="hex">#edf6f3</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-tertiary-green-100)"
+              data-var="--cnds-tertiary-green-100"
+              data-hex="#daece4"
+            >
+              <span class="shade">100</span><span class="hex">#daece4</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-tertiary-green-200)"
+              data-var="--cnds-tertiary-green-200"
+              data-hex="#b4d9ca"
+            >
+              <span class="shade">200</span><span class="hex">#b4d9ca</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-tertiary-green-300)"
+              data-var="--cnds-tertiary-green-300"
+              data-hex="#8fc7af"
+            >
+              <span class="shade">300</span><span class="hex">#8fc7af</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-tertiary-green-400)"
+              data-var="--cnds-tertiary-green-400"
+              data-hex="#6db697"
+            >
+              <span class="shade">400</span><span class="hex">#6db697</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-tertiary-green-500)"
+              data-var="--cnds-tertiary-green-500"
+              data-hex="#4e9b7b"
+            >
+              <span class="shade">500</span><span class="hex">#4e9b7b</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-tertiary-green-600)"
+              data-var="--cnds-tertiary-green-600"
+              data-hex="#3f7d64"
+            >
+              <span class="shade">600</span><span class="hex">#3f7d64</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-tertiary-green-700)"
+              data-var="--cnds-tertiary-green-700"
+              data-hex="#2d5c49"
+            >
+              <span class="shade">700</span><span class="hex">#2d5c49</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-tertiary-green-800)"
+              data-var="--cnds-tertiary-green-800"
+              data-hex="#1f3d30"
+            >
+              <span class="shade">800</span><span class="hex">#1f3d30</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-tertiary-green-900)"
+              data-var="--cnds-tertiary-green-900"
+              data-hex="#0f1f17"
+            >
+              <span class="shade">900</span><span class="hex">#0f1f17</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-tertiary-green-950)"
+              data-var="--cnds-tertiary-green-950"
+              data-hex="#09110d"
+            >
+              <span class="shade">950</span><span class="hex">#09110d</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="palette-row">
+          <h4>Tertiary / Red</h4>
+          <div class="swatches">
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-tertiary-red-50)"
+              data-var="--cnds-tertiary-red-50"
+              data-hex="#ffe5dc"
+            >
+              <span class="shade">50</span><span class="hex">#ffe5dc</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-tertiary-red-100)"
+              data-var="--cnds-tertiary-red-100"
+              data-hex="#ffcfbd"
+            >
+              <span class="shade">100</span><span class="hex">#ffcfbd</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-tertiary-red-200)"
+              data-var="--cnds-tertiary-red-200"
+              data-hex="#ff9e7b"
+            >
+              <span class="shade">200</span><span class="hex">#ff9e7b</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-tertiary-red-300)"
+              data-var="--cnds-tertiary-red-300"
+              data-hex="#fe6a33"
+            >
+              <span class="shade">300</span><span class="hex">#fe6a33</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-tertiary-red-400)"
+              data-var="--cnds-tertiary-red-400"
+              data-hex="#ee4100"
+            >
+              <span class="shade">400</span><span class="hex">#ee4100</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-tertiary-red-500)"
+              data-var="--cnds-tertiary-red-500"
+              data-hex="#ac2f01"
+            >
+              <span class="shade">500</span><span class="hex">#ac2f01</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-tertiary-red-600)"
+              data-var="--cnds-tertiary-red-600"
+              data-hex="#892502"
+            >
+              <span class="shade">600</span><span class="hex">#892502</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-tertiary-red-700)"
+              data-var="--cnds-tertiary-red-700"
+              data-hex="#651b01"
+            >
+              <span class="shade">700</span><span class="hex">#651b01</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-tertiary-red-800)"
+              data-var="--cnds-tertiary-red-800"
+              data-hex="#471300"
+            >
+              <span class="shade">800</span><span class="hex">#471300</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-tertiary-red-900)"
+              data-var="--cnds-tertiary-red-900"
+              data-hex="#230900"
+            >
+              <span class="shade">900</span><span class="hex">#230900</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-tertiary-red-950)"
+              data-var="--cnds-tertiary-red-950"
+              data-hex="#0f0401"
+            >
+              <span class="shade">950</span><span class="hex">#0f0401</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="palette-row">
+          <h4>Tertiary / Pink</h4>
+          <div class="swatches">
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-tertiary-pink-50)"
+              data-var="--cnds-tertiary-pink-50"
+              data-hex="#faf0f3"
+            >
+              <span class="shade">50</span><span class="hex">#faf0f3</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-tertiary-pink-100)"
+              data-var="--cnds-tertiary-pink-100"
+              data-hex="#f4e0e6"
+            >
+              <span class="shade">100</span><span class="hex">#f4e0e6</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-tertiary-pink-200)"
+              data-var="--cnds-tertiary-pink-200"
+              data-hex="#ebc1cd"
+            >
+              <span class="shade">200</span><span class="hex">#ebc1cd</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-tertiary-pink-300)"
+              data-var="--cnds-tertiary-pink-300"
+              data-hex="#e1a2b4"
+            >
+              <span class="shade">300</span><span class="hex">#e1a2b4</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-tertiary-pink-400)"
+              data-var="--cnds-tertiary-pink-400"
+              data-hex="#d8839b"
+            >
+              <span class="shade">400</span><span class="hex">#d8839b</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-tertiary-pink-500)"
+              data-var="--cnds-tertiary-pink-500"
+              data-hex="#ce6583"
+            >
+              <span class="shade">500</span><span class="hex">#ce6583</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-tertiary-pink-600)"
+              data-var="--cnds-tertiary-pink-600"
+              data-hex="#ba3a60"
+            >
+              <span class="shade">600</span><span class="hex">#ba3a60</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-tertiary-pink-700)"
+              data-var="--cnds-tertiary-pink-700"
+              data-hex="#8b2c47"
+            >
+              <span class="shade">700</span><span class="hex">#8b2c47</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-tertiary-pink-800)"
+              data-var="--cnds-tertiary-pink-800"
+              data-hex="#5d1e2f"
+            >
+              <span class="shade">800</span><span class="hex">#5d1e2f</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-tertiary-pink-900)"
+              data-var="--cnds-tertiary-pink-900"
+              data-hex="#2e0f18"
+            >
+              <span class="shade">900</span><span class="hex">#2e0f18</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-tertiary-pink-950)"
+              data-var="--cnds-tertiary-pink-950"
+              data-hex="#17070c"
+            >
+              <span class="shade">950</span><span class="hex">#17070c</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================
+           SURFACE COLORS
+           ============================================ -->
+      <div class="palette-category">
+        <h2>Surface</h2>
+
+        <div class="palette-row">
+          <h4>Surface / Blue</h4>
+          <div class="swatches">
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-surface-blue-50)"
+              data-var="--cnds-surface-blue-50"
+              data-hex="#ecf1f8"
+            >
+              <span class="shade">50</span><span class="hex">#ecf1f8</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-surface-blue-100)"
+              data-var="--cnds-surface-blue-100"
+              data-hex="#d9e3f1"
+            >
+              <span class="shade">100</span><span class="hex">#d9e3f1</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-surface-blue-200)"
+              data-var="--cnds-surface-blue-200"
+              data-hex="#b4c7e4"
+            >
+              <span class="shade">200</span><span class="hex">#b4c7e4</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-surface-blue-300)"
+              data-var="--cnds-surface-blue-300"
+              data-hex="#8eacd6"
+            >
+              <span class="shade">300</span><span class="hex">#8eacd6</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-surface-blue-400)"
+              data-var="--cnds-surface-blue-400"
+              data-hex="#6790c9"
+            >
+              <span class="shade">400</span><span class="hex">#6790c9</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-surface-blue-500)"
+              data-var="--cnds-surface-blue-500"
+              data-hex="#355d97"
+            >
+              <span class="shade">500</span><span class="hex">#355d97</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-surface-blue-600)"
+              data-var="--cnds-surface-blue-600"
+              data-hex="#2a4a79"
+            >
+              <span class="shade">600</span><span class="hex">#2a4a79</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-surface-blue-700)"
+              data-var="--cnds-surface-blue-700"
+              data-hex="#20375b"
+            >
+              <span class="shade">700</span><span class="hex">#20375b</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-surface-blue-800)"
+              data-var="--cnds-surface-blue-800"
+              data-hex="#15253c"
+            >
+              <span class="shade">800</span><span class="hex">#15253c</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-surface-blue-900)"
+              data-var="--cnds-surface-blue-900"
+              data-hex="#0b121e"
+            >
+              <span class="shade">900</span><span class="hex">#0b121e</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-surface-blue-950)"
+              data-var="--cnds-surface-blue-950"
+              data-hex="#05090f"
+            >
+              <span class="shade">950</span><span class="hex">#05090f</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="palette-row">
+          <h4>Surface / Light</h4>
+          <div class="swatches">
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-surface-light-50)"
+              data-var="--cnds-surface-light-50"
+              data-hex="#fafafa"
+            >
+              <span class="shade">50</span><span class="hex">#fafafa</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-surface-light-100)"
+              data-var="--cnds-surface-light-100"
+              data-hex="#f5f5f5"
+            >
+              <span class="shade">100</span><span class="hex">#f5f5f5</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-surface-light-200)"
+              data-var="--cnds-surface-light-200"
+              data-hex="#ebebeb"
+            >
+              <span class="shade">200</span><span class="hex">#ebebeb</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-surface-light-300)"
+              data-var="--cnds-surface-light-300"
+              data-hex="#e0e0e0"
+            >
+              <span class="shade">300</span><span class="hex">#e0e0e0</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-surface-light-400)"
+              data-var="--cnds-surface-light-400"
+              data-hex="#d6d6d6"
+            >
+              <span class="shade">400</span><span class="hex">#d6d6d6</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-surface-light-500)"
+              data-var="--cnds-surface-light-500"
+              data-hex="#cccccc"
+            >
+              <span class="shade">500</span><span class="hex">#cccccc</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-surface-light-600)"
+              data-var="--cnds-surface-light-600"
+              data-hex="#a3a3a3"
+            >
+              <span class="shade">600</span><span class="hex">#a3a3a3</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-surface-light-700)"
+              data-var="--cnds-surface-light-700"
+              data-hex="#7a7a7a"
+            >
+              <span class="shade">700</span><span class="hex">#7a7a7a</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-surface-light-800)"
+              data-var="--cnds-surface-light-800"
+              data-hex="#525252"
+            >
+              <span class="shade">800</span><span class="hex">#525252</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-surface-light-900)"
+              data-var="--cnds-surface-light-900"
+              data-hex="#292929"
+            >
+              <span class="shade">900</span><span class="hex">#292929</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-surface-light-950)"
+              data-var="--cnds-surface-light-950"
+              data-hex="#141414"
+            >
+              <span class="shade">950</span><span class="hex">#141414</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="palette-row">
+          <h4>Surface / Dark</h4>
+          <div class="swatches">
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-surface-dark-50)"
+              data-var="--cnds-surface-dark-50"
+              data-hex="#e8e8e8"
+            >
+              <span class="shade">50</span><span class="hex">#e8e8e8</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-surface-dark-100)"
+              data-var="--cnds-surface-dark-100"
+              data-hex="#d1d1d1"
+            >
+              <span class="shade">100</span><span class="hex">#d1d1d1</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-surface-dark-200)"
+              data-var="--cnds-surface-dark-200"
+              data-hex="#787878"
+            >
+              <span class="shade">200</span><span class="hex">#787878</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-surface-dark-300)"
+              data-var="--cnds-surface-dark-300"
+              data-hex="#4a4a4a"
+            >
+              <span class="shade">300</span><span class="hex">#4a4a4a</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-surface-dark-400)"
+              data-var="--cnds-surface-dark-400"
+              data-hex="#252525"
+            >
+              <span class="shade">400</span><span class="hex">#252525</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-surface-dark-500)"
+              data-var="--cnds-surface-dark-500"
+              data-hex="#1e1e1e"
+            >
+              <span class="shade">500</span><span class="hex">#1e1e1e</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-surface-dark-600)"
+              data-var="--cnds-surface-dark-600"
+              data-hex="#171717"
+            >
+              <span class="shade">600</span><span class="hex">#171717</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-surface-dark-700)"
+              data-var="--cnds-surface-dark-700"
+              data-hex="#121212"
+            >
+              <span class="shade">700</span><span class="hex">#121212</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-surface-dark-800)"
+              data-var="--cnds-surface-dark-800"
+              data-hex="#0d0d0d"
+            >
+              <span class="shade">800</span><span class="hex">#0d0d0d</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-surface-dark-900)"
+              data-var="--cnds-surface-dark-900"
+              data-hex="#050505"
+            >
+              <span class="shade">900</span><span class="hex">#050505</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-surface-dark-950)"
+              data-var="--cnds-surface-dark-950"
+              data-hex="#030303"
+            >
+              <span class="shade">950</span><span class="hex">#030303</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================
+           SEMANTIC COLORS
+           ============================================ -->
+      <div class="palette-category">
+        <h2>Semantic</h2>
+
+        <div class="palette-row">
+          <h4>Success</h4>
+          <div class="swatches">
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-success-50)"
+              data-var="--cnds-success-50"
+              data-hex="#e6f4e7"
+            >
+              <span class="shade">50</span><span class="hex">#e6f4e7</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-success-100)"
+              data-var="--cnds-success-100"
+              data-hex="#cde9ce"
+            >
+              <span class="shade">100</span><span class="hex">#cde9ce</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-success-200)"
+              data-var="--cnds-success-200"
+              data-hex="#9bd49d"
+            >
+              <span class="shade">200</span><span class="hex">#9bd49d</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-success-300)"
+              data-var="--cnds-success-300"
+              data-hex="#69be6b"
+            >
+              <span class="shade">300</span><span class="hex">#69be6b</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-success-400)"
+              data-var="--cnds-success-400"
+              data-hex="#439945"
+            >
+              <span class="shade">400</span><span class="hex">#439945</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-success-500)"
+              data-var="--cnds-success-500"
+              data-hex="#2d682f"
+            >
+              <span class="shade">500</span><span class="hex">#2d682f</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-success-600)"
+              data-var="--cnds-success-600"
+              data-hex="#225225"
+            >
+              <span class="shade">600</span><span class="hex">#225225</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-success-700)"
+              data-var="--cnds-success-700"
+              data-hex="#1c401d"
+            >
+              <span class="shade">700</span><span class="hex">#1c401d</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-success-800)"
+              data-var="--cnds-success-800"
+              data-hex="#122b14"
+            >
+              <span class="shade">800</span><span class="hex">#122b14</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-success-900)"
+              data-var="--cnds-success-900"
+              data-hex="#09160a"
+            >
+              <span class="shade">900</span><span class="hex">#09160a</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-success-950)"
+              data-var="--cnds-success-950"
+              data-hex="#040b04"
+            >
+              <span class="shade">950</span><span class="hex">#040b04</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="palette-row">
+          <h4>Info</h4>
+          <div class="swatches">
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-info-50)"
+              data-var="--cnds-info-50"
+              data-hex="#e0e9ff"
+            >
+              <span class="shade">50</span><span class="hex">#e0e9ff</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-info-100)"
+              data-var="--cnds-info-100"
+              data-hex="#c2d3ff"
+            >
+              <span class="shade">100</span><span class="hex">#c2d3ff</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-info-200)"
+              data-var="--cnds-info-200"
+              data-hex="#80a4ff"
+            >
+              <span class="shade">200</span><span class="hex">#80a4ff</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-info-300)"
+              data-var="--cnds-info-300"
+              data-hex="#4278ff"
+            >
+              <span class="shade">300</span><span class="hex">#4278ff</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-info-400)"
+              data-var="--cnds-info-400"
+              data-hex="#064cff"
+            >
+              <span class="shade">400</span><span class="hex">#064cff</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-info-500)"
+              data-var="--cnds-info-500"
+              data-hex="#0237c2"
+            >
+              <span class="shade">500</span><span class="hex">#0237c2</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-info-600)"
+              data-var="--cnds-info-600"
+              data-hex="#012d9e"
+            >
+              <span class="shade">600</span><span class="hex">#012d9e</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-info-700)"
+              data-var="--cnds-info-700"
+              data-hex="#002175"
+            >
+              <span class="shade">700</span><span class="hex">#002175</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-info-800)"
+              data-var="--cnds-info-800"
+              data-hex="#00164d"
+            >
+              <span class="shade">800</span><span class="hex">#00164d</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-info-900)"
+              data-var="--cnds-info-900"
+              data-hex="#000d29"
+            >
+              <span class="shade">900</span><span class="hex">#000d29</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-info-950)"
+              data-var="--cnds-info-950"
+              data-hex="#000614"
+            >
+              <span class="shade">950</span><span class="hex">#000614</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="palette-row">
+          <h4>Warning</h4>
+          <div class="swatches">
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-warning-50)"
+              data-var="--cnds-warning-50"
+              data-hex="#fff9e5"
+            >
+              <span class="shade">50</span><span class="hex">#fff9e5</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-warning-100)"
+              data-var="--cnds-warning-100"
+              data-hex="#fff3cc"
+            >
+              <span class="shade">100</span><span class="hex">#fff3cc</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-warning-200)"
+              data-var="--cnds-warning-200"
+              data-hex="#ffe693"
+            >
+              <span class="shade">200</span><span class="hex">#ffe693</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-warning-300)"
+              data-var="--cnds-warning-300"
+              data-hex="#ffda62"
+            >
+              <span class="shade">300</span><span class="hex">#ffda62</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-warning-400)"
+              data-var="--cnds-warning-400"
+              data-hex="#ffcd2a"
+            >
+              <span class="shade">400</span><span class="hex">#ffcd2a</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-warning-500)"
+              data-var="--cnds-warning-500"
+              data-hex="#f2bc00"
+            >
+              <span class="shade">500</span><span class="hex">#f2bc00</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-warning-600)"
+              data-var="--cnds-warning-600"
+              data-hex="#c29500"
+            >
+              <span class="shade">600</span><span class="hex">#c29500</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-warning-700)"
+              data-var="--cnds-warning-700"
+              data-hex="#957100"
+            >
+              <span class="shade">700</span><span class="hex">#957100</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-warning-800)"
+              data-var="--cnds-warning-800"
+              data-hex="#604a00"
+            >
+              <span class="shade">800</span><span class="hex">#604a00</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-warning-900)"
+              data-var="--cnds-warning-900"
+              data-hex="#332601"
+            >
+              <span class="shade">900</span><span class="hex">#332601</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-warning-950)"
+              data-var="--cnds-warning-950"
+              data-hex="#191400"
+            >
+              <span class="shade">950</span><span class="hex">#191400</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="palette-row">
+          <h4>Caution</h4>
+          <div class="swatches">
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-caution-50)"
+              data-var="--cnds-caution-50"
+              data-hex="#fff5eb"
+            >
+              <span class="shade">50</span><span class="hex">#fff5eb</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-caution-100)"
+              data-var="--cnds-caution-100"
+              data-hex="#ffebd6"
+            >
+              <span class="shade">100</span><span class="hex">#ffebd6</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-caution-200)"
+              data-var="--cnds-caution-200"
+              data-hex="#ffd7ad"
+            >
+              <span class="shade">200</span><span class="hex">#ffd7ad</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-caution-300)"
+              data-var="--cnds-caution-300"
+              data-hex="#ffc185"
+            >
+              <span class="shade">300</span><span class="hex">#ffc185</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-caution-400)"
+              data-var="--cnds-caution-400"
+              data-hex="#ffad5c"
+            >
+              <span class="shade">400</span><span class="hex">#ffad5c</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-caution-500)"
+              data-var="--cnds-caution-500"
+              data-hex="#ff9933"
+            >
+              <span class="shade">500</span><span class="hex">#ff9933</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-caution-600)"
+              data-var="--cnds-caution-600"
+              data-hex="#f57a00"
+            >
+              <span class="shade">600</span><span class="hex">#f57a00</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-caution-700)"
+              data-var="--cnds-caution-700"
+              data-hex="#b85c01"
+            >
+              <span class="shade">700</span><span class="hex">#b85c01</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-caution-800)"
+              data-var="--cnds-caution-800"
+              data-hex="#7a3d00"
+            >
+              <span class="shade">800</span><span class="hex">#7a3d00</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-caution-900)"
+              data-var="--cnds-caution-900"
+              data-hex="#3d1e00"
+            >
+              <span class="shade">900</span><span class="hex">#3d1e00</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-caution-950)"
+              data-var="--cnds-caution-950"
+              data-hex="#1f0f00"
+            >
+              <span class="shade">950</span><span class="hex">#1f0f00</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="palette-row">
+          <h4>Danger</h4>
+          <div class="swatches">
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-danger-50)"
+              data-var="--cnds-danger-50"
+              data-hex="#ffe5da"
+            >
+              <span class="shade">50</span><span class="hex">#ffe5da</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-danger-100)"
+              data-var="--cnds-danger-100"
+              data-hex="#ffcbb8"
+            >
+              <span class="shade">100</span><span class="hex">#ffcbb8</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-danger-200)"
+              data-var="--cnds-danger-200"
+              data-hex="#ff9670"
+            >
+              <span class="shade">200</span><span class="hex">#ff9670</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-danger-300)"
+              data-var="--cnds-danger-300"
+              data-hex="#ff5e24"
+            >
+              <span class="shade">300</span><span class="hex">#ff5e24</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-danger-400)"
+              data-var="--cnds-danger-400"
+              data-hex="#db3a00"
+            >
+              <span class="shade">400</span><span class="hex">#db3a00</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-danger-500)"
+              data-var="--cnds-danger-500"
+              data-hex="#942700"
+            >
+              <span class="shade">500</span><span class="hex">#942700</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-danger-600)"
+              data-var="--cnds-danger-600"
+              data-hex="#751f00"
+            >
+              <span class="shade">600</span><span class="hex">#751f00</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-danger-700)"
+              data-var="--cnds-danger-700"
+              data-hex="#571700"
+            >
+              <span class="shade">700</span><span class="hex">#571700</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-danger-800)"
+              data-var="--cnds-danger-800"
+              data-hex="#3d1000"
+            >
+              <span class="shade">800</span><span class="hex">#3d1000</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-danger-900)"
+              data-var="--cnds-danger-900"
+              data-hex="#1f0700"
+            >
+              <span class="shade">900</span><span class="hex">#1f0700</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-danger-950)"
+              data-var="--cnds-danger-950"
+              data-hex="#0e0400"
+            >
+              <span class="shade">950</span><span class="hex">#0e0400</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================
+           ALERT & TOAST COLORS
+           ============================================ -->
+      <div class="palette-category">
+        <h2>Alert &amp; Toast</h2>
+
+        <div class="palette-row">
+          <h4>Alert &amp; Toast / Text</h4>
+          <div class="swatches">
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-danger-text-emphasis)"
+              data-var="--cnds-danger-text-emphasis"
+              data-hex="#942700"
+            >
+              <span class="shade">Danger</span><span class="hex">#942700</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-caution-alert-text)"
+              data-var="--cnds-caution-alert-text"
+              data-hex="#3d1e00"
+            >
+              <span class="shade">Caution</span><span class="hex">#3d1e00</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-warning-text-emphasis)"
+              data-var="--cnds-warning-text-emphasis"
+              data-hex="#a65300"
+            >
+              <span class="shade">Warning</span><span class="hex">#a65300</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-info-text-emphasis)"
+              data-var="--cnds-info-text-emphasis"
+              data-hex="#0037c3"
+            >
+              <span class="shade">Info</span><span class="hex">#0037c3</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-success-text-emphasis)"
+              data-var="--cnds-success-text-emphasis"
+              data-hex="#2d682f"
+            >
+              <span class="shade">Success</span><span class="hex">#2d682f</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="palette-row">
+          <h4>Alert &amp; Toast / Fill</h4>
+          <div class="swatches">
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-danger-bg-subtle)"
+              data-var="--cnds-danger-bg-subtle"
+              data-hex="#ebbfc7"
+            >
+              <span class="shade">Danger</span><span class="hex">#ebbfc7</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-caution-bg-subtle)"
+              data-var="--cnds-caution-bg-subtle"
+              data-hex="#ffd7ad"
+            >
+              <span class="shade">Caution</span><span class="hex">#ffd7ad</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-warning-bg-subtle)"
+              data-var="--cnds-warning-bg-subtle"
+              data-hex="#fff3cc"
+            >
+              <span class="shade">Warning</span><span class="hex">#fff3cc</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-info-bg-subtle)"
+              data-var="--cnds-info-bg-subtle"
+              data-hex="#d6e2ff"
+            >
+              <span class="shade">Info</span><span class="hex">#d6e2ff</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-success-bg-subtle)"
+              data-var="--cnds-success-bg-subtle"
+              data-hex="#d2ebd3"
+            >
+              <span class="shade">Success</span><span class="hex">#d2ebd3</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="palette-row">
+          <h4>Alert &amp; Toast / Stroke</h4>
+          <div class="swatches">
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-danger-border-subtle)"
+              data-var="--cnds-danger-border-subtle"
+              data-hex="#942700"
+            >
+              <span class="shade">Danger</span><span class="hex">#942700</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-caution-border-subtle)"
+              data-var="--cnds-caution-border-subtle"
+              data-hex="#ff9933"
+            >
+              <span class="shade">Caution</span><span class="hex">#ff9933</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-warning-border-subtle)"
+              data-var="--cnds-warning-border-subtle"
+              data-hex="#f3bc00"
+            >
+              <span class="shade">Warning</span><span class="hex">#f3bc00</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-info-border-subtle)"
+              data-var="--cnds-info-border-subtle"
+              data-hex="#0037c3"
+            >
+              <span class="shade">Info</span><span class="hex">#0037c3</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-success-border-subtle)"
+              data-var="--cnds-success-border-subtle"
+              data-hex="#2d682f"
+            >
+              <span class="shade">Success</span><span class="hex">#2d682f</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================
+           SEMANTIC TEXT COLORS
+           ============================================ -->
+      <div class="palette-category">
+        <h2>Semantic Text</h2>
+
+        <div class="palette-row">
+          <h4>Semantic Text / Dark</h4>
+          <div class="swatches">
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-danger-text-emphasis)"
+              data-var="--cnds-danger-text-emphasis"
+              data-hex="#ff97aa"
+            >
+              <span class="shade">Error</span><span class="hex">#ff97aa</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-caution-text-emphasis)"
+              data-var="--cnds-caution-text-emphasis"
+              data-hex="#ff9933"
+            >
+              <span class="shade">Caution</span><span class="hex">#ff9933</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-warning-text-emphasis)"
+              data-var="--cnds-warning-text-emphasis"
+              data-hex="#f3bc00"
+            >
+              <span class="shade">Warning</span><span class="hex">#f3bc00</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-info-text-emphasis)"
+              data-var="--cnds-info-text-emphasis"
+              data-hex="#8fadd6"
+            >
+              <span class="shade">Info</span><span class="hex">#8fadd6</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-success-text-emphasis)"
+              data-var="--cnds-success-text-emphasis"
+              data-hex="#72b23e"
+            >
+              <span class="shade">Success</span><span class="hex">#72b23e</span>
+            </div>
+            <div
+              class="swatch dark-text"
+              style="background: var(--cnds-surface-dark-50)"
+              data-var="--cnds-surface-dark-50"
+              data-hex="#e8e8e8"
+            >
+              <span class="shade">Default</span><span class="hex">#e8e8e8</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="palette-row">
+          <h4>Semantic Text / Light</h4>
+          <div class="swatches">
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-danger-text-emphasis)"
+              data-var="--cnds-danger-text-emphasis"
+              data-hex="#942700"
+            >
+              <span class="shade">Error</span><span class="hex">#942700</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-caution-text-emphasis)"
+              data-var="--cnds-caution-text-emphasis"
+              data-hex="#b35900"
+            >
+              <span class="shade">Caution</span><span class="hex">#b35900</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-warning-text-emphasis)"
+              data-var="--cnds-warning-text-emphasis"
+              data-hex="#8f6d00"
+            >
+              <span class="shade">Warning</span><span class="hex">#8f6d00</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-info-text-emphasis)"
+              data-var="--cnds-info-text-emphasis"
+              data-hex="#0037c3"
+            >
+              <span class="shade">Info</span><span class="hex">#0037c3</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-success-text-emphasis)"
+              data-var="--cnds-success-text-emphasis"
+              data-hex="#2d682f"
+            >
+              <span class="shade">Success</span><span class="hex">#2d682f</span>
+            </div>
+            <div
+              class="swatch light-text"
+              style="background: var(--cnds-surface-blue-950)"
+              data-var="--cnds-surface-blue-950"
+              data-hex="#040b15"
+            >
+              <span class="shade">Default</span><span class="hex">#040b15</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Copy toast -->
+    <div class="copy-toast" id="copyToast">Copied!</div>
+
+    <!-- Nimbus framework + app.js for theme toggle -->
+    <script src="js/nimbus.js"></script>
+    <script src="js/app.js" defer></script>
+    <script>
+      /* Copy to clipboard */
+      document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".swatch").forEach((swatch) => {
+          swatch.addEventListener("click", () => {
+            const varName = swatch.dataset.var;
+            const hex = swatch.dataset.hex;
+            const text = varName + "  (" + hex + ")";
+
+            navigator.clipboard.writeText(varName).then(() => {
+              const toast = document.getElementById("copyToast");
+              toast.textContent = "Copied: " + text;
+              toast.classList.add("show");
+              setTimeout(() => toast.classList.remove("show"), 2000);
+            });
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

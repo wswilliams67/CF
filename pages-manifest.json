@@ -1,0 +1,458 @@
+{
+  "_readme": "CaseFusion 1.6 — manifest of NEW pages built for this release. One entry per page under `pages`, listing every file a developer needs to run or port it. This is separate from manifest.json, which maps Nimbus components to their CSS/JS and is not release-specific. Keep this file updated as each new page lands: add the page entry, list its support files, and record any open question against it rather than resolving it silently in the markup.",
+  "release": "1.6",
+  "product": "CaseFusion",
+  "designSystem": "Nimbus v1 (portable, self-contained in casefusion/1.6/)",
+  "role": "Case Administrator",
+  "frame": "pages/tmpl_ca_sidenav.html (Nimbus/AppFrame/1)",
+  "namingConvention": "pge-admin-natprsn-{screen}.html",
+  "lastUpdated": "2026-08-26",
+  "_shared_readme": "Files every 1.6 page in this set links. The two frame files were extracted VERBATIM from the <style> and <script> blocks of pages/tmpl_ca_sidenav.html so that new pages carry no inline CSS or JS. The template still holds its own inline copies and was not modified; if the template's frame changes, re-extract these two files.",
+  "shared": {
+    "css": [
+      "css/pages/frame-ca-sidenav.css"
+    ],
+    "js": [
+      "js/pages/frame-ca-sidenav.js"
+    ],
+    "source": "pages/tmpl_ca_sidenav.html",
+    "loadOrder": {
+      "css": [
+        "css/nimbus.css",
+        "css/app.css",
+        "css/themes/primitives.css",
+        "css/themes/light.css",
+        "css/themes/dark.css",
+        "css/pages/frame-ca-sidenav.css",
+        "css/pages/<page stylesheet>"
+      ],
+      "js": [
+        "js/nimbus.js",
+        "js/app.js",
+        "js/pages/frame-ca-sidenav.js",
+        "js/pages/<page script>"
+      ]
+    }
+  },
+  "pages": [
+    {
+      "id": "natprsn-list",
+      "title": "Admin › Natural Persons (list)",
+      "status": "built",
+      "html": "pages/pge-admin-natprsn-list.html",
+      "css": [
+        "css/pages/pge-admin-natprsn.css"
+      ],
+      "js": [
+        "js/pages/pge-admin-natprsn-list.js"
+      ],
+      "figma": {
+        "file": "CaseFusion v1.5 — Tenant Manager",
+        "fileKey": "opm1ShhZXGxIcrAsJytRB4",
+        "node": "11204:14901",
+        "url": "https://www.figma.com/design/opm1ShhZXGxIcrAsJytRB4/CaseFusion-v1.5---Tenant-Manager?node-id=11204-14901"
+      },
+      "existingScreen": true,
+      "buildScope": "Existing screen, rebuilt as the entry point to two new 1.6 screens. Only the Candidate/Pending Match Queue button and the per-card Identities button are wired.",
+      "nimbusComponents": [
+        "buttons",
+        "badges",
+        "cards",
+        "forms",
+        "toolbars",
+        "select",
+        "pagination",
+        "toasts",
+        "tooltips",
+        "sidenav",
+        "alerts"
+      ],
+      "controls": [
+        {
+          "name": "Pending Match Queue",
+          "location": "toolbar",
+          "elementId": "npCandidateQueue",
+          "wired": true,
+          "target": "pages/pge-admin-natprsn-candidate-queue.html",
+          "workItem": "#17515",
+          "notes": "Tenant-wide, not scoped to any person on the list and not filtered by the search box. Badge carries the PENDING count only, not the whole queue; hidden rather than rendered as '0' when the backlog clears. Count must be live data."
+        },
+        {
+          "name": "Identities",
+          "location": "person card",
+          "wired": true,
+          "target": "pages/pge-admin-natprsn-identities.html?personId={id}",
+          "workItem": "#17475",
+          "notes": "Per person. Deliberately separate from View Profile: Identities shows how the person was assembled (which source records were joined, on what evidence, which fields disagree); View Profile shows the authored person. Back must return to this list with page, sort and scroll preserved — implemented with a sessionStorage snapshot under key 'cf16.natprsn.list.state'."
+        },
+        {
+          "name": "View Profile",
+          "location": "person card",
+          "wired": false,
+          "todo": "#natprsn-profile",
+          "notes": "Existing behaviour, out of scope for this build. Opens the person's GLOBAL profile so CaseFusion-specific information can be entered. Stubbed with a toast."
+        },
+        {
+          "name": "Edit",
+          "location": "person card",
+          "wired": false,
+          "todo": "#natprsn-edit",
+          "notes": "Existing behaviour. Opens a modal with the natural person form pre-filled. Stubbed with a toast."
+        },
+        {
+          "name": "Delete",
+          "location": "person card",
+          "wired": false,
+          "todo": "#natprsn-delete",
+          "notes": "Existing behaviour. MUST open a confirmation dialogue — never delete straight from the button. Stubbed with a toast."
+        },
+        {
+          "name": "New Natural Person",
+          "location": "toolbar row",
+          "elementId": "npNewPerson",
+          "wired": false,
+          "todo": "#natprsn-new",
+          "notes": "Existing behaviour. Opens the New Natural Person modal. Stubbed with a toast."
+        }
+      ],
+      "mockData": {
+        "location": "js/pages/pge-admin-natprsn-list.js §1",
+        "records": 14,
+        "notes": "DEMO_PERSONS stands in for GET /api/tenants/{tenantId}/natural-persons. Fills a whole default page of 10 so paging is real. PENDING_MATCH_COUNT (5281) stands in for the live candidate-queue backlog, and MUST equal the queue screen's Pending tile — that tile is counted live off the same records its rows are drawn from, so a hardcoded number here that disagrees changes under the operator the moment they click through. It read 5313 (the Figma annotation's figure) against the queue's 5,281 until 2026-08-26. In production the disagreement cannot arise: both read the same pending-matches count endpoint, and the Angular note on the constant says to point the badge at that one. Every count in the toolbar and pager is derived from these — nothing is hard-coded in the markup."
+      },
+      "angular": {
+        "components": [
+          "NaturalPersonListComponent (page)",
+          "PersonCardComponent (card, extractable with §3 of the stylesheet)",
+          "AppFrameComponent (frame — see pages/tmpl_ca_sidenav.ANGULAR.md)"
+        ],
+        "services": [
+          "NaturalPersonService.list({q, sort, dir, page, size}): Observable<Page<NaturalPerson>>",
+          "CandidateQueueService.pendingCount$"
+        ],
+        "routes": [
+          "/admin/natural-persons",
+          "/admin/natural-persons/candidate-queue",
+          "/admin/natural-persons/:id/identities"
+        ],
+        "notes": "Filter, sort and paging all move server-side; §3 of the page script does not survive the port. The sessionStorage list-state snapshot becomes queryParams on the list route, which makes the restored state shareable and reload-safe."
+      },
+      "openQuestions": [
+        {
+          "topic": "Button label",
+          "detail": "The Figma label reads 'Pending Match Queue'; the annotation and work item #17515 call the destination the Candidate Queue. The drawn label is used verbatim in the build. Hold for the product manager's glossary pass before changing either the label or the filename."
+        },
+        {
+          "topic": "Pagination variant",
+          "detail": "The Figma component instance resolves to the numbered-page variant in the exported code, but the board renders the toolbar variant (Cards per page / range / first-prev-next-last). The toolbar variant is built, because the record count is unbounded and a numbered strip stops being usable past a few dozen pages."
+        }
+      ],
+      "conventionsApplied": [
+        "Dates rendered mm-dd-yyyy, never ISO",
+        "Pager defaults to 10 per page, never 100",
+        "Mock data fills a whole page and follows the toolbar's sort",
+        "Space before an ellipsis in UI copy ('Search natural persons …')",
+        "Records are never dimmed to convey state; an empty result is stated in words",
+        "Toolbar ordered right-to-left by impact on data",
+        "Card actions sit in a fixed-width column sized to the longest label",
+        "Toolbar controls share one height (40px) so the bar has a flat skyline and the search field fills it",
+        "Sticky content header + floating pager: every control on the screen stays reachable from anywhere in the list"
+      ],
+      "designDeviations": [
+        {
+          "topic": "Sidenav — Dashboard row",
+          "detail": "The Figma board draws Dashboard above Tenant Overview. Removed at Scott's direction (2026-08-26); the sidenav is Tenant Overview / My Cases / Admin."
+        },
+        {
+          "topic": "Toolbar control heights",
+          "detail": "As drawn the toolbar has four control heights — search 34, select 38, Asc 34, and the queue button 44 because its count badge is taller than its label and sizes the button. The bar grows to the tallest, so the search field floats in the slack. All four are pinned to 38px (the taller of Nimbus's two normalised small-control sizes, so nothing is squeezed below its content), and the Sort By select uses the Nimbus/Select SMALL size (class form-control-sm). Both halves belong upstream, not on a screen stylesheet: the 34-vs-38 split is a design-system question and a badge sizing its own button is a Nimbus/Button bug."
+        },
+        {
+          "topic": "Pager floats",
+          "detail": "position:sticky holds the pager 16px off the bottom of the viewport (spec), at every result count and every viewport height, so the control never moves under the user's cursor when they page. THREE CONSTRAINTS, all load-bearing: (1) no ancestor may clip or scroll — .ca-main and .ca-content are unclipped, so the viewport is the scrollport; (2) the sticky offset must equal the gap the pager's flow position leaves beneath it, or the bar jumps on the last frame of the scroll — the pager is the last child of .np-page, so that gap is .ca-main's padding-bottom (24px) and .np-page carries a -8px bottom margin to bring it to 16; (3) .np-page has a min-height of calc(100vh - --app-utility-height - --np-pager-inset) AND the pager takes margin-top:auto, so a short list (page 2 of 2, or a narrow search) still puts the bar on the fold line. Without (3) the bar's position depends on how many cards the page happens to hold. NOTE: the frame pads 16px top and sides but 24px bottom; if that is normalised to 16 in tmpl_ca_sidenav.html, drop the negative margin and --np-frame-pad-bottom with it. The negative margins that compensate .ca-main's padding are gated with :has(.np-header) and :has(.np-pager), because a screen in the family that lacks either element (the queue during its build) would otherwise have its title pulled under the utility bar."
+        },
+        {
+          "topic": "Sticky content header",
+          "detail": "The page title and toolbar travel together in .np-header, pinned under the frame's utility header, so the list scrolls beneath them and search / sort / the queue stay reachable from anywhere in the list. Pattern per demo.us.casefusion.cloud/admin/natural-person. Two constraints: it sticks flush under #caHeader (top = --app-utility-height) and carries the frame's 16px top padding itself, with .np-page cancelling that padding, so the bar starts exactly where it sticks and does not move when it pins; and it is opaque (--cnds-body-bg) because cards pass behind it. z-index sits under #caHeader (.sticky-top is 1030 in app.css) and over the cards."
+        },
+        {
+          "topic": "Header elevation moved off the frame header",
+          "detail": "The utility header's shadow-on-scroll (shadow-sm toggle) was REMOVED from js/pages/frame-ca-sidenav.js §1 AND from the matching inline block in pages/tmpl_ca_sidenav.html, so the two stay identical by construction. With a screen sticking its own content header flush beneath the utility bar, that shadow fell between two flush bars. The elevation now belongs to whichever bar is last above the scrolling content — on this screen, .np-header. This is a SHARED change: every 1.6 page built on the frame loses the utility-header shadow. Scott's direction, 2026-08-26."
+        },
+        {
+          "topic": "Content header elevation is bottom-only",
+          "detail": "--cnds-shadow-sm's offset, blur and colour verbatim (matching what the utility header used to carry) plus a -0.125rem spread, which shrinks the shadow box by exactly the blur radius so the left and right edges land flush with the element and only the downward offset shows: 0 0.125rem 0.25rem -0.125rem rgba(0,0,0,0.075). The Nimbus .shadow-sm utility is not used — it paints all four sides and carries !important, so it cannot be trimmed. Worth raising as a .shadow-sm-bottom utility if a second screen needs it. Toggled by the page script only once scrollY > 0 and removed again at 0."
+        },
+        {
+          "topic": "Column dividers are blurry",
+          "detail": "RESOLVED 2026-08-26 (Scott): the vertical rules between columns use Nimbus/Divider blurry — `.vr .vr-blurry` in components/dividers.css — not the solid rule the v1.5 board draws. Row separators stay solid. A grid reads as a grid when every rule has equal weight; fading the verticals removes the corners so the layout parses as rows-with-internal-structure rather than a table. Applies to both screens in the family: the person card and both queue views. .np-rule is now only the placement delta over the component."
+        }
+      ]
+    },
+    {
+      "id": "natprsn-pending-match-queue",
+      "title": "Admin › Natural Persons › Pending Match Queue",
+      "status": "in-progress — tasks 1-6 signed off, 7 built, 8 pending",
+      "html": "pages/pge-admin-natprsn-pndmtchque.html",
+      "css": [
+        "css/pages/pge-admin-natprsn.css"
+      ],
+      "js": [
+        "js/pages/pge-admin-natprsn-queue.data.js",
+        "js/pages/pge-admin-natprsn-queue.js"
+      ],
+      "figma": {
+        "file": "CaseFusion v1.5 — Tenant Manager",
+        "fileKey": "opm1ShhZXGxIcrAsJytRB4",
+        "section": "12466:6785",
+        "url": "https://www.figma.com/design/opm1ShhZXGxIcrAsJytRB4/CaseFusion-v1.5---Tenant-Manager?node-id=12466-6785"
+      },
+      "workItem": "#17515",
+      "enteredFrom": "natprsn-list › toolbar › Pending Match Queue",
+      "buildScope": "One page holding every state: two list views, two offcanvas panels, a modal and a toast stack. The Figma board is ~15 frames but none is a separate document.",
+      "tasks": [
+        {
+          "n": 1,
+          "name": "Shell",
+          "status": "signed-off",
+          "covers": "page title + back, three stat tiles, unmerged-decisions alert, entry point rewired from the list page",
+          "signoff": "Task 1 tested. All good."
+        },
+        {
+          "n": 2,
+          "name": "Grouped view",
+          "status": "signed-off",
+          "covers": "signature group rows, evidence column, 230px actions column, pager",
+          "signoff": "All test good."
+        },
+        {
+          "n": 3,
+          "name": "All pairs view",
+          "status": "signed-off",
+          "covers": "flat pair list + view toggle",
+          "signoff": "Task 3 test all good"
+        },
+        {
+          "n": 4,
+          "name": "Search + filters",
+          "status": "signed-off",
+          "covers": "search, four filters, Clear filters",
+          "signoff": "Task 4 tests all good"
+        },
+        {
+          "n": 5,
+          "name": "Pair Review",
+          "status": "signed-off",
+          "covers": "offcanvas, field comparison, decision bar",
+          "note": "Pair Review offcanvas + the SKIP walk. The panel is a station, not a detail page: SKIP and both decisions load the next record to be adjudicated and the panel stays open, crossfading between records. Only the last record closes it. SKIP's sole disabled state is the last record; the decision buttons additionally go off for the write round trip.",
+          "signoff": "Task 5 tested all good"
+        },
+        {
+          "n": 6,
+          "name": "Group Dispatch",
+          "status": "signed-off",
+          "covers": "modal with typed confirmation + toast stack",
+          "note": "Group Dispatch modal (Figma 12807:11156, 640 wide, static backdrop) + toast stack. Count is the REMAINDER not the group total, and appears three times (group line, confirm helper, submit label). Submit gated on reason AND an exact typed match — separators and off-by-one both rejected. SAME PERSON stays visible and disabled with its explanation. Decided group stays listed as Decided/success with dispatch removed and Review kept. Toasts 300px at 24/24, gap 8; success auto-dismisses, error persists.",
+          "signoff": "6 is done and signed off"
+        },
+        {
+          "n": 7,
+          "name": "Measurement",
+          "status": "built — awaiting sign-off",
+          "covers": "read-only offcanvas, filters not carried in",
+          "note": "Measurement offcanvas (Figma 12862:11603), 1080 = 75% of viewport, read-only. measurement() takes NO query, so the queue's filters cannot reach it — verified identical rollups with the list filtered to one row. Rollups are SUMMED from the by-key-type table, never stated separately (verified equal). Zero-producing key types are kept. Stacked bar for production over time. Policy-signal note names the key type and both numbers."
+        },
+        {
+          "n": 8,
+          "name": "Edge states",
+          "status": "built — awaiting sign-off",
+          "covers": "the seven documented states, optimise, manifest",
+          "note": "All seven Figma edge states (12920:15518). Already correct before this task: 2 (assertion not recorded — matchedOn/reason ABSENT, never empty), 5 (Reopened, prior decision and decider stay visible), 7 (hold unavailable — the banner is omitted and neither card claims 'No holds', because absence of data is not absence of a hold). Built in this task: 1 (empty queue vs filtered-empty, with the re-ingestion stamp), 3 (Stale — cannot be decided), 4 (Resolved elsewhere), 6 (partially decided group + dispatch remainder note). Optimise: removed the uncalled filterByKey(); every other function is referenced and no .np-* class is dead — an earlier sweep flagged 18, all false positives (.np-status-* are built as 'np-status-' + tone, the rest belong to pge-admin-natprsn-list.html, which shares this stylesheet). FINAL PASSES: (1) OPTIMISE — no uncalled functions, no duplicate CSS selectors, all 15 page variables used, and the row builders do zero DOM work (they are pure string builders, so a page of rows costs one innerHTML write). Nothing left to strip; the earlier filterByKey() removal was the only dead code. (2) COMMENTS — the file header claimed tasks 6-8 were unbuilt and said the sections are numbered to match the tasks, which is true but misleading: the numbers do not run in sequence down the file (§8 sits between §5 and §6), so the header now lists sections in FILE ORDER and says to read that instead. It also records that task 8 is NOT a section — six of the seven edge states are properties of other code. Cross-file references (§13, §11) meant the STYLESHEET's sections and are now written 'the stylesheet's §N'. Seven comment sites quoted 5,313 pending pairs, which contradicts the 5,281 the screen shows (a documented deviation); corrected. (3) ANGULAR — the older code was well covered but nothing added in this run was: notes added for the empty-state split, noReviewReason, reviewButton (put the tooltip attrs on the BUTTON and let Nimbus build the wrapper), groupProgressHtml, toggleNote, focusNoteSoon (the deferral is still required in Angular), dispatchReasonValue (map at submit, not in the form model), the measurement skeleton, CLOSED_WITHOUT_DECISION (the server's counts must exclude them too), groupPairs (one shared WHERE clause for the list and worklist endpoints, or they drift) and LAST_INGESTION."
+        }
+      ],
+      "keyRules": [
+        "Nothing merges: 'Same person' records an adjudication only; merge execution is #17474",
+        "The unmerged-decisions alert is persistent and non-dismissible; hidden only at count 0",
+        "Decision buttons stay disabled until Reason is valid, and Reason drives WHICH button enables",
+        "REVIEW never reloads the list — filters, sort, page and scroll survive",
+        "DECIDE WHOLE GROUP is hidden on pair rows and on genuine-suspicion groups",
+        "Filter labels are always `Field: value`; secondary→primary carries the on/off signal",
+        "'Not recorded' omits Matched on and Reason entirely rather than rendering an em dash",
+        "The queue is tenant-wide — the list page's search does not scope it",
+        "Paging persists across the view toggle; where it cannot (grouped is one page) it clamps to the last page and stays there — confirmed 2026-08-26, not a remembered page per view",
+        "EVERY toast carries a close button, transient ones included. Nimbus pauses the auto-hide timer on mouseenter and focusin, so a keyboard user who tabs into a toast has stopped the only thing that would remove it — without an X they are holding focus inside content with no exit. WCAG 2.2.1 wins over the house rule that transient toasts get no X. Delay floor is 5000ms; do not shorten it.",
+        "Icon sizes come from .cnds-icon-* (css/core/icons.css), which mirrors the Figma Nimbus/Icon size axis — xl = 24px. Match the icon FRAME, not its glyph vector: Nimbus/Icon/xl is a 24x24 frame around an 18x18 vector, and only font-size 24 renders 18x18 of ink (mdi-18px renders 14x14). Toast header icons are `cnds-icon-xl lh-1`. NB .mdi-18px is not broken — it sets font-size on the ::before pseudo-element, so measure getComputedStyle(el,'::before'), not the element.",
+        "The panel crossfade declares no duration of its own: each half is calc(var(--cnds-animation-duration-faster) / 2), so two halves make one 350ms swap and a retune in Nimbus carries through. The controller READS the duration off the element rather than holding a constant — CSS owns the number, and reduced motion overrides it to 1ms.",
+        "The list's loading state is a Nimbus skeleton, held back 250ms so a fast response does not flicker (Nimbus's `delay` convention). It renders a FULL page of rows in the real row's geometry, joined by the same <hr class=\"hr\">, with the wrapper at display:contents so it inherits .np-rows' flex gap — the placeholder and the live list differ by ~2% rather than 46px. aria-busy on the container, aria-hidden on the placeholder.",
+        "Row removal: fade out (Nimbus .animate-fadeOut + .animation-faster) then collapse height (Nimbus .collapsing, css/core/transitions.css — 0.35s, the same step) so the rows below slide up. The page adds only padding/margin, which .collapsing does not transition, and restates height:0 for the divider because hr:not([size]).hr (0,2,1) outranks .collapsing (0,1,0). The skeleton is suppressed when rows are already present, or it would replace them before the diff could run.",
+        "REVIEW is disabled where there is nothing to review — a decided pair, or a group whose `reviewable` count is 0. `reviewable` is a separate live field from the display `pairs` count, which a decided group freezes; the UI reads `reviewable` so it never needs to know about the decided flag.",
+        "Table column headers on this screen are ONE shared rule (.np-compare thead th, .np-measure-table thead th) = Figma Table/Row/Header: 12px ExtraBold uppercase muted. Nimbus's .table has no header typography of its own, so it is the page's job — but one rule, not one per table.",
+        "Stat tiles use .np-stat-label (14/400/uppercase) and .np-stat-value (22/700/tabular-nums), matching Figma Paragraph/Default and H4/Bold. Do not invent a new class — .np-stat-count does not exist and renders unstyled without erroring.",
+        "The measurement chart states NO colours. It inherits CaseFusion's default charting palette (--cnds-chart-color-1..10 from .cnds-product-casefusion on <body>) which Nimbus.Chart reads off the .chart element. One band per product, read both ways: light walks it palest-first, dark walks the SAME values darkest-first, so the largest series always takes the step nearest the page ground. The page must not restate or reverse it.",
+        "Two states close a pair WITHOUT a decision — 'Stale — cannot be decided' and 'Resolved elsewhere' — and are counted in NO tile. They are not pending, and crediting either to an outcome would invent an adjudication nobody made. CLOSED_WITHOUT_DECISION in the data layer is the single place that fact lives; the tiles, group counts and `reviewable` all read it.",
+        "The empty list has two different messages. A filter or search that matched nothing points at the filters; a genuinely empty queue states the last re-ingestion instead, because silence and staleness render identically and only one means the operator is finished. stats() and query() resolve in parallel, so renderStats repaints the empty state once the stamp lands.",
+        "Group rows say '<decided> of <total> decided' rather than the design's bare '32% decided' chip: this build's row count is the pending remainder (a signed-off deviation so the rows sum to the Pending tile), so a bare percentage beside '34 pairs' reads as 90% of 34.",
+        "The dispatch modal names the remainder when a group is partly decided. The row states the group total and the modal acts on the pending remainder; unexplained, that gap reads as a bug, and the fear it answers is 'am I about to overwrite decisions I already made?'",
+        "A disabled REVIEW explains itself through Nimbus/Tooltip, and the PAGE writes no wrapper. data-cnds-tooltip-init + title go straight on the disabled button; the component does the rest. reviewButton() takes the reason rather than deriving it, because a pair says why THAT pair cannot be decided while a group says only that it has nothing left to open — and 'already decided' is FALSE of both closed-without-decision states. writeList calls Nimbus.DataAPI.initAll(host) after every render, since rows are rebuilt on each view/page/filter change and the boot-time scan never sees them.",
+        "\"Other — add a note\" reveals a REQUIRED note in BOTH decision surfaces — Pair Review (#npqOtherNote) and Group Dispatch (#npqDispatchOtherNote). The modal was missing it entirely: the reason select offered Other and nothing appeared, so a bulk decision could commit under a menu label. A group dispatch least deserves a weaker justification than a single decision, since it records N adjudications at once. What is SENT is the note text, not the literal \"Other — add a note\" — that string is a menu label, and filing N decisions under it would fill the queue's own Reason facet with a word that explains nothing. Cleared and re-hidden on every open, or a note from the last group rides along with this one's decisions.",
+        "The dispatch modal's Other note lives INSIDE the Reason .cf-input-field and SLIDES. Nimbus/Collapse drives it (.collapse, css/core/transitions.css, 0.35s — the same step as row removal, so everything on this screen that changes height changes it at one pace), never the `hidden` attribute: .collapse:not(.show) is display:none, which also stops the field's 4px column gap lingering under the select while the note is closed. Open/closed is read off .show rather than a flag of our own, because syncDispatch runs on every keystroke in the confirmation field and re-showing an open note would restart the animation on each one. renderDispatch clears .show WITHOUT animating — the modal is off screen, and a stale note would otherwise be visible when the next group opens. As a sibling of the field the note collected .np-dispatch-body's 24px stack gap and read as a separate question; nested, the field's own 4px gap is the whole separation, equal to label-to-select. Focus follows the field that is the operator's next move: onto the note on shown.cnds.collapse (not during the slide — focusing a growing element makes the browser scroll it into view against a height that is still changing), and back to the select's .select-input trigger when it closes, because focus was inside a control that just disappeared and would otherwise fall to <body>. The focus guard tests 'is focus in some OTHER form control', NOT 'is focus where I expect' — choosing an option legitimately leaves focus on the trigger, the modal container, or nowhere. Focusing the native <select> would be wrong: Select replaces it with the .select-input trigger and keeps the original as the value holder only.",
+        "frame-ca-sidenav.js §4 must NOT re-add `title` to #themeToggle. Nimbus/Tooltip strips `title` at init precisely so the native tooltip cannot appear beside the styled one; the theme MutationObserver was setting it again on every toggle, so after the first switch both showed. It now writes only data-cnds-original-title (what Tooltip reads) and keeps `title` ONLY while no Tooltip instance exists — the button is hoverable from first paint and cnds.ready can be a moment away, so the native title is the fallback until the component replaces it. Sidenav links already did this correctly (title set before getOrCreateInstance, and only when no original-title is present).",
+        "frame-ca-sidenav.js §4 syncs the theme toggle from THREE signals, not one. (1) A MutationObserver on data-cnds-theme. (2) A call at init — an observer fires only on a CHANGE, and the page ships <html data-cnds-theme=\"dark\"> at parse time, so on a first visit nothing ever mutated and the button kept its authored moon on an already-dark page: an icon meaning 'switch to dark' beside a tooltip correctly reading 'Switch to light theme'. app.js only patched the icon when localStorage held a saved theme, which a first visit does not have. (3) A prefers-color-scheme listener, because an ABSENT attribute means 'follow the system' and the OS switching at sunset moves no attribute. isDarkNow() resolves an absent attribute through the media query rather than defaulting to light — reading it as light puts a moon on a page the OS is rendering dark. Verified: on load dark/sun/'Switch to light theme' all agree, light gives moon/'Switch to dark theme', and unpinned the icon matches prefers-color-scheme.",
+        "A grouped row's `reviewable` and the walk REVIEW opens come from ONE function, groupPairs(group, query), in the data layer. They used to be computed separately and drifted: with State filtered to a non-adjudicable value the row still reported 124 reviewable (recountGroups is filter-blind) while worklist(), which does respect the query, returned nothing — so a live button announced there was nothing behind it, the exact click the disabled state exists to prevent. Free text is the subtle part: if the search matched the GROUP, it has done its work at group level and must NOT narrow the pairs inside, or searching a signature name finds the group and then disables its REVIEW. If the group did not match, only the matching pairs are in scope, which is what makes searching a person's name open exactly that person. Filters always narrow. The rows are COPIES (Object.assign) — MOCK_GROUPS.slice() copies the array, not the objects, so writing reviewable onto a row would leak one query's filters into the next.",
+        "Grouped search looks THROUGH a group to its pairs. The filters already did — filtering State to Reopened surfaces the group containing the reopened pair — and search did not, so searching a person's name in grouped view returned nothing at all. An empty result has to mean absent, not looked-in-the-wrong-place."
+      ],
+      "notes": "Frame markup copied verbatim from pge-admin-natprsn-list.html. Shares the family stylesheet: §7 queue page title, §8 stat tiles, §9 unmerged alert. Back returns to the list, which restores the state it saved to sessionStorage key cf16.natprsn.list.state.",
+      "nimbusChanges": [
+        "cmp_drpdwn-menu-item gained Show Checkbox (v1+v2, published 2026-08-26) with .dropdown-item-check in dropdown.css — multi-select filter menus",
+        "input-clear.js added: behaviour for the .cf-input-clear affordance that forms.css already styled",
+        ".cf-list bullet offset now derived from --cnds-list-padding-y instead of a hard-coded top:10px — it detached from the text whenever a consumer tightened a list",
+        "Nimbus/Pagination reconciled to Figma: padding 3px 0 (was 0.5rem) and gap 8 (was 1rem), both now tokens. The bar was 63 tall against the design's 50.",
+        "Nimbus/Toast gained a `caution` variant (nimbus-v1 + casefusion/1.6 + casefusion/2.0 + styleguide), and Scott added it to the Nimbus v1 AND v2 Figma libraries the same day. VERIFIED IDENTICAL against both Figma component sets: fill #ffd7ad, stroke #ff9933 @2px, radius 8, text #3d1e00, all variable-bound; 11.25:1 contrast; icon mdi-alert-octagon. Values came from the shipping .alert-caution, NOT derived from the warning toast's -100 pattern — that would have produced #ffebd6, an orange that appears nowhere in the design. Caution != warning: separate families.",
+        "Figma naming: `Type=Caution` renamed to `Type=caution` in BOTH Nimbus v1 and v2 toast sets, matching the other eight options and the lowercase `data-cnds-color` value in code. Needs a publish + accept like any other library edit.",
+        "Nimbus animations gained `.animation-faster` (350ms) — approved by Scott — plus a duration-token refactor: --cnds-animation-duration{,-faster,-fast,-slow}. Modifiers now set the token rather than the duration, so they compose with BOTH the data-cnds-animate attribute and a bare .animate-* class. That fixed a latent bug: .animate-* alone resolved to animation-duration:0s / fill-mode:none, so the class named an animation and gave it no time to run — the styleguide's own .animate-pulse examples were inert. nimbus-v1 + 1.6 + 2.0 + cnds-animations.html.",
+        "Skeleton loading made usable (nimbus-v1 + 1.6 + 2.0 + cnds-loadingmanagement.html). It already existed but was undocumented, untuned and had a dead reduced-motion rule. Now: six tokens; composition classes .skeleton-group/-media/-row/-action/-list plus .skeleton-w-*; values are var() references to existing primitives with NO one-off hex — light surface-light-200/100, dark secondary-gray-800/primary-gray-800 (never --cnds-gray-*, which dark.css inverts); the sweep travels toward the page ground in both themes so its peak is the least contrasty moment; and reduced motion now STOPS the shimmer instead of restating its own duration.",
+        "Pair Review panel gained the skeleton too: person cards, comparison table and refusal account are stood in for on both first open and advance, on the same 250ms threshold as the list. The decision bar, the walker step and the legal-hold alert are deliberately NOT skeletonised.",
+        "Notes made fully theme-compliant: ALL EIGHT variants now consume --cnds-*-bg-subtle / -text-emphasis / -border-subtle (the alerts' token set), so none carries a fixed colour. The two neutrals use --cnds-body-color for text. Inline <code> is theme-smart via --cnds-note-code-color (pink-700 light / pink-200 dark) — possible only once every background followed the theme; it previously keyed off the variant with an exception list. 36 text+code pairs verified AA across both themes. nimbus-v1 + 1.6 + 2.0.",
+        "Note theming synced to BOTH Figma libraries (Nimbus/Alert/Note, 2816:559, Typography page). The four semantic types aliased into the single-mode 'Semantic Colors' collection so they could never theme — Dark mode re-pointed at Primitives (Semantic/<F>/800 bg, /600 border, Text/Dark/<F>). Also rebound Primary and Dark text from Surface/Alert/Text/Primary to their own Surface/Note/Text/* — Primary was rendering 1.06:1 in Light. All 8 types AA in both modes. Needs publish + accept.",
+        "Figma Note: the eight Size=Default text layers shared underlying text data in BOTH libraries — writing one painted all eight. Distinct node ids, no shared paint style, no mode pins, and renaming did not decouple them; the range fills (not node fills) were what rendered. Rebuilt all eight as fresh nodes per file, each bound to its own Surface/Note/Text/*. All 24 variants AA; magenta probe confirms independence. NB rebuilding a layer in a component set drops downstream instance overrides.",
+        "CSS note neutrals brought back in line with Figma (no brand blues): primary #e0e0e0/#1e1e1e, secondary #cccccc/#4a4a4a, light #fafafa/#e8e8e8, dark #141414/#030303. Also removed a stale duplicate .note-primary/-secondary pair, and gave .note-dark the light-ground code pink — it is a near-black box in LIGHT mode, where the theme-based pink measured 2.24:1.",
+        "Nimbus/Select gained `showGroup` (data-cnds-show-group, default false) plus `groupSeparator`: the closed trigger shows the chosen option as GROUP > Option. Added because the reason list's groups state the OUTCOME asserted and drive which decision enables — with the list closed the group is the half that explains why only one decision is available. Group is upper-cased in JS to match select-option-group-label's CSS text-transform (the trigger is an <input>, one string). Patched in nimbus-v1 + 1.6 + 2.0 SEPARATELY — 1.6's select.js is ahead (filter-clear + all-option badge) and must never be overwritten by a copy. Documented in cnds-select.html.",
+        "NOTE TO SELF, not a change: .collapse/.collapsing live in css/core/transitions.css, NOT css/components/collapse.css. I reported them missing and started building a bespoke collapse; Scott pointed at cnds-collapse.html. Search the styleguide pages, not just css/components/.",
+        "Nimbus/Chart gained `stacked` (default false, vertical bar only) — the styleguide demonstrated no stacked bar and the plugin is a bespoke SVG renderer, not Chart.js, so it had to be built. Scale becomes the tallest COLUMN TOTAL and each bar takes the full slot; a zero dataset draws nothing but stays in the legend. nimbus-v1 + 1.6 + 2.0 (all three were identical) + cnds-charts.html.",
+        "Chart legend layout moved OUT of inline JS styles into .chart-legend-item, which it duplicated — inline beat the stylesheet, so the CSS rule was dead and spacing could only be changed in JS. Gap 8px (px not rem: CaseFusion's root is 12px), margin 4px/14px, wraps to a second row. Only the swatch colour stays inline, being per-series data. nimbus-v1 + 1.6 + 2.0.",
+        "Chart tooltip made theme-aware: was rgba(0,0,0,.8) fixed in :root, which in dark mode was darker than the page and read as a hole. Light keeps a dark popup; dark lifts to surface-dark-300 with a surface-dark-200 border (7.23:1).",
+        "Nimbus/Chart colour system moved onto tokens end to end. (1) Series palette is now --cnds-chart-color-1..10 on .chart; the ten defaults were Material Design hex, not one of them a Nimbus colour. (2) A CaseFusion override under .cnds-product-casefusion .chart uses brand-green, ordered by SEPARATION not ramp position so the two commonest series are not neighbouring shades. (3) Grid, label and tooltip were hand-picked hex in a [data-cnds-theme=\"dark\"] .chart block at (0,2,0) that beat anything set at the theme root — that was the real reason the popup looked un-themed. (4) Tooltip caret gained a matching outline: ::before outline + ::after fill INSET 1px, since two triangles sharing an apex leave the outline only at the base, hidden by the box. (5) paletteFrom() resolves AFTER .chart is applied, or the tokens are not in scope yet.",
+        "Three product chart palettes: --cnds-chart-color-1..10 under .cnds-product-casefusion/-expireon/-hyperlize in nimbus-v1/css/plugins/charts.css. ONE BAND PER PRODUCT, READ BOTH WAYS. Ten steps, L*20-94, 8.2 L* apart, each product's own -500 preserved exactly. Light mode walks it palest-first; the dark override holds the SAME ten values darkest-first. A stack is drawn largest-series-first, so in either theme the biggest area takes the step nearest the page ground and the thin top slivers carry the contrast. Two rejected alternatives, both rendered and compared on the real ground: walking it light-first on dark put a glare mass at the base of every bar; a separate darker band (L*8-82) fixed the glare but dropped its first two steps below #252525, where the base segment stopped reading as a bar and the first two legend swatches went unreadable. L*20 is the floor for that reason. 8.2 L* not 10 because ten steps at a true 10 L* need the whole 0-100 range, which always puts one end in a crush zone. CHART-ONLY: --cnds-product-*-50..950 untouched (verified), since -200/-300/-400/-700/-800 feed ~100 declarations across the library.",
+        "Styleguide: new Chart colors section on cnds-colors.html, positioned between Brand and Product colors with its TOC link in the same order. The swatch strips READ THE LIVE TOKENS through a hidden probe plus a MutationObserver on data-cnds-theme, because the two modes hold the same values in opposite order and a hardcoded strip would be reversed half the time.",
+        "Figma: Chart/<Product>/1..10 in the Theme collection of BOTH libraries, per-mode values, scoped FRAME_FILL/SHAPE_FILL, ordering contract written into every description. Needs publish + accept.",
+        "nimbus-v1/js|css/components/select.js|.css: ported UP from casefusion/1.6 the filter-input clear button (.select-filter-group/.select-filter-clear, with the z-index:6 note about beating .input-group > .form-control:focus) and the all-option count badge (.select-option-all-count, marked with data-cnds-all-option). Both were stranded in 1.6's JS with no CSS anywhere in the tree after an earlier sync replaced 1.6's select.css with upstream's — they rendered unstyled on pge_case_datamap.html, pge_case_datamap_profile.html and the three pages under pages/customers/. CSS recovered verbatim from commit d3c24fe. Documented on cnds-select.html (clear button in the Search section, count badge in Multiselect), then synced back down to 1.6 and 2.0. Fork closed.",
+        "charts.css chart tooltip: light mode was --cnds-surface-dark-500 (#1e1e1e), near-black where every other floating surface in the light theme is #525252, so the chart popup read as a different component. Now --cnds-surface-light-800 / --cnds-surface-dark-50 in light and --cnds-surface-dark-300 / #fff in dark, matching the .tooltip component by VALUE but deliberately not by reference: --cnds-tooltip-bg is declared under [data-cnds-theme=\"light\"] in variables.css and rescoped to `[data-cnds-theme=\"dark\"] .tooltip` in dark.css, so a var() chain pointed at it resolves to nothing inside .chart in dark and the popup loses its background outright. Scoped to the chart only — tooltips.css, variables.css and dark.css are untouched. Verified resolved: unset/light #525252 on #e8e8e8, dark #4a4a4a on #fff.",
+        "Nimbus/Tooltip now handles DISABLED triggers itself (nimbus-v1 + casefusion/1.6 + 2.0 + cnds-tooltips.html). A disabled control dispatches no pointer events and cannot take focus, so a tooltip attached to one silently never fires — the control most likely to need an explanation was the one that could not give it. The styleguide documented a hand-built workaround (wrapper span + inline style=\"pointer-events:none\"), which is a DEMO, not a library pattern: every consumer rebuilt it and it was easy to forget. _adoptDisabled() now inserts the interactive span, sets tabindex=0, adds .tooltip-disabled-host (display:inline-block + cursor:help, tooltips.css) and lets the CSS take pointer-events off the control. THE BUG THAT MADE IT REAL: wrapping alone was not enough — _setupListeners still bound to the element, which is now pointer-events:none, so the wrapper was built correctly and fired nothing. Listeners bind to _listenTarget() (wrapper when present). A consumer's existing d-inline-block wrapper is reused not doubled; dispose() unwraps only a wrapper the component created; sync() re-reads the state and rebinds when a control is disabled later. cursor:help not not-allowed — there IS an explanation. No Figma counterpart: nothing about the tooltip's appearance changed.",
+        "charts.css tooltip polarity REVERSED: it now follows the theme instead of inverting it — --cnds-surface-light-100 on --cnds-surface-light-950 in light, --cnds-surface-dark-500 on --cnds-surface-dark-50 in dark, with a border in BOTH themes. Deliberately unlike the .tooltip component, which floats a dark popup in light mode: a chart tooltip is read against the plot area it covers, not against the page, and a dark slab dropped over pale bars hides the thing being explained. The border is what lets a surface only a step or two off its ground read as raised, and it is what the caret outline is drawn from — verified in both themes, caret-top and caret-bottom.",
+        "Nimbus/Alert made THEME-AWARE (nimbus-v1 + 1.6 + 2.0 + cnds-alerts.html). All nine variants now read the same trio the Note component reads — --cnds-<name>-bg-subtle / -text-emphasis / -border-subtle. They were 43 hand-picked hex values with NO dark-theme block at all, so an alert painted its loud light-mode surface on a dark page and became the brightest thing on screen — which a page-level alert, present the whole time an operator works, should never be (a toast is gone in five seconds; the two cannot carry the same weight). The nine per-variant .btn-close colours became `currentColor`: the comment above them always claimed they inherited the alert text colour, and the hex values were a second copy of the palette to keep in step. Styleguide's variant table regenerated from hex to token references. MEASURED after: all nine pass WCAG AA in both themes (light 4.9-13.5, dark 4.8-9.5). Note that .alert-dark was FINE (8.7/8.9) despite the token names suggesting dark-on-dark — measured, not reasoned.",
+        "--cnds-caution-text-emphasis (light) and --cnds-caution-bg-subtle (dark) DEVIATE FROM FIGMA to reach WCAG AA, per Scott's standing ruling that the standard wins. Figma's Text/Light/Caution (#b35900) on Surface/Alert/Background/Caution (#ffd7ad) is 3.58:1; every lighter background on the ramp was tried first to preserve the Figma text and caution-50 still only reaches 4.49:1, so LIGHT moves the text to caution-800 (#7a3d00) = 6.24:1. DARK keeps Figma's Text/Dark/Caution (#ff9933) exactly and darkens the surface from caution-800 to caution-900 (#3d1e00) = 7.12:1, which also stops a permanent alert glowing on #252525. FIGMA NEEDS THE MATCHING CHANGE in both libraries. TRAP: this token is defined in THREE files — core/variables.css, themes/light.css and themes/dark.css — and themes/light.css WINS. Editing variables.css alone changed nothing; the first measurement after the edit still read 3.6 and caught it.",
+        "FIGMA DONE, awaiting publish — the caution AA deviation is now applied in BOTH Nimbus libraries. (1) Text/Light/Caution #b35900 → #7a3d00 (Caution/800). (2) Surface/Alert/Background/Caution gained a real Dark value: it aliased Surface/Background/Caution (Caution/200, #ffd7ad) in BOTH modes — an alias into the single-mode Semantic Colors collection, so it could never theme and a permanent in-page alert painted a bright light-mode fill on #252525. Dark now aliases Color/Semantic/Caution/900. Same shape as the Note fix. NOTE FOR LATER: the other eight alert variants have the SAME un-themeable aliasing in Figma (Surface/Alert/Background|Border/<variant> point at single-mode Semantic Colors entries in both modes). The CSS themes all nine correctly now; Figma matches only for caution. A full sweep is unscoped work — ask before doing it.",
+        "Alert theming FINISHED across CSS + both Figma libraries. All 27 Surface/Alert/* variables (9 variants x Background/Text/Border) now hold DIFFERENT Light and Dark values; they previously aliased a single-mode Semantic Colors entry in both modes and could not theme at all. Aliases go to the semantically correct primitive family, not merely one that shares the hex — Warning's #fff3cc also exists as Primary/Yellow/100, and an alias there stops tracking the moment that family is retuned. Seven values stay raw hex because no primitive holds them; the CSS states those as raw hex too. The Nimbus/Alert COMPONENT needed no edits: audited all 9 variants in both libraries, 45 colour bindings each, every one already pointing at the Theme collection — so the variables were the whole fix.",
+        "REPEATED MISTAKE, caught by Scott: the four NEUTRAL alert variants (primary, secondary, light, dark) must take the NEUTRAL surface ramp, never --cnds-primary/secondary-bg-subtle — those are BRAND BLUE (#e5e6f6 / #0f1129), so a neutral variant pointed at them turns grey into blue: a change of identity, not of theme. Exactly the error already corrected in notes.css, which carries a comment saying so. Values now taken from the Note component (Surface/Note/*), the source of truth, in CSS (alerts.css + themes/dark.css), in both Figma libraries, and in the styleguide's variable table — which now shows Light and Dark separately for those four. VERIFIED: every alert variant resolves to byte-identical bg/text against its matching note in both themes (caution excepted — Notes has no caution variant)."
+      ],
+      "files": [
+        {
+          "path": "js/pages/pge-admin-natprsn-queue.data.js",
+          "role": "DATA SERVICE — the backend seam",
+          "note": "Every record on the screen comes through PendingMatchService. Connecting the API means re-pointing its methods at real endpoints and deleting the mock block; no other file on the page holds a record or knows a URL. MUST load before the controller."
+        }
+      ],
+      "apiContract": {
+        "service": "PendingMatchService — js/pages/pge-admin-natprsn-queue.data.js",
+        "shape": "Every method returns a Promise. Angular: Observable from HttpClient, same signatures.",
+        "endpoints": [
+          "GET  pending-matches/stats                → QueueStats",
+          "GET  pending-matches/facets               → filter option lists (tenant-specific)",
+          "GET  adjudication-reasons                 → reason groups + the outcome each asserts",
+          "GET  pending-matches?view&page&pageSize&search&filters → PageResult {rows,total,page,pageSize,pageCount}",
+          "GET  pending-matches/{id}                 → PendingMatch",
+          "GET  pending-matches/{id}/comparison      → field comparison rows",
+          "GET  pending-matches/worklist?groupId&…   → ordered pair ids for the SKIP walk (UNPAGED)",
+          "POST pending-matches/{id}/decision        → adjudication receipt (NO merge — #17474)",
+          "POST pending-matches/{id}/skip            → records the pass; pair stays Pending",
+          "POST pending-matches/groups/{id}/dispatch → bulk NOT_THE_SAME (task 6)"
+        ],
+        "rules": [
+          "The controller never filters, sorts or slices — it states a query and paints one page.",
+          "`total` is the server's count behind the whole query, never rows.length; the pager reads it.",
+          "Multi-valued filters serialise as repeated keys, not comma-joined — a comma is legal inside a reason string.",
+          "matchedOn/reason are ABSENT, never empty, when the matcher recorded no explanation. Do not serialise as \"\" or [].",
+          "Comparison verdicts keep three states: match / differ / missing. Missing must not normalise to differ.",
+          "render() carries a request token; only the newest response paints. Angular: switchMap.",
+          "worklist is UNPAGED and honours the same filters as the list — the operator walks a queue, not a page.",
+          "EVERY number on the screen is counted off the record set — stat tiles, unmerged alert, each group row's pair count, the all-pairs total, the pager range and the walker step. Nothing is asserted. A group row's count and its panel's \"Pair n of N\" are the same number by construction.",
+          "A group row's `pairs` is the count of pairs STILL AWAITING A DECISION — the set REVIEW walks. On a pending-match queue that is also what \"N pairs\" plainly means.",
+          "The mock generates 6,314 records deterministically (no Math.random) so paging, filtering and the walk are exercised at real scale; query cost measured at 0.06-2.3ms.",
+          "Mock LATENCY_MS is 700ms, deliberately ABOVE the controller's 250ms skeleton delay. At the original 120ms the response always beat the threshold and the loading state never appeared, so it could not be reviewed or demonstrated. Keep the mock slower than any delay threshold it is meant to exercise."
+        ]
+      },
+      "designDeviations": [
+        {
+          "item": "Pending tile vs group counts",
+          "design": "Pending tile reads 5,313; group rows read 3,764 + 1,359 + 124 + 34 = 5,281",
+          "built": "5,281 — the tile is counted off the same records as the rows",
+          "why": "The design's own numbers differ by 32. Counting both off one array makes them agree; which of the two the design intended is Scott's call."
+        },
+        {
+          "item": "Edge state 6 progress chip",
+          "design": "A bare \"32% decided\" chip on the group row, with \"3,764 pairs · 1,204 decided · 2,560 pending\" in the annotation",
+          "built": "\"297 of 4,061 decided\" under the pair count",
+          "why": "The design's 3,764 is the GROUP total. This build's row count is the pending remainder instead — the deviation already documented on the Pending tile, so the group rows sum to the tile. With that base, a bare percentage sitting under \"34 pairs\" reads as a percentage of 34. Naming both numbers removes a misreading the design never has to worry about."
+        },
+        {
+          "item": "Status label size (.np-status, .np-key-status)",
+          "design": "14px Nunito Sans Bold, Typography/Paragraph/Bold — the same size as the key or row title it sits beside",
+          "built": "12px (--cnds-paragraph-font-size-sm), weights unchanged at 600 / 700",
+          "why": "Scott, 2026-08-26: \"NEEDS CORROBORATION should be a little smaller throughout the screens.\" A status QUALIFIES its row — the subject is the group title, the pair names or the key type — and uppercase plus a semantic colour already carry the emphasis. Matching the subject's size on top of that made the qualifier compete with it. Note .np-status previously declared NO font-size at all while its comment claimed it was 'one step down'; it rendered at 14px only because the row set that. Now stated."
+        }
+      ],
+      "openQuestions": [
+        "BUG in Nimbus, reported not fixed: --cnds-dark-text-emphasis is inverted — primary-gray-300 (#b3b3b3) in light and primary-gray-800 (#333333) in dark, i.e. light-on-light and dark-on-dark. Against --cnds-dark-bg-subtle it measures 1.33:1 and 1.48:1. Only consumer is .text-dark-emphasis in core/colors.css. --cnds-light-text-emphasis is correct, so the pair looks swapped."
+      ],
+      "pageNotes": [
+        "Measurement panel: skeleton on open. paintMeasureSkeleton() empties the four rollup counts (npqMeasurePending/Same/NotSame/Total), lays seven table rows -- one per MOCK_FACETS.keyType -- and reserves the chart's 320px, held back by the same SKELETON_DELAY_MS as the list and the pair panel, and superseded by measureToken if the panel is reopened mid-flight. The signal note is HIDDEN rather than skeletoned: whether there IS a signal is the finding, and a placeholder would promise a conclusion before one is drawn. Geometry: .np-skeleton-stat (22px, matching .np-stat-value) and .np-skeleton-chart.",
+        "Measurement chart states NO colours. It inherits CaseFusion's default charting palette from <body class=\"cnds-product-casefusion\">, which Nimbus.Chart reads off the .chart element. The old page-local --np-chart-series-1..7 purple ramp and its hand-written dark-mode reversal are gone: the reversal is now a property of the library palette, and a consumer that reverses again re-breaks it."
+      ]
+    },
+    {
+      "id": "natprsn-identities",
+      "title": "Admin › Natural Persons › Identities",
+      "status": "planned",
+      "html": "pages/pge-admin-natprsn-identities.html",
+      "css": [
+        "css/pages/pge-admin-natprsn.css"
+      ],
+      "js": [],
+      "workItem": "#17475",
+      "enteredFrom": "natprsn-list › person card › Identities",
+      "queryParams": {
+        "personId": "the natural person's record id"
+      },
+      "notes": "The assembled person: which source records were joined, on what evidence, and which fields disagree between them. Distinct from View Profile, which shows the authored person. Back must return to the list with page, sort and scroll preserved — read the snapshot the list writes to sessionStorage key 'cf16.natprsn.list.state'."
+    }
+  ],
+  "_export_readme": "What to hand the developers. The Nimbus core (css/, js/, img/, fonts/, plugins/, manifest.json) is the portable design system and ships whole — it is not per-page. Everything under `pages` above lists the release-specific files on top of it.",
+  "export": {
+    "designSystemRoot": "casefusion/1.6/",
+    "alwaysInclude": [
+      "css/",
+      "js/",
+      "img/",
+      "fonts/",
+      "plugins/",
+      "includes/",
+      "manifest.json",
+      "pages-manifest.json"
+    ],
+    "perRelease": [
+      "css/pages/",
+      "js/pages/",
+      "pages/pge-admin-natprsn-*.html",
+      "pages/tmpl_ca_sidenav.html",
+      "pages/tmpl_ca_sidenav.ANGULAR.md"
+    ],
+    "notes": "Deploy the whole 1.6/ folder to any server and every asset reference resolves — the pages assume a '../' depth from pages/ and no external design-system URL. Do not add per-component <link>/<script> tags to a page: css/nimbus.css @imports every component stylesheet and js/nimbus.js loads every component script."
+  },
+  "designSystemSync": {
+    "date": "2026-08-26",
+    "direction": "nimbus-v1/css → casefusion/1.6/css (one way; nimbus-v1 is upstream)",
+    "scope": "All of css/ except css/pages/, which is 1.6-only and was preserved. 30 files updated, core/icons.css added (imported by the new nimbus.css).",
+    "command": "rsync -a --exclude='.DS_Store' nimbus-v1/css/ casefusion/1.6/css/",
+    "backup": "scratchpad/css-backup-1.6 (session-local)",
+    "openItems": [
+      {
+        "topic": "app.css — nav.nav-cf-utility gutters LOST",
+        "detail": "1.6's app.css carried a `nav.nav-cf-utility { padding-left:12px; padding-right:12px }` rule that nimbus-v1 does not have. It exists to outrank the bare `.nav` reset in components/tabs.css on pages that link tabs.css AFTER app.css, which otherwise leaves the utility-nav logo flush to the viewport edge. The sync removed it. Pages that link tabs.css explicitly after app.css (pge_case_datamap.html) are the ones at risk. Decide whether the rule belongs upstream in nimbus-v1."
+      },
+      {
+        "topic": "select.js is AHEAD of nimbus-v1 — its CSS is now missing",
+        "detail": "casefusion/1.6/js/components/select.js has two features nimbus-v1's copy does not: the filter-input clear button (.select-filter-clear) and the all-option count badge (.select-option-all-count). Their CSS lived in 1.6's old select.css and the sync replaced it with upstream's, which has neither selector. The JS still builds both elements, so they now render unstyled. Affects pge_case_datamap.html, pge_case_datamap_profile.html and the three pages under pages/customers/. Fix in one of two directions: port the JS features and their CSS UP into nimbus-v1, or sync select.js DOWN to the upstream version and drop the features. JS was not touched by this sync."
+      }
+    ]
+  }
+}

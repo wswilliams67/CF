@@ -1,0 +1,249 @@
+/* ============================================================
+   CNDS Offcanvas (Sliding Panel)
+   Cloudficient Nimbus Design System v1.0.0
+
+   Figma source:
+     Light: node 4039:29805
+     Dark:  node 4039:29786
+   ============================================================ */
+
+/* --- Offcanvas Backdrop --- */
+.offcanvas-backdrop {
+  --cnds-offcanvas-backdrop-bg: #000;
+  --cnds-offcanvas-backdrop-opacity: 0.5;
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: var(--cnds-zindex-offcanvas-backdrop, 1040);
+  width: 100vw;
+  height: 100vh;
+  background-color: var(--cnds-offcanvas-backdrop-bg);
+  opacity: 0;
+  transition: opacity 0.15s linear;
+}
+.offcanvas-backdrop.show {
+  opacity: var(--cnds-offcanvas-backdrop-opacity);
+}
+
+/* --- Offcanvas Base --- */
+/*
+  Design token mapping (light / dark):
+    Surface/Frame/Background  #fafafa / #252525  → body bg
+    Surface/Frame/Nav/Main    #ebebeb / #171717  → header & footer bg
+    Surface/Frame/Border      #cccccc / #787878  → footer border-top
+    Text/Default              #141414 / #e8e8e8  → text
+*/
+.offcanvas {
+  /* z-index */
+  --cnds-offcanvas-zindex: var(--cnds-zindex-offcanvas, 1045);
+
+  /* Sizing */
+  --cnds-offcanvas-width: 400px;
+  --cnds-offcanvas-height: 30vh;
+
+  /* Body zone — Surface/Frame/Background */
+  --cnds-offcanvas-bg: var(--cnds-surface-light-50, #fafafa);
+  --cnds-offcanvas-color: var(--cnds-surface-light-950, #141414);
+
+  /* Header / footer strip — Surface/Frame/Nav/Main */
+  --cnds-offcanvas-nav-bg: var(--cnds-surface-light-200, #ebebeb);
+  --cnds-offcanvas-nav-color: var(--cnds-surface-light-950, #141414);
+
+  /* Footer border-top — Surface/Frame/Border */
+  --cnds-offcanvas-border-color: var(--cnds-surface-light-500, #cccccc);
+  --cnds-offcanvas-border-width: 1px;
+
+  /* Title typography — Flyout/Title token */
+  --cnds-offcanvas-title-font-size: 16px;
+  --cnds-offcanvas-title-font-weight: 500;
+  --cnds-offcanvas-title-line-height: 1;
+
+  /* Body font size */
+  --cnds-offcanvas-body-font-size: 14px;
+
+  /* Spacing — from Figma spacing tokens */
+  --cnds-offcanvas-header-height: 50px;
+  --cnds-offcanvas-header-padding-x: 15px;
+  --cnds-offcanvas-header-padding-y: 8px;
+  --cnds-offcanvas-header-gap: 8px;
+  --cnds-offcanvas-body-padding-x: 24px;
+  --cnds-offcanvas-body-padding-y: 24px;
+  --cnds-offcanvas-footer-padding: 8px;
+  --cnds-offcanvas-footer-gap: 8px;
+
+  /* Shadow — directional per placement, set below */
+  --cnds-offcanvas-box-shadow: none;
+
+  position: fixed;
+  bottom: 0;
+  z-index: var(--cnds-offcanvas-zindex);
+  display: flex;
+  flex-direction: column;
+  max-width: 100%;
+  background-color: var(--cnds-offcanvas-bg);
+  color: var(--cnds-offcanvas-color);
+  visibility: hidden;
+  outline: 0;
+  box-shadow: var(--cnds-offcanvas-box-shadow);
+  transition: transform 0.3s ease-in-out, visibility 0.3s ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .offcanvas {
+    transition: none;
+  }
+}
+
+/* --- Placement --- */
+/* Right-side panel (default/primary usage per Figma docs) */
+.offcanvas-end {
+  top: 0;
+  right: 0;
+  width: var(--cnds-offcanvas-width);
+  --cnds-offcanvas-box-shadow:
+    -7px 0 8px 0 rgba(0, 0, 0, 0.2),
+    -5px 0 22px 0 rgba(0, 0, 0, 0.12),
+    -12px 0 17px 0 rgba(0, 0, 0, 0.14);
+  transform: translateX(100%);
+}
+
+/* Left-side panel */
+.offcanvas-start {
+  top: 0;
+  left: 0;
+  width: var(--cnds-offcanvas-width);
+  --cnds-offcanvas-box-shadow:
+    7px 0 8px 0 rgba(0, 0, 0, 0.2),
+    5px 0 22px 0 rgba(0, 0, 0, 0.12),
+    12px 0 17px 0 rgba(0, 0, 0, 0.14);
+  transform: translateX(-100%);
+}
+
+/* Top panel */
+.offcanvas-top {
+  top: 0;
+  right: 0;
+  left: 0;
+  height: var(--cnds-offcanvas-height);
+  max-height: 100%;
+  --cnds-offcanvas-box-shadow:
+    0 7px 8px 0 rgba(0, 0, 0, 0.2),
+    0 5px 22px 0 rgba(0, 0, 0, 0.12),
+    0 12px 17px 0 rgba(0, 0, 0, 0.14);
+  transform: translateY(-100%);
+}
+
+/* Bottom panel */
+.offcanvas-bottom {
+  right: 0;
+  left: 0;
+  height: var(--cnds-offcanvas-height);
+  max-height: 100%;
+  --cnds-offcanvas-box-shadow:
+    0 -7px 8px 0 rgba(0, 0, 0, 0.2),
+    0 -5px 22px 0 rgba(0, 0, 0, 0.12),
+    0 -12px 17px 0 rgba(0, 0, 0, 0.14);
+  transform: translateY(100%);
+}
+
+/* --- Shown state --- */
+.offcanvas.show {
+  visibility: visible;
+  transform: none;
+}
+
+/* ---------------------------------------------------------------
+   Header (fr_title in Figma)
+   bg: Surface/Frame/Nav/Main — darker strip than body
+   No border-bottom; color contrast creates visual separation.
+--------------------------------------------------------------- */
+.offcanvas-header {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--cnds-offcanvas-header-gap);
+  height: var(--cnds-offcanvas-header-height);
+  padding: var(--cnds-offcanvas-header-padding-y) var(--cnds-offcanvas-header-padding-x);
+  background-color: var(--cnds-offcanvas-nav-bg);
+  color: var(--cnds-offcanvas-nav-color);
+}
+
+/* --- Title (fr_title > title text) --- */
+.offcanvas-title {
+  flex: 1 0 0;
+  min-width: 0;
+  margin-bottom: 0;
+  font-family: var(--cnds-font-family-secondary, "Nunito Sans", sans-serif);
+  font-size: var(--cnds-offcanvas-title-font-size);
+  font-weight: var(--cnds-offcanvas-title-font-weight);
+  line-height: var(--cnds-offcanvas-title-line-height);
+  color: var(--cnds-offcanvas-nav-color);
+  text-align: left;
+  text-transform: capitalize;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* --- Close button (18×18, Figma: close icon in header) --- */
+.offcanvas-header .btn-close {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  margin: 0;
+  background-size: 18px;
+  opacity: 0.6;
+}
+.offcanvas-header .btn-close:hover {
+  opacity: 1;
+}
+
+/* ---------------------------------------------------------------
+   Body (fr_body in Figma)
+   bg: Surface/Frame/Background — lighter than nav strip
+   padding: Spacing/h-padding/24 × Spacing/v-margin/24 (24px)
+--------------------------------------------------------------- */
+.offcanvas-body {
+  flex: 1 0 0;
+  min-height: 0;
+  padding: var(--cnds-offcanvas-body-padding-y) var(--cnds-offcanvas-body-padding-x);
+  background-color: var(--cnds-offcanvas-bg);
+  color: var(--cnds-offcanvas-color);
+  font-size: var(--cnds-offcanvas-body-font-size);
+  overflow-y: auto;
+}
+
+/* ---------------------------------------------------------------
+   Footer (fr_actions in Figma)
+   bg: Surface/Frame/Nav/Main — same as header
+   border-top: Surface/Frame/Border
+   padding: 8px; gap: 8px; justify: flex-end
+--------------------------------------------------------------- */
+.offcanvas-footer {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--cnds-offcanvas-footer-gap);
+  padding: var(--cnds-offcanvas-footer-padding);
+  background-color: var(--cnds-offcanvas-nav-bg);
+  border-top: var(--cnds-offcanvas-border-width) solid var(--cnds-offcanvas-border-color);
+}
+
+/* --- Static demo override (documentation only) --- */
+.offcanvas-example .offcanvas {
+  position: static;
+  display: flex;
+  height: 200px;
+  min-height: 200px;
+  visibility: visible;
+  transform: none;
+  box-shadow: none;
+}
+
+/* --- Body scroll lock --- */
+.offcanvas-open {
+  overflow: hidden;
+}

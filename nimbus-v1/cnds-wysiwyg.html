@@ -1,0 +1,1306 @@
+<!--
+* CNDS Nimbus Design System — WYSIWYG Editor
+* Version: 1.0.0
+* Layout: Application with SideNav (migrated from Nimbus v8 template)
+*
+* Plugin JS:  js/plugins/wysiwyg.js
+* Plugin CSS: css/plugins/wysiwyg.css
+*
+* SECTIONS (in document order)
+*   #section-introduction    — Overview and when to use
+*   #section-basic-example   — Auto-initialized via data attribute
+*   #section-on-textarea     — Attached to a <textarea> inside a form
+*   #section-custom-height   — minHeight/maxHeight and fixed height variants
+*   #section-no-statusbar    — Without word/char count footer
+*   #section-custom-toolbar  — Minimal custom toolbar
+*   #section-initial-content — Pre-filled editor content
+*   #section-change-event    — Live preview driven by change event
+*   #section-api-demo        — Programmatic API buttons
+*   #section-api-docs        — Full options / methods / events reference
+*
+* INITIALIZATION
+*   The basic example uses data-cnds-wysiwyg-init and is auto-initialized
+*   by the DataAPI in nimbus.js. All other editors are initialized
+*   explicitly in the page script because they require custom options.
+*
+* NOTES
+* - Pure HTML5, CSS3, vanilla JavaScript — zero external dependencies
+* - Uses data-cnds-* attributes (replaces data-mdb-*)
+* - Uses Nimbus.* namespace (replaces mdb.*)
+* - Default product theme: CaseFusion (cnds-product-casefusion on <body>; change to cnds-product-hyperlize or cnds-product-expireon)
+-->
+<!doctype html>
+<!-- data-cnds-theme: sets the initial theme ("light" | "dark"). nimbus.js syncs this attribute when the user toggles. -->
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta
+      name="description"
+      content="WYSIWYG Editor | Cloudficient Nimbus Design System v1.0.0"
+    />
+    <title>WYSIWYG Editor | CNDS v1.0.0 | Cloudficient Nimbus Design System</title>
+    <!-- Nimbus CSS -->
+    <link rel="stylesheet" href="css/nimbus.css" media="all" type="text/css" />
+    <!-- Custom styles | All custom classes/styles/overrides go here! -->
+    <link rel="stylesheet" href="css/app.css" media="all" type="text/css" />
+    <!-- Prism syntax highlighting -->
+    <link
+      rel="stylesheet"
+      href="plugins/css/prism.min.css"
+      media="all"
+      type="text/css"
+    />
+    <!-- WYSIWYG plugin styles -->
+    <link rel="stylesheet" href="css/plugins/wysiwyg.css" />
+    <!-- Favicons -->
+    <link
+      rel="apple-touch-icon"
+      sizes="57x57"
+      href="img/favicon/apple-icon-57x57.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="60x60"
+      href="img/favicon/apple-icon-60x60.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="72x72"
+      href="img/favicon/apple-icon-72x72.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="76x76"
+      href="img/favicon/apple-icon-76x76.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="114x114"
+      href="img/favicon/apple-icon-114x114.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="120x120"
+      href="img/favicon/apple-icon-120x120.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="144x144"
+      href="img/favicon/apple-icon-144x144.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="152x152"
+      href="img/favicon/apple-icon-152x152.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="img/favicon/apple-icon-180x180.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="192x192"
+      href="img/favicon/android-icon-192x192.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="img/favicon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="96x96"
+      href="img/favicon/favicon-96x96.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="img/favicon/favicon-16x16.png"
+    />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta
+      name="msapplication-TileImage"
+      content="img/favicon/ms-icon-144x144.png"
+    />
+    <!-- ./Favicons -->
+    <!-- Design tokens — load order matters:
+         1. primitives.css  — raw color/spacing values (no theming)
+         2. light.css       — semantic tokens for [data-cnds-theme="light"] / :root
+         3. dark.css        — semantic token overrides for [data-cnds-theme="dark"]
+         All three must appear AFTER nimbus.css so component variables resolve correctly. -->
+    <link rel="stylesheet" href="css/themes/primitives.css" />
+    <link rel="stylesheet" href="css/themes/light.css" />
+    <link rel="stylesheet" href="css/themes/dark.css" />
+  </head>
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 Bypass Blocks; renders visually hidden until focused -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+    <!-- Header -->
+    <div class="sticky-top">
+      <!-- Utility Navigation -->
+      <nav id="UtilityNav" class="nav nav-cf-utility" aria-label="Utility navigation">
+        <div class="w-100 gx-3 px-sm-0 px-lg-3">
+          <ul class="nav nav-cf-utility-ul"></ul>
+        </div>
+      </nav>
+      <!-- ./Utility Navigation -->
+      <!-- Main Navigation -->
+      <nav id="MainNav" class="navbar navbar-expand-xl navbar-cf" aria-label="Main navigation">
+        <div class="container-fluid p-0 px-3 d-flex">
+          <div class="d-flex flex-fill align-items-center text-truncate">
+            <div class="text-center d-none d-md-block me-3 border-end">
+              <a href="index.html"
+                ><img src="img/cf/core/logo_nimbus.png" class="me-3 mt-n1"
+              alt="Cloudficient Nimbus Design System" /></a>
+            </div>
+            <div class="flex-fill text-truncate">
+              <div class="navbar-cf-title-block">
+                <div
+                  class="navbar-cf-title cf-page-title text-truncate"
+                  style="padding-bottom: 0"
+                >
+                  <span class="cf-page-title-text cf-page-title-brand">v1</span
+                  ><span class="cf-page-title-divider"></span
+                  ><span class="cf-page-title-text">WYSIWYG Editor</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- data-cnds-toggle="theme": wired by nimbus.js — flips data-cnds-theme on <html> between "light" and "dark" -->
+          <button
+            class="btn btn-sm btn-outline-secondary ms-2"
+            data-cnds-toggle="theme"
+            aria-label="Toggle theme"
+            title="Toggle theme"
+          >
+            <i class="mdi mdi-weather-night mdi-18px" aria-hidden="true"></i>
+          </button>
+        </div>
+      </nav>
+      <!-- ./Main Navigation -->
+    </div>
+    <!-- ./Header -->
+    <!-- Content -->
+    <main id="main-content" class="cf-main-app">
+      <!-- Mobile viewport warning -->
+      <div class="d-block d-md-none p-4">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>This application is not
+          optimized for small screens. Please use a large tablet, laptop, or
+          desktop computer to continue.
+        </div>
+      </div>
+      <div class="d-none d-md-block">
+        <!-- Sidenav — markup is intentionally empty; sidenav-loader.js fetches and injects the shared nav HTML.
+             data-cnds-mode="side"           : renders as a persistent side panel (not an overlay/drawer)
+             data-cnds-slim / slim-collapsed : controls compact/icon-only collapsed state
+             data-cnds-content="#slim-content": the sibling panel that shrinks/expands as the nav opens/closes
+             data-cnds-accordion="true"      : collapses other open nav groups when a new one is expanded -->
+        <nav
+          id="sidebar-cf"
+          class="sidenav"
+          data-cnds-mode="side"
+          data-cnds-slim="false"
+          data-cnds-slim-collapsed="false"
+          data-cnds-content="#slim-content"
+          data-cnds-accordion="true"
+          aria-label="Side navigation"
+        ></nav>
+        <div id="slim-content">
+          <div class="slim-content-box">
+            <!-- Content Row -->
+            <div class="row">
+              <!-- Main column — 80 % of the row width; the remaining 20 % is the right sidebar.
+                   The inline flex overrides are intentional: they pin the ratio regardless of Bootstrap's
+                   grid breakpoints so the sidebar never wraps on large viewports. -->
+              <div class="col-12 col-lg" style="flex: 0 0 80%; max-width: 80%">
+                <!--Section: Docs content-->
+                <section class="container-fluid">
+
+                  <!--Section: Introduction-->
+                  <section id="section-introduction">
+                    <p class="mb-4">
+                      The WYSIWYG (What You See Is What You Get) editor provides a
+                      zero-dependency rich-text editing surface built on
+                      <code>contentEditable</code>. It renders a full toolbar with grouped
+                      formatting controls, a scrollable content area, and an optional status
+                      bar showing word and character counts. The toolbar supports: bold,
+                      italic, underline, strikethrough, heading levels, font size, text and
+                      highlight color, paragraph alignment, ordered and unordered lists,
+                      indent/outdent, hyperlinks, images, tables, horizontal rules,
+                      blockquote, code blocks, undo/redo, remove formatting, source view,
+                      and fullscreen.
+                    </p>
+                    <p class="mb-4">
+                      The plugin wraps the host element — place a plain
+                      <code>&lt;div&gt;</code> or <code>&lt;textarea&gt;</code> in markup and
+                      add <code>data-cnds-wysiwyg-init</code>; the editor UI appears
+                      immediately after it. <strong>Do not read content from the host
+                      element directly</strong> — always use <code>getHTML()</code> or
+                      <code>getText()</code> API methods.
+                    </p>
+
+                    <!-- API Docs note: appears first so users can jump directly to the reference -->
+                    <p class="note note-light">
+                      <strong>Note:</strong> Read the
+                      <a href="#section-api-docs">API Documentation</a> to find all
+                      available options and advanced customization.
+                    </p>
+
+                    <!-- Theme note -->
+                    <p class="note note-info">
+                      <strong class="note-label">Note:</strong> To preview components in
+                      different themes, click the theme toggle button
+                      <i class="mdi mdi-weather-night" aria-hidden="true"></i> /
+                      <i class="mdi mdi-weather-sunny" aria-hidden="true"></i> in the
+                      header navigation bar.
+                    </p>
+                  </section>
+                  <!--/Section: Introduction-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Basic example-->
+                  <section id="section-basic-example">
+                    <h3 class="mb-3">Basic example</h3>
+
+                    <p>
+                      Add <code>data-cnds-wysiwyg-init</code> to a <code>&lt;div&gt;</code>
+                      or <code>&lt;textarea&gt;</code> and the plugin initializes
+                      automatically when the page loads — no JavaScript required. The editor
+                      UI is inserted immediately after the host element. Retrieve content at
+                      any time via <code>Nimbus.Wysiwyg.getInstance(hostEl).getHTML()</code>.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="bg-white border rounded-5">
+                        <section class="w-100 p-4">
+                          <!--
+                            data-cnds-wysiwyg-init: DataAPI trigger — nimbus.js auto-initializes
+                            this element on DOMContentLoaded. No explicit JS needed.
+                          -->
+                          <div data-cnds-wysiwyg-init id="editor-basic"></div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Add data-cnds-wysiwyg-init in the template. Access the instance in ngAfterViewInit:
+     this.editor = Nimbus.Wysiwyg.getInstance(this.editorEl.nativeElement).
+     Call this.editor.dispose() in ngOnDestroy to remove the generated toolbar and content area. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div data-cnds-wysiwyg-init&gt;&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Basic example-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: On a textarea-->
+                  <section id="section-on-textarea">
+                    <h3 class="mb-3">On a textarea</h3>
+
+                    <p>
+                      When attached to a <code>&lt;textarea&gt;</code>, the plugin hides
+                      the textarea and keeps its <code>value</code> in sync with the editor
+                      content automatically. This is useful for traditional form POSTs where
+                      the textarea must carry the HTML value. The hidden textarea is submitted
+                      alongside other form fields as normal.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="bg-white border rounded-5">
+                        <section class="w-100 p-4">
+                          <!--
+                            The textarea is hidden by the plugin after init. Its value attribute
+                            is kept in sync so standard form submission works without extra JS.
+                          -->
+                          <form>
+                            <textarea
+                              id="editor-textarea"
+                              name="body"
+                            ></textarea>
+                          </form>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Bind the initial content with [value]="initialHtml" on the textarea. On form submit call
+     this.editor.getHTML() rather than reading textarea.value directly — the sync is reliable but
+     getHTML() is the canonical read API. For reactive forms, update the FormControl value in the
+     onChange callback: new Nimbus.Wysiwyg(el, { onChange: html => this.bodyControl.setValue(html, { emitEvent: false }) }). -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;form&gt;
+    &lt;textarea id="editor-textarea" name="body"&gt;&lt;/textarea&gt;
+&lt;/form&gt;</code></pre>
+                      </div>
+                    </section>
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JavaScript</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">var el = document.getElementById('editor-textarea');
+new Nimbus.Wysiwyg(el);</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: On a textarea-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Custom height-->
+                  <section id="section-custom-height">
+                    <h3 class="mb-3">Custom height</h3>
+
+                    <p>
+                      Control the editor's vertical size with <code>minHeight</code> and
+                      <code>maxHeight</code> (the content area grows between these bounds
+                      and scrolls once it reaches the maximum) or use <code>height</code>
+                      for a fixed-size scrollable content area. All values are in pixels.
+                    </p>
+
+                    <h4 class="mt-4 mb-3">Variable height (min/max)</h4>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="bg-white border rounded-5">
+                        <section class="w-100 p-4">
+                          <!--
+                            editor-height: initialized with { minHeight: 350, maxHeight: 700 }.
+                            The content area grows from 350 px up to 700 px, then scrolls.
+                          -->
+                          <div id="editor-height"></div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h5><span class="badge badge-code-js">JavaScript</span></h5>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">var el = document.getElementById('editor-height');
+new Nimbus.Wysiwyg(el, { minHeight: 350, maxHeight: 700 });</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                    <h4 class="mt-4 mb-3">Fixed height</h4>
+
+                    <p>
+                      Pass <code>height</code> (a number) instead of min/max to lock the
+                      content area to an exact pixel height. The content scrolls inside the
+                      fixed area when it overflows. This variant is well suited for compact
+                      inline editors in cards or panels.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="bg-white border rounded-5">
+                        <section class="w-100 p-4">
+                          <!--
+                            editor-height-fixed: initialized with { height: 400 }.
+                            The content area is locked at 400 px and scrolls internally.
+                          -->
+                          <div id="editor-height-fixed"></div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Pass { minHeight: this.minHeight, maxHeight: this.maxHeight } via an @Input() editorOptions
+     config object. For fixed-height inline editors in compact cards use { height: 200, showStatusBar: false }. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h5><span class="badge badge-code-js">JavaScript</span></h5>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">// Variable height — content area grows between min and max
+var el = document.getElementById('editor-height');
+new Nimbus.Wysiwyg(el, { minHeight: 350, maxHeight: 700 });
+
+// Fixed height — content area is locked at exactly 400 px
+var elFixed = document.getElementById('editor-height-fixed');
+new Nimbus.Wysiwyg(elFixed, { height: 400 });</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Custom height-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Without status bar-->
+                  <section id="section-no-statusbar">
+                    <h3 class="mb-3">Without status bar</h3>
+
+                    <p>
+                      Set <code>showStatusBar: false</code> to hide the word and character
+                      count footer. Use this option for compact editors inside modals,
+                      cards, or any context where vertical space is limited and the count
+                      information is not needed.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="bg-white border rounded-5">
+                        <section class="w-100 p-4">
+                          <!--
+                            editor-nostatusbar: initialized with { showStatusBar: false }.
+                            The word/char count footer is omitted from the rendered widget.
+                          -->
+                          <div id="editor-nostatusbar"></div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Set showStatusBar: false for compact form editors within modals or cards where vertical space is limited. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JavaScript</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">var el = document.getElementById('editor-nostatusbar');
+new Nimbus.Wysiwyg(el, { showStatusBar: false });</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Without status bar-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Custom toolbar-->
+                  <section id="section-custom-toolbar">
+                    <h3 class="mb-3">Custom toolbar</h3>
+
+                    <p>
+                      Pass a <code>toolbar</code> array to include only the controls you
+                      need. Each inner array defines a visual group separated by a divider
+                      in the toolbar. Omit any button name to remove it. The example below
+                      produces a minimal 4-group toolbar covering the most common actions.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="bg-white border rounded-5">
+                        <section class="w-100 p-4">
+                          <!--
+                            editor-toolbar: custom toolbar with only 4 groups.
+                            Initialized in the page script with the toolbar option.
+                          -->
+                          <div id="editor-toolbar"></div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Define a toolbarConfig constant in a shared service and inject it into all WYSIWYG wrapper
+     components to ensure consistent toolbar across the application. Pass as { toolbar: this.toolbarService.default }
+     in the config object. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JavaScript</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">var el = document.getElementById('editor-toolbar');
+new Nimbus.Wysiwyg(el, {
+    toolbar: [
+        ["bold", "italic", "underline"],
+        ["orderedList", "unorderedList"],
+        ["link"],
+        ["undo", "redo"]
+    ]
+});</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Custom toolbar-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Initial content-->
+                  <section id="section-initial-content">
+                    <h3 class="mb-3">Initial content</h3>
+
+                    <p>
+                      Use <code>initialContent</code> to pre-fill the editor with HTML when
+                      it is first rendered. This is the recommended way to load saved
+                      content — pass it once at construction time. To update content after
+                      the editor has been initialized call <code>setHTML(html)</code>
+                      imperatively; this replaces the content without re-creating the editor.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="bg-white border rounded-5">
+                        <section class="w-100 p-4">
+                          <!--
+                            editor-initial: pre-filled with a heading, paragraph, and list.
+                            Content is set once via the initialContent option at construction.
+                          -->
+                          <div id="editor-initial"></div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Use initialContent: this.article.body driven by an @Input() article object when displaying a
+     pre-filled editor. For subsequent updates (e.g. loading a different article) call this.editor.setHTML(newHtml)
+     imperatively rather than re-creating the component — setHTML replaces the content without reinitializing
+     the editor. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JavaScript</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">var el = document.getElementById('editor-initial');
+new Nimbus.Wysiwyg(el, {
+    initialContent: '&lt;h2&gt;Getting started&lt;/h2&gt;&lt;p&gt;Edit this content to begin.&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Item one&lt;/li&gt;&lt;li&gt;Item two&lt;/li&gt;&lt;/ul&gt;'
+});</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Initial content-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Change event-->
+                  <section id="section-change-event">
+                    <h3 class="mb-3">Change event</h3>
+
+                    <p>
+                      The <code>change.cnds.wysiwyg</code> event fires on every content
+                      modification. The event's <code>detail</code> object exposes
+                      <code>html</code> (the full HTML string) and <code>text</code> (plain
+                      text). Use it to drive a live preview panel, sync a value to a parent
+                      component, or trigger validation. The example below renders the editor
+                      output in a preview panel in real time.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="bg-white border rounded-5">
+                        <section class="w-100 p-4">
+                          <div class="row g-4">
+                            <div class="col-12 col-xl-6">
+                              <p class="mb-2 fw-semibold small text-muted text-uppercase">Editor</p>
+                              <!--
+                                editor-change: listens for change.cnds.wysiwyg and updates
+                                #change-preview with the current HTML on every keystroke.
+                              -->
+                              <div id="editor-change"></div>
+                            </div>
+                            <div class="col-12 col-xl-6">
+                              <p class="mb-2 fw-semibold small text-muted text-uppercase">Live preview</p>
+                              <!--
+                                change-preview: receives innerHTML from the change event handler.
+                                Styled as a bordered output panel to visually separate it from
+                                the editor.
+                              -->
+                              <div
+                                id="change-preview"
+                                class="border rounded p-3"
+                                style="min-height: 200px;"
+                                aria-live="polite"
+                                aria-label="Live preview of editor content"
+                              ></div>
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: In ngAfterViewInit wire: this.editorEl.nativeElement.addEventListener('change.cnds.wysiwyg',
+     e => { this.content = e.detail.html; this.contentChange.emit(this.content); }).
+     Emit via an @Output() contentChange: EventEmitter&lt;string&gt; so parent components stay decoupled from
+     the DOM event. Avoid calling change detection manually — use ChangeDetectorRef.markForCheck() if needed
+     in OnPush components. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div id="editor-change"&gt;&lt;/div&gt;
+&lt;div id="change-preview" aria-live="polite"&gt;&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JavaScript</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">var el      = document.getElementById('editor-change');
+var preview = document.getElementById('change-preview');
+
+new Nimbus.Wysiwyg(el);
+
+// change.cnds.wysiwyg fires on every content modification.
+// e.detail = { html: string, text: string }
+el.addEventListener('change.cnds.wysiwyg', function(e) {
+    preview.innerHTML = e.detail.html;
+});</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Change event-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Programmatic API-->
+                  <section id="section-api-demo">
+                    <h3 class="mb-3">Programmatic API</h3>
+
+                    <p>
+                      Retrieve and mutate editor content at any time through the instance
+                      methods. Obtain the instance either by storing the return value of
+                      <code>new Nimbus.Wysiwyg(el, options)</code> or by calling
+                      <code>Nimbus.Wysiwyg.getInstance(hostEl)</code>. The buttons below
+                      demonstrate the most common read/write operations.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="bg-white border rounded-5">
+                        <section class="w-100 p-4">
+                          <!--
+                            editor-api: initialized with sample content in the page script.
+                            The four buttons below call methods on the stored instance reference.
+                          -->
+                          <div id="editor-api"></div>
+                          <div class="mt-3 d-flex flex-wrap gap-2">
+                            <button id="btn-get-html" class="btn btn-primary btn-sm">
+                              Get HTML
+                            </button>
+                            <button id="btn-set-html" class="btn btn-secondary btn-sm">
+                              Set HTML
+                            </button>
+                            <button id="btn-clear" class="btn btn-outline-danger btn-sm">
+                              Clear
+                            </button>
+                            <button id="btn-toggle-source" class="btn btn-outline-secondary btn-sm">
+                              Toggle Source
+                            </button>
+                          </div>
+                          <!--
+                            api-output: displays the HTML string returned by getHTML().
+                            Cleared when the editor content is cleared.
+                          -->
+                          <pre
+                            id="api-output"
+                            class="mt-3 p-3 border rounded bg-light small"
+                            style="white-space: pre-wrap; word-break: break-all; min-height: 48px;"
+                            aria-live="polite"
+                            aria-label="API output"
+                          ></pre>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Expose these as public methods on a WysiwygEditorComponent:
+     getContent() { return this.editor.getHTML(); },
+     setContent(html) { this.editor.setHTML(html); },
+     clearContent() { this.editor.clear(); }.
+     Parent components call via @ViewChild without touching the Nimbus instance directly. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JavaScript</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">var el     = document.getElementById('editor-api');
+var output = document.getElementById('api-output');
+
+// Store the instance returned by the constructor
+var editor = new Nimbus.Wysiwyg(el, {
+    initialContent: '&lt;p&gt;Edit me, then try the API buttons below.&lt;/p&gt;'
+});
+
+// getHTML() — returns the current HTML string
+document.getElementById('btn-get-html').addEventListener('click', function() {
+    output.textContent = editor.getHTML();
+});
+
+// setHTML(html) — replaces the editor content
+document.getElementById('btn-set-html').addEventListener('click', function() {
+    editor.setHTML('&lt;p&gt;&lt;strong&gt;Content set via &lt;code&gt;setHTML()&lt;/code&gt;.&lt;/strong&gt; Edit freely.&lt;/p&gt;');
+});
+
+// clear() — removes all content
+document.getElementById('btn-clear').addEventListener('click', function() {
+    editor.clear();
+    output.textContent = '';
+});
+
+// toggleSource() — flips between rich-text and raw HTML source view
+document.getElementById('btn-toggle-source').addEventListener('click', function() {
+    editor.toggleSource();
+});</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Programmatic API-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: API Documentation-->
+                  <section id="section-api-docs">
+                    <h3 class="mb-3">API Documentation</h3>
+
+                    <!--Section: Options-->
+                    <section id="api-section-options">
+                      <h4 class="mb-4">Options</h4>
+                      <p>
+                        Options are passed as the second argument to
+                        <code>new Nimbus.Wysiwyg(element, options)</code>. All options are
+                        optional; defaults are listed below.
+                      </p>
+                      <div class="table-responsive">
+                        <table
+                          class="table table-striped table-bordered"
+                          aria-label="WYSIWYG options"
+                        >
+                          <thead>
+                            <tr>
+                              <th>Name</th>
+                              <th>Type</th>
+                              <th>Default</th>
+                              <th>Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>placeholder</code></td>
+                              <td><i>String</i></td>
+                              <td><code>"Write something..."</code></td>
+                              <td>
+                                Placeholder text displayed in the content area when the
+                                editor is empty.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>height</code></td>
+                              <td><i>Number&nbsp;/ null</i></td>
+                              <td><code>null</code></td>
+                              <td>
+                                Fixed height in pixels for the content area. When set, the
+                                content scrolls inside the fixed bounds and the
+                                <code>minHeight</code> / <code>maxHeight</code> options are
+                                ignored.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>minHeight</code></td>
+                              <td><i>Number</i></td>
+                              <td><code>200</code></td>
+                              <td>
+                                Minimum height in pixels for the content area. The editor
+                                grows from this height as content is added, up to
+                                <code>maxHeight</code>. Ignored when <code>height</code> is
+                                set.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>maxHeight</code></td>
+                              <td><i>Number</i></td>
+                              <td><code>600</code></td>
+                              <td>
+                                Maximum height in pixels for the content area. Once reached,
+                                the content area scrolls rather than continuing to grow.
+                                Ignored when <code>height</code> is set.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>toolbar</code></td>
+                              <td><i>Array</i></td>
+                              <td><i>All buttons (11 groups)</i></td>
+                              <td>
+                                Array of arrays defining the toolbar layout. Each inner array
+                                is a group of button names separated by a visual divider.
+                                Supported names: <code>bold</code>, <code>italic</code>,
+                                <code>underline</code>, <code>strikethrough</code>,
+                                <code>heading</code>, <code>fontSize</code>,
+                                <code>foreColor</code>, <code>hiliteColor</code>,
+                                <code>alignLeft</code>, <code>alignCenter</code>,
+                                <code>alignRight</code>, <code>alignJustify</code>,
+                                <code>orderedList</code>, <code>unorderedList</code>,
+                                <code>indent</code>, <code>outdent</code>, <code>link</code>,
+                                <code>image</code>, <code>attachment</code>,
+                                <code>table</code>,
+                                <code>horizontalRule</code>, <code>blockquote</code>,
+                                <code>code</code>, <code>undo</code>, <code>redo</code>,
+                                <code>removeFormat</code>, <code>source</code>,
+                                <code>fullscreen</code>.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>showStatusBar</code></td>
+                              <td><i>Boolean</i></td>
+                              <td><code>true</code></td>
+                              <td>
+                                When <code>true</code>, a status bar below the content area
+                                displays the current word and character counts. Set to
+                                <code>false</code> to hide it.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>initialContent</code></td>
+                              <td><i>String</i></td>
+                              <td><code>""</code></td>
+                              <td>
+                                HTML string used to pre-fill the editor when it is first
+                                rendered. For subsequent content updates use
+                                <code>setHTML()</code> on the instance.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>onChange</code></td>
+                              <td><i>Function&nbsp;/ null</i></td>
+                              <td><code>null</code></td>
+                              <td>
+                                Callback invoked on every content change. Receives the
+                                current HTML string as its only argument:
+                                <code>(html) =&gt; void</code>. Equivalent to listening for
+                                <code>change.cnds.wysiwyg</code> on the host element.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: Options-->
+
+                    <!--Section: Methods-->
+                    <section id="api-section-methods">
+                      <h4 class="mb-4">Methods</h4>
+                      <p>
+                        Methods are available on the instance returned by
+                        <code>new Nimbus.Wysiwyg(element, options)</code>. The instance can
+                        also be retrieved at any time via
+                        <code>Nimbus.Wysiwyg.getInstance(hostElement)</code>.
+                      </p>
+                      <div class="table-responsive">
+                        <table
+                          class="table table-striped table-bordered"
+                          aria-label="WYSIWYG methods"
+                        >
+                          <thead>
+                            <tr>
+                              <th>Name</th>
+                              <th>Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="text-nowrap"><code>getHTML()</code></td>
+                              <td>
+                                Returns the current editor content as an HTML string. This
+                                is the canonical way to read content — do not read the host
+                                element directly.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>getText()</code></td>
+                              <td>
+                                Returns the current editor content as a plain-text string,
+                                with all HTML tags stripped.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>setHTML(html)</code></td>
+                              <td>
+                                Replaces the entire editor content with the provided HTML
+                                string. Use this to load new content into an already
+                                initialized editor without re-creating it.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>insertHTML(html)</code></td>
+                              <td>
+                                Inserts the provided HTML string at the current cursor
+                                position without replacing the existing content.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>clear()</code></td>
+                              <td>
+                                Removes all content from the editor and resets the content
+                                area to an empty state.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>focus()</code></td>
+                              <td>
+                                Moves browser focus to the editor content area.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>toggleSource()</code></td>
+                              <td>
+                                Toggles between the rich-text WYSIWYG view and a raw HTML
+                                source editor. Content is kept in sync between both views.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>toggleFullscreen()</code></td>
+                              <td>
+                                Expands the editor to fill the viewport (fullscreen mode).
+                                Call again to exit fullscreen. Equivalent to clicking the
+                                fullscreen toolbar button.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>execCommand(command,&nbsp;value)</code></td>
+                              <td>
+                                Executes a <code>document.execCommand</code>-style formatting
+                                command programmatically. <code>command</code> is a string
+                                (e.g. <code>"bold"</code>, <code>"foreColor"</code>);
+                                <code>value</code> is the optional argument passed to the
+                                command (e.g. a color hex string).
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>dispose()</code></td>
+                              <td>
+                                Destroys the editor instance: removes the generated toolbar
+                                and content area from the DOM, detaches all event listeners,
+                                and restores the original host element. Call this in cleanup
+                                hooks (e.g. Angular <code>ngOnDestroy</code>, Vue
+                                <code>beforeUnmount</code>).
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-js">JavaScript</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-js">var el     = document.getElementById('my-editor');
+var editor = new Nimbus.Wysiwyg(el, { initialContent: '&lt;p&gt;Hello&lt;/p&gt;' });
+
+// Read content
+var html = editor.getHTML();   // '&lt;p&gt;Hello&lt;/p&gt;'
+var text = editor.getText();   // 'Hello'
+
+// Write content
+editor.setHTML('&lt;h2&gt;New content&lt;/h2&gt;');
+editor.insertHTML('&lt;strong&gt;inserted&lt;/strong&gt;');
+
+// Utilities
+editor.clear();
+editor.focus();
+editor.toggleSource();
+editor.toggleFullscreen();
+
+// Low-level command
+editor.execCommand('foreColor', '#e74c3c');
+
+// Teardown
+editor.dispose();
+
+// Retrieve an existing instance by host element reference
+var sameEditor = Nimbus.Wysiwyg.getInstance(el);</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Section: Methods-->
+
+                    <!--Section: Events-->
+                    <section id="api-section-events">
+                      <h4 class="mb-4">Events</h4>
+                      <p>
+                        All events are dispatched as <code>CustomEvent</code> instances on
+                        the <strong>host element</strong> (the original
+                        <code>&lt;div&gt;</code> or <code>&lt;textarea&gt;</code> passed to
+                        the constructor). Use <code>addEventListener</code> on that element
+                        to listen for them.
+                      </p>
+                      <div class="table-responsive">
+                        <table
+                          class="table table-striped table-bordered"
+                          aria-label="WYSIWYG events"
+                        >
+                          <thead>
+                            <tr>
+                              <th>Event</th>
+                              <th>Detail</th>
+                              <th>Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="text-nowrap"><code>change.cnds.wysiwyg</code></td>
+                              <td><code>{ html: string, text: string }</code></td>
+                              <td>
+                                Fired on every content modification. <code>detail.html</code>
+                                is the current HTML string; <code>detail.text</code> is the
+                                plain-text equivalent.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>focus.cnds.wysiwyg</code></td>
+                              <td><i>none</i></td>
+                              <td>
+                                Fired when the editor content area receives focus.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>blur.cnds.wysiwyg</code></td>
+                              <td><i>none</i></td>
+                              <td>
+                                Fired when the editor content area loses focus.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>init.cnds.wysiwyg</code></td>
+                              <td><i>none</i></td>
+                              <td>
+                                Fired once after the editor has fully initialized and the
+                                toolbar and content area have been inserted into the DOM.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-js">JavaScript</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-js">var el = document.getElementById('my-editor');
+new Nimbus.Wysiwyg(el);
+
+// Fires every time content changes
+// e.detail = { html: string, text: string }
+el.addEventListener('change.cnds.wysiwyg', function(e) {
+    console.log('HTML:', e.detail.html);
+    console.log('Text:', e.detail.text);
+});
+
+// Fires when the content area gains focus
+el.addEventListener('focus.cnds.wysiwyg', function() {
+    console.log('Editor focused');
+});
+
+// Fires when the content area loses focus
+el.addEventListener('blur.cnds.wysiwyg', function() {
+    console.log('Editor blurred');
+});
+
+// Fires once after the editor is fully rendered
+el.addEventListener('init.cnds.wysiwyg', function() {
+    console.log('Editor ready');
+});</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Section: Events-->
+
+                  </section>
+                  <!--/Section: API Documentation-->
+
+                </section>
+                <!--/Section: Docs content-->
+              </div>
+              <!-- ./Main column-->
+
+              <!-- Right Sidebar — 20 % of the row width; hidden below lg breakpoint.
+                   Sticky attributes (processed by nimbus.js):
+                     data-cnds-sticky="true"          : activates sticky positioning
+                     data-cnds-sticky-boundary="true" : constrains sticky to its parent container
+                     data-cnds-sticky-direction="both" : sticks when scrolling up OR down
+                     data-cnds-sticky-offset="56"     : clears the 56 px fixed header
+                     data-cnds-sticky-delay="125"     : debounce delay (ms) to reduce scroll jank
+                   data-cnds-allow-hashes="true" on the <ul>: nimbus.js watches the URL hash
+                     and highlights the matching nav-link as the user scrolls through sections. -->
+              <div class="col-lg-2 d-none d-lg-block">
+                <div class="sticky-top" style="top: 100px; z-index: 1">
+                  <nav aria-label="Page sections">
+                    <ul
+                      class="nav flex-column nav-pills menu-sidebar"
+                      id="rightNav"
+                      data-cnds-allow-hashes="true"
+                    >
+                      <li class="nav-item"><a class="nav-link" href="#section-introduction">Introduction</a></li>
+                      <li class="nav-item"><a class="nav-link" href="#section-basic-example">Basic example</a></li>
+                      <li class="nav-item"><a class="nav-link" href="#section-on-textarea">On a textarea</a></li>
+                      <li class="nav-item"><a class="nav-link" href="#section-custom-height">Custom height</a></li>
+                      <li class="nav-item"><a class="nav-link" href="#section-no-statusbar">Without status bar</a></li>
+                      <li class="nav-item"><a class="nav-link" href="#section-custom-toolbar">Custom toolbar</a></li>
+                      <li class="nav-item"><a class="nav-link" href="#section-initial-content">Initial content</a></li>
+                      <li class="nav-item"><a class="nav-link" href="#section-change-event">Change event</a></li>
+                      <li class="nav-item"><a class="nav-link" href="#section-api-demo">Programmatic API</a></li>
+                      <li class="nav-item"><a class="nav-link" href="#section-api-docs">API Documentation</a></li>
+                      <li class="nav-item ms-3"><a class="nav-link" href="#api-section-options">Options</a></li>
+                      <li class="nav-item ms-3"><a class="nav-link" href="#api-section-methods">Methods</a></li>
+                      <li class="nav-item ms-3"><a class="nav-link" href="#api-section-events">Events</a></li>
+                    </ul>
+                  </nav>
+                </div>
+              </div>
+              <!-- ./Right Sidebar -->
+            </div>
+            <!-- ./Content Row -->
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- ./Content -->
+    <!-- Footer -->
+    <div class="cf-footer cf-footer-app">
+      <footer class="page-footer main-footer" aria-label="Site footer">
+        <div class="w-100 px-3 d-flex align-items-center">
+          <img src="img/cf/core/cloudficient_logo_light.svg" class="cf-logo-light" style="width: 135px;" alt="Cloudficient" />
+          <img src="img/cf/core/cloudficient_logo_dark.svg" class="cf-logo-dark" style="width: 135px;" alt="Cloudficient" />
+          <span class="footer-copyright ms-auto">&copy; <span id="currentYear"></span> Cloudficient</span>
+        </div>
+      </footer>
+    </div>
+    <!-- ./Footer -->
+    <!-- SCRIPTS — load order matters:
+         1. nimbus.js         — core framework: data-cnds-* processing, theme, sidenav, sticky, tooltips
+         2. app.js            — application-level overrides and custom initialization
+         3. prism.min.js      — syntax highlighting; runs after DOM ready
+         4. sidenav-loader.js — fetches shared sidenav HTML and injects into #sidebar-cf
+         5. Page script       — initializes non-DataAPI editors that require custom options -->
+    <script type="text/javascript" src="js/nimbus.js?v=9.0.4"></script>
+    <script type="text/javascript" src="js/app.js?v=9.0.4"></script>
+    <script type="text/javascript" src="plugins/js/prism.min.js"></script>
+    <script type="text/javascript" src="js/sidenav-loader.js"></script>
+    <!-- Footer year -->
+    <script type="text/javascript">
+      var el = document.getElementById("currentYear");
+      if (el) el.textContent = new Date().getFullYear();
+    </script>
+    <!-- WYSIWYG demo initialization
+         The basic example (editor-basic) is auto-initialized by DataAPI via data-cnds-wysiwyg-init.
+         All other editors require custom options and are initialized here explicitly. -->
+    <script type="text/javascript">
+      function initWysiwygDemos() {
+
+        // ── On textarea ────────────────────────────────────────────────────────
+        // Hides the textarea; keeps its value in sync with editor content.
+        (function() {
+          var el = document.getElementById("editor-textarea");
+          if (!el) return;
+          new Nimbus.Wysiwyg(el);
+        })();
+
+        // ── Custom height — variable (min/max) ────────────────────────────────
+        // Content area grows from 350 px up to 700 px, then scrolls.
+        (function() {
+          var el = document.getElementById("editor-height");
+          if (!el) return;
+          new Nimbus.Wysiwyg(el, { minHeight: 350, maxHeight: 700 });
+        })();
+
+        // ── Custom height — fixed ─────────────────────────────────────────────
+        // Content area is locked at exactly 400 px and scrolls internally.
+        (function() {
+          var el = document.getElementById("editor-height-fixed");
+          if (!el) return;
+          new Nimbus.Wysiwyg(el, { height: 400 });
+        })();
+
+        // ── No status bar ─────────────────────────────────────────────────────
+        // Omits the word/char count footer.
+        (function() {
+          var el = document.getElementById("editor-nostatusbar");
+          if (!el) return;
+          new Nimbus.Wysiwyg(el, { showStatusBar: false });
+        })();
+
+        // ── Custom toolbar ────────────────────────────────────────────────────
+        // Minimal 4-group toolbar covering the most common actions.
+        (function() {
+          var el = document.getElementById("editor-toolbar");
+          if (!el) return;
+          new Nimbus.Wysiwyg(el, {
+            toolbar: [
+              ["bold", "italic", "underline"],
+              ["orderedList", "unorderedList"],
+              ["link"],
+              ["undo", "redo"]
+            ]
+          });
+        })();
+
+        // ── Initial content ───────────────────────────────────────────────────
+        // Pre-fills the editor with a heading, paragraph, and list on first render.
+        (function() {
+          var el = document.getElementById("editor-initial");
+          if (!el) return;
+          new Nimbus.Wysiwyg(el, {
+            initialContent: "<h2>Getting started</h2><p>Edit this content to begin.</p><ul><li>Item one</li><li>Item two</li></ul>"
+          });
+        })();
+
+        // ── Change event — live preview ───────────────────────────────────────
+        // Updates #change-preview with the current HTML on every keystroke.
+        (function() {
+          var el      = document.getElementById("editor-change");
+          var preview = document.getElementById("change-preview");
+          if (!el || !preview) return;
+          new Nimbus.Wysiwyg(el);
+          el.addEventListener("change.cnds.wysiwyg", function(e) {
+            preview.innerHTML = e.detail.html;
+          });
+        })();
+
+        // ── Programmatic API demo ─────────────────────────────────────────────
+        // Demonstrates getHTML / setHTML / clear / toggleSource on a stored instance.
+        (function() {
+          var el     = document.getElementById("editor-api");
+          var output = document.getElementById("api-output");
+          if (!el) return;
+          var editor = new Nimbus.Wysiwyg(el, {
+            initialContent: "<p>Edit me, then try the API buttons below.</p>"
+          });
+          var btnGet    = document.getElementById("btn-get-html");
+          var btnSet    = document.getElementById("btn-set-html");
+          var btnClear  = document.getElementById("btn-clear");
+          var btnSource = document.getElementById("btn-toggle-source");
+          if (btnGet) {
+            btnGet.addEventListener("click", function() {
+              if (output) output.textContent = editor.getHTML();
+            });
+          }
+          if (btnSet) {
+            btnSet.addEventListener("click", function() {
+              editor.setHTML("<p><strong>Content set via <code>setHTML()</code>.</strong> Edit freely.</p>");
+            });
+          }
+          if (btnClear) {
+            btnClear.addEventListener("click", function() {
+              editor.clear();
+              if (output) output.textContent = "";
+            });
+          }
+          if (btnSource) {
+            btnSource.addEventListener("click", function() {
+              editor.toggleSource();
+            });
+          }
+        })();
+
+      }
+
+      // Run immediately if the plugin is already loaded; otherwise wait for cnds.ready.
+      if (window.Nimbus && window.Nimbus.Wysiwyg) {
+        initWysiwygDemos();
+      } else {
+        document.addEventListener("cnds.ready", initWysiwygDemos);
+      }
+    </script>
+  </body>
+</html>

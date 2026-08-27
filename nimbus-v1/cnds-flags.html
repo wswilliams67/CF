@@ -1,0 +1,775 @@
+<!--
+ * CNDS Nimbus Design System — Flags
+ * Version: 1.0.0
+ * Layout: Application with SideNav (migrated from Nimbus v8 template)
+ *
+ * PAGE SECTIONS
+ * - #section-introduction   Component overview and when-to-use guidance
+ * - #section-basic-example  Minimum markup pattern with live preview
+ * - #section-flag-reference Searchable sprite reference table (240+ flags)
+ * - #section-api-docs       Full API documentation
+ *     #api-section-introduction   Component model and sprite mechanism
+ *     #api-section-usage          Usage patterns with HTML examples
+ *     #api-section-css-classes    Class reference table
+ *     #api-section-accessibility  ARIA patterns for decorative/meaningful flags
+ *     #api-section-naming         Class naming convention and alias rules
+ *
+ * NOTES
+ * - Pure HTML5, CSS3, vanilla JavaScript — zero external dependencies
+ * - Uses data-cnds-* attributes (replaces data-mdb-*)
+ * - Uses Nimbus.* namespace (replaces mdb.*)
+ * - Flag icons are CSS-only: sprite positioned via background-offset on ::before
+ * - Search filter reads data-flag / data-name attributes on each table row
+ * - Default product theme: CaseFusion (cnds-product-casefusion on <body>; change to cnds-product-hyperlize or cnds-product-expireon)
+-->
+<!doctype html>
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="Flags | Cloudficient Nimbus Design System v1.0.0" />
+    <title>Flags | CNDS v1.0.0 | Cloudficient Nimbus Design System</title>
+    <!-- Nimbus CSS -->
+    <link rel="stylesheet" href="css/nimbus.css" media="all" type="text/css" />
+    <!-- Custom styles | All custom classes/styles/overrides go here! -->
+    <link rel="stylesheet" href="css/app.css" media="all" type="text/css" />
+    <!-- Prism syntax highlighting -->
+    <link rel="stylesheet" href="plugins/css/prism.min.css" media="all" type="text/css" />
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="img/favicon/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="60x60" href="img/favicon/apple-icon-60x60.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="img/favicon/apple-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76" href="img/favicon/apple-icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="img/favicon/apple-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="img/favicon/apple-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="img/favicon/apple-icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="img/favicon/apple-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-icon-180x180.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="img/favicon/android-icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="img/favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="img/favicon/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="msapplication-TileImage" content="img/favicon/ms-icon-144x144.png" />
+    <!-- ./Favicons -->
+    <!-- Design tokens — load order is required:
+         1. primitives.css  Raw color/spacing values; no theming, no :root overrides
+         2. light.css       Semantic tokens applied to :root (light-mode defaults)
+         3. dark.css        Overrides semantic tokens for [data-cnds-theme="dark"]
+         All three must appear AFTER nimbus.css so component variables resolve correctly. -->
+    <link rel="stylesheet" href="css/themes/primitives.css" />
+    <link rel="stylesheet" href="css/themes/light.css" />
+    <link rel="stylesheet" href="css/themes/dark.css" />
+  </head>
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 Bypass Blocks; renders visually hidden until focused -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+    <!-- Header -->
+    <div class="sticky-top">
+      <!-- Utility Navigation — items injected by app.js at runtime -->
+      <nav id="UtilityNav" class="nav nav-cf-utility" aria-label="Utility navigation">
+        <div class="w-100 gx-3 px-sm-0 px-lg-3">
+          <ul class="nav nav-cf-utility-ul"></ul>
+        </div>
+      </nav>
+      <!-- ./Utility Navigation -->
+      <!-- Main Navigation -->
+      <nav id="MainNav" class="navbar navbar-expand-xl navbar-cf" aria-label="Main navigation">
+        <div class="container-fluid p-0 px-3 d-flex">
+          <div class="d-flex flex-fill align-items-center text-truncate">
+            <div class="text-center d-none d-md-block me-3 border-end">
+              <a href="index.html"><img src="img/cf/core/logo_nimbus.png" class="me-3 mt-n1" alt="Cloudficient Nimbus Design System" /></a>
+            </div>
+            <div class="flex-fill text-truncate">
+              <div class="navbar-cf-title-block">
+                <div class="navbar-cf-title cf-page-title text-truncate" style="padding-bottom: 0">
+                  <span class="cf-page-title-text cf-page-title-brand">v1</span><span class="cf-page-title-divider"></span><span class="cf-page-title-text">Flags</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Collapsible nav links — empty on this page; populated by app.js on pages with top-nav items -->
+          <button class="btn btn-sm btn-outline-secondary ms-2" data-cnds-toggle="theme" aria-label="Toggle theme" title="Toggle theme">
+            <i class="mdi mdi-weather-night mdi-18px" aria-hidden="true"></i>
+          </button>
+        </div>
+      </nav>
+      <!-- ./Main Navigation -->
+    </div>
+    <!-- ./Header -->
+
+    <!-- Content -->
+    <main id="main-content" class="cf-main-app">
+      <!-- Mobile viewport warning -->
+      <div class="d-block d-md-none p-4">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>This application is not optimized for small screens. Please use a large tablet, laptop, or desktop computer to continue.
+        </div>
+      </div>
+      <div class="d-none d-md-block">
+        <!-- Sidenav — markup injected by js/sidenav-loader.js at runtime.
+             data-cnds-mode="side"              Renders as a persistent side panel (not overlay)
+             data-cnds-slim="false"             Full-width mode; set true to collapse to icon-only rail
+             data-cnds-slim-collapsed="false"   Initial state when slim mode is enabled
+             data-cnds-content="#slim-content"  ID of the content pane that shifts when sidenav opens/closes
+             data-cnds-accordion="true"         Only one sub-menu open at a time -->
+        <nav id="sidebar-cf" class="sidenav" data-cnds-mode="side" data-cnds-slim="false" data-cnds-slim-collapsed="false" data-cnds-content="#slim-content" data-cnds-accordion="true"></nav>
+        <div id="slim-content">
+          <div class="slim-content-box">
+            <!-- Content Row -->
+            <div class="row">
+              <!-- Main column — 80 % of the row; right sidebar takes the remaining 20 %.
+                   Inline flex overrides are used because the standard Bootstrap col-* grid
+                   does not produce the exact 80/20 split needed alongside the sticky sidenav. -->
+              <div class="col-12 col-lg" style="flex: 0 0 80%; max-width: 80%">
+                <!--Section: Docs content-->
+                <section class="container-fluid">
+
+                  <!--Section: Introduction-->
+                  <section id="section-introduction">
+                    <!-- Description -->
+                    <p class="mb-4">
+                      The Nimbus flag component is a CSS-only system for displaying country and territory flag icons. Flags are rendered by positioning a single <code>flags.png</code> sprite image behind a fixed-size <code>&lt;i&gt;</code> element — <code>16px</code> wide by <code>11px</code> tall — using background offset coordinates. This sprite-based approach consistently produces crisp, pixel-aligned icons at the supported size, unlike SVG flags which frequently appear blurry or scale poorly when constrained to small dimensions. No JavaScript initialization is required; flags are fully applied through CSS classes alone.
+                    </p>
+                    <p class="my-4">
+                      Use flags to indicate locale, language selection, or geographic context — for example, in a language picker, a country dropdown, or a data table showing regional data. Every flag automatically inherits the surrounding inline flow so it aligns naturally alongside text or other inline elements. Because flags are decorative by default, add <code>aria-hidden="true"</code> when the adjacent label already communicates the meaning; use <code>role="img"</code> with <code>aria-label</code> only when the flag is the sole indicator of a country or language.
+                    </p>
+                    <p class="note note-light">
+                      <strong>Note:</strong> Read the
+                      <a href="#api-section-introduction">API Documentation</a> to find all available
+                      options and advanced customization.
+                    </p>
+
+                    <p class="note note-info">
+                      <strong>Note:</strong> To preview components in different themes, click the theme toggle button <i class="mdi mdi-weather-night" aria-hidden="true"></i> / <i class="mdi mdi-weather-sunny" aria-hidden="true"></i> in the header navigation bar.
+                    </p>
+                  </section>
+                  <!--/Section: Introduction-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Basic example-->
+                  <section id="section-basic-example">
+                    <h3 class="mb-3">Basic example</h3>
+                    <p>
+                      Display a flag icon by adding the base class <code>.flag</code> along with a country-specific modifier class (e.g., <code>.flag-us</code>) to an <code>&lt;i&gt;</code> element. The base class sets the element to <code>display: inline-block</code> at a fixed <code>16×11px</code> size and positions the sprite image; the modifier class provides the background offset that selects the correct flag from the sprite sheet. Both classes are always required — the modifier alone will produce no output.
+                    </p>
+
+                    <!-- Angular: Bind the country code via @Input() for a reusable flag component.
+                         Example: <i class="flag" [ngClass]="'flag-' + countryCode" aria-hidden="true"></i>
+                         Create a FlagComponent with @Input() code = '' for reuse across templates. -->
+                    <!-- Live preview -->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="p-4 w-100">
+                          <i class="flag flag-us" aria-hidden="true"></i>
+                          <i class="flag flag-poland" aria-hidden="true"></i>
+                          <i class="flag flag-china" aria-hidden="true"></i>
+                        </section>
+                      </div>
+                    </section>
+
+                    <!-- Code snippet -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;i class="flag flag-us" aria-hidden="true"&gt;&lt;/i&gt;
+&lt;i class="flag flag-poland" aria-hidden="true"&gt;&lt;/i&gt;
+&lt;i class="flag flag-china" aria-hidden="true"&gt;&lt;/i&gt;</code></pre>
+                      </div>
+                    </section>
+                  </section>
+                  <!--/Section: Basic example-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Flag reference-->
+                  <section id="section-flag-reference">
+                    <h3 class="mb-3">Flag reference</h3>
+                    <p>
+                      The table below lists every available flag icon in alphabetical order by country name. Use the search field to filter by country name or flag class — results update instantly as you type. The <strong>Code</strong> column shows the exact HTML markup to copy into your project.
+                    </p>
+                    <p class="note note-info mb-4">
+                      <strong>Note:</strong> Flags are CSS-only and require no JavaScript initialization. Simply apply the <code>.flag</code> base class and the appropriate country modifier class to any <code>&lt;i&gt;</code> element.
+                    </p>
+
+                    <!-- Search input -->
+                    <div class="row align-items-center mb-3">
+                      <div class="col-12">
+                        <div class="form-outline" id="cnds-search-flag">
+                          <input autocomplete="off" type="text" id="searchFlag" class="form-control" placeholder="Search flags..." />
+                          <label class="form-label" for="searchFlag" style="margin-left: 0px">Search Flags</label>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Angular: Use *ngFor to render a flag gallery from a countries array.
+                         Example: <tr *ngFor="let c of countries" [attr.data-flag]="'flag-' + c.code" [attr.data-name]="c.name">
+                           <td><i class="flag" [ngClass]="'flag-' + c.code" aria-hidden="true"></i></td>
+                           <td>{{ c.name }}</td>
+                         </tr>
+                         Pair with a pipe or component-level filter method for live search. -->
+                    <div class="table-responsive text-nowrap">
+                      <table id="cnds-flag-table" class="table table-hover" aria-label="Flag reference">
+                        <thead>
+                          <tr><th scope="col">Flag</th><th scope="col">Name</th><th scope="col">Code</th></tr>
+                        </thead>
+                        <tbody id="cnds-table-flag">
+                          <tr data-flag="flag-andorra" data-name="Andorra"><td class="flag-icon"><i class="flag flag-andorra"></i></td><td class="flag-name">Andorra</td><td class="flag-iso"><code>&lt;i class="flag flag-andorra"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-uae" data-name="United Arab Emirates"><td class="flag-icon"><i class="flag flag-uae"></i></td><td class="flag-name">United Arab Emirates</td><td class="flag-iso"><code>&lt;i class="flag flag-uae"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-afghanistan" data-name="Afghanistan"><td class="flag-icon"><i class="flag flag-afghanistan"></i></td><td class="flag-name">Afghanistan</td><td class="flag-iso"><code>&lt;i class="flag flag-afghanistan"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-antigua" data-name="Antigua"><td class="flag-icon"><i class="flag flag-antigua"></i></td><td class="flag-name">Antigua</td><td class="flag-iso"><code>&lt;i class="flag flag-antigua"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-anguilla" data-name="Anguilla"><td class="flag-icon"><i class="flag flag-anguilla"></i></td><td class="flag-name">Anguilla</td><td class="flag-iso"><code>&lt;i class="flag flag-anguilla"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-albania" data-name="Albania"><td class="flag-icon"><i class="flag flag-albania"></i></td><td class="flag-name">Albania</td><td class="flag-iso"><code>&lt;i class="flag flag-albania"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-armenia" data-name="Armenia"><td class="flag-icon"><i class="flag flag-armenia"></i></td><td class="flag-name">Armenia</td><td class="flag-iso"><code>&lt;i class="flag flag-armenia"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-netherlands-antilles" data-name="Netherlands Antilles"><td class="flag-icon"><i class="flag flag-netherlands-antilles"></i></td><td class="flag-name">Netherlands Antilles</td><td class="flag-iso"><code>&lt;i class="flag flag-netherlands-antilles"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-angola" data-name="Angola"><td class="flag-icon"><i class="flag flag-angola"></i></td><td class="flag-name">Angola</td><td class="flag-iso"><code>&lt;i class="flag flag-angola"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-argentina" data-name="Argentina"><td class="flag-icon"><i class="flag flag-argentina"></i></td><td class="flag-name">Argentina</td><td class="flag-iso"><code>&lt;i class="flag flag-argentina"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-american-samoa" data-name="American Samoa"><td class="flag-icon"><i class="flag flag-american-samoa"></i></td><td class="flag-name">American Samoa</td><td class="flag-iso"><code>&lt;i class="flag flag-american-samoa"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-austria" data-name="Austria"><td class="flag-icon"><i class="flag flag-austria"></i></td><td class="flag-name">Austria</td><td class="flag-iso"><code>&lt;i class="flag flag-austria"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-australia" data-name="Australia"><td class="flag-icon"><i class="flag flag-australia"></i></td><td class="flag-name">Australia</td><td class="flag-iso"><code>&lt;i class="flag flag-australia"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-aruba" data-name="Aruba"><td class="flag-icon"><i class="flag flag-aruba"></i></td><td class="flag-name">Aruba</td><td class="flag-iso"><code>&lt;i class="flag flag-aruba"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-aland-islands" data-name="Aland Islands"><td class="flag-icon"><i class="flag flag-aland-islands"></i></td><td class="flag-name">Aland Islands</td><td class="flag-iso"><code>&lt;i class="flag flag-aland-islands"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-azerbaijan" data-name="Azerbaijan"><td class="flag-icon"><i class="flag flag-azerbaijan"></i></td><td class="flag-name">Azerbaijan</td><td class="flag-iso"><code>&lt;i class="flag flag-azerbaijan"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-bosnia" data-name="Bosnia"><td class="flag-icon"><i class="flag flag-bosnia"></i></td><td class="flag-name">Bosnia</td><td class="flag-iso"><code>&lt;i class="flag flag-bosnia"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-barbados" data-name="Barbados"><td class="flag-icon"><i class="flag flag-barbados"></i></td><td class="flag-name">Barbados</td><td class="flag-iso"><code>&lt;i class="flag flag-barbados"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-bangladesh" data-name="Bangladesh"><td class="flag-icon"><i class="flag flag-bangladesh"></i></td><td class="flag-name">Bangladesh</td><td class="flag-iso"><code>&lt;i class="flag flag-bangladesh"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-belgium" data-name="Belgium"><td class="flag-icon"><i class="flag flag-belgium"></i></td><td class="flag-name">Belgium</td><td class="flag-iso"><code>&lt;i class="flag flag-belgium"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-burkina-faso" data-name="Burkina Faso"><td class="flag-icon"><i class="flag flag-burkina-faso"></i></td><td class="flag-name">Burkina Faso</td><td class="flag-iso"><code>&lt;i class="flag flag-burkina-faso"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-bulgaria" data-name="Bulgaria"><td class="flag-icon"><i class="flag flag-bulgaria"></i></td><td class="flag-name">Bulgaria</td><td class="flag-iso"><code>&lt;i class="flag flag-bulgaria"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-bahrain" data-name="Bahrain"><td class="flag-icon"><i class="flag flag-bahrain"></i></td><td class="flag-name">Bahrain</td><td class="flag-iso"><code>&lt;i class="flag flag-bahrain"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-burundi" data-name="Burundi"><td class="flag-icon"><i class="flag flag-burundi"></i></td><td class="flag-name">Burundi</td><td class="flag-iso"><code>&lt;i class="flag flag-burundi"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-benin" data-name="Benin"><td class="flag-icon"><i class="flag flag-benin"></i></td><td class="flag-name">Benin</td><td class="flag-iso"><code>&lt;i class="flag flag-benin"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-bermuda" data-name="Bermuda"><td class="flag-icon"><i class="flag flag-bermuda"></i></td><td class="flag-name">Bermuda</td><td class="flag-iso"><code>&lt;i class="flag flag-bermuda"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-brunei" data-name="Brunei"><td class="flag-icon"><i class="flag flag-brunei"></i></td><td class="flag-name">Brunei</td><td class="flag-iso"><code>&lt;i class="flag flag-brunei"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-bolivia" data-name="Bolivia"><td class="flag-icon"><i class="flag flag-bolivia"></i></td><td class="flag-name">Bolivia</td><td class="flag-iso"><code>&lt;i class="flag flag-bolivia"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-brazil" data-name="Brazil"><td class="flag-icon"><i class="flag flag-brazil"></i></td><td class="flag-name">Brazil</td><td class="flag-iso"><code>&lt;i class="flag flag-brazil"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-bahamas" data-name="Bahamas"><td class="flag-icon"><i class="flag flag-bahamas"></i></td><td class="flag-name">Bahamas</td><td class="flag-iso"><code>&lt;i class="flag flag-bahamas"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-bhutan" data-name="Bhutan"><td class="flag-icon"><i class="flag flag-bhutan"></i></td><td class="flag-name">Bhutan</td><td class="flag-iso"><code>&lt;i class="flag flag-bhutan"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-bouvet-island" data-name="Bouvet Island"><td class="flag-icon"><i class="flag flag-bouvet-island"></i></td><td class="flag-name">Bouvet Island</td><td class="flag-iso"><code>&lt;i class="flag flag-bouvet-island"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-botswana" data-name="Botswana"><td class="flag-icon"><i class="flag flag-botswana"></i></td><td class="flag-name">Botswana</td><td class="flag-iso"><code>&lt;i class="flag flag-botswana"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-belarus" data-name="Belarus"><td class="flag-icon"><i class="flag flag-belarus"></i></td><td class="flag-name">Belarus</td><td class="flag-iso"><code>&lt;i class="flag flag-belarus"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-belize" data-name="Belize"><td class="flag-icon"><i class="flag flag-belize"></i></td><td class="flag-name">Belize</td><td class="flag-iso"><code>&lt;i class="flag flag-belize"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-canada" data-name="Canada"><td class="flag-icon"><i class="flag flag-canada"></i></td><td class="flag-name">Canada</td><td class="flag-iso"><code>&lt;i class="flag flag-canada"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-cocos-islands" data-name="Cocos Islands"><td class="flag-icon"><i class="flag flag-cocos-islands"></i></td><td class="flag-name">Cocos Islands</td><td class="flag-iso"><code>&lt;i class="flag flag-cocos-islands"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-congo" data-name="Congo"><td class="flag-icon"><i class="flag flag-congo"></i></td><td class="flag-name">Congo</td><td class="flag-iso"><code>&lt;i class="flag flag-congo"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-central-african-republic" data-name="Central African Republic"><td class="flag-icon"><i class="flag flag-central-african-republic"></i></td><td class="flag-name">Central African Republic</td><td class="flag-iso"><code>&lt;i class="flag flag-central-african-republic"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-congo-brazzaville" data-name="Congo Brazzaville"><td class="flag-icon"><i class="flag flag-congo-brazzaville"></i></td><td class="flag-name">Congo Brazzaville</td><td class="flag-iso"><code>&lt;i class="flag flag-congo-brazzaville"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-switzerland" data-name="Switzerland"><td class="flag-icon"><i class="flag flag-switzerland"></i></td><td class="flag-name">Switzerland</td><td class="flag-iso"><code>&lt;i class="flag flag-switzerland"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-cote-divoire" data-name="Cote Divoire"><td class="flag-icon"><i class="flag flag-cote-divoire"></i></td><td class="flag-name">Cote Divoire</td><td class="flag-iso"><code>&lt;i class="flag flag-cote-divoire"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-cook-islands" data-name="Cook Islands"><td class="flag-icon"><i class="flag flag-cook-islands"></i></td><td class="flag-name">Cook Islands</td><td class="flag-iso"><code>&lt;i class="flag flag-cook-islands"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-chile" data-name="Chile"><td class="flag-icon"><i class="flag flag-chile"></i></td><td class="flag-name">Chile</td><td class="flag-iso"><code>&lt;i class="flag flag-chile"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-cameroon" data-name="Cameroon"><td class="flag-icon"><i class="flag flag-cameroon"></i></td><td class="flag-name">Cameroon</td><td class="flag-iso"><code>&lt;i class="flag flag-cameroon"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-china" data-name="China"><td class="flag-icon"><i class="flag flag-china"></i></td><td class="flag-name">China</td><td class="flag-iso"><code>&lt;i class="flag flag-china"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-colombia" data-name="Colombia"><td class="flag-icon"><i class="flag flag-colombia"></i></td><td class="flag-name">Colombia</td><td class="flag-iso"><code>&lt;i class="flag flag-colombia"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-costa-rica" data-name="Costa Rica"><td class="flag-icon"><i class="flag flag-costa-rica"></i></td><td class="flag-name">Costa Rica</td><td class="flag-iso"><code>&lt;i class="flag flag-costa-rica"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-serbia" data-name="Serbia"><td class="flag-icon"><i class="flag flag-serbia"></i></td><td class="flag-name">Serbia</td><td class="flag-iso"><code>&lt;i class="flag flag-serbia"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-cuba" data-name="Cuba"><td class="flag-icon"><i class="flag flag-cuba"></i></td><td class="flag-name">Cuba</td><td class="flag-iso"><code>&lt;i class="flag flag-cuba"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-cape-verde" data-name="Cape Verde"><td class="flag-icon"><i class="flag flag-cape-verde"></i></td><td class="flag-name">Cape Verde</td><td class="flag-iso"><code>&lt;i class="flag flag-cape-verde"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-christmas-island" data-name="Christmas Island"><td class="flag-icon"><i class="flag flag-christmas-island"></i></td><td class="flag-name">Christmas Island</td><td class="flag-iso"><code>&lt;i class="flag flag-christmas-island"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-cyprus" data-name="Cyprus"><td class="flag-icon"><i class="flag flag-cyprus"></i></td><td class="flag-name">Cyprus</td><td class="flag-iso"><code>&lt;i class="flag flag-cyprus"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-czech-republic" data-name="Czech Republic"><td class="flag-icon"><i class="flag flag-czech-republic"></i></td><td class="flag-name">Czech Republic</td><td class="flag-iso"><code>&lt;i class="flag flag-czech-republic"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-germany" data-name="Germany"><td class="flag-icon"><i class="flag flag-germany"></i></td><td class="flag-name">Germany</td><td class="flag-iso"><code>&lt;i class="flag flag-germany"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-djibouti" data-name="Djibouti"><td class="flag-icon"><i class="flag flag-djibouti"></i></td><td class="flag-name">Djibouti</td><td class="flag-iso"><code>&lt;i class="flag flag-djibouti"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-denmark" data-name="Denmark"><td class="flag-icon"><i class="flag flag-denmark"></i></td><td class="flag-name">Denmark</td><td class="flag-iso"><code>&lt;i class="flag flag-denmark"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-dominica" data-name="Dominica"><td class="flag-icon"><i class="flag flag-dominica"></i></td><td class="flag-name">Dominica</td><td class="flag-iso"><code>&lt;i class="flag flag-dominica"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-dominican-republic" data-name="Dominican Republic"><td class="flag-icon"><i class="flag flag-dominican-republic"></i></td><td class="flag-name">Dominican Republic</td><td class="flag-iso"><code>&lt;i class="flag flag-dominican-republic"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-algeria" data-name="Algeria"><td class="flag-icon"><i class="flag flag-algeria"></i></td><td class="flag-name">Algeria</td><td class="flag-iso"><code>&lt;i class="flag flag-algeria"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-ecuador" data-name="Ecuador"><td class="flag-icon"><i class="flag flag-ecuador"></i></td><td class="flag-name">Ecuador</td><td class="flag-iso"><code>&lt;i class="flag flag-ecuador"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-estonia" data-name="Estonia"><td class="flag-icon"><i class="flag flag-estonia"></i></td><td class="flag-name">Estonia</td><td class="flag-iso"><code>&lt;i class="flag flag-estonia"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-egypt" data-name="Egypt"><td class="flag-icon"><i class="flag flag-egypt"></i></td><td class="flag-name">Egypt</td><td class="flag-iso"><code>&lt;i class="flag flag-egypt"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-western-sahara" data-name="Western Sahara"><td class="flag-icon"><i class="flag flag-western-sahara"></i></td><td class="flag-name">Western Sahara</td><td class="flag-iso"><code>&lt;i class="flag flag-western-sahara"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-eritrea" data-name="Eritrea"><td class="flag-icon"><i class="flag flag-eritrea"></i></td><td class="flag-name">Eritrea</td><td class="flag-iso"><code>&lt;i class="flag flag-eritrea"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-spain" data-name="Spain"><td class="flag-icon"><i class="flag flag-spain"></i></td><td class="flag-name">Spain</td><td class="flag-iso"><code>&lt;i class="flag flag-spain"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-ethiopia" data-name="Ethiopia"><td class="flag-icon"><i class="flag flag-ethiopia"></i></td><td class="flag-name">Ethiopia</td><td class="flag-iso"><code>&lt;i class="flag flag-ethiopia"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-european-union" data-name="European Union"><td class="flag-icon"><i class="flag flag-european-union"></i></td><td class="flag-name">European Union</td><td class="flag-iso"><code>&lt;i class="flag flag-european-union"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-finland" data-name="Finland"><td class="flag-icon"><i class="flag flag-finland"></i></td><td class="flag-name">Finland</td><td class="flag-iso"><code>&lt;i class="flag flag-finland"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-fiji" data-name="Fiji"><td class="flag-icon"><i class="flag flag-fiji"></i></td><td class="flag-name">Fiji</td><td class="flag-iso"><code>&lt;i class="flag flag-fiji"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-falkland-islands" data-name="Falkland Islands"><td class="flag-icon"><i class="flag flag-falkland-islands"></i></td><td class="flag-name">Falkland Islands</td><td class="flag-iso"><code>&lt;i class="flag flag-falkland-islands"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-micronesia" data-name="Micronesia"><td class="flag-icon"><i class="flag flag-micronesia"></i></td><td class="flag-name">Micronesia</td><td class="flag-iso"><code>&lt;i class="flag flag-micronesia"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-faroe-islands" data-name="Faroe Islands"><td class="flag-icon"><i class="flag flag-faroe-islands"></i></td><td class="flag-name">Faroe Islands</td><td class="flag-iso"><code>&lt;i class="flag flag-faroe-islands"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-france" data-name="France"><td class="flag-icon"><i class="flag flag-france"></i></td><td class="flag-name">France</td><td class="flag-iso"><code>&lt;i class="flag flag-france"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-gabon" data-name="Gabon"><td class="flag-icon"><i class="flag flag-gabon"></i></td><td class="flag-name">Gabon</td><td class="flag-iso"><code>&lt;i class="flag flag-gabon"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-united-kingdom" data-name="United Kingdom"><td class="flag-icon"><i class="flag flag-united-kingdom"></i></td><td class="flag-name">United Kingdom</td><td class="flag-iso"><code>&lt;i class="flag flag-united-kingdom"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-england" data-name="England"><td class="flag-icon"><i class="flag flag-england"></i></td><td class="flag-name">England</td><td class="flag-iso"><code>&lt;i class="flag flag-england"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-scotland" data-name="Scotland"><td class="flag-icon"><i class="flag flag-scotland"></i></td><td class="flag-name">Scotland</td><td class="flag-iso"><code>&lt;i class="flag flag-scotland"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-wales" data-name="Wales"><td class="flag-icon"><i class="flag flag-wales"></i></td><td class="flag-name">Wales</td><td class="flag-iso"><code>&lt;i class="flag flag-wales"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-grenada" data-name="Grenada"><td class="flag-icon"><i class="flag flag-grenada"></i></td><td class="flag-name">Grenada</td><td class="flag-iso"><code>&lt;i class="flag flag-grenada"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-georgia" data-name="Georgia"><td class="flag-icon"><i class="flag flag-georgia"></i></td><td class="flag-name">Georgia</td><td class="flag-iso"><code>&lt;i class="flag flag-georgia"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-french-guiana" data-name="French Guiana"><td class="flag-icon"><i class="flag flag-french-guiana"></i></td><td class="flag-name">French Guiana</td><td class="flag-iso"><code>&lt;i class="flag flag-french-guiana"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-ghana" data-name="Ghana"><td class="flag-icon"><i class="flag flag-ghana"></i></td><td class="flag-name">Ghana</td><td class="flag-iso"><code>&lt;i class="flag flag-ghana"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-gibraltar" data-name="Gibraltar"><td class="flag-icon"><i class="flag flag-gibraltar"></i></td><td class="flag-name">Gibraltar</td><td class="flag-iso"><code>&lt;i class="flag flag-gibraltar"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-greenland" data-name="Greenland"><td class="flag-icon"><i class="flag flag-greenland"></i></td><td class="flag-name">Greenland</td><td class="flag-iso"><code>&lt;i class="flag flag-greenland"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-gambia" data-name="Gambia"><td class="flag-icon"><i class="flag flag-gambia"></i></td><td class="flag-name">Gambia</td><td class="flag-iso"><code>&lt;i class="flag flag-gambia"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-guinea" data-name="Guinea"><td class="flag-icon"><i class="flag flag-guinea"></i></td><td class="flag-name">Guinea</td><td class="flag-iso"><code>&lt;i class="flag flag-guinea"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-guadeloupe" data-name="Guadeloupe"><td class="flag-icon"><i class="flag flag-guadeloupe"></i></td><td class="flag-name">Guadeloupe</td><td class="flag-iso"><code>&lt;i class="flag flag-guadeloupe"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-equatorial-guinea" data-name="Equatorial Guinea"><td class="flag-icon"><i class="flag flag-equatorial-guinea"></i></td><td class="flag-name">Equatorial Guinea</td><td class="flag-iso"><code>&lt;i class="flag flag-equatorial-guinea"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-greece" data-name="Greece"><td class="flag-icon"><i class="flag flag-greece"></i></td><td class="flag-name">Greece</td><td class="flag-iso"><code>&lt;i class="flag flag-greece"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-sandwich-islands" data-name="Sandwich Islands"><td class="flag-icon"><i class="flag flag-sandwich-islands"></i></td><td class="flag-name">Sandwich Islands</td><td class="flag-iso"><code>&lt;i class="flag flag-sandwich-islands"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-guatemala" data-name="Guatemala"><td class="flag-icon"><i class="flag flag-guatemala"></i></td><td class="flag-name">Guatemala</td><td class="flag-iso"><code>&lt;i class="flag flag-guatemala"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-guam" data-name="Guam"><td class="flag-icon"><i class="flag flag-guam"></i></td><td class="flag-name">Guam</td><td class="flag-iso"><code>&lt;i class="flag flag-guam"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-guinea-bissau" data-name="Guinea-bissau"><td class="flag-icon"><i class="flag flag-guinea-bissau"></i></td><td class="flag-name">Guinea-bissau</td><td class="flag-iso"><code>&lt;i class="flag flag-guinea-bissau"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-guyana" data-name="Guyana"><td class="flag-icon"><i class="flag flag-guyana"></i></td><td class="flag-name">Guyana</td><td class="flag-iso"><code>&lt;i class="flag flag-guyana"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-hong-kong" data-name="Hong Kong"><td class="flag-icon"><i class="flag flag-hong-kong"></i></td><td class="flag-name">Hong Kong</td><td class="flag-iso"><code>&lt;i class="flag flag-hong-kong"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-heard-island" data-name="Heard Island"><td class="flag-icon"><i class="flag flag-heard-island"></i></td><td class="flag-name">Heard Island</td><td class="flag-iso"><code>&lt;i class="flag flag-heard-island"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-honduras" data-name="Honduras"><td class="flag-icon"><i class="flag flag-honduras"></i></td><td class="flag-name">Honduras</td><td class="flag-iso"><code>&lt;i class="flag flag-honduras"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-croatia" data-name="Croatia"><td class="flag-icon"><i class="flag flag-croatia"></i></td><td class="flag-name">Croatia</td><td class="flag-iso"><code>&lt;i class="flag flag-croatia"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-haiti" data-name="Haiti"><td class="flag-icon"><i class="flag flag-haiti"></i></td><td class="flag-name">Haiti</td><td class="flag-iso"><code>&lt;i class="flag flag-haiti"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-hungary" data-name="Hungary"><td class="flag-icon"><i class="flag flag-hungary"></i></td><td class="flag-name">Hungary</td><td class="flag-iso"><code>&lt;i class="flag flag-hungary"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-indonesia" data-name="Indonesia"><td class="flag-icon"><i class="flag flag-indonesia"></i></td><td class="flag-name">Indonesia</td><td class="flag-iso"><code>&lt;i class="flag flag-indonesia"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-ireland" data-name="Ireland"><td class="flag-icon"><i class="flag flag-ireland"></i></td><td class="flag-name">Ireland</td><td class="flag-iso"><code>&lt;i class="flag flag-ireland"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-israel" data-name="Israel"><td class="flag-icon"><i class="flag flag-israel"></i></td><td class="flag-name">Israel</td><td class="flag-iso"><code>&lt;i class="flag flag-israel"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-india" data-name="India"><td class="flag-icon"><i class="flag flag-india"></i></td><td class="flag-name">India</td><td class="flag-iso"><code>&lt;i class="flag flag-india"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-indian-ocean-territory" data-name="Indian Ocean Territory"><td class="flag-icon"><i class="flag flag-indian-ocean-territory"></i></td><td class="flag-name">Indian Ocean Territory</td><td class="flag-iso"><code>&lt;i class="flag flag-indian-ocean-territory"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-iraq" data-name="Iraq"><td class="flag-icon"><i class="flag flag-iraq"></i></td><td class="flag-name">Iraq</td><td class="flag-iso"><code>&lt;i class="flag flag-iraq"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-iran" data-name="Iran"><td class="flag-icon"><i class="flag flag-iran"></i></td><td class="flag-name">Iran</td><td class="flag-iso"><code>&lt;i class="flag flag-iran"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-iceland" data-name="Iceland"><td class="flag-icon"><i class="flag flag-iceland"></i></td><td class="flag-name">Iceland</td><td class="flag-iso"><code>&lt;i class="flag flag-iceland"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-italy" data-name="Italy"><td class="flag-icon"><i class="flag flag-italy"></i></td><td class="flag-name">Italy</td><td class="flag-iso"><code>&lt;i class="flag flag-italy"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-jamaica" data-name="Jamaica"><td class="flag-icon"><i class="flag flag-jamaica"></i></td><td class="flag-name">Jamaica</td><td class="flag-iso"><code>&lt;i class="flag flag-jamaica"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-jordan" data-name="Jordan"><td class="flag-icon"><i class="flag flag-jordan"></i></td><td class="flag-name">Jordan</td><td class="flag-iso"><code>&lt;i class="flag flag-jordan"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-japan" data-name="Japan"><td class="flag-icon"><i class="flag flag-japan"></i></td><td class="flag-name">Japan</td><td class="flag-iso"><code>&lt;i class="flag flag-japan"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-kenya" data-name="Kenya"><td class="flag-icon"><i class="flag flag-kenya"></i></td><td class="flag-name">Kenya</td><td class="flag-iso"><code>&lt;i class="flag flag-kenya"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-kyrgyzstan" data-name="Kyrgyzstan"><td class="flag-icon"><i class="flag flag-kyrgyzstan"></i></td><td class="flag-name">Kyrgyzstan</td><td class="flag-iso"><code>&lt;i class="flag flag-kyrgyzstan"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-cambodia" data-name="Cambodia"><td class="flag-icon"><i class="flag flag-cambodia"></i></td><td class="flag-name">Cambodia</td><td class="flag-iso"><code>&lt;i class="flag flag-cambodia"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-kiribati" data-name="Kiribati"><td class="flag-icon"><i class="flag flag-kiribati"></i></td><td class="flag-name">Kiribati</td><td class="flag-iso"><code>&lt;i class="flag flag-kiribati"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-comoros" data-name="Comoros"><td class="flag-icon"><i class="flag flag-comoros"></i></td><td class="flag-name">Comoros</td><td class="flag-iso"><code>&lt;i class="flag flag-comoros"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-saint-kitts-and-nevis" data-name="Saint Kitts And Nevis"><td class="flag-icon"><i class="flag flag-saint-kitts-and-nevis"></i></td><td class="flag-name">Saint Kitts And Nevis</td><td class="flag-iso"><code>&lt;i class="flag flag-saint-kitts-and-nevis"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-north-korea" data-name="North Korea"><td class="flag-icon"><i class="flag flag-north-korea"></i></td><td class="flag-name">North Korea</td><td class="flag-iso"><code>&lt;i class="flag flag-north-korea"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-south-korea" data-name="South Korea"><td class="flag-icon"><i class="flag flag-south-korea"></i></td><td class="flag-name">South Korea</td><td class="flag-iso"><code>&lt;i class="flag flag-south-korea"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-kuwait" data-name="Kuwait"><td class="flag-icon"><i class="flag flag-kuwait"></i></td><td class="flag-name">Kuwait</td><td class="flag-iso"><code>&lt;i class="flag flag-kuwait"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-cayman-islands" data-name="Cayman Islands"><td class="flag-icon"><i class="flag flag-cayman-islands"></i></td><td class="flag-name">Cayman Islands</td><td class="flag-iso"><code>&lt;i class="flag flag-cayman-islands"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-kazakhstan" data-name="Kazakhstan"><td class="flag-icon"><i class="flag flag-kazakhstan"></i></td><td class="flag-name">Kazakhstan</td><td class="flag-iso"><code>&lt;i class="flag flag-kazakhstan"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-laos" data-name="Laos"><td class="flag-icon"><i class="flag flag-laos"></i></td><td class="flag-name">Laos</td><td class="flag-iso"><code>&lt;i class="flag flag-laos"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-lebanon" data-name="Lebanon"><td class="flag-icon"><i class="flag flag-lebanon"></i></td><td class="flag-name">Lebanon</td><td class="flag-iso"><code>&lt;i class="flag flag-lebanon"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-saint-lucia" data-name="Saint Lucia"><td class="flag-icon"><i class="flag flag-saint-lucia"></i></td><td class="flag-name">Saint Lucia</td><td class="flag-iso"><code>&lt;i class="flag flag-saint-lucia"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-liechtenstein" data-name="Liechtenstein"><td class="flag-icon"><i class="flag flag-liechtenstein"></i></td><td class="flag-name">Liechtenstein</td><td class="flag-iso"><code>&lt;i class="flag flag-liechtenstein"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-sri-lanka" data-name="Sri Lanka"><td class="flag-icon"><i class="flag flag-sri-lanka"></i></td><td class="flag-name">Sri Lanka</td><td class="flag-iso"><code>&lt;i class="flag flag-sri-lanka"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-liberia" data-name="Liberia"><td class="flag-icon"><i class="flag flag-liberia"></i></td><td class="flag-name">Liberia</td><td class="flag-iso"><code>&lt;i class="flag flag-liberia"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-lesotho" data-name="Lesotho"><td class="flag-icon"><i class="flag flag-lesotho"></i></td><td class="flag-name">Lesotho</td><td class="flag-iso"><code>&lt;i class="flag flag-lesotho"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-lithuania" data-name="Lithuania"><td class="flag-icon"><i class="flag flag-lithuania"></i></td><td class="flag-name">Lithuania</td><td class="flag-iso"><code>&lt;i class="flag flag-lithuania"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-luxembourg" data-name="Luxembourg"><td class="flag-icon"><i class="flag flag-luxembourg"></i></td><td class="flag-name">Luxembourg</td><td class="flag-iso"><code>&lt;i class="flag flag-luxembourg"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-latvia" data-name="Latvia"><td class="flag-icon"><i class="flag flag-latvia"></i></td><td class="flag-name">Latvia</td><td class="flag-iso"><code>&lt;i class="flag flag-latvia"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-libya" data-name="Libya"><td class="flag-icon"><i class="flag flag-libya"></i></td><td class="flag-name">Libya</td><td class="flag-iso"><code>&lt;i class="flag flag-libya"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-morocco" data-name="Morocco"><td class="flag-icon"><i class="flag flag-morocco"></i></td><td class="flag-name">Morocco</td><td class="flag-iso"><code>&lt;i class="flag flag-morocco"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-monaco" data-name="Monaco"><td class="flag-icon"><i class="flag flag-monaco"></i></td><td class="flag-name">Monaco</td><td class="flag-iso"><code>&lt;i class="flag flag-monaco"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-moldova" data-name="Moldova"><td class="flag-icon"><i class="flag flag-moldova"></i></td><td class="flag-name">Moldova</td><td class="flag-iso"><code>&lt;i class="flag flag-moldova"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-montenegro" data-name="Montenegro"><td class="flag-icon"><i class="flag flag-montenegro"></i></td><td class="flag-name">Montenegro</td><td class="flag-iso"><code>&lt;i class="flag flag-montenegro"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-madagascar" data-name="Madagascar"><td class="flag-icon"><i class="flag flag-madagascar"></i></td><td class="flag-name">Madagascar</td><td class="flag-iso"><code>&lt;i class="flag flag-madagascar"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-marshall-islands" data-name="Marshall Islands"><td class="flag-icon"><i class="flag flag-marshall-islands"></i></td><td class="flag-name">Marshall Islands</td><td class="flag-iso"><code>&lt;i class="flag flag-marshall-islands"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-macedonia" data-name="Macedonia"><td class="flag-icon"><i class="flag flag-macedonia"></i></td><td class="flag-name">Macedonia</td><td class="flag-iso"><code>&lt;i class="flag flag-macedonia"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-mali" data-name="Mali"><td class="flag-icon"><i class="flag flag-mali"></i></td><td class="flag-name">Mali</td><td class="flag-iso"><code>&lt;i class="flag flag-mali"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-burma" data-name="Burma"><td class="flag-icon"><i class="flag flag-burma"></i></td><td class="flag-name">Burma</td><td class="flag-iso"><code>&lt;i class="flag flag-burma"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-mongolia" data-name="Mongolia"><td class="flag-icon"><i class="flag flag-mongolia"></i></td><td class="flag-name">Mongolia</td><td class="flag-iso"><code>&lt;i class="flag flag-mongolia"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-macau" data-name="Macau"><td class="flag-icon"><i class="flag flag-macau"></i></td><td class="flag-name">Macau</td><td class="flag-iso"><code>&lt;i class="flag flag-macau"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-northern-mariana-islands" data-name="Northern Mariana Islands"><td class="flag-icon"><i class="flag flag-northern-mariana-islands"></i></td><td class="flag-name">Northern Mariana Islands</td><td class="flag-iso"><code>&lt;i class="flag flag-northern-mariana-islands"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-martinique" data-name="Martinique"><td class="flag-icon"><i class="flag flag-martinique"></i></td><td class="flag-name">Martinique</td><td class="flag-iso"><code>&lt;i class="flag flag-martinique"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-mauritania" data-name="Mauritania"><td class="flag-icon"><i class="flag flag-mauritania"></i></td><td class="flag-name">Mauritania</td><td class="flag-iso"><code>&lt;i class="flag flag-mauritania"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-montserrat" data-name="Montserrat"><td class="flag-icon"><i class="flag flag-montserrat"></i></td><td class="flag-name">Montserrat</td><td class="flag-iso"><code>&lt;i class="flag flag-montserrat"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-malta" data-name="Malta"><td class="flag-icon"><i class="flag flag-malta"></i></td><td class="flag-name">Malta</td><td class="flag-iso"><code>&lt;i class="flag flag-malta"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-mauritius" data-name="Mauritius"><td class="flag-icon"><i class="flag flag-mauritius"></i></td><td class="flag-name">Mauritius</td><td class="flag-iso"><code>&lt;i class="flag flag-mauritius"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-maldives" data-name="Maldives"><td class="flag-icon"><i class="flag flag-maldives"></i></td><td class="flag-name">Maldives</td><td class="flag-iso"><code>&lt;i class="flag flag-maldives"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-malawi" data-name="Malawi"><td class="flag-icon"><i class="flag flag-malawi"></i></td><td class="flag-name">Malawi</td><td class="flag-iso"><code>&lt;i class="flag flag-malawi"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-mexico" data-name="Mexico"><td class="flag-icon"><i class="flag flag-mexico"></i></td><td class="flag-name">Mexico</td><td class="flag-iso"><code>&lt;i class="flag flag-mexico"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-malaysia" data-name="Malaysia"><td class="flag-icon"><i class="flag flag-malaysia"></i></td><td class="flag-name">Malaysia</td><td class="flag-iso"><code>&lt;i class="flag flag-malaysia"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-mozambique" data-name="Mozambique"><td class="flag-icon"><i class="flag flag-mozambique"></i></td><td class="flag-name">Mozambique</td><td class="flag-iso"><code>&lt;i class="flag flag-mozambique"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-namibia" data-name="Namibia"><td class="flag-icon"><i class="flag flag-namibia"></i></td><td class="flag-name">Namibia</td><td class="flag-iso"><code>&lt;i class="flag flag-namibia"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-new-caledonia" data-name="New Caledonia"><td class="flag-icon"><i class="flag flag-new-caledonia"></i></td><td class="flag-name">New Caledonia</td><td class="flag-iso"><code>&lt;i class="flag flag-new-caledonia"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-niger" data-name="Niger"><td class="flag-icon"><i class="flag flag-niger"></i></td><td class="flag-name">Niger</td><td class="flag-iso"><code>&lt;i class="flag flag-niger"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-norfolk-island" data-name="Norfolk Island"><td class="flag-icon"><i class="flag flag-norfolk-island"></i></td><td class="flag-name">Norfolk Island</td><td class="flag-iso"><code>&lt;i class="flag flag-norfolk-island"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-nigeria" data-name="Nigeria"><td class="flag-icon"><i class="flag flag-nigeria"></i></td><td class="flag-name">Nigeria</td><td class="flag-iso"><code>&lt;i class="flag flag-nigeria"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-nicaragua" data-name="Nicaragua"><td class="flag-icon"><i class="flag flag-nicaragua"></i></td><td class="flag-name">Nicaragua</td><td class="flag-iso"><code>&lt;i class="flag flag-nicaragua"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-netherlands" data-name="Netherlands"><td class="flag-icon"><i class="flag flag-netherlands"></i></td><td class="flag-name">Netherlands</td><td class="flag-iso"><code>&lt;i class="flag flag-netherlands"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-norway" data-name="Norway"><td class="flag-icon"><i class="flag flag-norway"></i></td><td class="flag-name">Norway</td><td class="flag-iso"><code>&lt;i class="flag flag-norway"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-nepal" data-name="Nepal"><td class="flag-icon"><i class="flag flag-nepal"></i></td><td class="flag-name">Nepal</td><td class="flag-iso"><code>&lt;i class="flag flag-nepal"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-nauru" data-name="Nauru"><td class="flag-icon"><i class="flag flag-nauru"></i></td><td class="flag-name">Nauru</td><td class="flag-iso"><code>&lt;i class="flag flag-nauru"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-niue" data-name="Niue"><td class="flag-icon"><i class="flag flag-niue"></i></td><td class="flag-name">Niue</td><td class="flag-iso"><code>&lt;i class="flag flag-niue"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-new-zealand" data-name="New Zealand"><td class="flag-icon"><i class="flag flag-new-zealand"></i></td><td class="flag-name">New Zealand</td><td class="flag-iso"><code>&lt;i class="flag flag-new-zealand"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-oman" data-name="Oman"><td class="flag-icon"><i class="flag flag-oman"></i></td><td class="flag-name">Oman</td><td class="flag-iso"><code>&lt;i class="flag flag-oman"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-panama" data-name="Panama"><td class="flag-icon"><i class="flag flag-panama"></i></td><td class="flag-name">Panama</td><td class="flag-iso"><code>&lt;i class="flag flag-panama"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-peru" data-name="Peru"><td class="flag-icon"><i class="flag flag-peru"></i></td><td class="flag-name">Peru</td><td class="flag-iso"><code>&lt;i class="flag flag-peru"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-french-polynesia" data-name="French Polynesia"><td class="flag-icon"><i class="flag flag-french-polynesia"></i></td><td class="flag-name">French Polynesia</td><td class="flag-iso"><code>&lt;i class="flag flag-french-polynesia"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-new-guinea" data-name="New Guinea"><td class="flag-icon"><i class="flag flag-new-guinea"></i></td><td class="flag-name">New Guinea</td><td class="flag-iso"><code>&lt;i class="flag flag-new-guinea"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-philippines" data-name="Philippines"><td class="flag-icon"><i class="flag flag-philippines"></i></td><td class="flag-name">Philippines</td><td class="flag-iso"><code>&lt;i class="flag flag-philippines"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-pakistan" data-name="Pakistan"><td class="flag-icon"><i class="flag flag-pakistan"></i></td><td class="flag-name">Pakistan</td><td class="flag-iso"><code>&lt;i class="flag flag-pakistan"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-poland" data-name="Poland"><td class="flag-icon"><i class="flag flag-poland"></i></td><td class="flag-name">Poland</td><td class="flag-iso"><code>&lt;i class="flag flag-poland"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-saint-pierre" data-name="Saint Pierre"><td class="flag-icon"><i class="flag flag-saint-pierre"></i></td><td class="flag-name">Saint Pierre</td><td class="flag-iso"><code>&lt;i class="flag flag-saint-pierre"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-pitcairn-islands" data-name="Pitcairn Islands"><td class="flag-icon"><i class="flag flag-pitcairn-islands"></i></td><td class="flag-name">Pitcairn Islands</td><td class="flag-iso"><code>&lt;i class="flag flag-pitcairn-islands"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-puerto-rico" data-name="Puerto Rico"><td class="flag-icon"><i class="flag flag-puerto-rico"></i></td><td class="flag-name">Puerto Rico</td><td class="flag-iso"><code>&lt;i class="flag flag-puerto-rico"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-palestine" data-name="Palestine"><td class="flag-icon"><i class="flag flag-palestine"></i></td><td class="flag-name">Palestine</td><td class="flag-iso"><code>&lt;i class="flag flag-palestine"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-portugal" data-name="Portugal"><td class="flag-icon"><i class="flag flag-portugal"></i></td><td class="flag-name">Portugal</td><td class="flag-iso"><code>&lt;i class="flag flag-portugal"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-palau" data-name="Palau"><td class="flag-icon"><i class="flag flag-palau"></i></td><td class="flag-name">Palau</td><td class="flag-iso"><code>&lt;i class="flag flag-palau"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-paraguay" data-name="Paraguay"><td class="flag-icon"><i class="flag flag-paraguay"></i></td><td class="flag-name">Paraguay</td><td class="flag-iso"><code>&lt;i class="flag flag-paraguay"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-qatar" data-name="Qatar"><td class="flag-icon"><i class="flag flag-qatar"></i></td><td class="flag-name">Qatar</td><td class="flag-iso"><code>&lt;i class="flag flag-qatar"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-reunion" data-name="Reunion"><td class="flag-icon"><i class="flag flag-reunion"></i></td><td class="flag-name">Reunion</td><td class="flag-iso"><code>&lt;i class="flag flag-reunion"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-romania" data-name="Romania"><td class="flag-icon"><i class="flag flag-romania"></i></td><td class="flag-name">Romania</td><td class="flag-iso"><code>&lt;i class="flag flag-romania"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-russia" data-name="Russia"><td class="flag-icon"><i class="flag flag-russia"></i></td><td class="flag-name">Russia</td><td class="flag-iso"><code>&lt;i class="flag flag-russia"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-rwanda" data-name="Rwanda"><td class="flag-icon"><i class="flag flag-rwanda"></i></td><td class="flag-name">Rwanda</td><td class="flag-iso"><code>&lt;i class="flag flag-rwanda"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-saudi-arabia" data-name="Saudi Arabia"><td class="flag-icon"><i class="flag flag-saudi-arabia"></i></td><td class="flag-name">Saudi Arabia</td><td class="flag-iso"><code>&lt;i class="flag flag-saudi-arabia"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-solomon-islands" data-name="Solomon Islands"><td class="flag-icon"><i class="flag flag-solomon-islands"></i></td><td class="flag-name">Solomon Islands</td><td class="flag-iso"><code>&lt;i class="flag flag-solomon-islands"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-seychelles" data-name="Seychelles"><td class="flag-icon"><i class="flag flag-seychelles"></i></td><td class="flag-name">Seychelles</td><td class="flag-iso"><code>&lt;i class="flag flag-seychelles"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-sudan" data-name="Sudan"><td class="flag-icon"><i class="flag flag-sudan"></i></td><td class="flag-name">Sudan</td><td class="flag-iso"><code>&lt;i class="flag flag-sudan"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-sweden" data-name="Sweden"><td class="flag-icon"><i class="flag flag-sweden"></i></td><td class="flag-name">Sweden</td><td class="flag-iso"><code>&lt;i class="flag flag-sweden"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-singapore" data-name="Singapore"><td class="flag-icon"><i class="flag flag-singapore"></i></td><td class="flag-name">Singapore</td><td class="flag-iso"><code>&lt;i class="flag flag-singapore"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-saint-helena" data-name="Saint Helena"><td class="flag-icon"><i class="flag flag-saint-helena"></i></td><td class="flag-name">Saint Helena</td><td class="flag-iso"><code>&lt;i class="flag flag-saint-helena"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-slovenia" data-name="Slovenia"><td class="flag-icon"><i class="flag flag-slovenia"></i></td><td class="flag-name">Slovenia</td><td class="flag-iso"><code>&lt;i class="flag flag-slovenia"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-jan-mayen" data-name="Jan Mayen"><td class="flag-icon"><i class="flag flag-jan-mayen"></i></td><td class="flag-name">Jan Mayen</td><td class="flag-iso"><code>&lt;i class="flag flag-jan-mayen"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-slovakia" data-name="Slovakia"><td class="flag-icon"><i class="flag flag-slovakia"></i></td><td class="flag-name">Slovakia</td><td class="flag-iso"><code>&lt;i class="flag flag-slovakia"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-sierra-leone" data-name="Sierra Leone"><td class="flag-icon"><i class="flag flag-sierra-leone"></i></td><td class="flag-name">Sierra Leone</td><td class="flag-iso"><code>&lt;i class="flag flag-sierra-leone"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-san-marino" data-name="San Marino"><td class="flag-icon"><i class="flag flag-san-marino"></i></td><td class="flag-name">San Marino</td><td class="flag-iso"><code>&lt;i class="flag flag-san-marino"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-senegal" data-name="Senegal"><td class="flag-icon"><i class="flag flag-senegal"></i></td><td class="flag-name">Senegal</td><td class="flag-iso"><code>&lt;i class="flag flag-senegal"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-somalia" data-name="Somalia"><td class="flag-icon"><i class="flag flag-somalia"></i></td><td class="flag-name">Somalia</td><td class="flag-iso"><code>&lt;i class="flag flag-somalia"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-suriname" data-name="Suriname"><td class="flag-icon"><i class="flag flag-suriname"></i></td><td class="flag-name">Suriname</td><td class="flag-iso"><code>&lt;i class="flag flag-suriname"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-sao-tome" data-name="Sao Tome"><td class="flag-icon"><i class="flag flag-sao-tome"></i></td><td class="flag-name">Sao Tome</td><td class="flag-iso"><code>&lt;i class="flag flag-sao-tome"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-el-salvador" data-name="El Salvador"><td class="flag-icon"><i class="flag flag-el-salvador"></i></td><td class="flag-name">El Salvador</td><td class="flag-iso"><code>&lt;i class="flag flag-el-salvador"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-syria" data-name="Syria"><td class="flag-icon"><i class="flag flag-syria"></i></td><td class="flag-name">Syria</td><td class="flag-iso"><code>&lt;i class="flag flag-syria"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-swaziland" data-name="Swaziland"><td class="flag-icon"><i class="flag flag-swaziland"></i></td><td class="flag-name">Swaziland</td><td class="flag-iso"><code>&lt;i class="flag flag-swaziland"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-caicos-islands" data-name="Caicos Islands"><td class="flag-icon"><i class="flag flag-caicos-islands"></i></td><td class="flag-name">Caicos Islands</td><td class="flag-iso"><code>&lt;i class="flag flag-caicos-islands"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-chad" data-name="Chad"><td class="flag-icon"><i class="flag flag-chad"></i></td><td class="flag-name">Chad</td><td class="flag-iso"><code>&lt;i class="flag flag-chad"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-french-territories" data-name="French Territories"><td class="flag-icon"><i class="flag flag-french-territories"></i></td><td class="flag-name">French Territories</td><td class="flag-iso"><code>&lt;i class="flag flag-french-territories"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-togo" data-name="Togo"><td class="flag-icon"><i class="flag flag-togo"></i></td><td class="flag-name">Togo</td><td class="flag-iso"><code>&lt;i class="flag flag-togo"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-thailand" data-name="Thailand"><td class="flag-icon"><i class="flag flag-thailand"></i></td><td class="flag-name">Thailand</td><td class="flag-iso"><code>&lt;i class="flag flag-thailand"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-tajikistan" data-name="Tajikistan"><td class="flag-icon"><i class="flag flag-tajikistan"></i></td><td class="flag-name">Tajikistan</td><td class="flag-iso"><code>&lt;i class="flag flag-tajikistan"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-tokelau" data-name="Tokelau"><td class="flag-icon"><i class="flag flag-tokelau"></i></td><td class="flag-name">Tokelau</td><td class="flag-iso"><code>&lt;i class="flag flag-tokelau"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-timorleste" data-name="Timorleste"><td class="flag-icon"><i class="flag flag-timorleste"></i></td><td class="flag-name">Timorleste</td><td class="flag-iso"><code>&lt;i class="flag flag-timorleste"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-turkmenistan" data-name="Turkmenistan"><td class="flag-icon"><i class="flag flag-turkmenistan"></i></td><td class="flag-name">Turkmenistan</td><td class="flag-iso"><code>&lt;i class="flag flag-turkmenistan"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-tunisia" data-name="Tunisia"><td class="flag-icon"><i class="flag flag-tunisia"></i></td><td class="flag-name">Tunisia</td><td class="flag-iso"><code>&lt;i class="flag flag-tunisia"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-tonga" data-name="Tonga"><td class="flag-icon"><i class="flag flag-tonga"></i></td><td class="flag-name">Tonga</td><td class="flag-iso"><code>&lt;i class="flag flag-tonga"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-turkey" data-name="Turkey"><td class="flag-icon"><i class="flag flag-turkey"></i></td><td class="flag-name">Turkey</td><td class="flag-iso"><code>&lt;i class="flag flag-turkey"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-trinidad" data-name="Trinidad"><td class="flag-icon"><i class="flag flag-trinidad"></i></td><td class="flag-name">Trinidad</td><td class="flag-iso"><code>&lt;i class="flag flag-trinidad"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-tuvalu" data-name="Tuvalu"><td class="flag-icon"><i class="flag flag-tuvalu"></i></td><td class="flag-name">Tuvalu</td><td class="flag-iso"><code>&lt;i class="flag flag-tuvalu"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-taiwan" data-name="Taiwan"><td class="flag-icon"><i class="flag flag-taiwan"></i></td><td class="flag-name">Taiwan</td><td class="flag-iso"><code>&lt;i class="flag flag-taiwan"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-tanzania" data-name="Tanzania"><td class="flag-icon"><i class="flag flag-tanzania"></i></td><td class="flag-name">Tanzania</td><td class="flag-iso"><code>&lt;i class="flag flag-tanzania"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-ukraine" data-name="Ukraine"><td class="flag-icon"><i class="flag flag-ukraine"></i></td><td class="flag-name">Ukraine</td><td class="flag-iso"><code>&lt;i class="flag flag-ukraine"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-uganda" data-name="Uganda"><td class="flag-icon"><i class="flag flag-uganda"></i></td><td class="flag-name">Uganda</td><td class="flag-iso"><code>&lt;i class="flag flag-uganda"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-us-minor-islands" data-name="U.S. Minor Islands"><td class="flag-icon"><i class="flag flag-us-minor-islands"></i></td><td class="flag-name">U.S. Minor Islands</td><td class="flag-iso"><code>&lt;i class="flag flag-us-minor-islands"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-united-states" data-name="United States"><td class="flag-icon"><i class="flag flag-united-states"></i></td><td class="flag-name">United States</td><td class="flag-iso"><code>&lt;i class="flag flag-united-states"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-uruguay" data-name="Uruguay"><td class="flag-icon"><i class="flag flag-uruguay"></i></td><td class="flag-name">Uruguay</td><td class="flag-iso"><code>&lt;i class="flag flag-uruguay"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-uzbekistan" data-name="Uzbekistan"><td class="flag-icon"><i class="flag flag-uzbekistan"></i></td><td class="flag-name">Uzbekistan</td><td class="flag-iso"><code>&lt;i class="flag flag-uzbekistan"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-vatican-city" data-name="Vatican City"><td class="flag-icon"><i class="flag flag-vatican-city"></i></td><td class="flag-name">Vatican City</td><td class="flag-iso"><code>&lt;i class="flag flag-vatican-city"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-saint-vincent" data-name="Saint Vincent"><td class="flag-icon"><i class="flag flag-saint-vincent"></i></td><td class="flag-name">Saint Vincent</td><td class="flag-iso"><code>&lt;i class="flag flag-saint-vincent"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-venezuela" data-name="Venezuela"><td class="flag-icon"><i class="flag flag-venezuela"></i></td><td class="flag-name">Venezuela</td><td class="flag-iso"><code>&lt;i class="flag flag-venezuela"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-british-virgin-islands" data-name="British Virgin Islands"><td class="flag-icon"><i class="flag flag-british-virgin-islands"></i></td><td class="flag-name">British Virgin Islands</td><td class="flag-iso"><code>&lt;i class="flag flag-british-virgin-islands"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-us-virgin-islands" data-name="U.S. Virgin Islands"><td class="flag-icon"><i class="flag flag-us-virgin-islands"></i></td><td class="flag-name">U.S. Virgin Islands</td><td class="flag-iso"><code>&lt;i class="flag flag-us-virgin-islands"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-vietnam" data-name="Vietnam"><td class="flag-icon"><i class="flag flag-vietnam"></i></td><td class="flag-name">Vietnam</td><td class="flag-iso"><code>&lt;i class="flag flag-vietnam"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-vanuatu" data-name="Vanuatu"><td class="flag-icon"><i class="flag flag-vanuatu"></i></td><td class="flag-name">Vanuatu</td><td class="flag-iso"><code>&lt;i class="flag flag-vanuatu"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-wallis-and-futuna" data-name="Wallis And Futuna"><td class="flag-icon"><i class="flag flag-wallis-and-futuna"></i></td><td class="flag-name">Wallis And Futuna</td><td class="flag-iso"><code>&lt;i class="flag flag-wallis-and-futuna"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-samoa" data-name="Samoa"><td class="flag-icon"><i class="flag flag-samoa"></i></td><td class="flag-name">Samoa</td><td class="flag-iso"><code>&lt;i class="flag flag-samoa"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-yemen" data-name="Yemen"><td class="flag-icon"><i class="flag flag-yemen"></i></td><td class="flag-name">Yemen</td><td class="flag-iso"><code>&lt;i class="flag flag-yemen"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-mayotte" data-name="Mayotte"><td class="flag-icon"><i class="flag flag-mayotte"></i></td><td class="flag-name">Mayotte</td><td class="flag-iso"><code>&lt;i class="flag flag-mayotte"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-south-africa" data-name="South Africa"><td class="flag-icon"><i class="flag flag-south-africa"></i></td><td class="flag-name">South Africa</td><td class="flag-iso"><code>&lt;i class="flag flag-south-africa"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-zambia" data-name="Zambia"><td class="flag-icon"><i class="flag flag-zambia"></i></td><td class="flag-name">Zambia</td><td class="flag-iso"><code>&lt;i class="flag flag-zambia"&gt;&lt;/i&gt;</code></td></tr>
+                          <tr data-flag="flag-zimbabwe" data-name="Zimbabwe"><td class="flag-icon"><i class="flag flag-zimbabwe"></i></td><td class="flag-name">Zimbabwe</td><td class="flag-iso"><code>&lt;i class="flag flag-zimbabwe"&gt;&lt;/i&gt;</code></td></tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    <!-- ./Flag table -->
+                  </section>
+                  <!--/Section: Flag reference-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: API Documentation-->
+                  <section id="section-api-docs">
+                    <h3 class="mb-3">API Documentation</h3>
+
+                    <!--Section: API Introduction-->
+                    <section id="api-section-introduction">
+                      <h4 class="mb-4">Introduction</h4>
+                      <p>
+                        The Nimbus flag component is CSS-only — no JavaScript initialization is required and no CSS custom properties are exposed. Each flag is rendered by a pair of classes applied to an <code>&lt;i&gt;</code> element: the base class <code>.flag</code> sets the element dimensions and loads the sprite image, while the country modifier class (e.g., <code>.flag-us</code>) sets the <code>background-position</code> offset to display the correct flag. Because the component relies entirely on a PNG sprite rather than inline SVG or icon fonts, it is not affected by theme switching — the flag artwork is identical in both light and dark modes.
+                      </p>
+                    </section>
+                    <!--/Section: API Introduction-->
+
+                    <!--Section: API Usage-->
+                    <section id="api-section-usage">
+                      <h4 class="mb-4">Usage</h4>
+                      <p>
+                        Flags are applied as a pair of CSS classes on an <code>&lt;i&gt;</code> element. No JavaScript initialization is required. The base class <code>.flag</code> must always be present — it sets <code>display: inline-block</code>, fixes the element to <code>16×11px</code>, and loads the sprite image. The country modifier class (e.g., <code>.flag-us</code>) then positions the sprite to reveal the correct flag. Omitting either class produces no visible output.
+                      </p>
+
+                      <!-- Angular: Dynamic country code via [ngClass]; iterate over a countries array with *ngFor.
+                           Example: <i *ngFor="let c of countries" class="flag" [ngClass]="'flag-' + c.code" aria-hidden="true"></i>
+                           Use a FlagComponent with @Input() code = '' to encapsulate the class binding. -->
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-html">&lt;!-- Single flag --&gt;
+&lt;i class="flag flag-us"&gt;&lt;/i&gt;
+
+&lt;!-- Multiple flags inline --&gt;
+&lt;i class="flag flag-us"&gt;&lt;/i&gt;
+&lt;i class="flag flag-united-kingdom"&gt;&lt;/i&gt;
+&lt;i class="flag flag-france"&gt;&lt;/i&gt;
+
+&lt;!-- Flag inside a button --&gt;
+&lt;button class="btn btn-outline-secondary"&gt;
+  &lt;i class="flag flag-us me-2" aria-hidden="true"&gt;&lt;/i&gt; English
+&lt;/button&gt;</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Section: API Usage-->
+
+                    <!--Section: API CSS Classes-->
+                    <section id="api-section-css-classes">
+                      <h4 class="mb-4">CSS classes</h4>
+                      <p>
+                        The flag component uses two cooperating CSS classes. Both must be present on the same element — the base class establishes the element dimensions and loads the sprite, while the modifier class selects the correct flag by positioning the sprite background.
+                      </p>
+
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="CSS classes">
+                          <thead>
+                            <tr>
+                              <th class="th-sm" scope="col">Class</th>
+                              <th class="th-sm" scope="col">Element</th>
+                              <th class="th-sm" scope="col">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>.flag</code></td>
+                              <td><code>&lt;i&gt;</code></td>
+                              <td>
+                                Base class required on every flag element. Sets <code>display: inline-block</code>, fixes the element to <code>16×11px</code>, applies a <code>0.5em</code> right margin for inline spacing, aligns to <code>baseline</code>, and loads the sprite image via a <code>::before</code> pseudo-element. The selector targets <code>i.flag:not(.icon)</code> — adding the <code>.icon</code> class to the same element suppresses all flag styles.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.flag-{country}</code></td>
+                              <td><code>&lt;i&gt;</code></td>
+                              <td>
+                                Country modifier class. Overrides the <code>background-position</code> of the <code>::before</code> pseudo-element to reveal the correct flag from the sprite sheet. Each entry supports multiple selector aliases — a full country name (<code>.flag-united-kingdom</code>), an ISO 3166-1 alpha-2 code (<code>.flag-gb</code>), and in some cases a common abbreviation (<code>.flag-uae</code>). See the Naming convention section for the full pattern.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: API CSS Classes-->
+
+                    <!--Section: API Accessibility-->
+                    <section id="api-section-accessibility">
+                      <h4 class="mb-4">Accessibility</h4>
+                      <p>
+                        Flag icons are decorative by default — they accompany a visible text label that already communicates the country or language. In this case, add <code>aria-hidden="true"</code> to remove the element from the accessibility tree entirely. When a flag is the only visual indicator of a country or language (i.e., no adjacent text label is present), mark it as an image with <code>role="img"</code> and provide a descriptive <code>aria-label</code> so screen readers can announce its meaning.
+                      </p>
+
+                      <!--
+                        Angular conversion — Accessibility patterns
+
+                        Decorative flag alongside a text label (aria-hidden):
+                          <i class="flag flag-us" aria-hidden="true"></i>
+
+                        Meaningful standalone flag (dynamic aria-label from component):
+                          // component.ts
+                          country = { code: 'us', name: 'United States' };
+
+                          // template
+                          <i class="flag" [ngClass]="'flag-' + country.code"
+                             role="img" [attr.aria-label]="country.name"></i>
+
+                        Language selector button with dynamic locale:
+                          // component.ts
+                          locale = { code: 'us', label: 'English', ariaLabel: 'Switch to English' };
+
+                          // template
+                          <button class="btn btn-outline-secondary" [attr.aria-label]="locale.ariaLabel">
+                            <i class="flag me-2" [ngClass]="'flag-' + locale.code" aria-hidden="true"></i>
+                            <span>{{ locale.label }}</span>
+                          </button>
+
+                        Tip: bind [attr.aria-label] rather than aria-label as a plain attribute
+                        when the value is dynamic — Angular strips static aria-label bindings
+                        during change detection if the expression evaluates to null or undefined.
+                      -->
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-html">&lt;!-- Decorative flag (default) --&gt;
+&lt;i class="flag flag-us" aria-hidden="true"&gt;&lt;/i&gt;
+
+&lt;!-- Meaningful flag with accessible label --&gt;
+&lt;i class="flag flag-us" role="img" aria-label="United States"&gt;&lt;/i&gt;
+
+&lt;!-- Flag in a language selector --&gt;
+&lt;button class="btn btn-outline-secondary" aria-label="Switch to English"&gt;
+  &lt;i class="flag flag-us" aria-hidden="true"&gt;&lt;/i&gt;
+  &lt;span&gt;English&lt;/span&gt;
+&lt;/button&gt;</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Section: API Accessibility-->
+
+                    <!--Section: API Naming Convention-->
+                    <section id="api-section-naming">
+                      <h4 class="mb-4">Naming convention</h4>
+                      <p>
+                        Flag modifier class names are derived from the country or territory name using a consistent transformation: the name is lowercased, all spaces and punctuation are replaced with hyphens, and the result is prefixed with <code>flag-</code>. A small number of frequently used countries also have short aliases (e.g., <code>.flag-uae</code> for United Arab Emirates, <code>.flag-us</code> for United States). When in doubt, use the full lowercased name with hyphens — refer to the Flag reference table above for the exact class for each entry.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Naming convention">
+                          <thead>
+                            <tr>
+                              <th class="th-sm" scope="col">Pattern</th>
+                              <th class="th-sm" scope="col">Example</th>
+                              <th class="th-sm" scope="col">Result</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>.flag-{country-name}</code></td>
+                              <td><code>.flag-united-states</code></td>
+                              <td><i class="flag flag-united-states" aria-hidden="true"></i> United States</td>
+                            </tr>
+                            <tr>
+                              <td><code>.flag-{iso-code}</code></td>
+                              <td><code>.flag-us</code></td>
+                              <td><i class="flag flag-us" aria-hidden="true"></i> ISO 3166-1 alpha-2 code. Supported alongside the full name for most countries.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.flag-{abbreviation}</code></td>
+                              <td><code>.flag-uae</code></td>
+                              <td><i class="flag flag-uae" aria-hidden="true"></i> Common abbreviation alias. Only available for a small set of countries (e.g., UAE, UK).</td>
+                            </tr>
+                            <tr>
+                              <td><code>.flag-{territory}</code></td>
+                              <td><code>.flag-puerto-rico</code></td>
+                              <td><i class="flag flag-puerto-rico" aria-hidden="true"></i> Territories, regions, and non-sovereign entities included in the sprite set.</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: API Naming Convention-->
+                  </section>
+                  <!--/Section: API Documentation-->
+
+                </section>
+                <!--/Section: Docs content-->
+              </div>
+              <!-- ./Main column -->
+
+              <!-- Right Sidebar — 20 % of the row; hidden below lg breakpoint.
+                   Sticky attributes processed by nimbus.js:
+                     data-cnds-sticky="true"           Activates sticky positioning via JS (not CSS position:sticky)
+                     data-cnds-sticky-boundary="true"  Constrains the sticky element to its parent container so it
+                                                       does not overflow the content column when scrolled to the bottom
+                     data-cnds-sticky-direction="both" Sticks when scrolling up OR down (not just one direction)
+                     data-cnds-sticky-offset="56"      Clears the 56 px fixed header before sticking
+                     data-cnds-sticky-delay="125"      Debounce delay (ms) applied to the scroll handler to reduce jank
+                   data-cnds-allow-hashes="true" on the <ul>: nimbus.js watches the URL hash
+                     and highlights the matching nav-link as the user scrolls through sections. -->
+              <div class="col-lg-2 d-none d-lg-block">
+                <div class="sticky-top" style="top: 100px; z-index: 1">
+                  <ul class="nav flex-column nav-pills menu-sidebar" id="rightNav" data-cnds-allow-hashes="true">
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-introduction">Introduction</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-basic-example">Basic example</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-flag-reference">Flag reference</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-api-docs">API Documentation</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#api-section-introduction">Introduction</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#api-section-usage">Usage</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#api-section-css-classes">CSS classes</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#api-section-accessibility">Accessibility</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#api-section-naming">Naming convention</a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <!-- ./Right Sidebar -->
+            </div>
+            <!-- ./Content Row -->
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- ./Content -->
+
+    <!-- Footer -->
+    <div class="cf-footer cf-footer-app">
+      <footer class="page-footer main-footer" aria-label="Site footer">
+        <div class="w-100 px-3 d-flex align-items-center">
+          <img src="img/cf/core/cloudficient_logo_light.svg" class="cf-logo-light" style="width: 135px;" alt="Cloudficient" />
+          <img src="img/cf/core/cloudficient_logo_dark.svg" class="cf-logo-dark" style="width: 135px;" alt="Cloudficient" />
+          <span class="footer-copyright ms-auto">&copy; <span id="currentYear"></span> Cloudficient</span>
+        </div>
+      </footer>
+    </div>
+    <!-- ./Footer -->
+
+    <!-- SCRIPTS -->
+    <!-- Nimbus core JavaScript -->
+    <script type="text/javascript" src="js/nimbus.js?v=9.0.4"></script>
+    <!-- Custom Application Scripts -->
+    <script type="text/javascript" src="js/app.js?v=9.0.4"></script>
+    <!-- Prism syntax highlighting -->
+    <script type="text/javascript" src="plugins/js/prism.min.js"></script>
+    <!-- Shared sidenav loader -->
+    <script type="text/javascript" src="js/sidenav-loader.js"></script>
+    <!-- Page scripts -->
+    <script type="text/javascript">
+      /**
+       * searchFlags — Filters the flag reference table rows based on user input.
+       * Listens for keyup events on the search input and hides rows that do not
+       * match the filter text. Searches across all table cell content (name, code).
+       * Uses vanilla JavaScript.
+       */
+      (function () {
+        "use strict";
+
+        // Cache DOM references for performance
+        var searchInput = document.getElementById("searchFlag");
+        var flagTable = document.getElementById("cnds-flag-table");
+
+        if (searchInput && flagTable) {
+          searchInput.addEventListener("keyup", function () {
+            var filter = searchInput.value.toUpperCase();
+            var rows = flagTable.getElementsByTagName("tr");
+
+            // Start at index 1 to skip the header row
+            for (var i = 1; i < rows.length; i++) {
+              var cells = rows[i].getElementsByTagName("td");
+              var match = false;
+
+              // Check each cell in the row for a match
+              for (var j = 0; j < cells.length; j++) {
+                if (cells[j] && cells[j].textContent.toUpperCase().indexOf(filter) > -1) {
+                  match = true;
+                  break;
+                }
+              }
+
+              // Show or hide the row based on match result
+              rows[i].style.display = match ? "" : "none";
+            }
+          });
+        }
+
+        // Set current year in footer
+        var currentYearElement = document.getElementById("currentYear");
+        if (currentYearElement) {
+          currentYearElement.textContent = new Date().getFullYear();
+        }
+      })();
+    </script>
+    <!-- ./Page scripts -->
+  </body>
+</html>

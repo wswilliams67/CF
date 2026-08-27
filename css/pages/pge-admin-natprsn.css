@@ -1,0 +1,2093 @@
+/* ============================================================================
+ * Nimbus v1 Portable Design System — CaseFusion 1.6
+ * File:    css/pages/pge-admin-natprsn.css
+ * Screens: Admin › Natural Persons  (pge-admin-natprsn-*.html)
+ * Figma:   CaseFusion v1.5 — Tenant Manager, node 11204:14901 ("Start")
+ *
+ * SCOPE
+ * ─────
+ * Shared stylesheet for the whole Natural Persons screen family, so a second
+ * screen in the family (Candidate Queue, Identities) links this one file and
+ * adds nothing. Everything here is a LAYOUT DELTA over Nimbus components —
+ * no component is restyled from scratch:
+ *
+ *   .card                components/cards.css   person card shell + theming
+ *   .btn-toolbar-gray
+ *     .btn-toolbar-list  components/toolbars.css list toolbar shell
+ *   .cf-input-field      components/forms.css    search field
+ *   .btn / -primary
+ *     / -secondary
+ *     / -tertiary        components/buttons.css  every button on the screen
+ *   .badge               components/badges.css   pending count on the queue btn
+ *   .pagination-toolbar  components/pagination.css footer pager
+ *   .cf-page-title       core/typography.css     "NATURAL PERSONS" title
+ *
+ * LOAD ORDER — last, after the frame stylesheet:
+ *     nimbus.css → app.css → themes/* → pages/frame-ca-sidenav.css → THIS FILE
+ *
+ * TOKENS
+ * ──────
+ * Colour and spacing come from the system. Page-local values live under the
+ * --np-* namespace and are never --cnds-*. Inside a person card, dividers and
+ * rules read var(--cnds-card-border-color), which .card already sets per theme
+ * (components/cards.css + themes/dark.css) — so they follow the theme for free.
+ *
+ * SECTIONS
+ *   1 · Page shell + title
+ *   2 · Toolbar row        search · sort · total · pending match queue · new
+ *   3 · Person card        identity / metadata / contact / actions columns
+ *   4 · Pager
+ *   5 · Empty state
+ *   6 · Responsive         card columns stack below 1180px
+ *
+ *   PENDING MATCH QUEUE  (pge-admin-natprsn-pndmtchque.html)
+ *   7 · Queue page title   back control + two-part title
+ *   8 · Stat tiles         Pending / Same person / Not the same
+ *   9 · Unmerged alert     persistent, non-dismissible
+ *  10 · Queue list rows    shared by both views + status colours
+ *  11 · Tools band         sticky under the title; Nimbus toolbar rows
+ *  12 · Pair rows          all-pairs view content
+ *  13 · Filter row          four filters, Clear filters, Measurement
+ *  14 · Pair Review panel   offcanvas: persons, comparison table, decision bar
+ *
+ * ANGULAR: styleUrls of NaturalPersonListComponent. The card block (§3) moves
+ * with PersonCardComponent when the card is extracted; keep §1/§2/§4 on the
+ * list page. ViewEncapsulation.None is NOT required — every selector is
+ * page-scoped under .np-page.
+ * ========================================================================= */
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   1 · PAGE SHELL + TITLE
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.np-page {
+  /* Page-local tokens. Mirrors of Figma values that have no --cnds-* twin. */
+  --np-gap: 16px;            /* toolbar → list → pager rhythm */
+  --np-card-gap: 8px;        /* between person cards (Figma fr_nat_persons) */
+  --np-card-pad: 24px;       /* card inner padding (spacing/h|v-padding/24) */
+  --np-col-meta-w: 225px;    /* Employee ID / DOB / Gender / Location column */
+  --np-col-contact-w: 350px; /* Email Addresses / Phone Numbers column */
+  /* Figma draws this column at 111 with the buttons FILL, which fits
+     "VIEW PROFILE" at its font — but the same label measures ~90 in a browser
+     against 87 of available width, so it wrapped and pushed the button to 47
+     tall. Widened to 120, the same remedy applied to the queue's actions
+     column. Labels are pinned to one line below. */
+  --np-col-actions-w: 120px;
+  /* Pending Match Queue · list rows (§10). Measured from the Figma frames,
+     not from the annotation — the note beside them says the actions column is
+     230px, but both views actually draw it narrower. */
+  --np-row-title-w: 300px;   /* title column, both views */
+  /* Grouped actions column, Figma 214 FIXED. The row buttons are SMALL
+     (12px), so "Decide whole group" is 166 wide and clears the column's 16px
+     right padding with room to spare — the 224 this briefly needed was only
+     ever a symptom of the buttons being built at the default size. */
+  --np-row-actions-w: 214px;
+  /* SPEC: the floating pager sits 16px off the bottom of the viewport. */
+  --np-pager-inset: 16px;
+  /* .ca-main's padding in frame-ca-sidenav.css (16px 16px 24px). Referenced
+     only to cancel itself out — nothing else should read these. */
+  --np-frame-pad-top: 16px;
+  --np-frame-pad-bottom: 24px;
+
+  display: flex;
+  flex-direction: column;
+
+  /* Always at least tall enough to put the pager on the fold line.
+
+     Without this the bar's resting place depends on how many cards the page
+     happens to hold: a full page of 10 scrolls, so the pager floats at the
+     bottom of the viewport, while page 2 with 4 cards does not scroll at all
+     and the bar sits directly under the last card. Paging then appears to move
+     the control the user just clicked.
+
+     This box starts at y = the utility header's height (the :has(.np-header)
+     rule below cancels the frame's top padding) and its bottom edge IS the pager's
+     bottom edge, since the pager is the last child. Subtracting the header and
+     the pager's own inset from the viewport therefore lands the bar exactly on
+     its sticky offset — the same coordinate whether the list scrolls or not.
+     Long lists overrun this and scroll normally. */
+  min-height: calc(
+    100vh - var(--app-utility-height, 50px) - var(--np-pager-inset)
+  );
+}
+
+/* ── Frame-padding compensation, applied only where it is earned ───────────
+   Both margins below cancel part of .ca-main's padding, and both are wrong on
+   a page that lacks the element they exist for — which is why each is gated on
+   that element actually being present. The queue screen, for one, has a title
+   but no sticky header while it is being built, and an unconditional negative
+   top margin slides its title up under the utility bar.
+
+   TOP · the frame's 16px top padding is handed to .np-header so the sticky bar
+   can carry its own breathing room and therefore not shift when it pins (§2).
+   Cancel it here only when there IS such a bar.
+
+   BOTTOM · the pager is the last child, so the frame's 24px bottom padding is
+   the gap its flow position leaves beneath it. A sticky bottom offset that
+   does not match that gap makes the bar jump by the difference on the last
+   frame of the scroll. Pulling the box down by the difference brings the
+   resting gap to the specified 16px, so the floating and resting positions are
+   the same coordinate. Only meaningful when a pager exists.
+
+   The frame pads 16px top and sides but 24px at the bottom; if that odd bottom
+   value is normalised to 16 in the template, delete the bottom rule and
+   --np-frame-pad-bottom with it. */
+.np-page:has(.np-header) {
+  margin-top: calc(-1 * var(--np-frame-pad-top));
+}
+
+.np-page:has(.np-pager) {
+  margin-bottom: calc(var(--np-pager-inset) - var(--np-frame-pad-bottom));
+}
+
+/* Nimbus/PageTitle. .cf-page-title ships margin-top:16px for a title that sits
+   under a navbar; this frame already pads .ca-main, so zero it out. */
+.np-page .cf-page-title {
+  margin-top: 0;
+}
+
+/* The heading inside the title still carries the browser's default <h1>
+   margin. .cf-page-title is a flex row with align-items:center, which centres
+   the MARGIN box — so an 8px bottom margin lifts the border box 4px and the
+   heading sits above the back control, the parent label and the divider
+   beside it.
+
+   It never showed on the list page because the heading is the only child
+   there, so everything shifted together. It shows the moment a title has more
+   than one part, which is why this is zeroed for the family rather than on the
+   queue screen alone. */
+.np-page .cf-page-title-text {
+  margin: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   2 · TOOLBAR ROW
+
+   Figma "Nimbus/Toolbars" = the grey list toolbar (flex: 1) sitting beside the
+   primary CTA. The CTA is deliberately OUTSIDE the toolbar: it creates a
+   record, it does not filter the list.
+
+   Order is right-to-left by impact on data (CaseFusion action-direction
+   paradigm): read-only search/sort at the left, the queue that opens a
+   decision backlog next, the record-creating CTA furthest right.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Sticky content header ────────────────────────────────────────────────
+   The page title and the toolbar travel together, pinned under the frame's
+   utility header, so the list scrolls beneath them and search / sort / the
+   queue stay reachable from anywhere in it. With the floating pager at the
+   foot (§4), every control on the screen is always one click away.
+
+   IT MUST NOT MOVE WHEN IT PINS. Sticking flush under the header (top = the
+   header's own height) while the frame's 16px top padding still sat above it
+   would drop the bar by 16px the moment it engaged. So the padding moves onto
+   this element and §1 cancels it on .np-page: the bar now starts exactly where
+   it sticks, and nothing shifts.
+
+   Opaque background, because cards pass behind it. --cnds-body-bg is the frame
+   background, so the bar reads as part of the frame in both themes.
+
+   z-index sits under #caHeader (.sticky-top is 1030 in app.css) and over the
+   cards. An open Nimbus/Select panel renders inside this element, so nothing
+   here may clip: no overflow, and the stacking context it creates keeps the
+   panel above the list.
+   ───────────────────────────────────────────────────────────────────────── */
+.np-header {
+  position: sticky;
+  top: var(--app-utility-height, 50px);
+  z-index: var(--cnds-zindex-sticky, 1020);
+  padding-top: var(--np-frame-pad-top);
+  padding-bottom: var(--np-gap);
+  background-color: var(--cnds-body-bg);
+  /* Only the transition lives here; the shadow itself arrives with
+     .np-header-elevated below. 0.15s matches the Nimbus components' own
+     box-shadow transitions. */
+  transition: box-shadow 0.15s ease-in-out;
+}
+
+/* Elevation, added by the page script to whichever sticky band is currently
+   the LOWEST stuck one — the title on its own at first, then the tools band
+   once that pins beneath it. Both bands carry the same box-shadow transition,
+   so the handoff cross-fades rather than snapping: the title's shadow fades
+   out over the same 0.15s the tools' fades in.
+
+   Only ever ONE band wears it. A shadow under the title while the tools sit
+   flush beneath would fall between two touching bars — the same defect that
+   took the shadow off the frame's utility header.
+
+   The offset, blur and colour are --cnds-shadow-sm verbatim (the setting the
+   utility header used to carry) plus a -0.125rem spread, which shrinks the
+   shadow box by exactly the blur radius so the left and right edges land flush
+   with the element and only the downward offset shows. A bar spanning the full
+   content column should cast along its bottom edge only — side bleed reads as
+   a floating panel.
+
+   The Nimbus .shadow-sm utility is not used: it paints all four sides and
+   carries !important, so it cannot be trimmed. Worth raising as a
+   `.shadow-sm-bottom` utility if a third screen needs it.
+
+   ANGULAR: [class.np-header-elevated]="isLowestStuckBand". */
+/* ── Two-band sticky header (Pending Match Queue) ─────────────────────────
+   The queue stacks title → stats → alert → tools before its list, which is far
+   too tall to pin as one block. So it pins in two bands: the TITLE sticks flush
+   under the utility bar, the stats and alert scroll up and pass behind it, and
+   the TOOLS band sticks directly beneath the title — the two ending up stacked
+   as a single bar once the page has scrolled far enough.
+
+   Both are .np-header, so they inherit the sticky behaviour, the opaque
+   background and the no-shift-on-pin padding rule above. Only the offsets
+   differ, and the second band's is measured by the page script (§11).
+
+   .np-header-title carries NO bottom padding: .cf-page-title already ships
+   16px of its own, and doubling it both opens a hole under the title and
+   pushes the tools band's measured offset 16px too low. */
+.np-header-title {
+  padding-bottom: 0;
+  /* Above the tools band, so the tools slide under the title rather than over
+     it on the way to their own offset. */
+  z-index: calc(var(--cnds-zindex-sticky, 1020) + 1);
+}
+
+.np-header-elevated {
+  box-shadow: 0 0.125rem 0.25rem -0.125rem rgba(0, 0, 0, 0.075);
+}
+
+.np-toolbar-row {
+  display: flex;
+  align-items: stretch;
+  gap: var(--np-gap);
+}
+
+/* The toolbar takes all the width the primary CTA does not; the search group
+   inside it is flex:1 0 0 (components/toolbars.css), so the search field
+   absorbs every spare pixel and pushes the sort/total/queue cluster hard
+   against the right edge. Nothing here may cap its width. */
+.np-page .np-toolbar {
+  /* Nimbus's normalised small controls do not all land on one number: the
+     search field (.cf-input-field-sm) and the .btn-sm buttons come out at 34,
+     the Sort By select (form-control-sm) at 38. Take the taller of the two so
+     pinning never squeezes a control below its own content. */
+  --np-control-h: 38px;
+
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* FLAT SKYLINE.
+   Left alone the bar has four control heights — search 34, select 38, Asc 34,
+   and the queue button at 44 because its count badge is taller than its label
+   and sizes the button. The bar grows to the tallest thing in it, so the
+   search field ends up floating in the slack: shorter than the bar it sits in
+   and lower than everything beside it.
+
+   One height fixes all of it, and the search field then fills its bar rather
+   than floating inside it. border-box (core/reset.css) makes the single number
+   land the same way on an input, a select trigger and a button.
+
+   ANGULAR: neither half of this belongs on a screen stylesheet. The small
+   controls disagreeing by 4px is a design-system question, and a badge sizing
+   its own button is a Nimbus/Button bug. Raise both rather than copying these
+   rules onto the next page. */
+.np-page .toolbar-list-search,
+.np-page .toolbar-list-search .cf-input-field,
+.np-page .toolbar-list-search .cf-input-control,
+.np-page .btn-toolbar-list .select-wrapper .select-input,
+.np-page .np-sort-dir,
+.np-page .np-btn-queue {
+  height: var(--np-control-h);
+}
+
+/* Sort direction — tertiary button with the ascending/descending arrow. */
+.np-sort-dir {
+  gap: 8px;
+  box-shadow: none;
+  white-space: nowrap;
+}
+
+.np-sort-dir .mdi {
+  font-size: 16px;
+  line-height: 1;
+}
+
+/* Pending Match Queue — secondary (outlined) button carrying a count badge.
+   Nimbus .btn sets gap:0; the badge needs the gap-2 (8px) the design uses.
+   padding-block goes to zero so the badge sits INSIDE the button instead of
+   sizing it — the pinned height above plus .btn's own align-items:center do
+   the centring, and the horizontal padding is untouched. */
+.np-btn-queue {
+  gap: 8px;
+  padding-block: 0;
+  box-shadow: none;
+  white-space: nowrap;
+}
+
+/* .badge capitalises by default and would otherwise inherit the button's
+   letter-spacing — a formatted number needs neither. Figma draws it at 20px;
+   left to its own padding it comes out at 24 and crowds the button. */
+.np-btn-queue .badge {
+  height: 20px;
+  padding-block: 0;
+  text-transform: none;
+  letter-spacing: 0.24px;
+}
+
+/* Zero pending work is not a state worth rendering — the badge is hidden, not
+   set to "0". Driven by the JS, which adds this class. See the annotation on
+   Figma node I11203:15714;3040:1178;12948:17149. */
+.np-btn-queue .badge.np-badge-empty {
+  display: none;
+}
+
+/* Primary CTA. .btn-lg gives the 16px label and 16/20 padding; the design's
+   56px min-height is a hair taller than that computes to, so pin it and let
+   the button stretch to the toolbar's height on wide screens. */
+.np-btn-new {
+  flex-shrink: 0;
+  min-height: 56px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   3 · PERSON CARD
+
+   Nimbus .card supplies background, border and radius — and re-tokenises them
+   per theme. This block only lays the four columns out inside it.
+
+   Column rules use var(--cnds-card-border-color): .card sets that property on
+   itself, so the rules inherit the card's own themed border colour and need no
+   theme override of their own.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* No top padding: .np-header owns the gap beneath itself, so that the space
+   travels with the sticky bar instead of staying behind with the first card. */
+.np-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--np-card-gap);
+  padding-bottom: var(--np-gap);
+}
+
+/* .card ships `align-items: center`, which centres its children at their own
+   content width. That is right for the media/alert cards it was written for
+   and wrong here: it lets each person card's body size to its own text, so the
+   column rules land at a different x on every row and the list stops reading
+   as a table of records. Stretch is the only delta this card needs. */
+.np-card {
+  align-items: stretch;
+}
+
+/* Columns stretch to the tallest one and align their own content to the top —
+   so "Employee ID:" and "Email Addresses:" start on the same line as the
+   person's name, and the rules run the full height of the row. The actions
+   column opts out and centres itself (see below), matching the design. */
+.np-card-body {
+  display: flex;
+  align-items: stretch;
+  gap: var(--np-gap);
+  padding: var(--np-card-pad);
+}
+
+/* --- Column rule ------------------------------------------------------------
+   Nimbus/Divider, vertical + blurry: `.vr .vr-blurry` in components/dividers.css.
+   This class is ONLY the placement delta — the width, the gradient fill and the
+   stretch all come from the component.
+
+   Blurry, not solid, and that is the CaseFusion list convention rather than a
+   preference: a grid reads as a grid when every rule has equal weight, because
+   the eye reconstructs cells from the intersections. Fading the vertical rules
+   removes the corners, so the layout parses as rows-with-internal-structure
+   rather than a table — which is what the data is. One row is one record;
+   columns are fields within it. It also leaves the horizontal rule between rows
+   as the only continuous line, making the record boundary unambiguous.
+
+   So: solid BETWEEN rows (the border-top in §10), blurry BETWEEN columns.
+   Scott, 2026-08-26. */
+.np-rule {
+  flex-shrink: 0;
+  margin-inline: 2px;
+}
+
+/* Queue rows lay their columns out as gap-16 with a 1px divider BETWEEN them,
+   so the rule takes no inset of its own — the row's gap already spaces it.
+   (The person card in §3 does carry the 2px, matching its own Figma frame.) */
+.np-row .np-rule {
+  margin-inline: 0;
+}
+
+/* --- Column 1 · identity --------------------------------------------------- */
+
+.np-col-identity {
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+/* Monogram avatar. Nimbus has no standalone avatar component at v1 — app.css
+   .monogram is the 28px utility-nav variant and .card-avatar is a 48px image
+   frame, so neither fits the 52px initials disc the design calls for.
+   Product green is a token, not a literal. */
+.np-avatar {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background-color: var(--cnds-product-casefusion-green-500, #5ccb59);
+  color: var(--cnds-surface-dark-950, #030303);
+  font-family: var(--cnds-font-family-sans);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.5px;
+  user-select: none;
+}
+
+.np-identity-text {
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--cnds-body-color);
+}
+
+/* Display name. Figma "Typography/Typeface/Family/secondary" = Nunito, which
+   is --cnds-font-family-base here (--cnds-font-family-sans is Nunito Sans, the
+   default family). 20px/SemiBold per the design. Long names wrap rather than
+   truncate — the annotation on node ...;11203:16867 is explicit that no name
+   is ever clipped. */
+.np-name {
+  margin: 0;
+  font-family: var(--cnds-font-family-base);
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+/* Legal name (first · middle · last) under the display name. */
+.np-legal-name {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.43;
+  overflow-wrap: anywhere;
+}
+
+/* --- Column 2 · metadata ---------------------------------------------------- */
+
+.np-col-meta {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  gap: 4px;
+  width: var(--np-col-meta-w);
+  color: var(--cnds-body-color);
+  font-size: 14px;
+  line-height: 1.43;
+}
+
+/* --- Column 3 · contact ----------------------------------------------------- */
+
+.np-col-contact {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  gap: 8px;
+  width: var(--np-col-contact-w);
+  color: var(--cnds-body-color);
+  font-size: 14px;
+  line-height: 1.43;
+}
+
+.np-contact-group {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Field lines are <p> so each is one readable statement to a screen reader.
+   The columns space themselves with flex gap, so the browser's paragraph
+   margin has to go — collapsing margins would fight the gap. */
+.np-meta-line,
+.np-contact-group > p {
+  margin: 0;
+}
+
+/* Shared by "Employee ID:" etc. and by "Email Addresses:" / "Phone Numbers:" */
+.np-label {
+  font-weight: 700;
+}
+
+.np-value {
+  font-weight: 400;
+  overflow-wrap: anywhere;
+}
+
+/* One email / phone line. The primary marker sits inline after the value. */
+.np-contact-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Primary email / phone marker. The star IS the whole signal, so it carries an
+   accessible name via the .visually-hidden span beside it in the markup —
+   never colour alone (WCAG 1.4.1). */
+.np-primary-star {
+  flex-shrink: 0;
+  font-size: 16px;
+  line-height: 1;
+  color: var(--cnds-product-casefusion-green-500, #5ccb59);
+}
+
+/* --- Column 4 · actions ----------------------------------------------------- */
+
+/* Fixed width sized to the longest label so every card's action stack is the
+   same width and the buttons align on both edges across the list. */
+.np-col-actions {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  justify-content: center;
+  width: var(--np-col-actions-w);
+}
+
+/* Figma: these carry minHeight 36 — .btn-sm alone computes to 32.
+   nowrap because a wrapped label changes the row height and breaks the
+   alignment down the column; widen --np-col-actions-w instead. */
+.np-col-actions .btn {
+  width: 100%;
+  min-height: 36px;
+  box-shadow: none;
+  white-space: nowrap;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   4 · PAGER
+
+   Nimbus .pagination-toolbar supplies the bar, the spacing and the button
+   treatment. The only delta is that it floats: sticky to the bottom of the
+   viewport so the page controls stay reachable without scrolling to the end of
+   a long list, and settling into its natural place at the foot of the list
+   once the end is in view.
+
+   position:sticky (not fixed) is what makes both true at once — it takes no
+   width calculation, so the bar keeps tracking the content column when the
+   sidenav collapses to slim.
+
+   No ancestor may clip or scroll for this to work: .ca-main and .ca-content in
+   frame-ca-sidenav.css are both unclipped, so the page scrolls on <body> and
+   the viewport is the containing block. If a future frame change gives the
+   content slot its own overflow, this pins to that box instead — which still
+   reads correctly, but check it.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.np-pager {
+  /* Take up the slack that §1's min-height creates on a short list. Flex items
+     do not grow by default, so without this they stack at the top of the box
+     and leave the free space BELOW the pager — which puts the bar back under
+     the last card, exactly the position the min-height exists to prevent. */
+  margin-top: auto;
+  position: sticky;
+  /* 16px off the viewport bottom, per spec. This MUST equal the gap the
+     pager's flow position leaves beneath it, or the bar jumps by the
+     difference on the last frame of the scroll — §1's negative margin is what
+     brings that gap to the same 16px. Change one, change the other. */
+  bottom: var(--np-pager-inset);
+  /* Above the cards it floats over, below the frame's overlays (dropdowns at
+     1000, popovers at 1060) so an open Nimbus/Select panel is never cut off. */
+  z-index: var(--cnds-zindex-sticky, 1020);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   5 · EMPTY STATE
+   Shown when a search matches nothing. Records are never dimmed to convey
+   state; an empty result is stated in words instead.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.np-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 64px 24px;
+  border: 1px dashed var(--cnds-border-color);
+  border-radius: 8px;
+  color: var(--cnds-body-color);
+  text-align: center;
+}
+
+.np-empty-icon {
+  font-size: 40px;
+  line-height: 1;
+  opacity: 0.5;
+}
+
+.np-empty-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.np-empty-note {
+  margin: 0;
+  font-size: 14px;
+  color: var(--cnds-text-muted);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   6 · RESPONSIVE
+
+   The frame itself is desktop-only (the template shows a small-screen notice
+   below md), so this is about narrow desktop windows, not phones.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* 1180px is where the identity column plus 225 + 350 + 128 and the rules stop
+   fitting side by side. A media query cannot read a custom property, so the
+   number lives here rather than in a --np-* token that would only ever be
+   documentation. */
+@media (max-width: 1180px) {
+  .np-card-body {
+    flex-wrap: wrap;
+  }
+
+  /* Rules between stacked columns would be horizontal hairlines in the wrong
+     places, so they are dropped rather than rotated. */
+  .np-card-body .np-rule {
+    display: none;
+  }
+
+  .np-col-identity {
+    flex-basis: 100%;
+  }
+
+  .np-col-meta,
+  .np-col-contact {
+    width: auto;
+    flex: 1 1 260px;
+  }
+
+  .np-col-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .np-col-actions .btn {
+    width: auto;
+    flex: 0 1 auto;
+  }
+}
+
+@media (max-width: 900px) {
+  .np-toolbar-row {
+    flex-direction: column;
+  }
+
+  .np-btn-new {
+    align-self: stretch;
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PENDING MATCH QUEUE — pge-admin-natprsn-pndmtchque.html
+   Figma: CaseFusion v1.5 — Tenant Manager, section 12466:6785 (#17515)
+
+   Shares §1–§6 above: the page shell, the sticky header, the toolbar row and
+   the floating pager are the same components, so the queue links this one
+   stylesheet and adds only what the list page does not have.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   7 · QUEUE PAGE TITLE
+
+   Two-part title with a back control: NATURAL PERSONS │ PENDING MATCH QUEUE.
+   Every piece is already in the Nimbus page-title component
+   (core/typography.css) — .cf-page-title-back, .cf-page-title-divider and
+   .cf-page-title-text — so this only sets the gap and the divider's height.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* The back control is a link, not a button: it navigates. Sized and coloured
+   by .cf-page-title-back; this only removes the underline an <a> would carry
+   and keeps the glyph optically centred on the title's cap height. */
+.np-title-back {
+  text-decoration: none;
+}
+
+.np-title-back:hover {
+  opacity: 0.8;
+}
+
+/* The parent title is the path, the current screen is the subject: the parent
+   is muted so the eye lands on the screen it is actually looking at. Both keep
+   the component's tracking, so the pair still reads as one title. */
+.np-title-parent {
+  color: var(--cnds-text-muted);
+}
+
+/* .cf-page-title-divider is align-self:stretch, which against a single line of
+   14px text renders as a hairline stub. Pin it to the cap height instead. */
+.np-page .cf-page-title-divider {
+  align-self: center;
+  height: 18px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   8 · STAT TILES
+
+   Three equal tiles: PENDING · SAME PERSON · NOT THE SAME. They are counts,
+   not controls — nothing here is clickable, so they are <div>s and carry no
+   hover or focus treatment.
+
+   The numbers change when a decision commits, so each tile's value is
+   aria-live: an operator who has just dispatched a group hears the queue total
+   move without hunting for it.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Figma fr_stats: gap 8, not the page's 16. */
+.np-stats {
+  display: flex;
+  gap: 8px;
+  padding-bottom: var(--np-gap);
+}
+
+/* flex-basis:0 with equal grow keeps all three the same width whatever the
+   digit count — a 5-digit Pending must not squeeze Same person. */
+.np-stat {
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 16px;
+  /* Sits deeper than the page: --cnds-frame-bg is the frame surface the header
+     and sidenav use, so the tiles read as inset into the chrome rather than
+     floating on the content. Themed already — no override needed. */
+  background-color: var(--cnds-frame-bg);
+  border: 1px solid var(--cnds-border-color);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.np-stat-label {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--cnds-body-color);
+}
+
+/* Tabular figures so the three tiles stay optically aligned and a count that
+   ticks 5,281 → 1,549 does not shuffle its own width mid-update. */
+/* Figma: 22px Bold, line-height 1.2 — the tile measures 82 tall with it. */
+.np-stat-value {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--cnds-body-color);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   9 · UNMERGED-DECISIONS ALERT
+
+   Persistent and NOT dismissible: decisions are recorded that have not been
+   executed, and an operator who believes they merged N people — when merge
+   execution has not shipped — will be badly surprised. It carries no close
+   control at all, so there is nothing to style away; it is hidden only when
+   the recorded-but-unmerged count reaches 0, by the page script.
+   Figma annotation: Pending Match Queue > Unmerged decisions alert.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Figma Nimbus/Alert — unmerged-decisions: fr_message gap 16, icon Nimbus/Icon/md
+   at 24. */
+.np-alert-unmerged {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 0 0 var(--np-gap);
+}
+
+.np-alert-unmerged[hidden] {
+  display: none;
+}
+
+.np-alert-unmerged .mdi {
+  flex-shrink: 0;
+  font-size: 24px;
+  line-height: 1;
+}
+
+/* Inside the panel the body's flex gap owns the spacing, so the alert must not
+   also carry its own bottom margin — the two stacked to 40px. */
+.np-panel .np-alert-unmerged {
+  margin-bottom: 0;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   10 · QUEUE LIST ROWS  —  shared by BOTH views
+
+   Row shape is the #17475 list-row pattern, same as the person card in §3:
+       title │ evidence │ actions
+   dividers between columns, rows hug their content, and a rule between rows
+   but never after the last one.
+
+   ONE row component, two views. A signature group puts a match signature and a
+   pair count in the title column; a pair row puts the two names and their
+   source systems there. Everything else — the evidence column, the fixed
+   230px action column, the rules — is identical, which is what the design
+   annotation means by "the same row component as the grouped view". Do not
+   fork these into two sets.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Rows are separated by a real Nimbus/Divider between them — see the note on
+   .np-row below — so the container only supplies the 4px that sits above and
+   below each rule. */
+.np-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-bottom: var(--np-gap);
+}
+
+/* Rows carry NO border of their own. The separator between them is a real
+   Nimbus/Divider — `<hr class="hr">`, components/dividers.css — emitted as a
+   SIBLING between rows, which is how the design draws it and how the rest of
+   CaseFusion builds lists.
+
+   Solid between rows, blurry between columns (§3): a grid reads as a grid when
+   every rule has equal weight, so fading the verticals and keeping the
+   horizontals solid makes the list parse as rows-with-internal-structure
+   rather than a table. The horizontal rule is then the only continuous line,
+   which is what makes the record boundary unambiguous. */
+.np-row {
+  display: flex;
+  align-items: stretch;
+  gap: var(--np-gap);
+  padding: 8px 0;
+}
+
+/* Placement only — the 1px, the colour and the fill are the component's. */
+.np-rows .hr {
+  margin: 0;
+  border: 0;
+}
+
+/* --- Column 1 · title -------------------------------------------------------
+   Fixed rather than hugging, so the first divider holds one x down the whole
+   list even where a group name or a pair of names is short. */
+.np-row-title {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  gap: 2px;
+  justify-content: center;
+  width: var(--np-row-title-w);
+}
+
+.np-group-name {
+  margin: 0;
+  font-family: var(--cnds-font-family-base);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--cnds-body-color);
+  overflow-wrap: anywhere;
+}
+
+/* Edge state 6 — "32% decided" under the pair count. Muted and small: it is
+   context for the count above it, not a second headline. Never a progress BAR
+   — a bar invites reading the group as a task to finish, and a group is a
+   place decisions happen to live, not a job with a finish line. */
+.np-group-progress {
+  margin: 2px 0 0;
+  font-size: var(--cnds-paragraph-font-size-sm, 0.75rem);
+  color: var(--cnds-text-muted);
+}
+
+.np-group-count {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--cnds-text-muted);
+}
+
+/* --- Column 2 · evidence -----------------------------------------------------
+   Reads top to bottom as status → what matched → why → what it means. The
+   status leads because it qualifies everything under it; the generated note
+   closes because it is the conclusion drawn from the two lines above. */
+.np-row-evidence {
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+  flex-direction: column;
+  /* Figma col: gap 4 between the evidence lines. */
+  gap: 4px;
+  justify-content: center;
+  color: var(--cnds-body-color);
+  font-size: 14px;
+  line-height: 1.43;
+}
+
+.np-row-evidence p {
+  margin: 0;
+}
+
+/* 12px. The comment here used to claim "one step down" and declare no size at
+   all, so it inherited the 16px body and rendered at 14px only because the row
+   set that — a claim the CSS never actually made. Now stated.
+
+   DELIBERATELY one step under the 14px Figma draws (Typography/Paragraph/Bold).
+   Scott, 2026-08-26: too loud across the screens. The row's subject is the
+   group title or the pair names; the status qualifies it, and uppercase plus a
+   semantic colour already carry the emphasis without matching the subject's
+   size. Colour is a Text/* token, never a badge — statuses in this product are
+   coloured text. */
+.np-status {
+  font-size: var(--cnds-paragraph-font-size-sm, 0.75rem);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.np-status-default {
+  color: var(--cnds-body-color);
+}
+
+.np-status-caution {
+  color: var(--cnds-caution-text-emphasis);
+}
+
+.np-status-success {
+  color: var(--cnds-success-text-emphasis);
+}
+
+.np-status-danger {
+  color: var(--cnds-danger-text-emphasis);
+}
+
+/* The generated note — the conclusion drawn from the lines above it. It takes
+   the row's status colour when the status is a warning, because the note is
+   what explains the warning; otherwise it is muted supporting text. */
+.np-row-note {
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--cnds-text-muted);
+}
+
+.np-row-note-caution {
+  color: var(--cnds-caution-text-emphasis);
+}
+
+/* --- Column 3 · actions ------------------------------------------------------
+   The two views size this column differently, and deliberately so:
+
+   GROUPED — fixed 214px. Rows carry either one action or two ("Review" alone,
+   or "Review" + "Decide whole group"), so a hugging column would put the
+   divider at a different x on every row. Fixed holds one line down the list.
+
+   ALL PAIRS — hugs (~105px). Every row carries exactly "Review", so there is
+   nothing to line up and reserving 214px would strand 100px of empty column
+   beside every row.
+
+   Both measured from the Figma frames. Buttons centre on both axes. */
+/* Disabled REVIEW buttons state no styling here. Nimbus/Tooltip wraps a
+   disabled trigger itself and .tooltip-disabled-host (components/tooltips.css)
+   carries the pointer-events and the help cursor, so the page declares
+   nothing — see reviewButton() in the controller. */
+
+.np-row-actions {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  width: var(--np-row-actions-w);
+  /* Figma: col_actions carries padding-right 16 in both views. It is what
+     makes the hugging pair column measure 105 (89px button + 16), so it is
+     load-bearing for the width, not just breathing room. */
+  padding-right: 16px;
+}
+
+/* A pair row's actions column hugs its single button — see above. */
+.np-row-pair .np-row-actions {
+  width: auto;
+}
+
+/* SMALL Nimbus buttons — Figma: Type=tertiary, Size=small, 12px label, 8/12
+   padding, and an explicit minHeight of 36 that .btn-sm alone computes short
+   of (32). Width hugs the label so a pair row's column can hug too. */
+.np-row-actions .btn {
+  min-height: 36px;
+  box-shadow: none;
+  /* A row action label is two or three words and must never wrap: a wrapped
+     label changes the row's height and breaks the alignment down the column.
+     If a label ever outgrows the column, widen --np-row-actions-w rather than
+     letting it fold. */
+  white-space: nowrap;
+}
+
+/* Below this the three columns stop fitting side by side. */
+@media (max-width: 1180px) {
+  .np-row {
+    flex-wrap: wrap;
+  }
+
+  .np-row .np-rule {
+    display: none;
+  }
+
+  .np-row-title {
+    width: auto;
+    flex: 1 1 100%;
+  }
+
+  .np-row-actions {
+    flex-direction: row;
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .np-row-actions .btn {
+    width: auto;
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   11 · TOOLS BAND  —  sticky band 2 of 2
+
+   Pins directly beneath the sticky title (§2), so the two end up stacked as a
+   single bar once the page has scrolled far enough. The stats and the unmerged
+   alert sit BETWEEN them in the document and scroll up behind both.
+
+   The offset cannot be a constant: it is the utility header plus whatever the
+   title band actually measures, and the title wraps on a narrow window. The
+   page script measures it and writes --np-tools-top, on load and on resize.
+   The fallback below is the unwrapped case, so the band is still roughly right
+   before the script runs.
+
+   At scrollY 0 nothing is offset — sticky only engages once an element would
+   scroll past its threshold — so the page loads exactly as laid out.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.np-tools {
+  position: sticky;
+  top: var(--np-tools-top, 102px);
+  z-index: var(--cnds-zindex-sticky, 1020);
+  padding-bottom: var(--np-gap);
+  background-color: var(--cnds-body-bg);
+  transition: box-shadow 0.15s ease-in-out;
+}
+
+/* Each row is a Nimbus list toolbar — .btn-toolbar-gray.btn-toolbar-list in
+   components/toolbars.css supplies the surface, the 1px border, the 8px radius
+   and the 8px padding. Nothing here re-draws that; this is only the stacking
+   gap between the two rows. */
+/* Figma fr_toolbars: the two rows stack at gap 4. */
+.np-tools .btn-toolbar-gray + .btn-toolbar-gray {
+  margin-top: 4px;
+}
+
+/* Row 1: search grows and pushes the view toggle hard right, with the
+   component's own divider between them.
+
+   Filters narrow WHAT IS IN the list; the toggle changes HOW THE LIST IS
+   SHAPED. Keeping them in one bar but at opposite ends says they are different
+   kinds of control without spending a second row on it. */
+.np-page .np-toolbar {
+  /* Same normalised small-control height as the Natural Persons list, so the
+     bar has a flat skyline and the search field fills it rather than floating.
+     See §2 for why 38 and not 34. */
+  --np-control-h: 38px;
+
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* Every control in either toolbar row shares one height. Left alone they come
+   out at four different sizes and the search field ends up shortest and lowest
+   — the same defect fixed on the list page. */
+.np-page .np-toolbar .toolbar-list-search,
+.np-page .np-toolbar .cf-input-field,
+.np-page .np-toolbar .cf-input-control,
+.np-page .np-toolbar .select-wrapper .select-input,
+.np-page .np-toolbar .btn {
+  height: var(--np-control-h);
+}
+
+/* The Nimbus .btn-group joins the segments; these are the deltas that make it
+   read as a two-state toggle rather than a pair of independent buttons. */
+.np-view-toggle {
+  flex-shrink: 0;
+}
+
+.np-view-toggle .btn {
+  box-shadow: none;
+  white-space: nowrap;
+}
+
+/* Selected segment. aria-pressed carries the state for assistive tech and this
+   is only the paint, so the two cannot disagree — the script sets the
+   attribute, the attribute selects the style. */
+.np-view-toggle .btn[aria-pressed="true"] {
+  --cnds-btn-color: var(--cnds-btn-active-color);
+  --cnds-btn-bg: var(--cnds-surface-blue-200, #b4c8e5);
+  --cnds-btn-border-color: var(--cnds-btn-active-border-color);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   12 · PAIR ROWS  (all-pairs view)
+
+   Content classes only — the row frame itself is §10, shared with the grouped
+   view. One row per pending match rather than per match signature.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* The two names ARE the row's subject, so they carry the weight the group name
+   carries in the other view. The interpunct between them is decorative and
+   aria-hidden; the names read as one phrase without it. */
+.np-pair-names {
+  margin: 0;
+  font-family: var(--cnds-font-family-base);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--cnds-body-color);
+  overflow-wrap: anywhere;
+}
+
+.np-pair-sep {
+  padding: 0 4px;
+  color: var(--cnds-text-muted);
+  font-weight: 400;
+}
+
+/* Source systems, one per side. Every pair spans two sources by definition. */
+.np-pair-sources {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  color: var(--cnds-text-muted);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   13 · FILTER ROW  (toolbar row 2)
+
+   Four filters, then Clear filters, then — hard right, past a divider — the
+   Measurement button. Measurement sits apart because it is the only control on
+   the row that LEAVES the list rather than acting on it.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* The filter cluster hugs left; the row's own justify-content pushes what
+   follows to the right. */
+.np-filters {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.np-filter {
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* EVERY filter label is `Field: value`, always — the field name never appears
+   alone, and `All` is stated when unset rather than left to be inferred. That
+   keeps the label's SHAPE constant as the control is used: only the value
+   after the colon changes, so the eye scans the same position down the row.
+
+   Values can be long, so the label truncates rather than letting the toolbar
+   reflow. The full value stays readable in the open menu.
+
+   Filters are MULTI-select, so the label has three states:
+       unset      Key type: All
+       one        Key type: Full name + email address
+       several    Key type: 3 selected
+   ───────────────────────────────────────────────────────────────────────── */
+.np-filter-btn {
+  gap: 6px;
+  box-shadow: none;
+}
+
+/* ENGAGED — the filter has a value.
+
+   The button stays SECONDARY and takes a background fill; it does not promote
+   to primary. Primary is reserved for the one action a screen is asking for,
+   and four filters that all become primary the moment they are touched would
+   put four primaries on a toolbar that has none. (Scott, 2026-08-26.)
+
+   The fill is the secondary button's OWN active-state tokens, not a new
+   colour, so an engaged filter reads as the same button in a pressed state and
+   tracks .btn-secondary if its palette ever changes. No new value is invented
+   here — every one of these is already declared on .btn-secondary.
+
+   The accessible signal is the label itself: "State: 2 selected" versus
+   "State: All" says what is engaged without relying on the fill. aria-pressed
+   is deliberately NOT used — this button opens a menu, so it carries
+   aria-haspopup/aria-expanded, and a toggle role on top of that would
+   misdescribe it. */
+.np-filter-btn.np-filter-engaged {
+  /* Re-points the component's OWN tokens rather than painting background-color
+     directly. That matters for more than tidiness: .btn:hover and .btn:focus
+     also carry (0,2,0) specificity, so a direct background-color here would
+     tie with them and — being later in the cascade — kill hover and focus on
+     an engaged filter. Setting the token leaves those states working. */
+  --cnds-btn-color: var(--cnds-btn-active-color);
+  --cnds-btn-bg: var(--cnds-btn-active-bg);
+  --cnds-btn-border-color: var(--cnds-btn-active-border-color);
+}
+
+.np-filter-label {
+  display: block;
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.np-filter-btn .mdi {
+  flex-shrink: 0;
+  font-size: 16px;
+  line-height: 1;
+}
+
+/* The menu is a Nimbus dropdown; these are placement and scroll deltas only. */
+.np-filter .dropdown-menu {
+  min-width: 240px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+/* Options use the Nimbus multi-select menu row — .dropdown-item-check in
+   components/dropdown.css, added to the design system for this screen and
+   mirroring `Show Checkbox` on the Figma component. The flex row, the 10px
+   gap and the non-interactive input all come from there; nothing is
+   re-declared here. Selected rows take .active, the same class an ordinary
+   menu uses for its current item. */
+.np-filter .dropdown-item-check {
+  cursor: pointer;
+}
+
+/* Clear filters is ALWAYS VISIBLE and disabled until a filter is engaged
+   (Scott, 2026-08-26). Keeping it in place means the row's controls never
+   reflow — appearing and disappearing would shift Measurement sideways every
+   time the first filter is touched — and the operator can see the escape hatch
+   exists before they need it. Disabled, not hidden, states that there is
+   currently nothing to clear.
+
+   .btn:disabled already carries the opacity, so nothing here re-draws it. */
+.np-clear-filters {
+  box-shadow: none;
+  white-space: nowrap;
+}
+
+/* Measurement — the only control on the row that leaves the list, so it sits
+   past the divider at the far right. */
+.np-measure {
+  flex-shrink: 0;
+  gap: 8px;
+  box-shadow: none;
+  white-space: nowrap;
+}
+
+.np-measure .mdi {
+  font-size: 18px;
+  line-height: 1;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   14 · PAIR REVIEW PANEL
+
+   Nimbus/Offcanvas at 1080px = 75% of the 1440 viewport, matching the
+   Measurement panel. EVERY part of this is an existing Nimbus component —
+   .offcanvas, .alert, .badge, .cf-category, .table, .cf-list, Nimbus/Select
+   and .btn. What follows is placement only.
+
+   Figma geometry it mirrors:
+     header  fr_title        1080x50, pad 8/16
+     body    fr_body         pad 24, sections gap 16
+     footer  fr_actions      1080x60, pad 8
+     persons fr_persons      two 490-wide cards, gap 8, pad 16
+     table   1032 across as 169 / 278 / 278 / 243 / 64
+     bar     fr_action-bar   1032x96, pad 16, gap 8
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* The panel is a sibling of .np-page, NOT a descendant — an offcanvas sits at
+   the end of <body>. So it declares the tokens it needs itself: inheriting
+   them from .np-page silently fails, and `gap: var(--np-gap)` then resolves to
+   `normal`, collapsing every section gap in the panel with no error anywhere. */
+.np-panel {
+  --np-panel-w: 1080px;      /* 75% of the 1440 frame */
+  --np-panel-pad: 24px;
+  --np-gap: 16px;            /* within a section: head row, key rows */
+  /* BETWEEN sections. Figma fr_pair-review stacks them at 16; widened to 24
+     (Scott, 2026-08-26) so the person cards, the comparison table and the
+     refusal evidence read as three separate blocks rather than one run of
+     content. Applied uniformly rather than to the two boundaries named, so
+     the panel keeps one vertical rhythm. */
+  --np-panel-section-gap: 24px;
+  width: min(var(--np-panel-w), 100vw);
+}
+
+/* Sections down the body — see --np-panel-section-gap above for why this is
+   24 rather than Figma's 16. */
+.np-panel .offcanvas-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--np-panel-section-gap);
+  padding: var(--np-panel-pad);
+}
+
+/* Nimbus/Category at the smallest step, with the product bar the component
+   already draws. The component's default 48px bottom padding is for a page
+   heading standing alone; inside a panel section it only needs to clear the
+   rule beneath it. */
+/* Figma Nimbus/Category in this panel: 36 tall, pad 4/0/16/0, gap 24. */
+.np-panel .cf-category {
+  --cnds-category-padding-bottom: 16px;
+  --cnds-category-font-size: 16px;
+  --cnds-category-letter-spacing: 2px;
+  gap: 24px;
+  padding-top: 4px;
+  text-indent: 16px;
+  margin: 0;
+}
+
+/* A section heading row: the Category on the left, a caption hard right. */
+.np-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--np-gap);
+}
+
+.np-section-note {
+  margin: 0;
+  font-size: 13px;
+  color: var(--cnds-text-muted);
+  white-space: nowrap;
+}
+
+/* --- The two person cards ---------------------------------------------------
+   Figma fr_persons: two 490 cards with gap 8 and a 36px arrow between. */
+.np-persons {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.np-person {
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 16px;
+  border: 1px solid var(--cnds-border-color);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.np-person-role {
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--cnds-text-muted);
+}
+
+.np-person-name {
+  margin: 0;
+  font-family: var(--cnds-font-family-base);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--cnds-body-color);
+  overflow-wrap: anywhere;
+}
+
+.np-person-meta {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--cnds-text-muted);
+}
+
+/* The arrow reads established → candidate. Decorative: the roles are already
+   named in each card, so it is aria-hidden and carries no text. */
+.np-persons-arrow {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  font-size: 36px;
+  line-height: 1;
+  color: var(--cnds-text-muted);
+}
+
+/* --- Field comparison table -------------------------------------------------
+   Nimbus .table supplies the type, borders and theming. Only the column rail
+   and the verdict colours are set here. */
+.np-compare {
+  width: 100%;
+  margin: 0;
+}
+
+.np-compare th,
+.np-compare td {
+  padding: 16px;
+  vertical-align: middle;
+}
+
+/* Figma: 64 / 169 / 278 / 278 / 243 across 1032. The verdict icon column
+   leads, so a reader scans agree-or-not before reading the values. */
+.np-compare .np-col-verdict { width: 64px; }
+.np-compare .np-col-field   { width: 169px; }
+.np-compare .np-col-value   { width: 278px; }
+.np-compare .np-col-agree   { width: 243px; }
+
+/*
+ * Table column headers — Figma text style `Table/Row/Header`:
+ * Nunito Sans ExtraBold 12, uppercase.
+ *
+ * Nimbus's .table carries no header typography of its own (`.table > thead`
+ * sets vertical-align only), so this is the page's job — but it is ONE rule
+ * shared by every table on the screen rather than a copy per table. The
+ * comparison table had it at weight 700; ExtraBold is 800, which is what the
+ * style actually specifies.
+ */
+.np-compare thead th,
+.np-measure-table thead th {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--cnds-text-muted);
+}
+
+/* Verdict colours are NOT declared here. Nimbus ships semantic text classes —
+   .text-success-emphasis, .text-danger-emphasis and .text-muted — and the
+   markup uses those directly. They resolve to exactly the values the design
+   draws (#72b23e / #ff97aa / #d1d1d1 in dark) and they theme themselves.
+
+   The three states must stay visually distinct: absence is not disagreement.
+   Collapsing "missing" into "no match" is a correctness error, not a display
+   shortcut — a null in a legacy import carries no evidentiary weight while a
+   genuine conflict does.
+
+.np-compare .mdi {
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* --- Why this pair was refused ---------------------------------------------
+   Nimbus .cf-list draws the double-chevron bullet (Nimbus/List/Unordered). */
+/* Figma fr_match-explanation: children stack at gap 8. */
+.np-why {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.np-why-quote {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--cnds-body-color);
+}
+
+/* Figma: the bullet sits at x=0 of the section and the text starts at 24 —
+   the list is NOT indented as a block. .cf-list ships 24px of padding-left for
+   body prose; zeroing it puts the bullet on the section's own left edge, and
+   the li's own padding still carries the text across to 24. */
+.np-panel .cf-list {
+  margin: 0;
+  padding-left: 0;
+}
+
+/* Figma: the key rows are pad 4/0 — tighter than .cf-list's own 8, because
+   this list is evidence inside a panel section rather than body prose.
+
+   Set via the component's TOKEN, not by overriding the li padding: the bullet's
+   vertical offset is derived from this value, so the two move together.
+   Overriding `padding` directly leaves the bullet behind. */
+.np-panel .cf-list {
+  --cnds-list-padding-y: 4px;
+}
+
+/* Each key line carries its own status hard right. Figma key-row is
+   CENTER-aligned, not baseline: the status is a label qualifying the whole
+   row, so it centres against it rather than sitting on the text baseline. */
+.np-key-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--np-gap);
+}
+
+/* 12px — DELIBERATELY one step under the 14px Figma draws (Typography/
+   Paragraph/Bold, same size as the key it qualifies). Scott, 2026-08-26: the
+   status reads too loud beside the key. Uppercase at weight 700 already
+   carries the emphasis; matching the key's size on top of that made a
+   qualifier compete with its subject. */
+.np-key-status {
+  flex-shrink: 0;
+  font-size: var(--cnds-paragraph-font-size-sm, 0.75rem);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* Footnotes under the key list — the small print about what is and is not
+   displayed. Figma fr_note: 12px text on a 17px line, a 16px Nimbus/Icon/sm,
+   gap 8, top-aligned so a wrapping note keeps its icon beside the FIRST line
+   rather than drifting to the middle of the block.
+
+   line-height is a LENGTH, not a ratio, so the icon can inherit it: a ratio
+   inherits as a number and the icon would recompute it against its own 16px
+   font, giving a 23px box against the text's 17px one and sitting the glyph
+   visibly low. */
+.np-footnote {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  font-size: 12px;
+  line-height: 17px;
+  color: var(--cnds-text-muted);
+}
+
+.np-footnote .mdi {
+  flex-shrink: 0;
+  font-size: 16px;
+  line-height: inherit;
+}
+
+/* --- Decision bar -----------------------------------------------------------
+   Figma fr_action-bar: 1032x96, pad 16, gap 8, bordered. Pinned at the foot of
+   the body and sized so it is visible without scrolling — the decision is the
+   reason the panel opens, so it must never be below the fold. */
+.np-decision {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid var(--cnds-border-color);
+  border-radius: 8px;
+}
+
+.np-decision-reason {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* DEFAULT-size buttons: Figma draws Same person 135x44, Not the same 139x44
+   and Skip 65x44, all at 12/16 padding — .btn's own default, not .btn-sm.
+   The decision is the reason the panel exists; it does not take the small
+   size the list rows use. */
+.np-decision .btn {
+  flex-shrink: 0;
+  box-shadow: none;
+  white-space: nowrap;
+}
+
+/* Revealed only when "Other — add a note" is chosen; hidden for every listed
+   reason. Required — the decision cannot commit on an empty note. */
+.np-other-note[hidden] {
+  display: none;
+}
+
+.np-other-note {
+  margin-top: 8px;
+}
+
+/* Nested inside a .cf-input-field (the dispatch modal's Reason), the field's
+   own 4px column gap is the WHOLE separation — the same 4px that sits between
+   the label and the select above it, so the note reads as another part of the
+   one answer rather than a field of its own. The margin is zeroed rather than
+   left out: without it the 8px above applies as well and the gap doubles. */
+.cf-input-field > .np-other-note {
+  margin-top: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   RECORD CROSSFADE
+
+   Nothing to declare. The panel is a station — SKIP and both decisions swap
+   the record inside it rather than closing it — and the swap is paced so it
+   reads as a different record arriving rather than the screen redrawing.
+
+   Both halves are Nimbus: `.animate-fadeOut` / `.animate-fadeIn` for the
+   animation and `.animation-faster` for the 350ms step, applied by the
+   controller. That step was added to Nimbus for exactly this case; it matches
+   the panel's own slide-in, so the record change is paced like the panel that
+   houses it. The library's prefers-reduced-motion guard collapses both to 1ms.
+
+   The one thing declared: each HALF runs for half the step. The swap is a
+   dissolve — out, swap at zero opacity, in — so two animations make up one
+   transition, and applying the 350ms step to each would produce a 700ms swap
+   in a queue the operator is clicking through at speed. Expressed against the
+   token rather than as a bare 175ms, so a retune of the step in Nimbus carries
+   here rather than leaving the two half a beat apart.
+   ───────────────────────────────────────────────────────────────────────── */
+.np-panel .offcanvas-body.animate-fadeIn,
+.np-panel .offcanvas-body.animate-fadeOut {
+  --cnds-animation-duration: calc(var(--cnds-animation-duration-faster) / 2);
+  /* Linear, so the two halves meet at a constant rate and the midpoint does
+     not read as a pause. An ease on each half would decelerate into the swap
+     and accelerate out of it — two transitions rather than one. */
+  animation-timing-function: linear;
+}
+
+/*
+ * The panel title carries DATA, so it is not title-cased.
+ *
+ * Nimbus's .offcanvas-title sets `text-transform: capitalize`, which suits a
+ * label ("pair review" → "Pair Review") but not this title: it ends in the
+ * matcher's own reason, in quotation marks, presented as verbatim —
+ *
+ *     …  — “cohort match, no corroboration”      what the matcher recorded
+ *     …  — “Cohort Match, No Corroboration”      what capitalize renders
+ *
+ * A transform cannot know it is inside a quotation, so the screen silently
+ * misquotes the record it exists to explain. Figma draws it lowercase, which
+ * settles it. Pair names are unaffected either way — they arrive capitalised.
+ *
+ * Scoped to this panel rather than fixed upstream: capitalize is defensible
+ * for offcanvas titles that are labels, and this is a consumer whose title is
+ * data. Whether Nimbus should stop transforming .offcanvas-title at all is
+ * a library question — raised with Scott, not decided here.
+ */
+.np-panel .offcanvas-title {
+  text-transform: none;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   PANEL HEADER — WALKER STEP
+
+   Figma: fr_title, HORIZONTAL, itemSpacing 8, padding 8/16, header 50 tall.
+   The step is prepended to the title and separated by a Nimbus/Divider, so
+   the row reads [ step · rule · title ] on one 8px gap throughout.
+
+   The step is what tells an operator where they are: SKIP and both decisions
+   advance the record IN PLACE, so without a count the walk has no visible
+   length and no visible end.
+
+   TYPOGRAPHY IS THE TITLE'S, NOT ITS OWN. In the design these are a single
+   text node — "Pair 7 of 124 — …" — one font, one weight, one fill. Splitting
+   it into two elements is what the divider requires, and it must not become a
+   licence to restyle half of it. So the step reads the same
+   --cnds-offcanvas-title-* tokens the title does rather than declaring
+   anything; if Nimbus retunes the offcanvas title, both move together.
+
+   The one thing NOT inherited is `text-transform: capitalize`. See the note
+   on .np-panel-step below.
+   ───────────────────────────────────────────────────────────────────────── */
+.np-panel .np-panel-title {
+  display: flex;
+  align-items: center;
+  /* Nimbus's own header gap, which is already the 8px the design draws —
+     not a second 8 declared beside it. */
+  gap: var(--cnds-offcanvas-header-gap, 8px);
+  min-width: 0;
+  /* Takes the width the title used to: .offcanvas-title carries flex:1 0 0,
+     and that job moves up to the wrapper now that it has siblings. */
+  flex: 1 0 0;
+}
+
+/*
+ * The step never gives way. It is the shortest item in the row and the one
+ * read first, so letting it compress under a long pair name would squeeze
+ * exactly the thing that says where the operator is. The title truncates
+ * instead — Nimbus already gives .offcanvas-title the ellipsis.
+ *
+ * No text-transform: the title carries `capitalize`, which would render
+ * "Pair 1 Of 4". Titling a preposition is wrong on its own, and inheriting a
+ * transform meant for a heading into a counter is how that happens.
+ */
+.np-panel .np-panel-step {
+  flex-shrink: 0;
+  font-family: var(--cnds-font-family-secondary, "Nunito Sans", sans-serif);
+  font-size: var(--cnds-offcanvas-title-font-size, 16px);
+  font-weight: var(--cnds-offcanvas-title-font-weight, 500);
+  line-height: var(--cnds-offcanvas-title-line-height, 1);
+  color: var(--cnds-offcanvas-nav-color);
+  white-space: nowrap;
+}
+
+/* Sized to the text beside it rather than stretching the full 50px header,
+   which would make a 1px rule the tallest thing in the row. */
+.np-panel .np-panel-rule {
+  flex-shrink: 0;
+  align-self: center;
+  min-height: 1em;
+  height: 1em;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   LIST SKELETON
+
+   Nimbus supplies the placeholder itself (.skeleton-list / -row / -group /
+   -text / -w-*). What belongs here is the COLUMN GEOMETRY, because the whole
+   value of a skeleton over a spinner is that it holds the shape the content
+   will take — so it reads from the same custom properties the real row does
+   and the two cannot drift apart.
+
+   Nimbus's .skeleton-row gives its body `flex: 1 1 auto` so a one-column list
+   fills the width. This list has a fixed title column, so that column opts
+   out; the evidence column keeps the growing behaviour.
+   ───────────────────────────────────────────────────────────────────────── */
+/*
+ * Mirror .np-row's own box, so the page does not shift when the rows land.
+ *
+ * Nimbus's .skeleton-row defaults to list-item padding, which is not this
+ * list's: .np-row is `padding: 8px 0` with --np-gap between columns. Left at
+ * the default the placeholder measured 96px against the real row's 106 — ten
+ * pixels per row, so a full page moved ~100px under the operator at the
+ * moment the content arrived. The whole point of a skeleton over a spinner is
+ * that nothing moves.
+ */
+.np-page .skeleton-row {
+  padding: 8px 0;
+  gap: var(--np-gap);
+  align-items: stretch;
+}
+
+/*
+ * The wrapper is transparent to layout.
+ *
+ * .np-rows is a flex column with a 4px gap between children. Real content puts
+ * 19 children in it (10 rows + 9 dividers) and gets 18 gaps; the skeleton put
+ * ONE child in it — the wrapper — and got none, so the two lists measured
+ * 46px apart. `display: contents` drops the wrapper from layout and lets the
+ * rows and dividers be flex children of .np-rows exactly as the real ones are,
+ * which makes the spacing identical by construction rather than by a second
+ * set of numbers kept in step by hand.
+ *
+ * The element stays in the markup because it is what carries aria-hidden —
+ * display:contents removes a box, not the accessibility semantics.
+ */
+.np-page .np-rows > .skeleton-list {
+  display: contents;
+}
+
+/* The rows are separated by a real <hr class="hr">, exactly as the live list
+   is, so Nimbus's own row-to-row border would be a second divider on top of
+   it. Turned off rather than the <hr> being dropped: the <hr> is the one that
+   matches the live list's spacing. */
+.np-page .skeleton-list > .skeleton-row + .skeleton-row {
+  border-top: 0;
+}
+
+/* (0,3,0) deliberately. Nimbus's `.skeleton-row > .skeleton-group` is (0,2,0)
+   and sets `flex: 1 1 auto` so a one-column list fills the width; a bare
+   `.np-skeleton-title` loses to it and the column grows to fill instead of
+   holding 300. Matching on order alone would work today and break the first
+   time the stylesheets are concatenated in a different sequence. */
+.np-page .skeleton-row > .np-skeleton-title {
+  flex: 0 0 var(--np-row-title-w);
+  width: var(--np-row-title-w);
+}
+
+.np-skeleton-action {
+  /* The row action is a small button — Figma 89x38 in both views. */
+  width: 90px;
+  height: 38px;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   PAIR REVIEW PANEL — SKELETON
+
+   Same reasoning as the list: the placeholder holds the shape the record
+   will take, so nothing moves when it lands. Geometry only — the shimmer and
+   every class below it are Nimbus's.
+
+   The DECISION BAR is deliberately not skeletonised. Its controls are real
+   and stay in place, disabled: a reason selector replaced by a grey bar would
+   have to be torn down and rebuilt as a Nimbus/Select on every record, and it
+   would tell the operator the control is arriving when it is already there.
+   Only the parts that BELONG TO THE RECORD are stood in for.
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* Measurement rollups. .np-stat-value is 22px/700 with tabular figures, so the
+   placeholder is that tall — a shorter bar lets the four stat cards shrink and
+   then jump back when the counts land. Narrow, because a count is a count and
+   a full-width bar reads as a sentence. */
+.np-skeleton-stat {
+  height: 22px;
+  width: 72px;
+}
+
+/* Reserves the chart's own height (Nimbus.Chart is built with height: 320),
+   so the signal note and the by-key-type table below do not travel 320px up
+   the panel when the chart paints. */
+.np-skeleton-chart {
+  width: 100%;
+  height: 320px;
+}
+
+/* Title. The walker step stays real — the position is known before the record
+   is — so only the names and reason are stood in for. */
+.np-skeleton-panel-title {
+  display: inline-block;
+  width: 260px;
+  vertical-align: middle;
+}
+
+/* Mirrors .np-person: same border, radius, padding and centring, so the two
+   cards occupy exactly the box the real ones will. */
+.np-skeleton-person {
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 16px;
+  border: 1px solid var(--cnds-border-color);
+  border-radius: 8px;
+}
+
+.np-skeleton-person .skeleton-text {
+  width: 60%;
+  margin-bottom: 0;
+}
+
+/* The name line is the tallest thing in the card; matching it keeps the two
+   cards the height the real ones will be. */
+.np-skeleton-person .np-skeleton-person-name {
+  width: 80%;
+  height: 1.25em;
+}
+
+/* Comparison cells. Widths come from the same rules the real table uses
+   (.np-col-*), so the column rhythm is identical while loading. */
+.np-skeleton-cell {
+  height: 1em;
+  width: 70%;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   15 · GROUP DISPATCH MODAL
+
+   Figma: Nimbus/Modal — group-dispatch (12807:11156). Geometry measured from
+   the frames rather than taken from the annotation:
+
+     modal        640 wide
+     header       56 tall, gap 8, pad 16
+     body         pad 16; the content stack inside is gap 24
+     option       label + description, gap 4
+     description  indented 34px — the radio (20) plus its 8 gap, so the text
+                  aligns under the label rather than under the control
+     policy hint  pad 24/24/23/24, icon 24, gap 16
+     footer       69 tall, gap 8, pad 16; buttons DEFAULT size (44), not sm
+
+   The modal itself, the radios, the alert, the select and the input are all
+   Nimbus. Only the stack spacing and the description indent live here.
+   ───────────────────────────────────────────────────────────────────────── */
+.np-dispatch .modal-dialog {
+  max-width: 640px;
+}
+
+.np-dispatch-body {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Group identity — the first of the three places the pair count appears. */
+.np-dispatch-identity {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.np-dispatch-group {
+  margin: 0;
+  font-weight: 600;
+}
+
+/* Edge state 6, inside the dispatch modal. Caution-toned rather than muted:
+   this is the sentence that stops an operator believing the modal is about to
+   redo work they have already done. */
+.np-dispatch-remainder {
+  margin: 8px 0 0;
+  font-size: var(--cnds-paragraph-font-size-sm, 0.75rem);
+  color: var(--cnds-caution-text-emphasis, var(--cnds-text-muted));
+}
+
+.np-dispatch-remainder[hidden] {
+  display: none;
+}
+
+.np-dispatch-meta {
+  margin: 0;
+  color: var(--cnds-text-muted);
+}
+
+.np-dispatch-option {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/*
+ * Indented to clear the radio, so the description reads as belonging to the
+ * label above it rather than starting a new column. 34 = the 20px control
+ * plus its 8px gap, plus the 6px the control is inset by.
+ *
+ * NOT dimmed, including on the disabled option: the text explaining WHY an
+ * option is unavailable is the most important thing in that block, and greying
+ * it would hide the explanation the disabled state exists to give.
+ */
+.np-dispatch-desc {
+  margin: 0;
+  padding-left: 34px;
+  color: var(--cnds-text-muted);
+}
+
+.np-dispatch-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin: 0;
+  padding: 24px;
+}
+
+.np-dispatch-hint > .mdi {
+  flex-shrink: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   ROW REMOVAL
+
+   A row that leaves fades out, then the rows below slide up to close the gap.
+   Two phases, because they say different things: the fade says "this record is
+   going", the collapse says "the list is now shorter". Only the fade leaves a
+   hole; only the collapse yanks content upward with no warning, under a cursor
+   that may be on its way to the next row's action.
+
+   BOTH HALVES ARE NIMBUS. The fade is .animate-fadeOut + .animation-faster;
+   the height collapse is `.collapsing` from css/core/transitions.css, whose
+   0.35s matches .animation-faster exactly.
+
+   The only thing added here is the row's own padding and the list gap, which
+   .collapsing does not cover — it transitions height alone, and a row at
+   height 0 still holding 8px top and bottom padding leaves a 20px gap where
+   the record was.
+   ───────────────────────────────────────────────────────────────────────── */
+.np-rows .np-row.collapsing,
+.np-rows .hr.collapsing {
+  /* `.collapsing` is (0,1,0) and loses to `hr:not([size]).hr { height: 1px }`
+     (0,2,1), so the divider would rest at 1px and leave an orphan rule where
+     the row was. Restated here at (0,3,0). */
+  height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+  transition:
+    height 0.35s ease,
+    padding 0.35s ease,
+    margin 0.35s ease;
+}
+
+/* At reduced motion the row simply goes — matching the library, which collapses
+   its own animations to 1ms. */
+@media (prefers-reduced-motion: reduce) {
+  .np-rows .np-row.collapsing,
+  .np-rows .hr.collapsing {
+    transition-duration: 1ms !important;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   16 · MEASUREMENT PANEL
+
+   Figma: Nimbus/Offcanvas — measurement, 1080 wide (75% of 1440), body pad 24,
+   content stack gap 24, rollups gap 16, table columns 472/140/140/140/140.
+
+   Everything is Nimbus — .offcanvas, .table, .note, Nimbus/Chart. Only the
+   panel width, the stack spacing and the numeric column alignment are here.
+   ───────────────────────────────────────────────────────────────────────── */
+/* NOT `.np-measure` — that class is already on the toolbar's TRIGGER BUTTON
+   (see §11). Setting a panel width on it blew the button out to 1080 and
+   wrapped the whole filter toolbar onto three rows. The panel gets its own
+   class, matching its id. */
+.np-measure-panel {
+  --cnds-offcanvas-width: 1080px;
+  width: 1080px;
+}
+
+
+/* Figma: Typography/Paragraph/Default — 14px regular, NOT the 12px sm step.
+   It is the panel's question, not a caption. */
+/* Sits at the top of the BODY, above the rollups — it is the question the
+   panel answers, not a subtitle in the header. */
+.np-measure-sub {
+  margin: 0;
+  color: var(--cnds-text-muted);
+  font-size: var(--cnds-paragraph-font-size, 14px);
+}
+
+.np-measure-body {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* The rollups use the queue's own stat tile, so the two surfaces show the same
+   number in the same shape. Figma spaces these 16 rather than the queue's 8. */
+.np-measure-rollups {
+  gap: 16px;
+  padding-bottom: 0;
+}
+
+/* Counts right-align so magnitudes line up down the column — the whole point
+   of the table is comparing volumes, and centred digits make that harder. */
+.np-measure-table .np-num {
+  text-align: right;
+  width: 140px;
+}
+
+/* A key type producing nothing is kept, not dropped, and is NOT dimmed: zero
+   is a finding, and greying it would say "ignore this row" when the row is
+   evidence that a key never fires. */
+.np-measure-chart {
+  width: 100%;
+  min-height: 320px;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   CHART SERIES COLOURS — removed.
+
+   The measurement chart no longer carries a page-local ramp. It inherits
+   CaseFusion's default charting palette (--cnds-chart-color-1..10, declared
+   by .cnds-product-casefusion in nimbus-v1/css/plugins/charts.css) straight
+   off the .chart element, so the page states no colours at all.
+
+   The old --np-chart-series-1..7 purple ramp and its dark-mode reversal are
+   gone with it. The reversal is now a property of the library palette: slot 1
+   is the step furthest from the page ground in BOTH themes, which is exactly
+   what this page was hand-correcting for. A consumer that reverses it again
+   re-breaks it.
+   ───────────────────────────────────────────────────────────────────────── */

@@ -1,0 +1,413 @@
+/* ============================================================================
+ * Nimbus v1 Portable Design System — CaseFusion 1.6
+ * File:    css/pages/frame-ca-sidenav.css
+ * Role:    Case Administrator AppFrame (Nimbus/AppFrame/1) — shared chrome
+ * Source:  extracted verbatim from pages/tmpl_ca_sidenav.html <style> block
+ *          so every 1.6 page links the frame instead of inlining ~400 lines.
+ *
+ * LOAD ORDER — after css/themes/*.css, before the page stylesheet:
+ *     nimbus.css → app.css → themes/* → THIS FILE → css/pages/pge-*.css
+ *
+ * SECTIONS
+ *   1 · Page-local tokens     --ca-* namespace
+ *   2 · Utility nav           #UtilityNav deltas over app.css
+ *   3 · Header menus          account / portal / notifications
+ *   4 · Frame + content       body background, .ca-main, placeholder
+ *   5 · Side nav              #caSidenav deltas over components/sidenav.css
+ *
+ * HOUSE RULES (inherited from the template)
+ *   • Never restyle a Nimbus component from scratch — check components/*.css
+ *     and app.css first, then add only the delta.
+ *   • Never declare a --cnds-* custom property outside #caSidenav's component
+ *     configuration. Page-specific values go under --ca-*.
+ *   • Animation durations here are mirrored in js/pages/frame-ca-sidenav.js
+ *     (DUR). Change one, change the other.
+ *
+ * ANGULAR: becomes the styleUrl of AppFrameComponent (ViewEncapsulation.None
+ * is required — the frame styles reach projected content).
+ * ========================================================================= */
+
+/* ═══════════════════════════════════════════════════════════════════
+   CA SIDENAV FRAME — page stylesheet
+
+     1 · Page-local tokens     --ca-* namespace
+     2 · Utility nav           #UtilityNav deltas over app.css
+     3 · Header menus          portal / account dropdowns, notif popover
+     4 · Frame + content       body background, .ca-main, placeholder
+     5 · Side nav              #caSidenav deltas over the .sidenav component
+
+   Nothing here restyles a Nimbus component from scratch. Each block
+   lists what the design system already provides and only sets the
+   CaseFusion deltas on top. Before adding a rule, check whether the
+   component or app.css already covers it — a duplicate that drifts is
+   worse than no rule at all.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ───────────────────────────────────────────────────────────────────
+   1 · PAGE-LOCAL TOKENS  (--ca-* namespace)
+
+   The --cnds-* namespace belongs to the design system: declaring
+   --cnds-tooltip-bg / --cnds-btn-tertiary-* / --cnds-list-* here
+   silently retunes every Nimbus component on the page. Anything this
+   template needs that the system does not already publish lives under
+   --ca-*, and every value resolves through a system primitive so the
+   two never drift.
+
+   Tokens the system already publishes — used directly, not redeclared:
+     --cnds-frame-bg      light #ebebeb / dark #171717  (themes/*.css)
+     --cnds-body-color    light #4f4f4f / dark #ebebeb  (themes/*.css)
+     --cnds-body-bg       light #fafafa / dark #252525  (themes/*.css)
+     --cnds-tooltip-bg    light #525252 / dark #4a4a4a  (variables/dark)
+     --cnds-product-accent  CF green, theme-aware (themes/primitives.css)
+   ─────────────────────────────────────────────────────────────────── */
+:root, [data-cnds-theme="light"] {
+  --ca-border-strong:     var(--cnds-surface-light-500, #cccccc);
+  --ca-menu-bg:           var(--cnds-white, #ffffff);
+  --ca-menu-hover-bg:     var(--cnds-surface-light-300, #e0e0e0);
+  --ca-menu-active-bg:    var(--cnds-product-casefusion-green-700, #2e892a);
+  --ca-menu-active-color: var(--cnds-white, #ffffff);
+}
+[data-cnds-theme="dark"] {
+  --ca-border-strong:     var(--cnds-surface-dark-200, #787878);
+  --ca-menu-bg:           var(--cnds-surface-dark-500, #1e1e1e);
+  --ca-menu-hover-bg:     var(--cnds-surface-dark-300, #4a4a4a);
+  --ca-menu-active-bg:    var(--cnds-product-casefusion-green-800, #1d5a1d);
+  --ca-menu-active-color: var(--cnds-product-casefusion-green-400, #7dd67a);
+}
+
+/* ───────────────────────────────────────────────────────────────────
+   2 · UTILITY NAV
+
+   app.css .nav-cf-utility already provides display:flex, align-items:center,
+   height (--app-utility-height: 50px), background (--cnds-frame-bg) and the
+   theme-aware foreground colour — for both themes. Only the CA-specific
+   deltas belong here; everything else inherits via currentColor.
+
+   display:flex !important is still required: app.css hides the bar with
+   #UtilityNav:not(:has(li)){display:none} when it contains no <li>, and the
+   Nimbus menus in this frame are built from <div>/<a>, not list items. */
+#UtilityNav {
+  display: flex !important;
+  flex-wrap: nowrap;
+  /* No overflow clipping here: the portal/account menus are absolutely
+     positioned children that hang below the 50px bar. overflow-x:clip kept
+     overflow-y visible in Chrome, but engines without full `clip` support
+     coerce the other axis to hidden and cut the menus off at the bar. */
+  overflow: visible;
+  padding-top: 0;
+  padding-bottom: 0;
+  gap: 48px;
+}
+#UtilityNav .fr_product-name { gap: 0; }
+#UtilityNav .fr_tools { flex: 1; min-width: 0; justify-content: flex-end; }
+#UtilityNav .nav-cf-utility-user { flex-shrink: 0; }
+
+/* Utility divider — app.css .nav-cf-utility-divider supplies the 1×24px rule,
+   0.25 opacity and both theme colours. Nothing to restate here. */
+
+/* Nav Icon Button — button reset around a .mdi glyph; the badge needs the
+   positioning context, so this is not a plain .nav-cf-utility-icon. */
+.nav-icon-btn { position: relative; background: none; border: none; cursor: pointer; padding: 4px; display: flex; align-items: center; border-radius: 4px; flex-shrink: 0; color: inherit; }
+.nav-icon-btn .mdi { font-size: 24px; color: inherit; }
+
+/* Portal Switcher */
+.portal-switcher-wrapper { position: relative; display: flex; align-items: center; height: 32px; flex-shrink: 0; white-space: nowrap; }
+.portal-switcher { display: inline-flex; align-items: center; gap: 4px; font-size: 0.875rem; color: inherit; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
+/* 24px matches .nav-cf-utility-icon so the switcher's glyphs line up with
+   the bell and the theme button across the tools row. */
+.portal-switcher .mdi { color: inherit; flex-shrink: 0; font-size: 24px; }
+/* Labels truncate rather than push the tools row past the logo. */
+.portal-switcher-label, .user-name-label { overflow: hidden; white-space: nowrap; max-width: 200px; line-height: normal; }
+
+/* User Info */
+.user-info-wrapper { position: relative; display: flex; align-items: center; height: 32px; flex-shrink: 0; white-space: nowrap; }
+.user-info { display: inline-flex; align-items: center; gap: 8px; font-size: 0.875rem; color: inherit; white-space: nowrap; cursor: pointer; flex-shrink: 0; }
+.user-name-label { flex-shrink: 0; }
+.user-avatar { width: 24px; height: 24px; border-radius: 12px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: var(--cnds-product-casefusion-green-500, #5ccb59); color: var(--cnds-surface-dark-950, #030303); font-family: var(--cnds-typography-typeface-family-default, "Nunito Sans", sans-serif); font-weight: 700; font-size: 12px; letter-spacing: -0.5px; line-height: 1; box-sizing: border-box; user-select: none; }
+
+/* ───────────────────────────────────────────────────────────────────
+   3 · HEADER MENUS
+
+   The portal switcher, the account menu and the notification popover
+   share one visual language: rounded 8px panel, --ca-border-strong hair-
+   line, a CSS-triangle arrow drawn with ::before (border) + ::after
+   (fill), and a --cnds-frame-bg header strip.
+
+   The arrow offset is set by JS at open time (--menu-arrow-outer /
+   --menu-arrow-inner for the right-anchored menus, --arrow-left for the
+   body-parented popover) so it always points at its trigger.
+   ─────────────────────────────────────────────────────────────────── */
+
+/* Account / Portal Dropdown Menu */
+.account-menu { display: none; position: absolute; top: calc(100% + 12px); right: 0; min-width: 180px; background: var(--ca-menu-bg); border: 1px solid var(--ca-border-strong); border-radius: 8px; box-shadow: 0 2px 15px -3px rgba(0,0,0,.07), 0 10px 20px -2px rgba(0,0,0,.04), 0 0 60px 10px rgba(0,0,0,.2); z-index: var(--cnds-zindex-dropdown, 1000); flex-direction: column; }
+.account-menu.open { display: flex; }
+.account-menu::before { content: ""; position: absolute; top: -9px; right: var(--menu-arrow-outer, 12px); width: 0; height: 0; border-style: solid; border-width: 0 8px 9px 8px; border-color: transparent transparent var(--ca-border-strong) transparent; }
+.account-menu::after  { content: ""; position: absolute; top: -7px; right: var(--menu-arrow-inner, 13px); width: 0; height: 0; border-style: solid; border-width: 0 7px 8px 7px; border-color: transparent transparent var(--cnds-frame-bg) transparent; }
+.account-menu-header { background: var(--cnds-frame-bg); padding: 12.5px 16px; font-family: var(--cnds-typography-typeface-family-default, "Nunito Sans", sans-serif); font-weight: 700; font-size: 0.875rem; letter-spacing: 1.4px; text-transform: uppercase; color: var(--cnds-body-color); line-height: 1.4; border-radius: 8px 8px 0 0; }
+.account-menu-item { background: var(--ca-menu-bg) !important; padding: 6px 16px; height: 44px; display: flex; align-items: center; font-family: var(--cnds-typography-typeface-family-default, "Nunito Sans", sans-serif); font-weight: 400; font-size: 0.875rem; color: var(--cnds-body-color) !important; line-height: 1.2; cursor: pointer; text-decoration: none; transition: background 0.15s ease; }
+.account-menu-item:last-child { border-radius: 0 0 8px 8px; }
+.account-menu-item:hover { background: var(--ca-menu-hover-bg) !important; }
+.account-menu-item.active { background: var(--ca-menu-active-bg) !important; color: var(--ca-menu-active-color) !important; }
+
+/* Nav Alert Popover Wrapper */
+.nav-alert-popover-wrapper { position: relative; display: flex; align-items: center; }
+
+/* Notification Popover */
+.notif-popover { position: fixed; left: 0; bottom: 16px; width: 400px; max-height: 480px; z-index: var(--cnds-zindex-popover, 1060); display: none; flex-direction: column; border: 1px solid var(--ca-border-strong); border-radius: 8px; overflow: visible; background: var(--cnds-body-bg, #fff); box-shadow: 0 2px 15px -3px rgba(0,0,0,.07), 0 10px 20px -2px rgba(0,0,0,.04), 0 0 60px 10px rgba(0,0,0,.2); font-family: var(--cnds-typography-typeface-family-default, "Nunito Sans", sans-serif); color: var(--cnds-body-color, #4f4f4f); }
+.notif-popover.open { display: flex; }
+.notif-popover::before { content: ""; position: absolute; top: -9px; left: var(--arrow-left, 12px); width: 0; height: 0; border-style: solid; border-width: 0 8px 9px 8px; border-color: transparent transparent var(--ca-border-strong) transparent; z-index: 1; }
+.notif-popover::after  { content: ""; position: absolute; top: -7px; left: calc(var(--arrow-left, 12px) + 1px); width: 0; height: 0; border-style: solid; border-width: 0 7px 8px 7px; border-color: transparent transparent var(--cnds-frame-bg) transparent; z-index: 2; }
+.notif-header { display: flex; align-items: flex-start; justify-content: space-between; padding: 12px 16px; background: var(--cnds-frame-bg); border-radius: 8px 8px 0 0; flex-shrink: 0; position: relative; z-index: 1; }
+.notif-header.scrolled::after { content: ""; position: absolute; left: 0; right: 0; bottom: -12px; height: 12px; background: linear-gradient(to bottom, rgba(0,0,0,.45), transparent); pointer-events: none; }
+.notif-header-title { font-weight: 700; font-size: 0.875rem; letter-spacing: 1.4px; text-transform: uppercase; line-height: 1.4; color: var(--cnds-body-color, #4f4f4f); }
+.notif-header-counts { display: flex; align-items: center; gap: 8px; font-weight: 400; font-size: 12px; line-height: 1.43; color: var(--cnds-body-color, #4f4f4f); }
+.notif-header-divider { display: inline-block; width: 1px; height: 16px; background: var(--ca-border-strong); }
+.notif-list { flex: 1 1 auto; overflow-y: auto; overflow-x: hidden; min-height: 0; border-radius: 0 0 8px 8px; }
+.notif-list::-webkit-scrollbar { width: 8px; }
+.notif-list::-webkit-scrollbar-track { background: transparent; }
+.notif-list::-webkit-scrollbar-thumb { background: transparent; border-radius: 4px; }
+.notif-list:hover::-webkit-scrollbar-thumb { background: var(--ca-border-strong); }
+.notif-list:hover::-webkit-scrollbar-track { background: var(--cnds-input-bg, #fff); }
+.notif-item { position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 16px 8px 16px 16px; border-top: 1px solid var(--ca-border-strong); background: var(--cnds-body-bg, #fff); }
+.notif-unread-dot { display: none; }
+.notif-item.unread .notif-unread-dot { display: block; position: absolute; left: 5px; top: 4px; width: 8px; height: 8px; border-radius: 999px; background: var(--cnds-primary-red-600, #c23400); pointer-events: none; }
+.notif-item.unread .notif-subject { font-weight: 700; }
+.notif-item.unread .notif-timestamp { font-weight: 700; }
+.notif-item-label { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; }
+.notif-subject { font-weight: 400; font-size: 0.875rem; line-height: 1.2; color: var(--cnds-body-color, #4f4f4f); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.notif-timestamp { font-weight: 400; font-size: 10px; line-height: 1.43; color: var(--cnds-text-muted, #757575); }
+.notif-expand, .notif-dismiss { flex-shrink: 0; display: flex; align-items: center; justify-content: center; border: none; background: transparent; cursor: pointer; padding: 0; color: var(--cnds-link-color, #215aab); }
+.notif-expand { width: 24px; height: 24px; font-size: 24px; }
+.notif-dismiss { width: 20px; height: 20px; font-size: 18px; }
+.notif-expand:hover, .notif-dismiss:hover { opacity: 0.75; }
+.notif-item-message { display: none; flex-basis: 100%; font-size: 12px; line-height: 1.1; color: var(--cnds-body-color, #4f4f4f); padding-right: 52px; }
+.notif-item.expanded .notif-item-message { display: block; }
+.notif-item.expanded .notif-expand::before { content: "\F0143"; }
+
+/* Bell Badge */
+.nav-bell-badge { position: absolute; top: calc(50% - 1px); left: 50%; transform: translate(-50%,-50%); display: flex; align-items: center; justify-content: center; min-width: 14px; height: 12px; padding: 0 5px; border-radius: 2px; background: var(--cnds-primary-red-600, #c23400); color: var(--cnds-surface-dark-50, #e8e8e8); font-family: var(--cnds-typography-typeface-family-default, "Nunito Sans", sans-serif); font-weight: 700; font-size: 10px; line-height: 1; letter-spacing: 0.2px; text-align: center; white-space: nowrap; pointer-events: none; }
+.nav-bell-badge:empty, .nav-bell-badge.hidden { display: none; }
+
+/* Nav tooltips use the Nimbus .tooltip component (data-cnds-toggle="tooltip"). */
+
+/* ───────────────────────────────────────────────────────────────────
+   4 · FRAME + CONTENT
+
+   No body background rule is needed. Figma surface/frame/background
+   (#252525 dark, #fafafa light) IS --cnds-body-bg in themes/*.css, and
+   core/reset.css already paints <body> with it. Figma
+   surface/frame/nav/main (#171717 dark, #ebebeb light) is --cnds-frame-bg,
+   which the header (via app.css) and the sidenav (§5) both read.
+
+   .ca-main's margin-left — the offset around the fixed sidenav — is set
+   in §5 alongside the widths it depends on.
+   ─────────────────────────────────────────────────────────────────── */
+.ca-main { padding: 16px 16px 24px; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   5 · SIDE NAV  — Nimbus `.sidenav` component, floating variant
+
+   This frame styles the component; it does not re-implement it.
+   What comes from css/components/sidenav.css and is NOT restated here:
+     • .sidenav                width from --cnds-sidenav-width, bg from
+                               --cnds-sidenav-bg, colour from --cnds-sidenav-color
+     • .sidenav.show           transform: translateX(0)  ← the nav is
+                               permanently open, so the markup carries
+                               `show` instead of a transform:none override
+     • .sidenav-link           layout, 3rem height, hover tint, dark-theme
+                               colour (#d4d4d4) and hover (#fff)
+     • .sidenav-slim           --cnds-sidenav-width: 70px, label hiding,
+                               chevron reset  ← same class the component's
+                               JS checks in _isSlim()/_expandFromSlim()
+     • .sidenav-divider        dark-theme border colour
+   Only the CaseFusion deltas live below.
+   ═══════════════════════════════════════════════════════════════════ */
+:root {
+  --ca-sidenav-width: 220px;      /* feeds --cnds-sidenav-width (full) */
+  --ca-sidenav-slim-width: 70px;  /* mirrors .sidenav-slim in components/sidenav.css */
+  --ca-sidenav-inset: 16px;       /* gap from viewport left + bottom edges */
+  --ca-sidenav-gap: 16px;         /* gap between sidenav and content */
+  /* CF green tint = --cnds-product-casefusion-green-500 (#5ccb59) at low alpha.
+     An alpha ramp of a token colour, not a hard-coded colour of its own. */
+  --ca-sidenav-active-tint:       rgba(92, 203, 89, 0.10);
+  --ca-sidenav-active-tint-hover: rgba(92, 203, 89, 0.15);
+}
+[data-cnds-theme="dark"] {
+  --ca-sidenav-active-tint:       rgba(92, 203, 89, 0.12);
+  --ca-sidenav-active-tint-hover: rgba(92, 203, 89, 0.18);
+}
+
+/* Floating panel: inset from the viewport, pinned below the sticky header */
+#caSidenav {
+  /* Drive the component's own width token — .sidenav reads it for `width`,
+     so both states animate through the component's width transition. */
+  --cnds-sidenav-width: var(--ca-sidenav-width);
+  /* surface/frame/nav/main — #ebebeb light / #171717 dark, theme-aware */
+  --cnds-sidenav-bg: var(--cnds-frame-bg);
+  position: fixed;
+  top: 0; /* JS: set to header.offsetHeight + --ca-sidenav-gap on load and resize */
+  left: var(--ca-sidenav-inset);
+  bottom: var(--ca-sidenav-inset);
+  height: auto; /* override base height:100vh so top+bottom control the height */
+  border-radius: 12px;
+  /* Deliberately below the header so the header overlaps the panel.
+     app.css puts .sticky-top at 1030; --cnds-zindex-sticky is 1020, so
+     anything derived from it clears the sidenav either way. */
+  z-index: calc(var(--cnds-zindex-sticky, 1020) - 5);
+  overflow-y: auto;
+  overflow-x: hidden;
+  transition: width 0.3s ease-in-out;
+  padding: 0;
+  box-shadow: none; /* suppress the base .sidenav elevation */
+  border: 1px solid var(--cnds-border-color, rgba(0,0,0,0.1));
+}
+[data-cnds-theme="dark"] #caSidenav {
+  border-color: rgba(255,255,255,0.08);
+}
+
+/* Slim mode — the component's own class, so Sidenav._isSlim() stays truthful.
+   The id-level --cnds-sidenav-width above outranks .sidenav-slim's, so the
+   slim width has to be restated at id specificity. */
+#caSidenav.sidenav-slim {
+  --cnds-sidenav-width: var(--ca-sidenav-slim-width);
+}
+
+/* MAIN CONTENT — offset right of the fixed sidenav (inset + width + gap) */
+.ca-main {
+  margin-left: calc(var(--ca-sidenav-inset) + var(--ca-sidenav-width) + var(--ca-sidenav-gap));
+  transition: margin-left 0.3s ease-in-out;
+}
+.ca-main.ca-main-slim {
+  margin-left: calc(var(--ca-sidenav-inset) + var(--ca-sidenav-slim-width) + var(--ca-sidenav-gap));
+}
+
+/* ── Sidebar header (toggle button row) — app.css .sidebar-header already
+      gives position:sticky, top:0 and the sidenav background ── */
+#caSidenav .sidebar-header {
+  align-items: stretch;
+  height: var(--app-utility-height, 50px);
+  padding: 0;
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+/* ── Slim toggle button — full-width, icon pinned to padding-left: 24px ── */
+#caSidenav .ca-nav-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  height: 100%;
+  padding: 0 0 0 24px;
+  background: none;
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+  color: var(--cnds-sidenav-color); /* theme-aware, from the component */
+  transition: background 0.15s;
+}
+#caSidenav .ca-nav-toggle .mdi { font-size: 20px; line-height: 1; flex-shrink: 0; }
+/* Matches the app-wide a:focus-visible ring in app.css */
+#caSidenav .ca-nav-toggle:focus-visible { outline: 2px solid var(--cnds-link-color, #215aab); outline-offset: 2px; }
+
+/* ── Sidenav section label ── */
+#caSidenav .sidenav-subheading {
+  color: var(--cnds-text-muted, #757575);
+  white-space: nowrap;
+  overflow: hidden;
+  padding-top: 0.75rem;
+}
+/* ── Sidenav link — colour/hover come from the component; only the
+      CA indent and the label collapse transition are set here ── */
+#caSidenav .sidenav-link {
+  text-decoration: none;
+  white-space: nowrap;
+  padding-left: 22px;
+}
+#caSidenav .sidenav-link span:not(.sidenav-chevron),
+#caSidenav .sidenav-subheading {
+  opacity: 1;
+  max-width: 200px;
+  overflow: hidden;
+  transition: opacity 0.2s ease-in 0.1s, max-width 0s 0s;
+}
+
+/* ── Active link — CF green accent bar.
+      --cnds-product-accent is theme-aware (green-700 light / green-400 dark),
+      --cnds-primary is the same colour components/sidenav.css uses for
+      .sidenav-link.active, so the light and dark rules collapse into one. ── */
+#caSidenav .sidenav-link.active {
+  box-shadow: inset 3px 0 0 var(--cnds-product-accent);
+  background: var(--ca-sidenav-active-tint);
+  color: var(--cnds-primary);
+  font-weight: 600;
+}
+[data-cnds-theme="dark"] #caSidenav .sidenav-link.active {
+  /* dark keeps green-400 for text: --cnds-primary stays green-800 for
+     solid-fill contrast and would be unreadable on the tint. */
+  color: var(--cnds-product-accent);
+}
+#caSidenav .sidenav-link.active:hover {
+  background: var(--ca-sidenav-active-tint-hover);
+  color: var(--cnds-primary);
+}
+[data-cnds-theme="dark"] #caSidenav .sidenav-link.active:hover {
+  color: var(--cnds-product-accent);
+}
+
+/* ── Slim mode: hide labels, clear icon margin — no position changes ──
+      Icons stay at padding-left: 22px in both states; 22px left + 24px icon
+      = naturally centered in 70px without any justify-content or padding
+      override. Never change justify-content or padding-left here — the width
+      transition would cause the icon to jump to a new flex position in the
+      full-width container first. That is why the two `.sidenav-slim` link
+      declarations from the component (justify-content:center; padding:0.75rem)
+      are explicitly undone below, and why the labels are animated out with
+      opacity/max-width instead of the component's instant display:none. ── */
+/* `display` is restated only to beat the component's display:none — the
+   labels are flex items of .sidenav-link, so block is their natural box. */
+#caSidenav.sidenav-slim .sidenav-link span:not(.sidenav-chevron) { display: block; opacity: 0; max-width: 0; overflow: hidden; transition: opacity 0.2s ease-out, max-width 0s 0.2s; }
+#caSidenav.sidenav-slim .sidenav-subheading { display: block; opacity: 0; max-width: 0; overflow: hidden; transition: opacity 0.2s ease-out, max-width 0s 0.2s; }
+#caSidenav.sidenav-slim .sidenav-link { justify-content: flex-start; padding-left: 22px; padding-right: 4px; }
+#caSidenav.sidenav-slim .sidenav-chevron { transform: translateY(-50%) rotate(0deg) !important; }
+#caSidenav.sidenav-slim .sidenav-collapse { display: none !important; }
+#caSidenav.sidenav-slim .sidenav-link i,
+#caSidenav.sidenav-slim .sidenav-link .mdi { margin-right: 0 !important; }
+
+/* ── Sub-items (sidenav-collapse children) ── */
+/* In the Nimbus reference all links (parent + child) carry ps-4 (1.5rem !important),
+   so child icons align with parent icons — not further indented. Match that here. */
+#caSidenav .sidenav-collapse .sidenav-link {
+  font-size: 0.78rem;
+  height: 2.25rem;
+  padding-left: 22px;
+}
+
+/* ── Category toggle with active child — product highlight, no accent bar ── */
+#caSidenav .sidenav-link[data-cnds-toggle="sidenav-collapse"].active {
+  background: var(--ca-sidenav-active-tint);
+  color: var(--cnds-primary);
+  font-weight: 600;
+  box-shadow: none; /* suppress the accent bar that .sidenav-link.active would add */
+}
+[data-cnds-theme="dark"] #caSidenav .sidenav-link[data-cnds-toggle="sidenav-collapse"].active {
+  color: var(--cnds-product-accent);
+  box-shadow: none;
+}
+
+/* ── Divider — the id-level rule outranks the component's dark-theme
+      selector, so the dark value has to be restated at id specificity ── */
+#caSidenav .sidenav-divider {
+  border-top-color: var(--cnds-border-color, rgba(0,0,0,0.1));
+}
+[data-cnds-theme="dark"] #caSidenav .sidenav-divider {
+  border-top-color: var(--cnds-sidenav-divider-color, rgba(255,255,255,0.1));
+}
+
+/* ── Scrollbar — subtle on hover ── */
+#caSidenav::-webkit-scrollbar { width: 4px; }
+#caSidenav::-webkit-scrollbar-track { background: transparent; }
+#caSidenav::-webkit-scrollbar-thumb { background: transparent; border-radius: 4px; }
+#caSidenav:hover::-webkit-scrollbar-thumb { background: var(--ca-border-strong, #cccccc); }
+#caSidenav { scrollbar-width: thin; scrollbar-color: transparent transparent; }
+#caSidenav:hover { scrollbar-color: var(--ca-border-strong, #cccccc) transparent; }

@@ -1,0 +1,1377 @@
+<!--
+* CNDS Nimbus Design System — Dividers
+* Version: 1.0.0
+* Layout: Application with SideNav (migrated from Nimbus v8 template)
+*
+* Component CSS:  css/components/dividers.css
+* Theme overrides: css/themes/light.css | css/themes/dark.css
+*
+* SECTIONS (in document order)
+*   #section-introduction       — Overview and when to use
+*   #section-basic              — Standard horizontal <hr> example
+*   #section-basic-vertical     — Standard vertical .vr example
+*   #section-blurry-horizontal  — Blurry gradient horizontal divider
+*   #section-blurry-vertical    — Blurry gradient vertical divider
+*   #section-blurry-example     — Practical blurry stat-column layout
+*   #section-product-example    — CaseFusion application context
+*   #section-api-docs           — API Documentation
+*     #api-section-introduction   — Component model overview
+*     #api-section-usage          — Minimum markup pattern
+*     #api-section-css-classes    — Class reference table
+*     #api-section-css-variables  — Custom property reference table
+*     #api-section-theme-variables — Light/dark color tokens
+*     #api-section-accessibility  — Required ARIA attributes
+*
+* NOTES
+* - Pure HTML5, CSS3, vanilla JavaScript — zero external dependencies
+* - Uses data-cnds-* attributes processed by nimbus.js / app.js
+* - Uses Nimbus.* namespace
+* - Dividers are CSS-only components — no JavaScript initialisation required
+* - Theme-compliant: light/dark via [data-cnds-theme] attribute on <html>
+* - Default product theme: CaseFusion (cnds-product-casefusion on <body>; change to cnds-product-hyperlize or cnds-product-expireon)
+* - All colors use CSS custom properties (var(--cnds-*)) — no hardcoded hex values
+* - UI icons: MDI (mdi-*). Social/footer icons: Font Awesome (fab fa-*)
+-->
+<!doctype html>
+<!-- data-cnds-theme: sets the initial theme ("light" | "dark"). nimbus.js syncs this attribute when the user toggles. -->
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta
+      name="description"
+      content="Dividers | Cloudficient Nimbus Design System v1.0.0"
+    />
+    <title>Dividers | CNDS v1.0.0 | Cloudficient Nimbus Design System</title>
+    <!-- Nimbus CSS -->
+    <link rel="stylesheet" href="css/nimbus.css" media="all" type="text/css" />
+    <!-- Custom styles | All custom classes/styles/overrides go here! -->
+    <link rel="stylesheet" href="css/app.css" media="all" type="text/css" />
+    <!-- Prism syntax highlighting -->
+    <link
+      rel="stylesheet"
+      href="plugins/css/prism.min.css"
+      media="all"
+      type="text/css"
+    />
+    <!-- Favicons -->
+    <link
+      rel="apple-touch-icon"
+      sizes="57x57"
+      href="img/favicon/apple-icon-57x57.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="60x60"
+      href="img/favicon/apple-icon-60x60.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="72x72"
+      href="img/favicon/apple-icon-72x72.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="76x76"
+      href="img/favicon/apple-icon-76x76.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="114x114"
+      href="img/favicon/apple-icon-114x114.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="120x120"
+      href="img/favicon/apple-icon-120x120.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="144x144"
+      href="img/favicon/apple-icon-144x144.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="152x152"
+      href="img/favicon/apple-icon-152x152.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="img/favicon/apple-icon-180x180.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="192x192"
+      href="img/favicon/android-icon-192x192.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="img/favicon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="96x96"
+      href="img/favicon/favicon-96x96.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="img/favicon/favicon-16x16.png"
+    />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta
+      name="msapplication-TileImage"
+      content="img/favicon/ms-icon-144x144.png"
+    />
+    <!-- ./Favicons -->
+    <!-- Design tokens — load order matters:
+         1. primitives.css  — raw color/spacing values (no theming)
+         2. light.css       — semantic tokens for [data-cnds-theme="light"] / :root
+         3. dark.css        — semantic token overrides for [data-cnds-theme="dark"]
+         All three must appear AFTER nimbus.css so component variables resolve correctly. -->
+    <link rel="stylesheet" href="css/themes/primitives.css" />
+    <link rel="stylesheet" href="css/themes/light.css" />
+    <link rel="stylesheet" href="css/themes/dark.css" />
+    <!-- Page-level developer notes:
+         No page-specific CSS overrides are needed for this documentation page.
+         All divider styles live in css/components/dividers.css and are consumed
+         here through nimbus.css. To customise a divider instance, override the
+         --cnds-divider-* custom properties inline or in app.css. -->
+    <style>
+      /* Developer notes — cnds-dividers.html
+       * ─────────────────────────────────────────────────────────────────────
+       * All divider appearance tokens are defined in css/components/dividers.css.
+       * Use --cnds-divider-* custom properties to customise; never add hardcoded
+       * colors. See the API Documentation section for a full property reference.
+       *
+       * CaseFusion product-example panel uses:
+       *   --cnds-product-casefusion-green-500  (panel accent border/icon tint)
+       *   --cnds-product-casefusion-green-100  (light background badge)
+       * Ensure these tokens are present in light.css / dark.css before use.
+       * ─────────────────────────────────────────────────────────────────────
+       */
+      .cf-casefusion-demo-panel {
+        border-left: 3px solid var(--cnds-product-casefusion-green-500, #2e7d32);
+        background-color: var(--cnds-surface-light-50, #f9f9f9);
+        border-radius: 0.5rem;
+        padding: 1.25rem 1.5rem;
+      }
+      [data-cnds-theme="dark"] .cf-casefusion-demo-panel {
+        background-color: var(--cnds-surface-dark-100, #2a2a2a);
+      }
+      .cf-casefusion-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--cnds-product-casefusion-green-700, #1b5e20);
+        background-color: var(--cnds-product-casefusion-green-100, #e8f5e9);
+        border-radius: 999px;
+        padding: 0.2rem 0.65rem;
+      }
+      [data-cnds-theme="dark"] .cf-casefusion-badge {
+        color: var(--cnds-product-casefusion-green-200, #a5d6a7);
+        background-color: var(--cnds-product-casefusion-green-900, #1b2e1c);
+      }
+    </style>
+  </head>
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 Bypass Blocks; renders visually hidden until focused -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+    <!-- ================================================================
+       HEADER
+       ================================================================ -->
+    <div class="sticky-top">
+      <!-- Utility Navigation -->
+      <nav id="UtilityNav" class="nav nav-cf-utility">
+        <div class="w-100 gx-3 px-sm-0 px-lg-3">
+          <ul class="nav nav-cf-utility-ul"></ul>
+        </div>
+      </nav>
+      <!-- ./Utility Navigation -->
+      <!-- Main Navigation -->
+      <nav id="MainNav" class="navbar navbar-expand-xl navbar-cf">
+        <div class="container-fluid p-0 px-3 d-flex">
+          <div class="d-flex flex-fill align-items-center text-truncate">
+            <div class="text-center d-none d-md-block me-3 border-end">
+              <a href="index.html"
+                ><img src="img/cf/core/logo_nimbus.png" class="me-3 mt-n1"
+              alt="Cloudficient Nimbus Design System" /></a>
+            </div>
+            <div class="flex-fill text-truncate">
+              <div class="navbar-cf-title-block">
+                <div
+                  class="navbar-cf-title cf-page-title text-truncate"
+                  style="padding-bottom: 0"
+                >
+                  <span class="cf-page-title-text cf-page-title-brand">v1</span
+                  ><span class="cf-page-title-divider"></span
+                  ><span class="cf-page-title-text">Dividers</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- data-cnds-toggle="theme": wired by nimbus.js — flips data-cnds-theme on <html> between "light" and "dark" -->
+          <button
+            class="btn btn-sm btn-outline-secondary ms-2"
+            data-cnds-toggle="theme"
+            aria-label="Toggle theme"
+            title="Toggle theme"
+          >
+            <i class="mdi mdi-weather-night mdi-18px" aria-hidden="true"></i>
+          </button>
+        </div>
+      </nav>
+      <!-- ./Main Navigation -->
+    </div>
+    <!-- /HEADER -->
+
+    <!-- ================================================================
+       CONTENT
+       ================================================================ -->
+    <main id="main-content" class="cf-main-app">
+      <!-- Mobile viewport warning -->
+      <div class="d-block d-md-none p-4">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>This application is not
+          optimized for small screens. Please use a large tablet, laptop, or
+          desktop computer to continue.
+        </div>
+      </div>
+      <div class="d-none d-md-block">
+        <!-- Sidenav — markup is intentionally empty; sidenav-loader.js fetches and injects the shared nav HTML.
+             data-cnds-mode="side"           : renders as a persistent side panel (not an overlay/drawer)
+             data-cnds-slim / slim-collapsed : controls compact/icon-only collapsed state
+             data-cnds-content="#slim-content": the sibling panel that shrinks/expands as the nav opens/closes
+             data-cnds-accordion="true"      : collapses other open nav groups when a new one is expanded -->
+        <nav
+          id="sidebar-cf"
+          class="sidenav"
+          data-cnds-mode="side"
+          data-cnds-slim="false"
+          data-cnds-slim-collapsed="false"
+          data-cnds-content="#slim-content"
+          data-cnds-accordion="true"
+        ></nav>
+
+        <div id="slim-content">
+          <div class="slim-content-box">
+            <!-- Content Row -->
+            <div class="row">
+              <!-- Main column — 80 % of the row width; the remaining 20 % is the right sidebar.
+                   The inline flex overrides are intentional: they pin the ratio regardless of Bootstrap's
+                   grid breakpoints so the sidebar never wraps on large viewports. -->
+              <div class="col-12 col-lg" style="flex: 0 0 80%; max-width: 80%">
+                <section class="container-fluid">
+
+                  <!-- ========================================================
+                     INTRODUCTION
+                     ======================================================== -->
+                  <section id="section-introduction">                    <p class="mb-4">
+                      The Nimbus divider system provides styled horizontal rules (<code>&lt;hr&gt;</code>),
+                      vertical rules (<code>.vr</code>), and decorative blurry gradient variants for each
+                      orientation. Dividers are CSS-only components that require no JavaScript and are
+                      fully theme-compliant — they automatically adapt to light and dark modes through
+                      CSS custom properties using the <strong>Surface &gt; Toolbar &gt; Divider</strong>
+                      color tokens. The standard <code>.hr</code> class upgrades the browser default
+                      <code>&lt;hr&gt;</code> from a low-opacity hairline to a crisp <code>2px</code>
+                      solid line at full opacity, while <code>.hr-blurry</code> replaces the solid
+                      fill with a horizontal gradient that fades to transparent at both edges — ideal
+                      for decorative section separators that feel lighter than a hard rule.
+                    </p>
+                    <p class="my-4">
+                      Use a divider when you need a visual cue that two adjacent blocks of content
+                      belong to different topics, steps, or data groups — and when spacing alone is
+                      not sufficient to communicate that boundary. Prefer spacing over a divider for
+                      items within the same conceptual group (e.g., list items or card grid cells).
+                      Reach for a blurry or vertical divider when the separation should feel elegant
+                      and decorative rather than structural, such as between stat columns in a
+                      dashboard panel or between navigation items in a toolbar. Vertical dividers
+                      (<code>.vr</code>) require an explicit height — either inline or via a utility
+                      class — because the element has no intrinsic height of its own.
+                    </p>
+                    <p class="note note-light">
+                      <strong>Note:</strong> Read the
+                      <a href="#section-api-docs">API Documentation</a> to find all available
+                      options and advanced customization.
+                    </p>
+                    <p class="note note-info">
+                      <strong>Note:</strong> To preview components in different
+                      themes, click the theme toggle button
+                      <i class="mdi mdi-weather-night" aria-hidden="true"></i> / <i class="mdi mdi-weather-sunny" aria-hidden="true"></i> in the header navigation bar.
+                    </p>
+                  </section>
+                  <!-- /INTRODUCTION -->
+
+                  <hr class="my-5" />
+
+                  <!-- ========================================================
+                     BASIC EXAMPLE
+                     ======================================================== -->
+                  <section id="section-basic">
+                    <h3 class="mb-3">Basic example</h3>
+                    <p>
+                      The browser default <code>&lt;hr&gt;</code> element
+                      renders as a <code>1px</code> line with low opacity. The
+                      Nimbus <code>.hr</code> class overrides this to produce a
+                      <code>2px</code> solid divider using the theme's divider
+                      color at full opacity, providing a cleaner and more
+                      visible separation between content blocks.
+                    </p>
+                    <!-- Demo -->
+                    <section class="pb-4">
+                      <!-- Angular: Use <hr> elements directly in templates with CNDS divider classes.
+                           Example: <hr class="hr my-5" aria-hidden="true" />
+                           For semantic section breaks: omit aria-hidden so screen readers announce the separator.
+                           Binding example: <hr class="hr" [class.my-5]="hasSpacing" /> -->
+                      <div class="border rounded-5">
+                        <div class="p-4">
+                          <hr class="hr my-5" role="presentation" />
+                        </div>
+                      </div>
+                    </section>
+                    <!-- Code -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre
+                          class="line-numbers m-0"
+                        ><code class="language-html">&lt;!-- Decorative horizontal divider --&gt;
+&lt;hr class="hr" role="presentation" /&gt;
+
+&lt;!-- Semantic section break (no role override needed) --&gt;
+&lt;hr class="hr" /&gt;</code></pre>
+                      </div>
+                    </section>
+                  </section>
+                  <!-- /BASIC EXAMPLE -->
+
+                  <hr class="my-5" />
+
+                  <!-- ========================================================
+                     BASIC VERTICAL
+                     ======================================================== -->
+                  <section id="section-basic-vertical">
+                    <h3 class="mb-3">Basic vertical</h3>
+                    <p>
+                      Create a vertical divider using the
+                      <code>.vr</code> class. Vertical rules render as a
+                      <code>2px</code> wide line using the theme's divider
+                      color. You must define the height explicitly via inline
+                      CSS or a utility class, since the element has no intrinsic
+                      height.
+                    </p>
+                    <!-- Demo -->
+                    <section class="pb-4">
+                      <!-- Angular: Use a plain <div class="vr"> in templates.
+                           Set height via inline binding or a utility class.
+                           Example: <div class="vr" [style.height.px]="dividerHeight"></div>
+                           For fixed layouts: <div class="vr" style="height: 250px;" aria-hidden="true"></div> -->
+                      <div class="border rounded-5">
+                        <div class="py-4">
+                          <div class="d-flex">
+                            <div class="px-4"><p>Text</p></div>
+                            <div class="vr" style="height: 250px" aria-hidden="true"></div>
+                            <div class="px-4"><p>Text</p></div>
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+                    <!-- Code -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre
+                          class="line-numbers m-0"
+                        ><code class="language-html">&lt;!-- Flexbox container for layout --&gt;
+&lt;div class="d-flex"&gt;
+
+  &lt;!-- Element on the left --&gt;
+  &lt;div class="px-4"&gt;
+    &lt;p&gt;Text&lt;/p&gt;
+  &lt;/div&gt;
+
+  &lt;!-- Vertical divider (decorative) --&gt;
+  &lt;div class="vr" style="height: 250px;" aria-hidden="true"&gt;&lt;/div&gt;
+
+  &lt;!-- Element on the right --&gt;
+  &lt;div class="px-4"&gt;
+    &lt;p&gt;Text&lt;/p&gt;
+  &lt;/div&gt;
+
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                  </section>
+                  <!-- /BASIC VERTICAL -->
+
+                  <hr class="my-5" />
+
+                  <!-- ========================================================
+                     BLURRY HORIZONTAL
+                     ======================================================== -->
+                  <section id="section-blurry-horizontal">
+                    <h3 class="mb-3">Blurry horizontal</h3>
+                    <p>
+                      Add the <code>.hr-blurry</code> modifier class alongside
+                      <code>.hr</code> to create a horizontal divider that fades
+                      at both edges. The blurry effect is achieved with a CSS
+                      gradient that transitions from transparent through the
+                      divider color and back to transparent. This variant is
+                      commonly used for decorative section separators.
+                    </p>
+                    <!-- Demo -->
+                    <section class="pb-4">
+                      <!-- Angular: Use <hr class="hr hr-blurry"> for decorative gradient dividers.
+                           Always add aria-hidden="true" for purely decorative use.
+                           Example: <hr class="hr hr-blurry my-5" aria-hidden="true" />
+                           Conditional: <hr *ngIf="showDivider" class="hr hr-blurry" aria-hidden="true" /> -->
+                      <div class="border rounded-5">
+                        <div class="p-4">
+                          <hr class="hr hr-blurry my-5" aria-hidden="true" />
+                        </div>
+                      </div>
+                    </section>
+                    <!-- Code -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre
+                          class="line-numbers m-0"
+                        ><code class="language-html">&lt;hr class="hr hr-blurry" aria-hidden="true" /&gt;</code></pre>
+                      </div>
+                    </section>
+                  </section>
+                  <!-- /BLURRY HORIZONTAL -->
+
+                  <hr class="my-5" />
+
+                  <!-- ========================================================
+                     BLURRY VERTICAL
+                     ======================================================== -->
+                  <section id="section-blurry-vertical">
+                    <h3 class="mb-3">Blurry vertical</h3>
+                    <p>
+                      The <code>.vr-blurry</code> modifier works the same way
+                      for vertical dividers — it applies a vertical gradient
+                      that fades at the top and bottom edges. Combine it with
+                      the <code>.vr</code> class and set an explicit height.
+                    </p>
+                    <!-- Demo -->
+                    <section class="pb-4">
+                      <!-- Angular: Combine .vr and .vr-blurry for soft vertical separators.
+                           Set height via inline style or utility. Always aria-hidden for decorative use.
+                           Example: <div class="vr vr-blurry" style="height: 250px;" aria-hidden="true"></div>
+                           In *ngFor column layouts: add aria-hidden="true" to keep the tree clean. -->
+                      <div class="border rounded-5">
+                        <div class="py-4">
+                          <div class="d-flex">
+                            <div class="px-4"><p>Text</p></div>
+                            <div
+                              class="vr vr-blurry"
+                              style="height: 250px"
+                              aria-hidden="true"
+                            ></div>
+                            <div class="px-4"><p>Text 2</p></div>
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+                    <!-- Code -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre
+                          class="line-numbers m-0"
+                        ><code class="language-html">&lt;div class="vr vr-blurry" style="height: 250px;" aria-hidden="true"&gt;&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                  </section>
+                  <!-- /BLURRY VERTICAL -->
+
+                  <hr class="my-5" />
+
+                  <!-- ========================================================
+                     BLURRY DIVIDER PRACTICAL EXAMPLE
+                     ======================================================== -->
+                  <section id="section-blurry-example">
+                    <h3 class="mb-3">Blurry divider practical example</h3>
+                    <p class="mb-4">
+                      Below is a real-world example showing how blurry vertical
+                      dividers can separate stat columns within a feature
+                      section. Each column uses a
+                      <code>.vr.vr-blurry</code> element positioned absolutely
+                      on the right edge, creating elegant visual separation that
+                      hides on smaller screens.
+                    </p>
+                    <!-- Demo -->
+                    <section class="pb-4">
+                      <!-- Angular: In stat-column layouts, use *ngFor with index tracking.
+                           Add the .vr.vr-blurry element inside each column and use *ngIf="!last"
+                           to hide the divider after the final column.
+                           Example:
+                             <div *ngFor="let stat of stats; let last = last" class="col position-relative">
+                               <i class="mdi mdi-{{ stat.icon }} mdi-36px text-primary mb-4" aria-hidden="true"></i>
+                               <div *ngIf="!last" class="vr vr-blurry position-absolute my-0 h-100
+                                    d-none d-md-block top-0 end-0" aria-hidden="true"></div>
+                             </div> -->
+                      <div class="border rounded-5">
+                        <div class="px-4 py-5">
+                          <section class="text-center">
+                            <div class="row">
+                              <div
+                                class="col-lg-3 col-md-6 mb-5 mb-md-5 mb-lg-0 position-relative"
+                              >
+                                <i
+                                  class="mdi mdi-view-dashboard-outline mdi-36px text-primary mb-4"
+                                  aria-hidden="true"
+                                ></i>
+                                <h4 class="text-primary fw-bold mb-3">5000+</h4>
+                                <h5 class="fw-normal mb-0">Components</h5>
+                                <div
+                                  class="vr vr-blurry position-absolute my-0 h-100 d-none d-md-block top-0 end-0"
+                                  aria-hidden="true"
+                                ></div>
+                              </div>
+                              <div
+                                class="col-lg-3 col-md-6 mb-5 mb-md-5 mb-lg-0 position-relative"
+                              >
+                                <i
+                                  class="mdi mdi-layers-outline mdi-36px text-primary mb-4"
+                                  aria-hidden="true"
+                                ></i>
+                                <h4 class="text-primary fw-bold mb-3">490+</h4>
+                                <h5 class="fw-normal mb-0">Design blocks</h5>
+                                <div
+                                  class="vr vr-blurry position-absolute my-0 h-100 d-none d-md-block top-0 end-0"
+                                  aria-hidden="true"
+                                ></div>
+                              </div>
+                              <div
+                                class="col-lg-3 col-md-6 mb-5 mb-md-0 position-relative"
+                              >
+                                <i
+                                  class="mdi mdi-image-outline mdi-36px text-primary mb-4"
+                                  aria-hidden="true"
+                                ></i>
+                                <h4 class="text-primary fw-bold mb-3">100+</h4>
+                                <h5 class="fw-normal mb-0">Templates</h5>
+                                <div
+                                  class="vr vr-blurry position-absolute my-0 h-100 d-none d-md-block top-0 end-0"
+                                  aria-hidden="true"
+                                ></div>
+                              </div>
+                              <div
+                                class="col-lg-3 col-md-6 mb-5 mb-md-0 position-relative"
+                              >
+                                <i
+                                  class="mdi mdi-power-plug-outline mdi-36px text-primary mb-4"
+                                  aria-hidden="true"
+                                ></i>
+                                <h4 class="text-primary fw-bold mb-3">28</h4>
+                                <h5 class="fw-normal mb-0">Plugins</h5>
+                              </div>
+                            </div>
+                          </section>
+                        </div>
+                      </div>
+                    </section>
+                    <!-- Code -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre
+                          class="line-numbers m-0"
+                        ><code class="language-html">&lt;section class="text-center"&gt;
+  &lt;div class="row"&gt;
+    &lt;div class="col-lg-3 col-md-6 mb-5 mb-md-5 mb-lg-0 position-relative"&gt;
+      &lt;i class="mdi mdi-view-dashboard-outline mdi-36px text-primary mb-4" aria-hidden="true"&gt;&lt;/i&gt;
+      &lt;h5 class="text-primary fw-bold mb-3"&gt;5000+&lt;/h5&gt;
+      &lt;h6 class="fw-normal mb-0"&gt;Components&lt;/h6&gt;
+      &lt;div class="vr vr-blurry position-absolute my-0 h-100 d-none d-md-block top-0 end-0" aria-hidden="true"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;div class="col-lg-3 col-md-6 mb-5 mb-md-5 mb-lg-0 position-relative"&gt;
+      &lt;i class="mdi mdi-layers-outline mdi-36px text-primary mb-4" aria-hidden="true"&gt;&lt;/i&gt;
+      &lt;h5 class="text-primary fw-bold mb-3"&gt;490+&lt;/h5&gt;
+      &lt;h6 class="fw-normal mb-0"&gt;Design blocks&lt;/h6&gt;
+      &lt;div class="vr vr-blurry position-absolute my-0 h-100 d-none d-md-block top-0 end-0" aria-hidden="true"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;div class="col-lg-3 col-md-6 mb-5 mb-md-0 position-relative"&gt;
+      &lt;i class="mdi mdi-image-outline mdi-36px text-primary mb-4" aria-hidden="true"&gt;&lt;/i&gt;
+      &lt;h5 class="text-primary fw-bold mb-3"&gt;100+&lt;/h5&gt;
+      &lt;h6 class="fw-normal mb-0"&gt;Templates&lt;/h6&gt;
+      &lt;div class="vr vr-blurry position-absolute my-0 h-100 d-none d-md-block top-0 end-0" aria-hidden="true"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;div class="col-lg-3 col-md-6 mb-5 mb-md-0 position-relative"&gt;
+      &lt;i class="mdi mdi-power-plug-outline mdi-36px text-primary mb-4" aria-hidden="true"&gt;&lt;/i&gt;
+      &lt;h5 class="text-primary fw-bold mb-3"&gt;28&lt;/h5&gt;
+      &lt;h6 class="fw-normal mb-0"&gt;Plugins&lt;/h6&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/section&gt;</code></pre>
+                      </div>
+                    </section>
+                  </section>
+                  <!-- /BLURRY DIVIDER PRACTICAL EXAMPLE -->
+
+                  <hr class="my-5" />
+
+                  <!-- ========================================================
+                     PRODUCT EXAMPLE
+                     ======================================================== -->
+                  <section id="section-product-example" class="pb-4">
+                    <h3 class="mb-3">Product example</h3>
+                    <p class="mb-4">
+                      The example below shows how dividers appear in a
+                      <strong>CaseFusion</strong> application context. Horizontal
+                      dividers separate logical groups within a case details panel — such as
+                      the boundary between case metadata and migration settings — while blurry
+                      vertical dividers split the summary stat row at the top of the panel.
+                      The accent border and badge use
+                      <code>--cnds-product-casefusion-green-*</code> tokens so the panel
+                      respects both light and dark themes automatically.
+                    </p>
+
+                    <!-- Demo -->
+                    <section class="pb-4">
+                      <!-- Angular: In CaseFusion case-detail components, use <hr class="hr my-3">
+                           between each FieldGroup or metadata block. Use .vr.vr-blurry inside
+                           stat summary rows. Bind visibility with *ngIf when sections are toggled.
+                           Example:
+                             <hr class="hr my-3" *ngIf="showMetadataDivider" role="presentation" />
+                           Use role="presentation" for purely decorative panel dividers so screen
+                           readers skip them when they don't represent a thematic break. -->
+                      <div class="border rounded-5">
+                        <div class="p-4">
+
+                          <!-- Case summary stat row with blurry vertical dividers -->
+                          <div class="row text-center mb-4 g-0">
+                            <div class="col position-relative">
+                              <div class="fw-semibold" style="color: var(--cnds-product-casefusion-green-600, #388e3c);">1,842</div>
+                              <div class="small text-muted">Mailboxes</div>
+                              <div class="vr vr-blurry position-absolute my-0 h-100 top-0 end-0" aria-hidden="true"></div>
+                            </div>
+                            <div class="col position-relative">
+                              <div class="fw-semibold" style="color: var(--cnds-product-casefusion-green-600, #388e3c);">97%</div>
+                              <div class="small text-muted">Migrated</div>
+                              <div class="vr vr-blurry position-absolute my-0 h-100 top-0 end-0" aria-hidden="true"></div>
+                            </div>
+                            <div class="col position-relative">
+                              <div class="fw-semibold" style="color: var(--cnds-product-casefusion-green-600, #388e3c);">34</div>
+                              <div class="small text-muted">Remaining</div>
+                              <div class="vr vr-blurry position-absolute my-0 h-100 top-0 end-0" aria-hidden="true"></div>
+                            </div>
+                            <div class="col">
+                              <div class="fw-semibold" style="color: var(--cnds-product-casefusion-green-600, #388e3c);">2</div>
+                              <div class="small text-muted">Errors</div>
+                            </div>
+                          </div>
+
+                          <!-- Semantic horizontal divider between summary and case detail -->
+                          <hr class="hr my-3" />
+
+                          <!-- Case metadata panel -->
+                          <div class="cf-casefusion-demo-panel">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                              <div class="d-flex align-items-center gap-2">
+                                <i class="mdi mdi-briefcase-outline mdi-18px" style="color: var(--cnds-product-casefusion-green-500, #2e7d32);" aria-hidden="true"></i>
+                                <strong>Case #1042 &mdash; Exchange Online Migration</strong>
+                              </div>
+                              <span class="cf-casefusion-badge">
+                                <i class="mdi mdi-check-circle-outline" aria-hidden="true"></i>
+                                In Progress
+                              </span>
+                            </div>
+
+                            <div class="row g-2 small">
+                              <div class="col-sm-4">
+                                <span class="text-muted">Source:</span>
+                                <span class="ms-1">Exchange 2019 On-Prem</span>
+                              </div>
+                              <div class="col-sm-4">
+                                <span class="text-muted">Target:</span>
+                                <span class="ms-1">Exchange Online (M365)</span>
+                              </div>
+                              <div class="col-sm-4">
+                                <span class="text-muted">Owner:</span>
+                                <span class="ms-1">migrations@contoso.com</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <!-- Horizontal divider between case metadata and migration settings -->
+                          <hr class="hr my-3" />
+
+                          <!-- Migration settings group -->
+                          <div class="cf-casefusion-demo-panel">
+                            <div class="d-flex align-items-center gap-2 mb-3">
+                              <i class="mdi mdi-cog-outline mdi-18px" style="color: var(--cnds-product-casefusion-green-500, #2e7d32);" aria-hidden="true"></i>
+                              <strong>Migration Settings</strong>
+                            </div>
+                            <div class="row g-2 small">
+                              <div class="col-sm-4">
+                                <span class="text-muted">Batch size:</span>
+                                <span class="ms-1">50 mailboxes</span>
+                              </div>
+                              <div class="col-sm-4">
+                                <span class="text-muted">Schedule:</span>
+                                <span class="ms-1">Nightly 01:00 UTC</span>
+                              </div>
+                              <div class="col-sm-4">
+                                <span class="text-muted">Delta sync:</span>
+                                <span class="ms-1">Enabled</span>
+                              </div>
+                            </div>
+                          </div>
+
+                        </div>
+                      </div>
+                    </section>
+                    <!-- Code -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre
+                          class="line-numbers m-0"
+                        ><code class="language-html">&lt;!-- Stat row — blurry vertical dividers between columns --&gt;
+&lt;div class="row text-center g-0"&gt;
+  &lt;div class="col position-relative"&gt;
+    &lt;div class="fw-semibold" style="color: var(--cnds-product-casefusion-green-600);"&gt;1,842&lt;/div&gt;
+    &lt;div class="small text-muted"&gt;Mailboxes&lt;/div&gt;
+    &lt;div class="vr vr-blurry position-absolute my-0 h-100 top-0 end-0" aria-hidden="true"&gt;&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;!-- ... additional columns ... --&gt;
+&lt;/div&gt;
+
+&lt;!-- Semantic section divider between summary and detail --&gt;
+&lt;hr class="hr my-3" /&gt;
+
+&lt;!-- Case detail panel --&gt;
+&lt;div class="cf-casefusion-demo-panel"&gt;
+  &lt;!-- ... case metadata ... --&gt;
+&lt;/div&gt;
+
+&lt;!-- Divider between metadata and settings groups --&gt;
+&lt;hr class="hr my-3" /&gt;
+
+&lt;div class="cf-casefusion-demo-panel"&gt;
+  &lt;!-- ... migration settings ... --&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                  </section>
+                  <!-- /PRODUCT EXAMPLE -->
+
+                  <hr class="my-5" />
+
+                  <!-- ========================================================
+                     API DOCUMENTATION
+                     ======================================================== -->
+                  <section id="section-api-docs">
+                    <h3 class="mb-3">API Documentation</h3>
+
+                    <!-- API: Introduction -->
+                    <section id="api-section-introduction" class="mt-4">
+                      <h3 class="mb-4">Introduction</h3>
+                      <p>
+                        The Nimbus divider component is CSS-only — no JavaScript
+                        initialisation is required. Apply the appropriate class to an
+                        <code>&lt;hr&gt;</code> element for horizontal dividers, or to a
+                        <code>&lt;div&gt;</code> for vertical dividers. Both orientations
+                        expose matching blurry gradient variants. All divider styles
+                        consume <code>--cnds-divider-*</code> custom properties, which are
+                        defined in <code>dividers.css</code> and automatically override in
+                        dark mode via <code>dark.css</code>. No additional markup or
+                        attribute is needed to enable theme switching.
+                      </p>
+                    </section>
+
+                    <!-- API: Usage -->
+                    <section id="api-section-usage" class="mt-4">
+                      <h3 class="mb-4">Usage</h3>
+                      <p>
+                        Dividers are pure CSS components — no JavaScript
+                        initialisation is required. Apply the appropriate CSS
+                        class to an <code>&lt;hr&gt;</code> element for
+                        horizontal dividers or to a
+                        <code>&lt;div&gt;</code> element for vertical dividers.
+                      </p>
+                      <h5 class="mb-3">Horizontal divider</h5>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre
+                            class="line-numbers m-0"
+                          ><code class="language-html">&lt;!-- Standard horizontal divider --&gt;
+&lt;hr class="hr" /&gt;
+
+&lt;!-- Blurry horizontal divider (decorative) --&gt;
+&lt;hr class="hr hr-blurry" aria-hidden="true" /&gt;</code></pre>
+                        </div>
+                      </section>
+                      <h5 class="mb-3">Vertical divider</h5>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre
+                            class="line-numbers m-0"
+                          ><code class="language-html">&lt;!-- Standard vertical divider (height required) --&gt;
+&lt;div class="vr" style="height: 100px;" aria-hidden="true"&gt;&lt;/div&gt;
+
+&lt;!-- Blurry vertical divider --&gt;
+&lt;div class="vr vr-blurry" style="height: 100px;" aria-hidden="true"&gt;&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+                    </section>
+
+                    <!-- API: CSS Classes -->
+                    <section id="api-section-css-classes" class="mt-4">
+                      <h3 class="mb-4">CSS classes</h3>
+                      <p>
+                        The following classes control divider appearance. All
+                        classes are CSS-only and require no JavaScript.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped" aria-label="CSS classes">
+                          <thead>
+                            <tr>
+                              <th>Class</th>
+                              <th>Element</th>
+                              <th>Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>.hr</code></td>
+                              <td><code>&lt;hr&gt;</code></td>
+                              <td>
+                                Applies the Nimbus horizontal divider style:
+                                <code>2px</code> height, theme divider color,
+                                full opacity.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.hr-blurry</code></td>
+                              <td><code>&lt;hr&gt;</code></td>
+                              <td>
+                                Modifier for <code>.hr</code>. Adds a horizontal
+                                gradient that fades at both edges for a
+                                decorative effect. Reduces height to
+                                <code>1px</code>.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.vr</code></td>
+                              <td><code>&lt;div&gt;</code></td>
+                              <td>
+                                Creates a vertical divider:
+                                <code>2px</code> wide, theme divider color, full
+                                opacity. Requires an explicit height.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.vr-blurry</code></td>
+                              <td><code>&lt;div&gt;</code></td>
+                              <td>
+                                Modifier for <code>.vr</code>. Adds a vertical
+                                gradient that fades at top and bottom edges.
+                                Reduces width to <code>1px</code>.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+
+                    <!-- API: CSS Custom Properties -->
+                    <section id="api-section-css-variables" class="mt-4">
+                      <h3 class="mb-4">CSS custom properties</h3>
+                      <p>
+                        The following custom properties control divider
+                        appearance and can be overridden to customise the
+                        component. They are defined on the
+                        <code>hr:not([size]).hr</code> and
+                        <code>.vr</code> selectors.
+                      </p>
+
+                      <h5 class="mt-4 mb-3">Horizontal divider properties</h5>
+                      <div class="table-responsive">
+                        <table class="table table-striped" aria-label="CSS custom properties">
+                          <thead>
+                            <tr>
+                              <th>Property</th>
+                              <th>Default</th>
+                              <th>Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>--cnds-divider-height</code></td>
+                              <td><code>2px</code></td>
+                              <td>
+                                Height of the standard horizontal divider.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-divider-bg</code></td>
+                              <td><code>var(--cnds-divider-color)</code></td>
+                              <td>
+                                Background color. Inherits from the Surface &gt;
+                                Toolbar &gt; Divider token (<code
+                                  >--cnds-surface-light-300</code
+                                >
+                                in light /
+                                <code>--cnds-surface-dark-300</code> in dark).
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-divider-opacity</code></td>
+                              <td><code>1</code></td>
+                              <td>
+                                Opacity of the standard horizontal divider.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-divider-blurry-bg</code></td>
+                              <td><code>transparent</code></td>
+                              <td>
+                                Background color for the blurry variant
+                                (transparent to allow gradient).
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>--cnds-divider-blurry-bg-image</code>
+                              </td>
+                              <td>
+                                <code
+                                  >linear-gradient(90deg, transparent,
+                                  var(--cnds-divider-blurry-color),
+                                  transparent)</code
+                                >
+                              </td>
+                              <td>
+                                Horizontal gradient image for the blurry effect.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-divider-blurry-height</code></td>
+                              <td><code>1px</code></td>
+                              <td>Height of the blurry horizontal divider.</td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>--cnds-divider-blurry-opacity</code>
+                              </td>
+                              <td><code>1</code></td>
+                              <td>
+                                Opacity of the blurry divider variants. Matches
+                                the solid divider opacity; the blurry effect
+                                comes from the gradient alone.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <h5 class="mt-4 mb-3">Vertical divider properties</h5>
+                      <div class="table-responsive">
+                        <table class="table table-striped" aria-label="CSS custom properties">
+                          <thead>
+                            <tr>
+                              <th>Property</th>
+                              <th>Default</th>
+                              <th>Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>--cnds-divider-width</code></td>
+                              <td><code>2px</code></td>
+                              <td>Width of the standard vertical divider.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-divider-bg</code></td>
+                              <td><code>var(--cnds-divider-color)</code></td>
+                              <td>
+                                Background color. Inherits from the Surface &gt;
+                                Toolbar &gt; Divider token (<code
+                                  >--cnds-surface-light-300</code
+                                >
+                                in light /
+                                <code>--cnds-surface-dark-300</code> in dark).
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-divider-opacity</code></td>
+                              <td><code>1</code></td>
+                              <td>Opacity of the standard vertical divider.</td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>--cnds-divider-blurry-vr-bg-image</code>
+                              </td>
+                              <td>
+                                <code
+                                  >linear-gradient(180deg, transparent,
+                                  var(--cnds-divider-blurry-color),
+                                  transparent)</code
+                                >
+                              </td>
+                              <td>
+                                Vertical gradient image for the blurry effect.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>--cnds-divider-blurry-vr-width</code>
+                              </td>
+                              <td><code>1px</code></td>
+                              <td>Width of the blurry vertical divider.</td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>--cnds-divider-blurry-opacity</code>
+                              </td>
+                              <td><code>1</code></td>
+                              <td>
+                                Opacity of the blurry vertical divider. Matches
+                                the solid divider opacity.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+
+                    <!-- API: Theme Variables -->
+                    <section id="api-section-theme-variables" class="mt-4">
+                      <h3 class="mb-4">Theme variables</h3>
+                      <p>
+                        Dividers automatically adapt to the active theme using
+                        the
+                        <strong>Surface &gt; Toolbar &gt; Divider</strong> color
+                        tokens from the Nimbus CSS color system. Solid dividers
+                        use a subtle surface token, while blurry dividers use a
+                        higher-contrast surface token so the gradient center
+                        remains visible after fading to transparent at both
+                        ends. These tokens are defined in
+                        <code>dividers.css</code> and consumed by the divider
+                        custom properties above.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Theme variables">
+                          <thead>
+                            <tr>
+                              <th>Token</th>
+                              <th>Figma path</th>
+                              <th>Light value</th>
+                              <th>Dark value</th>
+                              <th>Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>--cnds-divider-color</code></td>
+                              <td>Surface &gt; Toolbar &gt; Divider</td>
+                              <td>
+                                <code>var(--cnds-surface-light-300)</code>
+                              </td>
+                              <td>
+                                <code>var(--cnds-surface-dark-300)</code>
+                              </td>
+                              <td>
+                                Base color for standard dividers. Maps to the
+                                Surface Light 300 / Dark 300 tokens.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-divider-blurry-color</code></td>
+                              <td>Surface &gt; Toolbar &gt; Divider</td>
+                              <td>
+                                <code>var(--cnds-surface-light-700)</code>
+                              </td>
+                              <td>
+                                <code>var(--cnds-surface-light-600)</code>
+                              </td>
+                              <td>
+                                Color used in the gradient for blurry dividers.
+                                Uses a higher-contrast surface token so the
+                                gradient center remains visible after fading to
+                                transparent at both ends.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+
+                    <!-- API: Accessibility -->
+                    <section id="api-section-accessibility" class="mt-4">
+                      <h3 class="mb-4">Accessibility</h3>
+                      <p>
+                        The <code>&lt;hr&gt;</code> element carries an implicit
+                        ARIA <code>role="separator"</code>, which communicates
+                        to assistive technologies that the element is a thematic
+                        break between content sections. No additional ARIA
+                        attributes are required for standard horizontal
+                        dividers used as semantic section breaks.
+                      </p>
+                      <p>
+                        If the <code>&lt;hr&gt;</code> is purely decorative and
+                        does not represent a meaningful thematic break, add
+                        <code>role="presentation"</code> or
+                        <code>aria-hidden="true"</code> to remove it from the
+                        accessibility tree:
+                      </p>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre
+                            class="line-numbers m-0"
+                          ><code class="language-html">&lt;!-- Decorative only — hidden from assistive technologies --&gt;
+&lt;hr class="hr hr-blurry" aria-hidden="true" /&gt;
+
+&lt;!-- Alternative: role="presentation" also removes the separator semantics --&gt;
+&lt;hr class="hr" role="presentation" /&gt;</code></pre>
+                        </div>
+                      </section>
+                      <p>
+                        For vertical dividers (<code>.vr</code>), the element is
+                        a <code>&lt;div&gt;</code> and does
+                        <strong>not</strong> have an implicit separator role. If
+                        the vertical divider conveys meaningful content
+                        separation, add <code>role="separator"</code> and
+                        <code>aria-orientation="vertical"</code> to the element:
+                      </p>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre
+                            class="line-numbers m-0"
+                          ><code class="language-html">&lt;!-- Semantic vertical separator --&gt;
+&lt;div class="vr" role="separator" aria-orientation="vertical" style="height: 100px;"&gt;&lt;/div&gt;
+
+&lt;!-- Decorative vertical divider — hidden from assistive technologies --&gt;
+&lt;div class="vr vr-blurry" aria-hidden="true" style="height: 100px;"&gt;&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+                      <p>
+                        All divider color tokens (both solid and blurry variants) are selected
+                        to meet WCAG 2.1 AA contrast requirements for non-text UI components
+                        (3:1 minimum against adjacent surface colors) in both light and dark themes.
+                        If you override <code>--cnds-divider-color</code> or
+                        <code>--cnds-divider-blurry-color</code> with a custom value, verify
+                        the resulting contrast ratio meets Section 508 / WCAG 1.4.11 Non-text
+                        Contrast requirements.
+                      </p>
+                    </section>
+
+                  </section>
+                  <!-- /API Documentation -->
+
+                </section>
+                <!-- /container-fluid -->
+              </div>
+              <!-- /Main column -->
+
+              <!-- ========================================================
+                 RIGHT SIDEBAR
+                 ======================================================== -->
+              <!-- Right Sidebar — 20 % of the row width; hidden below lg breakpoint.
+                   Sticky attributes (processed by nimbus.js):
+                     data-cnds-sticky="true"          : activates sticky positioning
+                     data-cnds-sticky-boundary="true" : constrains sticky to its parent container
+                     data-cnds-sticky-direction="both" : sticks when scrolling up OR down
+                     data-cnds-sticky-offset="56"     : clears the 56 px fixed header
+                     data-cnds-sticky-delay="125"     : debounce delay (ms) to reduce scroll jank
+                   data-cnds-allow-hashes="true" on the <ul>: nimbus.js watches the URL hash
+                     and highlights the matching nav-link as the user scrolls through sections. -->
+              <div class="col-lg-2 d-none d-lg-block">
+                <div class="sticky-top" style="top: 100px; z-index: 1">
+                  <ul
+                    class="nav flex-column nav-pills menu-sidebar"
+                    data-cnds-allow-hashes="true"
+                  >
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-introduction">Introduction</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-basic">Basic example</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-basic-vertical">Basic vertical</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-blurry-horizontal">Blurry horizontal</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-blurry-vertical">Blurry vertical</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-blurry-example">Blurry practical example</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-product-example">Product example</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-api-docs">API Documentation</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#api-section-introduction">Introduction</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#api-section-usage">Usage</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#api-section-css-classes">CSS classes</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#api-section-css-variables">CSS custom properties</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#api-section-theme-variables">Theme variables</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#api-section-accessibility">Accessibility</a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <!-- /Right Sidebar -->
+            </div>
+            <!-- /Content Row -->
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- /Content -->
+
+    <!-- ================================================================
+       FOOTER
+       ================================================================ -->
+    <!-- Footer -->
+    <div class="cf-footer cf-footer-app">
+      <footer class="page-footer main-footer" aria-label="Site footer">
+        <div class="w-100 px-3 d-flex align-items-center">
+          <img src="img/cf/core/cloudficient_logo_light.svg" class="cf-logo-light" style="width: 135px;" alt="Cloudficient" />
+          <img src="img/cf/core/cloudficient_logo_dark.svg" class="cf-logo-dark" style="width: 135px;" alt="Cloudficient" />
+          <span class="footer-copyright ms-auto">&copy; <span id="currentYear"></span> Cloudficient</span>
+        </div>
+      </footer>
+    </div>
+    <!-- ./Footer -->
+            <div
+              class="col-12 col-md-5 col-lg-7 col-xl-8 flex-column flex-md-row d-flex justify-content-center footer-links py-0 py-lg-3 py-xl-3"
+            >
+              <a
+                href="#!"
+                target="_blank"
+                class="text-nowrap my-3 my-md-0 mb-0 me-0"
+                >Cloudficient</a
+              >
+              <a
+                href="#!"
+                target="_blank"
+                class="text-nowrap my-3 my-md-0 mb-0 me-0"
+                >Support</a
+              >
+              <a
+                href="#!"
+                target="_blank"
+                class="text-nowrap my-3 my-md-0 mb-0 me-0"
+                >Community</a
+              >
+              <a
+                href="#!"
+                target="_blank"
+                class="text-nowrap my-3 my-md-0 mb-0 me-0"
+                >Documentation</a
+              >
+            </div>
+            <div
+              class="col-12 col-md-4 col-lg-3 col-xl-2 d-flex justify-content-center justify-content-xl-end py-lg-1 py-xl-0 social-btns"
+            >
+              <div
+                class="d-flex align-items-center justify-content-center justify-content-xl-end social-btns-container"
+              >
+                <a
+                  href="https://twitter.com/cloudficient"
+                  target="_blank"
+                  data-cnds-toggle="tooltip"
+                  data-cnds-placement="top"
+                  title="X"
+                  class="social footer-fa-fix"
+                  ><i class="fab fa-x-twitter fa-lg" aria-hidden="true"></i
+                ></a>
+                <a
+                  href="https://www.linkedin.com/company/cloudficient"
+                  target="_blank"
+                  data-cnds-toggle="tooltip"
+                  data-cnds-placement="top"
+                  title="LinkedIn"
+                  class="social"
+                  ><i class="mdi mdi-24px mdi-linkedin" aria-hidden="true"></i
+                ></a>
+                <a
+                  href="https://www.youtube.com/@cloudficient"
+                  target="_blank"
+                  data-cnds-toggle="tooltip"
+                  data-cnds-placement="top"
+                  title="YouTube"
+                  class="social"
+                  ><i class="mdi mdi-24px mdi-youtube" aria-hidden="true"></i
+                ></a>
+              </div>
+            </div>
+            <div class="col-12">
+              <p
+                class="caption text-nowrap p-0 mt-0 mt-lg-3 mb-0 mb-lg-3 text-center"
+              >
+                &copy; <span id="currentYear"></span> Cloudficient. All rights
+                reserved.
+              </p>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+    <!-- /Footer -->
+
+    <!-- ================================================================
+       SCRIPTS — load order matters:
+       1. nimbus.js    — core framework: processes all data-cnds-* attributes (theme, sticky, sidenav, tooltips…)
+       2. app.js       — application-level overrides and custom initialisation
+       3. prism.min.js — syntax highlighting for <code class="language-*"> blocks; must run after DOM is ready
+       4. sidenav-loader.js — fetches shared sidenav HTML and injects it into #sidebar-cf
+       ================================================================ -->
+    <!-- Nimbus core JavaScript -->
+    <script type="text/javascript" src="js/nimbus.js?v=9.0.4"></script>
+    <!-- Custom Application Scripts -->
+    <script type="text/javascript" src="js/app.js?v=9.0.4"></script>
+    <!-- Prism syntax highlighting -->
+    <script type="text/javascript" src="plugins/js/prism.min.js"></script>
+    <!-- Shared sidenav loader -->
+    <script type="text/javascript" src="js/sidenav-loader.js"></script>
+    <!-- Inline: populate the footer copyright year dynamically so the page never needs a manual update -->
+    <script type="text/javascript">
+      var currentYearElement = document.getElementById("currentYear");
+      if (currentYearElement) {
+        currentYearElement.textContent = new Date().getFullYear();
+      }
+    </script>
+  </body>
+</html>

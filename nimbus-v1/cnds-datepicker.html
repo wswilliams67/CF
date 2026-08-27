@@ -1,0 +1,1785 @@
+<!--
+* CNDS Nimbus Design System — Datepicker
+* Version: 1.0.0
+* Layout: Application with SideNav (migrated from Nimbus v8 template)
+* NOTES
+- Pure HTML5, CSS3, vanilla JavaScript — zero external dependencies
+- Uses data-cnds-* attributes (replaces data-mdb-*)
+- Uses Nimbus.* namespace (replaces mdb.*)
+- Default product theme: CaseFusion (cnds-product-casefusion on <body>; change to cnds-product-hyperlize or cnds-product-expireon)
+-->
+<!doctype html>
+<!-- data-cnds-theme: sets the initial theme ("light" | "dark"). nimbus.js syncs this attribute when the user toggles. -->
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta
+      name="description"
+      content="Datepicker | Cloudficient Nimbus Design System v1.0.0"
+    />
+    <title>Datepicker | CNDS v1.0.0 | Cloudficient Nimbus Design System</title>
+    <!-- Nimbus CSS -->
+    <link rel="stylesheet" href="css/nimbus.css" media="all" type="text/css" />
+    <!-- Custom styles | All custom classes/styles/overrides go here! -->
+    <link rel="stylesheet" href="css/app.css" media="all" type="text/css" />
+    <!-- Datepicker plugin CSS is imported via nimbus.css -->
+    <!-- Prism syntax highlighting -->
+    <link
+      rel="stylesheet"
+      href="plugins/css/prism.min.css"
+      media="all"
+      type="text/css"
+    />
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="img/favicon/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="60x60" href="img/favicon/apple-icon-60x60.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="img/favicon/apple-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76" href="img/favicon/apple-icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="img/favicon/apple-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="img/favicon/apple-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="img/favicon/apple-icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="img/favicon/apple-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-icon-180x180.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="img/favicon/android-icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="img/favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="img/favicon/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="msapplication-TileImage" content="img/favicon/ms-icon-144x144.png" />
+    <!-- ./Favicons -->
+    <!-- Design tokens — load order matters:
+         1. primitives.css  — raw color/spacing values (no theming)
+         2. light.css       — semantic tokens for [data-cnds-theme="light"] / :root
+         3. dark.css        — semantic token overrides for [data-cnds-theme="dark"]
+         All three must appear AFTER nimbus.css so component variables resolve correctly. -->
+    <link rel="stylesheet" href="css/themes/primitives.css" />
+    <link rel="stylesheet" href="css/themes/light.css" />
+    <link rel="stylesheet" href="css/themes/dark.css" />
+  </head>
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 Bypass Blocks; renders visually hidden until focused -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+    <!-- Header -->
+    <div class="sticky-top">
+      <!-- Utility Navigation -->
+      <nav id="UtilityNav" class="nav nav-cf-utility">
+        <div class="w-100 gx-3 px-sm-0 px-lg-3">
+          <ul class="nav nav-cf-utility-ul"></ul>
+        </div>
+      </nav>
+      <!-- ./Utility Navigation -->
+      <!-- Main Navigation -->
+      <nav id="MainNav" class="navbar navbar-expand-xl navbar-cf">
+        <div class="container-fluid p-0 px-3 d-flex">
+          <div class="d-flex flex-fill align-items-center text-truncate">
+            <div class="text-center d-none d-md-block me-3 border-end">
+              <a href="index.html"
+                ><img src="img/cf/core/logo_nimbus.png" class="me-3 mt-n1"
+              alt="Cloudficient Nimbus Design System" /></a>
+            </div>
+            <div class="flex-fill text-truncate">
+              <div class="navbar-cf-title-block">
+                <div
+                  class="navbar-cf-title cf-page-title text-truncate"
+                  style="padding-bottom: 0"
+                >
+                  <span class="cf-page-title-text cf-page-title-brand">v1</span
+                  ><span class="cf-page-title-divider"></span
+                  ><span class="cf-page-title-text">Datepicker</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- data-cnds-toggle="theme": wired by nimbus.js — flips data-cnds-theme on <html> between "light" and "dark" -->
+          <button
+            class="btn btn-sm btn-outline-secondary ms-2"
+            data-cnds-toggle="theme"
+            aria-label="Toggle theme"
+            title="Toggle theme"
+          >
+            <i class="mdi mdi-weather-night mdi-18px" aria-hidden="true"></i>
+          </button>
+        </div>
+      </nav>
+      <!-- ./Main Navigation -->
+    </div>
+    <!-- ./Header -->
+
+    <!-- Content -->
+    <main id="main-content" class="cf-main-app">
+      <!-- Mobile viewport warning -->
+      <div class="d-block d-md-none p-4">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>This application is not
+          optimized for small screens. Please use a large tablet, laptop, or
+          desktop computer to continue.
+        </div>
+      </div>
+
+      <div class="d-none d-md-block">
+        <!-- Sidenav — markup is intentionally empty; sidenav-loader.js fetches and injects the shared nav HTML.
+             data-cnds-mode="side"           : renders as a persistent side panel (not an overlay/drawer)
+             data-cnds-slim / slim-collapsed : controls compact/icon-only collapsed state
+             data-cnds-content="#slim-content": the sibling panel that shrinks/expands as the nav opens/closes
+             data-cnds-accordion="true"      : collapses other open nav groups when a new one is expanded -->
+        <nav
+          id="sidebar-cf"
+          class="sidenav"
+          data-cnds-mode="side"
+          data-cnds-slim="false"
+          data-cnds-slim-collapsed="false"
+          data-cnds-content="#slim-content"
+          data-cnds-accordion="true"
+        ></nav>
+
+        <div id="slim-content">
+          <div class="slim-content-box">
+            <!-- Content Row -->
+            <div class="row">
+              <!-- Main column — 80 % of the row width; the remaining 20 % is the right sidebar.
+                   The inline flex overrides are intentional: they pin the ratio regardless of Bootstrap's
+                   grid breakpoints so the sidebar never wraps on large viewports. -->
+              <div class="col-12 col-lg" style="flex: 0 0 80%; max-width: 80%">
+                <!--Section: Docs content-->
+                <section class="container-fluid">
+
+                  <!--Section: Introduction-->
+                  <section id="section-introduction">
+
+                    <!-- Description -->
+                    <p class="mb-4">
+                      The Datepicker lets users select a calendar date from a
+                      dropdown panel — or an inline, always-visible calendar —
+                      without writing custom JavaScript. It supports date
+                      formatting, minimum and maximum date constraints,
+                      individual day filtering, and programmatic control through
+                      a clean JavaScript API.
+                    </p>
+                    <p class="my-4">
+                      The date input field uses the standard
+                      <a href="cnds-inputfields.html"><code>.cf-input-field</code></a>
+                      component. Add <code>data-cnds-datepicker-init</code>
+                      directly to the <code>.cf-input-field</code> wrapper to
+                      auto-initialize on page load, or use
+                      <code>new Nimbus.Datepicker(element, options)</code> for
+                      programmatic control.
+                    </p>
+
+                    <p class="note note-light">
+                      <strong>Note:</strong> Read the
+                      <a href="#api-section-introduction">API Documentation</a> to find all available
+                      options and advanced customization.
+                    </p>
+
+                    <p class="note note-info">
+                      <strong class="note-label">Note:</strong> To preview
+                      components in different themes, click the theme toggle
+                      button <i class="mdi mdi-weather-night" aria-hidden="true"></i> / <i class="mdi mdi-weather-sunny" aria-hidden="true"></i> in the header
+                      navigation bar.
+                    </p>
+                  </section>
+                  <!--/Section: Introduction-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Basic example-->
+                  <section id="section-basic-example">
+                    <!-- Section title -->
+                    <h3 class="mb-3">Basic example</h3>
+
+                    <p>
+                      Add <code>data-cnds-datepicker-init</code> to any
+                      <code>.cf-input-field</code> wrapper to turn the enclosed
+                      text input into a datepicker. Clicking the input or the
+                      calendar toggle icon opens the dropdown panel. The picker
+                      closes and writes the selected date to the input
+                      automatically.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                          <!-- data-cnds-datepicker-init: auto-initialises the Datepicker plugin on this wrapper element -->
+                          <div
+                            class="cf-input-field cf-input-field-casefusion w-25"
+                            data-cnds-datepicker-init
+                          >
+                            <label class="cf-input-label" for="dpBasic">Select a date</label>
+                            <div class="cf-input-wrapper">
+                              <input
+                                type="text"
+                                id="dpBasic"
+                                class="cf-input-control"
+                              />
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Use a ReactiveFormsModule FormControl bound to the datepicker input; emit the selected date via (dateChange) EventEmitter.
+     Example: <input type="text" class="cf-input-control" [formControl]="dateCtrl" (dateChange)="onDateChange($event)" />
+     Wrap the Nimbus datepicker initialisation in an AfterViewInit lifecycle hook to ensure the DOM is ready before the plugin attaches. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div class="cf-input-field cf-input-field-casefusion" data-cnds-datepicker-init&gt;
+    &lt;label class="cf-input-label" for="dpBasic"&gt;Select a date&lt;/label&gt;
+    &lt;div class="cf-input-wrapper"&gt;
+        &lt;input type="text" id="dpBasic" class="cf-input-control" /&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Basic example-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Sizing-->
+                  <section id="section-sizing">
+                    <!-- Section title -->
+                    <h3 class="mb-3">Sizing</h3>
+
+                    <p>
+                      The datepicker inherits its input dimensions directly from the
+                      <a href="cnds-inputfields.html"><code>.cf-input-field</code></a>
+                      size modifiers. Apply <code>.cf-input-field-sm</code> or
+                      <code>.cf-input-field-lg</code> to the wrapper — the label,
+                      control padding, and toggle icon all scale together.
+                    </p>
+
+                    <div class="table-responsive mb-4">
+                      <table class="table table-sm" aria-label="Sizing">
+                        <thead>
+                          <tr>
+                            <th>Wrapper class</th>
+                            <th>Label</th>
+                            <th>Input font</th>
+                            <th>Vertical padding</th>
+                            <th>Horizontal padding</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr><td><code>.cf-input-field-sm</code></td><td>13px / 700</td><td>13px</td><td>8px</td><td>12px</td></tr>
+                          <tr><td><code>.cf-input-field</code> <em>(default)</em></td><td>14px / 800</td><td>14px</td><td>12px</td><td>20px</td></tr>
+                          <tr><td><code>.cf-input-field-lg</code></td><td>16px / 700</td><td>16px</td><td>14px</td><td>24px</td></tr>
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center align-items-end gap-4 pb-4">
+                          <div class="cf-input-field cf-input-field-casefusion cf-input-field-lg" data-cnds-datepicker-init>
+                            <label class="cf-input-label" for="dpSizeLg">Large</label>
+                            <div class="cf-input-wrapper">
+                              <input type="text" id="dpSizeLg" class="cf-input-control" placeholder="mm/dd/yyyy" />
+                            </div>
+                          </div>
+
+                          <div class="cf-input-field cf-input-field-casefusion" data-cnds-datepicker-init>
+                            <label class="cf-input-label" for="dpSizeDefault">Default</label>
+                            <div class="cf-input-wrapper">
+                              <input type="text" id="dpSizeDefault" class="cf-input-control" placeholder="mm/dd/yyyy" />
+                            </div>
+                          </div>
+
+                          <div class="cf-input-field cf-input-field-casefusion cf-input-field-sm" data-cnds-datepicker-init>
+                            <label class="cf-input-label" for="dpSizeSm">Small</label>
+                            <div class="cf-input-wrapper">
+                              <input type="text" id="dpSizeSm" class="cf-input-control" placeholder="mm/dd/yyyy" />
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Pass the size modifier class via @Input() size ('sm' | 'default' | 'lg') and bind [ngClass] on the wrapper to apply cf-input-field-sm or cf-input-field-lg.
+     Example: <div class="cf-input-field" [ngClass]="size !== 'default' ? 'cf-input-field-' + size : ''">
+     Exposing size as an @Input() allows parent components to standardise datepicker size across a form without repeating modifier classes. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;!-- Large --&gt;
+&lt;div class="cf-input-field cf-input-field-casefusion cf-input-field-lg" data-cnds-datepicker-init&gt;
+    &lt;label class="cf-input-label" for="dpSizeLg"&gt;Large&lt;/label&gt;
+    &lt;div class="cf-input-wrapper"&gt;
+        &lt;input type="text" id="dpSizeLg" class="cf-input-control" placeholder="mm/dd/yyyy" /&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Default --&gt;
+&lt;div class="cf-input-field cf-input-field-casefusion" data-cnds-datepicker-init&gt;
+    &lt;label class="cf-input-label" for="dpSizeDefault"&gt;Default&lt;/label&gt;
+    &lt;div class="cf-input-wrapper"&gt;
+        &lt;input type="text" id="dpSizeDefault" class="cf-input-control" placeholder="mm/dd/yyyy" /&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Small --&gt;
+&lt;div class="cf-input-field cf-input-field-casefusion cf-input-field-sm" data-cnds-datepicker-init&gt;
+    &lt;label class="cf-input-label" for="dpSizeSm"&gt;Small&lt;/label&gt;
+    &lt;div class="cf-input-wrapper"&gt;
+        &lt;input type="text" id="dpSizeSm" class="cf-input-control" placeholder="mm/dd/yyyy" /&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Sizing-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Product example-->
+                  <section id="section-product-example">
+                    <!-- Section title -->
+                    <h3 class="mb-4">Product themes</h3>
+                    <p>
+                      Add the product modifier class directly on the datepicker wrapper to apply the matching focus color. Each product has light and dark variants defined automatically.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="bg-white border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center gap-5 pb-4">
+                          <div style="width: 220px;">
+                            <div class="cf-input-field cf-input-field-casefusion" data-cnds-datepicker-init>
+                              <label class="cf-input-label" for="dpProdCf">CaseFusion</label>
+                              <div class="cf-input-wrapper">
+                                <input type="text" id="dpProdCf" class="cf-input-control" />
+                              </div>
+                            </div>
+                          </div>
+                          <div style="width: 220px;">
+                            <div class="cf-input-field cf-input-field-expireon" data-cnds-datepicker-init>
+                              <label class="cf-input-label" for="dpProdEx">ExpireOn</label>
+                              <div class="cf-input-wrapper">
+                                <input type="text" id="dpProdEx" class="cf-input-control" />
+                              </div>
+                            </div>
+                          </div>
+                          <div style="width: 220px;">
+                            <div class="cf-input-field cf-input-field-hyperlize" data-cnds-datepicker-init>
+                              <label class="cf-input-label" for="dpProdHy">Hyperlize</label>
+                              <div class="cf-input-wrapper">
+                                <input type="text" id="dpProdHy" class="cf-input-control" />
+                              </div>
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Bind the product theme modifier class via @Input() product ('casefusion' | 'expireon' | 'hyperlize') and apply it with [ngClass].
+     Example: <div class="cf-input-field" [ngClass]="'cf-input-field-' + product" data-cnds-datepicker-init>
+     Derive the product theme from a shared AppConfigService so all datepickers in the application stay in sync with the selected product context. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;!-- CaseFusion --&gt;
+&lt;div class="cf-input-field cf-input-field-casefusion" data-cnds-datepicker-init&gt;
+    &lt;label class="cf-input-label" for="dpProdCf"&gt;CaseFusion&lt;/label&gt;
+    &lt;div class="cf-input-wrapper"&gt;
+        &lt;input type="text" id="dpProdCf" class="cf-input-control" /&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- ExpireOn --&gt;
+&lt;div class="cf-input-field cf-input-field-expireon" data-cnds-datepicker-init&gt;
+    &lt;label class="cf-input-label" for="dpProdEx"&gt;ExpireOn&lt;/label&gt;
+    &lt;div class="cf-input-wrapper"&gt;
+        &lt;input type="text" id="dpProdEx" class="cf-input-control" /&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Hyperlize --&gt;
+&lt;div class="cf-input-field cf-input-field-hyperlize" data-cnds-datepicker-init&gt;
+    &lt;label class="cf-input-label" for="dpProdHy"&gt;Hyperlize&lt;/label&gt;
+    &lt;div class="cf-input-wrapper"&gt;
+        &lt;input type="text" id="dpProdHy" class="cf-input-control" /&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                  </section>
+                  <!--/Section: Product example-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Modal-->
+                  <section id="section-modal">
+                    <!-- Section title -->
+                    <h3 class="mb-3">Modal</h3>
+
+                    <p>
+                      Add <code>data-cnds-modal="true"</code> to open the calendar
+                      as a centred modal overlay with a backdrop — the same behaviour
+                      as the v8 "Basic example (Mobile)" picker. This mode is ideal
+                      for touch targets and constrained-space UIs where a positioned
+                      dropdown would be clipped.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                          <!-- data-cnds-modal="true": opens the calendar panel centred in the viewport with a dimming backdrop -->
+                          <div
+                            class="cf-input-field cf-input-field-casefusion w-25"
+                            data-cnds-datepicker-init
+                            data-cnds-modal="true"
+                          >
+                            <label class="cf-input-label" for="dpModal">Select a date</label>
+                            <div class="cf-input-wrapper">
+                              <input type="text" id="dpModal" class="cf-input-control" placeholder="mm/dd/yyyy" />
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Pass [attr.data-cnds-modal]="true" as a boolean @Input() to switch between dropdown and modal calendar modes at runtime.
+     Example: <div class="cf-input-field" data-cnds-datepicker-init [attr.data-cnds-modal]="useModal || null">
+     Set useModal via an @Input() so parent components can enforce modal mode on touch-device breakpoints using Angular CDK's BreakpointObserver. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div class="cf-input-field cf-input-field-casefusion" data-cnds-datepicker-init data-cnds-modal="true"&gt;
+    &lt;label class="cf-input-label" for="dpModal"&gt;Select a date&lt;/label&gt;
+    &lt;div class="cf-input-wrapper"&gt;
+        &lt;input type="text" id="dpModal" class="cf-input-control" placeholder="mm/dd/yyyy" /&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                    <!--Section: JS-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JS</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">const el = document.querySelector('.my-datepicker');
+new Nimbus.Datepicker(el, { modal: true });</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: JS-->
+                  </section>
+                  <!--/Section: Modal-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Inline version-->
+                  <section id="section-inline-version">
+                    <!-- Section title -->
+                    <h3 class="mb-3">Inline version</h3>
+
+                    <p>
+                      Set <code>inline: true</code> in the options (or
+                      <code>data-cnds-inline="true"</code> on the wrapper) to
+                      render the calendar panel permanently visible beneath the
+                      input — useful for date-entry forms where the user should
+                      see the calendar at all times without an extra click.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                          <!-- data-cnds-inline="true": renders the calendar panel below the input instead of in a dropdown -->
+                          <div
+                            class="cf-input-field cf-input-field-casefusion w-25"
+                            data-cnds-datepicker-init
+                            data-cnds-inline="true"
+                          >
+                            <label class="cf-input-label" for="dpInline">Select a date</label>
+                            <div class="cf-input-wrapper">
+                              <input
+                                type="text"
+                                id="dpInline"
+                                class="cf-input-control"
+                              />
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Use [attr.data-cnds-inline]="true" to display the calendar inline; pair it with a FormControl to keep the selected date reactive.
+     Example: <div class="cf-input-field" data-cnds-datepicker-init data-cnds-inline="true"><input [formControl]="inlineDateCtrl" /></div>
+     Inline datepickers suit modal forms or side panels where a dropdown would obscure adjacent content. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div class="cf-input-field cf-input-field-casefusion" data-cnds-datepicker-init data-cnds-inline="true"&gt;
+    &lt;label class="cf-input-label" for="dpInline"&gt;Select a date&lt;/label&gt;
+    &lt;div class="cf-input-wrapper"&gt;
+        &lt;input type="text" id="dpInline" class="cf-input-control" /&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Inline version-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Formats-->
+                  <section id="section-formats">
+                    <!-- Section title -->
+                    <h3 class="mb-3">Formats</h3>
+
+                    <p>
+                      Use the <code>format</code> option to control how the
+                      selected date is written into the input field. The default
+                      format is <code>mm/dd/yyyy</code>. Pass any combination
+                      of the format tokens in the table below to build the
+                      pattern you need.
+                    </p>
+
+                    <p class="note note-light">
+                      <strong>Note:</strong> When using the day-of-week tokens
+                      (<code>ddd</code>, <code>dddd</code>), you must also
+                      include a numeric day token (<code>d</code> or
+                      <code>dd</code>) in the format string. For example:
+                      <code>format: 'ddd, dd mmm yyyy'</code>
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                          <div
+                            class="cf-input-field cf-input-field-casefusion dp-format w-25"
+                            data-cnds-datepicker-init
+                            data-cnds-format="dd, mmm, yyyy"
+                          >
+                            <label class="cf-input-label" for="dpFormat">Select a date</label>
+                            <div class="cf-input-wrapper">
+                              <input
+                                type="text"
+                                id="dpFormat"
+                                class="cf-input-control"
+                                placeholder="dd, mmm, yyyy"
+                              />
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Pass the format string via [attr.data-cnds-format] bound to an @Input() or component property; pair with date validation.
+     Example: <div class="cf-input-field" data-cnds-datepicker-init [attr.data-cnds-format]="dateFormat"><input [formControl]="dateCtrl" /></div>
+     Apply a Validators.pattern validator that matches the configured format so the formControl marks the field invalid if the user types a non-conforming date. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div class="cf-input-field cf-input-field-casefusion dp-format"&gt;
+    &lt;label class="cf-input-label" for="dpFormat"&gt;Select a date&lt;/label&gt;
+    &lt;div class="cf-input-wrapper"&gt;
+        &lt;input type="text" id="dpFormat" class="cf-input-control" placeholder="dd, mmm, yyyy" /&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">const dpFormat = document.querySelector('.dp-format');
+new Nimbus.Datepicker(dpFormat, {
+  format: 'dd, mmm, yyyy'
+});</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                    <!-- Formatting rules table -->
+                    <h4 class="mt-5 mb-3"><strong>Formatting tokens</strong></h4>
+                    <p>The following tokens can be combined to build any date format string:</p>
+
+                    <div class="table-responsive">
+                      <table class="table table-bordered" aria-label="Formatting tokens">
+                        <thead>
+                          <tr>
+                            <th>Token</th>
+                            <th>Description</th>
+                            <th>Example output</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td><code>d</code></td>
+                            <td>Day of the month, no leading zero</td>
+                            <td>1 – 31</td>
+                          </tr>
+                          <tr>
+                            <td><code>dd</code></td>
+                            <td>Day of the month with leading zero</td>
+                            <td>01 – 31</td>
+                          </tr>
+                          <tr>
+                            <td><code>ddd</code></td>
+                            <td>Day of the week, short form</td>
+                            <td>Sun – Sat</td>
+                          </tr>
+                          <tr>
+                            <td><code>dddd</code></td>
+                            <td>Day of the week, full form</td>
+                            <td>Sunday – Saturday</td>
+                          </tr>
+                          <tr>
+                            <td><code>m</code></td>
+                            <td>Month number, no leading zero</td>
+                            <td>1 – 12</td>
+                          </tr>
+                          <tr>
+                            <td><code>mm</code></td>
+                            <td>Month number with leading zero</td>
+                            <td>01 – 12</td>
+                          </tr>
+                          <tr>
+                            <td><code>mmm</code></td>
+                            <td>Month name, short form</td>
+                            <td>Jan – Dec</td>
+                          </tr>
+                          <tr>
+                            <td><code>mmmm</code></td>
+                            <td>Month name, full form</td>
+                            <td>January – December</td>
+                          </tr>
+                          <tr>
+                            <td><code>yy</code></td>
+                            <td>Year, two digits</td>
+                            <td>00 – 99</td>
+                          </tr>
+                          <tr>
+                            <td><code>yyyy</code></td>
+                            <td>Year, four digits</td>
+                            <td>2000 – 2999</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </section>
+                  <!--/Section: Formats-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Date limits-->
+                  <section id="section-date-limits">
+                    <!-- Section title -->
+                    <h3 class="mb-3">Date limits</h3>
+
+                    <p>
+                      Use <code>minDate</code> and <code>maxDate</code> to
+                      constrain the selectable date range. Both options accept a
+                      date string in <code>YYYY-MM-DD</code> format. Dates
+                      outside the range are rendered as disabled and cannot be
+                      selected.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                          <div
+                            class="cf-input-field cf-input-field-casefusion dp-limits w-25"
+                            data-cnds-datepicker-init
+                            data-cnds-min-date="2024-01-10"
+                            data-cnds-max-date="2026-06-20"
+                          >
+                            <label class="cf-input-label" for="dpLimits">Select a date</label>
+                            <div class="cf-input-wrapper">
+                              <input
+                                type="text"
+                                id="dpLimits"
+                                class="cf-input-control"
+                              />
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Bind minDate and maxDate via [attr.data-cnds-min-date] and [attr.data-cnds-max-date]; derive them from @Input() or reactive state.
+     Example: <div data-cnds-datepicker-init [attr.data-cnds-min-date]="minDate" [attr.data-cnds-max-date]="maxDate">
+     Use Angular's built-in Validators.min / Validators.max on the FormControl for validation in addition to the picker's visual constraints. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div class="cf-input-field cf-input-field-casefusion dp-limits"&gt;
+    &lt;label class="cf-input-label" for="dpLimits"&gt;Select a date&lt;/label&gt;
+    &lt;div class="cf-input-wrapper"&gt;
+        &lt;input type="text" id="dpLimits" class="cf-input-control" /&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">const dpLimits = document.querySelector('.dp-limits');
+new Nimbus.Datepicker(dpLimits, {
+  minDate: '2024-01-10',
+  maxDate: '2026-06-20'
+});</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Date limits-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Disable past-->
+                  <section id="section-disable-past">
+                    <!-- Section title -->
+                    <h3 class="mb-3">Disable past</h3>
+
+                    <p>
+                      Prevent users from selecting dates that have already
+                      passed by setting <code>minDate</code> to today's date.
+                      Use this pattern for fields such as scheduled start dates,
+                      upcoming deadlines, or future event dates.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                          <div
+                            class="cf-input-field cf-input-field-casefusion dp-disable-past w-25"
+                            data-cnds-datepicker-init
+                          >
+                            <label class="cf-input-label" for="dpDisablePast">Select a date</label>
+                            <div class="cf-input-wrapper">
+                              <input
+                                type="text"
+                                id="dpDisablePast"
+                                class="cf-input-control"
+                              />
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Set minDate dynamically to today via new Date() in the component and bind it with [attr.data-cnds-min-date]; pair with a Validators.min validator.
+     Example: <div data-cnds-datepicker-init [attr.data-cnds-min-date]="todayIso">
+     Compute todayIso in the component as new Date().toISOString().slice(0,10) and use it for both the picker constraint and form validation. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div class="cf-input-field cf-input-field-casefusion dp-disable-past"&gt;
+    &lt;label class="cf-input-label" for="dpDisablePast"&gt;Select a date&lt;/label&gt;
+    &lt;div class="cf-input-wrapper"&gt;
+        &lt;input type="text" id="dpDisablePast" class="cf-input-control" /&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">// Build today's date string once so it remains accurate for the session
+const today = new Date().toISOString().split('T')[0];
+
+const dpDisablePast = document.querySelector('.dp-disable-past');
+new Nimbus.Datepicker(dpDisablePast, {
+  minDate: today
+});</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Disable past-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Disable future-->
+                  <section id="section-disable-future">
+                    <!-- Section title -->
+                    <h3 class="mb-3">Disable future</h3>
+
+                    <p>
+                      Prevent users from selecting dates that have not yet
+                      occurred by setting <code>maxDate</code> to today's date.
+                      Use this for fields such as incident dates, case creation
+                      dates, or any historical record that cannot be in the
+                      future.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                          <div
+                            class="cf-input-field cf-input-field-casefusion dp-disable-future w-25"
+                            data-cnds-datepicker-init
+                          >
+                            <label class="cf-input-label" for="dpDisableFuture">Select a date</label>
+                            <div class="cf-input-wrapper">
+                              <input
+                                type="text"
+                                id="dpDisableFuture"
+                                class="cf-input-control"
+                              />
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Bind maxDate to today via [attr.data-cnds-max-date]="todayIso" and add a custom Validators.max date validator on the FormControl.
+     Example: <div data-cnds-datepicker-init [attr.data-cnds-max-date]="todayIso"><input [formControl]="dateCtrl" /></div>
+     Reuse the same todayIso computed property as in the disable-past pattern to keep date constraint logic in one place. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div class="cf-input-field cf-input-field-casefusion dp-disable-future"&gt;
+    &lt;label class="cf-input-label" for="dpDisableFuture"&gt;Select a date&lt;/label&gt;
+    &lt;div class="cf-input-wrapper"&gt;
+        &lt;input type="text" id="dpDisableFuture" class="cf-input-control" /&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">const today = new Date().toISOString().split('T')[0];
+
+const dpDisableFuture = document.querySelector('.dp-disable-future');
+new Nimbus.Datepicker(dpDisableFuture, {
+  maxDate: today
+});</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Disable future-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Disabled dates-->
+                  <section id="section-disabled-dates">
+                    <!-- Section title -->
+                    <h3 class="mb-3">Disabled dates</h3>
+
+                    <p>
+                      Use <code>disabledDays</code> to prevent selection of
+                      specific days of the week. Pass an array of day numbers
+                      where <code>0</code> = Sunday and <code>6</code> =
+                      Saturday. Disabled days are rendered as muted and
+                      unclickable throughout the calendar. Use
+                      <code>disabledDates</code> to disable individual dates by
+                      their <code>YYYY-MM-DD</code> string.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                          <div
+                            class="cf-input-field cf-input-field-casefusion dp-disabled-days w-25"
+                            data-cnds-datepicker-init
+                            data-cnds-disabled-days="[0,6]"
+                          >
+                            <label class="cf-input-label" for="dpDisabledDays">Select a date</label>
+                            <div class="cf-input-wrapper">
+                              <input
+                                type="text"
+                                id="dpDisabledDays"
+                                class="cf-input-control"
+                              />
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Pass disabledDays as a JSON-encoded array via [attr.data-cnds-disabled-days] or initialise via Nimbus.Datepicker in AfterViewInit.
+     Example: <div data-cnds-datepicker-init [attr.data-cnds-disabled-days]="disabledDays | json">
+     Expose disabledDays as an @Input() array so the parent can specify business days or locale-specific non-working days without modifying the component. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div class="cf-input-field cf-input-field-casefusion dp-disabled-days"&gt;
+    &lt;label class="cf-input-label" for="dpDisabledDays"&gt;Select a date&lt;/label&gt;
+    &lt;div class="cf-input-wrapper"&gt;
+        &lt;input type="text" id="dpDisabledDays" class="cf-input-control" /&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">// Disable weekends (0 = Sunday, 6 = Saturday)
+const dpDisabledDays = document.querySelector('.dp-disabled-days');
+new Nimbus.Datepicker(dpDisabledDays, {
+  disabledDays: [0, 6]
+});</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Disabled dates-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Auto-close on select-->
+                  <section id="section-autoclose">
+                    <!-- Section title -->
+                    <h3 class="mb-3">Auto-close on select</h3>
+
+                    <p>
+                      By default (<code>autoClose: true</code>), the calendar
+                      panel closes as soon as the user clicks a date. Set
+                      <code>autoClose: false</code> to keep the panel open after
+                      a selection — useful when the user is likely to change
+                      their mind or when the picker is paired with a date-range
+                      form that requires sequential picks.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                          <div
+                            class="cf-input-field cf-input-field-casefusion dp-no-autoclose w-25"
+                            data-cnds-datepicker-init
+                            data-cnds-auto-close="false"
+                          >
+                            <label class="cf-input-label" for="dpNoAutoclose">Select a date</label>
+                            <div class="cf-input-wrapper">
+                              <input
+                                type="text"
+                                id="dpNoAutoclose"
+                                class="cf-input-control"
+                              />
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Bind [attr.data-cnds-auto-close]="autoClose" where autoClose is an @Input() boolean; emit a (dateChange) EventEmitter on each selection.
+     Example: <div data-cnds-datepicker-init [attr.data-cnds-auto-close]="false"><input [formControl]="dateCtrl" (change)="onDateSelected($event)" /></div>
+     Setting autoClose to false is recommended in multi-step forms where the user may need to review or adjust a date before proceeding. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div class="cf-input-field cf-input-field-casefusion dp-no-autoclose"&gt;
+    &lt;label class="cf-input-label" for="dpNoAutoclose"&gt;Select a date&lt;/label&gt;
+    &lt;div class="cf-input-wrapper"&gt;
+        &lt;input type="text" id="dpNoAutoclose" class="cf-input-control" /&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">// Panel stays open after the user picks a date
+const dpNoAutoclose = document.querySelector('.dp-no-autoclose');
+new Nimbus.Datepicker(dpNoAutoclose, {
+  autoClose: false
+});</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Auto-close on select-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Action buttons-->
+                  <section id="section-action-buttons">
+                    <!-- Section title -->
+                    <h3 class="mb-3">Action buttons</h3>
+
+                    <p>
+                      The calendar footer contains two optional action buttons:
+                      <strong>Today</strong> (jumps the view to the current
+                      month and selects today's date) and <strong>Clear</strong>
+                      (removes the current selection). Both are visible by
+                      default. Set <code>todayButton: false</code> or
+                      <code>clearButton: false</code> to remove either button
+                      from the footer.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center gap-4 pb-4 flex-wrap">
+
+                          <!-- Today button hidden -->
+                          <div
+                            class="cf-input-field cf-input-field-casefusion dp-no-today"
+                            style="width: 200px"
+                            data-cnds-datepicker-init
+                            data-cnds-today-button="false"
+                          >
+                            <label class="cf-input-label" for="dpNoToday">No Today button</label>
+                            <div class="cf-input-wrapper">
+                              <input
+                                type="text"
+                                id="dpNoToday"
+                                class="cf-input-control"
+                              />
+                            </div>
+                          </div>
+
+                          <!-- Clear button hidden -->
+                          <div
+                            class="cf-input-field cf-input-field-casefusion dp-no-clear"
+                            style="width: 200px"
+                            data-cnds-datepicker-init
+                            data-cnds-clear-button="false"
+                          >
+                            <label class="cf-input-label" for="dpNoClear">No Clear button</label>
+                            <div class="cf-input-wrapper">
+                              <input
+                                type="text"
+                                id="dpNoClear"
+                                class="cf-input-control"
+                              />
+                            </div>
+                          </div>
+
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Bind todayButton and clearButton visibility via [attr.data-cnds-today-button] and [attr.data-cnds-clear-button] as @Input() booleans.
+     Example: <div data-cnds-datepicker-init [attr.data-cnds-today-button]="showTodayBtn || null" [attr.data-cnds-clear-button]="showClearBtn || null">
+     Default both @Input() values to true so the buttons appear unless the parent explicitly disables them. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;!-- No Today button --&gt;
+&lt;div class="cf-input-field cf-input-field-casefusion dp-no-today"&gt;
+    &lt;label class="cf-input-label" for="dpNoToday"&gt;Select a date&lt;/label&gt;
+    &lt;div class="cf-input-wrapper"&gt;
+        &lt;input type="text" id="dpNoToday" class="cf-input-control" /&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- No Clear button --&gt;
+&lt;div class="cf-input-field cf-input-field-casefusion dp-no-clear"&gt;
+    &lt;label class="cf-input-label" for="dpNoClear"&gt;Select a date&lt;/label&gt;
+    &lt;div class="cf-input-wrapper"&gt;
+        &lt;input type="text" id="dpNoClear" class="cf-input-control" /&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">// Hide the Today button
+const dpNoToday = document.querySelector('.dp-no-today');
+new Nimbus.Datepicker(dpNoToday, {
+  todayButton: false
+});
+
+// Hide the Clear button
+const dpNoClear = document.querySelector('.dp-no-clear');
+new Nimbus.Datepicker(dpNoClear, {
+  clearButton: false
+});</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Action buttons-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Validation-->
+                  <section id="section-validation">
+                    <h3 class="mb-3">Validation</h3>
+
+                    <p>
+                      Add <code>.is-invalid</code> to the <code>.cf-input-field</code> wrapper to
+                      signal a validation error. Place a <code>.cf-input-helper</code> below the
+                      <code>.cf-input-wrapper</code> and include a <code>.cf-input-error</code> span
+                      inside it — the error text appears when <code>.is-invalid</code> is present.
+                      The calendar popover stays anchored to the input edge regardless of the helper
+                      text below it.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                          <div
+                            class="cf-input-field cf-input-field-casefusion is-invalid w-25"
+                            data-cnds-datepicker-init
+                          >
+                            <label class="cf-input-label" for="dpValidation">Date <span class="cf-input-required">*</span></label>
+                            <div class="cf-input-wrapper">
+                              <input
+                                type="text"
+                                id="dpValidation"
+                                class="cf-input-control"
+                                aria-describedby="error-dp-validation"
+                                aria-invalid="true"
+                              />
+                            </div>
+                            <div class="cf-input-helper">
+                              <span class="cf-input-error" id="error-dp-validation">Please select a date.</span>
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Apply .is-invalid to the wrapper with [class.is-invalid]="dateCtrl.invalid && dateCtrl.touched" using ReactiveFormsModule.
+     Example: <div class="cf-input-field" [class.is-invalid]="dateCtrl.invalid && dateCtrl.touched" data-cnds-datepicker-init>
+     Add Validators.required to the FormControl and show the .cf-input-error span via *ngIf="dateCtrl.errors?.['required']" for accessible inline validation. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div class="cf-input-field cf-input-field-casefusion is-invalid" data-cnds-datepicker-init&gt;
+    &lt;label class="cf-input-label" for="dpValidation"&gt;Date &lt;span class="cf-input-required"&gt;*&lt;/span&gt;&lt;/label&gt;
+    &lt;div class="cf-input-wrapper"&gt;
+        &lt;input type="text" id="dpValidation" class="cf-input-control" aria-describedby="error-dp-validation" aria-invalid="true" /&gt;
+    &lt;/div&gt;
+    &lt;div class="cf-input-helper"&gt;
+        &lt;span class="cf-input-error" id="error-dp-validation"&gt;Please select a date.&lt;/span&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Validation-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Accessibility-->
+                  <section id="section-accessibility">
+                    <!-- Section title -->
+                    <h3 class="mb-3">Accessibility</h3>
+
+                    <p>
+                      The Datepicker panel is rendered with
+                      <code>role="dialog"</code> and an accessible label so
+                      screen readers announce it correctly when it opens. All
+                      calendar cells are rendered as <code>&lt;button&gt;</code>
+                      elements so they receive keyboard focus natively.
+                    </p>
+
+                    <p>Keyboard navigation within the open panel:</p>
+                    <ul>
+                      <li><kbd>Arrow keys</kbd> — move focus between day cells</li>
+                      <li><kbd>Enter</kbd> / <kbd>Space</kbd> — select the focused date</li>
+                      <li><kbd>Page Up</kbd> / <kbd>Page Down</kbd> — navigate to the previous or next month</li>
+                      <li><kbd>Escape</kbd> — close the panel without selecting</li>
+                      <li><kbd>Tab</kbd> — moves between the header navigation buttons, day cells, and footer buttons</li>
+                    </ul>
+
+                    <p>
+                      Because the input field uses the
+                      <code>.cf-input-field</code> component, the
+                      <code>&lt;label&gt;</code> is always visibly associated
+                      with the <code>&lt;input&gt;</code> via the
+                      <code>for</code> / <code>id</code> pair — no
+                      <code>aria-label</code> workaround is needed.
+                    </p>
+                  </section>
+                  <!--/Section: Accessibility-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: API Documentation-->
+                  <section id="section-api-docs">
+                    <h3 class="mb-3">API Documentation</h3>
+
+                    <!--Section: API Introduction-->
+                    <section id="api-section-introduction">
+                      <h4 class="mb-4">Introduction</h4>
+                      <p>
+                        The Nimbus Datepicker is a self-contained vanilla
+                        JavaScript plugin that attaches a calendar panel to any
+                        <code>.cf-input-field</code> wrapper. It extends
+                        <code>NimbusComponent</code> and registers itself under
+                        <code>Nimbus.Datepicker</code>. The plugin reads
+                        configuration from <code>data-cnds-*</code> attributes
+                        on the wrapper element or from an options object passed
+                        to the constructor. Theme adaptation is handled
+                        automatically through CSS custom properties defined in
+                        <code>css/plugins/datepicker.css</code> — no additional
+                        JavaScript is required to support light or dark mode.
+                      </p>
+                    </section>
+                    <!--/Section: API Introduction-->
+
+                    <!--Section: API Usage-->
+                    <section id="api-section-usage">
+                      <h4 class="mb-4">Usage</h4>
+
+                      <p class="fw-semibold mb-2">Via data attributes</p>
+                      <p>
+                        Add <code>data-cnds-datepicker-init</code> to the
+                        <code>.cf-input-field</code> wrapper. The plugin
+                        initialises on <code>DOMContentLoaded</code> and reads
+                        any additional options from <code>data-cnds-*</code>
+                        attributes on the same element.
+                      </p>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-html">&lt;div class="cf-input-field cf-input-field-casefusion" data-cnds-datepicker-init&gt;
+    &lt;label class="cf-input-label" for="myDatepicker"&gt;Select a date&lt;/label&gt;
+    &lt;div class="cf-input-wrapper"&gt;
+        &lt;input type="text" id="myDatepicker" class="cf-input-control" /&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+
+                      <p class="fw-semibold mb-2">Via JavaScript</p>
+                      <p>
+                        Pass the wrapper element and an options object to the
+                        constructor. Store the returned instance to call public
+                        methods later.
+                      </p>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-js">const el = document.getElementById('myDatepicker');
+const dp = new Nimbus.Datepicker(el, {
+  format: 'dd/mm/yyyy',
+  minDate: '2024-01-01'
+});</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Section: API Usage-->
+
+                    <!--Section: API Options-->
+                    <section id="api-section-options">
+                      <h4 class="mb-4">Options</h4>
+                      <p>
+                        Options can be set via <code>data-cnds-*</code>
+                        attributes on the wrapper element or through the
+                        JavaScript options object. Attribute names use
+                        kebab-case (e.g., <code>data-cnds-min-date</code>);
+                        object keys use camelCase (e.g., <code>minDate</code>).
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Options">
+                          <thead>
+                            <tr>
+                              <th>Name</th>
+                              <th>Type</th>
+                              <th>Default</th>
+                              <th>Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>format</code></td>
+                              <td><i>String</i></td>
+                              <td><code>'mm/dd/yyyy'</code></td>
+                              <td>Date format string written into the input. See <a href="#section-formats">Formats</a> for all tokens.</td>
+                            </tr>
+                            <tr>
+                              <td><code>startDay</code></td>
+                              <td><i>Number</i></td>
+                              <td><code>0</code></td>
+                              <td>First day of the week. <code>0</code> = Sunday, <code>1</code> = Monday.</td>
+                            </tr>
+                            <tr>
+                              <td><code>minDate</code></td>
+                              <td><i>String | null</i></td>
+                              <td><code>null</code></td>
+                              <td>Earliest selectable date as a <code>YYYY-MM-DD</code> string. Dates before this are disabled.</td>
+                            </tr>
+                            <tr>
+                              <td><code>maxDate</code></td>
+                              <td><i>String | null</i></td>
+                              <td><code>null</code></td>
+                              <td>Latest selectable date as a <code>YYYY-MM-DD</code> string. Dates after this are disabled.</td>
+                            </tr>
+                            <tr>
+                              <td><code>disabledDates</code></td>
+                              <td><i>Array | null</i></td>
+                              <td><code>null</code></td>
+                              <td>Array of <code>YYYY-MM-DD</code> date strings to individually disable. Users cannot select these dates.</td>
+                            </tr>
+                            <tr>
+                              <td><code>disabledDays</code></td>
+                              <td><i>Array | null</i></td>
+                              <td><code>null</code></td>
+                              <td>Array of weekday numbers to disable across all weeks. <code>0</code> = Sunday … <code>6</code> = Saturday. Example: <code>[0, 6]</code> disables all weekends.</td>
+                            </tr>
+                            <tr>
+                              <td><code>inline</code></td>
+                              <td><i>Boolean</i></td>
+                              <td><code>false</code></td>
+                              <td>Render the calendar panel inline beneath the input instead of as a dropdown.</td>
+                            </tr>
+                            <tr>
+                              <td><code>modal</code></td>
+                              <td><i>Boolean</i></td>
+                              <td><code>false</code></td>
+                              <td>Open the calendar as a centred modal overlay with a dimming backdrop instead of a positioned dropdown. Mutually exclusive with <code>inline</code>.</td>
+                            </tr>
+                            <tr>
+                              <td><code>autoClose</code></td>
+                              <td><i>Boolean</i></td>
+                              <td><code>true</code></td>
+                              <td>Close the panel immediately when a date is selected. Set to <code>false</code> to keep it open.</td>
+                            </tr>
+                            <tr>
+                              <td><code>todayButton</code></td>
+                              <td><i>Boolean</i></td>
+                              <td><code>true</code></td>
+                              <td>Show the <strong>Today</strong> button in the footer. Clicking it navigates to and selects today's date.</td>
+                            </tr>
+                            <tr>
+                              <td><code>clearButton</code></td>
+                              <td><i>Boolean</i></td>
+                              <td><code>true</code></td>
+                              <td>Show the <strong>Clear</strong> button in the footer. Clicking it removes the current selection.</td>
+                            </tr>
+                            <tr>
+                              <td><code>showOtherMonths</code></td>
+                              <td><i>Boolean</i></td>
+                              <td><code>true</code></td>
+                              <td>Show greyed-out days from the previous and next months to fill the calendar grid.</td>
+                            </tr>
+                            <tr>
+                              <td><code>selectOtherMonths</code></td>
+                              <td><i>Boolean</i></td>
+                              <td><code>false</code></td>
+                              <td>Allow selection of the greyed-out days from adjacent months. Requires <code>showOtherMonths: true</code>.</td>
+                            </tr>
+                            <tr>
+                              <td><code>yearRange</code></td>
+                              <td><i>Number</i></td>
+                              <td><code>100</code></td>
+                              <td>Number of years displayed in the year-picker view, centred around the current year.</td>
+                            </tr>
+                            <tr>
+                              <td><code>readonly</code></td>
+                              <td><i>Boolean</i></td>
+                              <td><code>true</code></td>
+                              <td>Make the input field read-only so users must use the calendar to enter a date (prevents free-text entry).</td>
+                            </tr>
+                            <tr>
+                              <td><code>container</code></td>
+                              <td><i>String | null</i></td>
+                              <td><code>null</code></td>
+                              <td>CSS selector for the element that should contain the calendar dropdown. Defaults to <code>body</code> when <code>null</code>.</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: API Options-->
+
+                    <!--Section: API Methods-->
+                    <section id="api-section-methods">
+                      <h4 class="mb-4">Methods</h4>
+                      <p>
+                        All instance methods are available on the object
+                        returned by <code>new Nimbus.Datepicker()</code>. Static
+                        methods are called directly on
+                        <code>Nimbus.Datepicker</code>.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Methods">
+                          <thead>
+                            <tr>
+                              <th>Name</th>
+                              <th>Description</th>
+                              <th>Example</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>open()</code></td>
+                              <td>Opens the calendar dropdown. No-op in inline mode.</td>
+                              <td><code>dp.open()</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>close()</code></td>
+                              <td>Closes the calendar dropdown. No-op in inline mode.</td>
+                              <td><code>dp.close()</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>toggle()</code></td>
+                              <td>Opens the dropdown if closed; closes it if open.</td>
+                              <td><code>dp.toggle()</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>setDate(date)</code></td>
+                              <td>Programmatically sets the selected date. Accepts a <code>Date</code> object, a <code>YYYY-MM-DD</code> string, or <code>null</code> to clear.</td>
+                              <td><code>dp.setDate('2025-06-15')</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>getDate()</code></td>
+                              <td>Returns the currently selected <code>Date</code> object, or <code>null</code> if nothing is selected.</td>
+                              <td><code>dp.getDate()</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>getFormattedDate()</code></td>
+                              <td>Returns the selected date as a formatted string using the active <code>format</code> option, or an empty string.</td>
+                              <td><code>dp.getFormattedDate()</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>clear()</code></td>
+                              <td>Clears the selected date and empties the input field.</td>
+                              <td><code>dp.clear()</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>dispose()</code></td>
+                              <td>Removes all event listeners, destroys the calendar panel, and releases the instance from the element.</td>
+                              <td><code>dp.dispose()</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>getInstance(el)</code></td>
+                              <td>Static. Returns the Datepicker instance attached to a DOM element, or <code>null</code>.</td>
+                              <td><code>Nimbus.Datepicker.getInstance(el)</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>getOrCreateInstance(el)</code></td>
+                              <td>Static. Returns the existing instance attached to a DOM element, or creates and returns a new one.</td>
+                              <td><code>Nimbus.Datepicker.getOrCreateInstance(el)</code></td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-js">const el = document.getElementById('myDatepicker');
+const dp = new Nimbus.Datepicker(el);
+
+// Open programmatically
+dp.open();
+
+// Pre-select a date
+dp.setDate('2025-12-25');
+
+// Read back the value
+console.log(dp.getFormattedDate()); // e.g. "12/25/2025"
+
+// Clear selection
+dp.clear();</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Section: API Methods-->
+
+                    <!--Section: API Events-->
+                    <section id="api-section-events">
+                      <h4 class="mb-4">Events</h4>
+                      <p>
+                        All events are dispatched on the
+                        <code>.cf-input-field</code> wrapper element (the same
+                        element passed to the constructor). Listen with the
+                        native <code>addEventListener</code>.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Events">
+                          <thead>
+                            <tr>
+                              <th>Event name</th>
+                              <th>Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>open.cnds.datepicker</code></td>
+                              <td>Fires immediately when the calendar panel opens.</td>
+                            </tr>
+                            <tr>
+                              <td><code>close.cnds.datepicker</code></td>
+                              <td>Fires immediately when the calendar panel closes.</td>
+                            </tr>
+                            <tr>
+                              <td><code>change.cnds.datepicker</code></td>
+                              <td>
+                                Fires when the selected date changes — either by user interaction
+                                or via <code>setDate()</code>. The event detail object contains
+                                a <code>date</code> property with the new <code>Date</code>
+                                value (or <code>null</code> when cleared).
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-js">const el = document.getElementById('myDatepicker');
+
+el.addEventListener('open.cnds.datepicker', () => {
+  console.log('Datepicker opened');
+});
+
+el.addEventListener('close.cnds.datepicker', () => {
+  console.log('Datepicker closed');
+});
+
+el.addEventListener('change.cnds.datepicker', (e) => {
+  console.log('Selected date:', e.detail.date);
+});</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Section: API Events-->
+
+                    <!--Section: API CSS Custom Properties-->
+                    <section id="api-section-css-variables">
+                      <h4 class="mb-4">CSS custom properties</h4>
+                      <p>
+                        All visual tokens are defined on the
+                        <code>.datepicker</code> selector in
+                        <code>css/plugins/datepicker.css</code> and can be
+                        overridden per-instance (inline <code>style</code>
+                        attribute on the wrapper) or globally via a CSS rule.
+                        Dark-mode overrides are applied automatically on the
+                        <code>[data-cnds-theme="dark"] .datepicker</code>
+                        selector.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="CSS custom properties">
+                          <thead>
+                            <tr>
+                              <th>Property</th>
+                              <th>Default (light)</th>
+                              <th>Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>--cnds-dp-bg</code></td>
+                              <td><code>var(--cnds-body-bg, #fff)</code></td>
+                              <td>Calendar panel background color.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-dp-color</code></td>
+                              <td><code>var(--cnds-body-color, #4f4f4f)</code></td>
+                              <td>Default text color for day numbers, month/year labels.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-dp-border</code></td>
+                              <td><code>var(--cnds-border-color, #dee2e6)</code></td>
+                              <td>Border color for the panel and footer separator.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-dp-radius</code></td>
+                              <td><code>var(--cnds-border-radius, 0.375rem)</code></td>
+                              <td>Border radius for the panel and interactive cells.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-dp-primary</code></td>
+                              <td><code>var(--cnds-primary, #be1a2d)</code></td>
+                              <td>Accent color used for the selected date and footer buttons.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-dp-primary-text</code></td>
+                              <td><code>#fff</code></td>
+                              <td>Text color on the selected-date cell.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-dp-hover-bg</code></td>
+                              <td><code>rgba(0,0,0,0.04)</code></td>
+                              <td>Background color of day/month/year cells on hover.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-dp-today-color</code></td>
+                              <td><code>var(--cnds-primary, #be1a2d)</code></td>
+                              <td>Ring color for today's date cell (box-shadow inset ring).</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-dp-disabled-color</code></td>
+                              <td><code>#adb5bd</code></td>
+                              <td>Text color for disabled/unavailable dates.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-dp-muted-color</code></td>
+                              <td><code>#adb5bd</code></td>
+                              <td>Text color for adjacent-month days and weekday-header labels.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-dp-shadow</code></td>
+                              <td><code>0 0.5rem 1rem rgba(0,0,0,0.15)</code></td>
+                              <td>Box shadow on the dropdown panel.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-dp-cell-size</code></td>
+                              <td><code>2rem</code></td>
+                              <td>Width and height of each day cell button.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-dp-font-size</code></td>
+                              <td><code>0.875rem</code></td>
+                              <td>Base font size within the calendar panel.</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: API CSS Custom Properties-->
+
+                  </section>
+                  <!--/Section: API Documentation-->
+
+                </section>
+                <!--/Section: Docs content-->
+              </div>
+              <!-- ./Main column -->
+
+              <!-- Right Sidebar — 20 % of the row width; hidden below lg breakpoint.
+                   Sticky attributes (processed by nimbus.js):
+                     data-cnds-sticky="true"          : activates sticky positioning
+                     data-cnds-sticky-boundary="true" : constrains sticky to its parent container
+                     data-cnds-sticky-direction="both" : sticks when scrolling up OR down
+                     data-cnds-sticky-offset="56"     : clears the 56 px fixed header
+                     data-cnds-sticky-delay="125"     : debounce delay (ms) to reduce scroll jank
+                   data-cnds-allow-hashes="true" on the <ul>: nimbus.js watches the URL hash
+                     and highlights the matching nav-link as the user scrolls through sections. -->
+              <div class="col-lg-2 d-none d-lg-block">
+                <div class="sticky-top" style="top: 100px; z-index: 1">
+                  <ul
+                    class="nav flex-column nav-pills menu-sidebar"
+                    id="rightNav"
+                    data-cnds-allow-hashes="true"
+                  >
+                    <li class="nav-item"><a class="nav-link" href="#section-introduction">Introduction</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-basic-example">Basic example</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-sizing">Sizing</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-product-example">Product themes</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-modal">Modal</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-inline-version">Inline version</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-formats">Formats</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-date-limits">Date limits</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-disable-past">Disable past</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-disable-future">Disable future</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-disabled-dates">Disabled dates</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-autoclose">Auto-close on select</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-action-buttons">Action buttons</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-validation">Validation</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-accessibility">Accessibility</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-api-docs">API Documentation</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-introduction">Introduction</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-usage">Usage</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-options">Options</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-methods">Methods</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-events">Events</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-css-variables">CSS custom properties</a></li>
+                  </ul>
+                </div>
+              </div>
+              <!-- ./Right Sidebar -->
+            </div>
+            <!-- ./Content Row -->
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- ./Content -->
+
+    <!-- Footer -->
+    <div class="cf-footer cf-footer-app">
+      <footer class="page-footer main-footer" aria-label="Site footer">
+        <div class="w-100 px-3 d-flex align-items-center">
+          <img src="img/cf/core/cloudficient_logo_light.svg" class="cf-logo-light" style="width: 135px;" alt="Cloudficient" />
+          <img src="img/cf/core/cloudficient_logo_dark.svg" class="cf-logo-dark" style="width: 135px;" alt="Cloudficient" />
+          <span class="footer-copyright ms-auto">&copy; <span id="currentYear"></span> Cloudficient</span>
+        </div>
+      </footer>
+    </div>
+    <!-- ./Footer -->
+
+    <!-- SCRIPTS — load order matters:
+         1. nimbus.js       — core framework: processes all data-cnds-* attributes (theme, sticky, sidenav, tooltips…)
+         2. app.js          — application-level overrides and custom initialisation
+         3. datepicker.js   — Datepicker plugin; must load after nimbus.js so NimbusComponent is available
+         4. prism.min.js    — syntax highlighting for <code class="language-*"> blocks; must run after DOM is ready
+         5. sidenav-loader.js — fetches shared sidenav HTML and injects it into #sidebar-cf -->
+    <script type="text/javascript" src="js/nimbus.js?v=9.0.6"></script>
+    <script type="text/javascript" src="js/app.js?v=9.0.4"></script>
+    <script type="text/javascript" src="js/plugins/datepicker.js?v=9.0.3"></script>
+    <script type="text/javascript" src="plugins/js/prism.min.js"></script>
+    <script type="text/javascript" src="js/sidenav-loader.js"></script>
+
+    <!-- Page-level JavaScript — runs after all plugins are loaded -->
+    <script type="text/javascript">
+      // Populate footer copyright year dynamically
+      var currentYearElement = document.getElementById("currentYear");
+      if (currentYearElement) {
+        currentYearElement.textContent = new Date().getFullYear();
+      }
+
+      // ── Product example ─────────────────────────────────────────────────────
+      // Stamp today's date on fields that need dynamic min/max before autoInit
+      var _today = new Date().toISOString().split('T')[0];
+
+      // CaseFusion — Case created: no future dates
+      var caseCreatedEl = document.querySelector('.dp-case-created');
+      if (caseCreatedEl) { caseCreatedEl.setAttribute('data-cnds-max-date', _today); }
+
+      // ExpireOn — Policy effective: no future dates
+      var eoEffectiveEl = document.querySelector('.dp-eo-effective');
+      if (eoEffectiveEl) { eoEffectiveEl.setAttribute('data-cnds-max-date', _today); }
+
+      // ExpireOn — Expiry date: no past dates
+      var eoExpiryEl = document.querySelector('.dp-eo-expiry');
+      if (eoExpiryEl) { eoExpiryEl.setAttribute('data-cnds-min-date', _today); }
+
+      // Hyperlize — Last sync: no future dates
+      var hlLastSyncEl = document.querySelector('.dp-hl-last-sync');
+      if (hlLastSyncEl) { hlLastSyncEl.setAttribute('data-cnds-max-date', _today); }
+
+      // Hyperlize — Next sync: no past dates
+      var hlNextSyncEl = document.querySelector('.dp-hl-next-sync');
+      if (hlNextSyncEl) { hlNextSyncEl.setAttribute('data-cnds-min-date', _today); }
+
+      // ── Disable past / future — stamp today's date so autoInit picks it up ──
+      var today = new Date().toISOString().split('T')[0];
+      var dpDisablePast = document.querySelector('.dp-disable-past');
+      if (dpDisablePast) {
+        dpDisablePast.setAttribute('data-cnds-min-date', today);
+      }
+      var dpDisableFuture = document.querySelector('.dp-disable-future');
+      if (dpDisableFuture) {
+        dpDisableFuture.setAttribute('data-cnds-max-date', today);
+      }
+    </script>
+  </body>
+</html>

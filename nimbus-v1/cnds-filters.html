@@ -1,0 +1,1431 @@
+<!--
+* CNDS Nimbus Design System — Filters
+* Version: 1.0.0
+* Layout: Application with SideNav (migrated from Nimbus v8 template)
+*
+* SECTIONS (in document order)
+*   #section-introduction         — Overview and plugin description
+*   #section-basic-example        — Data-attribute auto-init (zero JS)
+*   #section-multi-select         — Multi-select filter mode
+*   #section-search               — Filter with search input combined
+*   #section-no-animation         — Instant show/hide (animation: false)
+*   #section-programmatic         — Programmatic API control
+*   #section-api-docs             — API Documentation
+*     #api-section-introduction   — Plugin overview and integration summary
+*     #api-section-data-attributes — data-cnds-* markup attributes
+*     #api-section-options        — JavaScript constructor options
+*     #api-section-methods        — Instance method reference
+*     #api-section-events         — Custom DOM events
+*     #api-section-accessibility  — ARIA patterns and keyboard guidance
+*
+* DEVELOPER NOTES
+* - Pure HTML5, CSS3, vanilla JavaScript — zero external runtime dependencies
+* - Uses data-cnds-* attributes (replaces legacy data-mdb-*)
+* - Uses Nimbus.* namespace (replaces legacy mdb.*)
+* - Default product theme: CaseFusion (cnds-product-casefusion on <body>;
+*   change to cnds-product-hyperlize or cnds-product-expireon as needed)
+* - Nimbus.Filters is exposed by nimbus.js; all demos defer to cnds.ready
+*   if the script hasn't fully initialised before inline code runs
+*
+* ANGULAR MIGRATION OVERVIEW
+* - Replace data-cnds-filters-init markup with a JS call in ngAfterViewInit
+*   so the plugin runs after Angular has rendered the view
+* - Store each Nimbus.Filters instance as a component property to expose
+*   filter(), reset(), and getActiveFilters() as component methods
+* - Replace inline addEventListener wiring with Angular (click) bindings on
+*   the external control buttons
+* - Emit filter change events through @Output() EventEmitter bound to the
+*   filter.cnds.filters DOM event; unsubscribe in ngOnDestroy via dispose()
+* - Manage active-button state with a component property and [class.active]
+*   binding rather than relying on the plugin's internal DOM class toggling
+-->
+<!doctype html>
+<!-- data-cnds-theme: sets the initial theme ("light" | "dark"). nimbus.js syncs this attribute when the user toggles. -->
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta
+      name="description"
+      content="Filters | Cloudficient Nimbus Design System v1.0.0"
+    />
+    <title>Filters | CNDS v1.0.0 | Cloudficient Nimbus Design System</title>
+    <!-- Nimbus CSS -->
+    <link rel="stylesheet" href="css/nimbus.css" media="all" type="text/css" />
+    <!-- Custom styles | All custom classes/styles/overrides go here! -->
+    <link rel="stylesheet" href="css/app.css" media="all" type="text/css" />
+    <!-- Prism syntax highlighting -->
+    <link
+      rel="stylesheet"
+      href="plugins/css/prism.min.css"
+      media="all"
+      type="text/css"
+    />
+    <!-- Favicons -->
+    <link
+      rel="apple-touch-icon"
+      sizes="57x57"
+      href="img/favicon/apple-icon-57x57.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="60x60"
+      href="img/favicon/apple-icon-60x60.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="72x72"
+      href="img/favicon/apple-icon-72x72.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="76x76"
+      href="img/favicon/apple-icon-76x76.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="114x114"
+      href="img/favicon/apple-icon-114x114.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="120x120"
+      href="img/favicon/apple-icon-120x120.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="144x144"
+      href="img/favicon/apple-icon-144x144.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="152x152"
+      href="img/favicon/apple-icon-152x152.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="img/favicon/apple-icon-180x180.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="192x192"
+      href="img/favicon/android-icon-192x192.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="img/favicon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="96x96"
+      href="img/favicon/favicon-96x96.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="img/favicon/favicon-16x16.png"
+    />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta
+      name="msapplication-TileImage"
+      content="img/favicon/ms-icon-144x144.png"
+    />
+    <!-- ./Favicons -->
+    <!-- Design tokens — load order matters:
+         1. primitives.css  — raw color/spacing values (no theming)
+         2. light.css       — semantic tokens for [data-cnds-theme="light"] / :root
+         3. dark.css        — semantic token overrides for [data-cnds-theme="dark"]
+         All three must appear AFTER nimbus.css so component variables resolve correctly. -->
+    <link rel="stylesheet" href="css/themes/primitives.css" />
+    <link rel="stylesheet" href="css/themes/light.css" />
+    <link rel="stylesheet" href="css/themes/dark.css" />
+  </head>
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 / Section 508 §1194.22(o) Bypass Blocks.
+         Renders visually hidden until focused; pressing Enter jumps focus to #main-content.
+         #main-content does not require tabindex="-1" in modern browsers but adding it is safe
+         if skip-link focus is ever reported broken in a target browser. -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+    <!-- Header -->
+    <div class="sticky-top">
+      <!-- Utility Navigation -->
+      <nav id="UtilityNav" class="nav nav-cf-utility">
+        <div class="w-100 gx-3 px-sm-0 px-lg-3">
+          <ul class="nav nav-cf-utility-ul"></ul>
+        </div>
+      </nav>
+      <!-- ./Utility Navigation -->
+      <!-- Main Navigation -->
+      <nav id="MainNav" class="navbar navbar-expand-xl navbar-cf">
+        <div class="container-fluid p-0 px-3 d-flex">
+          <div class="d-flex flex-fill align-items-center text-truncate">
+            <div class="text-center d-none d-md-block me-3 border-end">
+              <a href="index.html"
+                ><img src="img/cf/core/logo_nimbus.png" class="me-3 mt-n1"
+              alt="Cloudficient Nimbus Design System" /></a>
+            </div>
+            <div class="flex-fill text-truncate">
+              <div class="navbar-cf-title-block">
+                <div
+                  class="navbar-cf-title cf-page-title text-truncate"
+                  style="padding-bottom: 0"
+                >
+                  <span class="cf-page-title-text cf-page-title-brand">v1</span
+                  ><span class="cf-page-title-divider"></span
+                  ><span class="cf-page-title-text">Filters</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- data-cnds-toggle="theme": wired by nimbus.js — flips data-cnds-theme on <html> between "light" and "dark" -->
+          <button
+            class="btn btn-sm btn-outline-secondary ms-2"
+            data-cnds-toggle="theme"
+            aria-label="Toggle theme"
+            title="Toggle theme"
+          >
+            <i class="mdi mdi-weather-night mdi-18px" aria-hidden="true"></i>
+          </button>
+        </div>
+      </nav>
+      <!-- ./Main Navigation -->
+    </div>
+    <!-- ./Header -->
+    <!-- Content -->
+    <main id="main-content" class="cf-main-app">
+      <!-- Mobile viewport warning — alert role announces immediately to screen readers -->
+      <div class="d-block d-md-none p-4">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>This application is not
+          optimized for small screens. Please use a large tablet, laptop, or
+          desktop computer to continue.
+        </div>
+      </div>
+      <div class="d-none d-md-block">
+        <!-- Sidenav — markup is intentionally empty; sidenav-loader.js fetches and injects the shared nav HTML.
+             data-cnds-mode="side"           : renders as a persistent side panel (not an overlay/drawer)
+             data-cnds-slim / slim-collapsed : controls compact/icon-only collapsed state
+             data-cnds-content="#slim-content": the sibling panel that shrinks/expands as the nav opens/closes
+             data-cnds-accordion="true"      : collapses other open nav groups when a new one is expanded -->
+        <nav
+          id="sidebar-cf"
+          class="sidenav"
+          data-cnds-mode="side"
+          data-cnds-slim="false"
+          data-cnds-slim-collapsed="false"
+          data-cnds-content="#slim-content"
+          data-cnds-accordion="true"
+        ></nav>
+        <div id="slim-content">
+          <div class="slim-content-box">
+            <!-- Content Row -->
+            <div class="row">
+              <!-- Main column — 80 % of the row width; the remaining 20 % is the right sidebar.
+                   The inline flex overrides are intentional: they pin the ratio regardless of Bootstrap's
+                   grid breakpoints so the sidebar never wraps on large viewports. -->
+              <div class="col-12 col-lg" style="flex: 0 0 80%; max-width: 80%">
+                <!--Section: Docs content-->
+                <section class="container-fluid">
+
+                  <!--Section: Introduction-->
+                  <section id="section-introduction">
+                    <!-- Description -->
+                    <p class="mb-4">
+                      The Filters plugin dynamically shows and hides content items based on category buttons,
+                      with no external library dependencies. Items declare their categories with
+                      <code>data-cnds-category</code>; filter buttons declare their value with
+                      <code>data-cnds-filter</code>. When a button is clicked the plugin hides non-matching items
+                      and shows matching ones, applying a smooth fade-scale animation by default. Add
+                      <code>data-cnds-filters-init</code> to the button container for zero-JavaScript
+                      auto-initialization on <code>DOMContentLoaded</code>. For more control, instantiate with
+                      <code>new Nimbus.Filters(el, options)</code> to enable multi-select mode, attach a search
+                      input, disable animation, or drive the filter programmatically through the instance API.
+                    </p>
+                    <!-- API docs note — appears before theme note per CNDS convention -->
+                    <p class="note note-light">
+                      <strong class="note-label">Note:</strong> Read the <a href="#section-api-docs">API Documentation</a>
+                      to find all available options and advanced customization.
+                    </p>
+                    <!-- Theme toggle note -->
+                    <p class="note note-info">
+                      <strong class="note-label">Note:</strong> To preview components in different themes, click the theme toggle button
+                      <i class="mdi mdi-weather-night" aria-hidden="true"></i> /
+                      <i class="mdi mdi-weather-sunny" aria-hidden="true"></i> in the header navigation bar.
+                    </p>
+                  </section>
+                  <!--/Section: Introduction-->
+
+                  <hr class="my-5" />
+
+                  <!--
+                    ANGULAR — Basic filter:
+                    Manage an activeFilter string property in the component class (default: 'all').
+                    On button click, set activeFilter = category and call filterInstance.filter(category).
+                    Bind [class.active]="activeFilter === cat" on each button to reflect state without
+                    relying on the plugin's internal DOM toggling.
+                    Retrieve the instance via Nimbus.Filters.getInstance(containerEl) if needed outside
+                    the init block; call it in ngAfterViewInit after the view has rendered.
+                  -->
+                  <!--Section: Basic example-->
+                  <section id="section-basic-example">
+                    <!-- Section title -->
+                    <h3 class="mb-4">Basic example</h3>
+                    <!-- Description -->
+                    <p class="mb-4">
+                      The simplest integration requires only HTML markup — no JavaScript. Add
+                      <code>data-cnds-filters-init</code> to the button container and the plugin auto-initialises
+                      on <code>DOMContentLoaded</code>. The element immediately after the button container is
+                      used as the items container by default. Each filter button carries
+                      <code>data-cnds-filter="category"</code> (or <code>"all"</code> for the reset button), and
+                      each item carries <code>data-cnds-category="category"</code>. Clicking a category button
+                      hides non-matching items and shows matching ones; clicking "All" restores every item.
+                    </p>
+                    <!--Section: Live Preview-->
+                    <section class="pb-4">
+                      <div class="border rounded-5 p-4">
+                        <!-- Button group: data-cnds-filters-init auto-inits on DOMContentLoaded.
+                             The next sibling element is resolved as the items container automatically. -->
+                        <div
+                          class="btn-group mb-4"
+                          role="group"
+                          aria-label="Filter by category"
+                          data-cnds-filters-init
+                        >
+                          <button type="button" class="btn btn-outline-primary active" data-cnds-filter="all">All</button>
+                          <button type="button" class="btn btn-outline-primary" data-cnds-filter="design">Design</button>
+                          <button type="button" class="btn btn-outline-primary" data-cnds-filter="development">Development</button>
+                          <button type="button" class="btn btn-outline-primary" data-cnds-filter="marketing">Marketing</button>
+                        </div>
+                        <!-- Items container: next sibling resolved automatically by the plugin -->
+                        <div class="row g-3">
+                          <div class="col-md-4" data-cnds-category="design">
+                            <div class="card card-basic h-100">
+                              <div class="card-body">
+                                <h5 class="card-title">Brand Guidelines</h5>
+                                <p class="card-text">Establish visual consistency through color, typography, and iconography standards.</p>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-md-4" data-cnds-category="design">
+                            <div class="card card-basic h-100">
+                              <div class="card-body">
+                                <h5 class="card-title">Component Library</h5>
+                                <p class="card-text">Reusable UI patterns that accelerate product design and ensure visual cohesion.</p>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-md-4" data-cnds-category="development">
+                            <div class="card card-basic h-100">
+                              <div class="card-body">
+                                <h5 class="card-title">API Integration</h5>
+                                <p class="card-text">Connect services with RESTful endpoints and structured data contracts.</p>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-md-4" data-cnds-category="development">
+                            <div class="card card-basic h-100">
+                              <div class="card-body">
+                                <h5 class="card-title">Unit Testing</h5>
+                                <p class="card-text">Validate individual functions and components to catch regressions early.</p>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-md-4" data-cnds-category="marketing">
+                            <div class="card card-basic h-100">
+                              <div class="card-body">
+                                <h5 class="card-title">Campaign Analytics</h5>
+                                <p class="card-text">Track reach, engagement, and conversion across active marketing campaigns.</p>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-md-4" data-cnds-category="marketing">
+                            <div class="card card-basic h-100">
+                              <div class="card-body">
+                                <h5 class="card-title">Content Strategy</h5>
+                                <p class="card-text">Plan editorial calendars and messaging frameworks to support audience growth.</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+                    <!--/Section: Live Preview-->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;!-- Button container: data-cnds-filters-init auto-inits on DOMContentLoaded.
+     The next sibling is used as the items container by default. --&gt;
+&lt;div class="btn-group mb-4" role="group" aria-label="Filter by category"
+     data-cnds-filters-init&gt;
+  &lt;button type="button" class="btn btn-outline-primary active" data-cnds-filter="all"&gt;All&lt;/button&gt;
+  &lt;button type="button" class="btn btn-outline-primary" data-cnds-filter="design"&gt;Design&lt;/button&gt;
+  &lt;button type="button" class="btn btn-outline-primary" data-cnds-filter="development"&gt;Development&lt;/button&gt;
+  &lt;button type="button" class="btn btn-outline-primary" data-cnds-filter="marketing"&gt;Marketing&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;!-- Items container: next sibling resolved automatically --&gt;
+&lt;div class="row g-3"&gt;
+  &lt;div class="col-md-4" data-cnds-category="design"&gt;
+    &lt;div class="card card-basic h-100"&gt;
+      &lt;div class="card-body"&gt;
+        &lt;h5 class="card-title"&gt;Brand Guidelines&lt;/h5&gt;
+        &lt;p class="card-text"&gt;Establish visual consistency through color, typography, and iconography standards.&lt;/p&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="col-md-4" data-cnds-category="development"&gt;
+    &lt;div class="card card-basic h-100"&gt;
+      &lt;div class="card-body"&gt;
+        &lt;h5 class="card-title"&gt;API Integration&lt;/h5&gt;
+        &lt;p class="card-text"&gt;Connect services with RESTful endpoints and structured data contracts.&lt;/p&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="col-md-4" data-cnds-category="marketing"&gt;
+    &lt;div class="card card-basic h-100"&gt;
+      &lt;div class="card-body"&gt;
+        &lt;h5 class="card-title"&gt;Campaign Analytics&lt;/h5&gt;
+        &lt;p class="card-text"&gt;Track reach, engagement, and conversion across active marketing campaigns.&lt;/p&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;!-- ...more items --&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Basic example-->
+
+                  <hr class="my-5" />
+
+                  <!--
+                    ANGULAR — Multi-select filter:
+                    Track activeFilters as a Set<string> in the component class (default: new Set(['all'])).
+                    Pass multiSelect: true in the Nimbus.Filters config during ngAfterViewInit.
+                    Bind [class.active]="activeFilters.has(cat)" on each button.
+                    Subscribe to the filter.cnds.filters DOM event to keep the Set in sync with the
+                    plugin's internal state after each button click.
+                    When the user clicks "All", clear the Set and add 'all' back.
+                  -->
+                  <!--Section: Multi-select filter-->
+                  <section id="section-multi-select">
+                    <!-- Section title -->
+                    <h3 class="mb-4">Multi-select filter</h3>
+                    <!-- Description -->
+                    <p class="mb-4">
+                      Pass <code>multiSelect: true</code> to allow multiple active categories simultaneously.
+                      Clicking a second category button adds it to the active set rather than replacing the
+                      current selection, so items matching <em>any</em> active category remain visible. Clicking
+                      the "All" button clears every active category and restores all items. Items that belong to
+                      more than one category declare a comma-separated list in <code>data-cnds-category</code>
+                      (e.g., <code>"frontend,design"</code>) and match if <em>any</em> of their declared categories
+                      is in the active set. Multi-select mode requires JavaScript initialization — it cannot be
+                      activated through data attributes alone.
+                    </p>
+                    <!--Section: Live Preview-->
+                    <section class="pb-4">
+                      <div class="border rounded-5 p-4">
+                        <!-- Button container: no data-cnds-filters-init — wired via JS with multiSelect: true -->
+                        <div
+                          id="multiselect-btn-container"
+                          class="btn-group mb-4"
+                          role="group"
+                          aria-label="Filter by skill area"
+                        >
+                          <button type="button" class="btn btn-outline-secondary active" data-cnds-filter="all">All</button>
+                          <button type="button" class="btn btn-outline-secondary" data-cnds-filter="frontend">Frontend</button>
+                          <button type="button" class="btn btn-outline-secondary" data-cnds-filter="backend">Backend</button>
+                          <button type="button" class="btn btn-outline-secondary" data-cnds-filter="design">Design</button>
+                          <button type="button" class="btn btn-outline-secondary" data-cnds-filter="devops">DevOps</button>
+                        </div>
+                        <!-- Items container: next sibling resolved automatically -->
+                        <div class="row g-3">
+                          <div class="col-md-3" data-cnds-category="frontend,design">
+                            <div class="card card-basic h-100">
+                              <div class="card-body">
+                                <h5 class="card-title">UI Engineering</h5>
+                                <p class="card-text">Build pixel-perfect interfaces that satisfy both design specs and accessibility requirements.</p>
+                                <div class="mt-2">
+                                  <span class="badge bg-primary me-1">Frontend</span>
+                                  <span class="badge bg-info">Design</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-md-3" data-cnds-category="frontend">
+                            <div class="card card-basic h-100">
+                              <div class="card-body">
+                                <h5 class="card-title">State Management</h5>
+                                <p class="card-text">Centralise application state using reactive patterns and predictable data flows.</p>
+                                <div class="mt-2">
+                                  <span class="badge bg-primary">Frontend</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-md-3" data-cnds-category="backend">
+                            <div class="card card-basic h-100">
+                              <div class="card-body">
+                                <h5 class="card-title">Database Design</h5>
+                                <p class="card-text">Model data relationships and optimise query performance for high-traffic workloads.</p>
+                                <div class="mt-2">
+                                  <span class="badge bg-secondary">Backend</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-md-3" data-cnds-category="backend,devops">
+                            <div class="card card-basic h-100">
+                              <div class="card-body">
+                                <h5 class="card-title">Infrastructure as Code</h5>
+                                <p class="card-text">Provision and manage cloud resources declaratively with version-controlled configuration files.</p>
+                                <div class="mt-2">
+                                  <span class="badge bg-secondary me-1">Backend</span>
+                                  <span class="badge bg-warning text-dark">DevOps</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-md-3" data-cnds-category="design">
+                            <div class="card card-basic h-100">
+                              <div class="card-body">
+                                <h5 class="card-title">Prototype Validation</h5>
+                                <p class="card-text">Test concepts with low-fidelity mockups before committing engineering resources.</p>
+                                <div class="mt-2">
+                                  <span class="badge bg-info">Design</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-md-3" data-cnds-category="devops">
+                            <div class="card card-basic h-100">
+                              <div class="card-body">
+                                <h5 class="card-title">CI/CD Pipelines</h5>
+                                <p class="card-text">Automate build, test, and deployment workflows to reduce release cycle friction.</p>
+                                <div class="mt-2">
+                                  <span class="badge bg-warning text-dark">DevOps</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-md-3" data-cnds-category="frontend,backend">
+                            <div class="card card-basic h-100">
+                              <div class="card-body">
+                                <h5 class="card-title">API Contract Testing</h5>
+                                <p class="card-text">Validate request/response schemas across service boundaries to prevent integration failures.</p>
+                                <div class="mt-2">
+                                  <span class="badge bg-primary me-1">Frontend</span>
+                                  <span class="badge bg-secondary">Backend</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-md-3" data-cnds-category="devops,design">
+                            <div class="card card-basic h-100">
+                              <div class="card-body">
+                                <h5 class="card-title">Release Communication</h5>
+                                <p class="card-text">Coordinate changelogs, in-app announcements, and stakeholder notices for each deployment.</p>
+                                <div class="mt-2">
+                                  <span class="badge bg-warning text-dark me-1">DevOps</span>
+                                  <span class="badge bg-info">Design</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+                    <!--/Section: Live Preview-->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;!-- Button container: no data-cnds-filters-init — wired via JS with multiSelect: true --&gt;
+&lt;div id="multiselect-btn-container" class="btn-group mb-4" role="group" aria-label="Filter by skill area"&gt;
+  &lt;button type="button" class="btn btn-outline-secondary active" data-cnds-filter="all"&gt;All&lt;/button&gt;
+  &lt;button type="button" class="btn btn-outline-secondary" data-cnds-filter="frontend"&gt;Frontend&lt;/button&gt;
+  &lt;button type="button" class="btn btn-outline-secondary" data-cnds-filter="backend"&gt;Backend&lt;/button&gt;
+  &lt;button type="button" class="btn btn-outline-secondary" data-cnds-filter="design"&gt;Design&lt;/button&gt;
+  &lt;button type="button" class="btn btn-outline-secondary" data-cnds-filter="devops"&gt;DevOps&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;!-- Items: comma-separated categories allow an item to match multiple filters --&gt;
+&lt;div class="row g-3"&gt;
+  &lt;div class="col-md-3" data-cnds-category="frontend,design"&gt;...&lt;/div&gt;
+  &lt;div class="col-md-3" data-cnds-category="backend"&gt;...&lt;/div&gt;
+  &lt;div class="col-md-3" data-cnds-category="devops"&gt;...&lt;/div&gt;
+  &lt;!-- ...more items --&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                      <h4 class="mt-3"><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">var btn = document.getElementById('multiselect-btn-container');
+new Nimbus.Filters(btn, { multiSelect: true });</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Multi-select filter-->
+
+                  <hr class="my-5" />
+
+                  <!--
+                    ANGULAR — Filter with search:
+                    Bind (input)="filterInstance.search($event.target.value)" directly on the input element
+                    in the component template rather than using the searchInput config option. This integrates
+                    cleanly with Angular's event binding and avoids querySelector timing issues during init.
+                    Debounce on the Angular side with RxJS debounceTime(200) on a Subject if preferred.
+                    Clear the search by calling filterInstance.search('') when the input is cleared.
+                  -->
+                  <!--Section: Filter with search-->
+                  <section id="section-search">
+                    <!-- Section title -->
+                    <h3 class="mb-4">Filter with search</h3>
+                    <!-- Description -->
+                    <p class="mb-4">
+                      Pass a <code>searchInput</code> CSS selector to wire a text input that narrows visible items
+                      by their full text content, combined with the active category filter. The search is debounced
+                      at 200&nbsp;ms to avoid excessive filtering on rapid keystrokes. Both filters are applied with
+                      AND logic — an item must match the active category <em>and</em> contain the search term to
+                      remain visible. Pass an explicit <code>target</code> selector when the items container is not
+                      the immediate next sibling of the button container.
+                    </p>
+                    <!--Section: Live Preview-->
+                    <section class="pb-4">
+                      <div class="border rounded-5 p-4">
+                        <!-- Search input: wired by the plugin via the searchInput selector -->
+                        <div class="mb-3">
+                          <input
+                            type="search"
+                            class="form-control"
+                            id="filter-search-input"
+                            placeholder="Search..."
+                            aria-label="Search items"
+                          />
+                        </div>
+                        <!-- Button container: wired via JS below -->
+                        <div
+                          id="search-btn-container"
+                          class="btn-group mb-4"
+                          role="group"
+                          aria-label="Filter by topic"
+                        >
+                          <button type="button" class="btn btn-outline-primary active" data-cnds-filter="all">All</button>
+                          <button type="button" class="btn btn-outline-primary" data-cnds-filter="strategy">Strategy</button>
+                          <button type="button" class="btn btn-outline-primary" data-cnds-filter="execution">Execution</button>
+                          <button type="button" class="btn btn-outline-primary" data-cnds-filter="analysis">Analysis</button>
+                        </div>
+                        <!-- Items container: explicitly targeted by the searchInput config -->
+                        <div id="filter-items-search" class="row g-3">
+                          <div class="col-md-4" data-cnds-category="strategy">
+                            <div class="card card-basic h-100">
+                              <div class="card-body">
+                                <h5 class="card-title">Market Positioning</h5>
+                                <p class="card-text">Define a unique value proposition that differentiates the product in a competitive landscape.</p>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-md-4" data-cnds-category="strategy">
+                            <div class="card card-basic h-100">
+                              <div class="card-body">
+                                <h5 class="card-title">Roadmap Planning</h5>
+                                <p class="card-text">Sequence features and milestones to align engineering capacity with business priorities.</p>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-md-4" data-cnds-category="execution">
+                            <div class="card card-basic h-100">
+                              <div class="card-body">
+                                <h5 class="card-title">Sprint Delivery</h5>
+                                <p class="card-text">Ship working software on a consistent cadence by managing scope and team velocity.</p>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-md-4" data-cnds-category="execution">
+                            <div class="card card-basic h-100">
+                              <div class="card-body">
+                                <h5 class="card-title">Stakeholder Alignment</h5>
+                                <p class="card-text">Keep sponsors and cross-functional partners informed of progress, risks, and decisions.</p>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-md-4" data-cnds-category="analysis">
+                            <div class="card card-basic h-100">
+                              <div class="card-body">
+                                <h5 class="card-title">Usage Metrics</h5>
+                                <p class="card-text">Instrument features and dashboards to surface engagement patterns and retention signals.</p>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-md-4" data-cnds-category="analysis">
+                            <div class="card card-basic h-100">
+                              <div class="card-body">
+                                <h5 class="card-title">Cohort Analysis</h5>
+                                <p class="card-text">Compare user behaviour across acquisition segments to identify high-value onboarding paths.</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+                    <!--/Section: Live Preview-->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;!-- Search input: selector passed to plugin via searchInput option --&gt;
+&lt;input type="search" class="form-control" id="filter-search-input"
+       placeholder="Search..." aria-label="Search items" /&gt;
+
+&lt;!-- Button container --&gt;
+&lt;div id="search-btn-container" class="btn-group mb-4" role="group" aria-label="Filter by topic"&gt;
+  &lt;button type="button" class="btn btn-outline-primary active" data-cnds-filter="all"&gt;All&lt;/button&gt;
+  &lt;button type="button" class="btn btn-outline-primary" data-cnds-filter="strategy"&gt;Strategy&lt;/button&gt;
+  &lt;button type="button" class="btn btn-outline-primary" data-cnds-filter="execution"&gt;Execution&lt;/button&gt;
+  &lt;button type="button" class="btn btn-outline-primary" data-cnds-filter="analysis"&gt;Analysis&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;!-- Items container: explicitly targeted via the target option --&gt;
+&lt;div id="filter-items-search" class="row g-3"&gt;
+  &lt;div class="col-md-4" data-cnds-category="strategy"&gt;...&lt;/div&gt;
+  &lt;div class="col-md-4" data-cnds-category="execution"&gt;...&lt;/div&gt;
+  &lt;div class="col-md-4" data-cnds-category="analysis"&gt;...&lt;/div&gt;
+  &lt;!-- ...more items --&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                      <h4 class="mt-3"><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">var btn = document.getElementById('search-btn-container');
+new Nimbus.Filters(btn, {
+  target: '#filter-items-search',
+  searchInput: '#filter-search-input'
+});</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Filter with search-->
+
+                  <hr class="my-5" />
+
+                  <!--
+                    ANGULAR — No animation:
+                    Detect the OS reduced-motion preference in the component class constructor or ngOnInit:
+                      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                    Pass animation: !prefersReduced to the Nimbus.Filters config so the component
+                    automatically respects the user's OS accessibility setting without any additional
+                    component logic. Do not hardcode animation: false unless animation is intentionally
+                    disabled for all users regardless of preference.
+                  -->
+                  <!--Section: No animation-->
+                  <section id="section-no-animation">
+                    <!-- Section title -->
+                    <h3 class="mb-4">No animation</h3>
+                    <!-- Description -->
+                    <p class="mb-4">
+                      Pass <code>animation: false</code> to show and hide items instantly without any transition.
+                      This is the correct option for accessibility: users who have enabled the
+                      <code>prefers-reduced-motion</code> OS setting benefit from immediate state changes with no
+                      visual motion. The recommended pattern is to read the media query at runtime and pass the
+                      result to the <code>animation</code> option so the plugin automatically adapts to the user's
+                      system preference — see the JavaScript example below.
+                    </p>
+                    <!--Section: Live Preview-->
+                    <section class="pb-4">
+                      <div class="border rounded-5 p-4">
+                        <!-- Button container: wired via JS with animation: false -->
+                        <div
+                          id="noanim-btn-container"
+                          class="btn-group mb-4"
+                          role="group"
+                          aria-label="Filter by priority"
+                        >
+                          <button type="button" class="btn btn-outline-primary active" data-cnds-filter="all">All</button>
+                          <button type="button" class="btn btn-outline-primary" data-cnds-filter="high">High</button>
+                          <button type="button" class="btn btn-outline-primary" data-cnds-filter="medium">Medium</button>
+                          <button type="button" class="btn btn-outline-primary" data-cnds-filter="low">Low</button>
+                        </div>
+                        <!-- Items container: next sibling resolved automatically -->
+                        <div class="row g-3">
+                          <div class="col-md-4" data-cnds-category="high">
+                            <div class="card card-basic h-100">
+                              <div class="card-body">
+                                <span class="badge bg-danger mb-2">High</span>
+                                <h5 class="card-title">Security Patch</h5>
+                                <p class="card-text">Apply critical CVE fixes to all production-facing services before the next maintenance window.</p>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-md-4" data-cnds-category="high">
+                            <div class="card card-basic h-100">
+                              <div class="card-body">
+                                <span class="badge bg-danger mb-2">High</span>
+                                <h5 class="card-title">Data Export Bug</h5>
+                                <p class="card-text">Fix a defect causing exported CSV files to truncate records beyond 10,000 rows.</p>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-md-4" data-cnds-category="medium">
+                            <div class="card card-basic h-100">
+                              <div class="card-body">
+                                <span class="badge bg-warning text-dark mb-2">Medium</span>
+                                <h5 class="card-title">Dashboard Refresh</h5>
+                                <p class="card-text">Update chart colours and layout to align with the new brand guidelines shipped last quarter.</p>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-md-4" data-cnds-category="medium">
+                            <div class="card card-basic h-100">
+                              <div class="card-body">
+                                <span class="badge bg-warning text-dark mb-2">Medium</span>
+                                <h5 class="card-title">Notification Preferences</h5>
+                                <p class="card-text">Add per-channel controls so users can subscribe or unsubscribe from individual alert types.</p>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-md-4" data-cnds-category="low">
+                            <div class="card card-basic h-100">
+                              <div class="card-body">
+                                <span class="badge bg-secondary mb-2">Low</span>
+                                <h5 class="card-title">Tooltip Copy</h5>
+                                <p class="card-text">Revise help text on three settings screens flagged in the last user research session.</p>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-md-4" data-cnds-category="low">
+                            <div class="card card-basic h-100">
+                              <div class="card-body">
+                                <span class="badge bg-secondary mb-2">Low</span>
+                                <h5 class="card-title">Favicon Update</h5>
+                                <p class="card-text">Replace legacy 16px favicon with the new icon set across all Nimbus-hosted applications.</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+                    <!--/Section: Live Preview-->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div id="noanim-btn-container" class="btn-group mb-4" role="group" aria-label="Filter by priority"&gt;
+  &lt;button type="button" class="btn btn-outline-primary active" data-cnds-filter="all"&gt;All&lt;/button&gt;
+  &lt;button type="button" class="btn btn-outline-primary" data-cnds-filter="high"&gt;High&lt;/button&gt;
+  &lt;button type="button" class="btn btn-outline-primary" data-cnds-filter="medium"&gt;Medium&lt;/button&gt;
+  &lt;button type="button" class="btn btn-outline-primary" data-cnds-filter="low"&gt;Low&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class="row g-3"&gt;
+  &lt;div class="col-md-4" data-cnds-category="high"&gt;...&lt;/div&gt;
+  &lt;div class="col-md-4" data-cnds-category="medium"&gt;...&lt;/div&gt;
+  &lt;div class="col-md-4" data-cnds-category="low"&gt;...&lt;/div&gt;
+  &lt;!-- ...more items --&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                      <h4 class="mt-3"><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">var btn = document.getElementById('noanim-btn-container');
+
+// Respect the OS prefers-reduced-motion accessibility setting automatically.
+// When true, animation is disabled; when false (or unsupported), animation runs normally.
+var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+new Nimbus.Filters(btn, { animation: !prefersReduced });</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: No animation-->
+
+                  <hr class="my-5" />
+
+                  <!--
+                    ANGULAR — Programmatic control:
+                    Expose filter(), reset(), and getActiveFilters() as public component methods that
+                    delegate to the stored Nimbus.Filters instance property.
+                    Declare an @Output() EventEmitter<string[]> (e.g. activeChange) that emits the
+                    result of getActiveFilters() after each programmatic call so parent components can
+                    react to filter state changes.
+                    Call instance.dispose() in ngOnDestroy to remove all plugin event listeners
+                    before Angular destroys the component.
+                  -->
+                  <!--Section: Programmatic control-->
+                  <section id="section-programmatic">
+                    <!-- Section title -->
+                    <h3 class="mb-4">Programmatic control</h3>
+                    <!-- Description -->
+                    <p class="mb-4">
+                      Store the instance returned by <code>new Nimbus.Filters(el, config)</code> and call its
+                      methods at any time from external code. Use <code>filter(category)</code> to activate a
+                      category, <code>reset()</code> to restore all items, or <code>getActiveFilters()</code> to
+                      read the current active set as an array. The plugin fires a <code>filter.cnds.filters</code>
+                      DOM custom event on the button container after every filter change — both from button clicks
+                      and programmatic calls — so other parts of the UI can react to updated state via a single
+                      event listener rather than polling.
+                    </p>
+                    <!--Section: Live Preview-->
+                    <section class="pb-4">
+                      <div class="border rounded-5 p-4">
+                        <!-- External control buttons — live outside the filter button container -->
+                        <div class="d-flex flex-wrap gap-2 mb-4">
+                          <button type="button" class="btn btn-primary" id="btn-show-active">Show Active</button>
+                          <button type="button" class="btn btn-secondary" id="btn-show-archived">Show Archived</button>
+                          <button type="button" class="btn btn-outline-secondary" id="btn-reset-filters">Reset</button>
+                          <button type="button" class="btn btn-outline-primary" id="btn-get-active">Get Active Filters</button>
+                        </div>
+                        <!-- Status output: aria-live="polite" announces changes to screen readers without
+                             interrupting the current narration — Section 508 / WCAG 4.1.3 compliant -->
+                        <p class="text-muted small mb-4" id="filter-status" aria-live="polite">
+                          Click "Get Active Filters" to see the current filter state.
+                        </p>
+                        <!-- Filter button container: visible so keyboard users can also interact with it -->
+                        <div
+                          id="prog-btn-container"
+                          class="btn-group mb-4"
+                          role="group"
+                          aria-label="Filter by status"
+                        >
+                          <button type="button" class="btn btn-outline-primary active" data-cnds-filter="all">All</button>
+                          <button type="button" class="btn btn-outline-primary" data-cnds-filter="active">Active</button>
+                          <button type="button" class="btn btn-outline-primary" data-cnds-filter="archived">Archived</button>
+                        </div>
+                        <!-- Items container: next sibling resolved automatically -->
+                        <div class="row g-3">
+                          <div class="col-md-3" data-cnds-category="active">
+                            <div class="card card-basic h-100">
+                              <div class="card-body">
+                                <span class="badge bg-success mb-2">Active</span>
+                                <h5 class="card-title">Project Alpha</h5>
+                                <p class="card-text">In active development — sprint 7 of 10 complete.</p>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-md-3" data-cnds-category="active">
+                            <div class="card card-basic h-100">
+                              <div class="card-body">
+                                <span class="badge bg-success mb-2">Active</span>
+                                <h5 class="card-title">Project Beta</h5>
+                                <p class="card-text">UAT phase with client stakeholders underway.</p>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-md-3" data-cnds-category="archived">
+                            <div class="card card-basic h-100">
+                              <div class="card-body">
+                                <span class="badge bg-secondary mb-2">Archived</span>
+                                <h5 class="card-title">Project Gamma</h5>
+                                <p class="card-text">Successfully delivered and transitioned to support in Q2.</p>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-md-3" data-cnds-category="archived">
+                            <div class="card card-basic h-100">
+                              <div class="card-body">
+                                <span class="badge bg-secondary mb-2">Archived</span>
+                                <h5 class="card-title">Project Delta</h5>
+                                <p class="card-text">Scope reduced; remaining items merged into Project Alpha.</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+                    <!--/Section: Live Preview-->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;!-- External controls --&gt;
+&lt;div class="d-flex flex-wrap gap-2 mb-4"&gt;
+  &lt;button type="button" class="btn btn-primary" id="btn-show-active"&gt;Show Active&lt;/button&gt;
+  &lt;button type="button" class="btn btn-secondary" id="btn-show-archived"&gt;Show Archived&lt;/button&gt;
+  &lt;button type="button" class="btn btn-outline-secondary" id="btn-reset-filters"&gt;Reset&lt;/button&gt;
+  &lt;button type="button" class="btn btn-outline-primary" id="btn-get-active"&gt;Get Active Filters&lt;/button&gt;
+&lt;/div&gt;
+&lt;p class="text-muted small" id="filter-status" aria-live="polite"&gt;&lt;/p&gt;
+
+&lt;!-- Filter button container --&gt;
+&lt;div id="prog-btn-container" class="btn-group mb-4" role="group" aria-label="Filter by status"&gt;
+  &lt;button type="button" class="btn btn-outline-primary active" data-cnds-filter="all"&gt;All&lt;/button&gt;
+  &lt;button type="button" class="btn btn-outline-primary" data-cnds-filter="active"&gt;Active&lt;/button&gt;
+  &lt;button type="button" class="btn btn-outline-primary" data-cnds-filter="archived"&gt;Archived&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;!-- Items container --&gt;
+&lt;div class="row g-3"&gt;
+  &lt;div class="col-md-3" data-cnds-category="active"&gt;...&lt;/div&gt;
+  &lt;div class="col-md-3" data-cnds-category="archived"&gt;...&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                      <h4 class="mt-3"><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">var btn = document.getElementById('prog-btn-container');
+var inst = new Nimbus.Filters(btn, {});
+
+document.getElementById('btn-show-active').addEventListener('click', function() {
+  inst.filter('active');
+});
+document.getElementById('btn-show-archived').addEventListener('click', function() {
+  inst.filter('archived');
+});
+document.getElementById('btn-reset-filters').addEventListener('click', function() {
+  inst.reset();
+});
+document.getElementById('btn-get-active').addEventListener('click', function() {
+  var statusEl = document.getElementById('filter-status');
+  if (statusEl) statusEl.textContent = 'Active: ' + inst.getActiveFilters().join(', ');
+});
+
+// Listen for filter changes fired by the plugin after every button click or programmatic call.
+// event.detail.filters is an array of currently active category strings.
+btn.addEventListener('filter.cnds.filters', function(e) {
+  console.log('Active filters:', e.detail.filters);
+});</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Programmatic control-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: API Documentation-->
+                  <section id="section-api-docs">
+                    <h3 class="mb-3">API Documentation</h3>
+
+                    <!--Section: API Introduction-->
+                    <section id="api-section-introduction">
+                      <h4 class="mb-4">Introduction</h4>
+                      <p class="mb-4">
+                        <code>Nimbus.Filters</code> is a lightweight, dependency-free filtering plugin bundled
+                        inside <code>nimbus.js</code>. It hides and shows items inside a container based on
+                        <code>data-cnds-category</code> attributes on those items and
+                        <code>data-cnds-filter</code> attributes on control buttons. The plugin supports both
+                        markup-driven auto-initialization (via <code>data-cnds-filters-init</code>) and explicit
+                        JavaScript construction (<code>new Nimbus.Filters(el, options)</code>) for programmatic
+                        control, multi-select mode, and search integration.
+                      </p>
+                      <p class="mb-4">
+                        The constructor takes two arguments: the button container element and a plain options
+                        object. It returns an instance with methods for programmatic control and fires a
+                        <code>filter.cnds.filters</code> custom DOM event on the button container after every
+                        filter change. Call <code>instance.dispose()</code> before removing the element from the
+                        DOM to clean up event listeners.
+                      </p>
+                    </section>
+                    <!--/Section: API Introduction-->
+
+                    <!--Section: Data Attributes-->
+                    <section id="api-section-data-attributes">
+                      <h4 class="mb-4">Data attributes</h4>
+                      <p class="mb-4">
+                        Using the Filters plugin doesn't require any JavaScript &mdash; add
+                        <code>data-cnds-filters-init</code> to the button container and the plugin
+                        auto-initialises on <code>DOMContentLoaded</code>. Use the additional
+                        <code>data-cnds-*</code> attributes below to configure the target container and
+                        define category values on buttons and items.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Data attributes">
+                          <thead>
+                            <tr>
+                              <th class="th-sm">Attribute</th>
+                              <th class="th-sm">Element</th>
+                              <th class="th-sm">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">data-cnds-filters-init</code></td>
+                              <td>Button container</td>
+                              <td>Auto-initializes the Filters plugin on DOMContentLoaded</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">data-cnds-target</code></td>
+                              <td>Button container</td>
+                              <td>CSS selector for the items container; defaults to the next sibling element when omitted</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">data-cnds-filter</code></td>
+                              <td>Button</td>
+                              <td>Category name this button filters for; use <code>"all"</code> for the reset button that shows every item</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">data-cnds-category</code></td>
+                              <td>Item</td>
+                              <td>Category or comma-separated list of categories this item belongs to (e.g., <code>"frontend,design"</code>)</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: Data Attributes-->
+
+                    <!--Section: Options-->
+                    <section id="api-section-options">
+                      <h4 class="mb-4">Options</h4>
+                      <p class="mb-4">
+                        Options are passed as a plain object to the <code>Nimbus.Filters</code> constructor.
+                        When using <code>data-cnds-filters-init</code> for auto-init, set <code>target</code>
+                        via the <code>data-cnds-target</code> attribute; all other options require JavaScript
+                        initialization.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Options">
+                          <thead>
+                            <tr>
+                              <th class="th-sm">Name</th>
+                              <th class="th-sm">Type</th>
+                              <th class="th-sm">Default</th>
+                              <th class="th-sm">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">target</code></td>
+                              <td><i>String | null</i></td>
+                              <td><code>null</code></td>
+                              <td>CSS selector for the items container. When <code>null</code>, the next sibling of the button container is used</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">itemSelector</code></td>
+                              <td><i>String</i></td>
+                              <td><code>"[data-cnds-category]"</code></td>
+                              <td>CSS selector used to find filterable items within the target container</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">activeClass</code></td>
+                              <td><i>String</i></td>
+                              <td><code>"active"</code></td>
+                              <td>CSS class applied to the currently active filter button</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">hiddenClass</code></td>
+                              <td><i>String</i></td>
+                              <td><code>"d-none"</code></td>
+                              <td>CSS class applied to items that do not match the active filter or search term</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">animation</code></td>
+                              <td><i>Boolean</i></td>
+                              <td><code>true</code></td>
+                              <td>When <code>true</code>, items fade in and scale up when shown, and fade out when hidden. Set to <code>false</code> for instant toggle</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">animationDuration</code></td>
+                              <td><i>Number</i></td>
+                              <td><code>300</code></td>
+                              <td>Duration in milliseconds of the fade-scale animation. Has no effect when <code>animation</code> is <code>false</code></td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">multiSelect</code></td>
+                              <td><i>Boolean</i></td>
+                              <td><code>false</code></td>
+                              <td>When <code>true</code>, clicking a category button adds it to the active set rather than replacing the current selection. Clicking "All" clears the set</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">searchInput</code></td>
+                              <td><i>String | null</i></td>
+                              <td><code>null</code></td>
+                              <td>CSS selector for a text input element. When provided, the plugin listens for <code>input</code> events (debounced at 200&nbsp;ms) and combines the text search with the active category filter</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: Options-->
+
+                    <!--Section: Methods-->
+                    <section id="api-section-methods">
+                      <h4 class="mb-4">Methods</h4>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Methods">
+                          <thead>
+                            <tr>
+                              <th class="th-sm">Method</th>
+                              <th class="th-sm">Parameters</th>
+                              <th class="th-sm">Description</th>
+                              <th class="th-sm">Example</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">filter(category)</code></td>
+                              <td><code>category</code> — String</td>
+                              <td>Activates the given category. Pass <code>"all"</code> to reset to showing all items. Respects <code>multiSelect</code> mode</td>
+                              <td><code>instance.filter('design')</code></td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">search(term)</code></td>
+                              <td><code>term</code> — String</td>
+                              <td>Filters items by text content. Combined with the active category filter. Pass an empty string to clear the search</td>
+                              <td><code>instance.search('alpha')</code></td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">reset()</code></td>
+                              <td>—</td>
+                              <td>Clears all active category filters and the search term, restoring all items to visible</td>
+                              <td><code>instance.reset()</code></td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">getActiveFilters()</code></td>
+                              <td>—</td>
+                              <td>Returns an array of the currently active category strings. Returns <code>["all"]</code> when no specific category is selected</td>
+                              <td><code>instance.getActiveFilters()</code></td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">dispose()</code></td>
+                              <td>—</td>
+                              <td>Destroys the plugin instance and removes all event listeners. Call before removing the element from the DOM</td>
+                              <td><code>instance.dispose()</code></td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: Methods-->
+
+                    <!--Section: Events-->
+                    <section id="api-section-events">
+                      <h4 class="mb-4">Events</h4>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Events">
+                          <thead>
+                            <tr>
+                              <th class="th-sm">Event</th>
+                              <th class="th-sm">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">filter.cnds.filters</code></td>
+                              <td>
+                                Fired on the button container element after each filter change (button click or
+                                programmatic call). <code>event.detail.filters</code> is an array of the currently
+                                active category strings. Example: <code>['design', 'frontend']</code> in multi-select
+                                mode, or <code>['all']</code> after a reset.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-js">var container = document.getElementById('my-btn-container');
+container.addEventListener('filter.cnds.filters', function(event) {
+  console.log('Active filters:', event.detail.filters);
+  // e.g. ['design'] or ['all']
+});</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Section: Events-->
+
+                    <!--Section: Accessibility-->
+                    <section id="api-section-accessibility">
+                      <h4 class="mb-4">Accessibility</h4>
+                      <p class="mb-4">
+                        The Filters plugin is designed to work with standard HTML interactive elements so it
+                        inherits native keyboard and screen-reader support. Follow the patterns below to ensure
+                        Section&nbsp;508 and WCAG&nbsp;2.1 AA compliance.
+                      </p>
+                      <ul class="mb-4">
+                        <li class="mb-2">
+                          Wrap the filter buttons in an element with <code>role="group"</code> and an
+                          <code>aria-label</code> that describes the filter set (e.g.,
+                          <code>aria-label="Filter by category"</code>). This creates a logical group that
+                          assistive technologies announce when focus enters the button row.
+                        </li>
+                        <li class="mb-2">
+                          Filter buttons are standard <code>&lt;button&gt;</code> elements and are fully keyboard
+                          accessible. No additional ARIA roles or attributes are needed on the buttons themselves.
+                        </li>
+                        <li class="mb-2">
+                          When using a status output to reflect the current filter state (e.g., the active
+                          category or count of visible items), add <code>aria-live="polite"</code> to the output
+                          element. This causes screen readers to announce the updated text without interrupting the
+                          current narration. Use <code>aria-live="assertive"</code> only if the change is
+                          time-critical.
+                        </li>
+                        <li class="mb-2">
+                          Do not rely on color alone to indicate which filter button is active. The
+                          <code>.active</code> class changes both background color and border, which provides a
+                          visual distinction, but the button's changed state is not announced to screen readers
+                          unless you also add <code>aria-pressed="true"</code> to the active button and
+                          <code>aria-pressed="false"</code> to inactive ones. Update these attributes after each
+                          filter change.
+                        </li>
+                        <li class="mb-2">
+                          When <code>animation: true</code> (the default), respect the user's OS motion preference
+                          by checking <code>window.matchMedia('(prefers-reduced-motion: reduce)').matches</code>
+                          at init time and passing the result to the <code>animation</code> option. See the
+                          <a href="#section-no-animation">No animation</a> section for an implementation example.
+                        </li>
+                      </ul>
+                    </section>
+                    <!--/Section: Accessibility-->
+
+                  </section>
+                  <!--/Section: API Documentation-->
+
+                </section>
+                <!--/Section: Docs content-->
+              </div>
+              <!-- ./Main column-->
+
+              <!-- Right Sidebar — 20 % of the row width; hidden below lg breakpoint.
+                   data-cnds-allow-hashes="true" on the <ul>: nimbus.js watches the URL hash
+                   and highlights the matching nav-link as the user scrolls through sections. -->
+              <div class="col-lg-2 d-none d-lg-block">
+                <div class="sticky-top" style="top: 100px; z-index: 1">
+                  <ul
+                    class="nav flex-column nav-pills menu-sidebar"
+                    id="rightNav"
+                    data-cnds-allow-hashes="true"
+                  >
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-introduction">Introduction</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-basic-example">Basic example</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-multi-select">Multi-select</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-search">Filter with search</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-no-animation">No animation</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-programmatic">Programmatic control</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-api-docs">API Documentation</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#api-section-introduction">Introduction</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#api-section-data-attributes">Data attributes</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#api-section-options">Options</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#api-section-methods">Methods</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#api-section-events">Events</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#api-section-accessibility">Accessibility</a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <!-- ./Right Sidebar -->
+            </div>
+            <!-- ./Content Row -->
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- ./Content -->
+    <!-- Footer -->
+    <div class="cf-footer cf-footer-app">
+      <footer class="page-footer main-footer" aria-label="Site footer">
+        <div class="w-100 px-3 d-flex align-items-center">
+          <img src="img/cf/core/cloudficient_logo_light.svg" class="cf-logo-light" style="width: 135px;" alt="Cloudficient" />
+          <img src="img/cf/core/cloudficient_logo_dark.svg" class="cf-logo-dark" style="width: 135px;" alt="Cloudficient" />
+          <span class="footer-copyright ms-auto">&copy; <span id="currentYear"></span> Cloudficient</span>
+        </div>
+      </footer>
+    </div>
+    <!-- ./Footer -->
+    <!-- SCRIPTS — load order matters:
+         1. nimbus.js         — core framework: exposes Nimbus.Filters, processes all data-cnds-* attributes
+                                (theme toggle, sticky sidebar, sidenav, tooltips, hash-nav, etc.)
+         2. app.js            — application-level overrides and custom initialisation
+         3. prism.min.js      — syntax highlighting for <code class="language-*"> blocks
+         4. sidenav-loader.js — fetches shared sidenav HTML and injects it into #sidebar-cf
+         Inline scripts follow after sidenav-loader.js so Nimbus.Filters is guaranteed to be available. -->
+    <script type="text/javascript" src="js/nimbus.js?v=9.0.4"></script>
+    <script type="text/javascript" src="js/app.js?v=9.0.4"></script>
+    <script type="text/javascript" src="plugins/js/prism.min.js"></script>
+    <script type="text/javascript" src="js/sidenav-loader.js"></script>
+    <!-- Inline: populate the footer copyright year dynamically so the page never needs a manual update -->
+    <script type="text/javascript">
+      var el = document.getElementById("currentYear");
+      if (el) el.textContent = new Date().getFullYear();
+    </script>
+    <!-- Filters demos — defers to the cnds.ready event if nimbus.js hasn't fully initialised yet.
+         Each demo is wrapped in an IIFE to scope its variables and avoid polluting the global namespace. -->
+    <script type="text/javascript">
+function initFiltersDemos() {
+  // Multi-select demo: multiSelect: true lets users combine categories.
+  (function() {
+    var btn = document.getElementById("multiselect-btn-container");
+    if (!btn) return;
+    new Nimbus.Filters(btn, { multiSelect: true });
+  })();
+
+  // Search demo: target is explicit because the items container is not the immediate next sibling.
+  // searchInput wires the text input — filtering is debounced at 200ms inside the plugin.
+  (function() {
+    var btn = document.getElementById("search-btn-container");
+    if (!btn) return;
+    new Nimbus.Filters(btn, { target: "#filter-items-search", searchInput: "#filter-search-input" });
+  })();
+
+  // No animation demo: respects the OS prefers-reduced-motion accessibility setting.
+  // When the user has not requested reduced motion, animation runs normally.
+  (function() {
+    var btn = document.getElementById("noanim-btn-container");
+    if (!btn) return;
+    var prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    new Nimbus.Filters(btn, { animation: !prefersReduced });
+  })();
+
+  // Programmatic demo: stores the instance so external buttons can call filter/reset/getActiveFilters.
+  // The filter.cnds.filters event fires after every change (button click or programmatic call).
+  (function() {
+    var btn = document.getElementById("prog-btn-container");
+    if (!btn) return;
+    var inst = new Nimbus.Filters(btn, {});
+    var showActive   = document.getElementById("btn-show-active");
+    var showArchived = document.getElementById("btn-show-archived");
+    var resetBtn     = document.getElementById("btn-reset-filters");
+    var getBtn       = document.getElementById("btn-get-active");
+    var statusEl     = document.getElementById("filter-status");
+    if (showActive)   showActive.addEventListener("click",   function() { inst.filter("active"); });
+    if (showArchived) showArchived.addEventListener("click", function() { inst.filter("archived"); });
+    if (resetBtn)     resetBtn.addEventListener("click",     function() { inst.reset(); });
+    if (getBtn)       getBtn.addEventListener("click", function() {
+      if (statusEl) statusEl.textContent = "Active: " + inst.getActiveFilters().join(", ");
+    });
+  })();
+}
+
+// Guard: run immediately if Nimbus.Filters is already available, otherwise wait for cnds.ready.
+if (window.Nimbus && window.Nimbus.Filters) {
+  initFiltersDemos();
+} else {
+  document.addEventListener("cnds.ready", initFiltersDemos);
+}
+    </script>
+  </body>
+</html>

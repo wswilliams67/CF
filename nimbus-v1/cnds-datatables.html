@@ -1,0 +1,2712 @@
+<!--
+* CNDS Nimbus Design System — DataTables
+* Version: 1.0.0
+* Layout: Application with SideNav (migrated from Nimbus v8 template)
+*
+* Component CSS:  css/plugins/datatable.css
+* Component JS:   js/plugins/datatable.js
+*
+* SECTIONS (in document order)
+*   #section-introduction                  — Overview and when to use
+*   #section-basic-example                 — Basic HTML markup example
+*   #section-basic-data-cnds-structure     — Basic JavaScript data structure
+*   #section-advanced-data-cnds-structure  — Advanced data structure
+*   #section-search                        — Search functionality
+*   #section-advanced-search              — Advanced search
+*   #section-multi                         — Selectable rows
+*   #section-scroll                        — Scrollable table
+*   #section-fixed                         — Fixed header
+*   #section-fixed-columns                 — Fixed columns
+*   #section-async-data                    — Async data loading
+*   #section-action-btns                   — Action buttons
+*   #section-cell-format                   — Cell formatting
+*   #section-clickable-rows                — Clickable rows
+*   #api-section-introduction              — API Documentation overview
+*     #api-section-usage                   — Usage (via attributes / JavaScript)
+*     #api-section-options                 — Options reference table
+*     #api-section-column-options          — Column options reference table
+*     #api-section-methods                 — Methods reference
+*     #api-section-events                  — Events reference
+*
+* NOTES
+* - Pure HTML5, CSS3, vanilla JavaScript — zero external dependencies
+* - All data-cnds-* attributes are processed by nimbus.js / app.js
+* - Uses Nimbus.* namespace
+* - Default product theme: CaseFusion (cnds-product-casefusion on <body>; change to cnds-product-hyperlize or cnds-product-expireon)
+-->
+<!doctype html>
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta
+      name="description"
+      content="Datatables | Cloudficient Nimbus Design System v1.0.0"
+    />
+    <title>
+      Datatables | CNDS v1.0.0 | Cloudficient Nimbus Design System
+    </title>
+    <!-- Nimbus CSS -->
+    <link rel="stylesheet" href="css/nimbus.css" media="all" type="text/css" />
+    <!-- Custom styles -->
+    <link rel="stylesheet" href="css/app.css" media="all" type="text/css" />
+    <!-- Prism syntax highlighting -->
+    <link rel="stylesheet" href="plugins/css/prism.min.css" media="all" type="text/css" />
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="img/favicon/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="60x60" href="img/favicon/apple-icon-60x60.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="img/favicon/apple-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76" href="img/favicon/apple-icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="img/favicon/apple-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="img/favicon/apple-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="img/favicon/apple-icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="img/favicon/apple-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-icon-180x180.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="img/favicon/android-icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="img/favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="img/favicon/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="msapplication-TileImage" content="img/favicon/ms-icon-144x144.png" />
+    <!-- Design Tokens / Primitives & Themes -->
+    <link rel="stylesheet" href="css/themes/primitives.css" />
+    <link rel="stylesheet" href="css/themes/light.css" />
+    <link rel="stylesheet" href="css/themes/dark.css" />
+  </head>
+
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 Bypass Blocks; renders visually hidden until focused -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+    <!-- Header -->
+    <div class="sticky-top">
+      <!-- Utility Navigation -->
+      <nav id="UtilityNav" class="nav nav-cf-utility">
+        <div class="w-100 gx-3 px-sm-0 px-lg-3">
+          <ul class="nav nav-cf-utility-ul"></ul>
+        </div>
+      </nav>
+      <!-- ./Utility Navigation -->
+      <!-- Main Navigation -->
+      <nav id="MainNav" class="navbar navbar-expand-xl navbar-cf">
+        <div class="container-fluid p-0 px-3 d-flex">
+          <div class="d-flex flex-fill align-items-center text-truncate">
+            <div class="text-center d-none d-md-block me-3 border-end">
+              <a href="index.html"><img src="img/cf/core/logo_nimbus.png" class="me-3 mt-n1" alt="Cloudficient Nimbus Design System" /></a>
+            </div>
+            <div class="flex-fill text-truncate">
+              <div class="navbar-cf-title-block">
+                <div class="navbar-cf-title cf-page-title text-truncate" style="padding-bottom: 0;">
+                  <span class="cf-page-title-text cf-page-title-brand">v1</span>
+                  <span class="cf-page-title-divider"></span>
+                  <span class="cf-page-title-text">Datatables</span>
+                  </div>
+              </div>
+            </div>
+          </div>
+          <button class="btn btn-sm btn-outline-secondary ms-2" data-cnds-toggle="theme" aria-label="Toggle theme" title="Toggle theme">
+            <i class="mdi mdi-weather-night mdi-18px" aria-hidden="true"></i>
+          </button>
+        </div>
+      </nav>
+      <!-- ./Main Navigation -->
+    </div>
+    <!-- ./Header -->
+    <!-- Content -->
+    <main id="main-content" class="cf-main-app">
+      <div class="d-block d-md-none p-4">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>This application is not optimized for small screens. Please use a large tablet, laptop, or desktop computer to continue.
+        </div>
+      </div>
+      <div class="d-none d-md-block">
+        <!-- Sidenav — markup is intentionally empty; sidenav-loader.js fetches and injects the shared nav HTML.
+             data-cnds-mode="side"           : renders as a persistent side panel (not an overlay/drawer)
+             data-cnds-slim / slim-collapsed : controls compact/icon-only collapsed state
+             data-cnds-content="#slim-content": the sibling panel that shrinks/expands as the nav opens/closes
+             data-cnds-accordion="true"      : collapses other open nav groups when a new one is expanded -->
+        <nav
+          id="sidebar-cf"
+          class="sidenav"
+          data-cnds-mode="side"
+          data-cnds-slim="false"
+          data-cnds-slim-collapsed="false"
+          data-cnds-content="#slim-content"
+          data-cnds-accordion="true"
+        ></nav>
+        <div id="slim-content">
+        <div class="slim-content-box">
+          <!-- Content Row -->
+          <div class="row">
+            <!-- Main column — 80 % of the row width; the remaining 20 % is the right sidebar.
+                 The inline flex overrides are intentional: they pin the ratio regardless of Bootstrap's
+                 grid breakpoints so the sidebar never wraps on large viewports. -->
+            <div class="col-12 col-lg" style="flex: 0 0 80%; max-width: 80%">
+              <!--Section: Docs content-->
+              <section class="container-fluid">
+                <!--Section: Introduction-->
+                <section id="section-introduction">
+                  <!-- Description -->
+                  <p class="mb-4">
+                    The DataTable component enhances standard HTML tables with searching, sorting, and pagination —
+                    no external dependencies required. Data can be supplied via HTML markup, a simple column/row
+                    array structure, or a fully typed object array with per-column configuration. All interactions
+                    are driven by <code>data-cnds-*</code> attributes or a plain JavaScript API on the
+                    <code>Nimbus.DataTable</code> constructor.
+                  </p>
+                  <p class="mb-4">
+                    Use DataTable whenever a plain <code>.table</code> is insufficient — for example, when users need
+                    to find specific records in a long list, sort by column, or paginate through large data sets.
+                    Additional capabilities such as fixed headers, fixed columns, scrollable viewports, multi-row
+                    selection, async data loading, cell formatting, and clickable rows are all configurable through
+                    the same API. For simple read-only tables without these interactive requirements, use the lighter
+                    <a href="cnds-tables.html">Tables</a> component instead.
+                  </p>
+                  <p class="note note-light">
+                    <strong>Note:</strong> Read the
+                    <a href="#api-section-introduction">API Documentation</a> to find all available options
+                    and advanced customization.
+                  </p>
+                  <p class="note note-info">
+                    <strong class="note-label">Note:</strong> To preview components in different themes, click
+                    the theme toggle button <i class="mdi mdi-weather-night" aria-hidden="true"></i> /
+                    <i class="mdi mdi-weather-sunny" aria-hidden="true"></i> in the header navigation bar.
+                  </p>
+                </section>
+                <!--/Section: Introduction-->
+                <hr class="mt-4 mb-5" />
+                <!--Section: Basic example-->
+                <section id="section-basic-example">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Basic example — HTML markup</h3>
+                  <p>
+                    The simplest way to create a DataTable is to wrap a standard HTML <code>&lt;table&gt;</code>
+                    inside a <code>&lt;div class="datatable"&gt;</code> with the <code>data-cnds-datatable-init</code>
+                    attribute. Nimbus reads the markup on initialisation and replaces the original table with its own
+                    rendered output. Column-level options such as disabling sort or pinning a column can be applied
+                    via <code>data-cnds-*</code> attributes directly on <code>&lt;th&gt;</code> elements. See
+                    <a href="#section-advanced-data-cnds-structure">Advanced data structure</a> for the full column
+                    option set.
+                  </p>
+                  <p class="note note-warning">
+                    <strong>Note:</strong> The DataTable replaces the original <code>&lt;table&gt;</code> element in
+                    the DOM after initialisation. Do not reference the original table node after the component is created.
+                  </p>
+                  <!--
+                    Angular: Import NimbusDatatableModule in your NgModule or standalone component imports.
+                    Replace the wrapper <div> with <nimbus-datatable [columns]="cols" [rows]="rows"></nimbus-datatable>.
+                    For HTML-markup mode, pass the raw HTML string via the [markup] input binding.
+                  -->
+                  <!--Section: Demo-->
+                  <section class="pb-4" aria-label="Live demo">
+                    <div class="bg-body border rounded-5">
+                      <section class="w-100 p-4">
+                        <div data-cnds-datatable-init data-cnds-search="false" class="datatable">
+                          <table aria-label="Basic example — HTML markup">
+                            <thead>
+                              <tr>
+                                <th>Name</th>
+                                <th>Position</th>
+                                <th>Office</th>
+                                <th>Age</th>
+                                <th>Start date</th>
+                                <th>Salary</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <td>Tiger Nixon</td>
+                                <td>System Architect</td>
+                                <td>Edinburgh</td>
+                                <td>61</td>
+                                <td>2011/04/25</td>
+                                <td>$320,800</td>
+                              </tr>
+                              <tr>
+                                <td>Garrett Winters</td>
+                                <td>Accountant</td>
+                                <td>Tokyo</td>
+                                <td>63</td>
+                                <td>2011/07/25</td>
+                                <td>$170,750</td>
+                              </tr>
+                              <tr>
+                                <td>Ashton Cox</td>
+                                <td>Junior Technical Author</td>
+                                <td>San Francisco</td>
+                                <td>66</td>
+                                <td>2009/01/12</td>
+                                <td>$86,000</td>
+                              </tr>
+                              <tr>
+                                <td>Cedric Kelly</td>
+                                <td>Senior Javascript Developer</td>
+                                <td>Edinburgh</td>
+                                <td>22</td>
+                                <td>2012/03/29</td>
+                                <td>$433,060</td>
+                              </tr>
+                              <tr>
+                                <td>Airi Satou</td>
+                                <td>Accountant</td>
+                                <td>Tokyo</td>
+                                <td>33</td>
+                                <td>2008/11/28</td>
+                                <td>$162,700</td>
+                              </tr>
+                              <tr>
+                                <td>Brielle Williamson</td>
+                                <td>Integration Specialist</td>
+                                <td>New York</td>
+                                <td>61</td>
+                                <td>2012/12/02</td>
+                                <td>$372,000</td>
+                              </tr>
+                              <tr>
+                                <td>Herrod Chandler</td>
+                                <td>Sales Assistant</td>
+                                <td>San Francisco</td>
+                                <td>59</td>
+                                <td>2012/08/06</td>
+                                <td>$137,500</td>
+                              </tr>
+                              <tr>
+                                <td>Rhona Davidson</td>
+                                <td>Integration Specialist</td>
+                                <td>Tokyo</td>
+                                <td>55</td>
+                                <td>2010/10/14</td>
+                                <td>$327,900</td>
+                              </tr>
+                              <tr>
+                                <td>Colleen Hurst</td>
+                                <td>Javascript Developer</td>
+                                <td>San Francisco</td>
+                                <td>39</td>
+                                <td>2009/09/15</td>
+                                <td>$205,500</td>
+                              </tr>
+                              <tr>
+                                <td>Sonya Frost</td>
+                                <td>Software Engineer</td>
+                                <td>Edinburgh</td>
+                                <td>23</td>
+                                <td>2008/12/13</td>
+                                <td>$103,600</td>
+                              </tr>
+                              <tr>
+                                <td>Jena Gaines</td>
+                                <td>Office Manager</td>
+                                <td>London</td>
+                                <td>30</td>
+                                <td>2008/12/19</td>
+                                <td>$90,560</td>
+                              </tr>
+                              <tr>
+                                <td>Quinn Flynn</td>
+                                <td>Support Lead</td>
+                                <td>Edinburgh</td>
+                                <td>22</td>
+                                <td>2013/03/03</td>
+                                <td>$342,000</td>
+                              </tr>
+                              <tr>
+                                <td>Charde Marshall</td>
+                                <td>Regional Director</td>
+                                <td>San Francisco</td>
+                                <td>36</td>
+                                <td>2008/10/16</td>
+                                <td>$470,600</td>
+                              </tr>
+                              <tr>
+                                <td>Haley Kennedy</td>
+                                <td>Senior Marketing Designer</td>
+                                <td>London</td>
+                                <td>43</td>
+                                <td>2012/12/18</td>
+                                <td>$313,500</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!--Section: Code-->
+                  <section class="mb-4" aria-label="Code example">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div data-cnds-datatable-init data-cnds-search="false" class="datatable"&gt;
+    &lt;table&gt;
+        &lt;thead&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Name&lt;/th&gt;
+                &lt;th&gt;Position&lt;/th&gt;
+                &lt;th&gt;Office&lt;/th&gt;
+                &lt;th&gt;Age&lt;/th&gt;
+                &lt;th&gt;Start date&lt;/th&gt;
+                &lt;th&gt;Salary&lt;/th&gt;
+            &lt;/tr&gt;
+        &lt;/thead&gt;
+        &lt;tbody&gt;
+            &lt;tr&gt;
+                &lt;td&gt;Tiger Nixon&lt;/td&gt;
+                &lt;td&gt;System Architect&lt;/td&gt;
+                &lt;td&gt;Edinburgh&lt;/td&gt;
+                &lt;td&gt;61&lt;/td&gt;
+                &lt;td&gt;2011/04/25&lt;/td&gt;
+                &lt;td&gt;$320,800&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;td&gt;Garrett Winters&lt;/td&gt;
+                &lt;td&gt;Accountant&lt;/td&gt;
+                &lt;td&gt;Tokyo&lt;/td&gt;
+                &lt;td&gt;63&lt;/td&gt;
+                &lt;td&gt;2011/07/25&lt;/td&gt;
+                &lt;td&gt;$170,750&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;td&gt;Ashton Cox&lt;/td&gt;
+                &lt;td&gt;Junior Technical Author&lt;/td&gt;
+                &lt;td&gt;San Francisco&lt;/td&gt;
+                &lt;td&gt;66&lt;/td&gt;
+                &lt;td&gt;2009/01/12&lt;/td&gt;
+                &lt;td&gt;$86,000&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;td&gt;Cedric Kelly&lt;/td&gt;
+                &lt;td&gt;Senior Javascript Developer&lt;/td&gt;
+                &lt;td&gt;Edinburgh&lt;/td&gt;
+                &lt;td&gt;22&lt;/td&gt;
+                &lt;td&gt;2012/03/29&lt;/td&gt;
+                &lt;td&gt;$433,060&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;td&gt;Airi Satou&lt;/td&gt;
+                &lt;td&gt;Accountant&lt;/td&gt;
+                &lt;td&gt;Tokyo&lt;/td&gt;
+                &lt;td&gt;33&lt;/td&gt;
+                &lt;td&gt;2008/11/28&lt;/td&gt;
+                &lt;td&gt;$162,700&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;td&gt;Brielle Williamson&lt;/td&gt;
+                &lt;td&gt;Integration Specialist&lt;/td&gt;
+                &lt;td&gt;New York&lt;/td&gt;
+                &lt;td&gt;61&lt;/td&gt;
+                &lt;td&gt;2012/12/02&lt;/td&gt;
+                &lt;td&gt;$372,000&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;td&gt;Herrod Chandler&lt;/td&gt;
+                &lt;td&gt;Sales Assistant&lt;/td&gt;
+                &lt;td&gt;San Francisco&lt;/td&gt;
+                &lt;td&gt;59&lt;/td&gt;
+                &lt;td&gt;2012/08/06&lt;/td&gt;
+                &lt;td&gt;$137,500&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;td&gt;Rhona Davidson&lt;/td&gt;
+                &lt;td&gt;Integration Specialist&lt;/td&gt;
+                &lt;td&gt;Tokyo&lt;/td&gt;
+                &lt;td&gt;55&lt;/td&gt;
+                &lt;td&gt;2010/10/14&lt;/td&gt;
+                &lt;td&gt;$327,900&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;td&gt;Colleen Hurst&lt;/td&gt;
+                &lt;td&gt;Javascript Developer&lt;/td&gt;
+                &lt;td&gt;San Francisco&lt;/td&gt;
+                &lt;td&gt;39&lt;/td&gt;
+                &lt;td&gt;2009/09/15&lt;/td&gt;
+                &lt;td&gt;$205,500&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;td&gt;Sonya Frost&lt;/td&gt;
+                &lt;td&gt;Software Engineer&lt;/td&gt;
+                &lt;td&gt;Edinburgh&lt;/td&gt;
+                &lt;td&gt;23&lt;/td&gt;
+                &lt;td&gt;2008/12/13&lt;/td&gt;
+                &lt;td&gt;$103,600&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;td&gt;Jena Gaines&lt;/td&gt;
+                &lt;td&gt;Office Manager&lt;/td&gt;
+                &lt;td&gt;London&lt;/td&gt;
+                &lt;td&gt;30&lt;/td&gt;
+                &lt;td&gt;2008/12/19&lt;/td&gt;
+                &lt;td&gt;$90,560&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;td&gt;Quinn Flynn&lt;/td&gt;
+                &lt;td&gt;Support Lead&lt;/td&gt;
+                &lt;td&gt;Edinburgh&lt;/td&gt;
+                &lt;td&gt;22&lt;/td&gt;
+                &lt;td&gt;2013/03/03&lt;/td&gt;
+                &lt;td&gt;$342,000&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;td&gt;Charde Marshall&lt;/td&gt;
+                &lt;td&gt;Regional Director&lt;/td&gt;
+                &lt;td&gt;San Francisco&lt;/td&gt;
+                &lt;td&gt;36&lt;/td&gt;
+                &lt;td&gt;2008/10/16&lt;/td&gt;
+                &lt;td&gt;$470,600&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;td&gt;Haley Kennedy&lt;/td&gt;
+                &lt;td&gt;Senior Marketing Designer&lt;/td&gt;
+                &lt;td&gt;London&lt;/td&gt;
+                &lt;td&gt;43&lt;/td&gt;
+                &lt;td&gt;2012/12/18&lt;/td&gt;
+                &lt;td&gt;$313,500&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/tbody&gt;
+    &lt;/table&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--/Section: Basic example-->
+                <hr class="my-5" />
+                <!--Section: Basic data structure-->
+                <section id="section-basic-data-cnds-structure">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Basic data structure</h3>
+                  <p>
+                    Pass a plain JavaScript object with two keys: <code>columns</code> (an array of strings that
+                    become header labels) and <code>rows</code> (an array of arrays where each inner array maps to
+                    a column by index). This positional format is concise and maps directly to CSV data.
+                  </p>
+                  <!--
+                    Angular: Bind [columns]="['Name','Position',...]" and [rows]="dataArray" inputs.
+                    For CSV data, parse server-side or with a pipe and pass the resulting 2-D array to [rows].
+                  -->
+                  <!--Section: Demo-->
+                  <section class="pb-4" aria-label="Live demo">
+                    <div class="bg-body border rounded-5">
+                      <section class="w-100 p-4">
+                        <div id="datatable"></div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!-- Basic data structure demo script -->
+                  <!--Section: Code-->
+                  <section class="mb-4" aria-label="Code example">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div id="datatable"&gt;&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                  <!--Section: Code-->
+                  <section class="mb-4" aria-label="Code example">
+                    <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-js">
+const basicData = {
+  columns: ['Name', 'Position', 'Office', 'Age', 'Start date', 'Salary'],
+  rows: [
+    ["Tiger Nixon", "System Architect", "Edinburgh", "61", "2011/04/25", "$320,800"],
+    ["Garrett Winters", "Accountant", "Tokyo", "63", "2011/07/25", "$170,750"],
+    ["Ashton Cox", "Junior Technical Author", "San Francisco", "66", "2009/01/12", "$86,000"],
+    ["Cedric Kelly", "Senior Javascript Developer", "Edinburgh", "22", "2012/03/29", "$433,060"],
+    ["Airi Satou", "Accountant", "Tokyo", "33", "2008/11/28", "$162,700"],
+    ["Brielle Williamson", "Integration Specialist", "New York", "61", "2012/12/02", "$372,000"],
+    ["Herrod Chandler", "Sales Assistant", "San Francisco", "59", "2012/08/06", "$137,500"],
+    ["Rhona Davidson", "Integration Specialist", "Tokyo", "55", "2010/10/14", "$327,900"],
+    ["Colleen Hurst", "Javascript Developer", "San Francisco", "39", "2009/09/15", "$205,500"],
+    ["Sonya Frost", "Software Engineer", "Edinburgh", "23", "2008/12/13", "$103,600"],
+    ["Jena Gaines", "Office Manager", "London", "30", "2008/12/19", "$90,560"],
+    ["Quinn Flynn", "Support Lead", "Edinburgh", "22", "2013/03/03", "$342,000"],
+    ["Charde Marshall", "Regional Director", "San Francisco", "36", "2008/10/16", "$470,600"],
+    ["Haley Kennedy", "Senior Marketing Designer", "London", "43", "2012/12/18", "$313,500"]
+  ],
+  search: false,
+};
+new Nimbus.DataTable(document.getElementById('datatable'), basicData);
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--/Section: Basic data structure-->
+                <hr class="my-5" />
+                <!--Section: Advanced data structure-->
+                <section id="section-advanced-data-cnds-structure">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Advanced data structure</h3>
+                  <p>
+                    The advanced structure uses an array of column descriptor objects paired with an array of row
+                    objects, matching each cell value to a column by its <code>field</code> key. This format supports
+                    per-column configuration (sort, width, fixed-pin, custom format functions) and maps directly to
+                    JSON API responses.
+                  </p>
+                  <p class="note note-info">
+                    <strong>Note:</strong> A mixed mode is also supported: <code>columns</code> can be an array of
+                    objects while each <code>rows</code> entry is still a plain array — values are matched by
+                    column index.
+                  </p>
+                  <!--
+                    Angular: Declare typed column descriptors as a component property and bind [columns]="columnDefs".
+                    Map your API response model to row objects in ngOnInit and bind [rows]="rowData".
+                  -->
+                  <!--Section: Demo-->
+                  <section class="pb-4" aria-label="Live demo">
+                    <div class="bg-body border rounded-5">
+                      <section class="w-100 p-4">
+                        <div id="datatable2"></div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!-- Advanced data structure demo script -->
+                  <!--Section: Code-->
+                  <section class="mb-4" aria-label="Code example">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div id="datatable"&gt;&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                  <!--Section: Code-->
+                  <section class="mb-4" aria-label="Code example">
+                    <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-js">
+const advancedData = {
+  columns: [
+    { label: 'Name',       field: 'name'     },
+    { label: 'Position',   field: 'position' },
+    { label: 'Office',     field: 'office'   },
+    { label: 'Age',        field: 'age'      },
+    { label: 'Start date', field: 'date'     },
+    { label: 'Salary',     field: 'salary'   },
+  ],
+  rows: [
+    { name: "Tiger Nixon", position: "System Architect", office: "Edinburgh", age: 61, date: "2011/04/25", salary: "$320,800" },
+    { name: "Garrett Winters", position: "Accountant", office: "Tokyo", age: 63, date: "2011/07/25", salary: "$170,750" },
+    { name: "Ashton Cox", position: "Junior Technical Author", office: "San Francisco", age: 66, date: "2009/01/12", salary: "$86,000" },
+    { name: "Cedric Kelly", position: "Senior Javascript Developer", office: "Edinburgh", age: 22, date: "2012/03/29", salary: "$433,060" },
+    { name: "Airi Satou", position: "Accountant", office: "Tokyo", age: 33, date: "2008/11/28", salary: "$162,700" },
+    { name: "Brielle Williamson", position: "Integration Specialist", office: "New York", age: 61, date: "2012/12/02", salary: "$372,000" },
+    { name: "Herrod Chandler", position: "Sales Assistant", office: "San Francisco", age: 59, date: "2012/08/06", salary: "$137,500" },
+    { name: "Rhona Davidson", position: "Integration Specialist", office: "Tokyo", age: 55, date: "2010/10/14", salary: "$327,900" },
+    { name: "Colleen Hurst", position: "Javascript Developer", office: "San Francisco", age: 39, date: "2009/09/15", salary: "$205,500" },
+    { name: "Sonya Frost", position: "Software Engineer", office: "Edinburgh", age: 23, date: "2008/12/13", salary: "$103,600" },
+    { name: "Jena Gaines", position: "Office Manager", office: "London", age: 30, date: "2008/12/19", salary: "$90,560" },
+    { name: "Quinn Flynn", position: "Support Lead", office: "Edinburgh", age: 22, date: "2013/03/03", salary: "$342,000" },
+    { name: "Charde Marshall", position: "Regional Director", office: "San Francisco", age: 36, date: "2008/10/16", salary: "$470,600" },
+    { name: "Haley Kennedy", position: "Senior Marketing Designer", office: "London", age: 43, date: "2012/12/18", salary: "$313,500" }
+  ],
+  search: false,
+};
+new Nimbus.DataTable(document.getElementById('datatable'), advancedData);
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--/Section: Advanced data structure-->
+                <hr class="my-5" />
+                <!--Section: Search -->
+                <section id="section-search">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Search</h3>
+                  <p>
+                    The search field is external to the DataTable. Place any <code>&lt;input&gt;</code> on the
+                    page, listen for the <code>input</code> event, and call the <code>.search(phrase)</code>
+                    method on the DataTable instance to filter visible rows in real time. Search is
+                    case-insensitive and matches across all columns by default.
+                  </p>
+                  <!--
+                    Angular: Bind a template variable to the input: <input #searchInput (input)="dt.search(searchInput.value)" />.
+                    The NimbusDatatable component exposes a search() method through a @ViewChild reference.
+                  -->
+                  <!--Section: Demo-->
+                  <section class="pb-4" aria-label="Live demo">
+                    <div class="bg-body border rounded-5">
+                      <section class="w-100 p-4">
+                        <div class="cf-input-field cf-input-field-casefusion cf-input-field-sm mb-2">
+                          <div class="cf-input-wrapper">
+                            <input
+                              type="text"
+                              class="cf-input-control"
+                              id="datatable-search-input"
+                              placeholder="Search ..."
+                            />
+                            <i class="cf-input-icon mdi mdi-magnify" aria-hidden="true"></i>
+                          </div>
+                        </div>
+                        <div id="datatable3"></div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!-- Search demo script -->
+                  <!--Section: Code-->
+                  <section class="mb-4" aria-label="Code example">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div class="cf-input-field cf-input-field-casefusion cf-input-field-sm"&gt;
+    &lt;div class="cf-input-wrapper"&gt;
+        &lt;input type="text" class="cf-input-control" id="datatable-search-input" placeholder="Search ..." /&gt;
+        &lt;i class="cf-input-icon mdi mdi-magnify"&gt;&lt;/i&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="datatable"&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                  <!--Section: Code-->
+                  <section class="mb-4" aria-label="Code example">
+                    <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-js">
+const data = {
+  columns: [
+    {
+      label: 'Name',
+      field: 'name'
+    },
+    'Position',
+    'Office',
+    'Age',
+    'Start date',
+    'Salary',
+  ],
+  rows: [
+    ["Tiger Nixon", "System Architect", "Edinburgh", "61", "2011/04/25", "$320,800"],
+    ["Garrett Winters", "Accountant", "Tokyo", "63", "2011/07/25", "$170,750"],
+    ["Ashton Cox", "Junior Technical Author", "San Francisco", "66", "2009/01/12", "$86,000"],
+    ["Cedric Kelly", "Senior Javascript Developer", "Edinburgh", "22", "2012/03/29", "$433,060"],
+    ["Airi Satou", "Accountant", "Tokyo", "33", "2008/11/28", "$162,700"],
+    ["Brielle Williamson", "Integration Specialist", "New York", "61", "2012/12/02", "$372,000"],
+    ["Herrod Chandler", "Sales Assistant", "San Francisco", "59", "2012/08/06", "$137,500"],
+    ["Rhona Davidson", "Integration Specialist", "Tokyo", "55", "2010/10/14", "$327,900"],
+    ["Colleen Hurst", "Javascript Developer", "San Francisco", "39", "2009/09/15", "$205,500"],
+    ["Sonya Frost", "Software Engineer", "Edinburgh", "23", "2008/12/13", "$103,600"],
+    ["Jena Gaines", "Office Manager", "London", "30", "2008/12/19", "$90,560"],
+    ["Quinn Flynn", "Support Lead", "Edinburgh", "22", "2013/03/03", "$342,000"],
+    ["Charde Marshall", "Regional Director", "San Francisco", "36", "2008/10/16", "$470,600"],
+    ["Haley Kennedy", "Senior Marketing Designer", "London", "43", "2012/12/18", "$313,500"]
+  ],
+  search: false,
+};
+const instance = new Nimbus.DataTable(document.getElementById('datatable'), data);
+document.getElementById('datatable-search-input').addEventListener('input', (e) => {
+  instance.search(e.target.value);
+});
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--/Section: Search -->
+                <hr class="my-5" />
+                <!--Section: Advanced Search -->
+                <section id="section-advanced-search">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Advanced search</h3>
+                  <p>
+                    Pass an optional second argument to <code>.search()</code> to restrict matching to one or more
+                    specific columns by field name. The example below parses a query in the format
+                    <code>phrase in:column1,column2</code>, letting users scope their search without code changes.
+                    Omitting the column filter searches all columns.
+                  </p>
+                  <!--
+                    Angular: Parse the query string in a component method, then call this.dtRef.search(phrase, columns).
+                    Bind the search button's (click) and the input's (keydown.enter) to the same handler.
+                  -->
+                  <!--Section: Demo-->
+                  <section class="pb-4" aria-label="Live demo">
+                    <div class="bg-body border rounded-5">
+                      <section class="w-100 p-4">
+                        <div class="cf-input-field cf-input-field-casefusion cf-input-field-sm mb-2">
+                          <div class="cf-input-wrapper">
+                            <div class="input-group">
+                              <input
+                                type="text"
+                                class="cf-input-control"
+                                id="advanced-search-input"
+                                placeholder="phrase in:column1,column2"
+                              />
+                              <button
+                                class="btn btn-primary btn-sm"
+                                id="advanced-search-button"
+                                type="button"
+                                aria-label="Search"
+                              >
+                                <i class="mdi mdi-magnify mdi-18px" aria-hidden="true"></i>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                        <div id="datatable4"></div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!-- Advanced search demo script -->
+                  <!--Section: Code-->
+                  <section class="mb-4" aria-label="Code example">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div class="cf-input-field cf-input-field-casefusion cf-input-field-sm"&gt;
+    &lt;div class="cf-input-wrapper"&gt;
+        &lt;div class="input-group"&gt;
+            &lt;input type="text" class="cf-input-control" id="advanced-search-input" placeholder="phrase in:column1,column2" /&gt;
+            &lt;button class="btn btn-primary btn-sm" id="advanced-search-button" type="button"&gt;
+                &lt;i class="mdi mdi-magnify mdi-18px"&gt;&lt;/i&gt;
+            &lt;/button&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="datatable"&gt;&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                  <!--Section: Code-->
+                  <section class="mb-4" aria-label="Code example">
+                    <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-js">
+const data = {
+  columns: [
+    {
+      label: 'Name',
+      field: 'name'
+    },
+    'Position',
+    'Office',
+    'Age',
+    'Start date',
+    'Salary',
+  ],
+  rows: [
+    ["Tiger Nixon", "System Architect", "Edinburgh", "61", "2011/04/25", "$320,800"],
+    ["Garrett Winters", "Accountant", "Tokyo", "63", "2011/07/25", "$170,750"],
+    ["Ashton Cox", "Junior Technical Author", "San Francisco", "66", "2009/01/12", "$86,000"],
+    ["Cedric Kelly", "Senior Javascript Developer", "Edinburgh", "22", "2012/03/29", "$433,060"],
+    ["Airi Satou", "Accountant", "Tokyo", "33", "2008/11/28", "$162,700"],
+    ["Brielle Williamson", "Integration Specialist", "New York", "61", "2012/12/02", "$372,000"],
+    ["Herrod Chandler", "Sales Assistant", "San Francisco", "59", "2012/08/06", "$137,500"],
+    ["Rhona Davidson", "Integration Specialist", "Tokyo", "55", "2010/10/14", "$327,900"],
+    ["Colleen Hurst", "Javascript Developer", "San Francisco", "39", "2009/09/15", "$205,500"],
+    ["Sonya Frost", "Software Engineer", "Edinburgh", "23", "2008/12/13", "$103,600"],
+    ["Jena Gaines", "Office Manager", "London", "30", "2008/12/19", "$90,560"],
+    ["Quinn Flynn", "Support Lead", "Edinburgh", "22", "2013/03/03", "$342,000"],
+    ["Charde Marshall", "Regional Director", "San Francisco", "36", "2008/10/16", "$470,600"],
+    ["Haley Kennedy", "Senior Marketing Designer", "London", "43", "2012/12/18", "$313,500"]
+  ],
+  search: false,
+};
+const instance = new Nimbus.DataTable(document.getElementById('datatable'), data);
+const advancedSearchInput = document.getElementById('advanced-search-input');
+const search = (value) => {
+  let [phrase, columns] = value.split(' in:').map((str) => str.trim());
+  if (columns) {
+    columns = columns.split(',').map((str) => str.toLowerCase().trim());
+  }
+  instance.search(phrase, columns);
+}
+document.getElementById('advanced-search-button').addEventListener('click', (e) => {
+  search(advancedSearchInput.value)
+});
+advancedSearchInput.addEventListener('keydown', (e) => {
+  if (e.keyCode === 13) {
+    search(e.target.value);
+  }
+})
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--/Section: Advancec Search -->
+                <hr class="my-5" />
+                <!--Section: Multi -->
+                <section id="section-multi">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Selectable rows</h3>
+                  <p>
+                    Set <code>data-cnds-selectable="true"</code> to add a checkbox to each row.
+                    Add <code>data-cnds-multi="true"</code> to allow multi-row selection and add a
+                    select-all checkbox in the header. Listen for the <code>rowSelected.cnds.datatable</code>
+                    event to react to selection changes — the event carries <code>selectedRows</code>,
+                    <code>selectedIndexes</code>, and <code>allSelected</code> properties.
+                  </p>
+                  <!--
+                    Angular: Set [selectable]="true" and [multi]="true" inputs. Bind (rowSelected)="onRowSelected($event)"
+                    to receive the event payload: { selectedRows, selectedIndexes, allSelected }.
+                  -->
+                  <!--Section: Demo-->
+                  <section class="pb-4" aria-label="Live demo">
+                    <div class="bg-body border rounded-5">
+                      <section class="w-100 p-4">
+                        <div
+                          id="datatable5"
+                          data-cnds-selectable="true"
+                          data-cnds-multi="true"
+                        ></div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!-- Selectable rows demo script -->
+                  <!--Section: Code-->
+                  <section class="mb-4" aria-label="Code example">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div id="datatable" data-cnds-selectable="true" data-cnds-multi="true"&gt;&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                  <!--Section: Code-->
+                  <section class="mb-4" aria-label="Code example">
+                    <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-js">
+const basicData = {
+  columns: ['Name', 'Position', 'Office', 'Age', 'Start date', 'Salary'],
+  rows: [
+    ["Tiger Nixon", "System Architect", "Edinburgh", "61", "2011/04/25", "$320,800"],
+    ["Garrett Winters", "Accountant", "Tokyo", "63", "2011/07/25", "$170,750"],
+    ["Ashton Cox", "Junior Technical Author", "San Francisco", "66", "2009/01/12", "$86,000"],
+    ["Cedric Kelly", "Senior Javascript Developer", "Edinburgh", "22", "2012/03/29", "$433,060"],
+    ["Airi Satou", "Accountant", "Tokyo", "33", "2008/11/28", "$162,700"],
+    ["Brielle Williamson", "Integration Specialist", "New York", "61", "2012/12/02", "$372,000"],
+    ["Herrod Chandler", "Sales Assistant", "San Francisco", "59", "2012/08/06", "$137,500"],
+    ["Rhona Davidson", "Integration Specialist", "Tokyo", "55", "2010/10/14", "$327,900"],
+    ["Colleen Hurst", "Javascript Developer", "San Francisco", "39", "2009/09/15", "$205,500"],
+    ["Sonya Frost", "Software Engineer", "Edinburgh", "23", "2008/12/13", "$103,600"],
+    ["Jena Gaines", "Office Manager", "London", "30", "2008/12/19", "$90,560"],
+    ["Quinn Flynn", "Support Lead", "Edinburgh", "22", "2013/03/03", "$342,000"],
+    ["Charde Marshall", "Regional Director", "San Francisco", "36", "2008/10/16", "$470,600"],
+    ["Haley Kennedy", "Senior Marketing Designer", "London", "43", "2012/12/18", "$313,500"]
+  ],
+  search: false,
+};
+const datatable = document.getElementById('datatable');
+new Nimbus.DataTable(datatable, basicData);
+datatable.addEventListener('rowSelected.cnds.datatable', (e) => {
+  console.log(e.selectedRows, e.selectedIndexes, e.allSelected);
+});
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--/Section: Multi -->
+                <hr class="my-5" />
+                <!--Section: Scroll -->
+                <section id="section-scroll">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Scroll</h3>
+                  <p>
+                    Set <code>data-cnds-max-height</code> and/or <code>data-cnds-max-width</code> (in pixels) to
+                    constrain the table viewport and activate scrolling. When both are set, the table scrolls
+                    vertically and horizontally within those bounds.
+                  </p>
+                  <!--
+                    Angular: Pass [options]="{ maxHeight: 520, maxWidth: 520 }" to set scroll constraints.
+                    Alternatively bind [maxHeight] and [maxWidth] as direct inputs if the component exposes them.
+                  -->
+                  <!--Section: Demo-->
+                  <section class="pb-4" aria-label="Live demo">
+                    <div class="bg-body border rounded-5">
+                      <section class="w-100 p-4">
+                        <div
+                          id="datatable6"
+                          data-cnds-max-height="520"
+                          data-cnds-max-width="520"
+                          data-cnds-search="false"
+                          style="width: 520px; margin: 0 auto;"
+                        ></div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!-- Scroll demo script -->
+                  <!--Section: Code-->
+                  <section class="mb-4" aria-label="Code example">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div id="datatable" data-cnds-max-height="520" data-cnds-max-width="520" data-cnds-search="false"&gt;&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                  <!--Section: Code-->
+                  <section class="mb-4" aria-label="Code example">
+                    <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-js">
+const basicData = {
+  columns: ['Name', 'Position', 'Office', 'Age', 'Start date', 'Salary'],
+  rows: [
+    ["Tiger Nixon", "System Architect", "Edinburgh", "61", "2011/04/25", "$320,800"],
+    ["Garrett Winters", "Accountant", "Tokyo", "63", "2011/07/25", "$170,750"],
+    ["Ashton Cox", "Junior Technical Author", "San Francisco", "66", "2009/01/12", "$86,000"],
+    ["Cedric Kelly", "Senior Javascript Developer", "Edinburgh", "22", "2012/03/29", "$433,060"],
+    ["Airi Satou", "Accountant", "Tokyo", "33", "2008/11/28", "$162,700"],
+    ["Brielle Williamson", "Integration Specialist", "New York", "61", "2012/12/02", "$372,000"],
+    ["Herrod Chandler", "Sales Assistant", "San Francisco", "59", "2012/08/06", "$137,500"],
+    ["Rhona Davidson", "Integration Specialist", "Tokyo", "55", "2010/10/14", "$327,900"],
+    ["Colleen Hurst", "Javascript Developer", "San Francisco", "39", "2009/09/15", "$205,500"],
+    ["Sonya Frost", "Software Engineer", "Edinburgh", "23", "2008/12/13", "$103,600"],
+    ["Jena Gaines", "Office Manager", "London", "30", "2008/12/19", "$90,560"],
+    ["Quinn Flynn", "Support Lead", "Edinburgh", "22", "2013/03/03", "$342,000"],
+    ["Charde Marshall", "Regional Director", "San Francisco", "36", "2008/10/16", "$470,600"],
+    ["Haley Kennedy", "Senior Marketing Designer", "London", "43", "2012/12/18", "$313,500"]
+  ],
+  search: false,
+};
+const datatable = document.getElementById('datatable');
+new Nimbus.DataTable(datatable, basicData);
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--/Section: Scroll -->
+                <hr class="my-5" />
+                <!--Section: Fixed -->
+                <section id="section-fixed">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Fixed header</h3>
+                  <p>
+                    Setting <code>data-cnds-fixed-header="true"</code> (or <code>fixedHeader: true</code> in the
+                    options object) pins the header row so it remains visible while scrolling through long data
+                    sets. A <code>maxHeight</code> constraint must also be defined for this option to have effect.
+                  </p>
+                  <!--
+                    Angular: Pass [options]="{ fixedHeader: true, maxHeight: 460 }". The component will pin
+                    the header automatically once the scroll container is constrained by maxHeight.
+                  -->
+                  <!--Section: Demo-->
+                  <section class="pb-4" aria-label="Live demo">
+                    <div class="bg-body border rounded-5">
+                      <section class="w-100 p-4">
+                        <div
+                          id="datatable7"
+                          data-cnds-max-height="460"
+                          data-cnds-fixed-header="true"
+                          data-cnds-search="false"
+                        ></div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!-- Fixed header demo script -->
+                  <!--Section: Code-->
+                  <section class="mb-4" aria-label="Code example">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div id="datatable" data-cnds-max-height="460" data-cnds-fixed-header="true" data-cnds-search="false"&gt;&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                  <!--Section: Code-->
+                  <section class="mb-4" aria-label="Code example">
+                    <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-js">
+const basicData = {
+  columns: ['Name', 'Position', 'Office', 'Age', 'Start date', 'Salary'],
+  rows: [
+    ["Tiger Nixon", "System Architect", "Edinburgh", "61", "2011/04/25", "$320,800"],
+    ["Garrett Winters", "Accountant", "Tokyo", "63", "2011/07/25", "$170,750"],
+    ["Ashton Cox", "Junior Technical Author", "San Francisco", "66", "2009/01/12", "$86,000"],
+    ["Cedric Kelly", "Senior Javascript Developer", "Edinburgh", "22", "2012/03/29", "$433,060"],
+    ["Airi Satou", "Accountant", "Tokyo", "33", "2008/11/28", "$162,700"],
+    ["Brielle Williamson", "Integration Specialist", "New York", "61", "2012/12/02", "$372,000"],
+    ["Herrod Chandler", "Sales Assistant", "San Francisco", "59", "2012/08/06", "$137,500"],
+    ["Rhona Davidson", "Integration Specialist", "Tokyo", "55", "2010/10/14", "$327,900"],
+    ["Colleen Hurst", "Javascript Developer", "San Francisco", "39", "2009/09/15", "$205,500"],
+    ["Sonya Frost", "Software Engineer", "Edinburgh", "23", "2008/12/13", "$103,600"],
+    ["Jena Gaines", "Office Manager", "London", "30", "2008/12/19", "$90,560"],
+    ["Quinn Flynn", "Support Lead", "Edinburgh", "22", "2013/03/03", "$342,000"],
+    ["Charde Marshall", "Regional Director", "San Francisco", "36", "2008/10/16", "$470,600"],
+    ["Haley Kennedy", "Senior Marketing Designer", "London", "43", "2012/12/18", "$313,500"]
+  ],
+  search: false,
+};
+const datatable = document.getElementById('datatable');
+new Nimbus.DataTable(datatable, basicData);
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--/Section: Fixed -->
+                <hr class="my-5" />
+                <!--Section: Fixed columns -->
+                <section id="section-fixed-columns">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Fixed columns</h3>
+                  <p>
+                    Pin individual columns to the left or right edge by setting <code>fixed: true</code> (left) or
+                    <code>fixed: 'right'</code> on the column descriptor, alongside a <code>width</code> value in
+                    pixels. For HTML-markup tables, use <code>data-cnds-fixed</code> and <code>data-cnds-width</code>
+                    on <code>&lt;th&gt;</code> elements. When combining fixed columns with vertical scrolling,
+                    <code>fixedHeader</code> must also be enabled.
+                  </p>
+                  <p class="note note-warning">
+                    Using fixed columns in a vertically scrollable table,
+                    requires setting an option
+                    <code>fixedHeader</code> to <code>true</code> as well.
+                  </p>
+                  <p class="note note-info">
+                    When using a HTML markup instead of a data structure you can
+                    still use this feature by setting
+                    <code>data-cnds-width</code> and
+                    <code>data-cnds-fixed</code> attributes on your th tags.
+                  </p>
+                  <!--
+                    Angular: Include { fixed: true, width: 200 } or { fixed: 'right', width: 200 } in each
+                    column descriptor object. Pass [options]="{ fixedHeader: true, maxHeight: 460, maxWidth: 950 }".
+                  -->
+                  <!--Section: Demo-->
+                  <section class="pb-4" aria-label="Live demo">
+                    <div class="bg-body border rounded-5">
+                      <section class="p-4" style="width: 975px; margin: 0 auto;">
+                        <div
+                          id="datatable8"
+                          data-cnds-max-height="460"
+                          data-cnds-max-width="950"
+                          data-cnds-fixed-header="true"
+                        ></div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!-- Fixed columns demo script -->
+                  <!--Section: Code-->
+                  <section class="mb-4" aria-label="Code example">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div id="datatable" data-cnds-max-height="460" data-cnds-max-width="950" data-cnds-fixed-header="true"&gt;&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                  <!--Section: Code-->
+                  <section class="mb-4" aria-label="Code example">
+                    <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-js">
+const basicData = {
+  columns: [
+    { label: 'Name',       field: 'name',     width: 200, fixed: true    },
+    { label: 'Position',   field: 'position', width: 200                 },
+    { label: 'Office',     field: 'office',   width: 200, fixed: true    },
+    { label: 'Age',        field: 'age',      width: 200                 },
+    { label: 'Start date', field: 'date',     width: 200                 },
+    { label: 'Salary',     field: 'salary',   width: 200, fixed: 'right' },
+  ],
+  rows: [
+    ["Tiger Nixon", "System Architect", "Edinburgh", "61", "2011/04/25", "$320,800"],
+    ["Garrett Winters", "Accountant", "Tokyo", "63", "2011/07/25", "$170,750"],
+    ["Ashton Cox", "Junior Technical Author", "San Francisco", "66", "2009/01/12", "$86,000"],
+    ["Cedric Kelly", "Senior Javascript Developer", "Edinburgh", "22", "2012/03/29", "$433,060"],
+    ["Airi Satou", "Accountant", "Tokyo", "33", "2008/11/28", "$162,700"],
+    ["Brielle Williamson", "Integration Specialist", "New York", "61", "2012/12/02", "$372,000"],
+    ["Herrod Chandler", "Sales Assistant", "San Francisco", "59", "2012/08/06", "$137,500"],
+    ["Rhona Davidson", "Integration Specialist", "Tokyo", "55", "2010/10/14", "$327,900"],
+    ["Colleen Hurst", "Javascript Developer", "San Francisco", "39", "2009/09/15", "$205,500"],
+    ["Sonya Frost", "Software Engineer", "Edinburgh", "23", "2008/12/13", "$103,600"],
+    ["Jena Gaines", "Office Manager", "London", "30", "2008/12/19", "$90,560"],
+    ["Quinn Flynn", "Support Lead", "Edinburgh", "22", "2013/03/03", "$342,000"],
+    ["Charde Marshall", "Regional Director", "San Francisco", "36", "2008/10/16", "$470,600"],
+    ["Haley Kennedy", "Senior Marketing Designer", "London", "43", "2012/12/18", "$313,500"]
+  ],
+  search: false,
+};
+const datatable = document.getElementById('datatable');
+new Nimbus.DataTable(datatable, basicData);
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--/Section: Fixed columns -->
+                <hr class="my-5" />
+                <!--Section: Async data -->
+                <section id="section-async-data">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Async data</h3>
+                  <p>
+                    Initialise the DataTable with <code>loading: true</code> to disable interactions and display a
+                    spinner while data is being fetched. Once the data is ready, call <code>.update(data, options)</code>
+                    to populate the table and clear the loading state. The example below fetches user records from
+                    a public JSON API; click <strong>Reload data</strong> to repeat the fetch.
+                  </p>
+                  <button class="btn btn-primary mb-4" id="reload-button" aria-label="Reload data">
+                    Reload data <i class="mdi mdi-refresh mdi-18px ms-2" aria-hidden="true"></i>
+                  </button>
+                  <!--
+                    Angular: In ngOnInit, inject HttpClient and set [options]="{ loading: true }". After the
+                    Observable resolves, call dtRef.update(rows, { loading: false }). Wire the reload button
+                    to (click)="loadData()".
+                  -->
+                  <!--Section: Demo-->
+                  <section class="pb-4" aria-label="Live demo">
+                    <div class="bg-body border rounded-5">
+                      <section class="w-100 p-4">
+                        <div id="datatable9"></div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--/Section: Demo-->
+                  <!-- Async data demo script -->
+                  <!--Section: Code-->
+                  <section class="mb-4" aria-label="Code example">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div id="datatable" data-cnds-loading="true"&gt;&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                  <!--Section: Code-->
+                  <section class="mb-4" aria-label="Code example">
+                    <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-js">
+var columns = [
+  { label: 'Name', field: 'name' },
+  { label: 'Username', field: 'username' },
+  { label: 'Email', field: 'email' },
+  { label: 'Company', field: 'company' },
+  { label: 'Website', field: 'website' },
+];
+var asyncTable = new Nimbus.DataTable(
+  document.getElementById('datatable'),
+  { columns: columns, search: false },
+  { loading: true }
+);
+function loadData() {
+  asyncTable.update({}, { loading: true });
+  fetch('https://jsonplaceholder.typicode.com/users')
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      asyncTable.update(
+        { rows: data.map(function (u) { return { name: u.name, username: u.username, email: u.email, company: u.company.name, website: u.website }; }) },
+        { loading: false }
+      );
+    });
+}
+loadData();
+document.getElementById('reload-button').addEventListener('click', loadData);
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--/Section: Async data -->
+                <hr class="my-5" />
+                <!--Section: Action buttons-->
+                <section id="section-action-btns">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Action buttons</h3>
+                  <p>
+                    Render interactive content — such as action buttons — inside cells by including HTML strings
+                    in the row data. Because the DataTable re-renders rows on sort, search, and pagination, you
+                    must re-attach event listeners each time the <code>render.cnds.datatable</code> event fires,
+                    rather than binding once on initialisation.
+                  </p>
+                  <!--
+                    Angular: Use a column [cellTemplate] input to render an ng-template with action buttons.
+                    Use (click) bindings inside the template — no re-attachment is needed because Angular
+                    handles re-rendering automatically via change detection.
+                  -->
+                  <!--Section: Demo-->
+                  <section class="pb-4" aria-label="Live demo">
+                    <div class="bg-body border rounded-5">
+                      <section class="w-100 p-4">
+                        <div id="datatable-custom"></div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!-- Action buttons demo script -->
+                  <!--Section: Code-->
+                  <section class="mb-4" aria-label="Code example">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div id="datatable-custom"&gt;&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                  <!--Section: Code-->
+                  <section class="mb-4" aria-label="Code example">
+                    <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-js">
+const customDatatable = document.getElementById('datatable-custom');
+const setActions = () =&gt; {
+  Array.from(document.getElementsByClassName('call-btn')).forEach(btn =&gt; {
+    btn.addEventListener('click', () =&gt; {
+      console.log(`call ${btn.attributes['data-cnds-number'].value}`)
+    })
+  })
+  Array.from(document.getElementsByClassName('message-btn')).forEach(btn =&gt; {
+    btn.addEventListener('click', () =&gt; {
+      console.log(`send a message to ${btn.attributes['data-cnds-email'].value}`)
+    })
+  })
+}
+customDatatable.addEventListener('render.cnds.datatable', setActions);
+new Nimbus.DataTable(customDatatable, {
+  columns: [
+    { label: 'Name', field: 'name' },
+    { label: 'Position', field: 'position' },
+    { label: 'Office', field: 'office' },
+    { label: 'Contact', field: 'contact', sort: false },
+  ],
+  rows: [
+    {
+      name: 'Tiger Nixon',
+      position: 'System Architect',
+      office: 'Edinburgh',
+      phone: '+48000000000',
+      email: 'tiger.nixon@gmail.com'
+    },
+    {
+      name: 'Sonya Frost',
+      position: 'Software Engineer',
+      office: 'Edinburgh',
+      phone: '+53456123456',
+      email: 'sfrost@gmail.com'
+    },
+    {
+      name: 'Tatyana Fitzpatrick',
+      position: 'Regional Director',
+      office: 'London',
+      phone: '+42123432456',
+      email: 'tfitz@gmail.com'
+    },
+  ].map((row) =&gt; {
+    return {
+      ...row,
+      contact: `
+      &lt;button class="call-btn btn btn-tertiary btn-sm" data-cnds-number="${row.phone}"&gt;&lt;i class="mdi mdi-phone mdi-18px" aria-hidden="true"&gt;&lt;/i&gt;&lt;/button&gt;
+      &lt;button class="message-btn btn ms-2 btn-tertiary btn-sm" data-cnds-email="${row.email}"&gt;&lt;i class="mdi mdi-email mdi-18px" aria-hidden="true"&gt;&lt;/i&gt;&lt;/button&gt;`,
+    };
+  }),
+  search: false,
+}, { hover: true });
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--/Section: Action buttons-->
+                <hr class="my-5" />
+                <!--Section: Cell formatting-->
+                <section id="section-cell-format">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Cell formatting</h3>
+                  <p>
+                    The <code>format(cell, value)</code> column option receives the rendered DOM cell element
+                    and its raw value for every row. Use it to apply conditional styles, classes, or markup
+                    based on the cell's data — for example, a color scale derived from numeric ranges.
+                  </p>
+                  <!--
+                    Angular: Pass a format function in the column descriptor: { label: 'Purchases', field: 'purchases',
+                    format: (cell, value) => { cell.style.backgroundColor = getColor(value); } }. The function
+                    runs after each render cycle, identical to the vanilla JS behaviour.
+                  -->
+                  <!--Section: Demo-->
+                  <section class="pb-4" aria-label="Live demo">
+                    <div class="bg-body border rounded-5">
+                      <section class="w-100 p-4">
+                        <div
+                          id="datatable-cell-format"
+                          data-cnds-sort-field="purchases"
+                          data-cnds-sort-order="desc"
+                        ></div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!-- Cell formatting demo script -->
+                  <!--Section: Code-->
+                  <section class="mb-4" aria-label="Code example">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div id="datatable-cell-format" data-cnds-sort-field="purchases" data-cnds-sort-order="desc"&gt;&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                  <!--Section: Code-->
+                  <section class="mb-4" aria-label="Code example">
+                    <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-js">
+const rows = [
+  ['Product 1', 10, 103],
+  ['Product 2', 45, 110],
+  ['Product 3', 76, 56],
+  ['Product 4', 89, 230],
+  ['Product 5', 104, 240],
+  ['Product 6', 97, 187],
+  ['Product 7', 167, 130],
+  ['Product 8', 50, 199],
+  ['Product 9', 4, 206],
+  ['Product 10', 120, 88],
+  ['Product 11', 22, 100],
+];
+const maxValue = Math.max(...rows.map((row) => row[2]));
+const minValue = Math.min(...rows.map((row) => row[2]));
+const colors = ['#E3F2FD', '#BBDEFB', '#90CAF9', '#64B5F6', '#42A5F5'];
+const step = (maxValue - minValue) / (colors.length - 1);
+const formatCell = (cell, value) => {
+  const colorIndex = Math.floor((value - minValue) / step);
+  cell.style.backgroundColor = colors[colorIndex];
+  cell.style.fontWeight = 400;
+};
+const columns = [
+  { label: 'Product', field: 'product' },
+  { label: 'Quantity', field: 'quantity' },
+  { label: 'Purchases', field: 'purchases', format: formatCell },
+];
+const datatableInstance = new Nimbus.DataTable(
+  document.getElementById('datatable-cell-format'),
+  { rows, columns, search: false }
+);
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--/Section: Cell formatting-->
+                <hr class="my-5" />
+                <!--Section: Clickable rows-->
+                <section id="section-clickable-rows">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Clickable rows</h3>
+                  <p>
+                    Set <code>data-cnds-clickable-rows="true"</code> to fire a <code>rowClicked.cnds.datatable</code>
+                    event when the user clicks anywhere on a row. The event carries an <code>index</code> property
+                    identifying the clicked row.
+                  </p>
+                  <p class="note note-info">
+                    <strong>Note:</strong> Call <code>event.stopPropagation()</code> inside any nested interactive
+                    element (buttons, links) to prevent unintended row-click triggers.
+                  </p>
+                  <p class="note note-warning">
+                    <strong>Note:</strong> Clickable rows cannot be used simultaneously with the <code>edit</code>
+                    option.
+                  </p>
+                  <!--
+                    Angular: Set [clickableRows]="true" and bind (rowClicked)="onRowClicked($event)". Access
+                    the row data via event.index into your rows array. To prevent click propagation inside
+                    nested elements, call $event.stopPropagation() in the nested element's (click) binding.
+                  -->
+                  <!--Section: Demo-->
+                  <section class="pb-4" aria-label="Live demo">
+                    <div class="bg-body border rounded-5">
+                      <section class="w-100 p-4">
+                        <div
+                          id="datatable-clickable-rows"
+                          data-cnds-clickable-rows="true"
+                        ></div>
+                        <!-- Modal: row preview -->
+                        <div class="modal fade" tabindex="-1" aria-hidden="true" id="modal-clickable-rows"
+                             role="dialog" aria-labelledby="modal-header-clickable-rows">
+                          <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title" id="modal-header-clickable-rows"></h5>
+                                <button type="button" class="btn-close" data-cnds-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body mt-4 mb-5" id="modal-body-clickable-rows"></div>
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-primary">
+                                  Reply <i class="mdi mdi-send mdi-18px ms-2" aria-hidden="true"></i>
+                                </button>
+                                <button type="button" class="btn btn-outline-primary">
+                                  Forward <i class="mdi mdi-arrow-right mdi-18px ms-2" aria-hidden="true"></i>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--Section: Demo-->
+                  <!-- Clickable rows demo script -->
+                  <!--Section: Code-->
+                  <section class="mb-4" aria-label="Code example">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-html">
+&lt;div id="datatable-clickable-rows" data-cnds-clickable-rows="true"&gt;&lt;/div&gt;
+&lt;!-- Modal: row preview --&gt;
+&lt;div class="modal fade" tabindex="-1" aria-hidden="true" id="modal-clickable-rows"
+     role="dialog" aria-labelledby="modal-header-clickable-rows"&gt;
+    &lt;div class="modal-dialog modal-lg"&gt;
+        &lt;div class="modal-content"&gt;
+            &lt;div class="modal-header"&gt;
+                &lt;h5 class="modal-title" id="modal-header-clickable-rows"&gt;&lt;/h5&gt;
+                &lt;button type="button" class="btn-close" data-cnds-dismiss="modal" aria-label="Close"&gt;&lt;/button&gt;
+            &lt;/div&gt;
+            &lt;div class="modal-body mt-4 mb-5" id="modal-body-clickable-rows"&gt;&lt;/div&gt;
+            &lt;div class="modal-footer"&gt;
+                &lt;button type="button" class="btn btn-outline-primary"&gt;
+                    Reply &lt;i class="mdi mdi-send mdi-18px ms-2" aria-hidden="true"&gt;&lt;/i&gt;
+                &lt;/button&gt;
+                &lt;button type="button" class="btn btn-outline-primary"&gt;
+                    Forward &lt;i class="mdi mdi-arrow-right mdi-18px ms-2" aria-hidden="true"&gt;&lt;/i&gt;
+                &lt;/button&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                  <!--Section: Code-->
+                  <section class="mb-4" aria-label="Code example">
+                    <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-js">
+const table = document.getElementById('datatable-clickable-rows');
+const modal = document.getElementById('modal-clickable-rows');
+const modalBody = document.getElementById('modal-body-clickable-rows');
+const modalHeader = document.getElementById('modal-header-clickable-rows');
+const modalInstance = new Nimbus.Modal(modal);
+const columns = [
+{ label: 'From', field: 'from' },
+{ label: 'Title', field: 'title' },
+{ label: 'Message', field: 'preview', sort: false },
+{ label: 'Date', field: 'date' },
+];
+const messages = [
+{
+from: 'support@cloudficient.com',
+title: 'CaseFusion migration guide updated',
+message: 'The CaseFusion migration guide has been updated with new sections covering hybrid deployment scenarios, staged cutover strategies, and rollback procedures. Please review the updated documentation before your next engagement.',
+date: '2025/04/15',
+},
+{
+from: 'noreply@cloudficient.com',
+title: 'Scheduled maintenance window',
+message: 'A scheduled maintenance window is planned for the week of April 21. Services may be temporarily unavailable during off-peak hours. No action is required — all data is preserved and migrations in progress will resume automatically.',
+date: '2025/04/14',
+},
+{
+from: 'billing@cloudficient.com',
+title: 'Subscription renewal reminder',
+message: 'Your Cloudficient subscription is set to renew on May 1. No action is needed if your payment details are current. Contact billing@cloudficient.com to update your payment method or request a revised invoice.',
+date: '2025/04/10',
+},
+{
+from: 'support@cloudficient.com',
+title: 'New ExpireOn release — v4.2.1',
+message: 'ExpireOn v4.2.1 is now available. This release includes performance improvements for large tenant scans, a fix for the hold-policy engine edge case, and updated audit log export formats. See the release notes for full details.',
+date: '2025/04/08',
+},
+];
+const rows = messages.map((email) =&gt; ({
+  ...email,
+  preview: email.message.length &lt;= 20 ? email.message : `${email.message.slice(0, 20)}...`,
+}));
+table.addEventListener('rowClicked.cnds.datatable', (e) =&gt; {
+  const { message, title, from } = messages[e.index];
+  modalHeader.innerText = title;
+  modalBody.innerHTML = `&lt;h6 class="mb-4"&gt;From: &lt;strong&gt;${from}&lt;/strong&gt;&lt;/h6&gt;&lt;p&gt;${message}&lt;/p&gt;`;
+  modalInstance.show();
+});
+const datatableInstance = new Nimbus.DataTable(table, { columns, rows, search: false });
+                                            </code>
+                                        </pre>
+                    </div>
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--/Section: Clickable rows-->
+                <hr class="my-5" />
+                <!--Section: API content-->
+                <section id="section-api-docs">
+                  <h3 class="mb-3">API Documentation</h3>
+
+                  <!--Section: Introduction-->
+                  <section id="api-section-introduction">
+                    <h4 class="mb-4">Introduction</h4>
+                    <p class="mb-4">
+                      The Nimbus DataTable component (<code>Nimbus.DataTable</code>) is a pure JavaScript class that
+                      requires no external libraries. It accepts three arguments: the host DOM element, a data object
+                      containing <code>columns</code> and <code>rows</code>, and an optional options object. All
+                      constructor options are also available as <code>data-cnds-*</code> attributes when using
+                      HTML-markup initialisation.
+                    </p>
+                  </section>
+                  <!--/Section: Introduction-->
+                  <!--Section: Usage-->
+                  <section id="api-section-usage">
+                    <!-- Section title -->
+                    <h4 class="mb-4">Usage</h4>
+                    <h5 class="mb-4">Via data attributes</h5>
+                    <p>
+                      Using the Datatable component doesn't require any
+                      additional JavaScript code - simply add
+                      <code>data-cnds-datatable-init</code> attribute to
+                      <code>.datatable</code>
+                      and use other data attributes to set all options.
+                    </p>
+                    <!--Section: Code-->
+                    <section class="mb-4" aria-label="Code example">
+                      <h6><span class="badge badge-code-html">HTML</span></h6>
+                      <!-- snippet -->
+                      <div class="p-0">
+                        <pre class="line-numbers m-0">
+                                    <code class="language-html">
+&lt;div class="datatable" data-cnds-datatable-init&gt;
+    &lt;table&gt;
+        &lt;thead&gt;
+            &lt;tr&gt;
+                &lt;th data-cnds-sort="false" data-cnds-fixed="true" data-cnds-width="100"&gt;Column 1&lt;/th&gt;
+                &lt;th&gt;Column 2&lt;/th&gt;
+            &lt;/tr&gt;
+        &lt;/thead&gt;
+        &lt;tbody&gt;
+            &lt;tr&gt;
+                &lt;td&gt;Value 1&lt;/td&gt;
+                &lt;td&gt;Value 2&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/tbody&gt;
+    &lt;/table&gt;
+&lt;/div&gt;
+                                    </code>
+                                    </pre>
+                      </div>
+                      <!-- /.snippet -->
+                    </section>
+                    <!--Section: Code-->
+                    <h6 class="my-4">Via JavaScript</h6>
+                    <!--Section: Code-->
+                    <section class="mb-4" aria-label="Code example">
+                      <h6><span class="badge badge-code-js">JAVASCRIPT</span></h6>
+                      <!-- snippet -->
+                      <div class="p-0">
+                        <pre class="line-numbers m-0">
+                                                <code class="language-js">
+const datatableInstance = new Nimbus.DataTable(
+  document.getElementById('my-datatable'),
+  {
+    columns: [
+      { label: 'Column 1', width: 100, fixed: true },
+      { label: 'Column 2'}
+    ],
+    rows: [
+      ['Value 1', 'Value 2']
+    ]
+  },
+  {
+    bordered: true
+  }
+)
+                                                </code>
+                                                </pre>
+                      </div>
+                      <!-- /.snippet -->
+                    </section>
+                  </section>
+                  <!--/Section: Usage-->
+                  <!--Section: Options-->
+                  <section id="api-section-options">
+                    <!-- Section title -->
+                    <h4 class="mb-4">Options</h4>
+                    <p>
+                      Options can be passed via data attributes or JavaScript.
+                      For data attributes, append the option name to
+                      <code>data-cnds-</code>, as in
+                      <code>data-cnds-all-text=""</code>.
+                    </p>
+                    <div class="table-responsive">
+                      <table class="table table-striped table-bordered" aria-label="Options">
+                        <thead>
+                          <tr>
+                            <th class="th-sm">Name</th>
+                            <th class="th-sm">Type</th>
+                            <th class="th-sm">Default</th>
+                            <th class="th-sm">Description</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge">allText</code>
+                            </td>
+                            <td><i>String</i></td>
+                            <td><code>'All'</code></td>
+                            <td>
+                              Changes text for <code>All</code> in the
+                              pagination select
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge">bordered</code>
+                            </td>
+                            <td><i>Boolean</i></td>
+                            <td><code>false</code></td>
+                            <td>Adds borders to a datatable</td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge">borderless</code>
+                            </td>
+                            <td><i>Boolean</i></td>
+                            <td><code>false</code></td>
+                            <td>Removes all borders from a datatable</td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge">borderColor</code>
+                            </td>
+                            <td><i>String</i></td>
+                            <td><code></code></td>
+                            <td>
+                              Changes a border color to one of main colors
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge">color</code>
+                            </td>
+                            <td><i>String</i></td>
+                            <td><code></code></td>
+                            <td>
+                              Adds a color class to a datatable (f.e 'bg-dark')
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge"
+                                >defaultValue</code
+                              >
+                            </td>
+                            <td><i>String</i></td>
+                            <td><code>'-'</code></td>
+                            <td>
+                              This string will be used as a placeholder if a row
+                              doesn't have a defined value for a column
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge">edit</code>
+                            </td>
+                            <td><i>Boolean</i></td>
+                            <td><code>false</code></td>
+                            <td>Enables edit mode</td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge">entries</code>
+                            </td>
+                            <td><i>Number</i></td>
+                            <td><code>10</code></td>
+                            <td>Number of visible entries (pagination)</td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge"
+                                >entriesOptions</code
+                              >
+                            </td>
+                            <td><i>Array</i></td>
+                            <td><code>[10, 25, 50, 200]</code></td>
+                            <td>
+                              Options available to choose from in a pagination
+                              select (rows per page). Array with the available
+                              options may contain numbers and
+                              <code>'All'</code> to display all entries on
+                              single page.
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge">fixedHeader</code>
+                            </td>
+                            <td><i>Boolean</i></td>
+                            <td><code>false</code></td>
+                            <td>
+                              When it's set to true, the table's header will
+                              remain visible while scrolling
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge">forceSort</code>
+                            </td>
+                            <td><i>Boolean</i></td>
+                            <td><code>false</code></td>
+                            <td>
+                              When it's set to true, the table's sort will
+                              toggle between two options: ascending and
+                              descending. The initial state will not be one of
+                              the options.
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge"
+                                >fullPagination</code
+                              >
+                            </td>
+                            <td><i>Boolean</i></td>
+                            <td><code>false</code></td>
+                            <td>
+                              Displays additional buttons for the first and last
+                              pages
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge">hover</code>
+                            </td>
+                            <td><i>Boolean</i></td>
+                            <td><code>false</code></td>
+                            <td>
+                              Changes the background color of a hovered row
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge">loading</code>
+                            </td>
+                            <td><i>Boolean</i></td>
+                            <td><code>false</code></td>
+                            <td>
+                              Sets the loading mode - disables interactions and
+                              displays a loader
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge">loaderClass</code>
+                            </td>
+                            <td><i>String</i></td>
+                            <td><code>'bg-primary'</code></td>
+                            <td>The class name for a loader (loading mode)</td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge"
+                                >loadingMessage</code
+                              >
+                            </td>
+                            <td><i>String</i></td>
+                            <td><code>'Loading results...'</code></td>
+                            <td>A message displayed while loading data</td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge">maxWidth</code>
+                            </td>
+                            <td><i>Number|String</i></td>
+                            <td><code></code></td>
+                            <td>
+                              Sets a maximum width of a datatable - can be
+                              either a string ('10%') or a number of pixels.
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge">maxHeight</code>
+                            </td>
+                            <td><i>Number|String</i></td>
+                            <td><code></code></td>
+                            <td>
+                              Sets a maximum height of a datatable - can be
+                              either a string ('10%') or a number of pixels.
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge">selectable</code>
+                            </td>
+                            <td><i>Boolean</i></td>
+                            <td><code>false</code></td>
+                            <td>Enables selecting rows with checkboxes</td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge">multi</code>
+                            </td>
+                            <td><i>Boolean</i></td>
+                            <td><code>false</code></td>
+                            <td>
+                              Allows selecting multiple rows (selectable mode)
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge"
+                                >noFoundMessage</code
+                              >
+                            </td>
+                            <td><i>String</i></td>
+                            <td><code>'No matching results found'</code></td>
+                            <td>A message displayed when a table is empty</td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge">pagination</code>
+                            </td>
+                            <td><i>Boolean</i></td>
+                            <td><code>true</code></td>
+                            <td>Shows/hides the pagination panel</td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge">sm</code>
+                            </td>
+                            <td><i>Boolean</i></td>
+                            <td><code>false</code></td>
+                            <td>Decreases a row's paddings</td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge">striped</code>
+                            </td>
+                            <td><i>Boolean</i></td>
+                            <td><code>false</code></td>
+                            <td>
+                              Slightly changes the background's color in every
+                              other row
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge">rowsText</code>
+                            </td>
+                            <td><i>String</i></td>
+                            <td><code>'Rows per page':</code></td>
+                            <td>A text indicating a number of rows per page</td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge">ofText</code>
+                            </td>
+                            <td><i>String</i></td>
+                            <td><code>'of'</code></td>
+                            <td>
+                              A message displayed as pagination description
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge"
+                                >clickableRows</code
+                              >
+                            </td>
+                            <td><i>Boolean</i></td>
+                            <td><code>false</code></td>
+                            <td>Makes rows clickable</td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge">sortField</code>
+                            </td>
+                            <td><i>String|Null</i></td>
+                            <td><code>null</code></td>
+                            <td>
+                              Sorts given field on init. To use it via data
+                              attributes additionally
+                              <code>data-cnds-field</code> attribute needs to be
+                              added to column <code>th</code> element. e.g.
+                              <code
+                                >&lt;th data-cnds-field="age"&gt;Age&lt;/th&gt;
+                              </code>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge">sortOrder</code>
+                            </td>
+                            <td><i>String</i></td>
+                            <td><code>'asc'</code></td>
+                            <td>
+                              Defines an order in which initial sorting will
+                              sort. Use 'asc' for ascending order, and 'desc'
+                              for descending order (works only when data is
+                              injected with JS)
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </section>
+                  <!--/Section: Options-->
+                  <!--Section: Column Options-->
+                  <section id="api-section-column-options">
+                    <!-- Section title -->
+                    <h4 class="mb-4">Options (column)</h4>
+                    <div class="table-responsive">
+                      <table class="table table-striped table-bordered" aria-label="Options (column)">
+                        <thead>
+                          <tr>
+                            <th class="th-sm">Name</th>
+                            <th class="th-sm">Type</th>
+                            <th class="th-sm">Default</th>
+                            <th class="th-sm">Description</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge">label</code>
+                            </td>
+                            <td><i>String</i></td>
+                            <td><code>''</code></td>
+                            <td>A displayed header of a column</td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge">field</code>
+                            </td>
+                            <td><i>String</i></td>
+                            <td><code>''</code></td>
+                            <td>
+                              A field's name - will be used as a key for values
+                              in rows
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge">fixed</code>
+                            </td>
+                            <td><i>Boolean|String</i></td>
+                            <td><code>false</code></td>
+                            <td>
+                              When set to <code>true</code>, makes a column
+                              stick on the left while scrolling. Changing its
+                              value to <code>right</code> will do the same on
+                              the other side. For this option to work, you need
+                              to define <code>width</code> as well.
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge">width</code>
+                            </td>
+                            <td><i>Number</i></td>
+                            <td><code></code></td>
+                            <td>A column's width in pixels</td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge">sort</code>
+                            </td>
+                            <td><i>Boolean</i></td>
+                            <td><code>true</code></td>
+                            <td>Enables/disables sorting for this column</td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge"
+                                >format(cell, value)</code
+                              >
+                            </td>
+                            <td><i>Function</i></td>
+                            <td><code></code></td>
+                            <td>
+                              Function runs for each cell, taking the DOM node
+                              &amp; cell's value as its parameters
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </section>
+                  <!--/Section: Column Options-->
+                  <!--Section: Methods-->
+                  <section id="api-section-methods">
+                    <!-- Section title -->
+                    <h4 class="mb-4">Methods</h4>
+                    <div class="table-responsive">
+                      <table class="table table-striped table-bordered" aria-label="Methods">
+                        <thead>
+                          <tr>
+                            <th class="th-sm">Name</th>
+                            <th class="th-sm">Description</th>
+                            <th class="th-sm">Example</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge">update</code>
+                            </td>
+                            <td>Updates and rerenders datatable.</td>
+                            <td>
+                              <code
+                                >myDatatable.update(data: Object, options:
+                                Object)</code
+                              >
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge"
+                                >setActivePage</code
+                              >
+                            </td>
+                            <td>
+                              Sets a specific page of entries. Page count starts
+                              from <code>0</code>.
+                            </td>
+                            <td>
+                              <code>myDatatable.setActivePage(index)</code>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge">search</code>
+                            </td>
+                            <td>
+                              Filters rows so there are only those containing
+                              the searched phrase.
+                            </td>
+                            <td>
+                              <code
+                                >myDatatable.search(phrase: String, column:
+                                String|Array (optional))</code
+                              >
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge">dispose</code>
+                            </td>
+                            <td>Removes the component's instance.</td>
+                            <td>
+                              <code>myDatatable.dispose()</code>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge">getInstance</code>
+                            </td>
+                            <td>
+                              Static method which allows you to get the
+                              datatable instance associated to a DOM element.
+                            </td>
+                            <td>
+                              <code>Datatable.getInstance(datatableEl)</code>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge"
+                                >getOrCreateInstance</code
+                              >
+                            </td>
+                            <td>
+                              Static method which returns the datatable instance
+                              associated to a DOM element or create a new one in
+                              case it wasn't initialized.
+                            </td>
+                            <td>
+                              <code
+                                >Datatable.getOrCreateInstance(datatableEl)</code
+                              >
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    <!--Section: Code-->
+                    <section class="mb-4" aria-label="Code example">
+                      <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                      <!-- snippet -->
+                      <div class="p-0">
+                        <pre class="line-numbers m-0">
+                                    <code class="language-js">
+const datatableEl = document.getElementById('my-datatable')
+const datatableInstance = Nimbus.DataTable.getInstance(datatableEl);
+datatableInstance.dispose()
+                                    </code>
+                                    </pre>
+                      </div>
+                      <!-- /.snippet -->
+                    </section>
+                    <!--Section: Code-->
+                  </section>
+                  <!--/Section: Methods-->
+                  <!--Section: Events-->
+                  <section id="api-section-events">
+                    <!-- Section title -->
+                    <h4 class="mb-4">Events</h4>
+                    <div class="table-responsive">
+                      <table class="table table-striped table-bordered" aria-label="Events">
+                        <thead>
+                          <tr>
+                            <th class="th-sm">Name</th>
+                            <th class="th-sm">Description</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge"
+                                >update.cnds.datatable</code
+                              >
+                            </td>
+                            <td>
+                              This event is triggered in an editable mode when a
+                              user updates values. You can access the updated
+                              data inside a listener's handler with
+                              <code>event.rows</code> and
+                              <code>event.columns</code> fields.
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge"
+                                >rowSelected.cnds.datatable</code
+                              >
+                            </td>
+                            <td>
+                              This event is triggered when a user selects rows
+                              using checkboxes. You can access information about
+                              selected rows through the following properties of
+                              the emitted event:
+                              <code>selectedRows: Array</code>,
+                              <code>selectedIndexes: Array</code>,
+                              <code>allSelected: Boolean</code>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge"
+                                >render.cnds.datatable</code
+                              >
+                            </td>
+                            <td>
+                              This event is triggered after the component
+                              renders/updates rows.
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class="text-nowrap">
+                              <code class="highlighter-rouge"
+                                >rowClicked.cnds.datatable</code
+                              >
+                            </td>
+                            <td>
+                              This event is triggered after clicking on a row.
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    <!--Section: Code-->
+                    <section class="mb-4" aria-label="Code example">
+                      <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                      <!-- snippet -->
+                      <div class="p-0">
+                        <pre class="line-numbers m-0">
+                                    <code class="language-js">
+const datatable = document.getElementById('my-datatable');
+datatable.addEventListener('rowSelected.cnds.datatable', (e) => {
+  console.log(e.selectedRows, e.selectedIndexes, e.allSelected)
+})
+                                    </code>
+                                    </pre>
+                      </div>
+                      <!-- /.snippet -->
+                    </section>
+                    <!--Section: Code-->
+                  </section>
+                  <!--/Section: Events-->
+                </section>
+                <!--/Section: API content-->
+              </section>
+              <!--/Section: Docs content-->
+            </div>
+            <!-- ./Main column-->
+
+            <!-- Right Sidebar — 20 % of the row width; hidden below lg breakpoint.
+                 Sticky attributes (processed by nimbus.js):
+                   data-cnds-sticky="true"          : activates sticky positioning
+                   data-cnds-sticky-boundary="true" : constrains sticky to its parent container
+                   data-cnds-sticky-direction="both" : sticks when scrolling up OR down
+                   data-cnds-sticky-offset="56"     : clears the 56 px fixed header
+                   data-cnds-sticky-delay="125"     : debounce delay (ms) to reduce scroll jank
+                 data-cnds-allow-hashes="true" on the <ul>: nimbus.js watches the URL hash
+                   and highlights the matching nav-link as the user scrolls through sections. -->
+            <div class="col-lg-2 d-none d-lg-block">
+              <div class="sticky-top" style="top: 100px; z-index: 1">
+                <ul class="nav flex-column nav-pills menu-sidebar" id="rightNav" data-cnds-allow-hashes="true">
+                  <li class="nav-item"><a class="nav-link" href="#section-introduction">Introduction</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#section-basic-example">Basic example</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#section-basic-data-cnds-structure">Basic data structure</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#section-advanced-data-cnds-structure">Advanced data structure</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#section-search">Search</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#section-advanced-search">Advanced search</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#section-multi">Selectable rows</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#section-scroll">Scroll</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#section-fixed">Fixed header</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#section-fixed-columns">Fixed columns</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#section-async-data">Async data</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#section-action-btns">Action buttons</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#section-cell-format">Cell formatting</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#section-clickable-rows">Clickable rows</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#section-api-docs">API Documentation</a></li>
+                  <li class="nav-item ms-3">
+                    <a class="nav-link" href="#api-section-introduction">Introduction</a>
+                  </li>
+                  <li class="nav-item ms-3"><a class="nav-link" href="#api-section-usage">Usage</a></li>
+                  <li class="nav-item ms-3"><a class="nav-link" href="#api-section-options">Options</a></li>
+                  <li class="nav-item ms-3"><a class="nav-link" href="#api-section-column-options">Options (column)</a></li>
+                  <li class="nav-item ms-3"><a class="nav-link" href="#api-section-methods">Methods</a></li>
+                  <li class="nav-item ms-3"><a class="nav-link" href="#api-section-events">Events</a></li>
+                </ul>
+              </div>
+            </div>
+            <!-- ./Right Sidebar -->
+          </div>
+          <!-- ./Content Row -->
+        </div>
+      </div>
+      </div>
+    </main>
+    <!-- ./Content -->
+    <!-- Footer -->
+    <div class="cf-footer cf-footer-app">
+      <footer class="page-footer main-footer" aria-label="Site footer">
+        <div class="w-100 px-3 d-flex align-items-center">
+          <img src="img/cf/core/cloudficient_logo_light.svg" class="cf-logo-light" style="width: 135px;" alt="Cloudficient" />
+          <img src="img/cf/core/cloudficient_logo_dark.svg" class="cf-logo-dark" style="width: 135px;" alt="Cloudficient" />
+          <span class="footer-copyright ms-auto">&copy; <span id="currentYear"></span> Cloudficient</span>
+        </div>
+      </footer>
+    </div>
+    <!-- SCRIPTS — load order matters:
+         1. nimbus.js    — core framework: processes all data-cnds-* attributes (theme, sticky, sidenav, tooltips…)
+         2. app.js       — application-level overrides and custom initialisation
+         3. prism.min.js — syntax highlighting for <code class="language-*"> blocks; must run after DOM is ready
+         4. sidenav-loader.js — fetches shared sidenav HTML and injects it into #sidebar-cf -->
+    <script type="text/javascript" src="js/nimbus.js?v=9.0.4"></script>
+    <!-- DEMO SCRIPTS — wrapped in cnds.ready so Nimbus.DataTable is defined before use -->
+    <script>
+document.addEventListener('cnds.ready', function () {
+
+/* ── Shared data (array rows + string columns — v8 style) ── */
+var ROWS = [
+  ["Tiger Nixon",       "System Architect",          "Edinburgh",     "61", "2011/04/25", "$320,800"],
+  ["Garrett Winters",   "Accountant",                "Tokyo",         "63", "2011/07/25", "$170,750"],
+  ["Ashton Cox",        "Junior Technical Author",   "San Francisco", "66", "2009/01/12", "$86,000" ],
+  ["Cedric Kelly",      "Senior Javascript Developer","Edinburgh",    "22", "2012/03/29", "$433,060"],
+  ["Airi Satou",        "Accountant",                "Tokyo",         "33", "2008/11/28", "$162,700"],
+  ["Brielle Williamson","Integration Specialist",    "New York",      "61", "2012/12/02", "$372,000"],
+  ["Herrod Chandler",   "Sales Assistant",           "San Francisco", "59", "2012/08/06", "$137,500"],
+  ["Rhona Davidson",    "Integration Specialist",    "Tokyo",         "55", "2010/10/14", "$327,900"],
+  ["Colleen Hurst",     "Javascript Developer",      "San Francisco", "39", "2009/09/15", "$205,500"],
+  ["Sonya Frost",       "Software Engineer",         "Edinburgh",     "23", "2008/12/13", "$103,600"],
+  ["Jena Gaines",       "Office Manager",            "London",        "30", "2008/12/19", "$90,560" ],
+  ["Quinn Flynn",       "Support Lead",              "Edinburgh",     "22", "2013/03/03", "$342,000"],
+  ["Charde Marshall",   "Regional Director",         "San Francisco", "36", "2008/10/16", "$470,600"],
+  ["Haley Kennedy",     "Senior Marketing Designer", "London",        "43", "2012/12/18", "$313,500"]
+];
+
+/* Shared object rows for advanced / search demos */
+var OBJ_ROWS = [
+  { name:"Tiger Nixon",        position:"System Architect",           office:"Edinburgh",     age:61, date:"2011/04/25", salary:"$320,800" },
+  { name:"Garrett Winters",    position:"Accountant",                 office:"Tokyo",         age:63, date:"2011/07/25", salary:"$170,750" },
+  { name:"Ashton Cox",         position:"Junior Technical Author",    office:"San Francisco", age:66, date:"2009/01/12", salary:"$86,000"  },
+  { name:"Cedric Kelly",       position:"Senior Javascript Developer",office:"Edinburgh",     age:22, date:"2012/03/29", salary:"$433,060" },
+  { name:"Airi Satou",         position:"Accountant",                 office:"Tokyo",         age:33, date:"2008/11/28", salary:"$162,700" },
+  { name:"Brielle Williamson", position:"Integration Specialist",     office:"New York",      age:61, date:"2012/12/02", salary:"$372,000" },
+  { name:"Herrod Chandler",    position:"Sales Assistant",            office:"San Francisco", age:59, date:"2012/08/06", salary:"$137,500" },
+  { name:"Rhona Davidson",     position:"Integration Specialist",     office:"Tokyo",         age:55, date:"2010/10/14", salary:"$327,900" },
+  { name:"Colleen Hurst",      position:"Javascript Developer",       office:"San Francisco", age:39, date:"2009/09/15", salary:"$205,500" },
+  { name:"Sonya Frost",        position:"Software Engineer",          office:"Edinburgh",     age:23, date:"2008/12/13", salary:"$103,600" },
+  { name:"Jena Gaines",        position:"Office Manager",             office:"London",        age:30, date:"2008/12/19", salary:"$90,560"  },
+  { name:"Quinn Flynn",        position:"Support Lead",               office:"Edinburgh",     age:22, date:"2013/03/03", salary:"$342,000" },
+  { name:"Charde Marshall",    position:"Regional Director",          office:"San Francisco", age:36, date:"2008/10/16", salary:"$470,600" },
+  { name:"Haley Kennedy",      position:"Senior Marketing Designer",  office:"London",        age:43, date:"2012/12/18", salary:"$313,500" }
+];
+
+/* ── Basic data structure — string columns + array rows ── */
+(function () {
+  var basicData = {
+    columns: ['Name', 'Position', 'Office', 'Age', 'Start date', 'Salary'],
+    rows: ROWS,
+    search: false
+  };
+  new Nimbus.DataTable(document.getElementById('datatable'), basicData);
+})();
+
+/* ── Advanced data structure — object columns + object rows ── */
+(function () {
+  var advancedData = {
+    columns: [
+      { label: 'Name',       field: 'name'     },
+      { label: 'Position',   field: 'position' },
+      { label: 'Office',     field: 'office'   },
+      { label: 'Age',        field: 'age'      },
+      { label: 'Start date', field: 'date'     },
+      { label: 'Salary',     field: 'salary'   }
+    ],
+    rows: OBJ_ROWS,
+    search: false
+  };
+  new Nimbus.DataTable(document.getElementById('datatable2'), advancedData);
+})();
+
+/* ── Search — mixed columns (object + strings) + array rows ── */
+(function () {
+  var data = {
+    columns: [{ label: 'Name', field: 'name' }, 'Position', 'Office', 'Age', 'Start date', 'Salary'],
+    rows: ROWS,
+    search: false
+  };
+  var instance = new Nimbus.DataTable(document.getElementById('datatable3'), data);
+  document.getElementById('datatable-search-input').addEventListener('input', function (e) {
+    instance.search(e.target.value);
+  });
+})();
+
+/* ── Advanced search — search(phrase, columns) for column-scoped filtering ── */
+(function () {
+  var data = {
+    columns: [{ label: 'Name', field: 'name' }, 'Position', 'Office', 'Age', 'Start date', 'Salary'],
+    rows: ROWS
+  };
+  var instance = new Nimbus.DataTable(document.getElementById('datatable4'), { ...data, search: false });
+  var input = document.getElementById('advanced-search-input');
+  function doSearch(value) {
+    var parts = value.split(' in:').map(function (s) { return s.trim(); });
+    var phrase = parts[0];
+    var cols = parts[1]
+      ? parts[1].split(',').map(function (s) { return s.toLowerCase().trim(); })
+      : null;
+    instance.search(phrase, cols);
+  }
+  document.getElementById('advanced-search-button').addEventListener('click', function () {
+    doSearch(input.value);
+  });
+  input.addEventListener('keydown', function (e) {
+    if (e.keyCode === 13) { doSearch(e.target.value); }
+  });
+})();
+
+/* ── Selectable rows — selectRows.cnds.datatable event ── */
+(function () {
+  var el = document.getElementById('datatable5');
+  var basicData = {
+    columns: ['Name', 'Position', 'Office', 'Age', 'Start date', 'Salary'],
+    rows: ROWS
+  };
+  new Nimbus.DataTable(el, { ...basicData, search: false });
+  el.addEventListener('selectRows.cnds.datatable', function (e) {
+    console.log(e.selectedRows, e.selectedIndexes, e.allSelected);
+  });
+})();
+
+/* ── Scroll — maxHeight / maxWidth set via data-cnds-* on element ── */
+(function () {
+  var basicData = {
+    columns: ['Name', 'Position', 'Office', 'Age', 'Start date', 'Salary'],
+    rows: ROWS
+  };
+  new Nimbus.DataTable(document.getElementById('datatable6'), { ...basicData, search: false });
+})();
+
+/* ── Fixed header — maxHeight + fixedHeader set via data-cnds-* on element ── */
+(function () {
+  var basicData = {
+    columns: ['Name', 'Position', 'Office', 'Age', 'Start date', 'Salary'],
+    rows: ROWS
+  };
+  new Nimbus.DataTable(document.getElementById('datatable7'), { ...basicData, search: false });
+})();
+
+/* ── Fixed columns — col.fixed + maxHeight/maxWidth via data-cnds-* on element ── */
+(function () {
+  var basicData = {
+    columns: [
+      { label: 'Name',       field: 'name',     width: 200, fixed: true    },
+      { label: 'Position',   field: 'position', width: 200                 },
+      { label: 'Office',     field: 'office',   width: 200                 },
+      { label: 'Age',        field: 'age',      width: 200                 },
+      { label: 'Start date', field: 'date',     width: 200                 },
+      { label: 'Salary',     field: 'salary',   width: 200, fixed: 'right' }
+    ],
+    rows: ROWS
+  };
+  new Nimbus.DataTable(document.getElementById('datatable8'), { ...basicData, search: false });
+})();
+
+/* ── Async data — update(data, options) v8 pattern ── */
+(function () {
+  var asyncCols = [
+    { label: 'Email',   field: 'email'   },
+    { label: 'Name',    field: 'name'    },
+    { label: 'Phone',   field: 'phone'   },
+    { label: 'Username',field: 'username'},
+    { label: 'Website', field: 'website' },
+    { label: 'Address', field: 'address' },
+    { label: 'Company', field: 'company' }
+  ];
+  var asyncTable = new Nimbus.DataTable(
+    document.getElementById('datatable9'),
+    { columns: asyncCols, search: false },
+    { loading: true }
+  );
+  function loadData() {
+    asyncTable.update(null, { loading: true });
+    fetch('https://jsonplaceholder.typicode.com/users')
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        asyncTable.update(
+          {
+            rows: data.map(function (u) {
+              return Object.assign({}, u, {
+                address: u.address.city + ', ' + u.address.street,
+                company: u.company.name
+              });
+            })
+          },
+          { loading: false }
+        );
+      });
+  }
+  loadData();
+  document.getElementById('reload-button').addEventListener('click', loadData);
+})();
+
+/* ── Action buttons — render.cnds.datatable to re-attach listeners after re-render ── */
+(function () {
+  var customDatatable = document.getElementById('datatable-custom');
+  var setActions = function () {
+    document.querySelectorAll('.call-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        console.log('call ' + btn.getAttribute('data-cnds-number'));
+      });
+    });
+    document.querySelectorAll('.message-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        console.log('send a message to ' + btn.getAttribute('data-cnds-email'));
+      });
+    });
+  };
+  customDatatable.addEventListener('render.cnds.datatable', setActions);
+  new Nimbus.DataTable(
+    customDatatable,
+    {
+      columns: [
+        { label: 'Name',     field: 'name'                   },
+        { label: 'Position', field: 'position'               },
+        { label: 'Office',   field: 'office'                 },
+        { label: 'Contact',  field: 'contact', sort: false   }
+      ],
+      rows: [
+        { name:'Tiger Nixon',         position:'System Architect',  office:'Edinburgh', phone:'+48000000000', email:'tiger.nixon@gmail.com' },
+        { name:'Sonya Frost',         position:'Software Engineer', office:'Edinburgh', phone:'+53456123456', email:'sfrost@gmail.com'      },
+        { name:'Tatyana Fitzpatrick', position:'Regional Director', office:'London',    phone:'+42123432456', email:'tfitz@gmail.com'       }
+      ].map(function (row) {
+        return Object.assign({}, row, {
+          contact: '<button class="call-btn btn btn-tertiary btn-sm" data-cnds-number="' + row.phone + '">' +
+                     '<i class="mdi mdi-phone mdi-18px" aria-hidden="true"></i></button>' +
+                   '<button class="message-btn btn ms-2 btn-tertiary btn-sm" data-cnds-email="' + row.email + '">' +
+                     '<i class="mdi mdi-email mdi-18px" aria-hidden="true"></i></button>'
+        });
+      }),
+      search: false
+    },
+    { hover: true }
+  );
+})();
+
+/* ── Cell formatting — format(cell, value) v8 style: modify cell in-place ── */
+(function () {
+  var cellRows = [
+    ["Product 1",  10,  103],
+    ["Product 2",  45,  110],
+    ["Product 3",  76,   56],
+    ["Product 4",  89,  230],
+    ["Product 5", 104,  240],
+    ["Product 6",  97,  187],
+    ["Product 7", 167,  130],
+    ["Product 8",  50,  199],
+    ["Product 9",   4,  206],
+    ["Product 10",120,   88],
+    ["Product 11", 22,  100]
+  ];
+  var maxValue = Math.max.apply(null, cellRows.map(function (r) { return r[2]; }));
+  var minValue = Math.min.apply(null, cellRows.map(function (r) { return r[2]; }));
+  var colors = ['#E3F2FD', '#BBDEFB', '#90CAF9', '#64B5F6', '#42A5F5'];
+  var step = (maxValue - minValue) / (colors.length - 1);
+  var formatCell = function (cell, value) {
+    var colorIndex = Math.min(
+      Math.floor((value - minValue) / step),
+      colors.length - 1
+    );
+    cell.style.backgroundColor = colors[colorIndex];
+    cell.style.fontWeight = '400';
+  };
+  new Nimbus.DataTable(
+    document.getElementById('datatable-cell-format'),
+    {
+      columns: [
+        { label: 'Product',   field: 'product'   },
+        { label: 'Quantity',  field: 'quantity'  },
+        { label: 'Purchases', field: 'purchases', format: formatCell }
+      ],
+      rows: cellRows,
+      search: false
+    }
+  );
+})();
+
+/* ── Clickable rows — rowClicked.cnds.datatable + render.cnds.datatable ── */
+(function () {
+  var table = document.getElementById('datatable-clickable-rows');
+  var modalEl = document.getElementById('modal-clickable-rows');
+  var modalBody = document.getElementById('modal-body-clickable-rows');
+  var modalHeader = document.getElementById('modal-header-clickable-rows');
+  var modalInstance = new Nimbus.Modal(modalEl);
+  var messages = [
+    {
+      from: 'support@cloudficient.com', title: 'CaseFusion migration guide updated',
+      message: 'The CaseFusion migration guide has been updated with new sections covering hybrid deployment scenarios, staged cutover strategies, and rollback procedures. Please review the updated documentation before your next engagement.',
+      date: '2025/04/15'
+    },
+    {
+      from: 'noreply@cloudficient.com', title: 'Scheduled maintenance window',
+      message: 'A scheduled maintenance window is planned for the week of April 21. Services may be temporarily unavailable during off-peak hours. No action is required — all data is preserved and migrations in progress will resume automatically.',
+      date: '2025/04/14'
+    },
+    {
+      from: 'billing@cloudficient.com', title: 'Subscription renewal reminder',
+      message: 'Your Cloudficient subscription is set to renew on May 1. No action is needed if your payment details are current. Contact billing@cloudficient.com to update your payment method or request a revised invoice.',
+      date: '2025/04/10'
+    },
+    {
+      from: 'support@cloudficient.com', title: 'New ExpireOn release — v4.2.1',
+      message: 'ExpireOn v4.2.1 is now available. This release includes performance improvements for large tenant scans, a fix for the hold-policy engine edge case, and updated audit log export formats. See the release notes for full details.',
+      date: '2025/04/08'
+    }
+  ];
+  var columns = [
+    { label: 'From',    field: 'from'                  },
+    { label: 'Title',   field: 'title'                 },
+    { label: 'Message', field: 'preview', sort: false  },
+    { label: 'Date',    field: 'date'                  }
+  ];
+  var rows = messages.map(function (email) {
+    return Object.assign({}, email, {
+      preview: email.message.length <= 20 ? email.message : email.message.slice(0, 20) + '...'
+    });
+  });
+  /* rowClicked fires with e.index — the filtered row index */
+  table.addEventListener('rowClicked.cnds.datatable', function (e) {
+    var m = messages[e.index];
+    if (!m) return;
+    modalHeader.innerText = m.title;
+    modalBody.innerHTML = '<h6 class="mb-4">From: <strong>' + m.from + '</strong></h6><p>' + m.message + '</p>';
+    modalInstance.show();
+  });
+  new Nimbus.DataTable(table, { columns: columns, rows: rows, search: false });
+})();
+
+}); /* end cnds.ready */
+    </script>
+    <script type="text/javascript" src="js/app.js?v=9.0.4"></script>
+    <script type="text/javascript" src="plugins/js/prism.min.js"></script>
+    <script type="text/javascript" src="js/sidenav-loader.js"></script>
+    <script type="text/javascript">
+      var currentYearElement = document.getElementById("currentYear");
+      if (currentYearElement) {
+        currentYearElement.textContent = new Date().getFullYear();
+      }
+    </script>
+  </body>
+</html>

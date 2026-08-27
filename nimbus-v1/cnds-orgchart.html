@@ -1,0 +1,1330 @@
+<!--
+  CNDS Nimbus Design System — Org Chart showcase page
+  Version : 1.0.0
+  Layout  : Application with SideNav
+
+  DEVELOPER NOTES
+  ───────────────
+  · Pure HTML5 / CSS3 / vanilla JavaScript — zero external dependencies.
+  · Attribute namespace: data-cnds-* (replaces legacy data-mdb-*).
+  · JS namespace      : window.Nimbus.* (replaces legacy mdb.*).
+  · Product theme     : controlled by class on <body>. Switch by replacing
+                        cnds-product-casefusion with cnds-product-hyperlize
+                        or cnds-product-expireon.
+  · Script load order : nimbus.js → app.js → prism.min.js → sidenav-loader.js
+                        (nimbus.js async-loads all plugins, then fires "cnds.ready")
+  · Demos init        : wrapped in initOrgChartDemos(), called on "cnds.ready".
+-->
+<!doctype html>
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="Org Chart | Cloudficient Nimbus Design System v1.0.0" />
+    <title>Org Chart | CNDS v1.0.0 | Cloudficient Nimbus Design System</title>
+
+    <!-- 1. Nimbus compiled CSS (components + utilities) -->
+    <link rel="stylesheet" href="css/nimbus.css" media="all" />
+    <!-- 2. Application shell styles (layout, sidenav, header, footer) -->
+    <link rel="stylesheet" href="css/app.css" media="all" />
+    <!-- 3. Prism syntax-highlighting theme -->
+    <link rel="stylesheet" href="plugins/css/prism.min.css" media="all" />
+    <!-- 4. OrgChart plugin stylesheet (loaded separately from nimbus.css) -->
+    <link rel="stylesheet" href="css/plugins/org-chart.css" />
+
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="57x57"   href="img/favicon/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="60x60"   href="img/favicon/apple-icon-60x60.png" />
+    <link rel="apple-touch-icon" sizes="72x72"   href="img/favicon/apple-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76"   href="img/favicon/apple-icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="img/favicon/apple-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="img/favicon/apple-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="img/favicon/apple-icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="img/favicon/apple-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-icon-180x180.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="img/favicon/android-icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="32x32"   href="img/favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="96x96"   href="img/favicon/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="16x16"   href="img/favicon/favicon-16x16.png" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="msapplication-TileImage" content="img/favicon/ms-icon-144x144.png" />
+
+    <!-- Design tokens — MUST follow nimbus.css so component variables resolve correctly.
+         Load order: primitives (raw values) → light (semantic light tokens) → dark (overrides). -->
+    <link rel="stylesheet" href="css/themes/primitives.css" />
+    <link rel="stylesheet" href="css/themes/light.css" />
+    <link rel="stylesheet" href="css/themes/dark.css" />
+  </head>
+
+  <body class="cnds-product-casefusion">
+
+    <!-- Skip link — WCAG 2.4.1 / Section 508 §1194.22(o): bypasses repeated nav blocks.
+         Renders visually hidden until keyboard focus reaches it. -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         HEADER (sticky)
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <div class="sticky-top">
+
+      <!-- Utility Navigation — secondary app-level links (user, settings, etc.) -->
+      <nav id="UtilityNav" class="nav nav-cf-utility" aria-label="Utility navigation">
+        <div class="w-100 gx-3 px-sm-0 px-lg-3">
+          <ul class="nav nav-cf-utility-ul"></ul>
+        </div>
+      </nav>
+
+      <!-- Main Navigation — primary product header bar -->
+      <nav id="MainNav" class="navbar navbar-expand-xl navbar-cf" aria-label="Main navigation">
+        <div class="container-fluid p-0 px-3 d-flex">
+          <div class="d-flex flex-fill align-items-center text-truncate">
+            <div class="text-center d-none d-md-block me-3 border-end">
+              <a href="index.html">
+                <img src="img/cf/core/logo_nimbus.png" class="me-3 mt-n1" alt="Cloudficient Nimbus Design System" />
+              </a>
+            </div>
+            <div class="flex-fill text-truncate">
+              <div class="navbar-cf-title-block">
+                <div class="navbar-cf-title cf-page-title text-truncate" style="padding-bottom:0;">
+                  <span class="cf-page-title-text cf-page-title-brand">v1</span>
+                  <span class="cf-page-title-divider"></span>
+                  <span class="cf-page-title-text">Org Chart</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Theme toggle — switches data-cnds-theme between "light" and "dark" on <html> -->
+          <button class="btn btn-sm btn-outline-secondary ms-2"
+                  data-cnds-toggle="theme"
+                  aria-label="Toggle color theme"
+                  title="Toggle color theme">
+            <i class="mdi mdi-weather-night mdi-18px" aria-hidden="true"></i>
+          </button>
+        </div>
+      </nav>
+
+    </div>
+    <!-- /HEADER -->
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         MAIN CONTENT
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <main id="main-content" class="cf-main-app">
+
+      <!-- Mobile warning — layout is desktop-first; small screens get an advisory -->
+      <div class="d-block d-md-none p-4" role="alert">
+        <div class="alert alert-warning">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>
+          This application is not optimised for small screens. Please use a large tablet, laptop, or desktop.
+        </div>
+      </div>
+
+      <div class="d-none d-md-block">
+
+        <!-- Sidenav — markup is intentionally empty; sidenav-loader.js fetches
+             includes/sidenav.html and injects it here at runtime.
+             Attributes:
+               data-cnds-mode="side"         : persistent side panel (not a drawer/overlay)
+               data-cnds-slim="false"        : start in full-width (non-slim) mode
+               data-cnds-content="#slim-content" : the content area that resizes with the nav
+               data-cnds-accordion="true"    : auto-close other open groups on expand -->
+        <nav id="sidebar-cf"
+             class="sidenav"
+             data-cnds-mode="side"
+             data-cnds-slim="false"
+             data-cnds-slim-collapsed="false"
+             data-cnds-content="#slim-content"
+             data-cnds-accordion="true"
+             aria-label="Site navigation">
+        </nav>
+
+        <div id="slim-content">
+          <div class="slim-content-box">
+
+            <!-- Content Row — 80 / 20 split.
+                 Inline flex overrides pin the ratio regardless of Bootstrap's breakpoints. -->
+            <div class="row">
+
+              <!-- ─────────────────────────────────────────────────────────────
+                   MAIN COLUMN (80%)
+                   ───────────────────────────────────────────────────────────── -->
+              <div class="col-12 col-lg" style="flex:0 0 80%;max-width:80%;">
+                <section class="container-fluid">
+
+                  <!-- ═══════════════════════════════════════════════════════
+                       INTRODUCTION
+                       ═══════════════════════════════════════════════════════ -->
+                  <section id="section-introduction" aria-labelledby="heading-introduction">
+                    <h3 id="heading-introduction" class="mb-3">Org Chart</h3>
+
+                    <p class="mb-4">
+                      The <strong>OrgChart</strong> plugin renders a hierarchical organization chart
+                      from a JavaScript data object — no external libraries required. Each node
+                      displays a name, job title, and an initial-based avatar. Parent nodes render a
+                      chevron toggle that expands or collapses their subtree. Clicking any card
+                      selects it, adds the <code>.selected</code> class, and fires a
+                      <code>select.cnds.orgchart</code> event on the root element.
+                    </p>
+                    <p class="mb-4">
+                      Charts support two initialization modes: <strong>programmatic</strong> via
+                      <code>new Nimbus.OrgChart(el, { data })</code> for runtime or dynamic data,
+                      and <strong>declarative</strong> via <code>data-cnds-org-chart-init</code> +
+                      <code>data-cnds-data</code> for static server-rendered content. Both modes
+                      are theme-aware and adapt automatically when
+                      <code>data-cnds-theme="dark"</code> is present on a parent element.
+                    </p>
+
+                    <!-- API docs note — always first per design standards -->
+                    <p class="note note-light">
+                      <strong>Note:</strong> Read the
+                      <a href="#api-section-introduction">API Documentation</a>
+                      for all available options, methods, events, and CSS custom properties.
+                    </p>
+
+                    <!-- Theme preview note — always second -->
+                    <p class="note note-info">
+                      <strong>Note:</strong> To preview components in different themes, click the
+                      theme toggle <i class="mdi mdi-weather-night" aria-hidden="true"></i> /
+                      <i class="mdi mdi-weather-sunny" aria-hidden="true"></i> in the header.
+                    </p>
+                  </section>
+
+                  <hr class="my-5" />
+
+                  <!-- ═══════════════════════════════════════════════════════
+                       BASIC EXAMPLE
+                       ═══════════════════════════════════════════════════════ -->
+                  <section id="section-basic-example" aria-labelledby="heading-basic-example">
+                    <h3 id="heading-basic-example" class="mb-3">Basic example</h3>
+
+                    <p class="mb-4">
+                      Initialize with <code>new Nimbus.OrgChart(el, { data })</code>. The
+                      <code>data</code> object is a nested tree; each node supports
+                      <code>name</code>, <code>title</code>, and an optional <code>id</code>
+                      string that is stored as a DOM attribute and included in event payloads.
+                      Nodes with a <code>children</code> array automatically render a chevron
+                      toggle and a connected subtree.
+                    </p>
+
+                    <!--
+                      ANGULAR INTEGRATION — Basic example
+                      ────────────────────────────────────────────────────────────────────────
+                      1. In your component template add: <div #chartEl></div>
+                      2. Declare: @ViewChild('chartEl') chartEl!: ElementRef;
+                      3. Declare: @Input() orgData!: OrgNode;  (define OrgNode interface)
+                      4. In ngAfterViewInit():
+                           this.chart = new Nimbus.OrgChart(this.chartEl.nativeElement, {
+                             data: this.orgData
+                           });
+                      5. In ngOnChanges(changes):
+                           if (changes['orgData']) this.chart.update(this.orgData);
+                      6. In ngOnDestroy(): this.chart.dispose();
+                    -->
+
+                    <!-- Demo sandbox -->
+                    <section class="pb-4" aria-label="Basic example demo">
+                      <div class="bg-white border rounded-5">
+                        <div class="w-100 p-4 d-flex justify-content-center overflow-auto">
+                          <div id="basic-chart"></div>
+                        </div>
+                      </div>
+                    </section>
+
+                    <!-- Code: HTML -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div id="my-org-chart"&gt;&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+
+                    <!-- Code: JS -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">new Nimbus.OrgChart(document.getElementById('my-org-chart'), {
+  data: {
+    name: 'Sarah Chen', title: 'Chief Executive Officer', id: 'ceo',
+    children: [
+      { name: 'Marcus Webb', title: 'VP Engineering', id: 'vp-eng',
+        children: [
+          { name: 'Priya Nair',   title: 'Director of Platform', id: 'dir-platform' },
+          { name: 'James Okafor', title: 'Director of QA',       id: 'dir-qa' }
+        ]
+      },
+      { name: 'Lena Fischer', title: 'VP Product', id: 'vp-prod',
+        children: [
+          { name: 'Tom&aacute;s Rivera', title: 'Director of Design',   id: 'dir-design' },
+          { name: 'Yuki Tanaka',         title: 'Director of Research', id: 'dir-research' }
+        ]
+      }
+    ]
+  }
+});</code></pre>
+                      </div>
+                    </section>
+                  </section>
+
+                  <hr class="my-5" />
+
+                  <!-- ═══════════════════════════════════════════════════════
+                       AUTO-INIT WITH DATA ATTRIBUTE
+                       ═══════════════════════════════════════════════════════ -->
+                  <section id="section-auto-init" aria-labelledby="heading-auto-init">
+                    <h3 id="heading-auto-init" class="mb-3">Auto-init with data attribute</h3>
+
+                    <p class="mb-4">
+                      Add <code>data-cnds-org-chart-init</code> to any element and provide the
+                      tree as a JSON string in <code>data-cnds-data</code>. DataAPI initializes
+                      the chart automatically on <code>DOMContentLoaded</code> — no JavaScript
+                      required. Use this approach for static charts in server-rendered HTML. For
+                      data that changes at runtime, use the programmatic API and call
+                      <code>instance.update(newData)</code> instead of re-binding the attribute.
+                    </p>
+
+                    <!--
+                      ANGULAR INTEGRATION — Auto-init
+                      ────────────────────────────────────────────────────────────────────────
+                      Prefer programmatic initialization in Angular; auto-init runs once on
+                      DOMContentLoaded before Angular's change detection is active.
+                      If you must use the attribute, bind dynamically:
+                        [attr.data-cnds-data]="chartJson"
+                      where chartJson = JSON.stringify(this.chartData).
+                      To update on data change, retrieve the instance and call update():
+                        Nimbus.OrgChart.getInstance(el)?.update(newData);
+                    -->
+
+                    <!-- Demo sandbox -->
+                    <section class="pb-4" aria-label="Auto-init demo">
+                      <div class="bg-white border rounded-5">
+                        <div class="w-100 p-4 d-flex justify-content-center overflow-auto">
+                          <div data-cnds-org-chart-init
+                               data-cnds-data='{"name":"Alex Kim","title":"Director","children":[{"name":"Jordan Lee","title":"Senior Engineer"},{"name":"Robin Park","title":"Designer"}]}'
+                               aria-label="Organisation chart: Alex Kim, Director">
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+
+                    <!-- Code: HTML -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div
+  data-cnds-org-chart-init
+  data-cnds-data='{"name":"Alex Kim","title":"Director","children":[{"name":"Jordan Lee","title":"Senior Engineer"},{"name":"Robin Park","title":"Designer"}]}'
+&gt;&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                  </section>
+
+                  <hr class="my-5" />
+
+                  <!-- ═══════════════════════════════════════════════════════
+                       COLLAPSED BY DEFAULT
+                       ═══════════════════════════════════════════════════════ -->
+                  <section id="section-collapsed" aria-labelledby="heading-collapsed">
+                    <h3 id="heading-collapsed" class="mb-3">Collapsed by default</h3>
+
+                    <p class="mb-4">
+                      Pass <code>expandAll: false</code> to render the chart with all child nodes
+                      hidden on load. Only the root node is visible initially; users expand each
+                      level individually using the chevron toggle buttons. This is recommended for
+                      deep hierarchies where showing every node at once would be overwhelming.
+                    </p>
+
+                    <!--
+                      ANGULAR INTEGRATION — Collapsed by default
+                      ────────────────────────────────────────────────────────────────────────
+                      Pass expandAll: false in the config object when calling new Nimbus.OrgChart().
+                      To expand or collapse programmatically after user interaction, call
+                      this.chart.expandAll() or this.chart.collapseAll() rather than toggling
+                      the config option after initialization (the option is read only at render time).
+                    -->
+
+                    <!-- Demo sandbox -->
+                    <section class="pb-4" aria-label="Collapsed by default demo">
+                      <div class="bg-white border rounded-5">
+                        <div class="w-100 p-4 d-flex justify-content-center overflow-auto">
+                          <div id="collapsed-chart"></div>
+                        </div>
+                      </div>
+                    </section>
+
+                    <!-- Code: JS -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">new Nimbus.OrgChart(document.getElementById('my-org-chart'), {
+  expandAll: false,
+  data: {
+    name: 'Diana Wolfe', title: 'CTO',
+    children: [
+      { name: 'Ethan Blake', title: 'VP Infrastructure',
+        children: [
+          { name: 'Chloe Martin', title: 'SRE Lead' },
+          { name: 'Felix Huang',  title: 'Security Lead' }
+        ]
+      },
+      { name: 'Amara Osei', title: 'VP Applications',
+        children: [
+          { name: 'Leo Santos',  title: 'Frontend Lead' },
+          { name: 'Nina Kova&ccaron;', title: 'Backend Lead' }
+        ]
+      }
+    ]
+  }
+});</code></pre>
+                      </div>
+                    </section>
+                  </section>
+
+                  <hr class="my-5" />
+
+                  <!-- ═══════════════════════════════════════════════════════
+                       CUSTOM NODE TEMPLATE
+                       ═══════════════════════════════════════════════════════ -->
+                  <section id="section-custom-template" aria-labelledby="heading-custom-template">
+                    <h3 id="heading-custom-template" class="mb-3">Custom node template</h3>
+
+                    <p class="mb-4">
+                      The <code>nodeTemplate</code> option accepts a function that receives a
+                      node's data object and returns an HTML string. The returned markup replaces
+                      the default avatar and info layout inside the card element. The function is
+                      called once per node at render time. Use it to add badges, photo avatars,
+                      status indicators, or any other custom content.
+                    </p>
+
+                    <!--
+                      ANGULAR INTEGRATION — Custom node template
+                      ────────────────────────────────────────────────────────────────────────
+                      Define nodeTemplate as a bound class method:
+                        this.chart = new Nimbus.OrgChart(el, {
+                          data: this.orgData,
+                          nodeTemplate: this.renderNode.bind(this)
+                        });
+                      The function runs outside Angular's change detection cycle, so do not
+                      access ViewChild refs or trigger ChangeDetectorRef inside it. Return a
+                      plain HTML string; Angular template syntax is not evaluated here.
+                    -->
+
+                    <!-- Demo sandbox -->
+                    <section class="pb-4" aria-label="Custom node template demo">
+                      <div class="bg-white border rounded-5">
+                        <div class="w-100 p-4 d-flex justify-content-center overflow-auto">
+                          <div id="template-chart"></div>
+                        </div>
+                      </div>
+                    </section>
+
+                    <!-- Code: JS -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">var deptColors = {
+  Engineering: '#2563eb',
+  Product:     '#7c3aed',
+  Design:      '#db2777',
+  Operations:  '#16a34a'
+};
+
+new Nimbus.OrgChart(document.getElementById('my-org-chart'), {
+  nodeTemplate: function (d) {
+    var color = deptColors[d.dept] || '#6b7280';
+    return '&lt;div style="display:flex;align-items:center;gap:10px;"&gt;'
+      + '&lt;div style="width:36px;height:36px;border-radius:50%;background:' + color
+      + ';color:#fff;display:flex;align-items:center;justify-content:center;'
+      + 'font-weight:700;font-size:14px;flex-shrink:0;" aria-hidden="true"&gt;'
+      + (d.name || '?').charAt(0)
+      + '&lt;/div&gt;'
+      + '&lt;div&gt;'
+      + '&lt;div style="font-weight:600;font-size:13px;"&gt;' + (d.name || '') + '&lt;/div&gt;'
+      + '&lt;div style="font-size:11px;color:#6b7280;"&gt;' + (d.title || '') + '&lt;/div&gt;'
+      + (d.dept
+          ? '&lt;span style="display:inline-block;margin-top:3px;padding:1px 6px;'
+          + 'border-radius:10px;font-size:10px;font-weight:600;background:' + color
+          + '22;color:' + color + ';"&gt;' + d.dept + '&lt;/span&gt;'
+          : '')
+      + '&lt;/div&gt;&lt;/div&gt;';
+  },
+  data: {
+    name: 'Jordan Kim', title: 'CEO', dept: 'Operations',
+    children: [
+      { name: 'Riley Chen', title: 'VP Engineering', dept: 'Engineering',
+        children: [
+          { name: 'Sam Patel',  title: 'Frontend Lead', dept: 'Engineering' },
+          { name: 'Morgan Lee', title: 'DevOps Lead',   dept: 'Engineering' }
+        ]
+      },
+      { name: 'Taylor Obi', title: 'VP Product', dept: 'Product',
+        children: [
+          { name: 'Casey Wu',    title: 'UX Lead', dept: 'Design' },
+          { name: 'Avery Singh', title: 'PM Lead', dept: 'Product' }
+        ]
+      }
+    ]
+  }
+});</code></pre>
+                      </div>
+                    </section>
+                  </section>
+
+                  <hr class="my-5" />
+
+                  <!-- ═══════════════════════════════════════════════════════
+                       EXPAND / COLLAPSE CONTROLS
+                       ═══════════════════════════════════════════════════════ -->
+                  <section id="section-controls" aria-labelledby="heading-controls">
+                    <h3 id="heading-controls" class="mb-3">Expand / Collapse controls</h3>
+
+                    <p class="mb-4">
+                      Call <code>chart.expandAll()</code> or <code>chart.collapseAll()</code> to
+                      programmatically show or hide every subtree at once. Both methods also update
+                      the chevron icons and <code>aria-expanded</code> states to reflect the new
+                      condition. Wire them to buttons — or any other control — by keeping a
+                      reference to the instance returned by <code>new Nimbus.OrgChart()</code>.
+                    </p>
+
+                    <!--
+                      ANGULAR INTEGRATION — Expand / Collapse controls
+                      ────────────────────────────────────────────────────────────────────────
+                      Store the instance returned by new Nimbus.OrgChart() on the component:
+                        private chart!: Nimbus.OrgChart;
+                      Bind button click events in the template:
+                        (click)="chart.expandAll()"
+                        (click)="chart.collapseAll()"
+                      Or expose wrapper methods on the component class and call them from the template.
+                    -->
+
+                    <!-- Demo sandbox -->
+                    <section class="pb-4" aria-label="Expand and collapse controls demo">
+                      <div class="bg-white border rounded-5">
+                        <div class="w-100 p-4 d-flex flex-column align-items-center overflow-auto">
+                          <div class="mb-3 d-flex gap-2">
+                            <button type="button" class="btn btn-primary" id="btn-expand-all">Expand all</button>
+                            <button type="button" class="btn btn-outline-primary" id="btn-collapse-all">Collapse all</button>
+                          </div>
+                          <div id="controls-chart"></div>
+                        </div>
+                      </div>
+                    </section>
+
+                    <!-- Code: HTML -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;button type="button" class="btn btn-primary" id="btn-expand-all"&gt;Expand all&lt;/button&gt;
+&lt;button type="button" class="btn btn-outline-primary" id="btn-collapse-all"&gt;Collapse all&lt;/button&gt;
+&lt;div id="my-org-chart"&gt;&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+
+                    <!-- Code: JS -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">var chart = new Nimbus.OrgChart(document.getElementById('my-org-chart'), {
+  data: {
+    name: 'Headquarters', title: 'Global Operations',
+    children: [
+      { name: 'EMEA Division', title: 'Regional Office',
+        children: [
+          { name: 'London', title: 'Country Office' },
+          { name: 'Berlin', title: 'Country Office' }
+        ]
+      },
+      { name: 'APAC Division', title: 'Regional Office',
+        children: [
+          { name: 'Singapore', title: 'Country Office' },
+          { name: 'Tokyo',     title: 'Country Office' }
+        ]
+      }
+    ]
+  }
+});
+
+document.getElementById('btn-expand-all').addEventListener('click', function () {
+  chart.expandAll();
+});
+document.getElementById('btn-collapse-all').addEventListener('click', function () {
+  chart.collapseAll();
+});</code></pre>
+                      </div>
+                    </section>
+                  </section>
+
+                  <hr class="my-5" />
+
+                  <!-- ═══════════════════════════════════════════════════════
+                       SELECT EVENT
+                       ═══════════════════════════════════════════════════════ -->
+                  <section id="section-select-event" aria-labelledby="heading-select-event">
+                    <h3 id="heading-select-event" class="mb-3">Select event</h3>
+
+                    <p class="mb-4">
+                      Clicking a node card adds <code>.selected</code> to that card — only one
+                      card can be selected at a time — and dispatches
+                      <code>select.cnds.orgchart</code> as a native <code>CustomEvent</code> on
+                      the root element. The event <code>detail</code> carries <code>node</code>
+                      (the <code>.org-chart-node</code> DOM element) and <code>id</code> (the
+                      node's <code>id</code> value from the data object, or <code>null</code> if
+                      not provided).
+                    </p>
+
+                    <!--
+                      ANGULAR INTEGRATION — Select event
+                      ────────────────────────────────────────────────────────────────────────
+                      Listen in ngAfterViewInit():
+                        this.chartEl.nativeElement.addEventListener('select.cnds.orgchart',
+                          (e: CustomEvent) => {
+                            this.selectedId = e.detail.id;
+                            this.cdr.markForCheck(); // if using OnPush
+                          }
+                        );
+                      Expose a @Output() EventEmitter on wrapper components so parent
+                      components remain decoupled from the DOM event:
+                        @Output() nodeSelected = new EventEmitter<string>();
+                    -->
+
+                    <!-- Demo sandbox -->
+                    <section class="pb-4" aria-label="Select event demo">
+                      <div class="bg-white border rounded-5">
+                        <div class="w-100 p-4 d-flex flex-column align-items-center overflow-auto">
+                          <div id="select-chart"></div>
+                          <p id="select-status" class="mt-3 text-muted fst-italic" aria-live="polite">
+                            Click a node card to select it.
+                          </p>
+                        </div>
+                      </div>
+                    </section>
+
+                    <!-- Code: JS -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">var el = document.getElementById('my-org-chart');
+
+var chart = new Nimbus.OrgChart(el, {
+  data: {
+    name: 'Vikram Sinha', title: 'COO', id: 'coo',
+    children: [
+      { name: 'Anna Bergstr&ouml;m', title: 'Operations Director', id: 'ops-dir' },
+      { name: 'Omar Farooq',         title: 'Finance Director',    id: 'fin-dir' }
+    ]
+  }
+});
+
+el.addEventListener('select.cnds.orgchart', function (e) {
+  var node   = e.detail.node;
+  var nameEl = node ? node.querySelector('.org-chart-name') : null;
+  document.getElementById('status').textContent =
+    'Selected: ' + (nameEl ? nameEl.textContent : e.detail.id || 'unknown');
+});</code></pre>
+                      </div>
+                    </section>
+                  </section>
+
+                  <hr class="my-5" />
+
+                  <!-- ═══════════════════════════════════════════════════════
+                       API DOCUMENTATION
+                       ═══════════════════════════════════════════════════════ -->
+                  <section id="section-api-docs" aria-labelledby="heading-api-docs">
+                    <h3 id="heading-api-docs" class="mb-3">API Documentation</h3>
+
+                    <!-- API Introduction ─────────────────────────────────── -->
+                    <section id="api-section-introduction">
+                      <h4 class="mb-4">Introduction</h4>
+                      <p>
+                        The OrgChart plugin is a self-contained vanilla JavaScript component with
+                        no external dependencies. It attaches to any block-level element and
+                        renders a top-down hierarchical tree from a plain JavaScript object.
+                        The plugin is fully theme-aware: card backgrounds, connector lines, toggle
+                        buttons, and the focus/selection ring all adapt automatically when
+                        <code>data-cnds-theme="dark"</code> is applied to a parent element. The
+                        selection ring also inherits the active product accent color when a
+                        product class (<code>cnds-product-casefusion</code>, etc.) is present on
+                        <code>&lt;body&gt;</code>.
+                      </p>
+                    </section>
+
+                    <!-- API Usage ────────────────────────────────────────── -->
+                    <section id="api-section-usage" class="mt-5">
+                      <h4 class="mb-4">Usage</h4>
+                      <p>
+                        Include the plugin stylesheet in <code>&lt;head&gt;</code> and load
+                        <code>nimbus.js</code> before your own script. After
+                        <code>cnds.ready</code> fires (or <code>DOMContentLoaded</code> for
+                        auto-init), construct the chart with the element reference and a config
+                        object.
+                      </p>
+
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-html">&lt;!-- Stylesheet in &lt;head&gt; --&gt;
+&lt;link rel="stylesheet" href="css/plugins/org-chart.css" /&gt;
+
+&lt;!-- Chart element --&gt;
+&lt;div id="my-org-chart"&gt;&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-js">// Wait for all plugins to load before initializing.
+document.addEventListener('cnds.ready', function () {
+
+  var chart = new Nimbus.OrgChart(document.getElementById('my-org-chart'), {
+    data: {
+      name: 'Jane Smith', title: 'CEO',
+      children: [
+        { name: 'John Doe', title: 'CTO' },
+        { name: 'Amy Lee',  title: 'CFO' }
+      ]
+    }
+  });
+
+  // Retrieve an existing instance by element reference.
+  var same = Nimbus.OrgChart.getInstance(document.getElementById('my-org-chart'));
+
+});</code></pre>
+                        </div>
+                      </section>
+                    </section>
+
+                    <!-- API Options ──────────────────────────────────────── -->
+                    <section id="api-section-options" class="mt-5">
+                      <h4 class="mb-4">Options</h4>
+                      <p>
+                        Pass options as the second argument to
+                        <code>new Nimbus.OrgChart(el, options)</code>. When using auto-init, the
+                        <code>data</code> option can be supplied as a JSON string in the
+                        <code>data-cnds-data</code> attribute; all other options require
+                        programmatic initialization.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="OrgChart options">
+                          <thead>
+                            <tr>
+                              <th scope="col" class="th-sm">Name</th>
+                              <th scope="col" class="th-sm">Type</th>
+                              <th scope="col" class="th-sm">Default</th>
+                              <th scope="col" class="th-sm">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="text-nowrap"><code>data</code></td>
+                              <td><i>Object | null</i></td>
+                              <td><code>null</code></td>
+                              <td>
+                                Root node object. Each node supports
+                                <code>name</code> (string), <code>title</code> (string),
+                                <code>avatar</code> (image URL string), <code>id</code>
+                                (string — stored as a DOM attribute and included in event
+                                payloads), and <code>children</code> (array of child node objects).
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>direction</code></td>
+                              <td><i>String</i></td>
+                              <td><code>"top"</code></td>
+                              <td>Chart layout direction. <code>"top"</code> produces a vertical top-down tree.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>nodeTemplate</code></td>
+                              <td><i>Function | null</i></td>
+                              <td><code>null</code></td>
+                              <td>
+                                A function <code>(nodeData) =&gt; htmlString</code> that returns
+                                custom inner markup for each card. Replaces the default avatar +
+                                name + title layout. When <code>null</code>, the default layout is used.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>expandAll</code></td>
+                              <td><i>Boolean</i></td>
+                              <td><code>true</code></td>
+                              <td>
+                                When <code>true</code>, all child nodes are visible on
+                                initialization. Set to <code>false</code> to start fully
+                                collapsed; users expand subtrees individually via the chevron toggles.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+
+                    <!-- API Methods ──────────────────────────────────────── -->
+                    <section id="api-section-methods" class="mt-5">
+                      <h4 class="mb-4">Methods</h4>
+                      <p>
+                        Store the instance returned by <code>new Nimbus.OrgChart()</code> and
+                        call methods on it directly. Use the static
+                        <code>Nimbus.OrgChart.getInstance(el)</code> to retrieve an existing
+                        instance by its root element.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="OrgChart methods">
+                          <thead>
+                            <tr>
+                              <th scope="col" class="th-sm">Method</th>
+                              <th scope="col" class="th-sm">Parameters</th>
+                              <th scope="col" class="th-sm">Returns</th>
+                              <th scope="col" class="th-sm">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="text-nowrap"><code>expandAll()</code></td>
+                              <td>—</td>
+                              <td><code>void</code></td>
+                              <td>Expands every collapsed subtree and updates all chevron icons and <code>aria-expanded</code> states.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>collapseAll()</code></td>
+                              <td>—</td>
+                              <td><code>void</code></td>
+                              <td>Collapses every expanded subtree and updates all chevron icons and <code>aria-expanded</code> states.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>update(data)</code></td>
+                              <td><code>data</code> Object</td>
+                              <td><code>void</code></td>
+                              <td>
+                                Replaces the chart data with a new root node object and fully
+                                re-renders. The <code>expandAll</code> config value is applied
+                                to the fresh render.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>getSelected()</code></td>
+                              <td>—</td>
+                              <td><code>Element | null</code></td>
+                              <td>
+                                Returns the currently selected <code>.org-chart-node</code>
+                                element, or <code>null</code> if no node is selected.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>dispose()</code></td>
+                              <td>—</td>
+                              <td><code>void</code></td>
+                              <td>
+                                Destroys the instance and removes all event listeners. Call in
+                                Angular's <code>ngOnDestroy</code> to prevent memory leaks.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+
+                    <!-- API Events ───────────────────────────────────────── -->
+                    <section id="api-section-events" class="mt-5">
+                      <h4 class="mb-4">Events</h4>
+                      <p>
+                        All events are dispatched as native <code>CustomEvent</code>s on the org
+                        chart root element and bubble up the DOM. Listen with
+                        <code>el.addEventListener(eventName, handler)</code>. The event payload
+                        is available on <code>event.detail</code>.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="OrgChart events">
+                          <thead>
+                            <tr>
+                              <th scope="col" class="th-sm">Event name</th>
+                              <th scope="col" class="th-sm">Detail payload</th>
+                              <th scope="col" class="th-sm">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="text-nowrap"><code>select.cnds.orgchart</code></td>
+                              <td><code>{ node, id }</code></td>
+                              <td>
+                                Fired when a node card is clicked. <code>node</code> is the
+                                <code>.org-chart-node</code> element; <code>id</code> is the
+                                node's <code>id</code> field from the data object, or
+                                <code>null</code> if not set.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>expand.cnds.orgchart</code></td>
+                              <td><code>{ node }</code></td>
+                              <td>
+                                Fired when a node's children are expanded via its chevron toggle.
+                                <code>node</code> is the <code>.org-chart-node</code> whose
+                                subtree was expanded.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>collapse.cnds.orgchart</code></td>
+                              <td><code>{ node }</code></td>
+                              <td>
+                                Fired when a node's children are collapsed via its chevron toggle.
+                                <code>node</code> is the <code>.org-chart-node</code> whose
+                                subtree was collapsed.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <section class="mb-4 mt-3">
+                        <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-js">var el = document.getElementById('my-org-chart');
+
+el.addEventListener('select.cnds.orgchart', function (e) {
+  console.log('Selected node id:',      e.detail.id);
+  console.log('Selected node element:', e.detail.node);
+});
+
+el.addEventListener('expand.cnds.orgchart', function (e) {
+  console.log('Expanded node:', e.detail.node);
+});
+
+el.addEventListener('collapse.cnds.orgchart', function (e) {
+  console.log('Collapsed node:', e.detail.node);
+});</code></pre>
+                        </div>
+                      </section>
+                    </section>
+
+                    <!-- API CSS Custom Properties ────────────────────────── -->
+                    <section id="api-section-css-variables" class="mt-5">
+                      <h4 class="mb-4">CSS custom properties</h4>
+                      <p>
+                        All visual tokens are exposed as CSS custom properties on the
+                        <code>.org-chart</code> root element. Override them inline or in a
+                        stylesheet to customise individual instances or create a site-wide theme.
+                        Dark-mode values are set automatically via the
+                        <code>[data-cnds-theme="dark"]</code> selector in the plugin stylesheet.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="OrgChart CSS custom properties">
+                          <thead>
+                            <tr>
+                              <th scope="col" class="th-sm">Property</th>
+                              <th scope="col" class="th-sm">Light default</th>
+                              <th scope="col" class="th-sm">Dark default</th>
+                              <th scope="col" class="th-sm">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="text-nowrap"><code>--cnds-oc-bg</code></td>
+                              <td><code>var(--cnds-body-bg)</code></td>
+                              <td><code>#171717</code></td>
+                              <td>Chart container background.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>--cnds-oc-node-bg</code></td>
+                              <td><code>#fff</code></td>
+                              <td><code>#1e1e1e</code></td>
+                              <td>Node card background. Also used as the toggle button fill.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>--cnds-oc-color</code></td>
+                              <td><code>var(--cnds-body-color)</code></td>
+                              <td><code>#e8e8e8</code></td>
+                              <td>Primary text color (node name).</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>--cnds-oc-muted</code></td>
+                              <td><code>#6c757d</code></td>
+                              <td><code>var(--cnds-text-muted)</code></td>
+                              <td>Muted text color for avatar initials and job titles.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>--cnds-oc-border</code></td>
+                              <td><code>var(--cnds-border-color)</code></td>
+                              <td><code>#4a4a4a</code></td>
+                              <td>Node card border color.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>--cnds-oc-line</code></td>
+                              <td><code>#adb5bd</code></td>
+                              <td><code>#4a4a4a</code></td>
+                              <td>Connector line color. Also used as the toggle button border.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>--cnds-oc-focus</code></td>
+                              <td><code>var(--cnds-product-accent, #215aab)</code></td>
+                              <td><code>var(--cnds-product-accent, #6790ca)</code></td>
+                              <td>
+                                Selection ring and card hover border color. Automatically inherits
+                                the active product accent when a product class is present on
+                                <code>&lt;body&gt;</code>.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>--cnds-oc-radius</code></td>
+                              <td><code>var(--cnds-border-radius)</code></td>
+                              <td>same</td>
+                              <td>Node card border radius.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>--cnds-oc-node-shadow</code></td>
+                              <td><code>0 2px 8px rgba(0,0,0,.1)</code></td>
+                              <td><code>0 2px 8px rgba(0,0,0,.4)</code></td>
+                              <td>Node card box shadow.</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <section class="mb-4 mt-3">
+                        <h5><span class="badge badge-code-css">CSS</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-css">/* Override tokens for a single instance */
+#my-org-chart {
+  --cnds-oc-node-bg:      #f8f9fa;
+  --cnds-oc-line:         #6c757d;
+  --cnds-oc-focus:        #7c3aed;  /* custom accent */
+}</code></pre>
+                        </div>
+                      </section>
+                    </section>
+
+                    <!-- API Accessibility ────────────────────────────────── -->
+                    <section id="api-section-accessibility" class="mt-5">
+                      <h4 class="mb-4">Accessibility</h4>
+                      <p>
+                        The OrgChart plugin is built with accessibility in mind and targets
+                        WCAG 2.1 AA and Section 508 Subpart C compliance:
+                      </p>
+                      <ul>
+                        <li>
+                          <strong>Keyboard operability (§1194.21(a)).</strong> Chevron toggle
+                          buttons are native <code>&lt;button&gt;</code> elements and are
+                          fully keyboard accessible — they receive focus via
+                          <kbd>Tab</kbd> and activate via <kbd>Enter</kbd> or <kbd>Space</kbd>
+                          with no additional scripting.
+                        </li>
+                        <li>
+                          <strong><code>aria-expanded</code> (WCAG 4.1.2).</strong> Each toggle
+                          button carries <code>aria-expanded="true"</code> or
+                          <code>"false"</code>, kept in sync as nodes expand and collapse.
+                          Screen readers announce the current state before the button's label.
+                        </li>
+                        <li>
+                          <strong><code>aria-controls</code>.</strong> Each toggle button
+                          references its children container by ID via <code>aria-controls</code>,
+                          allowing assistive technologies to navigate directly to the controlled
+                          region.
+                        </li>
+                        <li>
+                          <strong><code>aria-label</code> on icon-only buttons.</strong> Toggle
+                          buttons carry <code>aria-label="Toggle children"</code> because their
+                          only child is a decorative icon (<code>aria-hidden="true"</code>),
+                          giving screen-reader users a meaningful label.
+                        </li>
+                        <li>
+                          <strong>Decorative elements hidden from the tree.</strong> Avatar
+                          initials, connector lines, and chevron icons are all marked
+                          <code>aria-hidden="true"</code> so they do not add noise to the
+                          accessibility tree. The node name text provides the accessible label.
+                        </li>
+                        <li>
+                          <strong>Card selection — keyboard gap.</strong> Node cards are
+                          <code>&lt;div&gt;</code> elements and are not in the default tab order.
+                          For full keyboard card selection, add <code>tabindex="0"</code> and a
+                          <code>keydown</code> handler for <kbd>Enter</kbd>/<kbd>Space</kbd> to
+                          the card elements, and set <code>role="button"</code> with an
+                          appropriate <code>aria-label</code> on each card.
+                        </li>
+                        <li>
+                          <strong>Live region for selection feedback.</strong> Status text that
+                          reflects the selected node should use <code>aria-live="polite"</code>
+                          so screen readers announce the update without interrupting the user.
+                          See the <a href="#section-select-event">Select event</a> demo for an
+                          example.
+                        </li>
+                        <li>
+                          <strong>Colour contrast (§1194.21(j)).</strong> All text and icon
+                          colour pairs meet WCAG AA (4.5:1 for normal text, 3:1 for UI
+                          elements). Dark-mode muted text uses
+                          <code>--cnds-text-muted</code> (<code>#d1d1d1</code>) on
+                          <code>#1e1e1e</code> — ratio 10.92:1.
+                        </li>
+                      </ul>
+                    </section>
+
+                  </section>
+                  <!-- /API Documentation -->
+
+                </section>
+              </div>
+              <!-- /Main column -->
+
+              <!-- ─────────────────────────────────────────────────────────────
+                   RIGHT SIDEBAR (20%) — sticky in-page navigation
+                   sticky-top + z-index keep it below the fixed header.
+                   data-cnds-allow-hashes: scrollspy highlights the active section.
+                   ───────────────────────────────────────────────────────────── -->
+              <div class="col-lg-2 d-none d-lg-block">
+                <div class="sticky-top" style="top:100px;z-index:1;">
+                  <ul class="nav flex-column nav-pills menu-sidebar"
+                      id="rightNav"
+                      data-cnds-allow-hashes="true"
+                      aria-label="Page sections">
+                    <li class="nav-item"><a class="nav-link" href="#section-introduction">Introduction</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-basic-example">Basic example</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-auto-init">Auto-init</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-collapsed">Collapsed by default</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-custom-template">Custom template</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-controls">Expand / Collapse</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-select-event">Select event</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-api-docs">API Documentation</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-introduction">Introduction</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-usage">Usage</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-options">Options</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-methods">Methods</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-events">Events</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-css-variables">CSS custom properties</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-accessibility">Accessibility</a></li>
+                  </ul>
+                </div>
+              </div>
+              <!-- /Right Sidebar -->
+
+            </div>
+            <!-- /Content Row -->
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- /MAIN CONTENT -->
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         FOOTER
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <div class="cf-footer cf-footer-app">
+      <footer class="page-footer main-footer" aria-label="Site footer">
+        <div class="w-100 px-3 d-flex align-items-center">
+          <!-- cf-logo-light / cf-logo-dark toggled via CSS when theme switches -->
+          <img src="img/cf/core/cloudficient_logo_light.svg" class="cf-logo-light" style="width:135px;" alt="Cloudficient" />
+          <img src="img/cf/core/cloudficient_logo_dark.svg"  class="cf-logo-dark"  style="width:135px;" alt="Cloudficient" />
+          <span class="footer-copyright ms-auto">&copy; <span id="currentYear"></span> Cloudficient</span>
+        </div>
+      </footer>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         SCRIPTS
+         Load order matters — each script depends on the one before it.
+         1. nimbus.js       — bootstraps Nimbus namespace, async-loads all core
+                              modules and plugins, then fires "cnds.ready"
+         2. app.js          — application-level overrides and custom init
+         3. prism.min.js    — syntax-highlights <code class="language-*"> blocks
+         4. sidenav-loader.js — fetches includes/sidenav.html → injects into #sidebar-cf
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <script src="js/nimbus.js?v=9.0.4"></script>
+    <script src="js/app.js?v=9.0.4"></script>
+    <script src="plugins/js/prism.min.js"></script>
+    <script src="js/sidenav-loader.js"></script>
+
+    <!-- Footer year — set once at page load; no framework needed -->
+    <script>
+      (function () {
+        var el = document.getElementById("currentYear");
+        if (el) el.textContent = new Date().getFullYear();
+      })();
+    </script>
+
+    <!-- ───────────────────────────────────────────────────────────────────────
+         DEMO INITIALISATION
+         All demos are grouped in initOrgChartDemos() and deferred until
+         "cnds.ready" fires (after nimbus.js has loaded every plugin).
+         Each demo is isolated in an IIFE so variables don't leak between demos.
+         Guard clauses (if (!el) return) prevent one missing element from
+         breaking all subsequent demos.
+         ─────────────────────────────────────────────────────────────────────── -->
+    <script>
+      function initOrgChartDemos() {
+
+        // ── Demo: Basic example ───────────────────────────────────────────────
+        // Shows programmatic initialization with a two-level hierarchy.
+        (function () {
+          var el = document.getElementById("basic-chart");
+          if (!el) return;
+
+          new Nimbus.OrgChart(el, {
+            data: {
+              name: "Sarah Chen", title: "Chief Executive Officer", id: "ceo",
+              children: [
+                { name: "Marcus Webb", title: "VP Engineering", id: "vp-eng",
+                  children: [
+                    { name: "Priya Nair",   title: "Director of Platform", id: "dir-platform" },
+                    { name: "James Okafor", title: "Director of QA",       id: "dir-qa" }
+                  ]
+                },
+                { name: "Lena Fischer", title: "VP Product", id: "vp-prod",
+                  children: [
+                    { name: "Tomás Rivera", title: "Director of Design",   id: "dir-design" },
+                    { name: "Yuki Tanaka",  title: "Director of Research", id: "dir-research" }
+                  ]
+                }
+              ]
+            }
+          });
+        })();
+
+        // ── Demo: Collapsed by default ────────────────────────────────────────
+        // expandAll: false starts the chart with all child nodes hidden.
+        (function () {
+          var el = document.getElementById("collapsed-chart");
+          if (!el) return;
+
+          new Nimbus.OrgChart(el, {
+            expandAll: false,
+            data: {
+              name: "Diana Wolfe", title: "CTO",
+              children: [
+                { name: "Ethan Blake", title: "VP Infrastructure",
+                  children: [
+                    { name: "Chloe Martin", title: "SRE Lead" },
+                    { name: "Felix Huang",  title: "Security Lead" }
+                  ]
+                },
+                { name: "Amara Osei", title: "VP Applications",
+                  children: [
+                    { name: "Leo Santos", title: "Frontend Lead" },
+                    { name: "Nina Kovač", title: "Backend Lead" }
+                  ]
+                }
+              ]
+            }
+          });
+        })();
+
+        // ── Demo: Custom node template ────────────────────────────────────────
+        // nodeTemplate receives the node data object and returns an HTML string.
+        // The returned markup replaces the default avatar + name + title layout.
+        (function () {
+          var el = document.getElementById("template-chart");
+          if (!el) return;
+
+          var deptColors = {
+            Engineering: "#2563eb",
+            Product:     "#7c3aed",
+            Design:      "#db2777",
+            Operations:  "#16a34a"
+          };
+
+          new Nimbus.OrgChart(el, {
+            nodeTemplate: function (d) {
+              var color = deptColors[d.dept] || "#6b7280";
+              return '<div style="display:flex;align-items:center;gap:10px;">'
+                + '<div aria-hidden="true" style="width:36px;height:36px;border-radius:50%;background:'
+                + color + ';color:#fff;display:flex;align-items:center;justify-content:center;'
+                + 'font-weight:700;font-size:14px;flex-shrink:0;">'
+                + (d.name || "?").charAt(0)
+                + '</div>'
+                + '<div>'
+                + '<div style="font-weight:600;font-size:13px;">' + (d.name  || "") + '</div>'
+                + '<div style="font-size:11px;color:#6b7280;">'   + (d.title || "") + '</div>'
+                + (d.dept
+                    ? '<span style="display:inline-block;margin-top:3px;padding:1px 6px;'
+                    + 'border-radius:10px;font-size:10px;font-weight:600;background:'
+                    + color + '22;color:' + color + ';">' + d.dept + '</span>'
+                    : '')
+                + '</div></div>';
+            },
+            data: {
+              name: "Jordan Kim", title: "CEO", dept: "Operations",
+              children: [
+                { name: "Riley Chen", title: "VP Engineering", dept: "Engineering",
+                  children: [
+                    { name: "Sam Patel",  title: "Frontend Lead", dept: "Engineering" },
+                    { name: "Morgan Lee", title: "DevOps Lead",   dept: "Engineering" }
+                  ]
+                },
+                { name: "Taylor Obi", title: "VP Product", dept: "Product",
+                  children: [
+                    { name: "Casey Wu",    title: "UX Lead", dept: "Design" },
+                    { name: "Avery Singh", title: "PM Lead", dept: "Product" }
+                  ]
+                }
+              ]
+            }
+          });
+        })();
+
+        // ── Demo: Expand / Collapse controls ──────────────────────────────────
+        // expandAll() and collapseAll() are called on the stored instance.
+        // Buttons use null-guarded addEventListener for safety.
+        (function () {
+          var el = document.getElementById("controls-chart");
+          if (!el) return;
+
+          var chart = new Nimbus.OrgChart(el, {
+            data: {
+              name: "Headquarters", title: "Global Operations",
+              children: [
+                { name: "EMEA Division", title: "Regional Office",
+                  children: [
+                    { name: "London", title: "Country Office" },
+                    { name: "Berlin", title: "Country Office" }
+                  ]
+                },
+                { name: "APAC Division", title: "Regional Office",
+                  children: [
+                    { name: "Singapore", title: "Country Office" },
+                    { name: "Tokyo",     title: "Country Office" }
+                  ]
+                }
+              ]
+            }
+          });
+
+          var expandBtn   = document.getElementById("btn-expand-all");
+          var collapseBtn = document.getElementById("btn-collapse-all");
+          if (expandBtn)   expandBtn.addEventListener("click",   function () { chart.expandAll(); });
+          if (collapseBtn) collapseBtn.addEventListener("click", function () { chart.collapseAll(); });
+        })();
+
+        // ── Demo: Select event ────────────────────────────────────────────────
+        // Listens for select.cnds.orgchart and updates an aria-live status region.
+        // e.detail = { node: Element, id: string | null }
+        (function () {
+          var el     = document.getElementById("select-chart");
+          var status = document.getElementById("select-status");
+          if (!el) return;
+
+          new Nimbus.OrgChart(el, {
+            data: {
+              name: "Vikram Sinha",   title: "COO",                id: "coo",
+              children: [
+                { name: "Anna Bergström", title: "Operations Director", id: "ops-dir" },
+                { name: "Omar Farooq",    title: "Finance Director",    id: "fin-dir" }
+              ]
+            }
+          });
+
+          el.addEventListener("select.cnds.orgchart", function (e) {
+            if (!status) return;
+            var node   = e.detail.node;
+            var nameEl = node ? node.querySelector(".org-chart-name") : null;
+            // aria-live="polite" on #select-status announces the change to screen readers.
+            status.textContent = "Selected: " + (nameEl ? nameEl.textContent : e.detail.id || "unknown");
+          });
+        })();
+
+      }
+
+      // Guard: if plugins are already loaded run immediately, otherwise wait for "cnds.ready".
+      if (window.Nimbus && window.Nimbus.OrgChart) {
+        initOrgChartDemos();
+      } else {
+        document.addEventListener("cnds.ready", initOrgChartDemos);
+      }
+    </script>
+
+  </body>
+</html>

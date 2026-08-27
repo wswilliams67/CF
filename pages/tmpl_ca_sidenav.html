@@ -894,15 +894,13 @@
         updateLayout();
         window.addEventListener("resize", queueLayout, { passive: true });
 
-        /* Header elevation on scroll. Guarded on a state change so the handler
-           does no classList work on the vast majority of scroll events. */
-        var headerScrolled = false;
-        window.addEventListener("scroll", function () {
-          var scrolled = window.scrollY > 0;
-          if (!header || scrolled === headerScrolled) return;
-          headerScrolled = scrolled;
-          header.classList.toggle("shadow-sm", scrolled);
-        }, { passive: true });
+        /* The utility header deliberately carries NO elevation on scroll. A screen
+           that sticks its own content header directly beneath this bar would end up
+           with a shadow falling between two flush bars; the elevation belongs to
+           whichever bar is the last one above the scrolling content, so each screen
+           owns it. Removed 2026-08-26 at Scott's direction — do not reinstate here.
+           Screen-level example: js/pages/pge-admin-natprsn-list.js
+           wireHeaderElevation(). */
 
         /* ═══════════════════════════════════════════════════════════════
            2 · OVERLAY REGISTRY

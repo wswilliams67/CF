@@ -1,0 +1,1165 @@
+<!--
+* CNDS Nimbus Design System — Sticky
+* Version: 1.0.0
+* Layout: Application with SideNav
+*
+* Component JS: js/nimbus.js → Nimbus.Sticky
+* Auto-init:    data-cnds-sticky="true" on DOMContentLoaded
+*
+* SECTIONS (in document order)
+*   #section-introduction                — Component overview, key notes
+*   #section-basic-example               — Minimal sticky usage
+*   #section-sticky-bottom               — Pin element to viewport bottom
+*   #section-boundary                    — Constrain sticky to parent element
+*   #section-outer-element-as-a-boundary — Constrain to any CSS-selector target
+*   #section-direction                   — Scroll-direction filter: up / down / both
+*   #section-animation                   — Entry and exit CSS animations
+*   #section-sticky-with-navbar          — Offset to clear a fixed navigation bar
+*   #section-api-docs                    — API Documentation (outer wrapper)
+*     #api-section-introduction          — Component model and initialization overview
+*     #api-section-usage                 — Via data attributes / Via JavaScript
+*     #api-section-options               — Options reference table
+*     #api-section-methods               — Methods reference table
+*     #api-section-events                — Events reference table
+*
+* NOTES
+* - Pure HTML5, CSS3, vanilla JavaScript — zero external dependencies
+* - data-cnds-sticky="true" triggers auto-init via nimbus.js on DOMContentLoaded
+* - Uses Nimbus.* namespace (replaces mdb.* from Nimbus v8)
+* - data-mdb-sticky-init replaced by data-cnds-sticky="true"
+* - Default product theme: CaseFusion (cnds-product-casefusion on <body>; change to cnds-product-hyperlize or cnds-product-expireon)
+-->
+<!doctype html>
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta
+      name="description"
+      content="Sticky | Cloudficient Nimbus Design System v1.0.0"
+    />
+    <title>Sticky | CNDS v1.0.0 | Cloudficient Nimbus Design System</title>
+    <!-- Nimbus CSS -->
+    <link rel="stylesheet" href="css/nimbus.css" media="all" type="text/css" />
+    <!-- Custom styles | All custom classes/styles/overrides go here! -->
+    <link rel="stylesheet" href="css/app.css" media="all" type="text/css" />
+    <!-- Prism syntax highlighting -->
+    <link
+      rel="stylesheet"
+      href="plugins/css/prism.min.css"
+      media="all"
+      type="text/css"
+    />
+    <!-- Favicons -->
+    <link
+      rel="apple-touch-icon"
+      sizes="57x57"
+      href="img/favicon/apple-icon-57x57.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="60x60"
+      href="img/favicon/apple-icon-60x60.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="72x72"
+      href="img/favicon/apple-icon-72x72.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="76x76"
+      href="img/favicon/apple-icon-76x76.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="114x114"
+      href="img/favicon/apple-icon-114x114.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="120x120"
+      href="img/favicon/apple-icon-120x120.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="144x144"
+      href="img/favicon/apple-icon-144x144.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="152x152"
+      href="img/favicon/apple-icon-152x152.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="img/favicon/apple-icon-180x180.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="192x192"
+      href="img/favicon/android-icon-192x192.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="img/favicon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="96x96"
+      href="img/favicon/favicon-96x96.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="img/favicon/favicon-16x16.png"
+    />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta
+      name="msapplication-TileImage"
+      content="img/favicon/ms-icon-144x144.png"
+    />
+    <!-- ./Favicons -->
+    <!-- Design tokens — load order matters:
+         1. primitives.css  — raw color/spacing values (no theming)
+         2. light.css       — semantic tokens for [data-cnds-theme="light"] / :root
+         3. dark.css        — semantic token overrides for [data-cnds-theme="dark"]
+         All three must appear AFTER nimbus.css so component variables resolve correctly. -->
+    <link rel="stylesheet" href="css/themes/primitives.css" />
+    <link rel="stylesheet" href="css/themes/light.css" />
+    <link rel="stylesheet" href="css/themes/dark.css" />
+  </head>
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 Bypass Blocks; renders visually hidden until focused -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+    <!-- Header -->
+    <div class="sticky-top">
+      <!-- Utility Navigation -->
+      <nav id="UtilityNav" class="nav nav-cf-utility">
+        <div class="w-100 gx-3 px-sm-0 px-lg-3">
+          <ul class="nav nav-cf-utility-ul"></ul>
+        </div>
+      </nav>
+      <!-- ./Utility Navigation -->
+      <!-- Main Navigation -->
+      <nav id="MainNav" class="navbar navbar-expand-xl navbar-cf">
+        <div class="container-fluid p-0 px-3 d-flex">
+          <div class="d-flex flex-fill align-items-center text-truncate">
+            <div class="text-center d-none d-md-block me-3 border-end">
+              <a href="index.html"
+                ><img
+                  src="img/cf/core/logo_nimbus.png"
+                  class="me-3 mt-n1"
+                  alt="Cloudficient Nimbus Design System"
+              /></a>
+            </div>
+            <div class="flex-fill text-truncate">
+              <div class="navbar-cf-title-block">
+                <div
+                  class="navbar-cf-title cf-page-title text-truncate"
+                  style="padding-bottom: 0"
+                >
+                  <span class="cf-page-title-text cf-page-title-brand">v1</span
+                  ><span class="cf-page-title-divider"></span
+                  ><span class="cf-page-title-text">Sticky</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- data-cnds-toggle="theme": wired by nimbus.js — flips data-cnds-theme on <html> between "light" and "dark" -->
+          <button
+            class="btn btn-sm btn-outline-secondary ms-2"
+            data-cnds-toggle="theme"
+            aria-label="Toggle theme"
+            title="Toggle theme"
+          >
+            <i class="mdi mdi-weather-night mdi-18px" aria-hidden="true"></i>
+          </button>
+        </div>
+      </nav>
+      <!-- ./Main Navigation -->
+    </div>
+    <!-- ./Header -->
+    <!-- Content -->
+    <main id="main-content" class="cf-main-app">
+      <!-- Mobile viewport warning -->
+      <div class="d-block d-md-none p-4">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>This
+          application is not optimized for small screens. Please use a large
+          tablet, laptop, or desktop computer to continue.
+        </div>
+      </div>
+      <div class="d-none d-md-block">
+        <!-- Sidenav — markup is intentionally empty; sidenav-loader.js fetches and injects the shared nav HTML.
+             data-cnds-mode="side"            : renders as a persistent side panel (not an overlay/drawer)
+             data-cnds-slim / slim-collapsed  : controls compact/icon-only collapsed state
+             data-cnds-content="#slim-content" : the sibling panel that shrinks/expands as the nav opens/closes
+             data-cnds-accordion="true"       : collapses other open nav groups when a new one is expanded -->
+        <nav
+          id="sidebar-cf"
+          class="sidenav"
+          data-cnds-mode="side"
+          data-cnds-slim="false"
+          data-cnds-slim-collapsed="false"
+          data-cnds-content="#slim-content"
+          data-cnds-accordion="true"
+        ></nav>
+        <div id="slim-content">
+          <div class="slim-content-box">
+            <!-- Content Row -->
+            <div class="row">
+              <!-- Main column — 80 % of the row width; the remaining 20 % is the right sidebar.
+                   The inline flex overrides are intentional: they pin the ratio regardless of Bootstrap's
+                   grid breakpoints so the sidebar never wraps on large viewports. -->
+              <div class="col-12 col-lg" style="flex: 0 0 80%; max-width: 80%">
+                <!--Section: Docs content-->
+                <section class="container-fluid">
+
+                  <!--Section: Introduction-->
+                  <section id="section-introduction">
+
+                    <p class="mb-4">
+                      The Nimbus Sticky component pins any element to a fixed position in
+                      the viewport as the user scrolls. Unlike the CSS
+                      <code>position: sticky</code> property, the Nimbus implementation
+                      adds scroll-direction awareness, configurable top and bottom offsets,
+                      animated entry and exit transitions, and boundary constraints — all
+                      controlled through <code>data-cnds-*</code> attributes or the
+                      <code>Nimbus.Sticky</code> JavaScript API.
+                    </p>
+
+                    <p class="mb-4">
+                      Use Sticky for page-level navigation bars, right-sidebar section menus, action toolbars,
+                      and any UI element that needs to remain visible as the user scrolls through long content.
+                      The boundary option constrains the sticky element to a specific parent — ideal for
+                      sidebars that should not overlap the footer. Scroll-direction filtering lets you show the
+                      element only when the user scrolls up (common for "return to top" patterns) or only when
+                      scrolling down.
+                    </p>
+
+                    <!-- Note: API docs link — appears above the theme-toggle note per CNDS conventions -->
+                    <p class="note note-light">
+                      <strong>Note:</strong> Read the
+                      <a href="#section-api-docs">API Documentation</a> to find all
+                      available options and advanced customization.
+                    </p>
+
+                    <!-- Note: Theme preview instruction — MDI icons reference the actual header toggle buttons -->
+                    <p class="note note-info">
+                      <strong class="note-label">Note:</strong> To preview components in
+                      different themes, click the theme toggle button
+                      <i class="mdi mdi-weather-night" aria-hidden="true"></i> /
+                      <i class="mdi mdi-weather-sunny" aria-hidden="true"></i> in the
+                      header navigation bar.
+                    </p>
+
+                  </section>
+                  <!--/Section: Introduction-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Basic example-->
+                  <section id="section-basic-example">
+
+                    <h3 class="mb-3">Basic example</h3>
+
+                    <p>
+                      Add <code>class="sticky"</code> and
+                      <code>data-cnds-sticky="true"</code> to any element to activate it.
+                      By default the element pins to the top of the viewport when the user
+                      scrolls down. Scroll the page to see the button lock in place.
+                    </p>
+
+                    <!-- Dev note: min-height on the inner container gives the page enough
+                         scroll depth to demonstrate sticky behavior. In production, the
+                         sticky element operates against the full document scroll. -->
+
+                    <!-- Angular: [attr.data-cnds-sticky]="'true'" on the host element.
+                         Bind numeric options via [attr.data-cnds-sticky-offset]="offsetPx".
+                         Listen to (activated.cnds.sticky) and (deactivated.cnds.sticky)
+                         using @HostListener or a custom CndsSticky directive wrapper. -->
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                          <div style="min-height: 500px" class="text-center">
+                            <!-- id="sticky" is referenced by the API Methods and Events JS examples -->
+                            <a
+                              id="sticky"
+                              href="#!"
+                              class="btn btn-outline-primary sticky"
+                              data-cnds-sticky="true"
+                              data-cnds-sticky-boundary="true"
+                              data-cnds-sticky-direction="both"
+                              data-cnds-sticky-offset="56"
+                            >This is a sticky button</a>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;a href="#!" class="btn btn-outline-primary sticky" data-cnds-sticky="true"&gt;
+    Sticky Button
+&lt;/a&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                  </section>
+                  <!--/Section: Basic example-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Sticky bottom-->
+                  <section id="section-sticky-bottom">
+
+                    <h3 class="mb-3">Sticky bottom</h3>
+
+                    <p>
+                      Set <code>data-cnds-sticky-position="bottom"</code> to anchor the
+                      element to the bottom of the viewport instead of the top. Use this
+                      for persistent call-to-action buttons, status bars, or any element
+                      that must remain visible at the foot of the screen.
+                    </p>
+
+                    <!-- Angular: [attr.data-cnds-sticky-position]="'bottom'" added alongside
+                         [attr.data-cnds-sticky]="'true'" on the same host element. -->
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 pb-4">
+                          <div style="min-height: 500px" class="text-center">
+                            <img
+                              id="sticky-bottom-img"
+                              src="img/cf/core/logo_nimbus.png"
+                              alt="Nimbus Logo"
+                              class="sticky"
+                              data-cnds-sticky="true"
+                              data-cnds-sticky-boundary="true"
+                              data-cnds-sticky-offset="56"
+                              data-cnds-sticky-position="bottom"
+                            />
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;img src="..." alt="Logo" class="sticky"
+    data-cnds-sticky="true"
+    data-cnds-sticky-position="bottom" /&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                  </section>
+                  <!--/Section: Sticky bottom-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Boundary-->
+                  <section id="section-boundary">
+
+                    <h3 class="mb-3">Boundary</h3>
+
+                    <p>
+                      By default, a sticky element remains pinned for the full scroll
+                      length of the page. Setting
+                      <code>data-cnds-sticky-boundary="true"</code> limits sticky
+                      behavior to the bounds of the element's direct parent container.
+                      When the viewport scrolls past the parent's bottom edge, the element
+                      releases and scrolls away naturally. Ensure the parent container has
+                      a defined height for boundary detection to work correctly.
+                    </p>
+
+                    <!-- Angular: [attr.data-cnds-sticky-boundary]="'true'" on the sticky element.
+                         The parent container must have a defined height; bind it via
+                         [style.minHeight.px]="containerHeight" on the parent div. -->
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 pb-4">
+                          <div style="min-height: 500px" class="text-center">
+                            <div style="min-height: 500px" class="text-center">
+                              <img
+                                id="sticky-boundary-img"
+                                src="img/cf/core/logo_nimbus.png"
+                                alt="Nimbus Logo"
+                                class="sticky"
+                                data-cnds-sticky="true"
+                                data-cnds-sticky-boundary="true"
+                                data-cnds-sticky-offset="56"
+                              />
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div style="min-height: 500px" class="text-center"&gt;
+    &lt;img src="..." alt="Logo" class="sticky"
+        data-cnds-sticky="true"
+        data-cnds-sticky-boundary="true" /&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                  </section>
+                  <!--/Section: Boundary-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Outer element as a boundary-->
+                  <section id="section-outer-element-as-a-boundary">
+
+                    <h3 class="mb-3">Outer element as a boundary</h3>
+
+                    <p>
+                      Pass a CSS selector string to
+                      <code>data-cnds-sticky-boundary</code> to use any element on the
+                      page as the sticky boundary — not just the direct parent. The sticky
+                      element releases from its fixed position when the viewport reaches
+                      the boundary element's bottom edge. In the example below,
+                      <code>#sticky-stop</code> acts as the release point.
+                    </p>
+
+                    <!-- Angular: [attr.data-cnds-sticky-boundary]="'#sticky-stop'" passes the
+                         selector string. Ensure the boundary element has a stable DOM id;
+                         if it is dynamic, use a ViewChild ref and set the attribute after
+                         view initialization in ngAfterViewInit(). -->
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 pb-4">
+                          <!-- min-height keeps the container tall enough to scroll through.
+                               #sticky-stop sits ~300 px below the image so the demo box
+                               is still partially visible when the boundary fires. -->
+                          <div style="min-height: 700px" class="text-center">
+                            <img
+                              id="sticky-outer-img"
+                              src="img/cf/core/logo_nimbus.png"
+                              alt="Nimbus Logo"
+                              class="sticky"
+                              data-cnds-sticky="true"
+                              data-cnds-sticky-boundary="#sticky-stop"
+                              data-cnds-sticky-offset="56"
+                              data-cnds-sticky-direction="both"
+                            />
+                            <!-- Boundary element: placed ~300 px below the image.
+                                 When its bottom edge scrolls within (offset + logo height)
+                                 of the viewport top the logo unpins. -->
+                            <div
+                              id="sticky-stop"
+                              class="note note-light d-flex align-items-center gap-2 text-start mt-5"
+                              style="margin-top: 300px !important"
+                              role="note"
+                              aria-label="Sticky boundary"
+                            >
+                              <i class="mdi mdi-map-marker-check-outline mdi-18px flex-shrink-0" aria-hidden="true"></i>
+                              <span><strong>Sticky stop</strong> — the logo unpins when this marker reaches the top.</span>
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div style="min-height: 700px" class="text-center"&gt;
+    &lt;img src="..." alt="Logo" class="sticky"
+        data-cnds-sticky="true"
+        data-cnds-sticky-boundary="#sticky-stop"
+        data-cnds-sticky-offset="56"
+        data-cnds-sticky-direction="both" /&gt;
+
+    &lt;!-- Boundary: any element in the DOM, not just the parent --&gt;
+    &lt;div id="sticky-stop" style="margin-top: 300px"&gt;Sticky stop&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                  </section>
+                  <!--/Section: Outer element as a boundary-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Direction-->
+                  <section id="section-direction">
+
+                    <h3 class="mb-3">Direction</h3>
+
+                    <p>
+                      The <code>data-cnds-sticky-direction</code> attribute filters which
+                      scroll direction activates sticky behavior.
+                      <code>"down"</code> (default) pins the element only when the user
+                      scrolls down; <code>"up"</code> pins it only when scrolling up;
+                      <code>"both"</code> keeps it pinned in either direction. Use
+                      <code>"both"</code> for navigation bars and sidebars that should
+                      remain accessible regardless of scroll direction.
+                    </p>
+
+                    <p>
+                      When using <code>direction="up"</code>, set
+                      <code>data-cnds-sticky-boundary="false"</code> (or omit the boundary
+                      entirely). With <code>boundary="true"</code>, the component blocks
+                      reactivation until the parent element re-enters the viewport — by
+                      which point the element's natural position is well above the screen,
+                      causing a visible snap when it pins. Use
+                      <code>data-cnds-sticky-animation-sticky="slide-in-down"</code> to
+                      soften the entry instead.
+                    </p>
+
+                    <!-- Angular: [attr.data-cnds-sticky-direction]="direction" where
+                         direction is a component property ('up' | 'down' | 'both').
+                         For direction="up", do not bind boundary="true" — the boundary
+                         blocks reactivation until the parent div re-enters the viewport,
+                         causing a snap. Use animation-sticky="slide-in-down" instead to
+                         smooth the appearance. Update the direction property at runtime
+                         to change sticky behavior reactively. -->
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 pb-4">
+
+                          <!-- Each direction gets its own wrapper div so boundary="true"
+                               resolves to an independent parent for each button. -->
+
+                          <!-- direction="down": pins while scrolling down -->
+                          <div style="min-height: 220px" class="text-center border-bottom pb-4 mb-4">
+                            <a
+                              class="btn btn-primary sticky"
+                              data-cnds-sticky="true"
+                              data-cnds-sticky-boundary="true"
+                              data-cnds-sticky-offset="56"
+                              data-cnds-sticky-direction="down"
+                            >Down</a>
+                            <p class="text-muted small mt-3 mb-0">Scroll <strong>down</strong> — pins on the way down, releases on the way back up.</p>
+                          </div>
+
+                          <!-- direction="up": scroll down past the button first,
+                               then scroll back up — it pins on the return scroll.
+                               No boundary used: boundary="true" blocks activation until
+                               the parent div re-enters the viewport, by which point the
+                               button is far off-screen and snaps jarringly. -->
+                          <div style="min-height: 220px" class="text-center border-bottom pb-4 mb-4">
+                            <a
+                              class="btn btn-primary sticky"
+                              data-cnds-sticky="true"
+                              data-cnds-sticky-boundary="false"
+                              data-cnds-sticky-offset="56"
+                              data-cnds-sticky-direction="up"
+                              data-cnds-sticky-animation-sticky="slide-in-down"
+                            >Up</a>
+                            <p class="text-muted small mt-3 mb-0">Scroll <strong>down past</strong> this button, then scroll <strong>up</strong> — pins on the return scroll.</p>
+                          </div>
+
+                          <!-- direction="both": pins regardless of scroll direction -->
+                          <div style="min-height: 220px" class="text-center">
+                            <a
+                              class="btn btn-primary sticky"
+                              data-cnds-sticky="true"
+                              data-cnds-sticky-boundary="true"
+                              data-cnds-sticky-offset="56"
+                              data-cnds-sticky-direction="both"
+                            >Both</a>
+                            <p class="text-muted small mt-3 mb-0">Scroll <strong>either direction</strong> — stays pinned until the boundary is reached.</p>
+                          </div>
+
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;!-- Each button needs its own parent so boundary="true" resolves independently --&gt;
+
+&lt;!-- direction="down": uses boundary to auto-release when parent scrolls away --&gt;
+&lt;div style="min-height: 220px"&gt;
+    &lt;a class="btn btn-primary sticky"
+        data-cnds-sticky="true"
+        data-cnds-sticky-boundary="true"
+        data-cnds-sticky-direction="down"&gt;Down&lt;/a&gt;
+&lt;/div&gt;
+
+&lt;!-- direction="up": no boundary — avoids snap when parent re-enters viewport.
+     slide-in-down animation smooths the appearance from off-screen. --&gt;
+&lt;div style="min-height: 220px"&gt;
+    &lt;a class="btn btn-primary sticky"
+        data-cnds-sticky="true"
+        data-cnds-sticky-boundary="false"
+        data-cnds-sticky-direction="up"
+        data-cnds-sticky-animation-sticky="slide-in-down"&gt;Up&lt;/a&gt;
+&lt;/div&gt;
+
+&lt;div style="min-height: 220px"&gt;
+    &lt;a class="btn btn-primary sticky"
+        data-cnds-sticky="true"
+        data-cnds-sticky-boundary="true"
+        data-cnds-sticky-direction="both"&gt;Both&lt;/a&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                  </section>
+                  <!--/Section: Direction-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Animation-->
+                  <section id="section-animation">
+
+                    <h3 class="mb-3">Animation</h3>
+
+                    <p>
+                      Provide CSS animation class names via
+                      <code>data-cnds-sticky-animation-sticky</code> and
+                      <code>data-cnds-sticky-animation-unsticky</code> to animate the
+                      element when it enters and exits the sticky state. The component
+                      applies the class for the duration of the animation, then removes
+                      it. Any valid CSS <code>@keyframes</code> class name is accepted;
+                      Nimbus ships <code>slide-in-down</code> and <code>slide-up</code>
+                      as sensible defaults.
+                    </p>
+
+                    <p>
+                      Set <code>data-cnds-sticky-direction="both"</code> when using an
+                      exit animation. With the default <code>direction="down"</code>, the
+                      exit animation only fires when the boundary forces a release — at
+                      that point the element's natural position has scrolled far above the
+                      viewport and the animation is invisible. With
+                      <code>direction="both"</code>, the exit fires when the user scrolls
+                      back up through the trigger point, where the element is still visible.
+                    </p>
+
+                    <p>
+                      For users who prefer reduced motion, conditionally omit the
+                      animation attributes or override animation duration with a
+                      <code>@media (prefers-reduced-motion: reduce)</code> rule
+                      in your stylesheet.
+                    </p>
+
+                    <!-- Angular: Bind animation class names from component properties:
+                         [attr.data-cnds-sticky-animation-sticky]="stickyAnim"
+                         [attr.data-cnds-sticky-animation-unsticky]="unstickyAnim"
+                         Set these to null on components that respect prefers-reduced-motion. -->
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 pb-4">
+                          <div style="min-height: 500px" class="text-center">
+                            <img
+                              id="sticky-animation-img"
+                              src="img/cf/core/logo_nimbus.png"
+                              alt="Nimbus Logo"
+                              class="sticky"
+                              data-cnds-sticky="true"
+                              data-cnds-sticky-boundary="true"
+                              data-cnds-sticky-offset="56"
+                              data-cnds-sticky-direction="both"
+                              data-cnds-sticky-animation-sticky="slide-in-down"
+                              data-cnds-sticky-animation-unsticky="slide-up"
+                            />
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;img src="..." alt="Logo" class="sticky"
+    data-cnds-sticky="true"
+    data-cnds-sticky-boundary="true"
+    data-cnds-sticky-offset="56"
+    data-cnds-sticky-direction="both"
+    data-cnds-sticky-animation-sticky="slide-in-down"
+    data-cnds-sticky-animation-unsticky="slide-up" /&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                  </section>
+                  <!--/Section: Animation-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Sticky with navbar-->
+                  <section id="section-sticky-with-navbar">
+
+                    <h3 class="mb-3">Sticky with navbar</h3>
+
+                    <p>
+                      When a fixed or sticky navbar is present, a sticky element without
+                      an offset will pin behind it and become obscured. Set
+                      <code>data-cnds-sticky-offset</code> to the height of the navbar in
+                      pixels so the sticky element clears it. When multiple fixed headers
+                      are stacked — for example a page-level navbar and a section-level
+                      sub-nav — add their heights together and pass the sum as the offset
+                      on the element beneath them.
+                    </p>
+
+                    <!-- Angular: Compute the navbar height at runtime and bind it:
+                         [attr.data-cnds-sticky-offset]="navbarHeight"
+                         where navbarHeight is read via ViewChild on the navbar element
+                         in ngAfterViewInit(). Update on window resize via HostListener. -->
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 py-4 pb-4">
+                          <div style="min-height: 500px" class="text-center">
+                            <!-- Demo navbar — sticky-direction="both" keeps it visible
+                                 when scrolling back up, matching a typical fixed-header pattern -->
+                            <nav
+                              class="navbar sticky bg-body-tertiary mb-3"
+                              data-cnds-sticky="true"
+                              data-cnds-sticky-boundary="true"
+                              data-cnds-sticky-direction="both"
+                              data-cnds-sticky-offset="56"
+                            >
+                              <div class="container-fluid">
+                                <a class="navbar-brand" href="#">Navbar</a>
+                              </div>
+                            </nav>
+                            <!-- offset="112" = 56px page header + 56px demo navbar -->
+                            <img
+                              id="sticky-navbar-img"
+                              src="img/cf/core/logo_nimbus.png"
+                              alt="Nimbus Logo"
+                              class="sticky"
+                              data-cnds-sticky="true"
+                              data-cnds-sticky-boundary="true"
+                              data-cnds-sticky-direction="both"
+                              data-cnds-sticky-offset="112"
+                            />
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;!-- Navbar pins below the page header (offset = page header height) --&gt;
+&lt;nav class="navbar sticky bg-body-tertiary mb-3"
+    data-cnds-sticky="true"
+    data-cnds-sticky-boundary="true"
+    data-cnds-sticky-direction="both"
+    data-cnds-sticky-offset="56"&gt;
+    &lt;div class="container-fluid"&gt;
+        &lt;a class="navbar-brand" href="#"&gt;Navbar&lt;/a&gt;
+    &lt;/div&gt;
+&lt;/nav&gt;
+
+&lt;!-- Element pins below both headers (offset = page header + navbar height) --&gt;
+&lt;img src="..." alt="Logo" class="sticky"
+    data-cnds-sticky="true"
+    data-cnds-sticky-boundary="true"
+    data-cnds-sticky-direction="both"
+    data-cnds-sticky-offset="112" /&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                  </section>
+                  <!--/Section: Sticky with navbar-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: API Documentation-->
+                  <section id="section-api-docs">
+                    <h3 class="mb-3">API Documentation</h3>
+
+                    <!--Section: API Introduction-->
+                    <section id="api-section-introduction">
+                      <h4 class="mb-4">Introduction</h4>
+                      <p>
+                        The Nimbus Sticky component is a JavaScript-driven scroll utility.
+                        On <code>DOMContentLoaded</code>, <code>nimbus.js</code> scans the
+                        document for all elements carrying
+                        <code>data-cnds-sticky="true"</code> and instantiates a
+                        <code>Nimbus.Sticky</code> controller for each one. The controller
+                        attaches a passive scroll listener to the window, evaluates the
+                        element's sticky threshold on every scroll event, and toggles
+                        <code>position: fixed</code> with a calculated
+                        <code>top</code> or <code>bottom</code> offset accordingly. When a
+                        boundary is set, the controller also monitors the boundary
+                        element's position and releases the sticky lock before overlap
+                        occurs.
+                      </p>
+                      <p>
+                        Sticky positioning is a CSS-visual property only — it does not
+                        alter DOM order or the keyboard tab sequence and is transparent to
+                        assistive technologies. If sticky state changes must be announced
+                        to screen-reader users, dispatch a custom ARIA live-region update
+                        inside the <code>activated.cnds.sticky</code> and
+                        <code>deactivated.cnds.sticky</code> event handlers.
+                      </p>
+                    </section>
+                    <!--/Section: API Introduction-->
+
+                    <!--Section: API Usage-->
+                    <section id="api-section-usage">
+                      <h4 class="mb-4">Usage</h4>
+
+                      <h5 class="mb-3">Via data attributes</h5>
+                      <p>
+                        Add <code>data-cnds-sticky="true"</code> to any element to
+                        initialize the sticky component automatically when the page loads.
+                        All options can be set as additional
+                        <code>data-cnds-sticky-*</code> attributes on the same element —
+                        no JavaScript is required.
+                      </p>
+                      <section class="mb-4">
+                        <h6><span class="badge badge-code-html">HTML</span></h6>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-html">&lt;p class="sticky" data-cnds-sticky="true"&gt;Example&lt;/p&gt;</code></pre>
+                        </div>
+                      </section>
+
+                      <h5 class="mb-3">Via JavaScript</h5>
+                      <p>
+                        Use the <code>Nimbus.Sticky</code> constructor for programmatic
+                        initialization. Pass the target DOM element as the first argument;
+                        an optional plain-object second argument overrides any
+                        data-attribute defaults.
+                      </p>
+                      <section class="mb-4">
+                        <h6><span class="badge badge-code-js">JavaScript</span></h6>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-js">const stickyEl = document.querySelector('.sticky');
+const stickyInstance = new Nimbus.Sticky(stickyEl);</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Section: API Usage-->
+
+                    <!--Section: API Options-->
+                    <section id="api-section-options">
+                      <h4 class="mb-4">Options</h4>
+                      <p>
+                        Options can be passed via data attributes or as a plain JavaScript
+                        object to the constructor. For data attributes, prepend
+                        <code>data-cnds-sticky-</code> to the camelCase option name in
+                        kebab-case — for example,
+                        <code>stickyDelay</code> becomes
+                        <code>data-cnds-sticky-delay="50"</code>.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Options">
+                          <thead>
+                            <tr>
+                              <th class="th-sm">Name</th>
+                              <th class="th-sm">Type</th>
+                              <th class="th-sm">Default</th>
+                              <th class="th-sm">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="text-nowrap"><code>stickyActiveClass</code></td>
+                              <td><i>String</i></td>
+                              <td><code>''</code></td>
+                              <td>CSS class applied to the element while it is in the sticky state. Use this to add a visual indicator such as a shadow or border.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>stickyAnimationSticky</code></td>
+                              <td><i>String</i></td>
+                              <td><code>''</code></td>
+                              <td>CSS animation class applied for the duration of the animation when the element enters the sticky state. Removed after the animation completes.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>stickyAnimationUnsticky</code></td>
+                              <td><i>String</i></td>
+                              <td><code>''</code></td>
+                              <td>CSS animation class applied for the duration of the animation when the element exits the sticky state. Removed after the animation completes.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>stickyBoundary</code></td>
+                              <td><i>Boolean | String</i></td>
+                              <td><code>false</code></td>
+                              <td>
+                                Set <code>true</code> to constrain sticky behavior to the
+                                direct parent element. Pass a CSS selector string (e.g.
+                                <code>"#sticky-stop"</code>) to use any element on the
+                                page as the boundary.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>stickyDelay</code></td>
+                              <td><i>Number</i></td>
+                              <td><code>0</code></td>
+                              <td>Number of pixels the user must scroll past the sticky threshold before pinning activates. Use small values (2–5 px) to debounce rapid toggling right at the trigger point. Avoid large values — they cause the element to scroll off-screen before pinning, producing a visible snap.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>stickyDirection</code></td>
+                              <td><i>String</i></td>
+                              <td><code>'down'</code></td>
+                              <td>Scroll direction that triggers sticky behavior. Accepted values: <code>'down'</code>, <code>'up'</code>, <code>'both'</code>.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>stickyMedia</code></td>
+                              <td><i>Number</i></td>
+                              <td><code>0</code></td>
+                              <td>Minimum viewport width in pixels below which sticky behavior is disabled. Use this to suppress pinning on small screens.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>stickyOffset</code></td>
+                              <td><i>Number</i></td>
+                              <td><code>0</code></td>
+                              <td>Distance in pixels from the viewport edge at which the element becomes sticky. Set this to the height of any fixed navigation bar to prevent overlap.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>stickyPosition</code></td>
+                              <td><i>String</i></td>
+                              <td><code>'top'</code></td>
+                              <td>Viewport edge to pin the element to. Accepted values: <code>'top'</code>, <code>'bottom'</code>.</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: API Options-->
+
+                    <!--Section: API Methods-->
+                    <section id="api-section-methods">
+                      <h4 class="mb-4">Methods</h4>
+                      <p>
+                        Instance methods are available on the object returned by
+                        <code>new Nimbus.Sticky(el)</code> or retrieved via the static
+                        helper methods below.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Methods">
+                          <thead>
+                            <tr>
+                              <th class="th-sm">Name</th>
+                              <th class="th-sm">Description</th>
+                              <th class="th-sm">Example</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="text-nowrap"><code>activate</code></td>
+                              <td>Manually start sticky behavior on the element, overriding any scroll-direction or delay conditions.</td>
+                              <td><code>instance.activate()</code></td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>deactivate</code></td>
+                              <td>Manually stop sticky behavior and release the element back to normal document flow.</td>
+                              <td><code>instance.deactivate()</code></td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>getInstance</code></td>
+                              <td>Static method. Returns the <code>Nimbus.Sticky</code> instance associated with a DOM element, or <code>null</code> if none exists.</td>
+                              <td><code>Nimbus.Sticky.getInstance(el)</code></td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>getOrCreateInstance</code></td>
+                              <td>Static method. Returns the existing instance for a DOM element or creates and returns a new one if none exists.</td>
+                              <td><code>Nimbus.Sticky.getOrCreateInstance(el)</code></td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-js">JavaScript</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-js">// Retrieve the instance created by auto-init and deactivate it programmatically
+const myStickyEl = document.getElementById('sticky');
+const instance = Nimbus.Sticky.getInstance(myStickyEl);
+instance.deactivate();</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Section: API Methods-->
+
+                    <!--Section: API Events-->
+                    <section id="api-section-events">
+                      <h4 class="mb-4">Events</h4>
+                      <p>
+                        The sticky component dispatches standard DOM events on the
+                        element it controls. Listen with
+                        <code>addEventListener</code> to react to sticky state
+                        transitions without polling.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Events">
+                          <thead>
+                            <tr>
+                              <th class="th-sm">Name</th>
+                              <th class="th-sm">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="text-nowrap"><code>activated.cnds.sticky</code></td>
+                              <td>Fired after the element is pinned to the edge of its sticky area. Use this to apply supplemental styles or notify other components.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>deactivated.cnds.sticky</code></td>
+                              <td>Fired when the element detaches from the edge and returns to normal document flow.</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-js">JavaScript</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-js">const myStickyEl = document.getElementById('sticky');
+
+myStickyEl.addEventListener('activated.cnds.sticky', () => {
+    // Element is now pinned — add shadow, update UI state, etc.
+});
+
+myStickyEl.addEventListener('deactivated.cnds.sticky', () => {
+    // Element released — reverse any activation side-effects.
+});</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Section: API Events-->
+
+                  </section>
+                  <!--/Section: API Documentation-->
+
+                </section>
+                <!--/Section: Docs content-->
+              </div>
+              <!-- ./Main column-->
+
+              <!-- Right Sidebar — 20 % of the row width; hidden below lg breakpoint.
+                   Sticky attributes (processed by nimbus.js):
+                     data-cnds-sticky="true"           : activates sticky positioning
+                     data-cnds-sticky-boundary="true"  : constrains sticky to its parent container
+                     data-cnds-sticky-direction="both"  : sticks when scrolling up OR down
+                     data-cnds-sticky-offset="56"      : clears the 56 px fixed header
+                     data-cnds-sticky-delay="125"      : debounce delay (ms) to reduce scroll jank
+                   data-cnds-allow-hashes="true" on the <ul>: nimbus.js watches the URL hash
+                     and highlights the matching nav-link as the user scrolls through sections. -->
+              <div class="col-lg-2 d-none d-lg-block">
+                <div class="sticky-top" style="top: 100px; z-index: 1">
+                  <ul
+                    class="nav flex-column nav-pills menu-sidebar"
+                    id="rightNav"
+                    data-cnds-allow-hashes="true"
+                  >
+                    <li class="nav-item"><a class="nav-link" href="#section-introduction">Introduction</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-basic-example">Basic example</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-sticky-bottom">Sticky bottom</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-boundary">Boundary</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-outer-element-as-a-boundary">Outer element as a boundary</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-direction">Direction</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-animation">Animation</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-sticky-with-navbar">Sticky with navbar</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-api-docs">API Documentation</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-introduction">Introduction</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-usage">Usage</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-options">Options</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-methods">Methods</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-events">Events</a></li>
+                  </ul>
+                </div>
+              </div>
+              <!-- ./Right Sidebar -->
+            </div>
+            <!-- ./Content Row -->
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- ./Content -->
+    <!-- Footer -->
+    <div class="cf-footer cf-footer-app">
+      <footer class="page-footer main-footer" aria-label="Site footer">
+        <div class="w-100 px-3 d-flex align-items-center">
+          <img src="img/cf/core/cloudficient_logo_light.svg" class="cf-logo-light" style="width: 135px;" alt="Cloudficient" />
+          <img src="img/cf/core/cloudficient_logo_dark.svg" class="cf-logo-dark" style="width: 135px;" alt="Cloudficient" />
+          <span class="footer-copyright ms-auto">&copy; <span id="currentYear"></span> Cloudficient</span>
+        </div>
+      </footer>
+    </div>
+    <!-- ./Footer -->
+    <!-- SCRIPTS — load order matters:
+         1. nimbus.js       — core framework: processes all data-cnds-* attributes
+                              (theme toggle, sticky, sidenav, tooltips, allow-hashes…)
+         2. app.js          — application-level overrides and custom initialisation
+         3. prism.min.js    — syntax highlighting for <code class="language-*"> blocks;
+                              must run after the DOM is ready
+         4. sidenav-loader.js — fetches shared sidenav HTML and injects it into #sidebar-cf -->
+    <script type="text/javascript" src="js/nimbus.js?v=9.0.4"></script>
+    <script type="text/javascript" src="js/app.js?v=9.0.4"></script>
+    <script type="text/javascript" src="plugins/js/prism.min.js"></script>
+    <script type="text/javascript" src="js/sidenav-loader.js"></script>
+    <!-- Inline: populate the footer copyright year dynamically so the page never needs a manual update -->
+    <script type="text/javascript">
+      var currentYearElement = document.getElementById("currentYear");
+      if (currentYearElement) {
+        currentYearElement.textContent = new Date().getFullYear();
+      }
+    </script>
+    <!-- Styleguide-only: recalibrate sticky instances after layout has fully settled.
+         _calcTrigger() uses getBoundingClientRect(), which can be stale if the sidenav
+         transition (350 ms ease) or any other layout paint hasn't completed yet when
+         nimbus.js first initialises sticky. Disposing and recreating after two animation
+         frames guarantees fresh, accurate measurements without touching sticky.js. -->
+    <script type="text/javascript">
+      document.addEventListener("cnds.ready", function () {
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            if (!window.Nimbus || !window.Nimbus.Sticky) return;
+            document.querySelectorAll('[data-cnds-sticky="true"]').forEach(function (el) {
+              var inst = window.Nimbus.Sticky.getInstance(el);
+              if (!inst) return;
+              inst.dispose();
+              new window.Nimbus.Sticky(el);
+            });
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

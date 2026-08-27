@@ -1,0 +1,148 @@
+/* ============================================================
+   CNDS Drag & Drop / Sortable Plugin
+   Cloudficient Nimbus Design System v1.0.0
+
+   Drag and drop sortable lists with visual feedback,
+   handles, placeholders, and animation.
+   ============================================================ */
+
+/* --- Sortable Container --- */
+.sortable {
+  --cnds-sort-border: var(--cnds-border-color, #dee2e6);
+  --cnds-sort-radius: var(--cnds-border-radius, 0.375rem);
+  --cnds-sort-primary: var(--cnds-primary, #be1a2d);
+  --cnds-sort-placeholder-bg: rgba(190, 26, 45, 0.06);
+  --cnds-sort-placeholder-border: var(--cnds-primary, #be1a2d);
+  --cnds-sort-ghost-opacity: 0.5;
+
+  position: relative;
+  min-height: 2rem;
+}
+
+/* --- Sortable Items --- */
+.sortable-item {
+  position: relative;
+  cursor: grab;
+  user-select: none;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.sortable-item:active {
+  cursor: grabbing;
+}
+
+/* --- Drag Handle --- */
+.sortable-handle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  color: #adb5bd;
+  padding: 0.25rem;
+  transition: color 0.15s;
+}
+
+.sortable-handle:hover {
+  color: var(--cnds-sort-primary);
+}
+
+.sortable-handle:active {
+  cursor: grabbing;
+}
+
+.sortable-handle::before {
+  content: "⠿";
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+/* --- Dragging State --- */
+.sortable-item.dragging {
+  opacity: var(--cnds-sort-ghost-opacity);
+  z-index: 1000;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  transform: scale(1.02);
+}
+
+/* --- Placeholder --- */
+.sortable-placeholder {
+  border: 2px dashed var(--cnds-sort-placeholder-border);
+  background: var(--cnds-sort-placeholder-bg);
+  border-radius: var(--cnds-sort-radius);
+  transition: height 0.15s ease;
+}
+
+/* --- Drop Zone Highlight --- */
+.sortable.drag-over {
+  outline: 2px dashed var(--cnds-sort-primary);
+  outline-offset: 2px;
+}
+
+/* --- Disabled --- */
+.sortable-item.disabled,
+.sortable-item[aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* --- Sortable List Variant --- */
+.sortable-list .sortable-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--cnds-sort-border);
+  border-radius: var(--cnds-sort-radius);
+  background: var(--cnds-body-bg, #fff);
+  margin-bottom: 0.375rem;
+}
+
+.sortable-list .sortable-item:last-child {
+  margin-bottom: 0;
+}
+
+/* --- Sortable Grid Variant --- */
+.sortable-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.75rem;
+}
+
+.sortable-grid .sortable-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  border: 1px solid var(--cnds-sort-border);
+  border-radius: var(--cnds-sort-radius);
+  background: var(--cnds-body-bg, #fff);
+  text-align: center;
+}
+
+/* --- Connected Lists --- */
+.sortable-connected {
+  min-height: 3rem;
+  padding: 0.5rem;
+  border: 1px solid var(--cnds-sort-border);
+  border-radius: var(--cnds-sort-radius);
+}
+
+.sortable-connected.drag-over {
+  background-color: var(--cnds-sort-placeholder-bg);
+}
+
+/* --- Dark Theme --- */
+[data-cnds-theme="dark"] .sortable {
+  --cnds-sort-border: var(--cnds-border-color, #6b6b6b);
+  --cnds-sort-placeholder-bg: rgba(190, 26, 45, 0.1);
+}
+
+[data-cnds-theme="dark"] .sortable-list .sortable-item,
+[data-cnds-theme="dark"] .sortable-grid .sortable-item {
+  background: var(--cnds-tertiary-bg, #4a4a4a);
+  border-color: var(--cnds-border-color, #6b6b6b);
+}

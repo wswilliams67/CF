@@ -1,0 +1,934 @@
+<!--
+* CNDS Nimbus Design System — Popconfirm
+* Version: 1.0.0
+* Layout: Application with SideNav
+* NOTES
+- Pure HTML5, CSS3, vanilla JavaScript — zero external dependencies
+- Uses data-cnds-* attributes (replaces data-mdb-*)
+- Uses Nimbus.* namespace (replaces mdb.*)
+- Default product theme: CaseFusion (cnds-product-casefusion on <body>; change to cnds-product-hyperlize or cnds-product-expireon)
+-->
+<!doctype html>
+<!-- data-cnds-theme: sets the initial theme ("light" | "dark"). nimbus.js syncs this attribute when the user toggles. -->
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta
+      name="description"
+      content="Popconfirm | Cloudficient Nimbus Design System v1.0.0"
+    />
+    <title>Popconfirm | CNDS v1.0.0 | Cloudficient Nimbus Design System</title>
+    <!-- Nimbus CSS -->
+    <link rel="stylesheet" href="css/nimbus.css" media="all" type="text/css" />
+    <!-- Custom styles | All custom classes/styles/overrides go here! -->
+    <link rel="stylesheet" href="css/app.css" media="all" type="text/css" />
+    <!-- Prism syntax highlighting -->
+    <link rel="stylesheet" href="plugins/css/prism.min.css" media="all" type="text/css" />
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="img/favicon/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="60x60" href="img/favicon/apple-icon-60x60.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="img/favicon/apple-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76" href="img/favicon/apple-icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="img/favicon/apple-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="img/favicon/apple-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="img/favicon/apple-icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="img/favicon/apple-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-icon-180x180.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="img/favicon/android-icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="img/favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="img/favicon/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="msapplication-TileImage" content="img/favicon/ms-icon-144x144.png" />
+    <!-- ./Favicons -->
+    <!-- Design tokens — load order matters:
+         1. primitives.css  — raw color/spacing values (no theming)
+         2. light.css       — semantic tokens for [data-cnds-theme="light"] / :root
+         3. dark.css        — semantic token overrides for [data-cnds-theme="dark"]
+         All three must appear AFTER nimbus.css so component variables resolve correctly. -->
+    <link rel="stylesheet" href="css/themes/primitives.css" />
+    <link rel="stylesheet" href="css/themes/light.css" />
+    <link rel="stylesheet" href="css/themes/dark.css" />
+  </head>
+
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 Bypass Blocks; renders visually hidden until focused -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+    <!-- Header -->
+    <div class="sticky-top">
+      <!-- Utility Navigation -->
+      <nav id="UtilityNav" class="nav nav-cf-utility">
+        <div class="w-100 gx-3 px-sm-0 px-lg-3">
+          <ul class="nav nav-cf-utility-ul"></ul>
+        </div>
+      </nav>
+      <!-- ./Utility Navigation -->
+      <!-- Main Navigation -->
+      <nav id="MainNav" class="navbar navbar-expand-xl navbar-cf">
+        <div class="container-fluid p-0 px-3 d-flex">
+          <div class="d-flex flex-fill align-items-center text-truncate">
+            <div class="text-center d-none d-md-block me-3 border-end">
+              <a href="index.html"><img src="img/cf/core/logo_nimbus.png" class="me-3 mt-n1" alt="Cloudficient Nimbus Design System" /></a>
+            </div>
+            <div class="flex-fill text-truncate">
+              <div class="navbar-cf-title-block">
+                <div class="navbar-cf-title cf-page-title text-truncate" style="padding-bottom: 0">
+                  <span class="cf-page-title-text cf-page-title-brand">v1</span
+                  ><span class="cf-page-title-divider"></span
+                  ><span class="cf-page-title-text">Popconfirm</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- data-cnds-toggle="theme": wired by nimbus.js — flips data-cnds-theme on <html> between "light" and "dark" -->
+          <button
+            class="btn btn-sm btn-outline-secondary ms-2"
+            data-cnds-toggle="theme"
+            aria-label="Toggle theme"
+            title="Toggle theme"
+          >
+            <i class="mdi mdi-weather-night mdi-18px" aria-hidden="true"></i>
+          </button>
+        </div>
+      </nav>
+      <!-- ./Main Navigation -->
+    </div>
+    <!-- ./Header -->
+    <!-- Content -->
+    <main id="main-content" class="cf-main-app">
+      <!-- Mobile viewport warning -->
+      <div class="d-block d-md-none p-4">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>This application is not optimized for small screens. Please use a large tablet, laptop, or desktop computer to continue.
+        </div>
+      </div>
+
+      <!-- Desktop layout: sidenav + slim-content panel.
+           data-cnds-mode="side"            : persistent side panel, not an overlay/drawer
+           data-cnds-slim / slim-collapsed  : controls compact/icon-only collapsed state
+           data-cnds-content="#slim-content" : sibling panel that shrinks/expands as nav opens/closes
+           data-cnds-accordion="true"        : collapses other open nav groups when a new one expands -->
+      <div class="d-none d-md-block">
+        <nav
+          id="sidebar-cf"
+          class="sidenav"
+          data-cnds-mode="side"
+          data-cnds-slim="false"
+          data-cnds-slim-collapsed="false"
+          data-cnds-content="#slim-content"
+          data-cnds-accordion="true"
+        ></nav>
+        <!-- slim-content: the main content panel managed by the sidenav component -->
+        <div id="slim-content">
+          <div class="slim-content-box">
+            <!-- Content Row -->
+            <div class="row">
+              <!-- Main column — 80% of the row width; remaining 20% is the right sidebar.
+                   Inline flex overrides pin the ratio regardless of Bootstrap grid breakpoints. -->
+              <div class="col-12 col-lg" style="flex: 0 0 80%; max-width: 80%">
+                <!--Section: Docs content-->
+                <section class="container-fluid">
+
+                  <!--Section: Introduction-->
+                  <section id="section-introduction">
+
+                    <!-- What Popconfirm is and when to use it -->
+                    <p class="mb-4">
+                      The CNDS Popconfirm is a compact confirmation overlay that intercepts a button click before an action executes. It renders either inline — positioned relative to the trigger button — or as a centered modal dialog. Use it to guard destructive or irreversible actions such as deleting a record, submitting a form, or ending a session, requiring the user to explicitly confirm or cancel before the operation proceeds.
+                    </p>
+                    <p class="my-4">
+                      Popconfirm initializes automatically when <code>data-cnds-toggle="popconfirm"</code> is present on a <code>.btn</code> element — no JavaScript required for basic usage. All options are configurable through <code>data-cnds-*</code> attributes. For programmatic control, use the <code>Nimbus.Popconfirm</code> JavaScript API.
+                    </p>
+
+                    <!-- API Docs note — convention: appears before the theme note -->
+                    <p class="note note-light">
+                      <strong>Note:</strong> Read the
+                      <a href="#section-api-docs">API Documentation</a> to find all available
+                      options and advanced customization.
+                    </p>
+
+                    <!-- Theme note — MDI icons used per design spec (mdi-weather-night, mdi-weather-sunny) -->
+                    <p class="note note-info"><strong class="note-label">Note:</strong> To preview components in different themes, click the theme toggle button <i class="mdi mdi-weather-night" aria-hidden="true"></i> / <i class="mdi mdi-weather-sunny" aria-hidden="true"></i> in the header navigation bar.</p>
+
+                  </section>
+                  <!--/Section: Introduction-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Basic example-->
+                  <section id="section-basic-example">
+                    <!-- Section title -->
+                    <h3 class="mb-4">Basic example</h3>
+                    <p>
+                      Add <code>data-cnds-toggle="popconfirm"</code> and the <code>.popconfirm-toggle</code> class to any button to activate the default popconfirm. The message defaults to <em>"Are you sure?"</em> and the dialog opens inline below the trigger. Click <strong>OK</strong> to confirm or <strong>Cancel</strong> to dismiss.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <!-- Demo box: border + rounded-5 uses the current theme's surface/border tokens; no bg-white override so dark mode renders correctly -->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section
+                          class="p-4 d-flex justify-content-center text-center w-100"
+                        >
+                          <button
+                            type="button"
+                            class="btn btn-primary popconfirm-toggle"
+                            data-cnds-toggle="popconfirm"
+                            data-cnds-message="This is example"
+                          >
+                            Default
+                          </button>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+
+                    <!-- Angular: Initialize via data-cnds-toggle="popconfirm" on the trigger button; listen for confirm/cancel in ngAfterViewInit().
+                         Example: @ViewChild('popBtn') popBtn!: ElementRef;
+                                  ngAfterViewInit() { this.popBtn.nativeElement.addEventListener('confirm.cnds.popconfirm', () => this.onConfirm()); }
+                         For a fully Angular approach, replace the native popconfirm with a custom Angular confirmation dialog triggered by (click) and using MatDialog or a custom overlay service. -->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;button type="button" class="btn btn-primary popconfirm-toggle" data-cnds-toggle="popconfirm" data-cnds-message="This is example"&gt;
+    Default
+&lt;/button&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Basic example-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Display mode-->
+                  <section id="section-display-mode">
+                    <!-- Section title -->
+                    <h3 class="mb-4">Display mode</h3>
+                    <p>
+                      Popconfirm supports two display modes controlled by <code>data-cnds-popconfirm-mode</code>. The <code>inline</code> mode (default) positions the dialog relative to the trigger button using the <code>data-cnds-position</code> attribute. The <code>modal</code> mode renders the dialog fixed at the center of the viewport with a semi-transparent backdrop, independent of the trigger's position.
+                    </p>
+                    <p>
+                      The <code>.popconfirm-toggle</code> class is required on the trigger in both modes.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section
+                          class="p-4 d-flex justify-content-center text-center w-100"
+                        >
+                          <button
+                            type="button"
+                            data-cnds-popconfirm-mode="modal"
+                            data-cnds-toggle="popconfirm"
+                            class="btn btn-primary popconfirm-toggle me-3"
+                          >
+                            Modal
+                          </button>
+                          <button
+                            type="button"
+                            data-cnds-popconfirm-mode="inline"
+                            data-cnds-toggle="popconfirm"
+                            class="btn btn-primary popconfirm-toggle"
+                          >
+                            Inline
+                          </button>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+
+                    <!-- Angular: Drive the display mode from a component property via [attr.data-cnds-popconfirm-mode]="confirmMode".
+                         Example: <button class="btn btn-primary popconfirm-toggle" data-cnds-toggle="popconfirm" [attr.data-cnds-popconfirm-mode]="confirmMode">
+                                    {{ confirmMode === 'modal' ? 'Modal' : 'Inline' }}
+                                  </button>
+                         Set confirmMode in the component class based on screen size or user preferences using BreakpointObserver from the CDK. -->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;button type="button" data-cnds-popconfirm-mode="modal" data-cnds-toggle="popconfirm" class="btn btn-primary popconfirm-toggle"&gt;
+    Modal
+&lt;/button&gt;
+&lt;button type="button" data-cnds-popconfirm-mode="inline" data-cnds-toggle="popconfirm" class="btn btn-primary popconfirm-toggle"&gt;
+    Inline
+&lt;/button&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Display mode-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Icon example-->
+                  <section id="section-icon-example">
+                    <!-- Section title -->
+                    <h3 class="mb-4">Icon example</h3>
+                    <p>
+                      Add an icon to the popconfirm message by setting <code>data-cnds-popconfirm-icon</code> to any MDI class string. The icon is rendered before the message text inside the dialog. For example, <code>data-cnds-popconfirm-icon="mdi mdi-comment"</code> renders the MDI comment icon. Use icons from the Material Design Icons library (<code>mdi</code> prefix) as designated in the CNDS design system.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section
+                          class="p-4 d-flex justify-content-center text-center w-100"
+                        >
+                          <!-- MDI icon: mdi mdi-comment per design spec -->
+                          <button
+                            type="button"
+                            data-cnds-popconfirm-mode="inline"
+                            data-cnds-popconfirm-icon="mdi mdi-comment"
+                            data-cnds-message="Icon example"
+                            data-cnds-toggle="popconfirm"
+                            class="btn btn-primary popconfirm-toggle me-1"
+                          >
+                            Icon
+                          </button>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+
+                    <!-- Angular: Pass the icon class string via [attr.data-cnds-popconfirm-icon]="iconClass" to set the icon dynamically — useful when the icon varies per confirmation action.
+                         Example: <button class="btn btn-primary popconfirm-toggle" data-cnds-toggle="popconfirm"
+                                    data-cnds-popconfirm-mode="inline"
+                                    [attr.data-cnds-popconfirm-icon]="actionIcon"
+                                    [attr.data-cnds-message]="actionMessage">{{ actionLabel }}</button>
+                         Store actionIcon, actionMessage, and actionLabel as component properties updated based on the specific action context. -->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;button type="button" data-cnds-popconfirm-mode="inline" data-cnds-popconfirm-icon="mdi mdi-comment" data-cnds-message="Icon example" data-cnds-toggle="popconfirm" class="btn btn-primary popconfirm-toggle"&gt;
+    Icon
+&lt;/button&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Icon example-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Inline positions-->
+                  <section id="section-inline-positions-example">
+                    <!-- Section title -->
+                    <h3 class="mb-4">Inline positions</h3>
+                    <p>
+                      When using <code>data-cnds-popconfirm-mode="inline"</code>, the dialog is positioned relative to the trigger button. Use <code>data-cnds-position</code> to choose from twelve placements: four cardinal directions each with two edge-aligned variants plus centered versions. The component calculates coordinates using the trigger's bounding rect and the viewport scroll offset.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section
+                          class="p-4 d-flex justify-content-center text-center w-100"
+                        >
+                          <div
+                            class="row row-cols-md-1 d-flex justify-content-center"
+                          >
+                            <!-- Top row -->
+                            <div class="col-md-3"></div>
+                            <div
+                              class="col-md-6 d-flex justify-content-center mb-1"
+                            >
+                              <button
+                                type="button"
+                                data-cnds-toggle="popconfirm"
+                                data-cnds-popconfirm-mode="inline"
+                                data-cnds-position="top left"
+                                class="btn btn-primary popconfirm-toggle me-1"
+                              >
+                                Top left
+                              </button>
+                              <button
+                                type="button"
+                                data-cnds-toggle="popconfirm"
+                                data-cnds-popconfirm-mode="inline"
+                                data-cnds-position="top"
+                                class="btn btn-primary popconfirm-toggle me-1"
+                              >
+                                Top
+                              </button>
+                              <button
+                                type="button"
+                                data-cnds-toggle="popconfirm"
+                                data-cnds-popconfirm-mode="inline"
+                                data-cnds-position="top right"
+                                class="btn btn-primary popconfirm-toggle"
+                              >
+                                Top right
+                              </button>
+                            </div>
+                            <div class="col-md-3"></div>
+                            <!-- Left/right top row -->
+                            <div class="col-md-3"></div>
+                            <div
+                              class="col-md-6 d-flex mb-1"
+                              style="justify-content: space-between"
+                            >
+                              <button
+                                type="button"
+                                data-cnds-toggle="popconfirm"
+                                data-cnds-popconfirm-mode="inline"
+                                data-cnds-position="left top"
+                                class="btn btn-primary popconfirm-toggle me-1"
+                              >
+                                Left top
+                              </button>
+                              <button
+                                type="button"
+                                data-cnds-toggle="popconfirm"
+                                data-cnds-popconfirm-mode="inline"
+                                data-cnds-position="right top"
+                                class="btn btn-primary popconfirm-toggle"
+                              >
+                                Right top
+                              </button>
+                            </div>
+                            <div class="col-md-3"></div>
+                            <!-- Left/right center row -->
+                            <div class="col-md-3"></div>
+                            <div
+                              class="col-md-6 d-flex mb-1"
+                              style="justify-content: space-between"
+                            >
+                              <button
+                                type="button"
+                                data-cnds-toggle="popconfirm"
+                                data-cnds-popconfirm-mode="inline"
+                                data-cnds-position="left"
+                                class="btn btn-primary popconfirm-toggle me-1"
+                              >
+                                Left
+                              </button>
+                              <button
+                                type="button"
+                                data-cnds-toggle="popconfirm"
+                                data-cnds-popconfirm-mode="inline"
+                                data-cnds-position="right"
+                                class="btn btn-primary popconfirm-toggle"
+                              >
+                                Right
+                              </button>
+                            </div>
+                            <div class="col-md-3"></div>
+                            <!-- Left/right bottom row -->
+                            <div class="col-md-3"></div>
+                            <div
+                              class="col-md-6 d-flex mb-1"
+                              style="justify-content: space-between"
+                            >
+                              <button
+                                type="button"
+                                data-cnds-toggle="popconfirm"
+                                data-cnds-popconfirm-mode="inline"
+                                data-cnds-position="left bottom"
+                                class="btn btn-primary popconfirm-toggle me-1"
+                              >
+                                Left bottom
+                              </button>
+                              <button
+                                type="button"
+                                data-cnds-toggle="popconfirm"
+                                data-cnds-popconfirm-mode="inline"
+                                data-cnds-position="right bottom"
+                                class="btn btn-primary popconfirm-toggle"
+                              >
+                                Right bottom
+                              </button>
+                            </div>
+                            <div class="col-md-3"></div>
+                            <!-- Bottom row -->
+                            <div class="col-md-3"></div>
+                            <div
+                              class="col-md-5 d-flex justify-content-center mb-1"
+                            >
+                              <button
+                                type="button"
+                                data-cnds-toggle="popconfirm"
+                                data-cnds-popconfirm-mode="inline"
+                                data-cnds-position="bottom left"
+                                class="btn btn-primary popconfirm-toggle me-1"
+                              >
+                                Bottom left
+                              </button>
+                              <button
+                                type="button"
+                                data-cnds-toggle="popconfirm"
+                                data-cnds-popconfirm-mode="inline"
+                                data-cnds-position="bottom"
+                                class="btn btn-primary popconfirm-toggle me-1"
+                              >
+                                Bottom
+                              </button>
+                              <button
+                                type="button"
+                                data-cnds-toggle="popconfirm"
+                                data-cnds-popconfirm-mode="inline"
+                                data-cnds-position="bottom right"
+                                class="btn btn-primary popconfirm-toggle"
+                              >
+                                Bottom right
+                              </button>
+                            </div>
+                            <div class="col-md-3"></div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+
+                    <!-- Angular: Bind the inline position via [attr.data-cnds-position]="confirmPosition" to dynamically position the popconfirm relative to its trigger.
+                         Example: <button class="btn btn-primary popconfirm-toggle" data-cnds-toggle="popconfirm"
+                                    data-cnds-popconfirm-mode="inline"
+                                    [attr.data-cnds-position]="confirmPosition">Confirm</button>
+                         Set confirmPosition in the component to one of the 12 available position strings ('top', 'bottom', 'left', 'right', etc.)
+                         based on layout or available viewport space. Use BreakpointObserver from the CDK to switch between positions at different screen widths. -->
+
+                    <p>
+                      Available positions:
+                      <code>top left; top; top right; right top; right; right bottom; bottom right; bottom; bottom left; left bottom; left; left top</code>
+                    </p>
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;button type="button" data-cnds-popconfirm-mode="inline" data-cnds-position="top left" data-cnds-toggle="popconfirm" class="btn btn-primary popconfirm-toggle"&gt;
+    Top left
+&lt;/button&gt;
+&lt;button type="button" data-cnds-popconfirm-mode="inline" data-cnds-position="bottom" data-cnds-toggle="popconfirm" class="btn btn-primary popconfirm-toggle"&gt;
+    Bottom
+&lt;/button&gt;
+&lt;button type="button" data-cnds-popconfirm-mode="inline" data-cnds-position="right top" data-cnds-toggle="popconfirm" class="btn btn-primary popconfirm-toggle"&gt;
+    Right top
+&lt;/button&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Inline positions-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: API Documentation
+                      The <hr> above this section separates content from docs per page convention.
+                      All API subsections are siblings with h3 headings — no <hr> between them. -->
+                  <section id="section-api-docs">
+                    <h3 class="mb-3">API Documentation</h3>
+
+                    <!--Section: API Introduction-->
+                    <section id="api-section-introduction">
+                      <h4 class="mb-4">Introduction</h4>
+                      <p>
+                        The Nimbus Popconfirm is a lightweight confirmation dialog component that intercepts button clicks before an action executes. It renders a small overlay — inline or modal — containing a configurable message, a cancel button, and a confirm button. The component registers automatically when <code>data-cnds-toggle="popconfirm"</code> is detected on a <code>.btn</code> element via the CNDS DataAPI. All configuration is available via <code>data-cnds-*</code> attributes or the JavaScript constructor. The component emits custom DOM events (<code>show</code>, <code>hide</code>, <code>confirm</code>, <code>cancel</code>) on the trigger element, enabling clean separation of UI interaction and business logic.
+                      </p>
+                    </section>
+                    <!--/Section: API Introduction-->
+
+                    <!--Section: API Usage-->
+                    <section id="api-section-usage">
+                      <h4 class="mb-4">Usage</h4>
+
+                      <h5 class="mb-3">Via data attributes</h5>
+                      <p>
+                        The Popconfirm component requires no JavaScript to initialize. Add <code>data-cnds-toggle="popconfirm"</code> and the <code>.popconfirm-toggle</code> class to any button. Use additional <code>data-cnds-*</code> attributes to configure all options declaratively without writing a single line of JavaScript.
+                      </p>
+                      <!--Section: Code-->
+                      <section class="mb-4">
+                        <h6><span class="badge badge-code-html">HTML</span></h6>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-html">&lt;button type="button" class="btn btn-primary popconfirm-toggle" data-cnds-toggle="popconfirm"&gt;Default&lt;/button&gt;</code></pre>
+                        </div>
+                      </section>
+                      <!--/Section: Code-->
+
+                      <h5 class="mb-3">Via JavaScript</h5>
+                      <p>
+                        Create a Popconfirm instance programmatically using the <code>Nimbus.Popconfirm</code> constructor. This is useful when the trigger element is rendered dynamically or when you need direct control over show/hide behavior.
+                      </p>
+                      <!--Section: Code-->
+                      <section class="mb-4">
+                        <h6><span class="badge badge-code-js">JAVASCRIPT</span></h6>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-js">const element = document.querySelector('.popconfirm-toggle');
+const instance = new Nimbus.Popconfirm(element);</code></pre>
+                        </div>
+                      </section>
+                      <!--/Section: Code-->
+                    </section>
+                    <!--/Section: API Usage-->
+
+                    <!--Section: API Options-->
+                    <section id="api-section-options">
+                      <h4 class="mb-4">Options</h4>
+                      <p>
+                        Options can be passed via data attributes or the JavaScript constructor. For data attributes, convert the option name from camelCase to kebab-case and prefix with <code>data-cnds-</code>. For example, <code>okText</code> becomes <code>data-cnds-ok-text</code>.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Options">
+                          <thead>
+                            <tr>
+                              <th class="th-sm">Name</th>
+                              <th class="th-sm">Type</th>
+                              <th class="th-sm">Default</th>
+                              <th class="th-sm">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">backdrop</code></td>
+                              <td><i>Boolean</i></td>
+                              <td><code>true</code></td>
+                              <td>Renders a transparent overlay behind the popconfirm; clicking it closes the dialog. In modal mode the overlay is semi-transparent (<code>rgba(0,0,0,0.3)</code>).</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">cancelClass</code></td>
+                              <td><i>String</i></td>
+                              <td><code>'btn btn-secondary btn-sm'</code></td>
+                              <td>CSS classes applied to the cancel button.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">cancelText</code></td>
+                              <td><i>String</i></td>
+                              <td><code>'Cancel'</code></td>
+                              <td>Label text for the cancel button. Set to an empty string to suppress the cancel button entirely.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">message</code></td>
+                              <td><i>String</i></td>
+                              <td><code>'Are you sure?'</code></td>
+                              <td>Confirmation message displayed in the popconfirm body.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">okClass</code></td>
+                              <td><i>String</i></td>
+                              <td><code>'btn btn-primary btn-sm'</code></td>
+                              <td>CSS classes applied to the confirm button.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">okText</code></td>
+                              <td><i>String</i></td>
+                              <td><code>'OK'</code></td>
+                              <td>Label text for the confirm button.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">popconfirmIcon</code></td>
+                              <td><i>String</i></td>
+                              <td><code>''</code></td>
+                              <td>MDI class string (e.g. <code>'mdi mdi-alert'</code>) rendered as an icon before the message text. Leave empty to omit the icon.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">popconfirmMode</code></td>
+                              <td><i>String</i></td>
+                              <td><code>'inline'</code></td>
+                              <td>Display mode. <code>'inline'</code> positions the dialog relative to the trigger; <code>'modal'</code> centers it in the viewport.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">position</code></td>
+                              <td><i>String</i></td>
+                              <td><code>'bottom'</code></td>
+                              <td>Placement of the inline dialog relative to the trigger. One of twelve position strings. Ignored in modal mode. See <a href="#section-inline-positions-example">Inline positions</a>.</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: API Options-->
+
+                    <!--Section: API Methods-->
+                    <section id="api-section-methods">
+                      <h4 class="mb-4">Methods</h4>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Methods">
+                          <thead>
+                            <tr>
+                              <th class="th-sm">Method</th>
+                              <th class="th-sm">Description</th>
+                              <th class="th-sm">Example</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">show()</code></td>
+                              <td>Opens the popconfirm. No-op if already shown.</td>
+                              <td><code>instance.show()</code></td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">hide()</code></td>
+                              <td>Closes the popconfirm and removes it from the DOM. No-op if not shown.</td>
+                              <td><code>instance.hide()</code></td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">toggle()</code></td>
+                              <td>Opens the popconfirm if hidden; closes it if shown.</td>
+                              <td><code>instance.toggle()</code></td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">dispose()</code></td>
+                              <td>Destroys the popconfirm instance, hides the dialog, and removes all event listeners.</td>
+                              <td><code>instance.dispose()</code></td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">getInstance()</code></td>
+                              <td>Static method. Returns the Popconfirm instance associated with a DOM element, or <code>null</code> if none exists.</td>
+                              <td><code>Nimbus.Popconfirm.getInstance(el)</code></td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">getOrCreateInstance()</code></td>
+                              <td>Static method. Returns the existing instance for a DOM element or creates and returns a new one.</td>
+                              <td><code>Nimbus.Popconfirm.getOrCreateInstance(el)</code></td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <!--Section: Code-->
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-js">const el = document.querySelector('.popconfirm-toggle');
+const instance = Nimbus.Popconfirm.getInstance(el);
+instance.dispose();</code></pre>
+                        </div>
+                      </section>
+                      <!--/Section: Code-->
+                    </section>
+                    <!--/Section: API Methods-->
+
+                    <!--Section: API Events-->
+                    <section id="api-section-events">
+                      <h4 class="mb-4">Events</h4>
+                      <p>
+                        All popconfirm events fire on the trigger element — the button with <code>data-cnds-toggle="popconfirm"</code>. Attach listeners to the specific trigger rather than <code>document</code> when multiple popconfirms are present on the same page.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Events">
+                          <thead>
+                            <tr>
+                              <th class="th-sm">Event</th>
+                              <th class="th-sm">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">show.cnds.popconfirm</code></td>
+                              <td>Fired immediately when the popconfirm begins to open. Calling <code>event.preventDefault()</code> will prevent the popconfirm from opening.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">hide.cnds.popconfirm</code></td>
+                              <td>Fired immediately when the popconfirm begins to close, regardless of the reason (confirm, cancel, or backdrop click).</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">confirm.cnds.popconfirm</code></td>
+                              <td>Fired when the confirm button is clicked. The dialog closes after this event fires.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">cancel.cnds.popconfirm</code></td>
+                              <td>Fired when the dialog is dismissed via the cancel button or a backdrop click. The dialog closes after this event fires.</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <!--Section: Code-->
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-js">const triggerEl = document.querySelector('.popconfirm-toggle');
+
+triggerEl.addEventListener('confirm.cnds.popconfirm', () => {
+    // Action confirmed — proceed with the operation
+});
+
+triggerEl.addEventListener('cancel.cnds.popconfirm', () => {
+    // Action cancelled — restore state or do nothing
+});</code></pre>
+                        </div>
+                      </section>
+                      <!--/Section: Code-->
+                    </section>
+                    <!--/Section: API Events-->
+
+                    <!--Section: API CSS Classes-->
+                    <section id="api-section-css-classes">
+                      <h4 class="mb-4">CSS classes</h4>
+                      <p>
+                        The following classes control popconfirm structure and appearance. Classes prefixed with <code>.popconfirm</code> (except <code>.popconfirm-toggle</code>) are generated dynamically by the JavaScript component and are not added to markup manually.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped" aria-label="CSS classes">
+                          <thead>
+                            <tr>
+                              <th>Class</th>
+                              <th>Element</th>
+                              <th>Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>.popconfirm-toggle</code></td>
+                              <td><code>&lt;button&gt;</code></td>
+                              <td>Required on the trigger element. Combined with <code>data-cnds-toggle="popconfirm"</code>, it marks the button as the popconfirm trigger and registers it with the CNDS DataAPI.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.popconfirm</code></td>
+                              <td><code>&lt;div&gt;</code> (generated)</td>
+                              <td>Root container of the popup. Positioned <code>absolute</code> by default; coordinates are set by the positioning engine based on the trigger's bounding rect.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.popconfirm-mode-modal</code></td>
+                              <td><code>&lt;div&gt;</code> (generated)</td>
+                              <td>Applied alongside <code>.popconfirm</code> in modal mode. Changes positioning to <code>fixed; top: 50%; left: 50%</code> with a centered transform.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.popconfirm-message</code></td>
+                              <td><code>&lt;div&gt;</code> (generated)</td>
+                              <td>Contains the confirmation text and optional icon. Text color inherits <code>--cnds-body-color</code> — theme-aware in both light and dark modes.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.popconfirm-actions</code></td>
+                              <td><code>&lt;div&gt;</code> (generated)</td>
+                              <td>Flex row that holds the cancel and confirm buttons, right-aligned via <code>justify-content: flex-end</code>.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.popconfirm-backdrop</code></td>
+                              <td><code>&lt;div&gt;</code> (generated)</td>
+                              <td>Transparent fixed overlay that intercepts outside clicks in inline mode. Omitted when the <code>backdrop</code> option is <code>false</code>.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.popconfirm-backdrop-modal</code></td>
+                              <td><code>&lt;div&gt;</code> (generated)</td>
+                              <td>Applied alongside <code>.popconfirm-backdrop</code> in modal mode. Adds a semi-transparent dark dimmer (<code>rgba(0,0,0,0.3)</code>) behind the dialog.</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: API CSS Classes-->
+
+                    <!--Section: API Accessibility-->
+                    <section id="api-section-accessibility">
+                      <h4 class="mb-4">Accessibility</h4>
+                      <p>
+                        The Nimbus Popconfirm meets the following Section 508 / WCAG 2.1 AA requirements for confirmation dialogs:
+                      </p>
+                      <ul>
+                        <li>
+                          <strong>Operable trigger</strong> — The trigger is a native <code>&lt;button&gt;</code>, which is keyboard-focusable and activatable by default (Space or Enter). Do not replace it with a non-interactive element such as <code>&lt;div&gt;</code> or <code>&lt;span&gt;</code>.
+                        </li>
+                        <li>
+                          <strong>Visible label</strong> — Provide descriptive text on the trigger button (e.g. <em>"Delete record"</em>) so users understand the action before interacting. If the button is icon-only, add <code>aria-label</code> with an equivalent text description.
+                        </li>
+                        <li>
+                          <strong>Multiple dismissal methods</strong> — The Cancel button and backdrop click both dismiss the dialog, satisfying WCAG 2.5.3.
+                        </li>
+                        <li>
+                          <strong>Theme-aware contrast</strong> — Message text uses <code>--cnds-body-color</code> (<code>#4f4f4f</code> on <code>#ffffff</code> in light mode — 5.7:1 contrast ratio, exceeds the 4.5:1 AA minimum for small text). The token is overridden in dark mode to maintain equivalent contrast.
+                        </li>
+                      </ul>
+                      <p>
+                        For full dialog accessibility (WAI-ARIA dialog pattern and WCAG 4.1.3), consider the following enhancements when implementing in production:
+                      </p>
+                      <ul>
+                        <li>Add <code>role="dialog"</code> and <code>aria-modal="true"</code> to the generated <code>.popconfirm</code> element so assistive technologies treat it as a dialog.</li>
+                        <li>Add <code>aria-labelledby</code> pointing to the message element so the dialog purpose is announced when it opens.</li>
+                        <li>Move focus to the first button (<em>Cancel</em> or <em>OK</em>) when the popconfirm opens, and restore focus to the trigger when it closes.</li>
+                        <li>Handle the <kbd>Escape</kbd> key to close the dialog — equivalent to clicking Cancel.</li>
+                      </ul>
+                      <p>
+                        For the full dialog pattern specification, see the
+                        <a rel="nofollow" target="_blank" href="https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/">WAI-ARIA Authoring Practices Guide: Dialog (Modal) Pattern</a>.
+                      </p>
+                    </section>
+                    <!--/Section: API Accessibility-->
+
+                  </section>
+                  <!--/Section: API Documentation-->
+
+                </section>
+                <!--/Section: Docs content-->
+              </div>
+              <!-- ./Main column -->
+
+              <!-- Right Sidebar — 20% of the row width; hidden below lg breakpoint.
+                   Sticky attributes (processed by nimbus.js):
+                     data-cnds-sticky="true"          : activates sticky positioning
+                     data-cnds-sticky-boundary="true" : constrains sticky to its parent container
+                     data-cnds-sticky-direction="both" : sticks when scrolling up OR down
+                     data-cnds-sticky-offset="56"     : clears the 56 px fixed header
+                     data-cnds-sticky-delay="125"     : debounce delay (ms) to reduce scroll jank
+                   data-cnds-allow-hashes="true" on the <ul>: nimbus.js watches the URL hash
+                     and highlights the matching nav-link as the user scrolls through sections. -->
+              <div class="col-lg-2 d-none d-lg-block">
+                <div class="sticky-top" style="top: 100px; z-index: 1">
+                  <ul
+                    class="nav flex-column nav-pills menu-sidebar"
+                    id="rightNav"
+                    data-cnds-allow-hashes="true"
+                  >
+                    <li class="nav-item"><a class="nav-link" href="#section-introduction">Introduction</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-basic-example">Basic example</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-display-mode">Display mode</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-icon-example">Icon example</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-inline-positions-example">Inline positions</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-api-docs">API Documentation</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-introduction">Introduction</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-usage">Usage</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-options">Options</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-methods">Methods</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-events">Events</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-css-classes">CSS classes</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-accessibility">Accessibility</a></li>
+                  </ul>
+                </div>
+              </div>
+              <!-- ./Right Sidebar -->
+            </div>
+            <!-- ./Content Row -->
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- ./Content -->
+    <!-- Footer -->
+    <div class="cf-footer cf-footer-app">
+      <footer class="page-footer main-footer" aria-label="Site footer">
+        <div class="w-100 px-3 d-flex align-items-center">
+          <img src="img/cf/core/cloudficient_logo_light.svg" class="cf-logo-light" style="width: 135px;" alt="Cloudficient" />
+          <img src="img/cf/core/cloudficient_logo_dark.svg" class="cf-logo-dark" style="width: 135px;" alt="Cloudficient" />
+          <span class="footer-copyright ms-auto">&copy; <span id="currentYear"></span> Cloudficient</span>
+        </div>
+      </footer>
+    </div>
+    <!-- ./Footer -->
+    <!-- SCRIPTS — load order matters:
+         1. nimbus.js       — core framework: processes all data-cnds-* attributes (theme, sticky, sidenav, tooltips, popconfirm DataAPI…)
+         2. app.js          — application-level overrides and custom initialisation
+         3. prism.min.js    — syntax highlighting for all <code class="language-*"> blocks
+         4. sidenav-loader.js — fetches and injects the shared sidenav HTML into #sidebar-cf -->
+    <script type="text/javascript" src="js/nimbus.js?v=9.0.4"></script>
+    <script type="text/javascript" src="js/app.js?v=9.0.4"></script>
+    <script type="text/javascript" src="plugins/js/prism.min.js"></script>
+    <script type="text/javascript" src="js/sidenav-loader.js"></script>
+    <script type="text/javascript">
+      // Set the copyright year dynamically so the footer never goes stale
+      var currentYearElement = document.getElementById("currentYear");
+      if (currentYearElement) {
+        currentYearElement.textContent = new Date().getFullYear();
+      }
+    </script>
+  </body>
+</html>

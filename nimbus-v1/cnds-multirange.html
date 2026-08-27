@@ -1,0 +1,1731 @@
+<!--
+* CNDS Nimbus Design System — Multi Range Slider
+* Version: 1.0.0
+* Layout: Application with SideNav (migrated from Nimbus v8 template)
+*
+* Component JS:  js/plugins/multi-range.js   — Nimbus.MultiRange class
+* Component CSS: css/plugins/multi-range.css  — all --cnds-mr-* custom props
+*
+* AUTO-INIT
+*   Add data-cnds-multi-range-init to any block element. Nimbus.DataAPI
+*   discovers and initialises all matching elements on DOMContentLoaded.
+*   For programmatic control use: new Nimbus.MultiRange(el, options)
+*
+* EVENTS
+*   change.cnds.multirange — fired on drag, keyboard, and programmatic calls.
+*   Payload: e.detail = { low: number, high: number }
+*
+* SECTIONS (in document order)
+*   #section-introduction          — Overview and when to use
+*   #section-basic-example         — Basic slider, data-attr init
+*   #section-basic-example-values  — Event listener reading e.detail
+*   #section-one-range             — Single-thumb mode (numberOfRanges: 1)
+*   #section-start-values          — Custom initial positions via JS init
+*   #section-tooltips              — showLabels option (default: true)
+*   #section-step                  — Step increment option
+*   #section-product-example       — CaseFusion mailbox-size filter example
+*   #section-api-docs              — API Documentation
+*     #api-section-introduction    — Component model overview
+*     #api-section-usage           — Via data attributes / Via JavaScript
+*     #api-section-options         — All constructor options
+*     #api-section-methods         — Instance methods (getValues, setValues…)
+*     #api-section-events          — change.cnds.multirange event reference
+*     #api-section-css-variables   — All --cnds-mr-* custom properties
+*     #api-section-theme-variables — Light / dark contrast ratios
+*     #api-section-accessibility   — ARIA attributes and keyboard interaction
+*
+* NOTES
+* - Pure HTML5, CSS3, vanilla JavaScript — zero external dependencies
+* - Uses data-cnds-* attributes (replaces data-mdb-*)
+* - Uses Nimbus.* namespace (replaces mdb.*)
+* - Default product theme: CaseFusion (cnds-product-casefusion on <body>; change to cnds-product-hyperlize or cnds-product-expireon)
+-->
+<!doctype html>
+<!-- data-cnds-theme: sets the initial theme ("light" | "dark"). nimbus.js syncs this attribute when the user toggles. -->
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta
+      name="description"
+      content="Multi Range Slider | Cloudficient Nimbus Design System v1.0.0"
+    />
+    <title>Multi Range Slider | CNDS v1.0.0 | Cloudficient Nimbus Design System</title>
+    <!-- Nimbus CSS -->
+    <link rel="stylesheet" href="css/nimbus.css" media="all" type="text/css" />
+    <!-- Custom styles | All custom classes/styles/overrides go here! -->
+    <link rel="stylesheet" href="css/app.css" media="all" type="text/css" />
+    <!-- Prism syntax highlighting -->
+    <link
+      rel="stylesheet"
+      href="plugins/css/prism.min.css"
+      media="all"
+      type="text/css"
+    />
+    <!-- Favicons -->
+    <link
+      rel="apple-touch-icon"
+      sizes="57x57"
+      href="img/favicon/apple-icon-57x57.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="60x60"
+      href="img/favicon/apple-icon-60x60.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="72x72"
+      href="img/favicon/apple-icon-72x72.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="76x76"
+      href="img/favicon/apple-icon-76x76.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="114x114"
+      href="img/favicon/apple-icon-114x114.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="120x120"
+      href="img/favicon/apple-icon-120x120.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="144x144"
+      href="img/favicon/apple-icon-144x144.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="152x152"
+      href="img/favicon/apple-icon-152x152.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="img/favicon/apple-icon-180x180.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="192x192"
+      href="img/favicon/android-icon-192x192.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="img/favicon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="96x96"
+      href="img/favicon/favicon-96x96.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="img/favicon/favicon-16x16.png"
+    />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta
+      name="msapplication-TileImage"
+      content="img/favicon/ms-icon-144x144.png"
+    />
+    <!-- ./Favicons -->
+    <!-- Design tokens — load order matters:
+         1. primitives.css  — raw color/spacing values (no theming)
+         2. light.css       — semantic tokens for [data-cnds-theme="light"] / :root
+         3. dark.css        — semantic token overrides for [data-cnds-theme="dark"]
+         All three must appear AFTER nimbus.css so component variables resolve correctly. -->
+    <link rel="stylesheet" href="css/themes/primitives.css" />
+    <link rel="stylesheet" href="css/themes/light.css" />
+    <link rel="stylesheet" href="css/themes/dark.css" />
+  </head>
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 Bypass Blocks; renders visually hidden until focused -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+    <!-- Header -->
+    <div class="sticky-top">
+      <!-- Utility Navigation -->
+      <nav id="UtilityNav" class="nav nav-cf-utility">
+        <div class="w-100 gx-3 px-sm-0 px-lg-3">
+          <ul class="nav nav-cf-utility-ul"></ul>
+        </div>
+      </nav>
+      <!-- ./Utility Navigation -->
+      <!-- Main Navigation -->
+      <nav id="MainNav" class="navbar navbar-expand-xl navbar-cf">
+        <div class="container-fluid p-0 px-3 d-flex">
+          <div class="d-flex flex-fill align-items-center text-truncate">
+            <div class="text-center d-none d-md-block me-3 border-end">
+              <a href="index.html"
+                ><img src="img/cf/core/logo_nimbus.png" class="me-3 mt-n1"
+              alt="Cloudficient Nimbus Design System" /></a>
+            </div>
+            <div class="flex-fill text-truncate">
+              <div class="navbar-cf-title-block">
+                <div
+                  class="navbar-cf-title cf-page-title text-truncate"
+                  style="padding-bottom: 0"
+                >
+                  <span class="cf-page-title-text cf-page-title-brand">v1</span
+                  ><span class="cf-page-title-divider"></span
+                  ><span class="cf-page-title-text">Multi Range Slider</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- data-cnds-toggle="theme": wired by nimbus.js — flips data-cnds-theme on <html> between "light" and "dark" -->
+          <button
+            class="btn btn-sm btn-outline-secondary ms-2"
+            data-cnds-toggle="theme"
+            aria-label="Toggle theme"
+            title="Toggle theme"
+          >
+            <i class="mdi mdi-weather-night mdi-18px" aria-hidden="true"></i>
+          </button>
+        </div>
+      </nav>
+      <!-- ./Main Navigation -->
+    </div>
+    <!-- ./Header -->
+    <!-- Content -->
+    <main id="main-content" class="cf-main-app">
+      <!-- Mobile viewport warning -->
+      <div class="d-block d-md-none p-4">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>This application is not
+          optimized for small screens. Please use a large tablet, laptop, or
+          desktop computer to continue.
+        </div>
+      </div>
+      <div class="d-none d-md-block">
+        <!-- Sidenav — markup is intentionally empty; sidenav-loader.js fetches and injects the shared nav HTML.
+             data-cnds-mode="side"           : renders as a persistent side panel (not an overlay/drawer)
+             data-cnds-slim / slim-collapsed : controls compact/icon-only collapsed state
+             data-cnds-content="#slim-content": the sibling panel that shrinks/expands as the nav opens/closes
+             data-cnds-accordion="true"      : collapses other open nav groups when a new one is expanded -->
+        <nav
+          id="sidebar-cf"
+          class="sidenav"
+          data-cnds-mode="side"
+          data-cnds-slim="false"
+          data-cnds-slim-collapsed="false"
+          data-cnds-content="#slim-content"
+          data-cnds-accordion="true"
+        ></nav>
+        <div id="slim-content">
+          <div class="slim-content-box">
+            <!-- Content Row -->
+            <div class="row">
+              <!-- Main column — 80 % of the row width; the remaining 20 % is the right sidebar.
+                   The inline flex overrides are intentional: they pin the ratio regardless of Bootstrap's
+                   grid breakpoints so the sidebar never wraps on large viewports. -->
+              <div class="col-12 col-lg" style="flex: 0 0 80%; max-width: 80%">
+                <!--Section: Docs content-->
+                <section class="container-fluid">
+                  <!--Section: Introduction-->
+                  <section id="section-introduction">
+
+                    <!-- Description -->
+                    <p class="mb-4">
+                      The Multi Range Slider is an interactive form component that lets the user
+                      select a value range by dragging two thumbs along a track. Unlike a standard
+                      single-value range input, the dual-thumb design lets the user define both a
+                      lower and upper boundary simultaneously — making it ideal for filters, budget
+                      ranges, size windows, and any scenario where both endpoints of a range matter.
+                    </p>
+                    <p class="my-4">
+                      The component auto-initialises via a data attribute and is fully
+                      keyboard-accessible. All configuration options are available both as
+                      <code>data-cnds-*</code> attributes and through the JavaScript API.
+                    </p>
+
+                    <p class="note note-light">
+                      <strong>Note:</strong> Read the
+                      <a href="#api-section-introduction">API Documentation</a> for
+                      all available options and advanced customization.
+                    </p>
+
+                    <p class="note note-info"><strong class="note-label">Note:</strong> To preview components in different themes, click the theme toggle button <i class="mdi mdi-weather-night" aria-hidden="true"></i> / <i class="mdi mdi-weather-sunny" aria-hidden="true"></i> in the header navigation bar.</p>
+                  </section>
+                  <!--/Section: Introduction-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Basic example-->
+                  <section id="section-basic-example">
+                    <!-- Section title -->
+                    <h3 class="mb-4">Basic example</h3>
+
+                    <!-- Description -->
+                    <p class="my-4">
+                      Add the <code>data-cnds-multi-range-init</code> attribute to any
+                      block element to initialise the component automatically on page load.
+                      With no additional configuration, the slider renders with a range of
+                      0–100, thumbs starting at 20 and 80, and value labels visible on hover.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section
+                          class="w-100 p-4 d-flex justify-content-center pb-4 flex-column"
+                        >
+                          <div
+                            class="multi-range-slider"
+                            data-cnds-multi-range-init
+                          ></div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Create a CndsMultiRangeDirective that calls new Nimbus.MultiRange(el) in ngAfterViewInit()
+     and calls instance.dispose() in ngOnDestroy(). Apply it as <div cndsMultiRange></div> in templates.
+     Expose configuration via @Input() properties (min, max, step) and range changes via an
+     @Output() rangeChange EventEmitter that wraps the change.cnds.multirange custom event. -->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h5><span class="badge badge-code-html">HTML</span></h5>
+                      <!-- snippet -->
+                      <div class="p-0">
+                        <pre class="line-numbers m-0">
+                                <code class="language-html">
+&lt;div class="multi-range-slider" data-cnds-multi-range-init&gt;&lt;/div&gt;
+                                </code>
+                                </pre>
+                      </div>
+                      <!-- /.snippet -->
+                    </section>
+                    <!--/Section: Code-->
+
+                    <!--
+                    ═══════════════════════════════════════════════
+                    ANGULAR CONVERSION — Basic example
+                    ═══════════════════════════════════════════════
+                    The data-attribute auto-init works in Angular as-is because
+                    CNDS processes [data-cnds-multi-range-init] after the DOM
+                    is rendered. However, the recommended approach is a directive
+                    so the instance lifecycle is managed by Angular.
+
+                    TEMPLATE (my-component.html):
+                      <div cndsMultiRange></div>
+
+                    DIRECTIVE SKELETON (cnds-multi-range.directive.ts):
+                      import { Directive, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
+                      declare const Nimbus: any;
+
+                      @Directive({ selector: '[cndsMultiRange]' })
+                      export class CndsMultiRangeDirective implements AfterViewInit, OnDestroy {
+                        private _instance: any;
+                        constructor(private el: ElementRef) {}
+
+                        ngAfterViewInit(): void {
+                          this._instance = new Nimbus.MultiRange(this.el.nativeElement);
+                        }
+
+                        ngOnDestroy(): void {
+                          this._instance?.dispose();
+                        }
+                      }
+
+                    NOTE: Declare Nimbus in angular.json scripts[] or import
+                    nimbus.js in index.html before Angular bootstraps.
+                    ═══════════════════════════════════════════════ -->
+                  </section>
+                  <!--/Section: Basic example-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Basic example with values-->
+                  <section id="section-basic-example-values">
+                    <!-- Section title -->
+                    <h3 class="mb-4">Basic example with values</h3>
+
+                    <!-- Description -->
+                    <p class="my-4">
+                      Listen to the <code>change.cnds.multirange</code> event to read
+                      the current thumb positions and display them anywhere on the page. The event
+                      exposes <code>e.detail.low</code> and <code>e.detail.high</code> — the current low and high
+                      values already snapped to the configured step, ready to use without additional
+                      rounding.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section
+                          class="w-100 p-4 d-flex justify-content-center pb-4 flex-column"
+                        >
+                          <div
+                            id="multi-ranges-basic"
+                            class="multi-range-slider"
+                            data-cnds-multi-range-init
+                          ></div>
+                          <div id="multi-ranges-basic-value" class="mt-3">
+                            Value:
+                            <span class="d-flex flex-column">
+                              <div>First:</div>
+                              <div>Second:</div>
+                            </span>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Add an @Output() rangeChange = new EventEmitter<{ low: number; high: number }>() to
+     the CndsMultiRangeDirective. In ngAfterViewInit(), listen to the change.cnds.multirange event
+     and emit e.detail. In the parent template use (rangeChange)="onRangeChange($event)" and bind
+     {{ low }} / {{ high }} in the template — no DOM manipulation needed. -->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h5><span class="badge badge-code-html">HTML</span></h5>
+                      <!-- snippet -->
+                      <div class="p-0">
+                        <pre class="line-numbers m-0">
+                                <code class="language-html">
+&lt;div id="multi-ranges-basic" class="multi-range-slider" data-cnds-multi-range-init&gt;&lt;/div&gt;
+&lt;div id="multi-ranges-basic-value" class="mt-3"&gt;
+    Value:
+    &lt;span class="d-flex flex-column"&gt;
+        &lt;div&gt;First:&lt;/div&gt;
+        &lt;div&gt;Second:&lt;/div&gt;
+    &lt;/span&gt;
+&lt;/div&gt;
+                                </code>
+                                </pre>
+                      </div>
+                      <!-- /.snippet -->
+                    </section>
+                    <!--/Section: Code-->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                      <!-- snippet -->
+                      <div class="p-0">
+                        <pre class="line-numbers m-0">
+                                <code class="language-js">
+const basicExample = document.querySelector('#multi-ranges-basic');
+const oneRangeValueBasic = document.querySelector('#multi-ranges-basic-value');
+
+basicExample.addEventListener('change.cnds.multirange', (e) =&gt; {
+  oneRangeValueBasic.innerHTML = `
+    Value:
+    &lt;span class="d-flex flex-column"&gt;
+      &lt;div&gt;First: ${e.detail.low}&lt;/div&gt;
+      &lt;div&gt;Second: ${e.detail.high}&lt;/div&gt;
+    &lt;/span&gt;
+  `;
+});
+                                </code>
+                                </pre>
+                      </div>
+                      <!-- /.snippet -->
+                    </section>
+                    <!--/Section: Code-->
+
+                    <!--
+                    ═══════════════════════════════════════════════
+                    ANGULAR CONVERSION — Basic example with values
+                    ═══════════════════════════════════════════════
+                    Extend the directive with an @Output() EventEmitter so Angular
+                    components can react to range changes without touching the DOM.
+
+                    TEMPLATE (my-component.html):
+                      <div cndsMultiRange (rangeChange)="onRangeChange($event)"></div>
+                      <p>First: {{ low }} &nbsp; Second: {{ high }}</p>
+
+                    COMPONENT (my-component.ts):
+                      low = 20;
+                      high = 80;
+                      onRangeChange(values: { low: number; high: number }): void {
+                        this.low  = values.low;
+                        this.high = values.high;
+                      }
+
+                    DIRECTIVE — add to CndsMultiRangeDirective:
+                      @Output() rangeChange = new EventEmitter<{ low: number; high: number }>();
+
+                      ngAfterViewInit(): void {
+                        this._instance = new Nimbus.MultiRange(this.el.nativeElement);
+                        this.el.nativeElement.addEventListener(
+                          'change.cnds.multirange',
+                          (e: CustomEvent) => this.rangeChange.emit(e.detail)
+                        );
+                      }
+
+                    NOTE: e.detail carries { low, high } — both already snapped to step.
+                    ═══════════════════════════════════════════════ -->
+                  </section>
+                  <!--/Section: Basic example with values-->
+
+                  <hr class="my-5" />
+                  <!--Section: One Range-->
+                  <section id="section-one-range">
+                    <!-- Section title -->
+                    <h3 class="mb-4">One range</h3>
+
+                    <!-- Description -->
+                    <p class="my-4">
+                      Set <code>data-cnds-number-of-ranges="1"</code> to render a single-thumb
+                      slider. In single-range mode only the upper thumb is active, making the
+                      component behave like a standard range input while retaining full Nimbus
+                      styling and the event API.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section
+                          class="w-100 p-4 d-flex justify-content-center pb-4 flex-column"
+                        >
+                          <div
+                            class="multi-range-slider"
+                            data-cnds-multi-range-init
+                            data-cnds-number-of-ranges="1"
+                          ></div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Pass [numberOfRanges]="1" as an @Input() to the CndsMultiRangeDirective. The directive
+     forwards it to new Nimbus.MultiRange(el, { numberOfRanges: 1 }) in ngAfterViewInit().
+     In single-range mode, e.detail.low always equals min; only e.detail.high changes.
+     The @Output() rangeChange EventEmitter works identically to the dual-thumb variant. -->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h5><span class="badge badge-code-html">HTML</span></h5>
+                      <!-- snippet -->
+                      <div class="p-0">
+                        <pre class="line-numbers m-0">
+                                <code class="language-html">
+&lt;div class="multi-range-slider" data-cnds-multi-range-init data-cnds-number-of-ranges="1"&gt;&lt;/div&gt;
+                                </code>
+                                </pre>
+                      </div>
+                      <!-- /.snippet -->
+                    </section>
+                    <!--/Section: Code-->
+
+                    <!--
+                    ═══════════════════════════════════════════════
+                    ANGULAR CONVERSION — One range
+                    ═══════════════════════════════════════════════
+                    Add a numberOfRanges @Input() to the directive. Passing 1
+                    hides the low thumb and makes the fill start from the left edge,
+                    replicating a standard single-thumb range input.
+
+                    TEMPLATE (my-component.html):
+                      <div cndsMultiRange [numberOfRanges]="1"></div>
+
+                    DIRECTIVE — add to CndsMultiRangeDirective:
+                      @Input() numberOfRanges: number = 2;
+
+                      ngAfterViewInit(): void {
+                        this._instance = new Nimbus.MultiRange(this.el.nativeElement, {
+                          numberOfRanges: this.numberOfRanges,
+                        });
+                      }
+
+                    NOTE: In single-range mode (numberOfRanges: 1), e.detail.low
+                    always equals min. Only e.detail.high changes.
+                    ═══════════════════════════════════════════════ -->
+                  </section>
+                  <!--/Section: One Range-->
+
+                  <hr class="my-5" />
+                  <!--Section: Start values-->
+                  <section id="section-start-values">
+                    <!-- Section title -->
+                    <h3 class="mb-4">Start Values</h3>
+
+                    <!-- Description -->
+                    <p class="my-4">
+                      Use the <code>valueLow</code> and <code>valueHigh</code> options to position
+                      the thumbs at specific values when the slider first renders. Both options accept
+                      a number and are clamped to the configured <code>min</code> and <code>max</code>
+                      range. They can be set via <code>data-cnds-value-low</code> /
+                      <code>data-cnds-value-high</code> attributes or through the JavaScript constructor.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section
+                          class="w-100 p-4 d-flex justify-content-center pb-4 flex-column"
+                        >
+                          <div class="multi-ranges-start-values"></div>
+
+                          <div id="multi-ranges-start-values-show" class="mt-3">
+                            Value:
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Pass [valueLow]="40" [valueHigh]="80" as @Input() properties on the directive.
+     Angular resolves @Input() values before ngAfterViewInit(), so the slider renders at the
+     correct initial positions. To respond to changes after init, implement OnChanges and call
+     instance.setLow() / instance.setHigh() inside ngOnChanges() instead of re-instantiating. -->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h5><span class="badge badge-code-html">HTML</span></h5>
+                      <!-- snippet -->
+                      <div class="p-0">
+                        <pre class="line-numbers m-0">
+                                <code class="language-html">
+&lt;div class="multi-ranges-start-values"&gt;&lt;/div&gt;
+
+&lt;div id="multi-ranges-start-values-show" class="mt-3"&gt;Value:&lt;/div&gt;
+                                </code>
+                                </pre>
+                      </div>
+                      <!-- /.snippet -->
+                    </section>
+                    <!--/Section: Code-->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                      <!-- snippet -->
+                      <div class="p-0">
+                        <pre class="line-numbers m-0">
+                                <code class="language-js">
+const startValue = document.querySelector('.multi-ranges-start-values');
+const startValueValues = document.querySelector('#multi-ranges-start-values-show');
+
+const startValueInit = new Nimbus.MultiRange(startValue, {
+  valueLow: 40,
+  valueHigh: 80,
+});
+
+startValue.addEventListener('change.cnds.multirange', (e) =&gt; {
+  startValueValues.innerHTML = `
+    Value:
+    &lt;span class="d-flex flex-column"&gt;
+      &lt;div&gt;First: ${e.detail.low}&lt;/div&gt;
+      &lt;div&gt;Second: ${e.detail.high}&lt;/div&gt;
+    &lt;/span&gt;
+  `;
+});
+                                </code>
+                                </pre>
+                      </div>
+                      <!-- /.snippet -->
+                    </section>
+                    <!--/Section: Code-->
+
+                    <!--
+                    ═══════════════════════════════════════════════
+                    ANGULAR CONVERSION — Start values
+                    ═══════════════════════════════════════════════
+                    Pass valueLow and valueHigh as @Input() properties on the
+                    directive. Angular evaluates them before ngAfterViewInit runs,
+                    so the slider renders with the correct initial thumb positions.
+
+                    TEMPLATE (my-component.html):
+                      <div cndsMultiRange
+                           [valueLow]="40"
+                           [valueHigh]="80"
+                           (rangeChange)="onRangeChange($event)">
+                      </div>
+                      <p>First: {{ low }} &nbsp; Second: {{ high }}</p>
+
+                    DIRECTIVE — add to CndsMultiRangeDirective:
+                      @Input() valueLow:  number = 20;
+                      @Input() valueHigh: number = 80;
+
+                      ngAfterViewInit(): void {
+                        this._instance = new Nimbus.MultiRange(this.el.nativeElement, {
+                          valueLow:  this.valueLow,
+                          valueHigh: this.valueHigh,
+                        });
+                        this.el.nativeElement.addEventListener(
+                          'change.cnds.multirange',
+                          (e: CustomEvent) => this.rangeChange.emit(e.detail)
+                        );
+                      }
+
+                    NOTE: To respond to @Input() changes after init, implement
+                    OnChanges and call this._instance.setLow() / setHigh() inside
+                    ngOnChanges(), rather than re-instantiating the component.
+                    ═══════════════════════════════════════════════ -->
+                  </section>
+                  <!--Section: Start values-->
+
+                  <hr class="my-5" />
+                  <!--Section: Toolips-->
+                  <section id="section-tooltips">
+                    <!-- Section title -->
+                    <h3 class="mb-4">Tooltips</h3>
+
+                    <!-- Description -->
+                    <p class="my-4">
+                      Value labels are enabled by default (<code>showLabels: true</code>). Each
+                      thumb displays a floating balloon tooltip showing its current value — visible
+                      on hover and while dragging. Set <code>data-cnds-show-labels="false"</code>
+                      to disable the labels when the numeric feedback is not needed.
+                    </p>
+
+                    <!--Section: Demo-->
+
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section
+                          class="w-100 p-4 d-flex justify-content-center pb-4 flex-column"
+                        >
+                          <div
+                            class="mt-3 multi-range-slider"
+                            data-cnds-multi-range-init
+                            data-cnds-show-labels="true"
+                          ></div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Add a [showLabels]="true" @Input() to the directive, forwarded to
+     new Nimbus.MultiRange(el, { showLabels: this.showLabels }). Set [showLabels]="false"
+     in compact layouts where numeric feedback is not needed. Note: showLabels cannot be
+     toggled after init without calling instance.dispose() and re-instantiating. -->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h5><span class="badge badge-code-html">HTML</span></h5>
+                      <!-- snippet -->
+                      <div class="p-0">
+                        <pre class="line-numbers m-0">
+                                <code class="language-html">
+&lt;div class="mt-3 multi-range-slider" data-cnds-multi-range-init data-cnds-show-labels="true"&gt;&lt;/div&gt;
+                                </code>
+                                </pre>
+                      </div>
+                      <!-- /.snippet -->
+                    </section>
+                    <!--/Section: Code-->
+
+                    <!--
+                    ═══════════════════════════════════════════════
+                    ANGULAR CONVERSION — Tooltips (showLabels)
+                    ═══════════════════════════════════════════════
+                    Add a showLabels @Input() to the directive. Set it to false
+                    when the numeric label is not needed, e.g. in compact layouts.
+
+                    TEMPLATE (my-component.html):
+                      <!-- labels on (default) -->
+                      <div cndsMultiRange [showLabels]="true"></div>
+
+                      <!-- labels off -->
+                      <div cndsMultiRange [showLabels]="false"></div>
+
+                    DIRECTIVE — add to CndsMultiRangeDirective:
+                      @Input() showLabels: boolean = true;
+
+                      ngAfterViewInit(): void {
+                        this._instance = new Nimbus.MultiRange(this.el.nativeElement, {
+                          showLabels: this.showLabels,
+                        });
+                      }
+
+                    NOTE: showLabels controls whether the teardrop tooltip elements
+                    are created. It cannot be toggled after initialisation without
+                    calling dispose() and re-instantiating.
+                    ═══════════════════════════════════════════════ -->
+                  </section>
+                  <!--Section: Tooltips-->
+
+                  <hr class="my-5" />
+                  <!--Section: Step-->
+                  <section id="section-step">
+                    <!-- Section title -->
+                    <h3 class="mb-4">Step example</h3>
+
+                    <!-- Description -->
+                    <p class="my-4">
+                      The <code>step</code> option controls the increment between selectable values.
+                      Each thumb snaps to the nearest step as the user drags, ensuring only valid
+                      values can be selected. Use a larger step for coarse controls (e.g.
+                      <code>10</code> for decade increments) or <code>1</code> for continuous
+                      integer selection.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section
+                          class="w-100 p-4 d-flex justify-content-center pb-4 flex-column"
+                        >
+                          <div
+                            class="multi-range-slider"
+                            data-cnds-multi-range-init
+                            data-cnds-step="5"
+                          ></div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Expose [step]="5" alongside [min] and [max] as @Input() properties on the directive.
+     All three are forwarded to new Nimbus.MultiRange(el, { min, max, step }) in ngAfterViewInit().
+     Values from e.detail in the change.cnds.multirange event are already snapped to the step —
+     no additional rounding is required in the component's (rangeChange) handler. -->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h5><span class="badge badge-code-html">HTML</span></h5>
+                      <!-- snippet -->
+                      <div class="p-0">
+                        <pre class="line-numbers m-0">
+                                <code class="language-html">
+&lt;div class="multi-range-slider" data-cnds-multi-range-init data-cnds-step="5"&gt;&lt;/div&gt;
+                                </code>
+                                </pre>
+                      </div>
+                      <!-- /.snippet -->
+                    </section>
+                    <!--/Section: Code-->
+
+                    <!--
+                    ═══════════════════════════════════════════════
+                    ANGULAR CONVERSION — Step
+                    ═══════════════════════════════════════════════
+                    Expose step, min, and max as @Input() properties so the
+                    directive is fully configurable from the parent template.
+
+                    TEMPLATE (my-component.html):
+                      <div cndsMultiRange [min]="0" [max]="100" [step]="5"></div>
+
+                    DIRECTIVE — add to CndsMultiRangeDirective:
+                      @Input() min:  number = 0;
+                      @Input() max:  number = 100;
+                      @Input() step: number = 1;
+
+                      ngAfterViewInit(): void {
+                        this._instance = new Nimbus.MultiRange(this.el.nativeElement, {
+                          min:  this.min,
+                          max:  this.max,
+                          step: this.step,
+                        });
+                      }
+
+                    NOTE: step is enforced during drag and keyboard interaction.
+                    Values from e.detail are already snapped — no additional
+                    rounding is required in the Angular component.
+                    ═══════════════════════════════════════════════ -->
+                  </section>
+                  <!--Section: Step-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Product example-->
+                  <section id="section-product-example">
+                    <!-- Section title -->
+                    <h3 class="mb-4">Product example</h3>
+
+                    <!-- Description -->
+                    <p class="my-4">
+                      The example below shows how the multi-range slider appears in a
+                      <strong>CaseFusion</strong> application context. Migration administrators
+                      use a dual-thumb slider to filter the batch queue by mailbox size — the
+                      left thumb sets the minimum and the right thumb sets the maximum,
+                      instantly scoping which mailboxes are included in the current migration run.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section
+                          class="w-100 p-4 d-flex justify-content-center pb-4 flex-column"
+                        >
+                          <label class="form-label mb-3 fw-semibold">Mailbox size filter (GB)</label>
+                          <div
+                            id="cf-mailbox-range"
+                            class="multi-range-slider"
+                            data-cnds-multi-range-init
+                            data-cnds-value-low="2"
+                            data-cnds-value-high="50"
+                            data-cnds-max="100"
+                            data-cnds-step="1"
+                          ></div>
+                          <div id="cf-mailbox-range-value" class="mt-3 small">
+                            Showing mailboxes between <strong>2 GB</strong> and <strong>50 GB</strong>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Use the full CndsMultiRangeDirective with [min]="0" [max]="100" [step]="1"
+     [valueLow]="filterLow" [valueHigh]="filterHigh" and (rangeChange)="onMailboxRangeChange($event)".
+     Display the current range with {{ filterLow }} and {{ filterHigh }} in the template.
+     Call this.migrationService.filterBySize(filterLow, filterHigh) inside the event handler. -->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h5><span class="badge badge-code-html">HTML</span></h5>
+                      <!-- snippet -->
+                      <div class="p-0">
+                        <pre class="line-numbers m-0">
+                                <code class="language-html">
+&lt;label class="form-label mb-3 fw-semibold"&gt;Mailbox size filter (GB)&lt;/label&gt;
+&lt;div
+  id="cf-mailbox-range"
+  class="multi-range-slider"
+  data-cnds-multi-range-init
+  data-cnds-value-low="2"
+  data-cnds-value-high="50"
+  data-cnds-max="100"
+  data-cnds-step="1"
+&gt;&lt;/div&gt;
+&lt;div id="cf-mailbox-range-value" class="mt-3 small"&gt;
+  Showing mailboxes between &lt;strong&gt;2 GB&lt;/strong&gt; and &lt;strong&gt;50 GB&lt;/strong&gt;
+&lt;/div&gt;
+                                </code>
+                                </pre>
+                      </div>
+                      <!-- /.snippet -->
+                    </section>
+                    <!--/Section: Code-->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                      <!-- snippet -->
+                      <div class="p-0">
+                        <pre class="line-numbers m-0">
+                                <code class="language-js">
+const mailboxRange = document.querySelector('#cf-mailbox-range');
+const mailboxRangeValue = document.querySelector('#cf-mailbox-range-value');
+
+mailboxRange.addEventListener('change.cnds.multirange', (e) =&gt; {
+  mailboxRangeValue.innerHTML = `
+    Showing mailboxes between &lt;strong&gt;${e.detail.low} GB&lt;/strong&gt; and &lt;strong&gt;${e.detail.high} GB&lt;/strong&gt;
+  `;
+});
+                                </code>
+                                </pre>
+                      </div>
+                      <!-- /.snippet -->
+                    </section>
+                    <!--/Section: Code-->
+
+                    <!--
+                    ═══════════════════════════════════════════════
+                    ANGULAR CONVERSION — Product example (CaseFusion mailbox filter)
+                    ═══════════════════════════════════════════════
+                    This example combines all directive inputs with the rangeChange
+                    output. It represents the complete, production-ready pattern
+                    for using CndsMultiRangeDirective in a CaseFusion component.
+
+                    TEMPLATE (mailbox-filter.component.html):
+                      <label class="form-label mb-3 fw-semibold">Mailbox size filter (GB)</label>
+                      <div cndsMultiRange
+                           [min]="0"
+                           [max]="100"
+                           [step]="1"
+                           [valueLow]="filterLow"
+                           [valueHigh]="filterHigh"
+                           (rangeChange)="onMailboxRangeChange($event)">
+                      </div>
+                      <p class="mt-3 small">
+                        Showing mailboxes between
+                        <strong>{{ filterLow }} GB</strong> and
+                        <strong>{{ filterHigh }} GB</strong>
+                      </p>
+
+                    COMPONENT (mailbox-filter.component.ts):
+                      import { Component } from '@angular/core';
+
+                      @Component({ templateUrl: './mailbox-filter.component.html' })
+                      export class MailboxFilterComponent {
+                        filterLow  = 2;
+                        filterHigh = 50;
+
+                        onMailboxRangeChange(values: { low: number; high: number }): void {
+                          this.filterLow  = values.low;
+                          this.filterHigh = values.high;
+                          // Trigger your migration batch query here, e.g.:
+                          // this.migrationService.filterBySize(this.filterLow, this.filterHigh);
+                        }
+                      }
+
+                    COMPLETE DIRECTIVE (cnds-multi-range.directive.ts):
+                      import {
+                        Directive, ElementRef, Input, Output, EventEmitter,
+                        AfterViewInit, OnDestroy
+                      } from '@angular/core';
+                      declare const Nimbus: any;
+
+                      @Directive({ selector: '[cndsMultiRange]' })
+                      export class CndsMultiRangeDirective implements AfterViewInit, OnDestroy {
+                        @Input() min:            number  = 0;
+                        @Input() max:            number  = 100;
+                        @Input() step:           number  = 1;
+                        @Input() valueLow:       number  = 20;
+                        @Input() valueHigh:      number  = 80;
+                        @Input() numberOfRanges: number  = 2;
+                        @Input() showLabels:     boolean = true;
+                        @Input() showScale:      boolean = false;
+                        @Input() scaleSteps:     number  = 5;
+                        @Input() disabled:       boolean = false;
+
+                        @Output() rangeChange = new EventEmitter<{ low: number; high: number }>();
+
+                        private _instance: any;
+                        private _listener!: (e: CustomEvent) => void;
+
+                        constructor(private el: ElementRef) {}
+
+                        ngAfterViewInit(): void {
+                          this._instance = new Nimbus.MultiRange(this.el.nativeElement, {
+                            min:            this.min,
+                            max:            this.max,
+                            step:           this.step,
+                            valueLow:       this.valueLow,
+                            valueHigh:      this.valueHigh,
+                            numberOfRanges: this.numberOfRanges,
+                            showLabels:     this.showLabels,
+                            showScale:      this.showScale,
+                            scaleSteps:     this.scaleSteps,
+                            disabled:       this.disabled,
+                          });
+                          this._listener = (e: CustomEvent) => this.rangeChange.emit(e.detail);
+                          this.el.nativeElement.addEventListener('change.cnds.multirange', this._listener);
+                        }
+
+                        ngOnDestroy(): void {
+                          this.el.nativeElement.removeEventListener('change.cnds.multirange', this._listener);
+                          this._instance?.dispose();
+                        }
+                      }
+
+                    NOTE: Register CndsMultiRangeDirective in your SharedModule (or
+                    standalone component imports[]) so it is available application-wide.
+                    ═══════════════════════════════════════════════ -->
+                  </section>
+                  <!--/Section: Product example-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: API Documentation-->
+                  <section id="section-api-docs">
+                    <h3 class="mb-3">API Documentation</h3>
+
+                    <!--Section: Introduction-->
+                    <section id="api-section-introduction">
+                      <h4 class="mb-4">Introduction</h4>
+                      <p>
+                        The Nimbus Multi Range Slider is built on the
+                        <code>Nimbus.MultiRange</code> class. It wraps any block element in a
+                        fully managed DOM structure — track, fill, and two draggable thumb elements
+                        — and emits events as the user interacts. All configuration is exposed both
+                        through the JavaScript constructor and through <code>data-cnds-*</code>
+                        HTML attributes.
+                      </p>
+                    </section>
+                    <!--/Section: Introduction-->
+
+                    <!--Section: Usage-->
+                    <section id="api-section-usage">
+                      <h4 class="mb-4">Usage</h4>
+
+                      <h5 class="mt-4 mb-2">Via data attributes</h5>
+
+                      <p>
+                        No JavaScript is required when using the data attribute approach. Add
+                        <code>data-cnds-multi-range-init</code> to any block element and the
+                        component initialises automatically on DOM ready. Any supported option
+                        can be set inline using the corresponding <code>data-cnds-*</code>
+                        attribute.
+                      </p>
+
+                      <!--Section: Code-->
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <!-- snippet -->
+                        <div class="p-0">
+                          <pre class="line-numbers m-0">
+                                    <code class="language-html">
+&lt;div data-cnds-multi-range-init&gt;&lt;/div&gt;
+</code>
+                                    </pre>
+                        </div>
+                        <!-- /.snippet -->
+                      </section>
+                      <!--/Section: Code-->
+
+                      <h5 class="mt-4 mb-2">Via JavaScript</h5>
+
+                      <p>
+                        Instantiate the component programmatically by passing a DOM element to
+                        <code>new Nimbus.MultiRange(element, options)</code>. Supply an optional
+                        configuration object as the second argument to override any default option.
+                      </p>
+
+                      <!--Section: Code-->
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                        <!-- snippet -->
+                        <div class="p-0">
+                          <pre class="line-numbers m-0">
+                                                <code class="language-js">
+const el = document.querySelector('#mySlider');
+const slider = new Nimbus.MultiRange(el, { valueLow: 20, valueHigh: 80 });
+                                                </code>
+                                            </pre>
+                        </div>
+                        <!-- /.snippet -->
+                      </section>
+                      <!--/Section: Code-->
+                    </section>
+                    <!--/Section: Usage-->
+
+                    <!--Section: Options-->
+                    <section id="api-section-options">
+                      <!-- Section title -->
+                      <h4 class="mb-4">Options</h4>
+
+                      <p>
+                        Options can be passed via data attributes or JavaScript.
+                        For data attributes, append the option name to
+                        <code>data-cnds-</code>, as in
+                        <code>data-cnds-max="100"</code>.
+                      </p>
+
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Options">
+                          <thead>
+                            <tr>
+                              <th class="th-sm">Name</th>
+                              <th class="th-sm">Type</th>
+                              <th class="th-sm">Default</th>
+                              <th class="th-sm">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">min</code></td>
+                              <td><i>number</i></td>
+                              <td><code>0</code></td>
+                              <td>Minimum value of the slider range.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">max</code></td>
+                              <td><i>number</i></td>
+                              <td><code>100</code></td>
+                              <td>Maximum value of the slider range.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">step</code></td>
+                              <td><i>number</i></td>
+                              <td><code>1</code></td>
+                              <td>Increment each thumb snaps to when dragged.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">valueLow</code></td>
+                              <td><i>number</i></td>
+                              <td><code>20</code></td>
+                              <td>Initial position of the low (left) thumb.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">valueHigh</code></td>
+                              <td><i>number</i></td>
+                              <td><code>80</code></td>
+                              <td>Initial position of the high (right) thumb.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">showLabels</code></td>
+                              <td><i>boolean</i></td>
+                              <td><code>true</code></td>
+                              <td>Show floating value labels above each thumb on hover and while dragging.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">showScale</code></td>
+                              <td><i>boolean</i></td>
+                              <td><code>false</code></td>
+                              <td>Render a scale row of tick labels beneath the track.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">scaleSteps</code></td>
+                              <td><i>number</i></td>
+                              <td><code>5</code></td>
+                              <td>Number of intervals in the scale row when <code>showScale</code> is enabled.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">numberOfRanges</code></td>
+                              <td><i>number</i></td>
+                              <td><code>2</code></td>
+                              <td>Set to <code>1</code> to render a single-thumb slider; the low thumb is hidden and the fill starts from the left edge.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">formatLabel</code></td>
+                              <td><i>function | null</i></td>
+                              <td><code>null</code></td>
+                              <td>Custom formatter for label text. Receives the raw value and must return a string (e.g. <code>(v) =&gt; v + ' GB'</code>).</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">disabled</code></td>
+                              <td><i>boolean</i></td>
+                              <td><code>false</code></td>
+                              <td>Disables all interaction and dims the slider.</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--Section: Options-->
+
+                    <!--Section: Methods-->
+                    <section id="api-section-methods">
+                      <!-- Section title -->
+                      <h4 class="mb-4">Methods</h4>
+
+                      <p>
+                        Call methods on an existing instance to update the slider programmatically
+                        or release resources when the component is no longer needed.
+                      </p>
+
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Methods">
+                          <thead>
+                            <tr>
+                              <th class="th-sm">Name</th>
+                              <th class="th-sm">Description</th>
+                              <th class="th-sm">Example</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">getValues()</code></td>
+                              <td>Returns the current <code>{ low, high }</code> values.</td>
+                              <td><code>slider.getValues()</code></td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">setValues(low, high)</code></td>
+                              <td>Programmatically sets both thumb positions and fires <code>change.cnds.multirange</code>.</td>
+                              <td><code>slider.setValues(20, 80)</code></td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">setLow(val)</code></td>
+                              <td>Sets the low thumb position and fires the change event.</td>
+                              <td><code>slider.setLow(10)</code></td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">setHigh(val)</code></td>
+                              <td>Sets the high thumb position and fires the change event.</td>
+                              <td><code>slider.setHigh(90)</code></td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">dispose()</code></td>
+                              <td>Destroys the instance and cleans up event listeners.</td>
+                              <td><code>slider.dispose()</code></td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">getInstance</code></td>
+                              <td>Static method — returns the instance associated with a DOM element, or <code>null</code>.</td>
+                              <td><code>Nimbus.MultiRange.getInstance(el)</code></td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code class="highlighter-rouge">getOrCreateInstance</code></td>
+                              <td>Static method — returns an existing instance or creates a new one if the element has not yet been initialised.</td>
+                              <td><code>Nimbus.MultiRange.getOrCreateInstance(el)</code></td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <!--Section: Code-->
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                        <!-- snippet -->
+                        <div class="p-0">
+                          <pre class="line-numbers m-0">
+<code class="language-js">
+const sliderEl = document.querySelector('#mySlider');
+const mySlider = new Nimbus.MultiRange(sliderEl, { valueLow: 20, valueHigh: 80 });
+mySlider.dispose();
+</code>
+</pre>
+                        </div>
+                        <!-- /.snippet -->
+                      </section>
+                      <!--/Section: Code-->
+                    </section>
+                    <!--Section: Methods-->
+
+                    <!--Section: Events-->
+                    <section id="api-section-events">
+                      <!-- Section title -->
+                      <h4 class="mb-4">Events</h4>
+
+                      <p>
+                        The Multi Range Slider dispatches custom events on its root element. Add
+                        event listeners to respond to user interaction and update dependent UI
+                        accordingly.
+                      </p>
+
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Events">
+                          <thead>
+                            <tr>
+                              <th class="th-sm">Name</th>
+                              <th class="th-sm">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="text-nowrap">
+                                <code class="highlighter-rouge">change.cnds.multirange</code>
+                              </td>
+                              <td>
+                                Fired on every value change — while dragging, on keyboard input, and
+                                after programmatic calls to <code>setValues()</code>,
+                                <code>setLow()</code>, or <code>setHigh()</code>. The event detail
+                                exposes <code>e.detail.low</code> and <code>e.detail.high</code> with the current
+                                low and high values snapped to the configured step.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <!--Section: Code-->
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                        <!-- snippet -->
+                        <div class="p-0">
+                          <pre class="line-numbers m-0">
+                                    <code class="language-js">
+const mySlider = document.querySelector('#mySlider');
+mySlider.addEventListener('change.cnds.multirange', (e) => {
+  console.log('Low:', e.detail.low, 'High:', e.detail.high);
+});
+                                    </code>
+                                    </pre>
+                        </div>
+                        <!-- /.snippet -->
+                      </section>
+                      <!--/Section: Code-->
+                    </section>
+                    <!--Section: Events-->
+
+                    <!--Section: CSS Custom Properties-->
+                    <section id="api-section-css-variables">
+                      <h4 class="mb-4">CSS custom properties</h4>
+                      <p>
+                        All custom properties are defined on <code>.multi-range</code> in
+                        <code>css/plugins/multi-range.css</code> and can be overridden
+                        per-instance via an inline <code>style</code> attribute or globally
+                        by targeting <code>.multi-range</code> in your own stylesheet.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="CSS custom properties">
+                          <thead>
+                            <tr>
+                              <th>Property</th>
+                              <th>Default</th>
+                              <th>Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>--cnds-mr-track-bg</code></td>
+                              <td><code>var(--cnds-surface-dark-300, #4a4a4a)</code></td>
+                              <td>Background color of the track rail.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-mr-track-height</code></td>
+                              <td><code>2px</code></td>
+                              <td>Height of the track rail.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-mr-fill-bg</code></td>
+                              <td><code>var(--cnds-surface-blue-500, #355d97)</code></td>
+                              <td>Color of the filled region between the two thumbs (or from the left edge in single-range mode).</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-mr-thumb-size</code></td>
+                              <td><code>16px</code></td>
+                              <td>Diameter of each thumb circle.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-mr-thumb-bg</code></td>
+                              <td><code>var(--cnds-surface-blue-500, #355d97)</code></td>
+                              <td>Fill color of the thumb circles.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-mr-thumb-shadow</code></td>
+                              <td><code>0 1px 4px rgba(0,0,0,0.2)</code></td>
+                              <td>Drop shadow on each thumb at rest.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-mr-thumb-ring</code></td>
+                              <td><code>rgba(53,93,151,0.15)</code></td>
+                              <td>Color of the ring that expands around the thumb on hover and focus.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-mr-thumb-ring-active</code></td>
+                              <td><code>rgba(53,93,151,0.2)</code></td>
+                              <td>Color of the ring while the thumb is actively being dragged.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-mr-label-bg</code></td>
+                              <td><code>var(--cnds-surface-blue-500, #355d97)</code></td>
+                              <td>Background fill of the teardrop tooltip label.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-mr-label-color</code></td>
+                              <td><code>var(--cnds-surface-blue-50, #edf1f9)</code></td>
+                              <td>Text color inside the tooltip label.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-mr-label-font-size</code></td>
+                              <td><code>10px</code></td>
+                              <td>Font size of the tooltip label value.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-mr-scale-color</code></td>
+                              <td><code>var(--cnds-primary-gray-600, #666666)</code></td>
+                              <td>Text color of the scale tick labels (visible when <code>showScale: true</code>).</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-mr-radius</code></td>
+                              <td><code>999px</code></td>
+                              <td>Border radius applied to the track and fill, producing fully pill-shaped ends.</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: CSS Custom Properties-->
+
+                    <!--Section: Theme Variables-->
+                    <section id="api-section-theme-variables">
+                      <h4 class="mb-4">Theme variables</h4>
+                      <p>
+                        The following custom properties are overridden under the
+                        <code>[data-cnds-theme="dark"] .multi-range</code> selector.
+                        Thumb and fill step up to a lighter blue token so the non-text
+                        contrast against the dark background meets WCAG AA (≥ 3:1).
+                        All other custom properties retain their light-theme values.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Theme variables">
+                          <thead>
+                            <tr>
+                              <th>Property</th>
+                              <th>Light value</th>
+                              <th>Light contrast</th>
+                              <th>Dark value</th>
+                              <th>Dark contrast</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>--cnds-mr-track-bg</code></td>
+                              <td><code>#4a4a4a</code></td>
+                              <td>8.84:1 on <code>#ffffff</code></td>
+                              <td><code>#7a7a7a</code></td>
+                              <td>3.88:1 on <code>#1e1e1e</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-mr-fill-bg</code></td>
+                              <td><code>#355d97</code></td>
+                              <td>6.63:1 on <code>#ffffff</code></td>
+                              <td><code>#6790ca</code></td>
+                              <td>5.09:1 on <code>#1e1e1e</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-mr-thumb-bg</code></td>
+                              <td><code>#355d97</code></td>
+                              <td>6.63:1 on <code>#ffffff</code></td>
+                              <td><code>#6790ca</code></td>
+                              <td>5.09:1 on <code>#1e1e1e</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-mr-scale-color</code></td>
+                              <td><code>#666666</code></td>
+                              <td>5.74:1 on <code>#ffffff</code></td>
+                              <td><code>#a3a3a3</code></td>
+                              <td>6.60:1 on <code>#1e1e1e</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-mr-label-bg</code> / <code>--cnds-mr-label-color</code></td>
+                              <td><code>#355d97</code> / <code>#edf1f9</code></td>
+                              <td>5.88:1</td>
+                              <td colspan="2">Unchanged — 5.88:1 in both themes</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: Theme Variables-->
+
+                    <!--Section: Accessibility-->
+                    <section id="api-section-accessibility">
+                      <h4 class="mb-4">Accessibility</h4>
+                      <p>
+                        Each thumb is a fully keyboard-operable <code>role="slider"</code>
+                        element. The component sets and keeps the following ARIA attributes
+                        in sync as values change:
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Accessibility">
+                          <thead>
+                            <tr>
+                              <th>Attribute</th>
+                              <th>Element</th>
+                              <th>Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>role="slider"</code></td>
+                              <td>Both thumbs</td>
+                              <td>Identifies each thumb as an interactive range control to assistive technologies.</td>
+                            </tr>
+                            <tr>
+                              <td><code>aria-valuenow</code></td>
+                              <td>Both thumbs</td>
+                              <td>Current value of the thumb — updated live during drag and keyboard interaction.</td>
+                            </tr>
+                            <tr>
+                              <td><code>aria-valuemin</code></td>
+                              <td>Both thumbs</td>
+                              <td>Set to <code>min</code> on the low thumb. On the high thumb, reflects the current low value (its effective floor).</td>
+                            </tr>
+                            <tr>
+                              <td><code>aria-valuemax</code></td>
+                              <td>Both thumbs</td>
+                              <td>Set to <code>max</code> on the high thumb. On the low thumb, reflects the current high value (its effective ceiling).</td>
+                            </tr>
+                            <tr>
+                              <td><code>aria-label</code></td>
+                              <td>Both thumbs</td>
+                              <td>"Low value" on the left thumb and "High value" on the right thumb.</td>
+                            </tr>
+                            <tr>
+                              <td><code>tabindex="0"</code></td>
+                              <td>Both thumbs</td>
+                              <td>Places each thumb in the natural tab order; the low thumb receives focus first.</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <h5 class="mt-4 mb-2">Keyboard interaction</h5>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Accessibility">
+                          <thead>
+                            <tr>
+                              <th>Key</th>
+                              <th>Action</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><kbd>Tab</kbd> / <kbd>Shift+Tab</kbd></td>
+                              <td>Moves focus between the two thumbs and other focusable elements on the page.</td>
+                            </tr>
+                            <tr>
+                              <td><kbd>→</kbd> / <kbd>↑</kbd></td>
+                              <td>Increases the focused thumb's value by one <code>step</code>.</td>
+                            </tr>
+                            <tr>
+                              <td><kbd>←</kbd> / <kbd>↓</kbd></td>
+                              <td>Decreases the focused thumb's value by one <code>step</code>.</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: Accessibility-->
+
+                  </section>
+                  <!--/Section: API Documentation-->
+                </section>
+                <!--Section: Docs content-->
+              </div>
+              <!-- ./Main column-->
+
+              <!-- Right Sidebar — 20 % of the row width; hidden below lg breakpoint.
+                   Sticky attributes (processed by nimbus.js):
+                     data-cnds-sticky="true"          : activates sticky positioning
+                     data-cnds-sticky-boundary="true" : constrains sticky to its parent container
+                     data-cnds-sticky-direction="both" : sticks when scrolling up OR down
+                     data-cnds-sticky-offset="56"     : clears the 56 px fixed header
+                     data-cnds-sticky-delay="125"     : debounce delay (ms) to reduce scroll jank
+                   data-cnds-allow-hashes="true" on the <ul>: nimbus.js watches the URL hash
+                     and highlights the matching nav-link as the user scrolls through sections. -->
+              <div class="col-lg-2 d-none d-lg-block">
+                <div class="sticky-top" style="top: 100px; z-index: 1">
+                  <ul
+                    class="nav flex-column nav-pills menu-sidebar"
+                    id="rightNav"
+                    data-cnds-allow-hashes="true"
+                  >
+                    <!-- Links -->
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-introduction">Introduction</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-basic-example">Basic example</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-basic-example-values">Basic example with values</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-one-range">One Range</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-start-values">Start Values</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-tooltips">Tooltips</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-step">Step example</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-product-example">Product example</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-api-docs">API Documentation</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#api-section-introduction">Introduction</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#api-section-usage">Usage</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#api-section-options">Options</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#api-section-methods">Methods</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#api-section-events">Events</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#api-section-css-variables">CSS custom properties</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#api-section-theme-variables">Theme variables</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#api-section-accessibility">Accessibility</a>
+                    </li>
+                    <!-- Links -->
+                  </ul>
+                </div>
+              </div>
+              <!-- ./Right Sidebar -->
+            </div>
+            <!-- ./Content Row -->
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- ./Content -->
+    <!-- Footer -->
+    <div class="cf-footer cf-footer-app">
+      <footer class="page-footer main-footer" aria-label="Site footer">
+        <div class="w-100 px-3 d-flex align-items-center">
+          <img src="img/cf/core/cloudficient_logo_light.svg" class="cf-logo-light" style="width: 135px;" alt="Cloudficient" />
+          <img src="img/cf/core/cloudficient_logo_dark.svg" class="cf-logo-dark" style="width: 135px;" alt="Cloudficient" />
+          <span class="footer-copyright ms-auto">&copy; <span id="currentYear"></span> Cloudficient</span>
+        </div>
+      </footer>
+    </div>
+    <!-- ./Footer -->
+    <!-- SCRIPTS — load order matters:
+         1. nimbus.js    — core framework: processes all data-cnds-* attributes (theme, sticky, sidenav, tooltips…)
+         2. app.js       — application-level overrides and custom initialisation
+         3. prism.min.js — syntax highlighting for <code class="language-*"> blocks; must run after DOM is ready
+         4. sidenav-loader.js — fetches shared sidenav HTML and injects it into #sidebar-cf -->
+    <script type="text/javascript" src="js/nimbus.js?v=9.0.4"></script>
+    <script type="text/javascript" src="js/app.js?v=9.0.4"></script>
+    <script type="text/javascript" src="plugins/js/prism.min.js"></script>
+    <script type="text/javascript" src="js/sidenav-loader.js"></script>
+    <!--
+      Inline demo scripts
+      ───────────────────
+      Runs inside the cnds.ready handler so Nimbus.MultiRange is guaranteed
+      to be available (nimbus.js fires cnds.ready after all COMPONENT_SCRIPTS
+      have loaded). Three responsibilities:
+
+        1. Basic example with values — attaches a change.cnds.multirange listener
+           to #multi-ranges-basic and reflects e.detail.low / e.detail.high.
+
+        2. Start values — JS-initialises .multi-ranges-start-values (no
+           data-cnds-multi-range-init on that element; init is intentionally
+           manual to demonstrate the constructor API).
+
+        3. Product example — attaches a change.cnds.multirange listener to
+           #cf-mailbox-range and updates the mailbox-size copy.
+
+      NOTE: data-cnds-multi-range-init elements are already initialised by
+      Nimbus.DataAPI before cnds.ready fires — do not call new Nimbus.MultiRange()
+      on them again here or you will get a duplicate instance.
+    -->
+    <script type="text/javascript">
+      document.addEventListener('cnds.ready', function () {
+        // Basic example with values
+        var basicExample = document.getElementById('multi-ranges-basic');
+        var basicValue   = document.getElementById('multi-ranges-basic-value');
+        if (basicExample && basicValue) {
+          basicExample.addEventListener('change.cnds.multirange', function (e) {
+            basicValue.innerHTML =
+              'Value: <span class="d-flex flex-column">' +
+              '<div>First: '  + e.detail.low  + '</div>' +
+              '<div>Second: ' + e.detail.high + '</div>' +
+              '</span>';
+          });
+        }
+
+        // Start values — JS initialisation (no data-cnds-multi-range-init on this element)
+        var startValueEl   = document.querySelector('.multi-ranges-start-values');
+        var startValueShow = document.getElementById('multi-ranges-start-values-show');
+        if (startValueEl && !window.Nimbus.MultiRange.getInstance(startValueEl)) {
+          new window.Nimbus.MultiRange(startValueEl, { valueLow: 40, valueHigh: 80 });
+        }
+        if (startValueEl && startValueShow) {
+          startValueEl.addEventListener('change.cnds.multirange', function (e) {
+            startValueShow.innerHTML =
+              'Value: <span class="d-flex flex-column">' +
+              '<div>First: '  + e.detail.low  + '</div>' +
+              '<div>Second: ' + e.detail.high + '</div>' +
+              '</span>';
+          });
+        }
+
+        // Product example — CaseFusion mailbox size filter
+        var mailboxRange = document.getElementById('cf-mailbox-range');
+        var mailboxValue = document.getElementById('cf-mailbox-range-value');
+        if (mailboxRange && mailboxValue) {
+          mailboxRange.addEventListener('change.cnds.multirange', function (e) {
+            mailboxValue.innerHTML =
+              'Showing mailboxes between <strong>' + e.detail.low + ' GB</strong>' +
+              ' and <strong>' + e.detail.high + ' GB</strong>';
+          });
+        }
+      });
+    </script>
+    <!-- Inline: populate the footer copyright year dynamically so the page never needs a manual update -->
+    <script type="text/javascript">
+      var currentYearElement = document.getElementById("currentYear");
+      if (currentYearElement) {
+        currentYearElement.textContent = new Date().getFullYear();
+      }
+    </script>
+  </body>
+</html>

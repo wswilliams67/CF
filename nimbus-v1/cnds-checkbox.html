@@ -1,0 +1,1124 @@
+<!--
+* CNDS Nimbus Design System — Checkbox
+* Version: 1.0.0
+* Layout: Application with SideNav (migrated from Nimbus v8 template)
+* NOTES
+- Pure HTML5, CSS3, vanilla JavaScript — zero external dependencies
+- Uses data-cnds-* attributes (replaces data-cnds-*)
+- Uses Nimbus.* namespace (replaces mdb.*)
+- Default product theme: CaseFusion (cnds-product-casefusion on <body>; change to cnds-product-hyperlize or cnds-product-expireon)
+-->
+<!doctype html>
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta
+      name="description"
+      content="Checkbox | Cloudficient Nimbus Design System v1.0.0"
+    />
+    <title>
+      Checkbox | CNDS v1.0.0 | Cloudficient Nimbus Design System
+    </title>
+    <!-- CSS LOAD ORDER — sequence is intentional:
+         1. nimbus.css     — compiled design system (resets, tokens, components, utilities)
+         2. app.css        — application-level overrides; loads after nimbus to win specificity
+         3. prism.min.css  — syntax-highlight theme; isolated scope, order relative to others is safe
+         4. primitives.css — raw design token values (HSL/hex primitives, no component references)
+         5. light.css      — maps primitives → semantic tokens for the light theme
+         6. dark.css       — maps primitives → semantic tokens for the dark theme
+                             ([data-cnds-theme="dark"] selector; toggled by nimbus.js) -->
+    <link rel="stylesheet" href="css/nimbus.css" media="all" type="text/css" />
+    <link rel="stylesheet" href="css/app.css" media="all" type="text/css" />
+    <link rel="stylesheet" href="plugins/css/prism.min.css" media="all" type="text/css" />
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="img/favicon/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="60x60" href="img/favicon/apple-icon-60x60.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="img/favicon/apple-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76" href="img/favicon/apple-icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="img/favicon/apple-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="img/favicon/apple-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="img/favicon/apple-icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="img/favicon/apple-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-icon-180x180.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="img/favicon/android-icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="img/favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="img/favicon/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="msapplication-TileImage" content="img/favicon/ms-icon-144x144.png" />
+    <!-- Design Tokens / Primitives & Themes -->
+    <link rel="stylesheet" href="css/themes/primitives.css" />
+    <link rel="stylesheet" href="css/themes/light.css" />
+    <link rel="stylesheet" href="css/themes/dark.css" />
+  </head>
+
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 Bypass Blocks; renders visually hidden until focused -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+    <!-- Header -->
+    <div class="sticky-top">
+      <!-- Utility Navigation -->
+      <nav id="UtilityNav" class="nav nav-cf-utility">
+        <div class="w-100 gx-3 px-sm-0 px-lg-3">
+          <ul class="nav nav-cf-utility-ul"></ul>
+        </div>
+      </nav>
+      <!-- ./Utility Navigation -->
+      <!-- Main Navigation -->
+      <nav id="MainNav" class="navbar navbar-expand-xl navbar-cf">
+        <div class="container-fluid p-0 px-3 d-flex">
+          <div class="d-flex flex-fill align-items-center text-truncate">
+            <div class="text-center d-none d-md-block me-3 border-end">
+              <a href="index.html"><img src="img/cf/core/logo_nimbus.png" class="me-3 mt-n1" alt="Cloudficient Nimbus Design System" /></a>
+            </div>
+            <div class="flex-fill text-truncate">
+              <div class="navbar-cf-title-block">
+                <div class="navbar-cf-title cf-page-title text-truncate" style="padding-bottom: 0;">
+                  <span class="cf-page-title-text cf-page-title-brand">v1</span>
+                  <span class="cf-page-title-divider"></span>
+                  <span class="cf-page-title-text">Checkbox</span>
+                  </div>
+              </div>
+            </div>
+          </div>
+          <button class="btn btn-sm btn-outline-secondary ms-2" data-cnds-toggle="theme" aria-label="Toggle theme" title="Toggle theme">
+            <i class="mdi mdi-weather-night mdi-18px" aria-hidden="true"></i>
+          </button>
+        </div>
+      </nav>
+      <!-- ./Main Navigation -->
+    </div>
+    <!-- ./Header -->
+    <!-- Content -->
+    <main id="main-content" class="cf-main-app">
+      <!-- Mobile viewport warning -->
+      <div class="d-block d-md-none p-4">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>This application is not optimized for small screens. Please use a large tablet, laptop, or desktop computer to continue.
+        </div>
+      </div>
+      <div class="d-none d-md-block">
+        <!-- Sidenav — markup is intentionally empty; sidenav-loader.js fetches and injects the shared nav HTML.
+             data-cnds-mode="side"           : renders as a persistent side panel (not an overlay/drawer)
+             data-cnds-slim / slim-collapsed : controls compact/icon-only collapsed state
+             data-cnds-content="#slim-content": the sibling panel that shrinks/expands as the nav opens/closes
+             data-cnds-accordion="true"      : collapses other open nav groups when a new one is expanded -->
+        <nav
+          id="sidebar-cf"
+          class="sidenav"
+          data-cnds-mode="side"
+          data-cnds-slim="false"
+          data-cnds-slim-collapsed="false"
+          data-cnds-content="#slim-content"
+          data-cnds-accordion="true"
+        ></nav>
+        <div id="slim-content">
+          <div class="slim-content-box">
+            <!-- Content Row -->
+            <div class="row">
+              <!-- Main column — 80 % of the row width; the remaining 20 % is the right sidebar.
+                   The inline flex overrides are intentional: they pin the ratio regardless of Bootstrap's
+                   grid breakpoints so the sidebar never wraps on large viewports. -->
+              <div class="col-12 col-lg" style="flex: 0 0 80%; max-width: 80%">
+                <!--Section: Docs content-->
+                <section class="container-fluid">
+                <!--Section: Introduction-->
+                <section id="section-introduction">
+                  <div class="row">
+                    <div class="col mb-4">
+                      <p class="mb-4">
+                        Checkboxes allow users to select one or more independent options from a set, or toggle a single
+                        boolean preference on or off. Use a checkbox when the selection is independent of other items
+                        — if only one option can be active at a time, use a radio button instead.
+                      </p>
+                      <p class="my-4">
+                        Nimbus checkboxes support seven distinct states defined in the Figma component specification:
+                        <strong>enabled</strong>, <strong>selected</strong>, <strong>indeterminate</strong>,
+                        <strong>disabled</strong>, <strong>disabled-selected</strong>,
+                        <strong>disabled-indeterminate</strong>, and <strong>invalid</strong>. Every state accepts an
+                        optional label and helper text.
+                      </p>
+                      <p class="note note-light">
+                        <strong>Note:</strong> All checkbox components use pure HTML5, CSS3, and vanilla JavaScript with
+                        zero external dependencies.
+                      </p>
+                    </div>
+                  </div>
+                </section>
+                <!--/Section: Introduction-->
+
+                <hr class="my-5" />
+
+                <!--Section: Basic Example-->
+                <section id="section-basic-example">
+<!-- Angular: Bind checkbox state with [(ngModel)] for template-driven forms or a FormControl for reactive forms.
+     Example: <input class="form-check-input" type="checkbox" [(ngModel)]="isChecked" (change)="onChange($event)" />
+     Use [checked]="value" for one-way binding and emit changes via an (change) EventEmitter in a checkbox component. -->
+                  <h3 class="mb-4">Basic example</h3>
+                  <p>
+                    Wrap a <code>&lt;input type="checkbox"&gt;</code> and its <code>&lt;label&gt;</code>
+                    in a <code>.form-check</code> container. The <code>.form-check-input</code> class
+                    replaces the browser default with the Nimbus-styled 18 × 18 px checkbox. The
+                    <code>.form-check-label</code> sits 8 px to the right and is styled at 14 px / semibold
+                    per the design tokens.
+                  </p>
+                  <p>
+                    The checked state renders a white SVG checkmark over the filled
+                    <code>--cnds-form-check-input-checked-bg</code> background. No JavaScript is needed
+                    for either the unchecked or checked states.
+                  </p>
+
+                  <!-- Demo block pattern (repeated for every section):
+                       .pb-4 section      = live preview frame
+                         .border.rounded-5 = decorative chrome border
+                       .mb-4 section      = Prism code example(s) below the frame
+                       Each code example opens with an <h3> badge (HTML or JavaScript). -->
+                  <section class="pb-4">
+                    <div class="border rounded-5">
+                      <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                        <div>
+                          <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="basicCheckDefault" />
+                            <label class="form-check-label" for="basicCheckDefault">Default checkbox</label>
+                          </div>
+                          <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="basicCheckChecked" checked />
+                            <label class="form-check-label" for="basicCheckChecked">Checked checkbox</label>
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+
+                  <section class="mb-4">
+                    <h3 class="mb-3"><span class="badge badge-code-html">HTML</span></h3>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                        <code class="language-html">&lt;div class=&quot;form-check&quot;&gt;
+  &lt;input class=&quot;form-check-input&quot; type=&quot;checkbox&quot; value=&quot;&quot; id=&quot;basicCheckDefault&quot; /&gt;
+  &lt;label class=&quot;form-check-label&quot; for=&quot;basicCheckDefault&quot;&gt;Default checkbox&lt;/label&gt;
+&lt;/div&gt;
+&lt;div class=&quot;form-check&quot;&gt;
+  &lt;input class=&quot;form-check-input&quot; type=&quot;checkbox&quot; value=&quot;&quot; id=&quot;basicCheckChecked&quot; checked /&gt;
+  &lt;label class=&quot;form-check-label&quot; for=&quot;basicCheckChecked&quot;&gt;Checked checkbox&lt;/label&gt;
+&lt;/div&gt;</code>
+                      </pre>
+                    </div>
+                  </section>
+                </section>
+                <!--/Section: Basic Example-->
+
+                <hr class="my-5" />
+
+                <!--Section: Helper Text-->
+                <section id="section-helper-text">
+<!-- Angular: Bind helper text dynamically via a component @Input() and render conditionally with *ngIf.
+     Example: <span class="form-helper" *ngIf="helperText">{{helperText}}</span>
+     Use reactive form validation state to show or hide helper text based on control errors. -->
+                  <h3 class="mb-4">Helper text</h3>
+                  <p>
+                    Place a <code>.form-text</code> element immediately after the <code>.form-check-label</code>
+                    to provide supplementary context below the checkbox. Helper text renders at 12 px
+                    (<code>--cnds-form-text-font-size</code>) in a secondary muted color
+                    (<code>--cnds-form-text-color</code>). Use it to clarify what selecting the option
+                    means — keep it to one short sentence so it doesn't compete with the label.
+                  </p>
+
+                  <section class="pb-4">
+                    <div class="border rounded-5">
+                      <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                        <div>
+                          <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="helperCheckDefault" />
+                            <label class="form-check-label" for="helperCheckDefault">Label text</label>
+                            <div class="form-text">Helper text</div>
+                          </div>
+                          <div class="form-check mt-3">
+                            <input class="form-check-input" type="checkbox" value="" id="helperCheckChecked" checked />
+                            <label class="form-check-label" for="helperCheckChecked">Selected label</label>
+                            <div class="form-text">Helper text for selected state</div>
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+
+                  <section class="mb-4">
+                    <h3 class="mb-3"><span class="badge badge-code-html">HTML</span></h3>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                        <code class="language-html">&lt;div class=&quot;form-check&quot;&gt;
+  &lt;input class=&quot;form-check-input&quot; type=&quot;checkbox&quot; value=&quot;&quot; id=&quot;helperCheckDefault&quot; /&gt;
+  &lt;label class=&quot;form-check-label&quot; for=&quot;helperCheckDefault&quot;&gt;Label text&lt;/label&gt;
+  &lt;div class=&quot;form-text&quot;&gt;Helper text&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;form-check mt-3&quot;&gt;
+  &lt;input class=&quot;form-check-input&quot; type=&quot;checkbox&quot; value=&quot;&quot; id=&quot;helperCheckChecked&quot; checked /&gt;
+  &lt;label class=&quot;form-check-label&quot; for=&quot;helperCheckChecked&quot;&gt;Selected label&lt;/label&gt;
+  &lt;div class=&quot;form-text&quot;&gt;Helper text for selected state&lt;/div&gt;
+&lt;/div&gt;</code>
+                      </pre>
+                    </div>
+                  </section>
+                </section>
+                <!--/Section: Helper Text-->
+
+                <hr class="my-5" />
+
+                <!--Section: Indeterminate-->
+                <section id="section-indeterminate">
+<!-- Angular: Set the indeterminate state programmatically via a @ViewChild reference to the input element.
+     Example: @ViewChild('cb') cb!: ElementRef; ngAfterViewInit() { this.cb.nativeElement.indeterminate = true; }
+     Alternatively, use a directive to abstract indeterminate state management from the template. -->
+                  <h3 class="mb-4">Indeterminate</h3>
+                  <p>
+                    The indeterminate state — rendered as a horizontal dash — indicates a mixed or
+                    partially selected condition. It is most commonly used in "select all" patterns
+                    where a parent checkbox reflects that only some of its children are checked.
+                  </p>
+                  <p>
+                    The state is visual only: it does not change the element's <code>.checked</code>
+                    property and is not submitted with the form. It must be set and cleared
+                    programmatically via <code>element.indeterminate = true / false</code>. The
+                    <code>:indeterminate</code> CSS pseudo-class drives the dash icon through
+                    <code>--cnds-form-check-bg-image</code>.
+                  </p>
+
+                  <section class="pb-4">
+                    <div class="border rounded-5">
+                      <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                        <div>
+                          <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="indeterminateCheck" />
+                            <label class="form-check-label" for="indeterminateCheck">Indeterminate checkbox</label>
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+
+                  <section class="mb-4">
+                    <h3 class="mb-3"><span class="badge badge-code-html">HTML</span></h3>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                        <code class="language-html">&lt;div class=&quot;form-check&quot;&gt;
+  &lt;input class=&quot;form-check-input&quot; type=&quot;checkbox&quot; value=&quot;&quot; id=&quot;indeterminateCheck&quot; /&gt;
+  &lt;label class=&quot;form-check-label&quot; for=&quot;indeterminateCheck&quot;&gt;Indeterminate checkbox&lt;/label&gt;
+&lt;/div&gt;</code>
+                      </pre>
+                    </div>
+                  </section>
+
+                  <section class="mb-4">
+                    <h3 class="mb-3"><span class="badge badge-code-js">JavaScript</span></h3>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                        <code class="language-js">// Set the indeterminate state via JavaScript
+const indeterminateEl = document.getElementById('indeterminateCheck');
+indeterminateEl.indeterminate = true;</code>
+                      </pre>
+                    </div>
+                  </section>
+                </section>
+                <!--/Section: Indeterminate-->
+
+                <hr class="my-5" />
+
+                <!--Section: Disabled-->
+                <section id="section-disabled">
+<!-- Angular: Bind the disabled state using [attr.disabled]="isDisabled ? '' : null" or via a FormControl's disable() method.
+     Example: <input class="form-check-input" type="checkbox" [attr.disabled]="isDisabled ? '' : null" />
+     In reactive forms, call control.disable() / control.enable() rather than binding the attribute directly. -->
+                  <h3 class="mb-4">Disabled</h3>
+                  <p>
+                    Add the HTML <code>disabled</code> attribute to prevent interaction. The Nimbus checkbox
+                    applies <code>opacity: 0.5</code> and <code>pointer-events: none</code> to both the
+                    input and its sibling label, giving a consistent muted appearance across all three
+                    disabled sub-states: <strong>unchecked</strong>, <strong>checked</strong>, and
+                    <strong>indeterminate</strong>.
+                  </p>
+                  <p>
+                    The disabled indeterminate state must still be set via JavaScript — the
+                    <code>disabled</code> attribute only controls interaction, not the indeterminate
+                    visual. Do not rely on <code>aria-disabled</code> alone; the native
+                    <code>disabled</code> attribute is required so the browser excludes the field
+                    from form submission and keyboard focus.
+                  </p>
+
+                  <section class="pb-4">
+                    <div class="border rounded-5">
+                      <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                        <div>
+                          <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="disabledCheck" disabled />
+                            <label class="form-check-label" for="disabledCheck">Disabled checkbox</label>
+                          </div>
+                          <div class="form-check mt-3">
+                            <input class="form-check-input" type="checkbox" value="" id="disabledCheckedCheck" checked disabled />
+                            <label class="form-check-label" for="disabledCheckedCheck">Disabled checked</label>
+                          </div>
+                          <div class="form-check mt-3">
+                            <input class="form-check-input" type="checkbox" value="" id="disabledIndeterminateCheck" disabled />
+                            <label class="form-check-label" for="disabledIndeterminateCheck">Disabled indeterminate</label>
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+
+                  <section class="mb-4">
+                    <h3 class="mb-3"><span class="badge badge-code-html">HTML</span></h3>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                        <code class="language-html">&lt;div class=&quot;form-check&quot;&gt;
+  &lt;input class=&quot;form-check-input&quot; type=&quot;checkbox&quot; value=&quot;&quot; id=&quot;disabledCheck&quot; disabled /&gt;
+  &lt;label class=&quot;form-check-label&quot; for=&quot;disabledCheck&quot;&gt;Disabled checkbox&lt;/label&gt;
+&lt;/div&gt;
+&lt;div class=&quot;form-check mt-3&quot;&gt;
+  &lt;input class=&quot;form-check-input&quot; type=&quot;checkbox&quot; value=&quot;&quot; id=&quot;disabledCheckedCheck&quot; checked disabled /&gt;
+  &lt;label class=&quot;form-check-label&quot; for=&quot;disabledCheckedCheck&quot;&gt;Disabled checked&lt;/label&gt;
+&lt;/div&gt;
+&lt;div class=&quot;form-check mt-3&quot;&gt;
+  &lt;input class=&quot;form-check-input&quot; type=&quot;checkbox&quot; value=&quot;&quot; id=&quot;disabledIndeterminateCheck&quot; disabled /&gt;
+  &lt;label class=&quot;form-check-label&quot; for=&quot;disabledIndeterminateCheck&quot;&gt;Disabled indeterminate&lt;/label&gt;
+&lt;/div&gt;</code>
+                      </pre>
+                    </div>
+                  </section>
+
+                  <section class="mb-4">
+                    <h3 class="mb-3"><span class="badge badge-code-js">JavaScript</span></h3>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                        <code class="language-js">// Set disabled-indeterminate state
+const disabledIndeterminate = document.getElementById('disabledIndeterminateCheck');
+disabledIndeterminate.indeterminate = true;</code>
+                      </pre>
+                    </div>
+                  </section>
+                </section>
+                <!--/Section: Disabled-->
+
+                <hr class="my-5" />
+
+                <!--Section: Invalid / Validation-->
+                <section id="section-invalid">
+<!-- Angular: Apply the invalid class conditionally using [class.is-invalid] bound to a FormControl's invalid state.
+     Example: <input class="form-check-input" type="checkbox" [class.is-invalid]="control.invalid && control.touched" [formControl]="control" />
+     Show validation feedback with *ngIf="control.invalid && control.touched" on the error message element. -->
+                  <h3 class="mb-4">Invalid / Validation</h3>
+                  <p>
+                    Add <code>.is-invalid</code> to the checkbox input to signal a validation error.
+                    The <code>.invalid-feedback</code> element switches to
+                    <code>--cnds-form-invalid-color</code>. The checkbox border and label both remain
+                    in their default theme styles.
+                  </p>
+                  <p>
+                    Prefer server-side or submit-time validation over real-time invalid state to avoid
+                    flagging fields the user has not yet interacted with. Associate the feedback message
+                    with the input via <code>aria-describedby</code> for screen reader support.
+                  </p>
+
+                  <section class="pb-4">
+                    <div class="border rounded-5">
+                      <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                        <div>
+                          <div class="form-check">
+                            <input class="form-check-input is-invalid" type="checkbox" value="" id="invalidCheck" aria-describedby="invalidCheck-feedback" />
+                            <label class="form-check-label" for="invalidCheck">Accept terms and conditions</label>
+                            <div id="invalidCheck-feedback" class="invalid-feedback">You must agree before submitting.</div>
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+
+                  <section class="mb-4">
+                    <h3 class="mb-3"><span class="badge badge-code-html">HTML</span></h3>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                        <code class="language-html">&lt;div class=&quot;form-check&quot;&gt;
+  &lt;input class=&quot;form-check-input is-invalid&quot; type=&quot;checkbox&quot; value=&quot;&quot; id=&quot;invalidCheck&quot;
+    aria-describedby=&quot;invalidCheck-feedback&quot; /&gt;
+  &lt;label class=&quot;form-check-label&quot; for=&quot;invalidCheck&quot;&gt;Accept terms and conditions&lt;/label&gt;
+  &lt;div id=&quot;invalidCheck-feedback&quot; class=&quot;invalid-feedback&quot;&gt;You must agree before submitting.&lt;/div&gt;
+&lt;/div&gt;</code>
+                      </pre>
+                    </div>
+                  </section>
+                </section>
+                <!--/Section: Invalid / Validation-->
+
+                <hr class="my-5" />
+
+                <!--Section: Inline-->
+                <section id="section-inline">
+<!-- Angular: Render inline checkboxes from an array using *ngFor with .form-check-inline on each container.
+     Example: <div class="form-check form-check-inline" *ngFor="let opt of options"><input class="form-check-input" type="checkbox" [id]="opt.id" [(ngModel)]="opt.checked" /></div>
+     Use a FormArray in reactive forms for inline checkbox groups with dynamic options. -->
+                  <h3 class="mb-4">Inline</h3>
+                  <p>
+                    Add <code>.form-check-inline</code> to each <code>.form-check</code> wrapper to
+                    arrange checkboxes horizontally. Inline layout works best for 2–4 short-label
+                    options that comfortably fit on one line. For five or more options, or when labels
+                    wrap, prefer the default stacked (block) layout to avoid alignment issues and
+                    improve scannability.
+                  </p>
+                  <p>
+                    Group related inline checkboxes inside a <code>&lt;fieldset&gt;</code> with a
+                    <code>&lt;legend&gt;</code> so screen readers announce the group context before
+                    reading each label.
+                  </p>
+
+                  <section class="pb-4">
+                    <div class="border rounded-5">
+                      <section class="w-100 p-4 text-center pb-4">
+                        <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="option1" />
+                          <label class="form-check-label" for="inlineCheckbox1">1</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" id="inlineCheckbox2" value="option2" />
+                          <label class="form-check-label" for="inlineCheckbox2">2</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" id="inlineCheckbox3" value="option3" disabled />
+                          <label class="form-check-label" for="inlineCheckbox3">3 (disabled)</label>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+
+                  <section class="mb-4">
+                    <h3 class="mb-3"><span class="badge badge-code-html">HTML</span></h3>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                        <code class="language-html">&lt;div class=&quot;form-check form-check-inline&quot;&gt;
+  &lt;input class=&quot;form-check-input&quot; type=&quot;checkbox&quot; id=&quot;inlineCheckbox1&quot; value=&quot;option1&quot; /&gt;
+  &lt;label class=&quot;form-check-label&quot; for=&quot;inlineCheckbox1&quot;&gt;1&lt;/label&gt;
+&lt;/div&gt;
+&lt;div class=&quot;form-check form-check-inline&quot;&gt;
+  &lt;input class=&quot;form-check-input&quot; type=&quot;checkbox&quot; id=&quot;inlineCheckbox2&quot; value=&quot;option2&quot; /&gt;
+  &lt;label class=&quot;form-check-label&quot; for=&quot;inlineCheckbox2&quot;&gt;2&lt;/label&gt;
+&lt;/div&gt;
+&lt;div class=&quot;form-check form-check-inline&quot;&gt;
+  &lt;input class=&quot;form-check-input&quot; type=&quot;checkbox&quot; id=&quot;inlineCheckbox3&quot; value=&quot;option3&quot; disabled /&gt;
+  &lt;label class=&quot;form-check-label&quot; for=&quot;inlineCheckbox3&quot;&gt;3 (disabled)&lt;/label&gt;
+&lt;/div&gt;</code>
+                      </pre>
+                    </div>
+                  </section>
+                </section>
+                <!--/Section: Inline-->
+
+                <hr class="my-5" />
+
+                <!--Section: Without Labels-->
+                <section id="section-without-labels">
+<!-- Angular: Use aria-label binding for accessibility on unlabelled checkboxes in Angular templates.
+     Example: <input class="form-check-input" type="checkbox" [attr.aria-label]="option.ariaLabel" [(ngModel)]="option.checked" />
+     Always provide a meaningful aria-label via component @Input() when omitting the visible label element. -->
+                  <h3 class="mb-4">Without labels</h3>
+                  <p>
+                    When a visible label would be redundant — for example, a select-all checkbox at the
+                    head of a data table column — omit the <code>.form-check</code> wrapper and
+                    <code>.form-check-label</code>. The checkbox still requires an accessible name for
+                    screen readers; supply one via <code>aria-label</code>, <code>aria-labelledby</code>
+                    pointing to a visible heading, or a visually hidden <code>&lt;label&gt;</code> using
+                    the <code>.visually-hidden</code> utility.
+                  </p>
+                  <p>
+                    Never leave a checkbox with no accessible name — a blank checkbox is not operable
+                    by keyboard or assistive technology users.
+                  </p>
+
+                  <section class="pb-4">
+                    <div class="border rounded-5">
+                      <section class="w-100 text-center p-4 pb-4">
+                        <div class="mx-auto">
+                          <div>
+                            <input class="form-check-input" type="checkbox" id="checkboxNoLabel1" value="" aria-label="Checkbox without label" />
+                          </div>
+                          <div>
+                            <input class="form-check-input" type="checkbox" id="checkboxNoLabel2" value="" aria-label="Checkbox without label" />
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+
+                  <section class="mb-4">
+                    <h3 class="mb-3"><span class="badge badge-code-html">HTML</span></h3>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                        <code class="language-html">&lt;div&gt;
+  &lt;input class=&quot;form-check-input&quot; type=&quot;checkbox&quot; id=&quot;checkboxNoLabel1&quot;
+    value=&quot;&quot; aria-label=&quot;Checkbox without label&quot; /&gt;
+&lt;/div&gt;
+&lt;div&gt;
+  &lt;input class=&quot;form-check-input&quot; type=&quot;checkbox&quot; id=&quot;checkboxNoLabel2&quot;
+    value=&quot;&quot; aria-label=&quot;Checkbox without label&quot; /&gt;
+&lt;/div&gt;</code>
+                      </pre>
+                    </div>
+                  </section>
+                </section>
+                <!--/Section: Without Labels-->
+
+                <hr class="my-5" />
+
+                <!--Section: Toggle Buttons-->
+                <section id="section-toggle-buttons">
+<!-- Angular: Bind toggle button checkbox state with [(ngModel)] and apply active styling via [class.active]="isToggled".
+     Example: <input class="btn-check" type="checkbox" id="toggle1" [(ngModel)]="isToggled" /><label class="btn" [class.active]="isToggled" for="toggle1">Toggle</label>
+     Use a FormControl for reactive form integration with toggle button checkbox groups. -->
+                  <h3 class="mb-4">Toggle buttons</h3>
+                  <p>
+                    Apply any <code>.btn</code> variant to a <code>&lt;label&gt;</code> and pair it with
+                    a preceding <code>&lt;input class="btn-check"&gt;</code> to create a button that
+                    toggles like a checkbox. The <code>.btn-check</code> input is visually clipped to
+                    zero size but remains in the accessibility tree — keyboard and screen reader users
+                    interact with it normally.
+                  </p>
+                  <p>
+                    The <code>for</code>/<code>id</code> relationship between the label and input is
+                    required. The <code>autocomplete="off"</code> attribute prevents the browser from
+                    restoring a previously checked state on page reload, which would leave the button
+                    visually out of sync with the underlying data.
+                  </p>
+
+                  <section class="pb-4">
+                    <div class="border rounded-5">
+                      <section class="w-100 p-4 text-center pb-4">
+                        <input type="checkbox" class="btn-check" id="btn-check" autocomplete="off" />
+                        <label class="btn btn-primary" for="btn-check">Checkbox button</label>
+
+                        <input type="checkbox" class="btn-check" id="btn-check2" checked autocomplete="off" />
+                        <label class="btn btn-primary" for="btn-check2">Checkbox button</label>
+
+                        <input type="checkbox" class="btn-check" id="btn-check3" autocomplete="off" />
+                        <label class="btn btn-primary" for="btn-check3">Checkbox button</label>
+                      </section>
+                    </div>
+                  </section>
+
+                  <section class="mb-4">
+                    <h3 class="mb-3"><span class="badge badge-code-html">HTML</span></h3>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                        <code class="language-html">&lt;input type=&quot;checkbox&quot; class=&quot;btn-check&quot; id=&quot;btn-check&quot; autocomplete=&quot;off&quot; /&gt;
+&lt;label class=&quot;btn btn-primary&quot; for=&quot;btn-check&quot;&gt;Checkbox button&lt;/label&gt;
+
+&lt;input type=&quot;checkbox&quot; class=&quot;btn-check&quot; id=&quot;btn-check2&quot; checked autocomplete=&quot;off&quot; /&gt;
+&lt;label class=&quot;btn btn-primary&quot; for=&quot;btn-check2&quot;&gt;Checkbox button&lt;/label&gt;
+
+&lt;input type=&quot;checkbox&quot; class=&quot;btn-check&quot; id=&quot;btn-check3&quot; autocomplete=&quot;off&quot; /&gt;
+&lt;label class=&quot;btn btn-primary&quot; for=&quot;btn-check3&quot;&gt;Checkbox button&lt;/label&gt;</code>
+                      </pre>
+                    </div>
+                  </section>
+                </section>
+                <!--/Section: Toggle Buttons-->
+
+                <hr class="my-5" />
+
+                <!--Section: Select All Pattern-->
+                <section id="section-select-all">
+<!-- Angular: Implement select-all with a parent FormControl and a FormArray of child controls, subscribing to valueChanges.
+     Example: allSelected = this.items.every(i => i.checked); toggleAll() { this.items.forEach(i => i.checked = !this.allSelected); }
+     Use (change) on the parent checkbox to call toggleAll(), and update the indeterminate state via @ViewChild. -->
+                  <h3 class="mb-4">Select all pattern</h3>
+                  <p>
+                    A parent checkbox controls the checked state of all its children. The parent
+                    reflects three conditions: <strong>all checked</strong> (checked),
+                    <strong>none checked</strong> (unchecked), and <strong>some checked</strong>
+                    (indeterminate). Clicking the parent while indeterminate should check all children —
+                    ensure <code>indeterminate = false</code> is reset in the parent's change handler
+                    before the browser reads the new <code>checked</code> value.
+                  </p>
+                  <p>
+                    Mark child checkboxes with a shared class (e.g. <code>.select-all-child</code>) so
+                    the JavaScript can query and synchronize them. This pattern requires no library or
+                    framework — pure vanilla JavaScript with a single <code>change</code> listener on
+                    each element.
+                  </p>
+
+                  <section class="pb-4">
+                    <div class="border rounded-5">
+                      <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                        <div>
+                          <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="selectAllCheckbox" />
+                            <label class="form-check-label fw-bold" for="selectAllCheckbox">Select all</label>
+                          </div>
+                          <hr class="my-2" />
+                          <div class="form-check">
+                            <input class="form-check-input select-all-child" type="checkbox" value="" id="childCheck1" />
+                            <label class="form-check-label" for="childCheck1">Option 1</label>
+                          </div>
+                          <div class="form-check">
+                            <input class="form-check-input select-all-child" type="checkbox" value="" id="childCheck2" />
+                            <label class="form-check-label" for="childCheck2">Option 2</label>
+                          </div>
+                          <div class="form-check">
+                            <input class="form-check-input select-all-child" type="checkbox" value="" id="childCheck3" />
+                            <label class="form-check-label" for="childCheck3">Option 3</label>
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+
+                  <section class="mb-4">
+                    <h3 class="mb-3"><span class="badge badge-code-html">HTML</span></h3>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                        <code class="language-html">&lt;div class=&quot;form-check&quot;&gt;
+  &lt;input class=&quot;form-check-input&quot; type=&quot;checkbox&quot; value=&quot;&quot; id=&quot;selectAllCheckbox&quot; /&gt;
+  &lt;label class=&quot;form-check-label fw-bold&quot; for=&quot;selectAllCheckbox&quot;&gt;Select all&lt;/label&gt;
+&lt;/div&gt;
+&lt;hr class=&quot;my-2&quot; /&gt;
+&lt;div class=&quot;form-check&quot;&gt;
+  &lt;input class=&quot;form-check-input select-all-child&quot; type=&quot;checkbox&quot; value=&quot;&quot; id=&quot;childCheck1&quot; /&gt;
+  &lt;label class=&quot;form-check-label&quot; for=&quot;childCheck1&quot;&gt;Option 1&lt;/label&gt;
+&lt;/div&gt;
+&lt;div class=&quot;form-check&quot;&gt;
+  &lt;input class=&quot;form-check-input select-all-child&quot; type=&quot;checkbox&quot; value=&quot;&quot; id=&quot;childCheck2&quot; /&gt;
+  &lt;label class=&quot;form-check-label&quot; for=&quot;childCheck2&quot;&gt;Option 2&lt;/label&gt;
+&lt;/div&gt;
+&lt;div class=&quot;form-check&quot;&gt;
+  &lt;input class=&quot;form-check-input select-all-child&quot; type=&quot;checkbox&quot; value=&quot;&quot; id=&quot;childCheck3&quot; /&gt;
+  &lt;label class=&quot;form-check-label&quot; for=&quot;childCheck3&quot;&gt;Option 3&lt;/label&gt;
+&lt;/div&gt;</code>
+                      </pre>
+                    </div>
+                  </section>
+
+                  <section class="mb-4">
+                    <h3 class="mb-3"><span class="badge badge-code-js">JavaScript</span></h3>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                        <code class="language-js">document.addEventListener('DOMContentLoaded', function () {
+  const selectAll = document.getElementById('selectAllCheckbox');
+  const children = document.querySelectorAll('.select-all-child');
+
+  if (!selectAll || !children.length) return;
+
+  // Parent controls children
+  selectAll.addEventListener('change', function () {
+    children.forEach(function (child) {
+      child.checked = selectAll.checked;
+    });
+    selectAll.indeterminate = false;
+  });
+
+  // Children update parent
+  children.forEach(function (child) {
+    child.addEventListener('change', function () {
+      const checkedCount = document.querySelectorAll('.select-all-child:checked').length;
+      selectAll.checked = checkedCount === children.length;
+      selectAll.indeterminate = checkedCount > 0 && checkedCount < children.length;
+    });
+  });
+});</code>
+                      </pre>
+                    </div>
+                  </section>
+                </section>
+                <!--/Section: Select All Pattern-->
+
+                <hr class="my-5" />
+
+                <!--Section: API Docs-->
+                <section id="section-api-docs">
+                  <h3 class="h3 mb-3">API Documentation</h3>
+
+                  <!--Section: CSS Classes-->
+                  <section id="api-section-classes">
+                    <h4 class="mb-4">CSS Classes</h4>
+                    <p>
+                      The following CSS classes are used to build and customize checkbox components.
+                      All classes follow the Nimbus naming convention and require no JavaScript initialization.
+                    </p>
+
+                    <div class="table-responsive">
+                      <table class="table my-4 table-striped table-bordered" aria-label="CSS Classes">
+                        <thead>
+                          <tr>
+                            <th>Class</th>
+                            <th>Description</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td><code>.form-check</code></td>
+                            <td>Wrapper element for checkbox input and label pairs. Provides proper spacing and alignment.</td>
+                          </tr>
+                          <tr>
+                            <td><code>.form-check-input</code></td>
+                            <td>Applied to the <code>&lt;input type=&quot;checkbox&quot;&gt;</code> element. Replaces the browser default with Nimbus-styled checkbox.</td>
+                          </tr>
+                          <tr>
+                            <td><code>.form-check-label</code></td>
+                            <td>Applied to the <code>&lt;label&gt;</code> element paired with the checkbox input.</td>
+                          </tr>
+                          <tr>
+                            <td><code>.form-check-inline</code></td>
+                            <td>Added to <code>.form-check</code> to display checkboxes horizontally in a row.</td>
+                          </tr>
+                          <tr>
+                            <td><code>.form-text</code></td>
+                            <td>Helper text element placed after the label. Renders at 12px in a secondary color.</td>
+                          </tr>
+                          <tr>
+                            <td><code>.btn-check</code></td>
+                            <td>Visually hides the checkbox input (<code>position: absolute; clip: rect(0,0,0,0)</code>) and pairs it with a button-styled label for toggle button patterns.</td>
+                          </tr>
+                          <tr>
+                            <td><code>.is-invalid</code></td>
+                            <td>Applied to the checkbox input to indicate a validation error. Changes border color to the danger token.</td>
+                          </tr>
+                          <tr>
+                            <td><code>.invalid-feedback</code></td>
+                            <td>Validation error message displayed below the checkbox when <code>.is-invalid</code> is applied.</td>
+                          </tr>
+                          <tr>
+                            <td><code>.select-all-child</code></td>
+                            <td>Utility class applied to child checkboxes in a select-all pattern. Used by JavaScript to query and synchronize child states.</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </section>
+                  <!--/Section: CSS Classes-->
+
+                  <!--Section: CSS Custom Properties-->
+                  <section id="api-section-css-variables">
+                    <h4 class="mb-4">CSS custom properties</h4>
+                    <p>
+                      Nimbus checkboxes use CSS custom properties for theming. Override these variables
+                      to customize checkbox appearance across light and dark themes. Dark theme values
+                      are set in <code>dark.css</code> using the <code>[data-cnds-theme="dark"]</code> selector.
+                    </p>
+
+                    <div class="table-responsive">
+                      <table class="table my-4 table-striped table-bordered" aria-label="CSS custom properties">
+                        <thead>
+                          <tr>
+                            <th>Variable</th>
+                            <th>Default (Light)</th>
+                            <th>Dark</th>
+                            <th>Description</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td><code>--cnds-form-check-input-border-color</code></td>
+                            <td><code>#787878</code></td>
+                            <td><code>#6b6b6b</code></td>
+                            <td>Border color for unchecked state.</td>
+                          </tr>
+                          <tr>
+                            <td><code>--cnds-form-check-input-checked-bg</code></td>
+                            <td><code>#355d97</code></td>
+                            <td><code>#6790ca</code></td>
+                            <td>Background color when checked.</td>
+                          </tr>
+                          <tr>
+                            <td><code>--cnds-form-check-input-checked-border-color</code></td>
+                            <td><code>#355d97</code></td>
+                            <td><code>#6790ca</code></td>
+                            <td>Border color when checked.</td>
+                          </tr>
+                          <tr>
+                            <td><code>--cnds-form-check-input-focus-border-color</code></td>
+                            <td><code>#355d97</code></td>
+                            <td><code>#6790ca</code></td>
+                            <td>Border color on focus.</td>
+                          </tr>
+                          <tr>
+                            <td><code>--cnds-form-check-input-focus-box-shadow</code></td>
+                            <td><code>0 0 0 0.25rem rgba(53, 93, 151, 0.25)</code></td>
+                            <td><code>0 0 0 0.25rem rgba(103, 144, 202, 0.35)</code></td>
+                            <td>Focus ring shadow for keyboard navigation.</td>
+                          </tr>
+                          <tr>
+                            <td><code>--cnds-form-check-input-border-color-invalid</code></td>
+                            <td><code>#ff97aa</code></td>
+                            <td><code>#ff9670</code></td>
+                            <td>Border color for invalid state (decorative only — do not use for text).</td>
+                          </tr>
+                          <tr>
+                            <td><code>--cnds-form-check-input-width</code></td>
+                            <td><code>18px</code></td>
+                            <td>—</td>
+                            <td>Width and height of the checkbox input.</td>
+                          </tr>
+                          <tr>
+                            <td><code>--cnds-form-check-input-border-radius</code></td>
+                            <td><code>2px</code></td>
+                            <td>—</td>
+                            <td>Border radius of the checkbox.</td>
+                          </tr>
+                          <tr>
+                            <td><code>--cnds-form-check-input-bg</code></td>
+                            <td><code>transparent</code></td>
+                            <td>—</td>
+                            <td>Background color of unchecked checkbox.</td>
+                          </tr>
+                          <tr>
+                            <td><code>--cnds-form-check-input-disabled-opacity</code></td>
+                            <td><code>0.5</code></td>
+                            <td>—</td>
+                            <td>Opacity applied to disabled checkboxes.</td>
+                          </tr>
+                          <tr>
+                            <td><code>--cnds-form-check-label-color</code></td>
+                            <td><code>inherit</code></td>
+                            <td>—</td>
+                            <td>Text color for checkbox labels.</td>
+                          </tr>
+                          <tr>
+                            <td><code>--cnds-form-text-color</code></td>
+                            <td><code>#6c757d</code></td>
+                            <td>—</td>
+                            <td>Color for helper text below checkboxes.</td>
+                          </tr>
+                          <tr>
+                            <td><code>--cnds-form-text-font-size</code></td>
+                            <td><code>0.75rem</code></td>
+                            <td>—</td>
+                            <td>Font size for helper text (12px).</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </section>
+                  <!--/Section: CSS Custom Properties-->
+
+                  <!--Section: JavaScript-->
+                  <section id="api-section-javascript">
+                    <h4 class="mb-4">JavaScript</h4>
+                    <p>
+                      Nimbus checkboxes are pure HTML/CSS components and do not require JavaScript
+                      initialization. However, certain states and patterns require JavaScript:
+                    </p>
+                    <ul class="mb-4">
+                      <li>The <strong>indeterminate</strong> state must be set via <code>element.indeterminate = true</code></li>
+                      <li>The <strong>select all</strong> pattern requires event listeners to synchronize parent/child states</li>
+                      <li>Dynamic <strong>validation</strong> can toggle the <code>.is-invalid</code> class programmatically</li>
+                    </ul>
+
+                    <section class="mb-4">
+                      <h5 class="mb-3">Setting indeterminate state</h5>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0">
+                          <code class="language-js">// Set indeterminate state on a checkbox
+const checkbox = document.getElementById('myCheckbox');
+checkbox.indeterminate = true;
+
+// Clear indeterminate state
+checkbox.indeterminate = false;</code>
+                        </pre>
+                      </div>
+                    </section>
+
+                    <section class="mb-4">
+                      <h5 class="mb-3">Toggling validation state</h5>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0">
+                          <code class="language-js">// Add invalid state
+const checkbox = document.getElementById('myCheckbox');
+checkbox.classList.add('is-invalid');
+
+// Remove invalid state
+checkbox.classList.remove('is-invalid');</code>
+                        </pre>
+                      </div>
+                    </section>
+
+                    <section class="mb-4">
+                      <h5 class="mb-3">Listening for change events</h5>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0">
+                          <code class="language-js">const checkbox = document.getElementById('myCheckbox');
+checkbox.addEventListener('change', function (event) {
+  if (event.target.checked) {
+    console.log('Checkbox is checked');
+  } else {
+    console.log('Checkbox is unchecked');
+  }
+});</code>
+                        </pre>
+                      </div>
+                    </section>
+                  </section>
+                  <!--/Section: JavaScript-->
+
+                  <!--Section: Accessibility-->
+                  <section id="api-section-accessibility">
+                    <h4 class="mb-4">Accessibility</h4>
+                    <p>
+                      Nimbus checkboxes are built with accessibility in mind. Follow these guidelines
+                      to ensure your checkbox implementations are accessible to all users:
+                    </p>
+                    <ul class="mb-4">
+                      <li>Always pair each <code>&lt;input&gt;</code> with a <code>&lt;label&gt;</code> using matching <code>for</code>/<code>id</code> attributes.</li>
+                      <li>When labels are not visible, use <code>aria-label</code> or <code>aria-labelledby</code> to provide an accessible name.</li>
+                      <li>Use <code>&lt;fieldset&gt;</code> and <code>&lt;legend&gt;</code> to group related checkboxes.</li>
+                      <li>Ensure sufficient color contrast between checkbox states and their background.</li>
+                      <li>The indeterminate state is visual only and does not affect the <code>checked</code> property — handle both states in your form logic.</li>
+                      <li>Validation messages should be associated with the input using <code>aria-describedby</code> for screen reader support.</li>
+                      <li>Toggle buttons (<code>.btn-check</code>) maintain keyboard accessibility — users can toggle with <kbd>Space</kbd> or <kbd>Enter</kbd>.</li>
+                    </ul>
+                  </section>
+                  <!--/Section: Accessibility-->
+                </section>
+                <!--/Section: API Docs-->
+
+                </section>
+                <!--Section: Docs content-->
+              </div>
+              <!-- ./Main column-->
+
+              <!-- Right Sidebar — 20 % of the row width; hidden below lg breakpoint.
+                   Sticky attributes (processed by nimbus.js):
+                     data-cnds-sticky="true"          : activates sticky positioning
+                     data-cnds-sticky-boundary="true" : constrains sticky to its parent container
+                     data-cnds-sticky-direction="both" : sticks when scrolling up OR down
+                     data-cnds-sticky-offset="56"     : clears the 56 px fixed header
+                     data-cnds-sticky-delay="125"     : debounce delay (ms) to reduce scroll jank
+                   data-cnds-allow-hashes="true" on the <ul>: nimbus.js watches the URL hash
+                     and highlights the matching nav-link as the user scrolls through sections. -->
+              <div class="col-lg-2 d-none d-lg-block">
+              <div class="sticky-top" style="top: 100px; z-index: 1">
+                <ul
+                  class="nav flex-column nav-pills menu-sidebar"
+                  id="rightNav"
+                  data-cnds-allow-hashes="true"
+                >
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-introduction">Introduction</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-basic-example">Basic example</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-helper-text">Helper text</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-indeterminate">Indeterminate</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-disabled">Disabled</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-invalid">Invalid / Validation</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-inline">Inline</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-without-labels">Without labels</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-toggle-buttons">Toggle buttons</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-select-all">Select all pattern</a>
+                  </li>
+                  <li class="nav-item mt-2">
+                    <a class="nav-link" href="#section-api-docs">API Documentation</a>
+                  </li>
+                  <li class="nav-item ms-3">
+                    <a class="nav-link" href="#api-section-classes">CSS Classes</a>
+                  </li>
+                  <li class="nav-item ms-3">
+                    <a class="nav-link" href="#api-section-css-variables"
+                      >CSS custom properties</a
+                    >
+                  </li>
+                  <li class="nav-item ms-3">
+                    <a class="nav-link" href="#api-section-javascript">JavaScript</a>
+                  </li>
+                  <li class="nav-item ms-3">
+                    <a class="nav-link" href="#api-section-accessibility"
+                      >Accessibility</a
+                    >
+                  </li>
+                </ul>
+              </div>
+              </div>
+              <!-- ./Right Sidebar -->
+            </div>
+            <!-- ./Content Row -->
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- ./Content -->
+    <!-- Footer -->
+    <div class="cf-footer cf-footer-app">
+      <footer class="page-footer main-footer" aria-label="Site footer">
+        <div class="w-100 px-3 d-flex align-items-center">
+          <img src="img/cf/core/cloudficient_logo_light.svg" class="cf-logo-light" style="width: 135px;" alt="Cloudficient" />
+          <img src="img/cf/core/cloudficient_logo_dark.svg" class="cf-logo-dark" style="width: 135px;" alt="Cloudficient" />
+          <span class="footer-copyright ms-auto">&copy; <span id="currentYear"></span> Cloudficient</span>
+        </div>
+      </footer>
+    </div>
+    <!-- SCRIPTS — load order matters:
+         1. nimbus.js    — core framework: processes all data-cnds-* attributes (theme, sticky, sidenav, tooltips…)
+         2. app.js       — application-level overrides and custom initialisation
+         3. prism.min.js — syntax highlighting for <code class="language-*"> blocks; must run after DOM is ready
+         4. sidenav-loader.js — fetches shared sidenav HTML and injects it into #sidebar-cf -->
+    <script type="text/javascript" src="js/nimbus.js?v=9.0.4"></script>
+    <script type="text/javascript" src="js/app.js?v=9.0.4"></script>
+    <script type="text/javascript" src="plugins/js/prism.min.js"></script>
+    <script type="text/javascript" src="js/sidenav-loader.js"></script>
+    <!-- Inline page scripts — runs after the DOM elements they reference are parsed:
+         - Footer year: plain script (element is above in DOM, no DOMContentLoaded needed)
+         - Demo initialisation: wrapped in DOMContentLoaded to guarantee element availability -->
+    <script type="text/javascript">
+      // Populate copyright year — script is below the footer element so the span already exists
+      document.getElementById("currentYear").textContent = new Date().getFullYear();
+
+      document.addEventListener("DOMContentLoaded", function () {
+        // Indeterminate demo checkbox (section: Indeterminate)
+        const indeterminateEl = document.getElementById("indeterminateCheck");
+        if (indeterminateEl) indeterminateEl.indeterminate = true;
+
+        // Disabled-indeterminate demo checkbox (section: Disabled)
+        const disabledIndeterminateEl = document.getElementById("disabledIndeterminateCheck");
+        if (disabledIndeterminateEl) disabledIndeterminateEl.indeterminate = true;
+
+        // Select-all pattern (section: Select all pattern)
+        // selectAll.checked is false when indeterminate, so clicking an indeterminate parent
+        // fires the change handler with checked = true → all children are checked.
+        const selectAll = document.getElementById("selectAllCheckbox");
+        const children = document.querySelectorAll(".select-all-child");
+
+        if (selectAll && children.length) {
+          // Parent → children: propagate checked state, clear indeterminate
+          selectAll.addEventListener("change", function () {
+            children.forEach(function (child) { child.checked = selectAll.checked; });
+            selectAll.indeterminate = false;
+          });
+
+          // Children → parent: derive parent state from child count
+          children.forEach(function (child) {
+            child.addEventListener("change", function () {
+              const checkedCount = document.querySelectorAll(".select-all-child:checked").length;
+              selectAll.checked = checkedCount === children.length;
+              selectAll.indeterminate = checkedCount > 0 && checkedCount < children.length;
+            });
+          });
+        }
+      });
+    </script>
+  </body>
+</html>

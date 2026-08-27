@@ -70,7 +70,9 @@
 *   DM_SAVED_SCOPES   []                          saved scopes (Finalize appends)
 *   DM_SOURCE_DETAILS { [sourceName]: detail }    View Source drawer, hand-authored
 *   DM_ITEM_EVENTS    { [fileName]: event[] }     Item Activity, hand-authored
-*   DM_EXCLUSIONS     { [sourceName]: entry[] }   applied exclusions (committed)
+*   DM_EXCLUSIONS     { [exKey]: entry[] }         applied exclusions (committed)
+*                     exKey = dmExKey(name,path,occ), NOT the bare name — see
+*                     EXCLUSIONS below. Each entry carries its display `name`.
 *
 * SOURCE DETAIL SHAPE — what the drawer renders
 * ─────────────────────────────────────────────
@@ -99,16 +101,48 @@
 *   other All Sources row is built on demand by dmSourceDetail(row), seeded from
 *   name+path so a given source yields the SAME detail on every open and reload
 *   (staged exclusions, screenshots and repeat test runs stay stable). Results
-*   are cached by name+path because All Sources repeats names.
-*   dmItemEvents(file, owner) does the same for Item Activity.
-*   In Angular this whole factory disappears — see ANGULAR CONVERSION.
+*   are cached by name+path. The generated names are all UNIQUE (each type draws
+*   from a two-dimensional vocabulary, advancing past any collision), so no two
+*   rows are indistinguishable. dmItemEvents(file, owner) does the same for Item
+*   Activity. In Angular this whole factory disappears — see ANGULAR CONVERSION.
+*
+* EXCLUSIONS  (two surfaces, one store)
+* ────────────────────────────────────
+*   Scope is refined by excluding sources or their children. Two entry points
+*   write to the SAME DM_EXCLUSIONS store:
+*
+*   1) SOURCES TABLE — the trailing Exclude column (Top + All Sources). Commits
+*      ON CLICK: one click excludes the whole source, a second restores it. No
+*      staging. Entry: { whole:true, name, path:'— entire source', items, unit,
+*      units, metric }.
+*   2) VIEW SOURCE DRAWER — per-child (location / session) exclusions. STAGES,
+*      then commits on APPLY EXCLUSIONS; CANCEL discards. Entry per child:
+*      { path, items, name, unit, units, metric }.
+*
+*   KEYING — DM_EXCLUSIONS is keyed by dmExKey(name, path, occurrence), NOT by
+*   name. All Sources could hold byte-identical rows, so name alone would make
+*   excluding one exclude them all. Occurrence disambiguates; unique sources get
+*   occurrence 0, so the SAME source shares one key across Top and All Sources.
+*   Each entry stores `name` because the key itself is not human-readable (the
+*   chips read entry.name). Rows carry the key in data-dm-xid; the drawer inherits
+*   it from the clicked row (S.exKey). dmHasWhole(entries) is the one predicate
+*   that answers "is this source wholly excluded?".
+*
+*   SUPERSEDE — committing a whole-source exclusion REPLACES that source's child
+*   entries (same key), so the two can never double-count.
+*
+*   READ-OUT — a whole-source exclusion shows as: red row + EXCLUDED button in the
+*   table; and in the drawer, an "Entire source excluded" alert with every child
+*   button disabled (children keep their default look, not red). A PARTIAL
+*   exclusion (children only) shows the amber "Exclusions Applied" badge instead.
+*   dmSyncExclusions() re-derives the chips, badges and scope footer from the store.
 *
 * API CONTRACT
 * ────────────
 *   window.DM_API — one entry per round-trip: exportCsv, saveScope, loadScope,
 *   renameScope, deleteScope, applyExclusions, markCustodian. Each returns a
 *   Promise. Resolve on success; reject with an Error whose .message is shown in
-*   the error toast. Every call goes through dmRun(), which owns the
+*   the error toast. applyExclusions(name, entries) with an empty array = restore. Every call goes through dmRun(), which owns the
 *   success/error toasts so behaviour stays consistent. This is the ONLY place
 *   the page talks to a server.
 *
@@ -133,6 +167,8 @@
 *   dmToast(variant,title,msg)   the only way this page raises a toast
 *   dmNum(v)            the one numeric parser ("1,204" → 1204)
 *   dmEsc(s)            the one HTML escaper — use it on every interpolated value
+*   dmExKey(n,p,occ)    exclusion identity key (see EXCLUSIONS)
+*   dmHasWhole(entries) is a source wholly excluded?
 *   In Angular these all collapse into one store — see below.
 *
 * MOTION  (three primitives; everything on the page uses one of them)
@@ -210,6 +246,7 @@
 *   ├─ BySourceViewComponent
 *   │   ├─ SourceTotalsComponent             5 clickable summary cards
 *   │   └─ SourcesTableComponent             Top/All scope · pager
+*   │       └─ SourceExcludeCell             commit-on-click whole-source exclude
 *   ├─ ByPeopleViewComponent
 *   │   ├─ PeopleTotalsComponent             4 static totals cards
 *   │   └─ CustodiansTableComponent          + TableToolsComponent
@@ -234,9 +271,10 @@
 *     page: { index: number; size: number };
 *     drawer: { source: string|null; tab: TabKey; location: string|null;
 *               staged: string[] } | null;      // staged = not yet applied
-*     exclusions: Record<string, ExclusionEntry[]>;   // applied, per source
+*     exclusions: Record<string, ExclusionEntry[]>;   // keyed by source ID
 *   }
-*   interface ExclusionEntry { path: string; items: string;
+*   interface ExclusionEntry { path: string; items: string; name: string;
+*                              whole?: boolean;   // true = entire source
 *                              unit: string; units: string; metric: string; }
 *   Derive visible rows with computed()/selectors — filter, then sort, then
 *   slice. That is exactly what recompute() + dmCreatePager() do here, and it
@@ -251,8 +289,10 @@
 *                        NOT a factory: call getSourceDetail(sourceId) and render
 *                        the response. The generator here exists only so the
 *                        prototype has plausible data for 600 rows — delete it.
-*                        Note DM_EXCLUSIONS is keyed by source NAME; key the real
-*                        store by source ID (All Sources repeats names).
+*                        DM_EXCLUSIONS is keyed by dmExKey(name,path,occurrence),
+*                        a synthetic stand-in for the real source ID — use the
+*                        API's ID directly and drop dmExKey. Excluding commits via
+*                        applyExclusions(id, entries); empty array = restore.
 *
 * NIMBUS COMPONENTS IN ANGULAR — read before wiring
 *   • nimbus.js is an ASYNC LOADER. Component classes (Nimbus.Select, .Modal,
@@ -1816,6 +1856,13 @@
              Angular: this is the source ID from the API — drop this synthetic key. */
           window.dmExKey = function (name, path, occ) {
             return String(name) + '\u0001' + String(path || '') + '\u0001' + (occ || 0);
+          };
+
+          /* True when a source's exclusion entries mean the WHOLE source is out
+             (committed from the sources table), vs. only some children. One
+             definition, used by the table, the drawer and the badge logic. */
+          window.dmHasWhole = function (entries) {
+            return !!(entries && entries.some(function (e) { return e.whole; }));
           };
 
           window.DM_SOURCE_DETAILS = {
@@ -4651,8 +4698,7 @@
            excluded" alert stands in for the staged-count banner. Un-excluding is
            done from the sources table. */
         function isSourceWhole() {
-          var e = (window.DM_EXCLUSIONS || {})[S.exKey];
-          return !!(e && e.some(function (x) { return x.whole; }));
+          return window.dmHasWhole((window.DM_EXCLUSIONS || {})[S.exKey]);
         }
         /* What this source excludes. Location-tree sources (SharePoint/OneDrive/Teams)
            get the historical default; Copilot overrides it via `data.exclude`. */
@@ -5506,8 +5552,7 @@
                    name: srcNameOf(row), unit: 'source', units: 'sources', metric: 'items' };
         }
         function isWholeExcluded(xid) {
-          var e = (window.DM_EXCLUSIONS || {})[xid];
-          return !!(e && e.some(function (x) { return x.whole; }));
+          return window.dmHasWhole((window.DM_EXCLUSIONS || {})[xid]);
         }
 
         /** Paint every row's Exclude cell + red state from committed state. */
@@ -5564,8 +5609,7 @@
               // is shown by the red row + EXCLUDED button, not this badge. Keyed by
               // xid so duplicate-named rows are flagged independently.
               var entries = ex[r.getAttribute('data-dm-xid')] || [];
-              var whole = entries.some(function (e) { return e.whole; });
-              var on = entries.length > 0 && !whole;
+              var on = entries.length > 0 && !window.dmHasWhole(entries);
               if (on && !flag) {
                 flag = document.createElement('span');
                 flag.className = 'dm-source-flag';

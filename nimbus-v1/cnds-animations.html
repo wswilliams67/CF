@@ -1,0 +1,2656 @@
+<!--
+* CNDS Nimbus Design System — Animations
+* Version: 1.0.0
+* Layout: Application with SideNav (migrated from Nimbus v8 template)
+*
+* SECTIONS (in document order)
+*   #section-introduction      — Overview and when to use
+*   #section-basic-example     — Simplest data-attribute usage
+*   #section-product-example   — CaseFusion application context
+*   #section-animation-list    — All 17 available animations
+*   #section-launch-options    — click / hover / load / scroll / manual triggers
+*   #section-customization     — duration, delay, CSS utilities
+*   #section-examples          — Practical patterns (chain, stagger, list group…)
+*   #section-api-docs          — API Documentation
+*     #api-section-introduction   — Component model overview
+*     #api-section-usage          — data-attribute & JS usage
+*     #api-section-data-attributes — Attribute reference table
+*     #api-section-css-classes    — CSS class reference tables
+*     #api-section-methods        — Nimbus.Animation method reference
+*     #api-section-options        — Options object reference
+*     #api-section-events         — Custom events
+*     #api-section-accessibility  — prefers-reduced-motion, WCAG guidance
+*
+* NOTES
+* - Pure HTML5, CSS3, vanilla JavaScript — zero external dependencies
+* - Uses data-cnds-* attributes (replaces data-mdb-*)
+* - Uses Nimbus.* namespace (replaces mdb.*)
+* - Default product theme: CaseFusion (cnds-product-casefusion on <body>; change to cnds-product-hyperlize or cnds-product-expireon)
+-->
+<!doctype html>
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta
+      name="description"
+      content="Animations | Cloudficient Nimbus Design System v1.0.0"
+    />
+    <title>Animations | CNDS v1.0.0 | Cloudficient Nimbus Design System</title>
+    <!-- Nimbus CSS -->
+    <link rel="stylesheet" href="css/nimbus.css" media="all" type="text/css" />
+    <!-- Custom styles -->
+    <link rel="stylesheet" href="css/app.css" media="all" type="text/css" />
+    <!-- Prism syntax highlighting -->
+    <link
+      rel="stylesheet"
+      href="plugins/css/prism.min.css"
+      media="all"
+      type="text/css"
+    />
+    <!-- Favicons -->
+    <link
+      rel="apple-touch-icon"
+      sizes="57x57"
+      href="img/favicon/apple-icon-57x57.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="60x60"
+      href="img/favicon/apple-icon-60x60.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="72x72"
+      href="img/favicon/apple-icon-72x72.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="76x76"
+      href="img/favicon/apple-icon-76x76.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="114x114"
+      href="img/favicon/apple-icon-114x114.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="120x120"
+      href="img/favicon/apple-icon-120x120.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="144x144"
+      href="img/favicon/apple-icon-144x144.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="152x152"
+      href="img/favicon/apple-icon-152x152.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="img/favicon/apple-icon-180x180.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="192x192"
+      href="img/favicon/android-icon-192x192.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="img/favicon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="96x96"
+      href="img/favicon/favicon-96x96.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="img/favicon/favicon-16x16.png"
+    />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta
+      name="msapplication-TileImage"
+      content="img/favicon/ms-icon-144x144.png"
+    />
+    <!-- ./Favicons -->
+    <!-- Design Tokens / Primitives & Themes — load order matters:
+         1. primitives.css — raw color/spacing values (no theming)
+         2. light.css      — semantic tokens for [data-cnds-theme="light"] / :root
+         3. dark.css       — semantic token overrides for [data-cnds-theme="dark"]
+         All three must appear AFTER nimbus.css so component variables resolve correctly. -->
+    <link rel="stylesheet" href="css/themes/primitives.css" />
+    <link rel="stylesheet" href="css/themes/light.css" />
+    <link rel="stylesheet" href="css/themes/dark.css" />
+    <!-- Page-specific example styles -->
+    <style>
+      /*
+       * DEVELOPER NOTE — Animations page styles
+       * ─────────────────────────────────────────────────────────────────────
+       * - All colors use CSS custom properties (var(--cnds-*)); never hardcode hex values here.
+       * - Theme-aware tokens are split into [data-cnds-theme="light"] and
+       *   [data-cnds-theme="dark"] blocks so both themes work without JS.
+       * - The .anim-square tile is used exclusively for the intro preview grid;
+       *   do not reuse it for production UI elements.
+       * - Shadow values below use rgba() because there is no single CNDS token
+       *   for box-shadow color — this is intentional and acceptable per CNDS guidelines.
+       * ─────────────────────────────────────────────────────────────────────
+       */
+
+      /* Animation demo square — theme-aware colors */
+      [data-cnds-theme="light"] {
+        --cnds-anim-square-bg: var(--cnds-light-bg-subtle, #fafafa);
+        --cnds-anim-square-shadow: rgba(0, 0, 0, 0.14);
+      }
+      [data-cnds-theme="dark"] {
+        --cnds-anim-square-bg: var(--cnds-surface-dark-400, #252525);
+        --cnds-anim-square-shadow: rgba(255, 255, 255, 0.08);
+      }
+
+      /* Demo square tile for the animation preview grid */
+      .anim-square {
+        height: 120px;
+        width: 120px;
+        box-shadow: 0 2px 10px 0 var(--cnds-anim-square-shadow);
+        margin: 12px;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: 600;
+        border-radius: var(--cnds-border-radius, 0.375rem);
+        background-color: var(--cnds-anim-square-bg);
+        cursor: pointer;
+        user-select: none;
+      }
+
+      /* CaseFusion product example panel */
+      .cf-product-panel {
+        background-color: var(--cnds-product-casefusion-green-50, #f0faf4);
+        border: 1px solid var(--cnds-product-casefusion-green-200, #a8d5b5);
+        border-radius: var(--cnds-border-radius, 0.375rem);
+        padding: 1.25rem 1.5rem;
+      }
+      [data-cnds-theme="dark"] .cf-product-panel {
+        background-color: var(--cnds-product-casefusion-green-900, #0d2b18);
+        border-color: var(--cnds-product-casefusion-green-700, #1f6b3a);
+      }
+      .cf-product-panel-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--cnds-product-casefusion-green-700, #1f6b3a);
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+      }
+      [data-cnds-theme="dark"] .cf-product-panel-header {
+        color: var(--cnds-product-casefusion-green-300, #6dcf91);
+      }
+      .cf-product-status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.25rem 0.6rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        background-color: var(--cnds-product-casefusion-green-100, #d4edd9);
+        color: var(--cnds-product-casefusion-green-800, #154d28);
+      }
+      [data-cnds-theme="dark"] .cf-product-status-badge {
+        background-color: var(--cnds-product-casefusion-green-800, #154d28);
+        color: var(--cnds-product-casefusion-green-200, #a8d5b5);
+      }
+    </style>
+  </head>
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 Bypass Blocks; renders visually hidden until focused -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+    <!-- Header -->
+    <div class="sticky-top">
+      <!-- Utility Navigation -->
+      <nav id="UtilityNav" class="nav nav-cf-utility">
+        <div class="w-100 gx-3 px-sm-0 px-lg-3">
+          <ul class="nav nav-cf-utility-ul"></ul>
+        </div>
+      </nav>
+      <!-- ./Utility Navigation -->
+      <!-- Main Navigation -->
+      <nav id="MainNav" class="navbar navbar-expand-xl navbar-cf">
+        <div class="container-fluid p-0 px-3 d-flex">
+          <div class="d-flex flex-fill align-items-center text-truncate">
+            <div class="text-center d-none d-md-block me-3 border-end">
+              <a href="index.html"
+                ><img src="img/cf/core/logo_nimbus.png" class="me-3 mt-n1"
+              alt="Cloudficient Nimbus Design System" /></a>
+            </div>
+            <div class="flex-fill text-truncate">
+              <div class="navbar-cf-title-block">
+                <div
+                  class="navbar-cf-title cf-page-title text-truncate"
+                  style="padding-bottom: 0"
+                >
+                  <span class="cf-page-title-text cf-page-title-brand">v1</span
+                  ><span class="cf-page-title-divider"></span
+                  ><span class="cf-page-title-text">Animations</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- data-cnds-toggle="theme": wired by nimbus.js — flips data-cnds-theme on <html> between "light" and "dark" -->
+          <button
+            class="btn btn-sm btn-outline-secondary ms-2"
+            data-cnds-toggle="theme"
+            aria-label="Toggle theme"
+            title="Toggle theme"
+          >
+            <i class="mdi mdi-weather-night mdi-18px" aria-hidden="true"></i>
+          </button>
+        </div>
+      </nav>
+      <!-- ./Main Navigation -->
+    </div>
+    <!-- ./Header -->
+
+    <!-- Content -->
+    <main id="main-content" class="cf-main-app">
+      <!-- Mobile viewport warning -->
+      <div class="d-block d-md-none p-4">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>This application is not
+          optimized for small screens. Please use a large tablet, laptop, or
+          desktop computer to continue.
+        </div>
+      </div>
+      <div class="d-none d-md-block">
+        <!-- Sidenav — markup is intentionally empty; sidenav-loader.js fetches and injects the shared nav HTML.
+             data-cnds-mode="side"           : renders as a persistent side panel (not an overlay/drawer)
+             data-cnds-slim / slim-collapsed : controls compact/icon-only collapsed state
+             data-cnds-content="#slim-content": the sibling panel that shrinks/expands as the nav opens/closes
+             data-cnds-accordion="true"      : collapses other open nav groups when a new one is expanded -->
+        <nav
+          id="sidebar-cf"
+          class="sidenav"
+          data-cnds-mode="side"
+          data-cnds-slim="false"
+          data-cnds-slim-collapsed="false"
+          data-cnds-content="#slim-content"
+          data-cnds-accordion="true"
+        ></nav>
+        <div id="slim-content">
+          <div class="slim-content-box">
+            <!-- Content Row -->
+            <div class="row">
+              <!-- Main column — 80 % of the row width; the remaining 20 % is the right sidebar.
+                   The inline flex overrides are intentional: they pin the ratio regardless of Bootstrap's
+                   grid breakpoints so the sidebar never wraps on large viewports. -->
+              <div class="col-12 col-lg" style="flex: 0 0 80%; max-width: 80%">
+                <!-- Docs content -->
+                <section class="container-fluid">
+                  <!-- ==========================================================
+                       INTRODUCTION
+                       ========================================================== -->
+                  <section id="section-introduction">
+                    <p class="mb-4">
+                      The Nimbus Animation system provides smooth, performant CSS animations that
+                      enhance the user experience when interacting with UI elements. Over 17
+                      built-in keyframe animations are available, spanning four categories: fade,
+                      slide, zoom, and attention-grabbing effects such as bounce, shake, pulse, and
+                      tada. Each animation is addressable via a short CSS utility class
+                      (<code>.animate-{name}</code>), a declarative
+                      <code>data-cnds-animate</code> attribute, or the
+                      <code>Nimbus.Animation</code> JavaScript API — giving you full control
+                      whether you are working in a static template, a dynamic Angular component, or
+                      a server-side-rendered page. Duration, delay, and repeat count are all
+                      configurable per element, and speed-modifier utility classes
+                      (<code>.animation-fast</code>, <code>.animation-slow</code>,
+                      <code>.animation-infinite</code>) make common patterns a single class away.
+                    </p>
+                    <p class="my-4">
+                      All animations are generated with pure CSS <code>@keyframes</code> and work
+                      across all modern browsers. They can be triggered on click, hover, page load,
+                      scroll (via <code>IntersectionObserver</code>), or programmatically via the
+                      <code>Nimbus.Animation</code> API — no external dependencies required. The
+                      API also supports advanced patterns such as chaining multiple animations in
+                      sequence (<code>Nimbus.Animation.chain()</code>), staggering a group of
+                      elements with a cascading delay (<code>Nimbus.Animation.stagger()</code>),
+                      and toggling element visibility with enter/leave animations
+                      (<code>Nimbus.Animation.show()</code> /
+                      <code>Nimbus.Animation.hide()</code>). All animations respect the
+                      <code>prefers-reduced-motion</code> media query automatically, ensuring a
+                      comfortable experience for users sensitive to motion.
+                    </p>
+                    <p class="note note-light">
+                      <strong>Note:</strong> Read the
+                      <a href="#section-api-docs">API Documentation</a> to find all available
+                      options and advanced customization.
+                    </p>
+
+                    <p class="note note-info">
+                      <strong>Note:</strong> Animations respect the
+                      <code>prefers-reduced-motion</code> media query. When a
+                      user has requested reduced motion, animation durations are
+                      minimized to 1&thinsp;ms and iteration counts are set to 1.
+                    </p>
+
+                    <!-- Animation preview grid -->
+                    <p class="fw-bold text-center mb-2 mt-5">
+                      Hover over the squares below to preview each animation.
+                    </p>
+
+                    <section aria-label="Animation preview grid">
+                      <!-- Row 1: Fade -->
+                      <div class="row justify-content-center">
+                        <div class="col-auto">
+                          <div
+                            class="anim-square"
+                            data-cnds-animate="fadeIn"
+                            data-cnds-animate-trigger="hover"
+                            tabindex="0"
+                            aria-label="fadeIn animation preview"
+                          >
+                            fadeIn
+                          </div>
+                        </div>
+                        <div class="col-auto">
+                          <div
+                            class="anim-square"
+                            data-cnds-animate="fadeInDown"
+                            data-cnds-animate-trigger="hover"
+                            tabindex="0"
+                            aria-label="fadeInDown animation preview"
+                          >
+                            fadeInDown
+                          </div>
+                        </div>
+                        <div class="col-auto">
+                          <div
+                            class="anim-square"
+                            data-cnds-animate="fadeInLeft"
+                            data-cnds-animate-trigger="hover"
+                            tabindex="0"
+                            aria-label="fadeInLeft animation preview"
+                          >
+                            fadeInLeft
+                          </div>
+                        </div>
+                        <div class="col-auto">
+                          <div
+                            class="anim-square"
+                            data-cnds-animate="fadeInRight"
+                            data-cnds-animate-trigger="hover"
+                            tabindex="0"
+                            aria-label="fadeInRight animation preview"
+                          >
+                            fadeInRight
+                          </div>
+                        </div>
+                        <div class="col-auto">
+                          <div
+                            class="anim-square"
+                            data-cnds-animate="fadeInUp"
+                            data-cnds-animate-trigger="hover"
+                            tabindex="0"
+                            aria-label="fadeInUp animation preview"
+                          >
+                            fadeInUp
+                          </div>
+                        </div>
+                        <div class="col-auto">
+                          <div
+                            class="anim-square"
+                            data-cnds-animate="fadeOut"
+                            data-cnds-animate-trigger="hover"
+                            tabindex="0"
+                            aria-label="fadeOut animation preview"
+                          >
+                            fadeOut
+                          </div>
+                        </div>
+                      </div>
+                      <!-- Row 2: Slide -->
+                      <div class="row justify-content-center">
+                        <div class="col-auto">
+                          <div
+                            class="anim-square"
+                            data-cnds-animate="slideInDown"
+                            data-cnds-animate-trigger="hover"
+                            tabindex="0"
+                            aria-label="slideInDown animation preview"
+                          >
+                            slideInDown
+                          </div>
+                        </div>
+                        <div class="col-auto">
+                          <div
+                            class="anim-square"
+                            data-cnds-animate="slideInLeft"
+                            data-cnds-animate-trigger="hover"
+                            tabindex="0"
+                            aria-label="slideInLeft animation preview"
+                          >
+                            slideInLeft
+                          </div>
+                        </div>
+                        <div class="col-auto">
+                          <div
+                            class="anim-square"
+                            data-cnds-animate="slideInRight"
+                            data-cnds-animate-trigger="hover"
+                            tabindex="0"
+                            aria-label="slideInRight animation preview"
+                          >
+                            slideInRight
+                          </div>
+                        </div>
+                        <div class="col-auto">
+                          <div
+                            class="anim-square"
+                            data-cnds-animate="slideInUp"
+                            data-cnds-animate-trigger="hover"
+                            tabindex="0"
+                            aria-label="slideInUp animation preview"
+                          >
+                            slideInUp
+                          </div>
+                        </div>
+                      </div>
+                      <!-- Row 3: Zoom & Attention -->
+                      <div class="row justify-content-center">
+                        <div class="col-auto">
+                          <div
+                            class="anim-square"
+                            data-cnds-animate="zoomIn"
+                            data-cnds-animate-trigger="hover"
+                            tabindex="0"
+                            aria-label="zoomIn animation preview"
+                          >
+                            zoomIn
+                          </div>
+                        </div>
+                        <div class="col-auto">
+                          <div
+                            class="anim-square"
+                            data-cnds-animate="zoomOut"
+                            data-cnds-animate-trigger="hover"
+                            tabindex="0"
+                            aria-label="zoomOut animation preview"
+                          >
+                            zoomOut
+                          </div>
+                        </div>
+                        <div class="col-auto">
+                          <div
+                            class="anim-square"
+                            data-cnds-animate="bounce"
+                            data-cnds-animate-trigger="hover"
+                            tabindex="0"
+                            aria-label="bounce animation preview"
+                          >
+                            bounce
+                          </div>
+                        </div>
+                        <div class="col-auto">
+                          <div
+                            class="anim-square"
+                            data-cnds-animate="flipInX"
+                            data-cnds-animate-trigger="hover"
+                            tabindex="0"
+                            aria-label="flipInX animation preview"
+                          >
+                            flipInX
+                          </div>
+                        </div>
+                        <div class="col-auto">
+                          <div
+                            class="anim-square"
+                            data-cnds-animate="shake"
+                            data-cnds-animate-trigger="hover"
+                            tabindex="0"
+                            aria-label="shake animation preview"
+                          >
+                            shake
+                          </div>
+                        </div>
+                      </div>
+                      <!-- Row 4: Tada & Pulse -->
+                      <div class="row justify-content-center">
+                        <div class="col-auto">
+                          <div
+                            class="anim-square"
+                            data-cnds-animate="tada"
+                            data-cnds-animate-trigger="hover"
+                            tabindex="0"
+                            aria-label="tada animation preview"
+                          >
+                            tada
+                          </div>
+                        </div>
+                        <div class="col-auto">
+                          <div
+                            class="anim-square"
+                            data-cnds-animate="pulse"
+                            data-cnds-animate-trigger="hover"
+                            tabindex="0"
+                            aria-label="pulse animation preview"
+                          >
+                            pulse
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+
+                    <p class="note note-info mt-4">
+                      <strong>Note:</strong> To preview components in different
+                      themes, click the theme toggle button
+                      <i class="mdi mdi-weather-night" aria-hidden="true"></i> /
+                      <i class="mdi mdi-weather-sunny" aria-hidden="true"></i>
+                      in the header navigation bar.
+                    </p>
+                  </section>
+                  <!-- /INTRODUCTION -->
+
+                  <hr class="my-5" />
+
+                  <!-- ==========================================================
+                       BASIC EXAMPLE
+                       ========================================================== -->
+                  <section id="section-basic-example">
+                    <h3 class="mb-3">Basic example</h3>
+
+                    <p>
+                      The simplest way to add an animation is with
+                      <code>data-cnds-*</code> attributes. Add
+                      <code>data-cnds-animate</code> with the animation name and
+                      <code>data-cnds-animate-trigger</code> to specify when it
+                      fires. If no trigger is specified, the animation plays
+                      automatically on page load.
+                    </p>
+                    <p>
+                      Click the arrow icon below to trigger a
+                      <code>slideInRight</code> animation:
+                    </p>
+
+                    <!-- Demo -->
+                    <section class="pb-4">
+                      <!-- Angular: Apply animation classes directly in templates using [ngClass] or class binding.
+                           Example: <i class="mdi mdi-arrow-right-bold-circle-outline"
+                                       [ngClass]="{'animate-slideInRight': triggerAnim}" aria-hidden="true"></i>
+                           Toggle `triggerAnim` in your component on button click. Use animationend event
+                           to reset the flag so the animation can be replayed. -->
+                      <div class="border rounded-5">
+                        <section class="p-4 text-center">
+                          <i
+                            class="mdi mdi-arrow-right-bold-circle-outline mdi-48px"
+                            data-cnds-animate="slideInRight"
+                            data-cnds-animate-trigger="click"
+                            aria-label="Click to trigger slideInRight animation"
+                            tabindex="0"
+                            role="button"
+                           aria-hidden="true"></i>
+                          <p class="mt-3 text-muted small">
+                            Click the arrow to start the animation
+                          </p>
+                        </section>
+                      </div>
+                    </section>
+
+                    <!-- Code: HTML -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre
+                          class="line-numbers m-0"
+                        ><code class="language-html">&lt;i
+  class="mdi mdi-arrow-right-bold-circle-outline mdi-48px"
+  data-cnds-animate="slideInRight"
+  data-cnds-animate-trigger="click"
+  aria-label="Click to trigger slideInRight animation"
+  tabindex="0"
+  role="button"&gt;
+&lt;/i&gt;</code></pre>
+                      </div>
+                    </section>
+                  </section>
+                  <!-- /BASIC EXAMPLE -->
+
+                  <hr class="my-5" />
+
+                  <!-- ==========================================================
+                       PRODUCT EXAMPLE
+                       ========================================================== -->
+                  <section id="section-product-example" class="pb-4">
+                    <h3 class="mb-3">Product example</h3>
+
+                    <p>
+                      The example below shows how animations are used in a
+                      <strong>CaseFusion</strong> application context. When a migration job
+                      completes, CaseFusion uses a <code>fadeInUp</code> entrance animation on the
+                      status card and a persistent <code>pulse</code> on the active-status badge to
+                      draw the user's attention without disrupting their workflow. The
+                      &ldquo;Run migration&rdquo; button triggers the sequence — mirroring the
+                      pattern used in CaseFusion's job monitoring dashboard.
+                    </p>
+
+                    <!-- Demo -->
+                    <section class="pb-4">
+                      <!-- Angular: In CaseFusion Angular components, drive the panel appearance with
+                           [ngClass]="{'animate-fadeInUp': jobComplete}" on the card wrapper.
+                           For the pulsing badge, use [ngClass]="{'animate-pulse animation-infinite': isRunning}"
+                           and clear the class binding when the job finishes to stop the pulse.
+                           Consider wrapping animations in an NgZone.runOutsideAngular() call for
+                           performance-sensitive infinite loops to avoid triggering unnecessary change detection. -->
+                      <div class="border rounded-5">
+                        <section class="p-4">
+                          <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="fw-semibold">Migration Job Monitor</span>
+                            <button
+                              id="cf-demo-run-btn"
+                              class="btn btn-sm btn-primary"
+                              aria-label="Run migration demo"
+                            >
+                              <i class="mdi mdi-play mdi-18px me-2" aria-hidden="true"></i>Run migration
+                            </button>
+                          </div>
+
+                          <div
+                            id="cf-demo-card"
+                            class="cf-product-panel"
+                            style="display: none;"
+                            aria-live="polite"
+                            aria-label="Migration status"
+                          >
+                            <div class="cf-product-panel-header">
+                              <i class="mdi mdi-email-sync mdi-20px" aria-hidden="true"></i>
+                              Exchange Online Migration &mdash; Batch 4 of 7
+                            </div>
+                            <div class="d-flex align-items-center gap-3 flex-wrap">
+                              <span
+                                id="cf-demo-badge"
+                                class="cf-product-status-badge"
+                              >
+                                <i class="mdi mdi-check-circle cnds-icon-sm" aria-hidden="true"></i>
+                                Completed
+                              </span>
+                              <span class="text-muted small">
+                                <i class="mdi mdi-clock-outline cnds-icon-sm me-1" aria-hidden="true"></i>
+                                Finished in 4m 32s &mdash; 1,842 items migrated
+                              </span>
+                            </div>
+                          </div>
+                          <p class="text-muted small mt-2 mb-0">
+                            Click <strong>Run migration</strong> to see the animated status card appear.
+                          </p>
+                        </section>
+                      </div>
+                    </section>
+
+                    <!-- Code: HTML -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre
+                          class="line-numbers m-0"
+                        ><code class="language-html">&lt;!-- Status card: hidden initially; animated in on job complete --&gt;
+&lt;div id="cf-demo-card" class="cf-product-panel" style="display:none;" aria-live="polite"&gt;
+  &lt;div class="cf-product-panel-header"&gt;
+    &lt;i class="mdi mdi-email-sync mdi-20px" aria-hidden="true"&gt;&lt;/i&gt;
+    Exchange Online Migration &amp;mdash; Batch 4 of 7
+  &lt;/div&gt;
+  &lt;span id="cf-demo-badge" class="cf-product-status-badge"&gt;
+    &lt;i class="mdi mdi-check-circle cnds-icon-sm" aria-hidden="true"&gt;&lt;/i&gt;
+    Completed
+  &lt;/span&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+
+                    <!-- Code: JavaScript -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                      <div class="p-0">
+                        <pre
+                          class="line-numbers m-0"
+                        ><code class="language-javascript">const runBtn  = document.getElementById('cf-demo-run-btn');
+const card    = document.getElementById('cf-demo-card');
+const badge   = document.getElementById('cf-demo-badge');
+
+runBtn.addEventListener('click', () =&gt; {
+  // Show and animate the status card
+  Nimbus.Animation.show(card, 'fadeInUp', { duration: 600 });
+  // Pulse the badge briefly to draw attention
+  Nimbus.Animation.animate(badge, 'pulse', { duration: 800, repeat: 3 });
+});</code></pre>
+                      </div>
+                    </section>
+                  </section>
+                  <!-- /PRODUCT EXAMPLE -->
+
+                  <hr class="my-5" />
+
+                  <!-- ==========================================================
+                       ANIMATION LIST
+                       ========================================================== -->
+                  <section id="section-animation-list">
+                    <h3 class="mb-3">Animation list</h3>
+
+                    <p>
+                      The following animations are available out of the box via
+                      the <code>animations.css</code> stylesheet. Each animation
+                      has a corresponding CSS utility class
+                      (<code>.animate-{name}</code>) and can be triggered
+                      programmatically with
+                      <code>Nimbus.Animation.animate()</code>.
+                    </p>
+
+                    <div class="row">
+                      <div class="col-md-4 mb-4">
+                        <h3 class="mb-3">Fade</h3>
+                        <ul>
+                          <li><code>fadeIn</code></li>
+                          <li><code>fadeOut</code></li>
+                          <li><code>fadeInUp</code></li>
+                          <li><code>fadeInDown</code></li>
+                          <li><code>fadeInLeft</code></li>
+                          <li><code>fadeInRight</code></li>
+                        </ul>
+                      </div>
+                      <div class="col-md-4 mb-4">
+                        <h3 class="mb-3">Slide</h3>
+                        <ul>
+                          <li><code>slideInUp</code></li>
+                          <li><code>slideInDown</code></li>
+                          <li><code>slideInLeft</code></li>
+                          <li><code>slideInRight</code></li>
+                        </ul>
+                      </div>
+                      <div class="col-md-4 mb-4">
+                        <h3 class="mb-3">Zoom &amp; Attention</h3>
+                        <ul>
+                          <li><code>zoomIn</code></li>
+                          <li><code>zoomOut</code></li>
+                          <li><code>bounce</code></li>
+                          <li><code>pulse</code></li>
+                          <li><code>shake</code></li>
+                          <li><code>flipInX</code></li>
+                          <li><code>tada</code></li>
+                        </ul>
+                      </div>
+                    </div>
+                  </section>
+                  <!-- /ANIMATION LIST -->
+
+                  <hr class="my-5" />
+
+                  <!-- ==========================================================
+                       LAUNCH OPTIONS
+                       ========================================================== -->
+                  <section id="section-launch-options">
+                    <h3 class="mb-3">Launch options</h3>
+
+                    <p>
+                      Animations can be triggered in several ways using the
+                      <code>data-cnds-animate-trigger</code> attribute or the
+                      JavaScript API.
+                    </p>
+
+                    <!-- On click -->
+                    <section id="subsection-on-click">
+                      <h4 class="mt-5 mb-3">On click</h4>
+                      <p>
+                        Set <code>data-cnds-animate-trigger="click"</code> to
+                        play the animation when the element is clicked.
+                      </p>
+
+                      <section class="pb-4">
+                        <!-- Angular: Use a click handler to toggle a boolean and drive [ngClass].
+                             Example: <i class="mdi mdi-truck-delivery mdi-48px"
+                                         [ngClass]="{'animate-slideInRight': didClick}"
+                                         (click)="didClick = true" aria-hidden="true"></i>
+                             Reset `didClick` on animationend to allow replaying. -->
+                        <div class="border rounded-5">
+                          <section class="p-4 text-center">
+                            <i
+                              class="mdi mdi-truck-delivery mdi-48px"
+                              data-cnds-animate="slideInRight"
+                              data-cnds-animate-trigger="click"
+                              aria-label="Click to trigger slideInRight animation"
+                              tabindex="0"
+                              role="button"
+                             aria-hidden="true"></i>
+                            <p class="mt-3 text-muted small">
+                              Click the truck icon to trigger the animation
+                            </p>
+                          </section>
+                        </div>
+                      </section>
+
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre
+                            class="line-numbers m-0"
+                          ><code class="language-html">&lt;i
+  class="mdi mdi-truck-delivery mdi-48px"
+  data-cnds-animate="slideInRight"
+  data-cnds-animate-trigger="click"
+  aria-label="Click to trigger slideInRight animation"
+  tabindex="0"
+  role="button"&gt;
+&lt;/i&gt;</code></pre>
+                        </div>
+                      </section>
+                    </section>
+
+                    <!-- On hover -->
+                    <section id="subsection-on-hover">
+                      <h4 class="mt-5 mb-3">On hover</h4>
+                      <p>
+                        Set <code>data-cnds-animate-trigger="hover"</code> to
+                        play the animation when the user hovers over the element.
+                      </p>
+
+                      <section class="pb-4">
+                        <!-- Angular: Use (mouseenter) to set a boolean and [ngClass] to apply the animation class.
+                             Example: <i class="mdi mdi-truck-delivery mdi-48px"
+                                         [ngClass]="{'animate-slideInRight': isHovered}"
+                                         (mouseenter)="isHovered = true"
+                                         (animationend)="isHovered = false" aria-hidden="true"></i> -->
+                        <div class="border rounded-5">
+                          <section class="p-4 text-center">
+                            <i
+                              class="mdi mdi-truck-delivery mdi-48px"
+                              data-cnds-animate="slideInRight"
+                              data-cnds-animate-trigger="hover"
+                              aria-label="Hover to trigger slideInRight animation"
+                             aria-hidden="true"></i>
+                            <p class="mt-3 text-muted small">
+                              Hover over the truck icon
+                            </p>
+                          </section>
+                        </div>
+                      </section>
+
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre
+                            class="line-numbers m-0"
+                          ><code class="language-html">&lt;i
+  class="mdi mdi-truck-delivery mdi-48px"
+  data-cnds-animate="slideInRight"
+  data-cnds-animate-trigger="hover"
+  aria-label="Hover to trigger slideInRight animation"&gt;
+&lt;/i&gt;</code></pre>
+                        </div>
+                      </section>
+                    </section>
+
+                    <!-- On load -->
+                    <section id="subsection-on-load">
+                      <h4 class="mt-5 mb-3">On load</h4>
+                      <p>
+                        Omit the
+                        <code>data-cnds-animate-trigger</code> attribute to play
+                        the animation automatically when the page loads. The
+                        animation fires once
+                        <code>Nimbus.Animation.init()</code> runs during page
+                        initialization.
+                      </p>
+
+                      <section class="pb-4">
+                        <!-- Angular: For on-load animations in Angular, apply the class in the template
+                             unconditionally, or use ngOnInit() to set a boolean that triggers [ngClass].
+                             Example: <i class="mdi mdi-truck-delivery mdi-48px animate-zoomIn" aria-hidden="true"></i>
+                             For route-entry animations, consider @angular/animations with the
+                             trigger/transition/animate DSL on the router outlet host element. -->
+                        <div class="border rounded-5">
+                          <section class="p-4 text-center">
+                            <i
+                              class="mdi mdi-truck-delivery mdi-48px"
+                              data-cnds-animate="zoomIn"
+                              aria-label="Icon animated on page load"
+                             aria-hidden="true"></i>
+                            <p class="mt-3 text-muted small">
+                              Refresh the page to see this animation
+                            </p>
+                          </section>
+                        </div>
+                      </section>
+
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre
+                            class="line-numbers m-0"
+                          ><code class="language-html">&lt;!-- No trigger attribute = auto-play on load --&gt;
+&lt;i
+  class="mdi mdi-truck-delivery mdi-48px"
+  data-cnds-animate="zoomIn"&gt;
+&lt;/i&gt;</code></pre>
+                        </div>
+                      </section>
+                    </section>
+
+                    <!-- On scroll -->
+                    <section id="subsection-on-scroll">
+                      <h4 class="mt-5 mb-3">On scroll</h4>
+                      <p>
+                        Set <code>data-cnds-animate-trigger="scroll"</code> to
+                        animate the element when it enters the viewport via
+                        scrolling. This uses the
+                        <code>IntersectionObserver</code> API for optimal
+                        performance. The animation fires only once by default.
+                      </p>
+
+                      <section class="pb-4">
+                        <!-- Angular: For scroll-triggered animations, use IntersectionObserver in an Angular
+                             directive or service to observe the host element. When the element enters the
+                             viewport, add the animation class via Renderer2:
+                             renderer.addClass(el.nativeElement, 'animate-slideInLeft');
+                             This avoids direct DOM access and keeps Angular's change detection intact. -->
+                        <div class="border rounded-5">
+                          <section class="p-4 text-center">
+                            <i
+                              class="mdi mdi-truck-delivery mdi-48px"
+                              data-cnds-animate="slideInLeft"
+                              data-cnds-animate-trigger="scroll"
+                              aria-label="Icon animated when scrolled into view"
+                             aria-hidden="true"></i>
+                            <p class="mt-3 text-muted small">
+                              Scroll to trigger (fires once)
+                            </p>
+                          </section>
+                        </div>
+                      </section>
+
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre
+                            class="line-numbers m-0"
+                          ><code class="language-html">&lt;i
+  class="mdi mdi-truck-delivery mdi-48px"
+  data-cnds-animate="slideInLeft"
+  data-cnds-animate-trigger="scroll"&gt;
+&lt;/i&gt;</code></pre>
+                        </div>
+                      </section>
+                    </section>
+
+                    <!-- Manually -->
+                    <section id="subsection-manually">
+                      <h4 class="mt-5 mb-3">Manually (via JavaScript)</h4>
+                      <p>
+                        Use the <code>Nimbus.Animation.animate()</code> method
+                        to start an animation programmatically. Use
+                        <code>Nimbus.Animation.stop()</code> to cancel it.
+                      </p>
+
+                      <section class="pb-4">
+                        <!-- Angular: Inject ElementRef and call Nimbus.Animation directly in component methods.
+                             Example:
+                               startAnim() { Nimbus.Animation.animate(this.el.nativeElement, 'pulse', { repeat: Infinity }); }
+                               stopAnim()  { Nimbus.Animation.stop(this.el.nativeElement); }
+                             For infinite animations, always call stop() in ngOnDestroy() to prevent memory leaks
+                             when the component is removed from the DOM. -->
+                        <div class="border rounded-5">
+                          <section
+                            class="p-4 d-flex justify-content-center align-items-center"
+                          >
+                            <i
+                              id="manually-example"
+                              class="mdi mdi-truck-delivery mdi-48px me-4"
+                              aria-label="Animation target icon"
+                             aria-hidden="true"></i>
+                            <button
+                              id="manually-btn-start"
+                              class="btn btn-primary btn-sm me-2"
+                              aria-label="Start pulse animation"
+                            >
+                              Start
+                            </button>
+                            <button
+                              id="manually-btn-stop"
+                              class="btn btn-outline-secondary btn-sm"
+                              aria-label="Stop animation"
+                            >
+                              Stop
+                            </button>
+                          </section>
+                        </div>
+                      </section>
+
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre
+                            class="line-numbers m-0"
+                          ><code class="language-html">&lt;i id="manually-example" class="mdi mdi-truck-delivery mdi-48px"
+   aria-label="Animation target icon"&gt;&lt;/i&gt;
+&lt;button id="manually-btn-start" class="btn btn-primary btn-sm"
+        aria-label="Start pulse animation"&gt;Start&lt;/button&gt;
+&lt;button id="manually-btn-stop" class="btn btn-outline-secondary btn-sm"
+        aria-label="Stop animation"&gt;Stop&lt;/button&gt;</code></pre>
+                        </div>
+                      </section>
+
+                      <section class="mb-4">
+                        <h5>
+                          <span class="badge badge-code-js">JAVASCRIPT</span>
+                        </h5>
+                        <div class="p-0">
+                          <pre
+                            class="line-numbers m-0"
+                          ><code class="language-javascript">const manualEl = document.getElementById('manually-example');
+const btnStart = document.getElementById('manually-btn-start');
+const btnStop  = document.getElementById('manually-btn-stop');
+
+btnStart.addEventListener('click', () =&gt; {
+  Nimbus.Animation.animate(manualEl, 'pulse', { repeat: Infinity });
+});
+
+btnStop.addEventListener('click', () =&gt; {
+  Nimbus.Animation.stop(manualEl);
+});</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                  </section>
+                  <!-- /LAUNCH OPTIONS -->
+
+                  <hr class="my-5" />
+
+                  <!-- ==========================================================
+                       CUSTOMIZATION
+                       ========================================================== -->
+                  <section id="section-customization">
+                    <h3 class="mb-3">Customization</h3>
+                    <p>
+                      Animation duration, delay, and repeat count can be
+                      customized via data attributes or JavaScript options.
+                    </p>
+
+                    <!-- Duration & Delay -->
+                    <section id="subsection-duration-delay">
+                      <h4 class="mt-5 mb-3">Duration &amp; delay</h4>
+                      <p>
+                        Use <code>data-cnds-animate-duration</code> (in
+                        milliseconds) to control how long the animation takes,
+                        and <code>data-cnds-animate-delay</code> to add a delay
+                        before it starts.
+                      </p>
+
+                      <section class="pb-4">
+                        <!-- Angular: Pass duration and delay directly via Nimbus.Animation options in your component:
+                             Nimbus.Animation.animate(el, 'fadeInUp', { duration: 2000, delay: 500 });
+                             Or apply the equivalent CSS custom properties inline:
+                             <i [style.animation-duration]="'2000ms'" [style.animation-delay]="'500ms'"
+                                [ngClass]="{'animate-fadeInUp': triggered}"></i> -->
+                        <div class="border rounded-5">
+                          <section class="p-4 text-center">
+                            <i
+                              class="mdi mdi-truck-delivery mdi-48px"
+                              data-cnds-animate="fadeInUp"
+                              data-cnds-animate-trigger="click"
+                              data-cnds-animate-duration="2000"
+                              data-cnds-animate-delay="500"
+                              aria-label="Click for delayed fadeInUp animation"
+                              tabindex="0"
+                              role="button"
+                             aria-hidden="true"></i>
+                            <p class="mt-3 text-muted small">
+                              Click: 500ms delay, 2000ms duration
+                            </p>
+                          </section>
+                        </div>
+                      </section>
+
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre
+                            class="line-numbers m-0"
+                          ><code class="language-html">&lt;i
+  class="mdi mdi-truck-delivery mdi-48px"
+  data-cnds-animate="fadeInUp"
+  data-cnds-animate-trigger="click"
+  data-cnds-animate-duration="2000"
+  data-cnds-animate-delay="500"&gt;
+&lt;/i&gt;</code></pre>
+                        </div>
+                      </section>
+                    </section>
+
+                    <!-- CSS utility classes -->
+                    <section id="subsection-css-utilities">
+                      <h4 class="mt-5 mb-3">CSS utility classes</h4>
+                      <p>
+                        You can also apply animations directly with CSS classes.
+                        Add the <code>.animate-{name}</code> class along with
+                        optional speed modifiers:
+                      </p>
+
+                      <section class="pb-4">
+                        <!-- Angular: Apply animation utility classes statically or via [ngClass]:
+                             <span class="d-inline-block animate-pulse animation-infinite"
+                                   data-cnds-animation></span>
+                             For conditional infinite animations (e.g. "loading" state), toggle
+                             animation-infinite via [ngClass]="{'animation-infinite': isLoading}"
+                             and remove it when the state resolves to let the animation finish naturally. -->
+                        <div class="border rounded-5">
+                          <section class="p-4 text-center">
+                            <span
+                              class="d-inline-block animate-pulse"
+                              data-cnds-animation
+                              style="animation-iteration-count: infinite"
+                            >
+                              <i
+                                class="mdi mdi-heart mdi-48px"
+                                style="color: var(--cnds-danger, #dc3545);"
+                                aria-label="Infinitely pulsing heart icon"
+                               aria-hidden="true"></i>
+                            </span>
+                            <p class="mt-3 text-muted small">
+                              Infinite pulse via CSS class
+                            </p>
+                          </section>
+                        </div>
+                      </section>
+
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre
+                            class="line-numbers m-0"
+                          ><code class="language-html">&lt;span class="d-inline-block animate-pulse"
+  data-cnds-animation
+  style="animation-iteration-count: infinite;"&gt;
+  &lt;i class="mdi mdi-heart mdi-48px"
+     style="color: var(--cnds-danger, #dc3545);"
+     aria-label="Pulsing heart icon"&gt;&lt;/i&gt;
+&lt;/span&gt;</code></pre>
+                        </div>
+                      </section>
+
+                      <div class="note note-info mb-3">
+                        <strong>The modifiers set a token, not a duration.</strong> Each one
+                        re-points <code>--cnds-animation-duration</code>, so it composes with either
+                        way of driving an animation &mdash; the
+                        <code>data-cnds-animate</code> attribute or a bare
+                        <code>.animate-*</code> class applied from script. Earlier the duration sat
+                        only on the attribute, so <code>.animate-fadeIn</code> on its own resolved
+                        to <code>animation-duration: 0s</code>: the class named an animation and
+                        gave it no time to run, which looks like nothing happening. Both forms now
+                        carry the duration and <code>animation-fill-mode: both</code>.
+                      </div>
+
+                      <p>Available speed modifier classes:</p>
+                      <ul>
+                        <li>
+                          <code>.animation-faster</code> &mdash; 350ms duration &mdash; the pace of a
+                          panel or offcanvas transition. Use it for content that is
+                          <em>replaced</em> inside a container that is already open: a record
+                          swapped behind a crossfade reads as a glitch if it is instant and as a
+                          stall at 0.5s, and it should be paced like the panel housing it.
+                        </li>
+                        <li>
+                          <code>.animation-fast</code> &mdash; 0.5s duration
+                        </li>
+                        <li>
+                          <code>.animation-slow</code> &mdash; 2s duration
+                        </li>
+                        <li>
+                          <code>.animation-infinite</code> &mdash; infinite loop
+                        </li>
+                      </ul>
+
+                      <p>Available delay utility classes:</p>
+                      <ul>
+                        <li>
+                          <code>.animation-delay-100</code> through
+                          <code>.animation-delay-500</code> (100ms increments)
+                        </li>
+                        <li>
+                          <code>.animation-delay-1000</code> &mdash; 1 second
+                          delay
+                        </li>
+                      </ul>
+                    </section>
+                  </section>
+                  <!-- /CUSTOMIZATION -->
+
+                  <hr class="my-5" />
+
+                  <!-- ==========================================================
+                       EXAMPLES
+                       ========================================================== -->
+                  <section id="section-examples">
+                    <h3 class="mb-3">Examples</h3>
+                    <p>
+                      Practical examples demonstrating common animation patterns.
+                    </p>
+
+                    <!-- Launching via external element -->
+                    <section id="subsection-external-trigger">
+                      <h4 class="mt-5 mb-3">Launching via external element</h4>
+                      <p>
+                        Use JavaScript to trigger an animation on a different
+                        element when a button is clicked or hovered.
+                      </p>
+
+                      <section class="pb-4">
+                        <!-- Angular: Wire external triggers with Angular event bindings.
+                             Example: <button (click)="animateSvc.animate(targetRef, 'slideInRight')">Click</button>
+                                      <i #targetRef class="mdi mdi-truck-delivery mdi-48px" aria-hidden="true"></i>
+                             Inject a wrapper service around Nimbus.Animation to keep component code clean
+                             and testable, especially when multiple components share the same animation logic. -->
+                        <div class="border rounded-5">
+                          <section class="p-4 text-center">
+                            <div
+                              class="d-flex justify-content-around align-items-center"
+                            >
+                              <div>
+                                <button
+                                  id="ext-click-btn"
+                                  class="btn btn-primary btn-sm me-4"
+                                  aria-label="Click to animate the target icon"
+                                >
+                                  Click to animate
+                                </button>
+                                <i
+                                  id="ext-click-target"
+                                  class="mdi mdi-truck-delivery mdi-48px"
+                                  aria-label="Animation target (click trigger)"
+                                 aria-hidden="true"></i>
+                              </div>
+                              <div>
+                                <button
+                                  id="ext-hover-btn"
+                                  class="btn btn-primary btn-sm me-4"
+                                  aria-label="Hover to animate the target icon"
+                                >
+                                  Hover to animate
+                                </button>
+                                <i
+                                  id="ext-hover-target"
+                                  class="mdi mdi-truck-delivery mdi-48px"
+                                  aria-label="Animation target (hover trigger)"
+                                 aria-hidden="true"></i>
+                              </div>
+                            </div>
+                          </section>
+                        </div>
+                      </section>
+
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre
+                            class="line-numbers m-0"
+                          ><code class="language-html">&lt;button id="ext-click-btn" class="btn btn-primary btn-sm"&gt;Click to animate&lt;/button&gt;
+&lt;i id="ext-click-target" class="mdi mdi-truck-delivery mdi-48px"&gt;&lt;/i&gt;
+
+&lt;button id="ext-hover-btn" class="btn btn-primary btn-sm"&gt;Hover to animate&lt;/button&gt;
+&lt;i id="ext-hover-target" class="mdi mdi-truck-delivery mdi-48px"&gt;&lt;/i&gt;</code></pre>
+                        </div>
+                      </section>
+
+                      <section class="mb-4">
+                        <h5>
+                          <span class="badge badge-code-js">JAVASCRIPT</span>
+                        </h5>
+                        <div class="p-0">
+                          <pre
+                            class="line-numbers m-0"
+                          ><code class="language-javascript">// Click trigger on external element
+const clickBtn    = document.getElementById('ext-click-btn');
+const clickTarget = document.getElementById('ext-click-target');
+clickBtn.addEventListener('click', () =&gt; {
+  Nimbus.Animation.animate(clickTarget, 'slideInRight');
+});
+
+// Hover trigger on external element
+const hoverBtn    = document.getElementById('ext-hover-btn');
+const hoverTarget = document.getElementById('ext-hover-target');
+hoverBtn.addEventListener('mouseenter', () =&gt; {
+  Nimbus.Animation.animate(hoverTarget, 'slideInRight');
+});</code></pre>
+                        </div>
+                      </section>
+                    </section>
+
+                    <!-- Change animation type -->
+                    <section id="subsection-change-animation-type">
+                      <h4 class="mt-5 mb-3">Change animation type</h4>
+                      <p>
+                        You can switch the animation type at any time by calling
+                        <code>Nimbus.Animation.animate()</code> with a different
+                        animation name. Stop the current animation first with
+                        <code>Nimbus.Animation.stop()</code>.
+                      </p>
+
+                      <section class="pb-4">
+                        <!-- Angular: Maintain a `currentAnim` property in your component and call
+                             Nimbus.Animation.stop() followed by Nimbus.Animation.animate() in a method.
+                             Example:
+                               toggleAnim() {
+                                 Nimbus.Animation.stop(this.el.nativeElement);
+                                 this.currentAnim = this.currentAnim === 'zoomIn' ? 'zoomOut' : 'zoomIn';
+                                 Nimbus.Animation.animate(this.el.nativeElement, this.currentAnim, { repeat: Infinity });
+                               } -->
+                        <div class="border rounded-5">
+                          <section
+                            class="p-4 d-flex justify-content-center align-items-center"
+                          >
+                            <i
+                              id="change-anim-example"
+                              class="mdi mdi-truck-delivery mdi-48px me-4"
+                              aria-label="Animation target — type changes on button click"
+                             aria-hidden="true"></i>
+                            <button
+                              id="change-anim-btn"
+                              class="btn btn-primary btn-sm"
+                              aria-label="Change animation type"
+                            >
+                              Change animation
+                            </button>
+                          </section>
+                        </div>
+                      </section>
+
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre
+                            class="line-numbers m-0"
+                          ><code class="language-html">&lt;i id="change-anim-example" class="mdi mdi-truck-delivery mdi-48px"&gt;&lt;/i&gt;
+&lt;button id="change-anim-btn" class="btn btn-primary btn-sm"&gt;Change animation&lt;/button&gt;</code></pre>
+                        </div>
+                      </section>
+
+                      <section class="mb-4">
+                        <h5>
+                          <span class="badge badge-code-js">JAVASCRIPT</span>
+                        </h5>
+                        <div class="p-0">
+                          <pre
+                            class="line-numbers m-0"
+                          ><code class="language-javascript">const changeEl  = document.getElementById('change-anim-example');
+const changeBtn = document.getElementById('change-anim-btn');
+let currentAnim = 'zoomIn';
+
+// Start initial animation
+Nimbus.Animation.animate(changeEl, currentAnim, { repeat: Infinity });
+
+changeBtn.addEventListener('click', () =&gt; {
+  Nimbus.Animation.stop(changeEl);
+  currentAnim = currentAnim === 'zoomIn' ? 'zoomOut' : 'zoomIn';
+  Nimbus.Animation.animate(changeEl, currentAnim, { repeat: Infinity });
+});</code></pre>
+                        </div>
+                      </section>
+                    </section>
+
+                    <!-- Chained animations -->
+                    <section id="subsection-chained-animations">
+                      <h4 class="mt-5 mb-3">Chained animations</h4>
+                      <p>
+                        Use <code>Nimbus.Animation.chain()</code> to play
+                        multiple animations in sequence on the same element.
+                      </p>
+
+                      <section class="pb-4">
+                        <!-- Angular: Chain animations from a button click handler using the JS API.
+                             Example:
+                               playChain() {
+                                 Nimbus.Animation.chain(this.iconRef.nativeElement,
+                                   ['fadeIn', 'pulse', 'shake', 'fadeOut']);
+                               }
+                             Alternatively, use @angular/animations with a sequence() and group() to
+                             achieve the same effect with full Angular change-detection awareness. -->
+                        <div class="border rounded-5">
+                          <section
+                            class="p-4 d-flex justify-content-center align-items-center"
+                          >
+                            <i
+                              id="chain-example"
+                              class="mdi mdi-truck-delivery mdi-48px me-4"
+                              aria-label="Animation target for chained sequence"
+                             aria-hidden="true"></i>
+                            <button
+                              id="chain-btn"
+                              class="btn btn-primary btn-sm"
+                              aria-label="Play chained animation sequence"
+                            >
+                              Play chain
+                            </button>
+                          </section>
+                        </div>
+                      </section>
+
+                      <section class="mb-4">
+                        <h5>
+                          <span class="badge badge-code-js">JAVASCRIPT</span>
+                        </h5>
+                        <div class="p-0">
+                          <pre
+                            class="line-numbers m-0"
+                          ><code class="language-javascript">const chainEl  = document.getElementById('chain-example');
+const chainBtn = document.getElementById('chain-btn');
+
+chainBtn.addEventListener('click', () =&gt; {
+  Nimbus.Animation.chain(chainEl, ['fadeIn', 'pulse', 'shake', 'fadeOut']);
+});</code></pre>
+                        </div>
+                      </section>
+                    </section>
+
+                    <!-- Staggered animations -->
+                    <section id="subsection-staggered-animations">
+                      <h4 class="mt-5 mb-3">Staggered animations</h4>
+                      <p>
+                        Use <code>Nimbus.Animation.stagger()</code> to animate
+                        multiple elements with a delay between each one,
+                        creating a cascading effect.
+                      </p>
+
+                      <section class="pb-4">
+                        <!-- Angular: For staggered list animations, use @angular/animations with the
+                             stagger() function inside a query() transition:
+                               trigger('listAnim', [
+                                 transition(':enter', [
+                                   query(':enter', [
+                                     style({ opacity: 0 }),
+                                     stagger(200, animate('600ms', style({ opacity: 1 })))
+                                   ])
+                                 ])
+                               ])
+                             For simpler cases, call Nimbus.Animation.stagger() directly via a service
+                             in your component's method tied to a button click. -->
+                        <div class="border rounded-5">
+                          <section class="p-4 text-center">
+                            <div class="row" id="stagger-gallery">
+                              <div class="col-lg-4 col-md-6 mb-4">
+                                <img
+                                  src="img/cf/styleguide/041-1.webp"
+                                  class="img-fluid shadow-1-strong rounded"
+                                  alt="Gallery image 1"
+                                />
+                              </div>
+                              <div class="col-lg-4 col-md-6 mb-4">
+                                <img
+                                  src="img/cf/styleguide/111.webp"
+                                  class="img-fluid shadow-1-strong rounded"
+                                  alt="Gallery image 2"
+                                />
+                              </div>
+                              <div class="col-lg-4 col-md-6 mb-4">
+                                <img
+                                  src="img/cf/styleguide/184.webp"
+                                  class="img-fluid shadow-1-strong rounded"
+                                  alt="Gallery image 3"
+                                />
+                              </div>
+                            </div>
+                            <button
+                              id="stagger-btn"
+                              class="btn btn-primary btn-sm"
+                              aria-label="Animate gallery images with stagger"
+                            >
+                              Animate gallery
+                            </button>
+                          </section>
+                        </div>
+                      </section>
+
+                      <section class="mb-4">
+                        <h5>
+                          <span class="badge badge-code-js">JAVASCRIPT</span>
+                        </h5>
+                        <div class="p-0">
+                          <pre
+                            class="line-numbers m-0"
+                          ><code class="language-javascript">const galleryImages = document.querySelectorAll('#stagger-gallery img');
+const staggerBtn    = document.getElementById('stagger-btn');
+
+staggerBtn.addEventListener('click', () =&gt; {
+  Nimbus.Animation.stagger(galleryImages, 'fadeIn', { duration: 600 }, 200);
+});</code></pre>
+                        </div>
+                      </section>
+                    </section>
+
+                    <!-- Fading gallery -->
+                    <section id="subsection-fading-gallery">
+                      <h4 class="mt-5 mb-3">Fading gallery</h4>
+                      <p>
+                        Combine scroll-triggered animations with staggered
+                        delays to create a gallery that appears smoothly as the
+                        user scrolls.
+                      </p>
+
+                      <section class="pb-4">
+                        <!-- Angular: For scroll-triggered fade-in of gallery images, create a custom
+                             structural directive (e.g. *cndsScrollFadeIn) that wraps IntersectionObserver
+                             and applies Nimbus.Animation.animate() when the host element enters the viewport.
+                             Pass the delay as an input: <img *cndsScrollFadeIn="{ delay: 300 }" ... alt="">
+                             This keeps templates clean and makes the behavior reusable across pages. -->
+                        <div class="border rounded-5">
+                          <section class="p-4 text-center">
+                            <div class="row">
+                              <div class="col-lg-4 col-md-12 mb-4">
+                                <img
+                                  data-cnds-animate="fadeIn"
+                                  data-cnds-animate-trigger="scroll"
+                                  src="img/cf/styleguide/card-media-1280x720.jpg"
+                                  class="img-fluid shadow-1-strong rounded"
+                                  alt="Gallery image 4"
+                                />
+                              </div>
+                              <div class="col-lg-4 col-md-6 mb-4">
+                                <img
+                                  data-cnds-animate="fadeIn"
+                                  data-cnds-animate-trigger="scroll"
+                                  data-cnds-animate-delay="300"
+                                  src="img/cf/styleguide/llama.jpg"
+                                  class="img-fluid shadow-1-strong rounded"
+                                  alt="Gallery image 5"
+                                />
+                              </div>
+                              <div class="col-lg-4 col-md-6 mb-4">
+                                <img
+                                  data-cnds-animate="fadeIn"
+                                  data-cnds-animate-trigger="scroll"
+                                  data-cnds-animate-delay="500"
+                                  src="img/cf/styleguide/card-image.png"
+                                  class="img-fluid shadow-1-strong rounded"
+                                  alt="Gallery image 6"
+                                />
+                              </div>
+                            </div>
+                          </section>
+                        </div>
+                      </section>
+
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre
+                            class="line-numbers m-0"
+                          ><code class="language-html">&lt;div class="row"&gt;
+  &lt;div class="col-lg-4 col-md-12 mb-4"&gt;
+    &lt;img data-cnds-animate="fadeIn"
+      data-cnds-animate-trigger="scroll"
+      src="img/photo1.jpg"
+      class="img-fluid shadow-1-strong rounded"
+      alt="Gallery image 1" /&gt;
+  &lt;/div&gt;
+  &lt;div class="col-lg-4 col-md-6 mb-4"&gt;
+    &lt;img data-cnds-animate="fadeIn"
+      data-cnds-animate-trigger="scroll"
+      data-cnds-animate-delay="300"
+      src="img/photo2.jpg"
+      class="img-fluid shadow-1-strong rounded"
+      alt="Gallery image 2" /&gt;
+  &lt;/div&gt;
+  &lt;div class="col-lg-4 col-md-6 mb-4"&gt;
+    &lt;img data-cnds-animate="fadeIn"
+      data-cnds-animate-trigger="scroll"
+      data-cnds-animate-delay="500"
+      src="img/photo3.jpg"
+      class="img-fluid shadow-1-strong rounded"
+      alt="Gallery image 3" /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+                    </section>
+
+                    <!-- List group -->
+                    <section id="subsection-list-group">
+                      <h4 class="mt-5 mb-3">List group</h4>
+                      <p>
+                        Click &ldquo;Add&rdquo; to add a new item with a
+                        slide-in animation. Click any item to remove it with a
+                        fade-out animation.
+                      </p>
+
+                      <section class="pb-4">
+                        <!-- Angular: For animated list add/remove, use @angular/animations with
+                             the trigger/transition/:enter/:leave lifecycle hooks on the *ngFor host.
+                             Example:
+                               @Component({ animations: [
+                                 trigger('listItem', [
+                                   transition(':enter', [ style({opacity:0, transform:'translateY(-10px)'}),
+                                     animate('300ms ease-out', style({opacity:1, transform:'none'})) ]),
+                                   transition(':leave', [ animate('300ms ease-in',
+                                     style({opacity:0, transform:'translateY(-10px)'})) ])
+                                 ])
+                               ]})
+                               // Template: <li *ngFor="let item of items" @listItem>...</li>
+                             This approach integrates with Angular's change detection and avoids
+                             direct DOM manipulation. -->
+                        <div class="border rounded-5">
+                          <section class="p-4 d-flex justify-content-center">
+                            <div class="d-flex">
+                              <div class="card" style="width: 18rem">
+                                <ul
+                                  id="example-list"
+                                  class="list-group list-group-flush"
+                                  aria-label="Animated list example"
+                                  aria-live="polite"
+                                >
+                                  <li class="list-group-item">
+                                    Cras justo odio
+                                  </li>
+                                  <li class="list-group-item">
+                                    Dapibus ac facilisis in
+                                  </li>
+                                  <li class="list-group-item">
+                                    Vestibulum at eros
+                                  </li>
+                                </ul>
+                              </div>
+                              <div class="ms-3">
+                                <button
+                                  class="btn btn-primary btn-sm"
+                                  id="list-add-btn"
+                                  aria-label="Add animated list item"
+                                >
+                                  Add
+                                </button>
+                              </div>
+                            </div>
+                          </section>
+                        </div>
+                      </section>
+
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre
+                            class="line-numbers m-0"
+                          ><code class="language-html">&lt;div class="d-flex"&gt;
+  &lt;div class="card" style="width: 18rem;"&gt;
+    &lt;ul id="example-list" class="list-group list-group-flush"
+        aria-label="Animated list" aria-live="polite"&gt;
+      &lt;li class="list-group-item"&gt;Cras justo odio&lt;/li&gt;
+      &lt;li class="list-group-item"&gt;Dapibus ac facilisis in&lt;/li&gt;
+      &lt;li class="list-group-item"&gt;Vestibulum at eros&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/div&gt;
+  &lt;div class="ms-3"&gt;
+    &lt;button class="btn btn-primary btn-sm" id="list-add-btn"&gt;Add&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+
+                      <section class="mb-4">
+                        <h5>
+                          <span class="badge badge-code-js">JAVASCRIPT</span>
+                        </h5>
+                        <div class="p-0">
+                          <pre
+                            class="line-numbers m-0"
+                          ><code class="language-javascript">let itemCount = 1;
+
+function bindRemove(li) {
+  li.addEventListener('click', () =&gt; {
+    li.addEventListener('animationend', () =&gt; li.remove(), { once: true });
+    li.classList.add('animate-fadeOut');
+    li.style.animationDuration  = '300ms';
+    li.style.animationFillMode  = 'both';
+  });
+}
+
+function addItem() {
+  const list = document.getElementById('example-list');
+  const li   = document.createElement('li');
+  li.textContent = 'Element ' + itemCount++;
+  li.classList.add('list-group-item', 'animate-slideInDown');
+  li.style.animationDuration = '300ms';
+  li.style.animationFillMode = 'both';
+  li.addEventListener('animationend', () =&gt; {
+    li.classList.remove('animate-slideInDown');
+    li.style.animationDuration = '';
+    li.style.animationFillMode = '';
+  }, { once: true });
+  bindRemove(li);
+  list.appendChild(li);
+}
+
+document.querySelectorAll('#example-list li').forEach(bindRemove);
+document.getElementById('list-add-btn').addEventListener('click', addItem);</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                  </section>
+                  <!-- /EXAMPLES -->
+
+                  <hr class="my-5" />
+
+                  <!-- ==========================================================
+                       API DOCUMENTATION
+                       ========================================================== -->
+                  <section id="section-api-docs">
+                    <h3 class="mb-3">API Documentation</h3>
+
+                    <section id="api-section-introduction" class="mt-4">
+                      <h4 class="mb-4">Introduction</h4>
+                      <p>
+                        The Nimbus Animation system is a lightweight, dependency-free CSS and
+                        JavaScript utility built around native <code>@keyframes</code> animations.
+                        It exposes a declarative data-attribute API for quick markup-driven
+                        animations and a full programmatic JavaScript API
+                        (<code>Nimbus.Animation</code>) for dynamic, event-driven, or sequenced
+                        animation patterns. The system automatically handles animation class
+                        cleanup, cross-browser event listening, and
+                        <code>prefers-reduced-motion</code> compliance so developers can focus on
+                        the behavior rather than the boilerplate.
+                      </p>
+                    </section>
+
+                    <section id="api-section-usage" class="mt-4">
+                      <h4 class="mb-4">Usage</h4>
+
+                      <h5 class="mb-4">Via data attributes</h5>
+                      <p>
+                        Add <code>data-cnds-animate</code> with the animation
+                        name to any element. Optionally set
+                        <code>data-cnds-animate-trigger</code> to control when
+                        the animation fires. The
+                        <code>Nimbus.Animation.init()</code> method (called
+                        automatically on page load) scans for these attributes
+                        and wires up the appropriate event listeners.
+                      </p>
+
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre
+                            class="line-numbers m-0"
+                          ><code class="language-html">&lt;!-- Auto-play on load (no trigger) --&gt;
+&lt;div data-cnds-animate="fadeInUp"&gt;...&lt;/div&gt;
+
+&lt;!-- Play on click --&gt;
+&lt;div data-cnds-animate="bounce" data-cnds-animate-trigger="click"&gt;...&lt;/div&gt;
+
+&lt;!-- Play on hover --&gt;
+&lt;div data-cnds-animate="pulse" data-cnds-animate-trigger="hover"&gt;...&lt;/div&gt;
+
+&lt;!-- Play on scroll (IntersectionObserver) --&gt;
+&lt;div data-cnds-animate="slideInLeft" data-cnds-animate-trigger="scroll"&gt;...&lt;/div&gt;
+
+&lt;!-- With custom duration and delay --&gt;
+&lt;div data-cnds-animate="fadeIn"
+  data-cnds-animate-trigger="scroll"
+  data-cnds-animate-duration="800"
+  data-cnds-animate-delay="200"&gt;...&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+
+                      <h5 class="my-4">Via JavaScript</h5>
+                      <p>
+                        Use the <code>Nimbus.Animation</code> API for full
+                        programmatic control.
+                      </p>
+
+                      <section class="mb-4">
+                        <h5>
+                          <span class="badge badge-code-js">JAVASCRIPT</span>
+                        </h5>
+                        <div class="p-0">
+                          <pre
+                            class="line-numbers m-0"
+                          ><code class="language-javascript">const el = document.getElementById('myElement');
+
+// Simple animation
+Nimbus.Animation.animate(el, 'fadeInUp');
+
+// With options
+Nimbus.Animation.animate(el, 'bounce', {
+  duration: 800,
+  delay: 200,
+  repeat: 3,
+  removeOnEnd: true
+});
+
+// Chain animations sequentially
+Nimbus.Animation.chain(el, ['fadeIn', 'pulse', 'fadeOut']);
+
+// Stagger multiple elements
+const items = document.querySelectorAll('.card');
+Nimbus.Animation.stagger(items, 'fadeInUp', { duration: 600 }, 100);
+
+// Stop animation
+Nimbus.Animation.stop(el);
+
+// Show / Hide with animation
+Nimbus.Animation.show(el, 'fadeIn');
+Nimbus.Animation.hide(el, 'fadeOut');
+
+// Toggle visibility
+Nimbus.Animation.toggle(el, 'fadeIn', 'fadeOut');</code></pre>
+                        </div>
+                      </section>
+                    </section>
+
+                    <section id="api-section-data-attributes" class="mt-4">
+                      <h4 class="mb-4">Data attributes</h4>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Data attributes">
+                          <thead>
+                            <tr>
+                              <th class="th-sm">Attribute</th>
+                              <th class="th-sm">Type</th>
+                              <th class="th-sm">Default</th>
+                              <th class="th-sm">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>data-cnds-animate</code></td>
+                              <td>string</td>
+                              <td>&mdash;</td>
+                              <td>
+                                The animation name (e.g., <code>fadeIn</code>,
+                                <code>slideInUp</code>).
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>data-cnds-animate-trigger</code></td>
+                              <td>string</td>
+                              <td><em>none</em></td>
+                              <td>
+                                Trigger mode: <code>click</code>,
+                                <code>hover</code>, or <code>scroll</code>. Omit
+                                for auto-play on load.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>data-cnds-animate-duration</code></td>
+                              <td>number</td>
+                              <td>CSS default (1000)</td>
+                              <td>Animation duration in milliseconds.</td>
+                            </tr>
+                            <tr>
+                              <td><code>data-cnds-animate-delay</code></td>
+                              <td>number</td>
+                              <td><code>0</code></td>
+                              <td>Delay before the animation starts (ms).</td>
+                            </tr>
+                            <tr>
+                              <td><code>data-cnds-animate-repeat</code></td>
+                              <td>number | &ldquo;infinite&rdquo;</td>
+                              <td><code>1</code></td>
+                              <td>
+                                Number of repetitions. Use
+                                <code>"infinite"</code> for endless looping.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>data-cnds-animation</code></td>
+                              <td>&mdash;</td>
+                              <td>&mdash;</td>
+                              <td>
+                                Marker attribute for CSS utility animations.
+                                Applies default duration and fill-mode.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+
+                    <section id="api-section-css-classes" class="mt-4">
+                      <h4 class="mb-4">CSS classes</h4>
+                      <p>
+                        CSS utility classes that can be applied directly to
+                        elements. Each maps to a
+                        <code>@keyframes</code> animation in
+                        <code>animations.css</code>.
+                      </p>
+
+                      <h5 class="mb-4">Animation name classes</h5>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="CSS classes">
+                          <thead>
+                            <tr>
+                              <th class="th-sm">Class</th>
+                              <th class="th-sm">Keyframe</th>
+                              <th class="th-sm">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>.animate-fadeIn</code></td>
+                              <td><code>cnds-fadeIn</code></td>
+                              <td>Fade in from transparent</td>
+                            </tr>
+                            <tr>
+                              <td><code>.animate-fadeOut</code></td>
+                              <td><code>cnds-fadeOut</code></td>
+                              <td>Fade out to transparent</td>
+                            </tr>
+                            <tr>
+                              <td><code>.animate-fadeInUp</code></td>
+                              <td><code>cnds-fadeInUp</code></td>
+                              <td>Fade in while sliding up</td>
+                            </tr>
+                            <tr>
+                              <td><code>.animate-fadeInDown</code></td>
+                              <td><code>cnds-fadeInDown</code></td>
+                              <td>Fade in while sliding down</td>
+                            </tr>
+                            <tr>
+                              <td><code>.animate-fadeInLeft</code></td>
+                              <td><code>cnds-fadeInLeft</code></td>
+                              <td>Fade in from left</td>
+                            </tr>
+                            <tr>
+                              <td><code>.animate-fadeInRight</code></td>
+                              <td><code>cnds-fadeInRight</code></td>
+                              <td>Fade in from right</td>
+                            </tr>
+                            <tr>
+                              <td><code>.animate-slideInUp</code></td>
+                              <td><code>cnds-slideInUp</code></td>
+                              <td>Slide in from below</td>
+                            </tr>
+                            <tr>
+                              <td><code>.animate-slideInDown</code></td>
+                              <td><code>cnds-slideInDown</code></td>
+                              <td>Slide in from above</td>
+                            </tr>
+                            <tr>
+                              <td><code>.animate-slideInLeft</code></td>
+                              <td><code>cnds-slideInLeft</code></td>
+                              <td>Slide in from the left</td>
+                            </tr>
+                            <tr>
+                              <td><code>.animate-slideInRight</code></td>
+                              <td><code>cnds-slideInRight</code></td>
+                              <td>Slide in from the right</td>
+                            </tr>
+                            <tr>
+                              <td><code>.animate-zoomIn</code></td>
+                              <td><code>cnds-zoomIn</code></td>
+                              <td>Zoom in from small</td>
+                            </tr>
+                            <tr>
+                              <td><code>.animate-zoomOut</code></td>
+                              <td><code>cnds-zoomOut</code></td>
+                              <td>Zoom out to small</td>
+                            </tr>
+                            <tr>
+                              <td><code>.animate-bounce</code></td>
+                              <td><code>cnds-bounce</code></td>
+                              <td>Bouncing effect</td>
+                            </tr>
+                            <tr>
+                              <td><code>.animate-pulse</code></td>
+                              <td><code>cnds-pulse</code></td>
+                              <td>Subtle scale pulse</td>
+                            </tr>
+                            <tr>
+                              <td><code>.animate-shake</code></td>
+                              <td><code>cnds-shake</code></td>
+                              <td>Horizontal shake</td>
+                            </tr>
+                            <tr>
+                              <td><code>.animate-flipInX</code></td>
+                              <td><code>cnds-flipInX</code></td>
+                              <td>3D flip on X axis</td>
+                            </tr>
+                            <tr>
+                              <td><code>.animate-tada</code></td>
+                              <td><code>cnds-tada</code></td>
+                              <td>Wobble-scale attention</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <h5 class="mb-4 mt-4">Speed &amp; timing modifiers</h5>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="CSS classes">
+                          <thead>
+                            <tr>
+                              <th class="th-sm">Class</th>
+                              <th class="th-sm">CSS Property</th>
+                              <th class="th-sm">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>.animation-faster</code></td>
+                              <td>
+                                <code
+                                  >--cnds-animation-duration:
+                                  var(--cnds-animation-duration-faster)</code
+                                >
+                              </td>
+                              <td>Faster (350ms) &mdash; panel/offcanvas pace</td>
+                            </tr>
+                            <tr>
+                              <td><code>.animation-fast</code></td>
+                              <td>
+                                <code
+                                  >--cnds-animation-duration:
+                                  var(--cnds-animation-duration-fast)</code
+                                >
+                              </td>
+                              <td>Fast (500ms)</td>
+                            </tr>
+                            <tr>
+                              <td><code>.animation-slow</code></td>
+                              <td>
+                                <code
+                                  >--cnds-animation-duration:
+                                  var(--cnds-animation-duration-slow)</code
+                                >
+                              </td>
+                              <td>Slow (2000ms)</td>
+                            </tr>
+                            <tr>
+                              <td><code>.animation-infinite</code></td>
+                              <td>
+                                <code>animation-iteration-count: infinite</code>
+                              </td>
+                              <td>Loop indefinitely</td>
+                            </tr>
+                            <tr>
+                              <td><code>.animation-delay-100</code></td>
+                              <td><code>animation-delay: 100ms</code></td>
+                              <td>100ms delay</td>
+                            </tr>
+                            <tr>
+                              <td><code>.animation-delay-200</code></td>
+                              <td><code>animation-delay: 200ms</code></td>
+                              <td>200ms delay</td>
+                            </tr>
+                            <tr>
+                              <td><code>.animation-delay-300</code></td>
+                              <td><code>animation-delay: 300ms</code></td>
+                              <td>300ms delay</td>
+                            </tr>
+                            <tr>
+                              <td><code>.animation-delay-400</code></td>
+                              <td><code>animation-delay: 400ms</code></td>
+                              <td>400ms delay</td>
+                            </tr>
+                            <tr>
+                              <td><code>.animation-delay-500</code></td>
+                              <td><code>animation-delay: 500ms</code></td>
+                              <td>500ms delay</td>
+                            </tr>
+                            <tr>
+                              <td><code>.animation-delay-1000</code></td>
+                              <td><code>animation-delay: 1000ms</code></td>
+                              <td>1 second delay</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+
+                    <section id="api-section-methods" class="mt-4">
+                      <h4 class="mb-4">Methods</h4>
+                      <p>
+                        All methods are available on the
+                        <code>Nimbus.Animation</code> object.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Methods">
+                          <thead>
+                            <tr>
+                              <th class="th-sm">Method</th>
+                              <th class="th-sm">Arguments</th>
+                              <th class="th-sm">Returns</th>
+                              <th class="th-sm">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>animate()</code></td>
+                              <td>
+                                <code>element, animationName, options?</code>
+                              </td>
+                              <td><code>Promise&lt;HTMLElement&gt;</code></td>
+                              <td>
+                                Animate an element. Resolves when animation
+                                completes.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>chain()</code></td>
+                              <td><code>element, animations[]</code></td>
+                              <td><code>Promise&lt;HTMLElement&gt;</code></td>
+                              <td>Play multiple animations sequentially.</td>
+                            </tr>
+                            <tr>
+                              <td><code>stagger()</code></td>
+                              <td>
+                                <code>elements, animationName, options?, staggerDelay?</code>
+                              </td>
+                              <td><code>Promise&lt;HTMLElement[]&gt;</code></td>
+                              <td>
+                                Animate multiple elements with staggered delay.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>stop()</code></td>
+                              <td><code>element</code></td>
+                              <td><code>void</code></td>
+                              <td>Stop all animations on an element.</td>
+                            </tr>
+                            <tr>
+                              <td><code>show()</code></td>
+                              <td>
+                                <code>element, animationName?, options?</code>
+                              </td>
+                              <td><code>Promise&lt;HTMLElement&gt;</code></td>
+                              <td>
+                                Show element with animation (removes
+                                <code>.d-none</code>).
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>hide()</code></td>
+                              <td>
+                                <code>element, animationName?, options?</code>
+                              </td>
+                              <td><code>Promise&lt;HTMLElement&gt;</code></td>
+                              <td>
+                                Hide element with animation (adds
+                                <code>.d-none</code>).
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>toggle()</code></td>
+                              <td>
+                                <code>element, showAnim?, hideAnim?, options?</code>
+                              </td>
+                              <td><code>Promise&lt;HTMLElement&gt;</code></td>
+                              <td>Toggle element visibility with animation.</td>
+                            </tr>
+                            <tr>
+                              <td><code>observeScroll()</code></td>
+                              <td><code>selector?, observerOptions?</code></td>
+                              <td><code>IntersectionObserver</code></td>
+                              <td>
+                                Observe elements and animate when they scroll
+                                into view.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>init()</code></td>
+                              <td>&mdash;</td>
+                              <td><code>void</code></td>
+                              <td>
+                                Initialize all data-attribute-driven animations.
+                                Called automatically on page load.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+
+                    <section id="api-section-options" class="mt-4">
+                      <h4 class="mb-4">Options</h4>
+                      <p>
+                        The <code>options</code> object accepted by
+                        <code>animate()</code>, <code>chain()</code>,
+                        <code>stagger()</code>, <code>show()</code>,
+                        <code>hide()</code>, and <code>toggle()</code>:
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Options">
+                          <thead>
+                            <tr>
+                              <th class="th-sm">Option</th>
+                              <th class="th-sm">Type</th>
+                              <th class="th-sm">Default</th>
+                              <th class="th-sm">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>duration</code></td>
+                              <td>number | null</td>
+                              <td><code>null</code></td>
+                              <td>
+                                Animation duration in ms. <code>null</code> uses
+                                the CSS default (1s).
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>delay</code></td>
+                              <td>number</td>
+                              <td><code>0</code></td>
+                              <td>Delay before animation starts (ms).</td>
+                            </tr>
+                            <tr>
+                              <td><code>repeat</code></td>
+                              <td>number</td>
+                              <td><code>1</code></td>
+                              <td>
+                                Number of repetitions. Use
+                                <code>Infinity</code> for endless loop.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>removeOnEnd</code></td>
+                              <td>boolean</td>
+                              <td><code>true</code></td>
+                              <td>
+                                Remove animation class and inline styles when
+                                animation completes.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+
+                    <section id="api-section-events" class="mt-4">
+                      <h4 class="mb-4">Events</h4>
+                      <p>
+                        Custom events dispatched by the Animation utility via
+                        <code>Nimbus.EventHandler</code>:
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Events">
+                          <thead>
+                            <tr>
+                              <th class="th-sm">Event</th>
+                              <th class="th-sm">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>animationEnd.cnds.animation</code></td>
+                              <td>
+                                Fired when an animation completes. The event
+                                detail includes <code>{ animationName }</code>.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>animationStop.cnds.animation</code></td>
+                              <td>
+                                Fired when <code>stop()</code> is called on an
+                                element.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+
+                    <section id="api-section-accessibility" class="mt-4">
+                      <h4 class="mb-4">Accessibility</h4>
+                      <p>
+                        The animation system automatically respects the
+                        <code>prefers-reduced-motion</code> media query. When
+                        a user enables reduced-motion at the OS level:
+                      </p>
+                      <ul>
+                        <li>
+                          All <code>animation-duration</code> values are reduced
+                          to <code>1ms</code> — the animation still completes
+                          (so JS callbacks fire correctly) but is imperceptible
+                        </li>
+                        <li>
+                          All <code>transition-duration</code> values are
+                          reduced to <code>1ms</code>
+                        </li>
+                        <li>
+                          <code>animation-iteration-count</code> is set to
+                          <code>1</code> — infinite loops are effectively
+                          disabled
+                        </li>
+                      </ul>
+                      <p>
+                        This ensures that users who are sensitive to motion or
+                        have vestibular disorders can still use the interface
+                        without discomfort, in compliance with WCAG 2.1 Success
+                        Criterion 2.3.3 (Animation from Interactions, AAA) and
+                        the spirit of SC 2.3.1 (Three Flashes or Below
+                        Threshold, AA).
+                      </p>
+                      <p>
+                        Additional accessibility guidance for animations:
+                      </p>
+                      <ul>
+                        <li>
+                          <strong>Decorative icons</strong> used as animation
+                          targets must include <code>aria-hidden="true"</code>
+                          so screen readers skip them entirely.
+                        </li>
+                        <li>
+                          <strong>Interactive animation triggers</strong>
+                          (clickable icons, hover zones) must have a visible
+                          label or an <code>aria-label</code> attribute, and
+                          should be keyboard-focusable (<code>tabindex="0"</code>,
+                          <code>role="button"</code>).
+                        </li>
+                        <li>
+                          <strong>Status panels</strong> that appear via
+                          animation (e.g., <code>show()</code> / <code>fadeIn</code>)
+                          should use <code>aria-live="polite"</code> so screen
+                          readers announce the new content after it appears.
+                        </li>
+                        <li>
+                          <strong>Infinite animations</strong> (pulse, bounce,
+                          etc.) used for attention purposes should be stoppable
+                          or time-limited; persistent motion can be distracting
+                          for users with attention or cognitive disabilities.
+                          Always provide a mechanism to pause or stop.
+                        </li>
+                        <li>
+                          <strong>Color</strong> is never used as the sole means
+                          of conveying state. Animation effects (e.g., a green
+                          pulsing badge) should always be paired with a visible
+                          text label or icon.
+                        </li>
+                      </ul>
+                      <p>
+                        To detect reduced-motion preference in JavaScript and
+                        conditionally skip animations:
+                      </p>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                        <div class="p-0">
+                          <pre
+                            class="line-numbers m-0"
+                          ><code class="language-javascript">const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+if (!prefersReduced) {
+  Nimbus.Animation.animate(el, 'fadeInUp');
+} else {
+  // Skip animation; ensure element is visible without motion
+  el.style.opacity = '1';
+}</code></pre>
+                        </div>
+                      </section>
+                    </section>
+
+                  </section>
+                  <!-- /API DOCUMENTATION -->
+                </section>
+                <!-- /Docs content -->
+              </div>
+              <!-- ./Main column -->
+
+              <!-- Right Sidebar — 20 % of the row width; hidden below lg breakpoint. -->
+              <div class="col-lg-2 d-none d-lg-block">
+                <div class="sticky-top" style="top: 100px; z-index: 1">
+                  <ul
+                    class="nav flex-column nav-pills menu-sidebar"
+                    id="rightNav"
+                    data-cnds-allow-hashes="true"
+                  >
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-introduction">Introduction</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-basic-example">Basic example</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-product-example">Product example</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-animation-list">Animation list</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-launch-options">Launch options</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#subsection-on-click">On click</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#subsection-on-hover">On hover</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#subsection-on-load">On load</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#subsection-on-scroll">On scroll</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#subsection-manually">Manually</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-customization">Customization</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#subsection-duration-delay">Duration &amp; delay</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#subsection-css-utilities">CSS utilities</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-examples">Examples</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#subsection-external-trigger">External trigger</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#subsection-change-animation-type">Change type</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#subsection-chained-animations">Chained</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#subsection-staggered-animations">Staggered</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#subsection-fading-gallery">Fading gallery</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#subsection-list-group">List group</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-api-docs">API Documentation</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#api-section-introduction">Introduction</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#api-section-usage">Usage</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#api-section-data-attributes">Data attributes</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#api-section-css-classes">CSS classes</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#api-section-methods">Methods</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#api-section-options">Options</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#api-section-events">Events</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#api-section-accessibility">Accessibility</a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <!-- ./Right Sidebar -->
+            </div>
+            <!-- ./Content Row -->
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- ./Content -->
+
+    <!-- Footer -->
+    <div class="cf-footer cf-footer-app">
+      <footer class="page-footer main-footer" aria-label="Site footer">
+        <div class="w-100 px-3 d-flex align-items-center">
+          <img src="img/cf/core/cloudficient_logo_light.svg" class="cf-logo-light" style="width: 135px;" alt="Cloudficient" />
+          <img src="img/cf/core/cloudficient_logo_dark.svg" class="cf-logo-dark" style="width: 135px;" alt="Cloudficient" />
+          <span class="footer-copyright ms-auto">&copy; <span id="currentYear"></span> Cloudficient</span>
+        </div>
+      </footer>
+    </div>
+    <!-- ./Footer -->
+
+    <!-- SCRIPTS — load order matters:
+         1. nimbus.js       — core framework: processes all data-cnds-* attributes
+         2. app.js          — application-level overrides and custom initialisation
+         3. prism.min.js    — syntax highlighting for <code class="language-*"> blocks
+         4. sidenav-loader.js — fetches shared sidenav HTML and injects into #sidebar-cf -->
+    <script type="text/javascript" src="js/nimbus.js?v=9.0.4"></script>
+    <script type="text/javascript" src="js/app.js?v=9.0.4"></script>
+    <script type="text/javascript" src="plugins/js/prism.min.js"></script>
+    <script type="text/javascript" src="js/sidenav-loader.js"></script>
+    <!-- Page-specific scripts -->
+    <script type="text/javascript">
+      /* ================================================================
+         Page initialization — vanilla JS only, no jQuery
+         ================================================================ */
+      (function () {
+        "use strict";
+
+        // --- Footer year ---
+        var yearEl = document.getElementById("currentYear");
+        if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+        // Wait for Nimbus to be fully loaded (all components available)
+        document.addEventListener("cnds.ready", function () {
+
+          // --- CaseFusion product example demo ---
+          var cfRunBtn  = document.getElementById("cf-demo-run-btn");
+          var cfCard    = document.getElementById("cf-demo-card");
+          var cfBadge   = document.getElementById("cf-demo-badge");
+          if (cfRunBtn && cfCard && cfBadge) {
+            cfRunBtn.addEventListener("click", function () {
+              Nimbus.Animation.show(cfCard, "fadeInUp", { duration: 600 });
+              Nimbus.Animation.animate(cfBadge, "pulse", { duration: 800, repeat: 3 });
+            });
+          }
+
+          // --- Manually start/stop demo ---
+          var manualEl  = document.getElementById("manually-example");
+          var btnStart  = document.getElementById("manually-btn-start");
+          var btnStop   = document.getElementById("manually-btn-stop");
+          if (manualEl && btnStart && btnStop) {
+            btnStart.addEventListener("click", function () {
+              Nimbus.Animation.animate(manualEl, "pulse", { repeat: Infinity });
+            });
+            btnStop.addEventListener("click", function () {
+              Nimbus.Animation.stop(manualEl);
+            });
+          }
+
+          // --- External trigger demo ---
+          var extClickBtn    = document.getElementById("ext-click-btn");
+          var extClickTarget = document.getElementById("ext-click-target");
+          if (extClickBtn && extClickTarget) {
+            extClickBtn.addEventListener("click", function () {
+              Nimbus.Animation.animate(extClickTarget, "slideInRight");
+            });
+          }
+          var extHoverBtn    = document.getElementById("ext-hover-btn");
+          var extHoverTarget = document.getElementById("ext-hover-target");
+          if (extHoverBtn && extHoverTarget) {
+            extHoverBtn.addEventListener("mouseenter", function () {
+              Nimbus.Animation.animate(extHoverTarget, "slideInRight");
+            });
+          }
+
+          // --- Change animation type demo ---
+          var changeEl  = document.getElementById("change-anim-example");
+          var changeBtn = document.getElementById("change-anim-btn");
+          if (changeEl && changeBtn) {
+            var currentAnim = "zoomIn";
+            Nimbus.Animation.animate(changeEl, currentAnim, { repeat: Infinity });
+            changeBtn.addEventListener("click", function () {
+              Nimbus.Animation.stop(changeEl);
+              currentAnim = currentAnim === "zoomIn" ? "zoomOut" : "zoomIn";
+              Nimbus.Animation.animate(changeEl, currentAnim, { repeat: Infinity });
+            });
+          }
+
+          // --- Chain demo ---
+          var chainEl  = document.getElementById("chain-example");
+          var chainBtn = document.getElementById("chain-btn");
+          if (chainEl && chainBtn) {
+            chainBtn.addEventListener("click", function () {
+              Nimbus.Animation.chain(chainEl, ["fadeIn", "pulse", "shake", "fadeOut"]);
+            });
+          }
+
+          // --- Stagger demo ---
+          var staggerBtn = document.getElementById("stagger-btn");
+          if (staggerBtn) {
+            var galleryImgs = document.querySelectorAll("#stagger-gallery img");
+            staggerBtn.addEventListener("click", function () {
+              Nimbus.Animation.stagger(galleryImgs, "fadeIn", { duration: 600 }, 200);
+            });
+          }
+
+          // --- List group demo ---
+          var listAddBtn = document.getElementById("list-add-btn");
+          if (listAddBtn) {
+            var itemCount = 1;
+
+            function bindRemove(li) {
+              li.addEventListener("click", function () {
+                li.addEventListener("animationend", function () {
+                  li.remove();
+                }, { once: true });
+                li.classList.add("animate-fadeOut");
+                li.style.animationDuration = "300ms";
+                li.style.animationFillMode = "both";
+              });
+            }
+
+            function addItem() {
+              var list = document.getElementById("example-list");
+              var li   = document.createElement("li");
+              li.textContent = "Element " + itemCount++;
+              li.classList.add("list-group-item", "animate-slideInDown");
+              li.style.animationDuration = "300ms";
+              li.style.animationFillMode = "both";
+              li.addEventListener("animationend", function () {
+                li.classList.remove("animate-slideInDown");
+                li.style.animationDuration = "";
+                li.style.animationFillMode = "";
+              }, { once: true });
+              bindRemove(li);
+              list.appendChild(li);
+            }
+
+            document.querySelectorAll("#example-list li").forEach(bindRemove);
+            listAddBtn.addEventListener("click", addItem);
+          }
+        });
+      })();
+    </script>
+    <!-- ./Page-specific scripts -->
+  </body>
+</html>

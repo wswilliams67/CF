@@ -1,0 +1,1143 @@
+<!--
+* Nimbus v1 Portable Design System — CaseFusion Application Page
+* Page:       Admin › Natural Persons › Pending Match Queue
+* File:       pages/pge-admin-natprsn-pndmtchque.html
+* Built on:   tmpl_ca_sidenav.html  ·  Role: Case Administrator
+* Figma:      CaseFusion v1.5 — Tenant Manager, section 12466:6785 (#17515)
+*             https://www.figma.com/design/opm1ShhZXGxIcrAsJytRB4/?node-id=12466-6785
+* Release:    1.6
+* Entry:      PENDING MATCH QUEUE, in the Natural Persons list toolbar
+*             (pages/pge-admin-natprsn-list.html)
+*
+* ONE SCREEN, MANY STATES
+* ───────────────────────
+* The Figma board is a flow of ~15 frames, but they are all states of THIS one
+* page — two list views, two offcanvas panels, a modal and a toast stack. None
+* of them is a separate document.
+*
+* BUILT IN TASKS — this file currently covers TASK 1 only:
+*
+*   ✔ 1 · Shell            page title + back, stat tiles, unmerged alert
+*   ✔ 2 · Grouped view     signature groups, evidence column, actions, pager
+*   ✔ 3 · All pairs view   flat pair list + view toggle + paging
+*   ✔ 4 · Search + filters  four filters, Clear filters, Measurement stub
+*   ✔ 5 · Pair Review      offcanvas, comparison table, decision bar
+*     6 · Group Dispatch   modal + toasts
+*     7 · Measurement      read-only offcanvas
+*     8 · Edge states      the seven documented states
+*
+* Tasks 3-8 add the view toggle, the filter row, the panels and the modal
+* around what is already here.
+*
+* NO INLINE CSS, NO INLINE JS
+* ───────────────────────────
+*   css/pages/frame-ca-sidenav.css     AppFrame chrome — shared by all 1.6 pages
+*   css/pages/pge-admin-natprsn.css    Natural Persons family — §7-§9 are this screen
+*   js/pages/frame-ca-sidenav.js       AppFrame controller — shared
+*   js/pages/pge-admin-natprsn-queue.js this screen
+*
+* The stylesheet is SHARED with the Natural Persons list: both screens are the
+* same family, so the page shell, sticky header, toolbar row and floating pager
+* are defined once. This screen adds only §7 (queue page title), §8 (stat
+* tiles) and §9 (unmerged alert).
+*
+* THE FRAME IS COPIED VERBATIM from pge-admin-natprsn-list.html — same sidenav,
+* same utility header, same markup contract. If the frame changes there, it
+* changes here.
+*
+* WHAT THIS SCREEN IS FOR
+* ───────────────────────
+* The tenant-wide backlog of pending matches: shared-key convergences the merge
+* policy REFUSED and no operator has yet decided. It is not scoped to any one
+* natural person — the list page's queue button is a tenant-wide entry point,
+* and the search box on that page does not filter this one.
+*
+* NOTHING MERGES HERE. "Same person" records an adjudication only; merge
+* execution ships in #17474. That is what the unmerged-decisions alert exists
+* to say, and it is why the alert is persistent and carries no close control.
+*
+* ANGULAR MIGRATION
+*   Frame:  AppFrameComponent — see tmpl_ca_sidenav.ANGULAR.md
+*   Page:   PendingMatchQueueComponent
+*   Route:  /admin/natural-persons/pending-match-queue
+*   Notes are inline below; the controller-side map is at the head of
+*   js/pages/pge-admin-natprsn-queue.js.
+-->
+<!doctype html>
+<html lang="en" data-cnds-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="CaseFusion — Admin, Pending Match Queue | Cloudficient Nimbus v1 Portable Design System" />
+    <title>Pending Match Queue — Case Administrator · CaseFusion</title>
+
+    <!-- ═══════════════════ NIMBUS v1 CORE CSS ═══════════════════
+         Matches includes/head-css-core.html. Order matters:
+         nimbus → app → themes (primitives → light → dark) → page CSS.
+
+         Do NOT add per-component <link>s here: css/nimbus.css already
+         @imports every component stylesheet (cards, toolbars, select,
+         pagination, badges, …) plus the MDI + FontAwesome icon fonts.
+         Re-linking a component after app.css inverts the cascade and lets
+         the raw component defaults win over the app overrides.
+         ═══════════════════════════════════════════════════════════ -->
+    <link rel="stylesheet" href="../css/nimbus.css" media="all" type="text/css" />
+    <link rel="stylesheet" href="../css/app.css" media="all" type="text/css" />
+    <link rel="stylesheet" href="../css/themes/primitives.css" media="all" type="text/css" />
+    <link rel="stylesheet" href="../css/themes/light.css" media="all" type="text/css" />
+    <link rel="stylesheet" href="../css/themes/dark.css" media="all" type="text/css" />
+
+    <!-- ═══════════════════ PAGE CSS ════════════════════════════
+         Frame first, screen second — the screen stylesheet adjusts a couple
+         of frame values (.cf-page-title margin) and must win.
+         ═════════════════════════════════════════════════════════ -->
+    <link rel="stylesheet" href="../css/pages/frame-ca-sidenav.css" media="all" type="text/css" />
+    <link rel="stylesheet" href="../css/pages/pge-admin-natprsn.css" media="all" type="text/css" />
+
+    <!-- ═══════════════════ FAVICONS ════════════════════════════ -->
+    <link rel="apple-touch-icon" sizes="57x57"   href="../img/favicon/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="60x60"   href="../img/favicon/apple-icon-60x60.png" />
+    <link rel="apple-touch-icon" sizes="72x72"   href="../img/favicon/apple-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76"   href="../img/favicon/apple-icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="../img/favicon/apple-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="../img/favicon/apple-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="../img/favicon/apple-icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="../img/favicon/apple-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="../img/favicon/apple-icon-180x180.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="../img/favicon/android-icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="32x32"   href="../img/favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="96x96"   href="../img/favicon/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="16x16"   href="../img/favicon/favicon-16x16.png" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="msapplication-TileImage" content="../img/favicon/ms-icon-144x144.png" />
+  </head>
+
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         SIDE NAV — fixed, below header, left of content; scrolls within
+
+         MARKUP CONTRACT (from tmpl_ca_sidenav.html — unchanged here):
+         a.sidenav-link ids MUST start "navlink_" for leaves and
+         "tog_submenu_" for category rows; §5 of the frame script finds each
+         kind by that prefix, so the ids are load-bearing, not cosmetic. The
+         <span> label is what becomes the slim-mode tooltip, so it must carry
+         the visible text.
+
+         `show` is the Nimbus open state for .sidenav; this frame's nav is
+         permanently open, so it is set in the markup rather than toggled.
+
+         The sections below replace the template's "Menu Item N" placeholders.
+         ADMIN is the current section: .active + aria-current="page" — the
+         queue lives under Admin, same as the Natural Persons list it opens
+         from, so the nav does not move when the operator crosses between them.
+
+         ANGULAR: SidenavComponent with a NavItem[]; `active` comes from
+         routerLinkActive, not a hard-coded class.
+         ════════════════════════════════════════════════════════════════ -->
+    <nav id="caSidenav" class="sidenav show" aria-label="Application navigation">
+
+      <!-- Slim/expand toggle. .sidebar-header (app.css) makes this row sticky
+           inside the scrolling panel so the control never scrolls away. -->
+      <div class="sidebar-header">
+        <button
+          type="button"
+          id="caSidenavToggle"
+          class="ca-nav-toggle"
+          aria-label="Collapse navigation"
+          aria-expanded="true"
+          aria-controls="caSidenav"
+        >
+          <span class="mdi mdi-menu-open" aria-hidden="true"></span>
+        </button>
+      </div>
+
+      <ul class="sidenav-menu" id="caSidenavMenu">
+
+        <li class="sidenav-item" title="Tenant Overview" data-original-title="Tenant Overview">
+          <a id="navlink_TenantOverview" class="sidenav-link" href="#!">
+            <i class="mdi mdi-home-account mdi-18px me-2" aria-hidden="true"></i>
+            <span>Tenant Overview</span>
+          </a>
+        </li>
+
+        <li class="sidenav-item" title="My Cases" data-original-title="My Cases">
+          <a id="navlink_MyCases" class="sidenav-link" href="#!">
+            <i class="mdi mdi-folder-account mdi-18px me-2" aria-hidden="true"></i>
+            <span>My Cases</span>
+          </a>
+        </li>
+
+        <li class="sidenav-item" title="Admin" data-original-title="Admin">
+          <a id="navlink_Admin" class="sidenav-link active" href="#!" aria-current="page">
+            <i class="mdi mdi-shield-account mdi-18px me-2" aria-hidden="true"></i>
+            <span>Admin</span>
+          </a>
+        </li>
+
+      </ul>
+    </nav><!-- /#caSidenav -->
+
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         STICKY HEADER — unchanged from tmpl_ca_sidenav.html.
+         Behaviour lives in js/pages/frame-ca-sidenav.js §2–§5.
+         ════════════════════════════════════════════════════════════════ -->
+    <div class="sticky-top" id="caHeader">
+
+      <!-- UTILITY NAV — app.css .nav-cf-utility, with its .fr_logo (left) /
+           .fr_tools (right) sub-structure. Keep the tool order: notifications,
+           theme, portal, account, each separated by .nav-cf-utility-divider. -->
+      <nav class="nav nav-cf-utility" id="UtilityNav" aria-label="Utility navigation">
+        <div class="fr_logo">
+          <img src="../img/cf/core/logo_casefusion.svg" width="32" height="36" alt="CaseFusion" />
+          <div class="fr_product-name">
+            <span class="product-bold">Case</span>
+            <span class="product-light">Fusion</span>
+          </div>
+        </div>
+        <div class="fr_tools">
+          <!-- NOTIFICATIONS. The popover is re-parented to <body> on init (it is
+               position:fixed and wider than the bar), so #navAlertWrapper is only
+               the pre-init home — outside-click is measured against the popover. -->
+          <div class="nav-alert-popover-wrapper" id="navAlertWrapper">
+            <button type="button" class="nav-icon-btn" id="navBellBtn" aria-label="Notifications" aria-haspopup="dialog" aria-expanded="false" aria-controls="navAlertPopover" data-cnds-toggle="tooltip" data-cnds-placement="bottom" data-cnds-delay="0" title="Notifications">
+              <span class="mdi mdi-bell" id="navBellIcon" aria-hidden="true"></span>
+              <span class="nav-bell-badge" id="navBellBadge" aria-live="polite" aria-atomic="true"></span>
+            </button>
+            <!-- No aria-modal: this is a non-modal popover. Focus is not trapped
+                 and an outside click dismisses it, so claiming modality would
+                 make assistive tech hide the rest of the page for no reason. -->
+            <div class="notif-popover" id="navAlertPopover" role="dialog" aria-label="Notifications" aria-hidden="true">
+              <div class="notif-header">
+                <span class="notif-header-title">Notifications</span>
+                <div class="notif-header-counts">
+                  <span class="notif-count-unread">0 Unread</span>
+                  <span class="notif-header-divider"></span>
+                  <span class="notif-count-total">0 Total</span>
+                </div>
+              </div>
+              <!-- Rows are rendered by §3 of the frame script. -->
+              <div class="notif-list" id="notifList"></div>
+            </div>
+          </div>
+
+          <span class="nav-cf-utility-divider" aria-hidden="true"></span>
+
+          <!-- THEME. data-cnds-toggle="theme" is handled by app.js: it flips
+               data-cnds-theme on <html> and persists the choice. §4 of the
+               frame script only mirrors the icon and the tooltip label. -->
+          <button type="button" class="nav-icon-btn" id="themeToggle" data-cnds-toggle="theme" aria-label="Toggle theme" title="Switch to light theme">
+            <span class="mdi mdi-weather-night" aria-hidden="true"></span>
+          </button>
+
+          <span class="nav-cf-utility-divider" aria-hidden="true"></span>
+
+          <!-- PORTAL SWITCHER. A span[role="button"] rather than a <button> so
+               the label can truncate mid-flex; the frame script wires Enter/Space. -->
+          <div class="portal-switcher-wrapper" id="portalSwitcherWrapper">
+            <span class="portal-switcher" id="portalSwitcherToggle" role="button" tabindex="0" aria-haspopup="menu" aria-expanded="false" aria-controls="portalMenu">
+              <span class="mdi mdi-account-switch-outline" aria-hidden="true"></span>
+              <span class="portal-switcher-label">{{Portal Name}}</span>
+              <span id="portalChevron" class="mdi mdi-chevron-down" aria-hidden="true"></span>
+            </span>
+            <div class="account-menu" id="portalMenu" role="menu" aria-hidden="true">
+              <div class="account-menu-header">Portal</div>
+              <a class="account-menu-item active" href="#!" role="menuitem">Tenant/Case Portal</a>
+              <a class="account-menu-item" href="#!" role="menuitem">Custodian Portal</a>
+              <a class="account-menu-item" href="#!" role="menuitem">SME Portal</a>
+            </div>
+          </div>
+          <span class="nav-cf-utility-divider" aria-hidden="true"></span>
+
+          <!-- ACCOUNT. .user-avatar holds the user's initials; aria-hidden
+               because the adjacent label already announces the name. -->
+          <div class="user-info-wrapper" id="userAccountWrapper">
+            <span class="user-info" id="userAccountToggle" role="button" tabindex="0" aria-haspopup="menu" aria-expanded="false" aria-controls="accountMenu">
+              <span class="user-avatar" aria-hidden="true">SW</span>
+              <span class="user-name-label">{{User Name}}</span>
+            </span>
+            <div class="account-menu" id="accountMenu" role="menu" aria-hidden="true">
+              <div class="account-menu-header">Account</div>
+              <a class="account-menu-item" href="#!" role="menuitem">Preferences</a>
+              <a class="account-menu-item" href="#!" role="menuitem">Sign Out</a>
+            </div>
+          </div>
+        </div><!-- /.fr_tools -->
+      </nav><!-- /#UtilityNav -->
+
+    </div><!-- /#caHeader / .sticky-top -->
+
+
+
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         MAIN CONTENT — a single slot. .ca-main carries the margin-left that
+         clears the fixed sidenav, and .ca-main-slim is added/removed by the
+         frame script in step with the panel's width.
+         ════════════════════════════════════════════════════════════════ -->
+    <main id="main-content" class="ca-main">
+      <!-- Small-screen notice. The frame assumes a fixed 220px sidenav plus a
+           content column, so it is not laid out for phones. -->
+      <div class="d-block d-md-none mb-3">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>
+          This application is not optimised for small screens. Use a large tablet, laptop, or desktop to continue.
+        </div>
+      </div>
+
+      <div class="ca-content" id="caContent">
+        <div class="np-page">
+
+          <!-- ══ PAGE TITLE — Nimbus/PageTitle, two-part with back ═════════
+               NATURAL PERSONS │ PENDING MATCH QUEUE. The parent names the path
+               back, the second half names this screen; the <h1> is the screen,
+               because that is the subject of the document.
+
+               Every piece is the Nimbus component: .cf-page-title-back,
+               .cf-page-title-divider and .cf-page-title-text all ship in
+               core/typography.css. §7 of the stylesheet only tunes the divider
+               height and mutes the parent.
+
+               The back control is an <a> with a real href, not a button — it
+               navigates, so open-in-new-tab and the status bar must work. It
+               does NOT clear filters or grouping: the list restores the state
+               it saved on the way here (sessionStorage key
+               cf16.natprsn.list.state, written by pge-admin-natprsn-list.js).
+
+               ANGULAR: <a routerLink="/admin/natural-persons"> — the list
+               reads its state from queryParams once that port is done.
+               ════════════════════════════════════════════════════════════ -->
+          <!-- Sticky band 1 of 2. The title pins directly under the utility
+               bar; the stats and alert below scroll up and pass behind it, and
+               the tools band (task 4) pins underneath this one so the two end
+               up stacked as a single bar. At scrollY 0 both sit exactly where
+               they loaded — see §2 of the stylesheet for why the frame's top
+               padding has to live on this element for that to hold. -->
+          <div class="np-header np-header-title" id="npqHeader">
+          <div class="cf-page-title">
+            <a class="cf-page-title-back np-title-back"
+               href="pge-admin-natprsn-list.html"
+               aria-label="Back to Natural Persons">
+              <i class="mdi mdi-arrow-left-circle" aria-hidden="true"></i>
+            </a>
+            <span class="cf-page-title-text np-title-parent">Natural Persons</span>
+            <span class="cf-page-title-divider" aria-hidden="true"></span>
+            <h1 class="cf-page-title-text">Pending Match Queue</h1>
+          </div>
+          </div><!-- /.np-header -->
+
+          <!-- ══ STAT TILES ═══════════════════════════════════════════════
+               Counts, not controls — nothing here is clickable, so these are
+               plain elements with no hover or focus treatment.
+
+               Values are rendered by the page script from one stats object so
+               the tiles can never disagree with the alert below them. Each is
+               aria-live: when a group dispatch commits, PENDING drops and NOT
+               THE SAME rises, and an operator should hear that without hunting
+               for it. <dl> because each tile is a term and its value.
+
+               ANGULAR: *ngFor over a tiles array bound to stats$ | async.
+               ════════════════════════════════════════════════════════════ -->
+          <dl class="np-stats">
+            <div class="np-stat">
+              <dt class="np-stat-label">Pending</dt>
+              <dd class="np-stat-value" id="npqStatPending" aria-live="polite">0</dd>
+            </div>
+            <div class="np-stat">
+              <dt class="np-stat-label">Same person</dt>
+              <dd class="np-stat-value" id="npqStatSame" aria-live="polite">0</dd>
+            </div>
+            <div class="np-stat">
+              <dt class="np-stat-label">Not the same</dt>
+              <dd class="np-stat-value" id="npqStatNotSame" aria-live="polite">0</dd>
+            </div>
+          </dl>
+
+          <!-- ══ UNMERGED-DECISIONS ALERT ═════════════════════════════════
+               PERSISTENT AND NOT DISMISSIBLE — deliberately no close control.
+               N pairs are recorded as the same person and NOTHING has been
+               merged; merge execution ships in #17474. An operator who
+               believes they merged N people, when the merges are queued behind
+               an unshipped capability, will be badly surprised.
+
+               Hidden only when the count reaches 0, by the page script.
+
+               role="status", not "alert": it is standing context on arrival,
+               not an urgent interruption, so it must not preempt the screen
+               reader the moment the page loads.
+
+               The count is a <strong> filled from the same stats object as the
+               SAME PERSON tile — never hard-coded, or the two drift apart.
+
+               ANGULAR: <cf-alert *ngIf="(stats$|async)?.samePerson as n">.
+               ════════════════════════════════════════════════════════════ -->
+          <div class="alert alert-warning np-alert-unmerged"
+               id="npqUnmergedAlert" role="status" hidden>
+            <i class="mdi mdi-alert" aria-hidden="true"></i>
+            <span>
+              <strong id="npqUnmergedCount">0</strong> pairs are marked as the same person.
+              Nothing has been merged yet &mdash; merging happens as a separate step.
+            </span>
+          </div>
+
+          <!-- ══ TOOLS BAND — sticky band 2 of 2 ═══════════════════════
+               Pins directly beneath the title band, so the two end up stacked
+               as one bar once the page has scrolled; the stats and alert sit
+               between them in the document and scroll up behind both. The
+               offset is measured by the page script (--np-tools-top) because
+               the title band's height is not a constant — it wraps.
+
+               Row 1 is search + the view toggle. The filter row lands in task 4
+               inside this same band.
+               ════════════════════════════════════════════════════════════ -->
+          <div class="np-tools" id="npqTools">
+
+            <!-- Row 1 — Nimbus/Toolbars, list variant. The container, its
+                 border, radius and padding all come from
+                 .btn-toolbar-gray.btn-toolbar-list; .toolbar-list-search is
+                 flex:1 so the field grows and pushes the toggle hard right,
+                 and .toolbar-list-divider is the component's own rule. -->
+            <div class="btn-toolbar-gray btn-toolbar-list np-toolbar" role="toolbar"
+                 aria-label="Search and list view" aria-controls="npqList">
+
+              <!-- SEARCH — wired in task 4, alongside the filters it belongs
+                   with. Present now so the band has its real height and the
+                   sticky offset is measured against the finished layout. -->
+              <div class="toolbar-list-search">
+                <div class="cf-input-field cf-input-field-sm cf-input-field-casefusion">
+                  <!-- Nimbus clear affordance, mirroring `Show Clear` on the
+                       Figma Nimbus/InputField: .cf-input-wrapper +
+                       .cf-input-clear (components/forms.css) for the control,
+                       and data-cnds-input-clear-init on the INPUT for the
+                       behaviour (js/components/input-clear.js). Nimbus shows
+                       it only while the field has a value, empties the field
+                       on click, dispatches a native `input` event — so the
+                       search below reacts exactly as it does to typing — and
+                       returns focus to the field. The glyph is
+                       mdi-close-circle, the icon the component draws.
+
+                       type="text", NOT type="search": the search type paints
+                       the browser's own clear control, which differs per
+                       browser and is not the design system's icon. -->
+                  <div class="cf-input-wrapper">
+                    <input id="npqSearch" type="text" class="cf-input-control"
+                           data-cnds-input-clear-init
+                           placeholder="Search &hellip;" aria-label="Search pending matches"
+                           autocomplete="off" />
+                    <button type="button" id="npqSearchClear"
+                            class="mdi mdi-close-circle cf-input-clear"
+                            aria-label="Clear search" hidden></button>
+                  </div>
+                </div>
+              </div>
+
+              <span class="toolbar-list-divider" aria-hidden="true"></span>
+
+              <!-- ══ VIEW TOGGLE — Nimbus/ButtonGroup ════════════════════
+                   Switches the list between signature groups and a flat pair
+                   list. Defaults to GROUPED: the backend cites 1,359 pairs on
+                   one shared address and 3,764 cohort-only matches, and a flat
+                   list of those is not a work queue, it is a wall. Grouping
+                   puts the ~124 pairs that deserve human attention above the
+                   ~5,123 that are one policy observation each.
+
+                   Sits hard RIGHT, opposite the filters below it. Filters
+                   narrow WHAT IS IN the list; the toggle changes HOW THE LIST
+                   IS SHAPED — different kinds of control, opposite ends.
+
+                   Two <button aria-pressed> rather than a radio group: these
+                   act immediately, they do not stage a choice for submission.
+                   The stylesheet paints from aria-pressed, so the visual state
+                   and the accessible state cannot drift apart.
+
+                   ANGULAR: <cf-button-group [(value)]="view">.
+                   ════════════════════════════════════════════════════════ -->
+              <div class="btn-group np-view-toggle" role="group" aria-label="List view">
+                <button type="button" id="npqViewGrouped"
+                        class="btn btn-secondary btn-sm" aria-pressed="true">
+                  Grouped by match signature
+                </button>
+                <button type="button" id="npqViewPairs"
+                        class="btn btn-secondary btn-sm" aria-pressed="false">
+                  All pairs
+                </button>
+              </div>
+
+            </div><!-- /.np-toolbar -->
+
+            <!-- ══ FILTER ROW — Nimbus/Toolbars, list variant ═══════════
+                 Row 2 of the tools band. Four filters, then Clear filters,
+                 then — past the divider, hard right — Measurement.
+
+                 EVERY filter label is `Field: value`, always: the field name
+                 never appears alone and `All` is stated when unset. That keeps
+                 the label's shape constant as the control is used, so only the
+                 value after the colon changes and the eye scans the same
+                 position down the row. Labels truncate at 240px rather than
+                 letting the toolbar reflow; the full value stays in the menu.
+
+                 THE FILL CARRIES THE ON/OFF SIGNAL — an engaged filter stays
+                 SECONDARY and takes .btn-secondary's own active-state
+                 background; it does not promote to primary. Primary is
+                 reserved for the one action a screen asks for. With four
+                 filters an operator needs to see WHICH are engaged without
+                 reading each one. The page script toggles .np-filter-engaged.
+
+                 Each menu is multi-select and stays open while values are
+                 picked; `All` at the top is that filter's reset. Options are
+                 rendered by the script from one list, so the menu and the
+                 filtering logic can never disagree.
+
+                 ANGULAR: <cf-filter-bar [(filters)]="filters">.
+                 ════════════════════════════════════════════════════════ -->
+            <div class="btn-toolbar-gray btn-toolbar-list np-toolbar" role="toolbar"
+                 aria-label="Filters" aria-controls="npqList">
+
+              <div class="np-filters">
+              <div class="np-filter dropdown">
+                <button type="button" id="npqFilterKeyType"
+                        class="btn btn-secondary btn-sm np-filter-btn dropdown-toggle"
+                        data-cnds-toggle="dropdown" data-cnds-auto-close="outside"
+                        aria-expanded="false" aria-haspopup="true">
+                  <span class="np-filter-label">Key type: All</span>
+                  <i class="mdi mdi-chevron-down" aria-hidden="true"></i>
+                </button>
+                <ul class="dropdown-menu" data-npq-menu="keyType"
+                    role="menu" aria-label="Key type filter"><!-- options rendered by the page script --></ul>
+              </div>
+              <div class="np-filter dropdown">
+                <button type="button" id="npqFilterReason"
+                        class="btn btn-secondary btn-sm np-filter-btn dropdown-toggle"
+                        data-cnds-toggle="dropdown" data-cnds-auto-close="outside"
+                        aria-expanded="false" aria-haspopup="true">
+                  <span class="np-filter-label">Reason: All</span>
+                  <i class="mdi mdi-chevron-down" aria-hidden="true"></i>
+                </button>
+                <ul class="dropdown-menu" data-npq-menu="reason"
+                    role="menu" aria-label="Reason filter"><!-- options rendered by the page script --></ul>
+              </div>
+              <div class="np-filter dropdown">
+                <button type="button" id="npqFilterState"
+                        class="btn btn-secondary btn-sm np-filter-btn dropdown-toggle"
+                        data-cnds-toggle="dropdown" data-cnds-auto-close="outside"
+                        aria-expanded="false" aria-haspopup="true">
+                  <span class="np-filter-label">State: All</span>
+                  <i class="mdi mdi-chevron-down" aria-hidden="true"></i>
+                </button>
+                <ul class="dropdown-menu" data-npq-menu="state"
+                    role="menu" aria-label="State filter"><!-- options rendered by the page script --></ul>
+              </div>
+              <div class="np-filter dropdown">
+                <button type="button" id="npqFilterSource"
+                        class="btn btn-secondary btn-sm np-filter-btn dropdown-toggle"
+                        data-cnds-toggle="dropdown" data-cnds-auto-close="outside"
+                        aria-expanded="false" aria-haspopup="true">
+                  <span class="np-filter-label">Source: All</span>
+                  <i class="mdi mdi-chevron-down" aria-hidden="true"></i>
+                </button>
+                <ul class="dropdown-menu" data-npq-menu="source"
+                    role="menu" aria-label="Source filter"><!-- options rendered by the page script --></ul>
+              </div>
+
+                <span class="toolbar-list-divider" aria-hidden="true"></span>
+
+                <!-- ALWAYS VISIBLE, disabled until a filter is engaged. Keeping
+                     it in place means the row never reflows — appearing and
+                     disappearing would shift Measurement sideways the moment
+                     the first filter is touched — and the operator can see the
+                     escape hatch before they need it.
+                     Resets all four filters and returns the list to its default
+                     grouping. Deliberately does NOT touch the view toggle. -->
+                <button type="button" id="npqClearFilters"
+                        class="btn btn-tertiary btn-sm np-clear-filters" disabled>
+                  Clear filters
+                </button>
+              </div>
+
+              <!-- ══ MEASUREMENT ═══════════════════════════════════════
+                   Past the divider because it is the only control on this row
+                   that LEAVES the list rather than acting on it. Labelled with
+                   its subject, not just "Measurement" — on its own that names
+                   a discipline rather than a destination.
+
+                   Queue filters do NOT carry into the panel: measurement
+                   reports tenant-wide production by key type, and silently
+                   scoping it to the current filter would make the policy
+                   signal it exists to surface unreadable.
+
+                   Panel lands in task 7.
+                   ════════════════════════════════════════════════════ -->
+              <span class="toolbar-list-divider" aria-hidden="true"></span>
+              <button type="button" id="npqMeasure" class="btn btn-tertiary btn-sm np-measure">
+                <i class="mdi mdi-chart-bar" aria-hidden="true"></i>
+                Pending match measurement
+              </button>
+
+            </div><!-- /filter row -->
+
+          </div><!-- /.np-tools -->
+
+          <!-- ══ QUEUE LIST ═══════════════════════════════════════════════
+               ONE container for both views — the row component is shared, so
+               switching the toggle re-renders the rows rather than swapping
+               between two lists. Rendered by the page script; there is exactly
+               one definition of a row.
+
+               Grouped: ordered by pair volume DESCENDING, so the systematic
+               patterns surface first and can be dispatched. What remains after
+               that is the real queue.
+
+               ANGULAR: <cf-queue-row *ngFor="let row of rows$ | async"
+                          [row]="row" (review)="…" (dispatch)="…">
+               ════════════════════════════════════════════════════════════ -->
+          <div class="np-rows" id="npqList" aria-label="Pending matches grouped by match signature"><!-- rendered by pge-admin-natprsn-queue.js --></div>
+
+          <!-- ══ PAGER — Nimbus/Pagination, toolbar variant ════════════════
+               Same floating pager as the Natural Persons list: sticky 16px off
+               the bottom of the viewport at every result count, so the control
+               never moves under the cursor when the operator pages.
+               Wired in task 3, alongside the view toggle.
+               ════════════════════════════════════════════════════════════ -->
+          <div class="pagination-toolbar np-pager">
+            <label class="pagination-toolbar-label" for="npqPageSize">Results per page:</label>
+            <select id="npqPageSize" class="form-control-sm" data-cnds-select-init aria-label="Results per page">
+              <option value="10" selected>10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+            </select>
+            <span class="pagination-toolbar-range" id="npqPagerRange" aria-live="polite">0 of 0</span>
+            <nav class="pagination-toolbar-nav" aria-label="Page navigation">
+              <button id="npqPageFirst" type="button" class="pagination-toolbar-btn" aria-label="First page" disabled><i class="mdi mdi-skip-previous" aria-hidden="true"></i></button>
+              <button id="npqPagePrev"  type="button" class="pagination-toolbar-btn" aria-label="Previous page" disabled><i class="mdi mdi-chevron-left" aria-hidden="true"></i></button>
+              <button id="npqPageNext"  type="button" class="pagination-toolbar-btn" aria-label="Next page" disabled><i class="mdi mdi-chevron-right" aria-hidden="true"></i></button>
+              <button id="npqPageLast"  type="button" class="pagination-toolbar-btn" aria-label="Last page" disabled><i class="mdi mdi-skip-next" aria-hidden="true"></i></button>
+            </nav>
+          </div>
+
+        </div><!-- /.np-page -->
+      </div><!-- /#caContent -->
+    </main><!-- /#main-content -->
+
+
+      <!-- ══ PAIR REVIEW PANEL — Nimbus/Offcanvas ═══════════════════════════
+           Opened by REVIEW on any row, in either view. THE LIST IS NOT
+           RELOADED: filters, page and scroll are all preserved, so an operator
+           can work several pairs in sequence without paying to rebuild a
+           6,346-row list each time. Closing returns to the list exactly as it
+           was left, with the reviewed row still in place.
+
+           1080px = 75% of the 1440 viewport, matching the Measurement panel.
+           The body scrolls; the decision bar is the last thing in it and is
+           sized to stay visible — the decision is the reason the panel opens,
+           so it must never sit below the fold.
+
+           Every part is an existing Nimbus component: .offcanvas, .alert,
+           .badge, .cf-category, .table, .cf-list, Nimbus/Select and .btn.
+
+           NOTHING MERGES HERE. "Same person" writes an adjudication record
+           only; merge execution ships in #17474. That is implementation
+           sequencing and must never appear as on-screen copy.
+
+           ANGULAR: <cf-pair-review-panel [pair]="pair" (decided)="…"
+                      (skipped)="…" (closed)="…">. `decided` and `skipped` both
+           mean "advance"; the parent owns the worklist cursor, not the panel,
+           so the panel stays a dumb view over one record.
+           ════════════════════════════════════════════════════════════════ -->
+      <div class="offcanvas offcanvas-end np-panel" id="npqPairReview"
+           tabindex="-1" aria-labelledby="npqPairReviewTitle" aria-hidden="true">
+
+        <!-- ══ PANEL HEADER ══════════════════════════════════════════════
+             Figma draws the WALKER STEP in the title space — "Pair 7 of 124".
+             It is prepended to the title and separated by a Nimbus/Divider,
+             8px either side of the rule (fr_title carries itemSpacing 8).
+
+             The step is what tells an operator where they are in a queue they
+             are moving through without ever seeing the list: with SKIP and
+             both decisions advancing the record in place, the title is the
+             only thing on screen that changes position-wise, and without a
+             count the walk has no visible length or end.
+
+             Solid .vr, not .vr-blurry — blurry is the list-column convention;
+             this is a title separator.
+
+             ANGULAR: <cf-pair-review-panel> header; step is
+             `${index + 1} of ${worklist.length}`. -->
+        <div class="offcanvas-header">
+          <div class="np-panel-title">
+            <span class="np-panel-step" id="npqPairStep"></span>
+            <span class="vr np-panel-rule" aria-hidden="true"></span>
+            <h2 class="offcanvas-title" id="npqPairReviewTitle">Pair review</h2>
+          </div>
+          <button type="button" class="btn-close" data-cnds-dismiss="offcanvas"
+                  aria-label="Close"></button>
+        </div>
+
+        <div class="offcanvas-body">
+
+          <!-- Legal hold. Rendered only when a side is on hold; deciding does
+               NOT lift the hold, and the copy says so. -->
+          <!-- CAUTION, not warning. Figma: Nimbus/Alert — legal-hold is
+               Type=caution (#ffd7ad), while the queue's unmerged-decisions
+               alert is Type=warning (#fff3cc). They are different severities
+               saying different things: one reports a standing legal constraint
+               on a person, the other reports a backlog of unexecuted
+               decisions. -->
+          <div class="alert alert-caution np-alert-unmerged" id="npqHoldAlert" role="status" hidden>
+            <i class="mdi mdi-alert-circle" aria-hidden="true"></i>
+            <span id="npqHoldText"></span>
+          </div>
+
+          <!-- Established → candidate. The arrow is decorative: both roles are
+               named in their own card. -->
+          <div class="np-persons" id="npqPersons"><!-- rendered by the page script --></div>
+
+          <!-- ══ FIELD COMPARISON ══════════════════════════════════════════
+               Values from each source record, pre-merge. THREE states, and
+               they must stay visually distinct: match, no match, and missing.
+               Absence is not disagreement — collapsing "missing" into "no
+               match" is a correctness error, not a display shortcut, because a
+               null in a legacy import carries no evidentiary weight while a
+               genuine conflict does.
+               ════════════════════════════════════════════════════════════ -->
+          <section>
+            <div class="np-section-head">
+              <h3 class="cf-category">Field comparison</h3>
+              <p class="np-section-note">Values from each source record, pre-merge</p>
+            </div>
+            <div class="table-responsive">
+              <table class="table np-compare">
+                <thead>
+                  <tr>
+                    <th scope="col" class="np-col-verdict"><span class="visually-hidden">Agreement</span></th>
+                    <th scope="col" class="np-col-field">Field</th>
+                    <th scope="col" class="np-col-value">Established</th>
+                    <th scope="col" class="np-col-value">Distinct</th>
+                    <th scope="col" class="np-col-agree">Agreement</th>
+                  </tr>
+                </thead>
+                <tbody id="npqCompare"><!-- rendered by the page script --></tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- ══ WHY THIS PAIR WAS REFUSED ═════════════════════════════════
+               The matcher's own account: the named reason, the keys it acted
+               on, and what that means. Key TYPES only — the matched values are
+               hashes and are never displayed.
+               ════════════════════════════════════════════════════════════ -->
+          <section>
+            <div class="np-section-head">
+              <h3 class="cf-category">Why this pair was refused</h3>
+              <p class="np-section-note" id="npqRefusedOn"></p>
+            </div>
+            <div class="np-why">
+              <p class="np-why-quote" id="npqRefusedReason"></p>
+              <ul class="cf-list" id="npqRefusedKeys"><!-- rendered by the page script --></ul>
+              <p class="np-footnote" id="npqRefusedNote">
+                <i class="mdi mdi-information-outline" aria-hidden="true"></i>
+                <span></span>
+              </p>
+              <p class="np-footnote">
+                <i class="mdi mdi-information-outline" aria-hidden="true"></i>
+                <span>Key types only &mdash; matched values are hashes and are never displayed.</span>
+              </p>
+            </div>
+          </section>
+
+          <!-- ══ DECISION BAR ══════════════════════════════════════════════
+               Reason is REQUIRED for both decisions, and it drives WHICH
+               decision is offered, because the option itself states the
+               outcome:
+
+                 a reason under NOT THE SAME PERSON  → only NOT THE SAME enables
+                 a reason under SAME PERSON          → only SAME PERSON enables
+                 "Other — add a note"                → both, since the note has
+                                                       not said which way it goes
+
+               On open no reason is selected, so both decisions start disabled.
+
+               ALL THREE BUTTONS ADVANCE. This panel is a station, not a detail
+               page: an operator works a queue of thousands, so recording a
+               decision — or skipping — loads the NEXT record to be adjudicated
+               and the panel stays open. Only the last record in the walk
+               closes it. See the walk in §9 of the controller.
+
+               SKIP needs no reason, which is why it is the one control here
+               never gated on the selector. It has exactly ONE disabled state:
+               the LAST record, where there is nothing to skip to. It stays
+               live while a record is loading — an operator clearing a queue
+               holds Skip down, and a button that goes dead for every round
+               trip drops those presses. Each press advances; only the newest
+               load is allowed to paint.
+
+               The two decision buttons are the opposite case and DO go off for
+               the round trip: a stray click there records a verdict, and
+               against the wrong pair.
+
+               Disabled rather than hidden — a control that vanishes from this
+               bar shifts the two buttons beside it at the moment the operator
+               is aiming at them.
+               ════════════════════════════════════════════════════════════ -->
+          <div class="np-decision">
+            <div class="np-decision-reason">
+              <div class="cf-input-field cf-input-field-sm cf-input-field-casefusion">
+                <label class="cf-input-label" for="npqReason">
+                  Reason <span class="cf-input-required" aria-hidden="true">*</span>
+                </label>
+                <!-- data-cnds-placeholder is what the trigger shows while
+                     nothing is chosen. Nimbus/Select filters value="" out of
+                     its "selected" set, so without this the field renders
+                     blank on open rather than prompting. Options are populated
+                     by the page script, which then rebuilds the instance —
+                     see renderReasonOptions(). -->
+                <!-- data-cnds-show-group renders the chosen reason as
+                     `NOT THE SAME PERSON  >  Different people — name
+                     coincidence`. The group is not decoration here: it states
+                     the OUTCOME the reason asserts, and it is what drives which
+                     decision button enables. With the list closed, the group is
+                     the half that says why only one decision is available, so
+                     dropping it leaves the enablement looking arbitrary. -->
+                <select id="npqReason" data-cnds-select-init
+                        data-cnds-show-group="true"
+                        data-cnds-placeholder="Select a reason &hellip;"
+                        aria-label="Reason for this decision"
+                        aria-describedby="npqReasonHint">
+                  <option value="" selected>Select a reason &hellip;</option>
+                </select>
+              </div>
+              <!-- Revealed only for "Other — add a note", and required: the
+                   decision cannot commit on an empty note. -->
+              <div class="cf-input-field cf-input-field-sm np-other-note" id="npqOtherNote" hidden>
+                <input type="text" id="npqOtherText" class="cf-input-control"
+                       placeholder="Type the reason &hellip;" aria-label="Reason note" />
+              </div>
+            </div>
+            <button type="button" id="npqSamePerson" class="btn btn-secondary" disabled>Same person</button>
+            <button type="button" id="npqNotTheSame" class="btn btn-secondary" disabled>Not the same</button>
+            <!-- Loads the next record; does NOT close the panel. Starts
+                 disabled, and is disabled again only on the last record. -->
+            <button type="button" id="npqSkip" class="btn btn-tertiary" disabled>Skip</button>
+          </div>
+          <p class="visually-hidden" id="npqReasonHint">
+            Choose a reason to enable the matching decision. Skip needs no reason.
+          </p>
+
+          <!-- The panel stays open and the RECORD changes underneath it, so
+               nothing is focused and nothing is navigated to when Skip
+               advances — a screen reader would be given no indication at all
+               that a different pair is now in front of the operator. The
+               rewritten title is not announced either; a heading changed in
+               place is not an event. This region is.
+
+               polite, not assertive: the operator asked for the next record,
+               so the announcement is expected and must not cut across
+               whatever they are already hearing.
+
+               ANGULAR: cdkLiveAnnouncer, or keep the region and bind it. -->
+          <p class="visually-hidden" id="npqPanelStatus"
+             role="status" aria-live="polite" aria-atomic="true"></p>
+
+        </div><!-- /.offcanvas-body -->
+
+        <div class="offcanvas-footer">
+          <button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas">Close</button>
+        </div>
+      </div><!-- /#npqPairReview -->
+
+    <!-- ══ PENDING MATCH MEASUREMENT ══════════════════════════════════════
+         Figma: Nimbus/Offcanvas — measurement (12862:11603), 1080 wide = 75%
+         of the 1440 viewport, matching the Pair Review panel.
+
+         A PANEL, NOT A PAGE, and that is the point: the queue's group list
+         stays visible behind it, so the panel's conclusion indicts a group the
+         operator can still see.
+
+         READ-ONLY. There is nothing to commit, which is why Close is secondary
+         rather than primary.
+
+         THE QUEUE'S FILTERS DO NOT REACH IT. measurement() takes no query on
+         purpose — the panel turns queue volume into a matching-policy
+         argument, and an argument computed from whatever the operator happened
+         to have filtered to is not one that can be taken to anybody.
+
+         ANGULAR: <cf-measurement-panel> with a MeasurementService; the panel
+         is a pure read, so it needs no outputs beyond (closed).
+         ════════════════════════════════════════════════════════════════════ -->
+    <div class="offcanvas offcanvas-end np-panel np-measure-panel" id="npqMeasurePanel"
+         tabindex="-1" aria-labelledby="npqMeasureTitle" aria-hidden="true">
+
+      <div class="offcanvas-header">
+        <h2 class="offcanvas-title" id="npqMeasureTitle">Pending Match Measurement</h2>
+        <button type="button" class="btn-close" data-cnds-dismiss="offcanvas"
+                aria-label="Close"></button>
+      </div>
+
+      <div class="offcanvas-body">
+        <div class="np-measure-body">
+
+          <!-- The panel's question, in the BODY — Figma puts it in
+               cmp_measurement-panel, not fr_title. In the header it read as a
+               second title rather than as the thing the panel answers. -->
+          <p class="np-measure-sub">How many pending matches are we producing, and on which keys</p>
+
+          <!-- Rollups. DERIVED from the table below — never stated
+               independently. A headline that does not equal its own breakdown
+               destroys confidence in the whole panel. -->
+          <div class="np-stats np-measure-rollups">
+            <div class="np-stat">
+              <p class="np-stat-label">Pending</p>
+              <p class="np-stat-value" id="npqMeasurePending">&mdash;</p>
+            </div>
+            <div class="np-stat">
+              <p class="np-stat-label">Same person</p>
+              <p class="np-stat-value" id="npqMeasureSame">&mdash;</p>
+            </div>
+            <div class="np-stat">
+              <p class="np-stat-label">Not the same</p>
+              <p class="np-stat-value" id="npqMeasureNotSame">&mdash;</p>
+            </div>
+            <div class="np-stat">
+              <p class="np-stat-label">Total</p>
+              <p class="np-stat-value" id="npqMeasureTotal">&mdash;</p>
+            </div>
+          </div>
+
+          <!-- The deliverable: how many are we producing, and on which keys.
+               Key types producing ZERO are kept — a key that never fires is as
+               interesting as one that fires constantly. -->
+          <!-- No heading above this table: its first column header already
+               reads "By key type", exactly as the design draws it. A heading
+               would say the same thing twice. -->
+          <section>
+            <div class="table-responsive">
+              <table class="table np-measure-table">
+                <thead>
+                  <tr>
+                    <th scope="col">By key type</th>
+                    <th scope="col" class="np-num">Pending</th>
+                    <th scope="col" class="np-num">Same</th>
+                    <th scope="col" class="np-num">Not same</th>
+                    <th scope="col" class="np-num">Total</th>
+                  </tr>
+                </thead>
+                <tbody id="npqMeasureRows"><!-- rendered by the page script --></tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- STACKED bar, one bar per drip segmented by key type. Not a line:
+               several series where one is thousands and two are zero would put
+               the small series flat on the axis and say nothing. Stacked
+               support was added to Nimbus/Chart for this. -->
+          <section>
+            <h3 class="cf-category">Pending matches produced over time</h3>
+            <div id="npqMeasureChart" class="np-measure-chart"></div>
+          </section>
+
+          <!-- The reason the panel exists. Converts volume into a policy
+               argument, and names the key type and both numbers explicitly —
+               "some keys are noisy" is not something anyone can act on.
+               Surfaces the signal; does NOT edit key policy (§9). -->
+          <!-- INFO, not warning. Figma: Nimbus/Alert/Note Type=Info, bound to
+               Surface/Note/Background/Info. The distinction is deliberate on
+               this screen — the unmerged-decisions alert IS a warning, because
+               decisions recorded and not executed are a hazard. This is an
+               observation the operator can act on, not a fault in their work,
+               and warning-colouring every finding spends the signal. -->
+          <p class="note note-info" id="npqMeasureSignal" hidden></p>
+
+        </div>
+      </div>
+
+      <div class="offcanvas-footer">
+        <button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas">Close</button>
+      </div>
+    </div>
+
+    <!-- ══ GROUP DISPATCH MODAL ═══════════════════════════════════════════
+         Figma: Nimbus/Modal — group-dispatch (12807:11156), 640 wide.
+         Opened by "Decide whole group" on a signature group row.
+
+         Deciding thousands of pairs at once is the most dangerous action in
+         this feature AND the only thing that makes the queue tractable. Both
+         are true, so the guard is real rather than ceremonial:
+
+           · backdrop is STATIC — Cancel or the close icon only. A stray click
+             outside must not be able to dismiss a decision this size, and it
+             must not be able to commit one either.
+           · the pair count appears THREE times — the group line, the confirm
+             field and the submit label. That is deliberate: it is the blast
+             radius, and it is what the operator is asked to type back.
+           · SAME PERSON stays visible and disabled. Hiding it would lose the
+             explanation, which is the point of showing it.
+
+         NOTHING IS DIMMED and no data is hidden. The modal is the friction.
+
+         ANGULAR: <cf-group-dispatch-modal [group]="g" (dispatched)="…">
+         ════════════════════════════════════════════════════════════════════ -->
+    <div class="modal fade np-dispatch" id="npqDispatch" tabindex="-1"
+         data-cnds-backdrop="static" data-cnds-keyboard="false"
+         aria-labelledby="npqDispatchTitle" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+          <div class="modal-header">
+            <h2 class="modal-title" id="npqDispatchTitle">Decide whole group</h2>
+            <button type="button" class="btn-close" data-cnds-dismiss="modal"
+                    aria-label="Cancel"></button>
+          </div>
+
+          <div class="modal-body">
+            <div class="np-dispatch-body">
+
+              <!-- Group identity — which group, and how large, before any
+                   control. The count here is the first of the three. -->
+              <div class="np-dispatch-identity">
+                <p class="np-dispatch-group" id="npqDispatchGroup"></p>
+                <p class="np-dispatch-meta" id="npqDispatchMeta"></p>
+                <!-- Edge state 6 — a group part-way through. Shown ONLY when the
+                     group is partially decided, because that is the only case where
+                     the modal's count and the row's count disagree: the row states
+                     the group total, the modal acts on the pending remainder. Left
+                     unexplained, that gap reads as a bug.
+                     Angular: *ngIf="group.decidedCount > 0" -->
+                <p class="np-dispatch-remainder" id="npqDispatchRemainder" hidden></p>
+              </div>
+
+              <!-- The two outcomes. NOT THE SAME is pre-selected because it is
+                   the only one available; SAME PERSON is disabled and stays. -->
+              <div class="np-dispatch-option">
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="npqDispatchOutcome"
+                         id="npqOutcomeNotSame" value="NOT_THE_SAME" checked />
+                  <label class="form-check-label" for="npqOutcomeNotSame">Not the same person</label>
+                </div>
+                <p class="np-dispatch-desc" id="npqOutcomeNotSameDesc"></p>
+              </div>
+
+              <div class="np-dispatch-option">
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="npqDispatchOutcome"
+                         id="npqOutcomeSame" value="SAME_PERSON" disabled />
+                  <label class="form-check-label" for="npqOutcomeSame">Same person</label>
+                </div>
+                <!-- Says WHY it is unavailable, not merely that it is. A
+                     same-person decision creates a merge backlog that cannot be
+                     undone, because merge execution — and therefore un-merge —
+                     does not exist (#17474). Asymmetric risk, asymmetric
+                     affordance. -->
+                <p class="np-dispatch-desc">
+                  Not available for group decisions. Same-person decisions cannot be
+                  reversed without merge execution, which has not shipped &mdash; decide
+                  these individually.
+                </p>
+              </div>
+
+              <!-- Shown only above a volume threshold. If thousands of pairs
+                   share one signature, the honest remedy is usually a key-policy
+                   fix rather than thousands of judgements. Sits between the
+                   options and the commit controls so it lands while the decision
+                   is still open. -->
+              <div class="alert alert-info np-dispatch-hint" id="npqDispatchHint" role="status" hidden>
+                <i class="mdi mdi-information cnds-icon-xl lh-1" aria-hidden="true"></i>
+                <span id="npqDispatchHintText"></span>
+              </div>
+
+              <div class="cf-input-field cf-input-field-sm cf-input-field-casefusion">
+                <label class="cf-input-label" for="npqDispatchReason">
+                  Reason <span class="cf-input-required" aria-hidden="true">*</span>
+                </label>
+                <select id="npqDispatchReason" data-cnds-select-init
+                        data-cnds-show-group="true"
+                        data-cnds-placeholder="Select a reason &hellip;"
+                        aria-label="Reason for this group decision">
+                  <option value="" selected>Select a reason &hellip;</option>
+                </select>
+
+                <!-- Revealed only for "Other — add a note", and required: a group
+                     decision cannot commit on an empty note, exactly as a single
+                     decision cannot in Pair Review.
+
+                     INSIDE the Reason field, not a sibling of it. As a sibling it
+                     picked up .np-dispatch-body's 24px stack gap and read as a
+                     separate question; nested, it sits under the select as part of
+                     the same answer, which is what the design draws.
+
+                     Nimbus/Collapse drives the reveal (.collapse, css/core/
+                     transitions.css) so it slides rather than appearing. NOT the
+                     `hidden` attribute: .collapse:not(.show) is display:none, which
+                     also keeps the field's 4px column gap from lingering under the
+                     select while the note is closed.
+                     Angular: *ngIf="reason === OTHER_REASON", with a note control
+                     carrying Validators.required added to / removed from the form
+                     group as the reason changes. -->
+                <div class="collapse np-other-note" id="npqDispatchOtherNote">
+                  <input type="text" id="npqDispatchOtherText" class="cf-input-control"
+                         placeholder="Type the reason &hellip;" aria-label="Reason note" />
+                </div>
+              </div>
+
+              <!-- Typed confirmation. A checkbox would not scale friction to
+                   blast radius; typing the exact count does. Submit stays
+                   disabled until the value matches the STILL-PENDING count
+                   exactly — not the group total. -->
+              <div class="cf-input-field cf-input-field-sm">
+                <label class="cf-input-label" for="npqDispatchConfirm">
+                  Type the group size to confirm
+                  <span class="cf-input-required" aria-hidden="true">*</span>
+                </label>
+                <div class="cf-input-wrapper">
+                  <input type="text" class="cf-input-control" id="npqDispatchConfirm"
+                         inputmode="numeric" autocomplete="off"
+                         aria-describedby="npqDispatchConfirmHelp" />
+                </div>
+                <p class="cf-input-helper-text" id="npqDispatchConfirmHelp"></p>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-cnds-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-primary" id="npqDispatchSubmit" disabled></button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════ NIMBUS v1 CORE JS ═══════════════════
+         js/nimbus.js is a loader: it fetches core/*.js and every
+         components/*.js and plugins/*.js in dependency order, runs
+         Nimbus.DataAPI.init() over the data-cnds-* attributes in the DOM, then
+         dispatches `cnds.ready` on document. Do NOT add per-component
+         <script>s — loading a component file again re-registers it with the
+         DataAPI and double-binds its handlers.
+
+         Because components arrive asynchronously, anything touching a
+         component class must run inside `cnds.ready`. The page script does.
+         ═════════════════════════════════════════════════════════ -->
+    <script type="text/javascript" src="../js/nimbus.js"></script>
+    <script type="text/javascript" src="../js/app.js"></script>
+
+    <!-- Frame controller — shared by every 1.6 page. -->
+    <script type="text/javascript" src="../js/pages/frame-ca-sidenav.js"></script>
+
+    <!-- ══ DATA SERVICE ══════════════════════════════════════════════════
+         MUST load before the controller.
+
+         This is the whole backend seam: every record on the screen comes
+         through PendingMatchService, and connecting the API means re-pointing
+         its methods at real endpoints. No other file on this page holds a
+         record or knows a URL.
+         ═══════════════════════════════════════════════════════════════════ -->
+    <script type="text/javascript" src="../js/pages/pge-admin-natprsn-queue.data.js"></script>
+
+    <!-- Screen controller — this page only. -->
+    <script type="text/javascript" src="../js/pages/pge-admin-natprsn-queue.js"></script>
+
+  </body>
+</html>

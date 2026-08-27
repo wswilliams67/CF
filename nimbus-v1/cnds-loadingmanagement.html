@@ -1,0 +1,2403 @@
+<!--
+* CNDS Nimbus Design System — Loading Management
+* Version: 1.0.0
+* Layout: Application with SideNav (migrated from Nimbus v8 template)
+*
+* Component CSS:  css/components/loading.css
+* Theme overrides: css/themes/light.css | css/themes/dark.css
+*
+* SECTIONS (in document order)
+*   #section-introduction    — Overview and when to use
+*   #section-basic-example   — Declarative init via data-cnds-init="loading"
+*   #section-js-init         — Programmatic init via Nimbus.Loading()
+*   #section-colors          — Spinner color variants
+*   #section-custom          — Custom spinner types
+*     #subsection-growing    — Growing (pulse) spinner
+*     #subsection-awesome    — Font Awesome spinner
+*   #section-delay           — Delayed overlay appearance
+*   #section-full            — Full-screen loading overlay
+*   #section-product-curtains — Product-branded full-viewport loading curtains
+*     #subsection-casefusion  — Casefusion orbiting-bead curtain
+*     #subsection-expireon    — ExpireOn wing-sweep curtain
+*     #subsection-hyperlize   — Hyperlize sliding-dot curtain
+*   #section-skeleton        — Skeleton placeholders (shape-of-content loading)
+*   #section-api-docs        — API Documentation
+*     #api-section-introduction   — Component model overview
+*     #api-section-usage          — Minimum markup and JS patterns
+*     #api-section-options        — Configuration options reference
+*     #api-section-methods        — Static and instance method reference
+*     #api-section-events         — DOM event reference
+*
+* NOTES
+* - Pure HTML5, CSS3, vanilla JavaScript — zero external dependencies
+* - Uses data-cnds-* attributes (replaces data-mdb-* from Nimbus v8)
+* - Uses Nimbus.* namespace (replaces mdb.*)
+* - jQuery support removed in v9; all demos use vanilla JS
+* - Default product theme: CaseFusion (cnds-product-casefusion on <body>; change to cnds-product-hyperlize or cnds-product-expireon)
+-->
+<!doctype html>
+<!-- data-cnds-theme: sets the initial theme ("light" | "dark"). nimbus.js syncs this
+     attribute when the user toggles via [data-cnds-toggle="theme"]. -->
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta
+      name="description"
+      content="Loading Management | Cloudficient Nimbus Design System v1.0.0"
+    />
+    <title>Loading Management | CNDS v1.0.0 | Cloudficient Nimbus Design System</title>
+    <!-- Nimbus CSS — core framework styles -->
+    <link rel="stylesheet" href="css/nimbus.css" media="all" type="text/css" />
+    <!-- Custom styles | All custom classes/styles/overrides go here -->
+    <link rel="stylesheet" href="css/app.css" media="all" type="text/css" />
+    <!-- Prism syntax highlighting for <code class="language-*"> blocks -->
+    <link rel="stylesheet" href="plugins/css/prism.min.css" media="all" type="text/css" />
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="57x57"   href="img/favicon/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="60x60"   href="img/favicon/apple-icon-60x60.png" />
+    <link rel="apple-touch-icon" sizes="72x72"   href="img/favicon/apple-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76"   href="img/favicon/apple-icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="img/favicon/apple-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="img/favicon/apple-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="img/favicon/apple-icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="img/favicon/apple-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-icon-180x180.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="img/favicon/android-icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="32x32"   href="img/favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="96x96"   href="img/favicon/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="16x16"   href="img/favicon/favicon-16x16.png" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="msapplication-TileImage" content="img/favicon/ms-icon-144x144.png" />
+    <!-- ./Favicons -->
+    <!-- Design tokens — load order matters:
+         1. primitives.css — raw color/spacing values (not themed)
+         2. light.css      — semantic tokens for [data-cnds-theme="light"] / :root
+         3. dark.css       — semantic token overrides for [data-cnds-theme="dark"]
+         All three must appear AFTER nimbus.css so component variables resolve. -->
+    <link rel="stylesheet" href="css/themes/primitives.css" />
+    <link rel="stylesheet" href="css/themes/light.css" />
+    <link rel="stylesheet" href="css/themes/dark.css" />
+    <!-- Product loading curtain demo animations (scoped to demo elements) -->
+    <style>
+      /* ── ExpireOn curtain ─────────────────────────────────────────────── */
+      .expireon-top-wing    { animation: expireon-clip 3s ease-in-out infinite 0s;    }
+      .expireon-middle-wing { animation: expireon-clip 3s ease-in-out infinite 0.25s; }
+      .expireon-bottom-wing { animation: expireon-clip 3s ease-in-out infinite 0.5s;  }
+
+      @keyframes expireon-clip {
+        0%     { clip-path: inset(0 0 0 0);    }
+        16.67% { clip-path: inset(0 100% 0 0); }
+        33.33% { clip-path: inset(0 0 0 0);    }
+        100%   { clip-path: inset(0 0 0 0);    }
+      }
+
+      .expireon-curtain-text {
+        color: #4d45d6;
+        font-family: "Nunito Sans", sans-serif;
+        font-size: 24px;
+        font-weight: 400;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-top: 24px;
+      }
+
+      /* ── Casefusion curtain ──────────────────────────────────────────── */
+      .casefusion-inner {
+        transform-origin: 78px 77.635px;
+        animation: casefusion-inner 5s ease-in-out infinite;
+      }
+      .casefusion-outer {
+        transform-origin: 77px 79.5px;
+        animation: casefusion-outer 5s ease-in-out infinite;
+      }
+
+      @keyframes casefusion-inner {
+        0%, 12.5% { transform: rotate(-2.5deg);  }
+        50%        { transform: rotate(142deg);   }
+        87.5%, 100%{ transform: rotate(-2.5deg);  }
+      }
+      @keyframes casefusion-outer {
+        0%, 12.5% { transform: rotate(1.5deg);   }
+        50%        { transform: rotate(-141.5deg);}
+        87.5%, 100%{ transform: rotate(1.5deg);  }
+      }
+
+      .casefusion-curtain-text {
+        color: #5ccb59;
+        font-family: "Nunito Sans", sans-serif;
+        font-size: 24px;
+        font-weight: 400;
+        letter-spacing: 0.05em;
+        margin-top: 24px;
+      }
+
+      /* ── Hyperlize curtain ────────────────────────────────────────────── */
+      .hyperlize-dot-top    { animation: hyperlize-slide-in  2.5s ease-in-out infinite; transform-origin: center; }
+      .hyperlize-dot-bottom { animation: hyperlize-slide-out 2.5s ease-in-out infinite; transform-origin: center; }
+
+      @keyframes hyperlize-slide-in {
+        0%       { transform: translateX(0);     }
+        30%      { transform: translateX(-24px); }
+        60%, 100%{ transform: translateX(0);     }
+      }
+
+      @keyframes hyperlize-slide-out {
+        0%       { transform: translateX(0);    }
+        30%      { transform: translateX(24px); }
+        60%, 100%{ transform: translateX(0);    }
+      }
+
+      .hyperlize-curtain-text {
+        color: #efb00c;
+        font-family: "Nunito Sans", sans-serif;
+        font-size: 24px;
+        font-weight: 400;
+        margin-top: 24px;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .expireon-top-wing, .expireon-middle-wing, .expireon-bottom-wing,
+        .casefusion-inner, .casefusion-outer,
+        .hyperlize-dot-top, .hyperlize-dot-bottom { animation: none; }
+      }
+    </style>
+  </head>
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 Bypass Blocks; renders visually hidden until focused -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         HEADER — sticky wrapper keeps nav pinned during scroll
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="sticky-top">
+      <!-- Utility Navigation -->
+      <nav id="UtilityNav" class="nav nav-cf-utility" aria-label="Utility navigation">
+        <div class="w-100 gx-3 px-sm-0 px-lg-3">
+          <ul class="nav nav-cf-utility-ul"></ul>
+        </div>
+      </nav>
+      <!-- ./Utility Navigation -->
+
+      <!-- Main Navigation -->
+      <nav id="MainNav" class="navbar navbar-expand-xl navbar-cf" aria-label="Main navigation">
+        <div class="container-fluid p-0 px-3 d-flex">
+          <div class="d-flex flex-fill align-items-center text-truncate">
+            <div class="text-center d-none d-md-block me-3 border-end">
+              <a href="index.html">
+                <img src="img/cf/core/logo_nimbus.png" class="me-3 mt-n1"
+                  alt="Cloudficient Nimbus Design System" />
+              </a>
+            </div>
+            <div class="flex-fill text-truncate">
+              <div class="navbar-cf-title-block">
+                <div class="navbar-cf-title cf-page-title text-truncate" style="padding-bottom: 0">
+                  <span class="cf-page-title-text cf-page-title-brand">v1</span
+                  ><span class="cf-page-title-divider"></span
+                  ><span class="cf-page-title-text">Loading Management</span>
+                </div>
+              </div>
+            </div>
+            <!-- Mobile nav toggler — collapses #navbarMain on small viewports -->
+          </div>
+          <!-- Theme toggle — data-cnds-toggle="theme" is processed by nimbus.js;
+               flips data-cnds-theme on <html> between "light" and "dark" -->
+          <button
+            class="btn btn-sm btn-outline-secondary ms-2"
+            data-cnds-toggle="theme"
+            aria-label="Toggle theme"
+            title="Toggle theme"
+          >
+            <i class="mdi mdi-weather-night mdi-18px" aria-hidden="true"></i>
+          </button>
+        </div>
+      </nav>
+      <!-- ./Main Navigation -->
+    </div>
+    <!-- ./Header -->
+
+    <!-- ═══════════════════════════════════════════════════════════
+         MAIN CONTENT
+         ═══════════════════════════════════════════════════════════ -->
+    <main id="main-content" class="cf-main-app">
+
+      <!-- Mobile viewport warning — hidden on md+ screens -->
+      <div class="d-block d-md-none p-4">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>This application is not
+          optimized for small screens. Please use a large tablet, laptop, or desktop computer to
+          continue.
+        </div>
+      </div>
+
+      <div class="d-none d-md-block">
+        <!-- Sidenav — markup intentionally empty; sidenav-loader.js fetches and injects
+             the shared nav HTML at runtime.
+             data-cnds-mode="side"            : persistent side panel (not overlay/drawer)
+             data-cnds-slim / slim-collapsed  : compact/icon-only collapsed state
+             data-cnds-content="#slim-content": sibling panel that resizes as nav opens/closes
+             data-cnds-accordion="true"       : collapses other open groups on expand -->
+        <nav
+          id="sidebar-cf"
+          class="sidenav"
+          data-cnds-mode="side"
+          data-cnds-slim="false"
+          data-cnds-slim-collapsed="false"
+          data-cnds-content="#slim-content"
+          data-cnds-accordion="true"
+        ></nav>
+
+        <div id="slim-content">
+          <div class="slim-content-box">
+
+            <!-- Content Row -->
+            <div class="row">
+
+              <!-- ─────────────────────────────────────────────────
+                   MAIN COLUMN — 80 % of row width
+                   Inline flex overrides pin the 80/20 ratio across
+                   all Bootstrap breakpoints.
+                   ───────────────────────────────────────────────── -->
+              <div class="col-12 col-lg" style="flex: 0 0 80%; max-width: 80%">
+
+                <!--Section: Docs content-->
+                <section class="container-fluid">
+
+                  <!-- ─────────────────────────────────────────────
+                       INTRODUCTION
+                       ───────────────────────────────────────────── -->
+                  <section id="section-introduction">
+
+                    <p class="mb-4">
+                      The Loading Management component overlays a configurable spinner and
+                      optional message on any container element while content or data is
+                      loading. It can be attached to a specific parent element (table, card,
+                      section) or expanded to cover the full viewport. The overlay is
+                      positioned automatically and removed programmatically when loading
+                      completes.
+                    </p>
+
+                    <p class="mb-4">
+                      Initialization is declarative or programmatic. Add
+                      <code>data-cnds-init="loading"</code> and <code>data-cnds-loading</code>
+                      to a container and Nimbus shows the spinner on page load with no
+                      JavaScript required. For dynamic workflows — such as showing a spinner
+                      during an API call and hiding it on success — instantiate
+                      <code>new Nimbus.Loading(element, options)</code> directly and call
+                      <code>show()</code> and <code>hide()</code> in your fetch handlers.
+                      Three product-branded full-viewport curtain animations are also available
+                      for initial page load screens: CaseFusion, ExpireOn, and Hyperlize.
+                    </p>
+
+                    <!-- note-light: links to API docs — always appears first -->
+                    <p class="note note-light">
+                      <strong>Note:</strong> Read the
+                      <a href="#api-section-introduction">API Documentation</a> to find all
+                      available options and advanced customization.
+                    </p>
+
+                    <!-- note-info: theme preview instruction — always appears second -->
+                    <p class="note note-info">
+                      <strong class="note-label">Note:</strong> To preview components in
+                      different themes, click the theme toggle button
+                      <i class="mdi mdi-weather-night" aria-hidden="true"></i> /
+                      <i class="mdi mdi-weather-sunny" aria-hidden="true"></i> in the
+                      header navigation bar.
+                    </p>
+
+                  </section>
+                  <!--/Section: Introduction-->
+
+                  <hr class="my-5" />
+
+                  <!-- ─────────────────────────────────────────────
+                       BASIC EXAMPLE — declarative init
+                       ───────────────────────────────────────────── -->
+                  <section id="section-basic-example">
+                    <h3 class="mb-4">Basic example</h3>
+
+                    <p class="my-4">
+                      Add <code>data-cnds-init="loading"</code> and <code>data-cnds-loading</code>
+                      directly to the container element. Nimbus automatically positions a
+                      <code>.loading-overlay</code> inside it and centers the spinner when the
+                      page loads. No JavaScript is required.
+                    </p>
+
+                    <!--
+                      ANGULAR — Basic example
+                      Use ViewChild to grab the container element and initialise
+                      Nimbus.Loading in ngAfterViewInit(). Dispose in ngOnDestroy():
+
+                        @ViewChild('loadingHost') hostRef!: ElementRef;
+                        private loader: any;
+
+                        ngAfterViewInit() {
+                          this.loader = new Nimbus.Loading(this.hostRef.nativeElement, {
+                            text: 'Loading'
+                          });
+                          this.loader.show();
+                        }
+
+                        ngOnDestroy() { this.loader?.dispose(); }
+                    -->
+
+                    <!--Section: Demo-->
+                    <section class="pb-4" aria-label="Basic example demo">
+                      <div class="bg-white border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                          <!-- data-cnds-init="loading" + data-cnds-loading: Data API creates
+                               a Nimbus.Loading instance and calls show() on page load.
+                               The component appends a .loading-overlay and centers the spinner. -->
+                          <div
+                            id="loading-test"
+                            style="height: 300px; width: 100%"
+                            data-cnds-init="loading"
+                            data-cnds-loading
+                            data-cnds-text="Loading"
+                          ></div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Use @ViewChild to get a reference to the container element and call
+     new Nimbus.Loading(el, { text: 'Loading' }).show() in ngAfterViewInit().
+     Call loader.dispose() in ngOnDestroy() to prevent memory leaks. For data-driven
+     visibility, pair with *ngIf or bind isLoading$ | async from a LoadingService. -->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h5><span class="badge badge-code-html">HTML</span></h5>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div id="my-container"
+     style="height: 300px; width: 100%"
+     data-cnds-init="loading"
+     data-cnds-loading
+     data-cnds-text="Loading"&gt;&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                  </section>
+                  <!--/Section: Basic example-->
+
+                  <hr class="my-5" />
+
+                  <!-- ─────────────────────────────────────────────
+                       JAVASCRIPT INIT — programmatic initialisation
+                       ───────────────────────────────────────────── -->
+                  <section id="section-js-init">
+                    <h3 class="mb-4">JavaScript init</h3>
+
+                    <p class="my-4">
+                      Use <code>new Nimbus.Loading(element, options)</code> to initialise
+                      the component from JavaScript. This approach is useful when the loader
+                      element is inserted dynamically, when you need to pass options that
+                      cannot be expressed as data attributes, or when you want to retain a
+                      reference to the instance so you can call <code>dispose()</code> later.
+                    </p>
+
+                    <!--
+                      ANGULAR — JavaScript init
+                      Use ViewChild to obtain a reference to the container element and
+                      initialise it in ngAfterViewInit(). Dispose in ngOnDestroy() to
+                      prevent memory leaks.
+
+                        @ViewChild('containerRef') containerRef!: ElementRef;
+                        private loadingInstance: any;
+
+                        ngAfterViewInit() {
+                          this.loadingInstance = new Nimbus.Loading(
+                            this.containerRef.nativeElement,
+                            { text: 'Loading' }
+                          );
+                          this.loadingInstance.show();
+                        }
+
+                        ngOnDestroy() {
+                          this.loadingInstance?.dispose();
+                        }
+                    -->
+
+                    <!--Section: Demo-->
+                    <section class="pb-4" aria-label="JavaScript init demo">
+                      <div class="bg-white border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                          <!-- Nimbus.Loading appends a .loading-overlay here — see JavaScript tab below -->
+                          <div id="loading-test-1" style="height: 300px; width: 100%"></div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Initialize Nimbus.Loading programmatically in ngAfterViewInit() using @ViewChild
+     on the container element. Store the instance reference and call loader.hide() when the
+     async operation resolves (e.g. in an Observable subscription or Promise.then()).
+     Call loader.dispose() in ngOnDestroy() to clean up event listeners. -->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h5><span class="badge badge-code-html">HTML</span></h5>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div id="my-container" style="height: 300px; width: 100%"&gt;&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <section class="mb-4">
+                      <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">const loadingEl = document.querySelector('#my-container');
+const loader = new Nimbus.Loading(loadingEl, { text: 'Loading' });
+
+loader.show();
+
+// When loading is complete:
+loader.hide();</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                  </section>
+                  <!--/Section: JS init-->
+
+                  <hr class="my-5" />
+
+                  <!-- ─────────────────────────────────────────────
+                       COLORS — spinner color variants
+                       ───────────────────────────────────────────── -->
+                  <section id="section-colors">
+                    <h3 class="mb-4">Colors</h3>
+
+                    <p class="my-4">
+                      Apply any Bootstrap text-color utility (<code>text-primary</code>,
+                      <code>text-success</code>, <code>text-danger</code>,
+                      <code>text-warning</code>, etc.) to both the
+                      <code>.loading-icon</code> spinner and the
+                      <code>.loading-text</code> span to match your product's color
+                      language. The overlay backdrop is unaffected.
+                    </p>
+
+                    <!--
+                      ANGULAR — Colors
+                      Bind the color class dynamically using [ngClass]:
+
+                        <div class="spinner-border loading-icon"
+                             role="status"
+                             [ngClass]="'text-' + spinnerColor">
+                          <span class="visually-hidden">Loading…</span>
+                        </div>
+                        <span class="loading-text mt-2"
+                              [ngClass]="'text-' + spinnerColor">Loading</span>
+
+                      Where spinnerColor is a component property ('success', 'danger', etc.).
+                    -->
+
+                    <!--Section: Demo-->
+                    <section class="pb-4" aria-label="Colors demo">
+                      <div class="bg-white border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                          <!-- Nimbus.Loading appends a .loading-overlay here — see JavaScript tab below -->
+                          <div id="loading-test-2" style="height: 300px; width: 100%"></div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Pass the color option as a component property to new Nimbus.Loading(el, { color: spinnerColor }).
+     For dynamic colors, bind with [ngClass]="'text-' + spinnerColor" on the .loading-icon element
+     when building a custom overlay template. spinnerColor is a component property
+     ('success' | 'danger' | 'warning' | 'primary' etc.) derived from application state. -->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h5><span class="badge badge-code-html">HTML</span></h5>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div id="my-container" style="height: 300px; width: 100%"&gt;&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <section class="mb-4">
+                      <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">const loadingColors = document.querySelector('#my-container');
+const loader = new Nimbus.Loading(loadingColors, {
+    color: 'success',
+    text:  'Loading'
+});
+
+loader.show();</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                  </section>
+                  <!--/Section: Colors-->
+
+                  <hr class="my-5" />
+
+                  <!-- ─────────────────────────────────────────────
+                       CUSTOM SPINNERS
+                       ───────────────────────────────────────────── -->
+                  <section id="section-custom">
+                    <h3 class="mb-4">Custom spinners</h3>
+
+                    <!-- ── Growing spinner ───────────────────── -->
+                    <section id="subsection-growing">
+                      <h4 class="mt-5">Growing spinner</h4>
+
+                      <p>
+                        Replace <code>spinner-border</code> with
+                        <code>spinner-grow</code> to switch to a pulsing grow
+                        animation. The grow variant is subtler than the rotating
+                        border and works well in contexts where a spinning element
+                        would be distracting.
+                      </p>
+
+                      <!--
+                        ANGULAR — Growing spinner
+                        Toggle between spinner types by binding the class conditionally:
+
+                          <div class="loading-icon"
+                               role="status"
+                               [ngClass]="useGrowSpinner ? 'spinner-grow' : 'spinner-border'">
+                            <span class="visually-hidden">Loading…</span>
+                          </div>
+                      -->
+
+                      <!--Section: Demo-->
+                      <section class="pb-4" aria-label="Growing spinner demo">
+                        <div class="bg-white border rounded-5">
+                          <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                            <!-- data-cnds-spinner="grow" selects the growing-pulse spinner variant -->
+                            <div
+                              id="loading-test-4"
+                              style="height: 300px; width: 100%"
+                              data-cnds-init="loading"
+                              data-cnds-loading
+                              data-cnds-spinner="grow"
+                              data-cnds-text="Loading"
+                            ></div>
+                          </section>
+                        </div>
+                      </section>
+                      <!--/Section: Demo-->
+<!-- Angular: Pass the spinner type as an option: new Nimbus.Loading(el, { spinner: 'grow', text: 'Loading' }).
+     To switch between spinner variants dynamically, use a component property spinnerType: 'border' | 'grow'
+     and forward it to the Nimbus.Loading constructor. Rebuild the instance (dispose + getOrCreateInstance)
+     if the spinner type must change after initialization. -->
+
+                      <!--Section: Code-->
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-html">&lt;div id="my-container"
+     style="height: 300px; width: 100%"
+     data-cnds-init="loading"
+     data-cnds-loading
+     data-cnds-spinner="grow"
+     data-cnds-text="Loading"&gt;&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+                      <!--/Section: Code-->
+
+                    </section>
+                    <!--/Subsection: Growing-->
+
+                    <hr class="my-5" />
+
+                    <!-- ── Font Awesome spinner ───────────────── -->
+                    <section id="subsection-awesome">
+                      <h4 class="mt-5">Font Awesome spinner</h4>
+
+                      <p>
+                        If Font Awesome is already included in your project, use any
+                        FA spinner icon as the <code>.loading-icon</code> element. The
+                        example below uses <code>fa-spinner fa-spin</code>; you can
+                        substitute any other FA animation class such as
+                        <code>fa-circle-notch</code> or <code>fa-sync</code>.
+                      </p>
+
+                      <!--
+                        ANGULAR — Font Awesome spinner
+                        Install @fortawesome/angular-fontawesome and declare the icon
+                        in your AppModule. Then render it inline as the loading icon:
+
+                          <fa-icon [icon]="faSpinner" [spin]="true"
+                                   class="loading-icon fa-2x"
+                                   aria-hidden="false"
+                                   aria-label="Loading…"></fa-icon>
+                      -->
+
+                      <!--Section: Demo-->
+                      <section class="pb-4" aria-label="Font Awesome spinner demo">
+                        <div class="bg-white border rounded-5">
+                          <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                            <!-- FA spinner: .loading-overlay applied directly since
+                                 Nimbus.Loading creates its own spinner element internally. -->
+                            <div id="loading-test-5" style="height: 300px; width: 100%; position: relative;">
+                              <div
+                                class="loading-overlay show"
+                                role="status"
+                                aria-live="polite"
+                                aria-label="Loading"
+                              >
+                                <i class="fas fa-spinner fa-spin fa-2x" aria-hidden="true"></i>
+                                <span class="loading-text">Loading</span>
+                              </div>
+                            </div>
+                          </section>
+                        </div>
+                      </section>
+                      <!--/Section: Demo-->
+<!-- Angular: Install @fortawesome/angular-fontawesome and use <fa-icon [icon]="faSpinner" [spin]="true">
+     as the .loading-icon replacement inside a manually written .loading-overlay template.
+     Control overlay visibility with *ngIf="isLoading" and manage isLoading via a BehaviorSubject
+     in a LoadingService injected into the component. -->
+
+                      <!--Section: Code-->
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-html">&lt;!-- Apply .loading-overlay directly when using a custom icon --&gt;
+&lt;div id="my-container" style="height: 300px; width: 100%; position: relative;"&gt;
+    &lt;div class="loading-overlay show"
+         role="status"
+         aria-live="polite"
+         aria-label="Loading"&gt;
+        &lt;i class="fas fa-spinner fa-spin fa-2x" aria-hidden="true"&gt;&lt;/i&gt;
+        &lt;span class="loading-text"&gt;Loading&lt;/span&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+                      <!--/Section: Code-->
+
+                    </section>
+                    <!--/Subsection: awesome-->
+
+                  </section>
+                  <!--/Section: Custom spinners-->
+
+                  <hr class="my-5" />
+
+                  <!-- ─────────────────────────────────────────────
+                       DELAY — deferred overlay appearance
+                       ───────────────────────────────────────────── -->
+                  <section id="section-delay">
+                    <h3 class="mb-4">Delay</h3>
+
+                    <p>
+                      Pass a <code>delay</code> value (in milliseconds) to postpone the
+                      overlay's appearance. This prevents a loading flash on fast
+                      connections — the spinner only becomes visible if the operation takes
+                      longer than the specified delay. Toggle the switch below to see an
+                      8-second simulated load with a 5-second delay before the overlay
+                      appears.
+                    </p>
+
+                    <!--
+                      ANGULAR — Delay
+                      Use RxJS timer() to defer showing the loading state:
+
+                        import { timer, Subscription } from 'rxjs';
+
+                        private delayedSub?: Subscription;
+
+                        showWithDelay(ms: number) {
+                          this.delayedSub = timer(ms).subscribe(() => {
+                            this.isLoading = true;
+                          });
+                        }
+
+                        cancelDelay() {
+                          this.delayedSub?.unsubscribe();
+                          this.isLoading = false;
+                        }
+
+                      Bind isLoading to a [hidden] attribute or *ngIf on your loader element.
+                    -->
+
+                    <!--Section: Demo-->
+                    <section class="pb-4" aria-label="Delay demo">
+                      <div class="bg-white border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center pb-4 flex-column">
+                          <div id="test">
+                            <!-- Countdown display — aria-live announces changes to screen readers -->
+                            <div
+                              class="test-counter"
+                              aria-live="polite"
+                              aria-atomic="true"
+                            ></div>
+                            <div class="form-check form-switch my-3">
+                              <input
+                                class="form-check-input"
+                                type="checkbox"
+                                id="flexSwitchCheckDefault"
+                                role="switch"
+                                aria-checked="false"
+                              />
+                              <label
+                                class="form-check-label"
+                                for="flexSwitchCheckDefault"
+                              >Switch Delay</label>
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Use RxJS timer() to defer showing the loading state: subscribe in showWithDelay()
+     and unsubscribe in cancelDelay() to prevent a flash on fast operations. Bind the loading
+     state to *ngIf="isLoading" or a [hidden]="!isLoading" attribute on the overlay element.
+     Use a BehaviorSubject<boolean> in a LoadingService to share state across components. -->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h5><span class="badge badge-code-html">HTML</span></h5>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div id="test"&gt;
+    &lt;div class="test-counter" aria-live="polite" aria-atomic="true"&gt;&lt;/div&gt;
+    &lt;div class="form-check form-switch my-3"&gt;
+        &lt;input class="form-check-input" type="checkbox"
+               id="flexSwitchCheckDefault" role="switch" aria-checked="false" /&gt;
+        &lt;label class="form-check-label"
+               for="flexSwitchCheckDefault"&gt;Switch Delay&lt;/label&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <section class="mb-4">
+                      <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">const switchEl = document.querySelector('#flexSwitchCheckDefault');
+let timeleft = 4;
+
+switchEl.addEventListener('change', (e) => {
+    const container = document.querySelector('#test');
+
+    if (e.target.checked) {
+        // Inject an empty container; Loading appends the overlay inside it
+        container.insertAdjacentHTML('beforeend',
+            '&lt;div id="loading-test-6" style="height: 300px; width: 100%"&gt;&lt;/div&gt;'
+        );
+
+        const delayContainer = document.querySelector('#loading-test-6');
+        const counter        = document.querySelector('.test-counter');
+
+        // Countdown ticker — updates the aria-live region each second
+        const downloadTimer = setInterval(() => {
+            counter.classList.add('h2', 'd-flex', 'justify-content-center', 'align-items-center');
+            if (timeleft &lt;= 0) { clearInterval(downloadTimer); timeleft = 4; }
+            counter.textContent = timeleft;
+            timeleft -= 1;
+        }, 1000);
+
+        // Show overlay after 5 s delay; auto-remove container after 8 s total
+        const loadingDelay = new Nimbus.Loading(delayContainer, { text: 'Loading' });
+        setTimeout(() => { loadingDelay.show(); }, 5000);
+        setTimeout(() => { delayContainer?.remove(); }, 8000);
+
+    } else {
+        document.querySelector('#loading-test-6')?.remove();
+        document.querySelector('.test-counter').textContent = '';
+        timeleft = 4;
+    }
+});</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                  </section>
+                  <!--/Section: Delay-->
+
+                  <hr class="my-5" />
+
+                  <!-- ─────────────────────────────────────────────
+                       FULL SCREEN — viewport-covering overlay
+                       ───────────────────────────────────────────── -->
+                  <section id="section-full">
+                    <h3 class="mb-4">Full screen</h3>
+
+                    <p>
+                      Use <code>fullpage: true</code> to cover the full viewport during longer
+                      operations such as initial page loads, file uploads, or multi-step form
+                      submissions. Set <code>document.body.style.overflow = 'hidden'</code>
+                      to lock page scroll while the overlay is active. The overlay is removed
+                      when loading completes. Click the button below for a 5-second demo.
+                    </p>
+
+                    <!--
+                      ANGULAR — Full screen
+                      Create a LoadingService with show() / hide() methods and use an
+                      Angular CDK Portal to project the overlay into <body>:
+
+                        @Injectable({ providedIn: 'root' })
+                        export class LoadingService {
+                          private _loading = new BehaviorSubject(false);
+                          isLoading$ = this._loading.asObservable();
+                          show() { this._loading.next(true); }
+                          hide() { this._loading.next(false); }
+                        }
+
+                      Render a <cnds-loading-overlay> component conditionally at the
+                      root AppComponent level and bind it to isLoading$.
+                    -->
+
+                    <!--Section: Demo-->
+                    <section class="pb-4" aria-label="Full screen demo">
+                      <div class="bg-white border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center pb-4 flex-column">
+                          <div id="test-full" class="mx-auto">
+                            <button class="btn btn-primary" id="btn-full-screen">
+                              Full screen
+                            </button>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Inject a LoadingService that wraps a BehaviorSubject<boolean>. Call service.show() to
+     trigger a full-page overlay rendered in AppComponent with *ngIf="isLoading$ | async".
+     Use Angular CDK Portal (PortalOutlet) to project the overlay into <body> so it escapes
+     z-index stacking contexts. Call service.hide() in the async operation's finalize() operator. -->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h5><span class="badge badge-code-html">HTML</span></h5>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div id="test-full"&gt;
+    &lt;button class="btn btn-primary" id="btn-full-screen"&gt;Full screen&lt;/button&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <section class="mb-4">
+                      <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">document.querySelector('#btn-full-screen').addEventListener('click', () => {
+    // fullpage: true adds .loading-fullpage (position: fixed, z-index: 9999)
+    const loadingFull = new Nimbus.Loading(document.body, {
+        fullpage: true,
+        text:     'Loading&hellip;'
+    });
+    loadingFull.show();
+    document.body.style.overflow = 'hidden'; // lock page scroll
+
+    // Auto-dismiss after 5 s — replace with your async operation callback
+    setTimeout(() => {
+        loadingFull.hide();
+        document.body.style.overflow = '';
+    }, 5000);
+});</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                  </section>
+                  <!--/Section: Full screen-->
+
+                  <hr class="my-5" />
+
+                  <!-- ─────────────────────────────────────────────
+                       PRODUCT LOADING CURTAINS
+                       ───────────────────────────────────────────── -->
+                  <section id="section-product-curtains">
+                    <h3 class="mb-4">Product Loading curtains</h3>
+
+                    <p class="my-4">
+                      Product loading curtains are full-viewport branded overlays that appear
+                      before the application shell has finished rendering. Unlike the generic
+                      <code>Nimbus.Loading</code> overlay, each curtain uses the product's own
+                      SVG logo and color palette to deliver a cohesive first impression. The
+                      curtain sits at <code>z-index: 9999</code> with <code>position: fixed</code>
+                      and is dismissed — with a brief fade — once the browser fires the
+                      <code>window load</code> event.
+                    </p>
+
+                    <!-- ── Casefusion ────────────────────────────── -->
+                    <section id="subsection-casefusion">
+                      <h4 class="mt-5 mb-3">Casefusion</h4>
+
+                      <p>
+                        Two arc-shaped "beads" slide in opposite directions along circular
+                        guide tracks — the inner bead clockwise, the outer counter-clockwise —
+                        creating a fluid orbiting effect. Brand colors: <code>#5CCC59</code>
+                        (inner green) and <code>#8DDB8B</code> (outer light green).
+                      </p>
+
+                      <!--
+                        ANGULAR — Casefusion curtain
+                        Same AppComponent pattern as the other curtains. Subscribe to
+                        NavigationEnd, then fade out and remove the curtain element.
+                      -->
+
+                      <!--Section: Demo-->
+                      <section class="pb-4" aria-label="Casefusion loading curtain demo">
+                        <div class="bg-white border rounded-5">
+                          <section
+                            class="w-100 p-4 d-flex flex-column align-items-center justify-content-center pb-4"
+                            style="height: 300px;"
+                            role="img"
+                            aria-label="Casefusion animated loading curtain"
+                          >
+                            <svg
+                              width="99"
+                              height="113"
+                              viewBox="0 0 132 151"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                              style="overflow: visible;"
+                              aria-hidden="true"
+                            >
+                              <!-- Inner arc track (static) -->
+                              <path
+                                d="M113 109.989C104.902 119.213 91.2406 126 78.2776 126C53.8238 126 34 105.405 34 80C34 54.5949 53.8238 34 78.2776 34C90.2283 34 101.073 37.9187 109.039 45.9138"
+                                stroke="#5CCC59"
+                                stroke-width="6"
+                                fill="none"
+                                stroke-linecap="round"
+                              />
+                              <!-- Inner bead — slides clockwise -->
+                              <path
+                                class="casefusion-inner"
+                                d="M23 79.2681H31.1956L36.8933 79.4365H45.0889C45.0889 82.2726 45.4538 85.0243 46.0993 87.6919C46.3238 88.4781 46.5484 89.2924 46.801 90.0786V90.1348C47.3062 91.6791 47.8956 93.1674 48.6253 94.5994C48.6815 94.6836 48.7095 94.7679 48.7657 94.8802C49.4393 96.228 50.2252 97.5477 51.0953 98.7832C51.2075 98.9517 51.3198 99.0921 51.4321 99.2606C51.8531 99.8502 52.2741 100.44 52.7512 101.001C52.8074 101.058 52.8635 101.114 52.9196 101.198C53.3687 101.732 53.8178 102.209 54.2669 102.714C54.3791 102.855 54.5195 102.995 54.6598 103.136L54.6598 103.136C55.1931 103.669 55.7544 104.231 56.3158 104.736C57.1858 105.522 58.084 106.252 59.0102 106.926H59.0383C59.4874 107.263 59.9645 107.572 60.4136 107.881C60.5258 107.965 60.61 108.021 60.7223 108.077C61.0872 108.33 61.4801 108.555 61.845 108.779C62.0415 108.892 62.266 109.004 62.4625 109.116C62.7431 109.285 63.0238 109.453 63.3045 109.594C63.6132 109.762 63.922 109.903 64.2026 110.043C64.3991 110.127 64.5956 110.24 64.792 110.324C65.1569 110.492 65.5499 110.633 65.9147 110.801C66.0551 110.857 66.1673 110.914 66.3077 110.97C66.7568 111.166 67.1778 111.307 67.6268 111.475C67.711 111.503 67.7672 111.559 67.8514 111.559C68.3285 111.7 68.8057 111.868 69.2828 112.009C69.3389 112.009 69.367 112.037 69.4231 112.037C69.9284 112.177 70.4055 112.317 70.9107 112.43H70.9949C71.472 112.57 71.9772 112.654 72.4825 112.767H72.5947C73.0719 112.879 73.549 112.935 74.0542 113.019H74.1946C74.6717 113.076 75.1208 113.132 75.5979 113.188H75.8505C76.2715 113.216 76.7206 113.272 77.1416 113.272H77.4784C77.8714 113.3 78.2643 113.3 78.6572 113.3H79.1344H80.1729H80.7904C81.0991 113.3 81.3798 113.244 81.6885 113.244C81.9411 113.216 82.1937 113.188 82.4463 113.188L83.2041 113.104C83.4848 113.076 83.7935 113.019 84.0742 112.991C84.2987 112.963 84.4952 112.907 84.7198 112.879C85.0285 112.823 85.3653 112.767 85.674 112.711C85.8424 112.683 86.0389 112.626 86.2354 112.598C86.5722 112.542 86.9371 112.458 87.2739 112.374C87.4703 112.346 87.6387 112.289 87.8072 112.233C88.172 112.149 88.5369 112.065 88.8737 111.952C89.0421 111.896 89.2386 111.84 89.407 111.784C89.7719 111.672 90.1087 111.559 90.4455 111.447C90.6419 111.363 90.8384 111.307 91.0349 111.222C91.3436 111.11 91.6804 110.97 91.9892 110.857C92.2137 110.745 92.4382 110.661 92.6628 110.548C92.9434 110.436 93.1961 110.296 93.4767 110.183L94.3187 109.762C94.5152 109.65 94.7397 109.566 94.9362 109.453C95.3011 109.285 95.6379 109.06 96.0028 108.864C96.115 108.808 96.2554 108.751 96.3676 108.667C96.8448 108.386 97.2658 108.106 97.7149 107.825L97.7991 107.769C99.6796 106.505 101.476 105.073 103.132 103.416C103.553 102.995 103.974 102.546 104.367 102.097L120.814 116.894C113.573 124.925 104.507 130.401 94.8239 133.209C94.7398 133.237 94.6277 133.265 94.5155 133.293L94.5152 133.293C93.6451 133.517 92.8031 133.742 91.9611 133.939L91.2033 134.107C90.4735 134.247 89.7718 134.388 89.0421 134.528L88.1159 134.697C87.4423 134.809 86.7406 134.921 86.0389 135.006C85.7582 135.034 85.4495 135.09 85.1408 135.118C84.3276 135.202 83.5144 135.258 82.7012 135.314L82.6989 135.314C82.5305 135.343 82.3621 135.343 82.1937 135.343H82.0814C81.0991 135.427 80.1449 135.427 79.1906 135.427H79.1905H79.1063H78.2924C77.6749 135.427 77.0855 135.399 76.4961 135.399C76.2715 135.371 76.0189 135.343 75.7944 135.343C75.1208 135.314 74.4472 135.258 73.7736 135.202L73.7733 135.202C73.605 135.174 73.4367 135.146 73.2683 135.146C72.5386 135.09 71.8088 135.006 71.0791 134.893L71.079 134.893C70.9667 134.865 70.8545 134.837 70.7423 134.837C69.9565 134.725 69.1707 134.584 68.385 134.444L68.3846 134.444C68.3004 134.416 68.2443 134.388 68.1601 134.388C67.3462 134.219 66.5603 134.051 65.7463 133.854C65.6621 133.826 65.606 133.798 65.5499 133.798C64.7362 133.602 63.9225 133.377 63.1088 133.153L63.108 133.152C63.0238 133.124 62.9677 133.068 62.8835 133.068C62.0976 132.844 61.3117 132.591 60.5258 132.31C60.4136 132.254 60.2732 132.226 60.161 132.17C59.4312 131.917 58.7015 131.636 57.9998 131.355L57.4104 131.103C56.7929 130.85 56.1474 130.569 55.5299 130.288C55.2211 130.148 54.9124 129.979 54.6037 129.839C54.0704 129.586 53.5652 129.362 53.06 129.081C52.639 128.856 52.1899 128.604 51.7689 128.351C51.404 128.126 51.0391 127.958 50.6743 127.733C50.1129 127.396 49.5235 127.031 48.9622 126.666C48.7657 126.526 48.5411 126.413 48.3447 126.273C47.6149 125.796 46.9413 125.318 46.2396 124.813C46.1835 124.757 46.0993 124.729 46.0432 124.672C44.5275 123.549 43.068 122.37 41.6366 121.078H41.6085C41.4121 120.91 41.2437 120.713 41.0472 120.545C40.5701 120.095 40.0929 119.618 39.6158 119.169L39.4474 119C39.279 118.832 39.1386 118.663 38.9983 118.523L37.7353 117.175C37.5669 116.979 37.3704 116.782 37.202 116.586L37.202 116.586C36.781 116.108 36.36 115.631 35.967 115.154L35.4618 114.564L34.283 113.048C34.1427 112.823 33.9743 112.626 33.8339 112.43C33.441 111.924 33.0761 111.391 32.7112 110.857L32.2902 110.268L32.2899 110.267C31.9251 109.706 31.5604 109.144 31.2237 108.583C31.1114 108.386 30.9991 108.218 30.8869 108.021L30.8868 108.021C30.4658 107.291 30.0448 106.561 29.6519 105.803L29.6519 105.803C29.4554 105.41 29.259 105.017 29.0625 104.652C28.866 104.287 28.6696 103.922 28.5012 103.557C28.2766 103.051 28.0521 102.574 27.8276 102.069C27.7153 101.788 27.603 101.535 27.4908 101.282L27.4907 101.282C27.2662 100.749 27.0417 100.187 26.8171 99.6256C26.7329 99.4291 26.6487 99.2044 26.5645 99.0079C26.34 98.3901 26.1155 97.8004 25.919 97.1827C25.8909 97.0423 25.8348 96.8738 25.7787 96.7334C25.5541 96.0876 25.3576 95.4137 25.1612 94.7398C25.1331 94.6556 25.105 94.5994 25.105 94.5152C23.7297 89.6013 23 84.4908 23 79.2681Z"
+                                fill="#5CCC59"
+                              />
+                              <!-- Outer arc track (static) -->
+                              <path
+                                d="M129.5 125C117.2 138.735 96.9477 148 77.2571 148C40.112 148 10 117.332 10 79.5C10 41.6685 40.112 11 77.2571 11C95.4101 11 111.883 16.8355 123.983 28.7412"
+                                stroke="#8DDB8B"
+                                stroke-width="6"
+                                fill="none"
+                                stroke-linecap="round"
+                              />
+                              <!-- Outer bead — slides counter-clockwise -->
+                              <path
+                                class="casefusion-outer"
+                                d="M22.0608 79.1557H13.8652L8.19562 79.1838H0C0 75.0281 0.336807 70.9285 0.954285 66.8851C0.982352 66.7728 1.01042 66.6324 1.01042 66.52C1.12268 65.79 1.23496 65.088 1.37529 64.386C1.40336 64.2175 1.43143 64.0771 1.4595 63.9086L1.45958 63.9082C1.62795 63.066 1.79633 62.2237 1.99277 61.3815C2.02084 61.2692 2.07697 61.185 2.07697 61.0726L2.66638 58.714C2.69445 58.6297 2.75058 58.5174 2.75058 58.4332C6.23092 45.4886 12.9951 33.611 22.5941 23.7832C22.7625 23.5867 22.9308 23.4182 23.0992 23.2498L23.0993 23.2497L23.1835 23.1655C23.2958 23.0251 23.4361 22.9128 23.5764 22.7724C23.8852 22.4354 24.222 22.0985 24.5588 21.7896L24.643 21.7054C29.3863 17.1846 34.5788 13.3377 40.1642 10.1367H40.2203C40.7536 9.82778 41.2588 9.54698 41.792 9.26619C41.9043 9.18195 42.0447 9.09771 42.185 9.04156C42.606 8.81692 43.027 8.62037 43.448 8.39573C43.7006 8.25533 43.9532 8.14302 44.2058 8.00262C44.5146 7.83415 44.7952 7.69375 45.104 7.55335C45.4688 7.38488 45.8618 7.18832 46.2547 7.01984C46.4512 6.96369 46.6196 6.87946 46.788 6.79523L46.788 6.79521C47.3213 6.57057 47.8265 6.34594 48.3598 6.1213C48.4159 6.09322 48.444 6.06514 48.5001 6.06514C57.2851 2.38675 66.7719 0.308873 76.5392 0H76.9602H77.8865H79.0653H79.0933H79.1776C98.7123 0 117.349 7.13216 132 20.3014L117.209 36.7559C113.055 33.0213 108.452 29.9607 103.568 27.6301C100.789 26.2823 97.8984 25.1872 94.9513 24.3448C94.8671 24.3167 94.7548 24.2887 94.6426 24.2606C93.7725 24.0079 92.8743 23.7832 92.0043 23.5867C91.8359 23.5586 91.6674 23.5024 91.471 23.4744C90.657 23.3059 89.815 23.1374 89.0011 22.997C88.7765 22.9689 88.5801 22.9128 88.3555 22.8847C87.5704 22.7725 86.7573 22.6603 85.9442 22.5481L85.9417 22.5477C85.7172 22.5197 85.4927 22.4635 85.2681 22.4635C84.4542 22.3793 83.6402 22.3231 82.7982 22.2669C82.5737 22.2389 82.3772 22.2108 82.1527 22.2108C81.2545 22.1265 80.3564 22.1265 79.4582 22.1265H79.0091C78.5881 22.1546 78.1952 22.1546 77.7742 22.1546C77.1848 22.1827 76.6234 22.1827 76.0621 22.2108H75.7814C70.196 22.5197 64.751 23.6428 59.6147 25.4961L59.3621 25.5803C58.6043 25.8611 57.8184 26.17 57.0606 26.4788C56.8362 26.5911 56.5837 26.7034 56.3313 26.8156L56.3308 26.8158C55.7414 27.0685 55.152 27.3212 54.5907 27.602C54.1977 27.7986 53.7767 28.0232 53.3838 28.2198C52.9628 28.4163 52.5418 28.6129 52.1488 28.8375C51.6156 29.1183 51.0823 29.4272 50.549 29.7361C50.2683 29.8765 50.0157 30.0449 49.7631 30.1853C49.1176 30.5784 48.5001 30.9715 47.8826 31.3927C47.7423 31.477 47.5739 31.5612 47.4336 31.6735C46.7599 32.1228 46.0863 32.6002 45.4408 33.0775C45.3566 33.1337 45.2443 33.2179 45.1601 33.2741C44.4865 33.7795 43.869 34.2849 43.2235 34.7903C43.1393 34.8746 43.027 34.9307 42.9428 35.015L42.9426 35.0151C42.3813 35.4924 41.8201 35.9697 41.2868 36.447C41.1184 36.6155 40.95 36.7559 40.7816 36.8963C40.3887 37.2613 39.9957 37.6264 39.6028 38.0195C39.2941 38.3003 38.9853 38.5811 38.6766 38.8899C38.4801 39.0865 38.3117 39.255 38.1433 39.4515C37.6381 39.985 37.1329 40.4905 36.6558 41.024L36.5435 41.1363C36.1225 41.6417 35.7015 42.1191 35.2805 42.6245C35.0279 42.9614 34.7472 43.2703 34.4946 43.6073C34.2981 43.8881 34.0736 44.1408 33.8771 44.4216C33.3439 45.0954 32.8387 45.7973 32.3335 46.4993L32.3334 46.4994C32.2492 46.6398 32.1369 46.8083 32.0247 46.9487C31.7159 47.398 31.4072 47.8472 31.1265 48.2965C31.0423 48.4088 30.9862 48.5492 30.902 48.6615C29.9758 50.1217 29.1057 51.638 28.3198 53.1823C26.1025 57.4504 24.4746 61.9993 23.4361 66.6885C22.538 70.7319 22.0608 74.9158 22.0608 79.1557Z"
+                                fill="#8DDB8B"
+                              />
+                            </svg>
+                            <div class="casefusion-curtain-text" aria-live="polite">LOADING</div>
+                          </section>
+                        </div>
+                      </section>
+                      <!--/Section: Demo-->
+<!-- Angular: Place the curtain div in AppComponent's template with *ngIf="showCurtain".
+     In ngOnInit(), subscribe to Router events filtered to NavigationEnd (take(1)) and set
+     showCurtain = false to dismiss it. Alternatively, listen to the window load event via
+     @HostListener('window:load') and apply a CSS transition class before removing the element. -->
+
+                      <!--Section: Code-->
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-html">&lt;div id="loading-curtain" class="loading-curtain" role="status" aria-label="Loading"&gt;
+    &lt;svg width="99" height="113" viewBox="0 0 132 151"
+         fill="none" xmlns="http://www.w3.org/2000/svg"
+         style="overflow: visible;" aria-hidden="true"&gt;
+        &lt;!-- Inner arc track (static guide) --&gt;
+        &lt;path d="M113 109.989C104.902 119.213 91.2406 126 78.2776 126C53.8238 126 34 105.405 34 80C34 54.5949 53.8238 34 78.2776 34C90.2283 34 101.073 37.9187 109.039 45.9138"
+              stroke="#5CCC59" stroke-width="6" fill="none" stroke-linecap="round"/&gt;
+        &lt;!-- Inner bead — slides clockwise --&gt;
+        &lt;path class="inner-bead" fill="#5CCC59"
+              d="M23 79.2681H31.1956L36.8933 79.4365H45.0889C45.0889 82.2726 45.4538 85.0243 46.0993 87.6919&hellip;"/&gt;
+        &lt;!-- Outer arc track (static guide) --&gt;
+        &lt;path d="M129.5 125C117.2 138.735 96.9477 148 77.2571 148C40.112 148 10 117.332 10 79.5C10 41.6685 40.112 11 77.2571 11C95.4101 11 111.883 16.8355 123.983 28.7412"
+              stroke="#8DDB8B" stroke-width="6" fill="none" stroke-linecap="round"/&gt;
+        &lt;!-- Outer bead — slides counter-clockwise --&gt;
+        &lt;path class="outer-bead" fill="#8DDB8B"
+              d="M22.0608 79.1557H13.8652L8.19562 79.1838H0C0 75.0281 0.336807 70.9285 0.954285 66.8851&hellip;"/&gt;
+    &lt;/svg&gt;
+    &lt;div class="curtain-text"&gt;LOADING&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-css">CSS</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-css">/* Full-viewport curtain */
+.loading-curtain {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #f5f5f5;
+    gap: 24px;
+}
+
+.loading-curtain svg {
+    width: 99px;
+    height: 113px;
+    overflow: visible; /* beads animate beyond the SVG bounding box */
+}
+
+/* Inner bead: clockwise from −2.5° → 142° → −2.5° */
+.inner-bead {
+    transform-origin: 78px 77.635px;
+    animation: slide-inner 5s ease-in-out infinite;
+}
+
+/* Outer bead: counter-clockwise from 1.5° → −141.5° → 1.5° */
+.outer-bead {
+    transform-origin: 77px 79.5px;
+    animation: slide-outer 5s ease-in-out infinite;
+}
+
+@keyframes slide-inner {
+    0%, 12.5%  { transform: rotate(-2.5deg);  }
+    50%        { transform: rotate(142deg);   }
+    87.5%, 100%{ transform: rotate(-2.5deg);  }
+}
+
+@keyframes slide-outer {
+    0%, 12.5%  { transform: rotate(1.5deg);    }
+    50%        { transform: rotate(-141.5deg); }
+    87.5%, 100%{ transform: rotate(1.5deg);    }
+}
+
+.curtain-text {
+    color: #5ccb59;
+    font-family: "Nunito Sans", sans-serif;
+    font-size: 24px;
+    font-weight: 400;
+    letter-spacing: 0.05em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .inner-bead, .outer-bead { animation: none; }
+}</code></pre>
+                        </div>
+                      </section>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-js">// Fade out and remove the curtain once the page is fully loaded.
+window.addEventListener('load', () => {
+    const curtain = document.getElementById('loading-curtain');
+    if (!curtain) return;
+    curtain.style.transition = 'opacity 0.4s ease';
+    curtain.style.opacity = '0';
+    setTimeout(() => curtain.remove(), 400);
+});</code></pre>
+                        </div>
+                      </section>
+                      <!--/Section: Code-->
+
+                    </section>
+                    <!--/Subsection: Casefusion-->
+
+
+                    <hr class="my-5" />
+
+                    <!-- ── ExpireOn ──────────────────────────────── -->
+                    <section id="subsection-expireon">
+                      <h4 class="mt-5 mb-3">ExpireOn</h4>
+
+                      <p>
+                        Three chevron "wings" sweep right-to-left in a staggered sequence using
+                        <code>clip-path: inset()</code>, paired with a static connector line.
+                        Brand color: <code>#4D45D6</code> (indigo); accent: <code>#827DE3</code>
+                        (lavender mid-wing).
+                      </p>
+
+                      <!--
+                        ANGULAR — ExpireOn curtain
+                        Place the curtain div in the root AppComponent template.
+                        Inject Router and subscribe to NavigationEnd to dismiss it:
+
+                          ngOnInit() {
+                            this.router.events.pipe(
+                              filter(e => e instanceof NavigationEnd),
+                              take(1)
+                            ).subscribe(() => {
+                              const el = document.getElementById('loading-curtain');
+                              if (!el) return;
+                              el.style.transition = 'opacity 0.4s ease';
+                              el.style.opacity = '0';
+                              setTimeout(() => el.remove(), 400);
+                            });
+                          }
+                      -->
+
+                      <!--Section: Demo-->
+                      <section class="pb-4" aria-label="ExpireOn loading curtain demo">
+                        <div class="bg-white border rounded-5">
+                          <section
+                            class="w-100 p-4 d-flex flex-column align-items-center justify-content-center pb-4"
+                            style="height: 300px;"
+                            role="img"
+                            aria-label="ExpireOn animated loading curtain"
+                          >
+                            <svg
+                              width="116"
+                              height="113"
+                              viewBox="0 0 116 113"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                              aria-hidden="true"
+                            >
+                              <path
+                                class="expireon-bottom-wing"
+                                d="M116 113V103.023C116 91.5338 106.672 82.2368 95.1458 82.2368H33.0385L63.9026 113H116Z"
+                                fill="#4D45D6"
+                              />
+                              <path
+                                class="expireon-top-wing"
+                                d="M116 0V9.97726C116 21.441 106.672 30.7632 95.1458 30.7632H33.0385L63.9026 0H116Z"
+                                fill="#4D45D6"
+                              />
+                              <path
+                                class="expireon-middle-wing"
+                                d="M16.1277 47.9715C13.7263 50.365 12.5129 53.5144 12.5129 56.6638C12.5129 59.8132 13.7263 62.9626 16.1277 65.3561L25.6574 74.8547H93.6292V38.4478H25.6574L16.1277 47.9463V47.9715Z"
+                                fill="#827DE3"
+                              />
+                              <path
+                                d="M53.5894 113L12.3867 71.932C8.59508 68.1527 6.04202 63.1893 5.71341 57.8479C5.33425 51.7003 7.55869 45.8803 11.8812 41.5719L53.5894 0H47.7756C46.3347 0 44.9697 0.57949 43.9586 1.58729L7.86202 37.5659C2.50314 42.9072 -0.302688 50.0626 0.0259227 57.6464C0.329255 64.6002 3.53953 71.1005 8.49396 76.0388L43.807 111.236C44.9445 112.37 46.4864 113 48.0789 113H53.6147H53.5894Z"
+                                fill="#4D45D6"
+                              />
+                            </svg>
+                            <div class="expireon-curtain-text" aria-live="polite">LOADING</div>
+                          </section>
+                        </div>
+                      </section>
+                      <!--/Section: Demo-->
+<!-- Angular: Place the ExpireOn curtain in AppComponent's template with *ngIf="showCurtain".
+     Inject Router and use this.router.events.pipe(filter(e => e instanceof NavigationEnd), take(1))
+     in ngOnInit() to set showCurtain = false after the first route resolves.
+     Add a CSS transition class before removal for a smooth fade-out effect. -->
+
+                      <!--Section: Code-->
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-html">&lt;div id="loading-curtain" class="loading-curtain" role="status" aria-label="Loading"&gt;
+    &lt;svg width="116" height="113" viewBox="0 0 116 113"
+         fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"&gt;
+        &lt;!-- Bottom wing --&gt;
+        &lt;path class="bottom-wing"
+              d="M116 113V103.023C116 91.5338 106.672 82.2368 95.1458 82.2368H33.0385L63.9026 113H116Z"
+              fill="#4D45D6"/&gt;
+        &lt;!-- Top wing --&gt;
+        &lt;path class="top-wing"
+              d="M116 0V9.97726C116 21.441 106.672 30.7632 95.1458 30.7632H33.0385L63.9026 0H116Z"
+              fill="#4D45D6"/&gt;
+        &lt;!-- Middle wing --&gt;
+        &lt;path class="middle-wing"
+              d="M16.1277 47.9715C13.7263 50.365 12.5129 53.5144 12.5129 56.6638C12.5129 59.8132 13.7263 62.9626 16.1277 65.3561L25.6574 74.8547H93.6292V38.4478H25.6574L16.1277 47.9463V47.9715Z"
+              fill="#827DE3"/&gt;
+        &lt;!-- Connector line (static) --&gt;
+        &lt;path d="M53.5894 113L12.3867 71.932C8.59508 68.1527 6.04202 63.1893 5.71341 57.8479C5.33425 51.7003 7.55869 45.8803 11.8812 41.5719L53.5894 0H47.7756C46.3347 0 44.9697 0.57949 43.9586 1.58729L7.86202 37.5659C2.50314 42.9072 -0.302688 50.0626 0.0259227 57.6464C0.329255 64.6002 3.53953 71.1005 8.49396 76.0388L43.807 111.236C44.9445 112.37 46.4864 113 48.0789 113H53.6147H53.5894Z"
+              fill="#4D45D6"/&gt;
+    &lt;/svg&gt;
+    &lt;div class="curtain-text"&gt;LOADING&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-css">CSS</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-css">/* Full-viewport curtain */
+.loading-curtain {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+    gap: 24px;
+}
+
+/* Staggered wing sweep — clip-path collapses right-to-left then reveals */
+.top-wing    { animation: clip-sweep 3s ease-in-out infinite 0s;    }
+.middle-wing { animation: clip-sweep 3s ease-in-out infinite 0.25s; }
+.bottom-wing { animation: clip-sweep 3s ease-in-out infinite 0.5s;  }
+
+@keyframes clip-sweep {
+    0%     { clip-path: inset(0 0 0 0);    }
+    16.67% { clip-path: inset(0 100% 0 0); }
+    33.33% { clip-path: inset(0 0 0 0);    }
+    100%   { clip-path: inset(0 0 0 0);    }
+}
+
+.curtain-text {
+    color: #4d45d6;
+    font-family: "Nunito Sans", sans-serif;
+    font-size: 24px;
+    font-weight: 400;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .top-wing, .middle-wing, .bottom-wing { animation: none; }
+}</code></pre>
+                        </div>
+                      </section>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-js">// Fade out and remove the curtain once the page is fully loaded.
+// Replace the 'load' event with a framework lifecycle hook as needed.
+window.addEventListener('load', () => {
+    const curtain = document.getElementById('loading-curtain');
+    if (!curtain) return;
+    curtain.style.transition = 'opacity 0.4s ease';
+    curtain.style.opacity = '0';
+    setTimeout(() => curtain.remove(), 400);
+});</code></pre>
+                        </div>
+                      </section>
+                      <!--/Section: Code-->
+
+                    </section>
+                    <!--/Subsection: ExpireOn-->
+
+
+                    <hr class="my-5" />
+
+                    <!-- ── Hyperlize ──────────────────────────────── -->
+                    <section id="subsection-hyperlize">
+                      <h4 class="mt-5 mb-3">Hyperlize</h4>
+
+                      <p>
+                        Two circular dots slide inward toward a central curtain shape — one
+                        from the top-right, the other from the bottom-left — creating a
+                        mirrored "closing curtain" effect. Brand color: <code>#EFB00C</code>
+                        (amber gold).
+                      </p>
+
+                      <!--
+                        ANGULAR — Hyperlize curtain
+                        Same pattern as ExpireOn: place in AppComponent, subscribe to
+                        NavigationEnd, and fade out on first route resolution.
+                      -->
+
+                      <!--Section: Demo-->
+                      <section class="pb-4" aria-label="Hyperlize loading curtain demo">
+                        <div class="bg-white border rounded-5">
+                          <section
+                            class="w-100 p-4 d-flex flex-column align-items-center justify-content-center pb-4"
+                            style="height: 300px;"
+                            role="img"
+                            aria-label="Hyperlize animated loading curtain"
+                          >
+                            <svg
+                              class="loader-svg"
+                              viewBox="0 0 32 36"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                              style="width: 100px; height: 113px;"
+                              aria-hidden="true"
+                            >
+                              <!-- Top-right dot — slides inward (left) -->
+                              <path
+                                class="hyperlize-dot-top"
+                                d="M27.7989 8.70545C30.1087 8.70545 31.992 6.75817 31.992 4.3609C31.992 1.96363 30.1087 0.0163574 27.7989 0.0163574C25.489 0.0163574 23.6057 1.96363 23.6057 4.3609C23.6057 6.75817 25.489 8.70545 27.7989 8.70545Z"
+                                fill="#F0C808"
+                              />
+                              <!-- Bottom-left dot — slides inward (right) -->
+                              <path
+                                class="hyperlize-dot-bottom"
+                                d="M4.20927 27.3108C1.89941 27.3108 0.0161133 29.2581 0.0161133 31.6553C0.0161133 34.0526 1.89941 35.9999 4.20927 35.9999C6.51913 35.9999 8.40243 34.0526 8.40243 31.6553C8.40243 29.2581 6.51913 27.3108 4.20927 27.3108Z"
+                                fill="#F0C808"
+                              />
+                              <!-- Center curtain shape (static anchor) -->
+                              <path
+                                d="M31.992 16.6664C31.992 15.4555 31.0262 14.4736 29.835 14.4736H26.4064C26.4064 14.4736 26.3903 14.4736 26.3823 14.4736H8.40241V0H4.20925C1.8994 0 0.0160954 1.94727 0.0160954 4.34455V15.5209C0.0160954 15.5782 0 15.6355 0 15.7009V19.3336C0 20.5445 0.965795 21.5264 2.15694 21.5264H4.16901C4.16901 21.5264 4.20121 21.5264 4.2173 21.5264H23.6137V36H27.8068C30.1167 36 32 34.0527 32 31.6555V18.8182C32 18.8182 32 18.81 32 18.8018V16.6582L31.992 16.6664Z"
+                                fill="#EFB00C"
+                              />
+                            </svg>
+                            <div class="hyperlize-curtain-text" aria-live="polite">LOADING</div>
+                          </section>
+                        </div>
+                      </section>
+                      <!--/Section: Demo-->
+<!-- Angular: Same AppComponent pattern as ExpireOn: render with *ngIf="showCurtain" and dismiss
+     on NavigationEnd via the Router. The CSS animations (hyperlize-dot-top / hyperlize-dot-bottom)
+     are class-based and require no Angular binding — they run automatically while the element
+     is in the DOM. Use @media (prefers-reduced-motion) in CSS to disable animations for accessibility. -->
+
+                      <!--Section: Code-->
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-html">&lt;div id="loading-curtain" class="loading-curtain" role="status" aria-label="Loading"&gt;
+    &lt;svg class="curtain-svg" viewBox="0 0 32 36"
+         fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"&gt;
+        &lt;!-- Top-right dot — slides inward (left) --&gt;
+        &lt;path class="dot-top"
+              d="M27.7989 8.70545C30.1087 8.70545 31.992 6.75817 31.992 4.3609C31.992 1.96363 30.1087 0.0163574 27.7989 0.0163574C25.489 0.0163574 23.6057 1.96363 23.6057 4.3609C23.6057 6.75817 25.489 8.70545 27.7989 8.70545Z"
+              fill="#F0C808"/&gt;
+        &lt;!-- Bottom-left dot — slides inward (right) --&gt;
+        &lt;path class="dot-bottom"
+              d="M4.20927 27.3108C1.89941 27.3108 0.0161133 29.2581 0.0161133 31.6553C0.0161133 34.0526 1.89941 35.9999 4.20927 35.9999C6.51913 35.9999 8.40243 34.0526 8.40243 31.6553C8.40243 29.2581 6.51913 27.3108 4.20927 27.3108Z"
+              fill="#F0C808"/&gt;
+        &lt;!-- Center curtain shape (static anchor) --&gt;
+        &lt;path d="M31.992 16.6664C31.992 15.4555 31.0262 14.4736 29.835 14.4736H26.4064C26.4064 14.4736 26.3903 14.4736 26.3823 14.4736H8.40241V0H4.20925C1.8994 0 0.0160954 1.94727 0.0160954 4.34455V15.5209C0.0160954 15.5782 0 15.6355 0 15.7009V19.3336C0 20.5445 0.965795 21.5264 2.15694 21.5264H4.16901C4.16901 21.5264 4.20121 21.5264 4.2173 21.5264H23.6137V36H27.8068C30.1167 36 32 34.0527 32 31.6555V18.8182C32 18.8182 32 18.81 32 18.8018V16.6582L31.992 16.6664Z"
+              fill="#EFB00C"/&gt;
+    &lt;/svg&gt;
+    &lt;div class="curtain-text"&gt;LOADING&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-css">CSS</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-css">/* Full-viewport curtain */
+.loading-curtain {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #f5f5f5;
+    gap: 24px;
+}
+
+.curtain-svg {
+    width: 100px;
+    height: 113px;
+}
+
+/* Top-right dot slides 24px left toward the center shape */
+.dot-top {
+    animation: slide-in  2.5s ease-in-out infinite;
+    transform-origin: center;
+}
+
+/* Bottom-left dot mirrors the motion in the opposite direction */
+.dot-bottom {
+    animation: slide-out 2.5s ease-in-out infinite;
+    transform-origin: center;
+}
+
+@keyframes slide-in {
+    0%        { transform: translateX(0);     }
+    30%       { transform: translateX(-24px); }
+    60%, 100% { transform: translateX(0);     }
+}
+
+@keyframes slide-out {
+    0%        { transform: translateX(0);    }
+    30%       { transform: translateX(24px); }
+    60%, 100% { transform: translateX(0);   }
+}
+
+.curtain-text {
+    color: #efb00c;
+    font-family: "Nunito Sans", sans-serif;
+    font-size: 24px;
+    font-weight: 400;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .dot-top, .dot-bottom { animation: none; }
+}</code></pre>
+                        </div>
+                      </section>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-js">// Fade out and remove the curtain once the page is fully loaded.
+window.addEventListener('load', () => {
+    const curtain = document.getElementById('loading-curtain');
+    if (!curtain) return;
+    curtain.style.transition = 'opacity 0.4s ease';
+    curtain.style.opacity = '0';
+    setTimeout(() => curtain.remove(), 400);
+});</code></pre>
+                        </div>
+                      </section>
+                      <!--/Section: Code-->
+
+                    </section>
+                    <!--/Subsection: Hyperlize-->
+
+                  </section>
+                  <!--/Section: Product Loading curtains-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Skeleton-->
+                  <section id="section-skeleton">
+                    <!--Section title-->
+                    <h3 class="mb-4">Skeleton loading</h3>
+
+                    <!-- Section description -->
+                    <p>
+                      A skeleton stands in for content that is
+                      <em>on its way</em>, holding the shape the real thing
+                      will take. It is not a spinner: a spinner says
+                      &ldquo;something is happening&rdquo;, a skeleton says
+                      &ldquo;a list of rows is happening, here is how many and
+                      how wide&rdquo;. Reach for a skeleton wherever the shape
+                      is known in advance &mdash; lists, cards, tables, detail
+                      panels &mdash; and a spinner only where it is not.
+                    </p>
+
+                    <div class="note note-warning mb-3">
+                      <strong>Never leave stale content behind a spinner.</strong>
+                      A queue showing yesterday&rsquo;s rows while it fetches
+                      today&rsquo;s is worse than one that says it is loading
+                      &mdash; the operator cannot tell which they are looking
+                      at, and the stale rows are indistinguishable from fresh
+                      ones until the swap happens under them.
+                    </div>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="p-4 w-100">
+
+                          <h5 class="mb-3">Primitives</h5>
+                          <div class="mb-4" aria-hidden="true">
+                            <div class="skeleton skeleton-text skeleton-w-50"></div>
+                            <div class="skeleton skeleton-text"></div>
+                            <div class="skeleton skeleton-text"></div>
+                          </div>
+
+                          <h5 class="mb-3">Media &mdash; circle beside a stack of lines</h5>
+                          <div class="skeleton-media mb-4" aria-hidden="true">
+                            <div class="skeleton skeleton-circle" style="width: 40px"></div>
+                            <div class="skeleton-group">
+                              <div class="skeleton skeleton-text skeleton-w-33"></div>
+                              <div class="skeleton skeleton-text skeleton-w-66"></div>
+                            </div>
+                          </div>
+
+                          <h5 class="mb-3">List &mdash; rows, divided the way a real list is</h5>
+                          <div class="skeleton-list" aria-hidden="true">
+                            <div class="skeleton-row">
+                              <div class="skeleton-group">
+                                <div class="skeleton skeleton-text skeleton-w-50"></div>
+                                <div class="skeleton skeleton-text skeleton-w-75"></div>
+                              </div>
+                              <div class="skeleton skeleton-rect skeleton-action"
+                                   style="width: 90px; height: 38px"></div>
+                            </div>
+                            <div class="skeleton-row">
+                              <div class="skeleton-group">
+                                <div class="skeleton skeleton-text skeleton-w-33"></div>
+                                <div class="skeleton skeleton-text skeleton-w-66"></div>
+                              </div>
+                              <div class="skeleton skeleton-rect skeleton-action"
+                                   style="width: 90px; height: 38px"></div>
+                            </div>
+                          </div>
+
+                        </section>
+                      </div>
+                    </section>
+                    <!--Section: Demo-->
+<!-- Angular: Drive the skeleton off the same async state as the content, not a separate flag —
+     two flags drift and you get a skeleton over real rows. With the async pipe:
+       <ng-container *ngIf="rows$ | async as rows; else loading">…</ng-container>
+       <ng-template #loading><div class="skeleton-list" aria-hidden="true">…</div></ng-template>
+     Put aria-busy on the container and bind it to the same condition. -->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">
+&lt;!-- The CONTAINER carries the message; the skeleton is decoration --&gt;
+&lt;div class="cf-list" aria-busy="true"&gt;
+  &lt;div class="skeleton-list" aria-hidden="true"&gt;
+
+    &lt;div class="skeleton-row"&gt;
+      &lt;div class="skeleton-group"&gt;
+        &lt;div class="skeleton skeleton-text skeleton-w-50"&gt;&lt;/div&gt;
+        &lt;div class="skeleton skeleton-text skeleton-w-75"&gt;&lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class="skeleton skeleton-rect skeleton-action"
+           style="width: 90px; height: 38px"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Media: circle beside lines --&gt;
+&lt;div class="skeleton-media" aria-hidden="true"&gt;
+  &lt;div class="skeleton skeleton-circle" style="width: 40px"&gt;&lt;/div&gt;
+  &lt;div class="skeleton-group"&gt;
+    &lt;div class="skeleton skeleton-text skeleton-w-33"&gt;&lt;/div&gt;
+    &lt;div class="skeleton skeleton-text skeleton-w-66"&gt;&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                    <h5 class="mb-2">Match the shape, and vary the widths</h5>
+                    <p>
+                      A skeleton is only worth more than a spinner if it is the
+                      shape of what is coming. Give it the same row count as a
+                      full page, the same trailing action, the same column
+                      structure &mdash; if the real list has ten rows and a
+                      button on each, so should the placeholder, or the layout
+                      jumps when the content lands.
+                    </p>
+                    <p>
+                      Vary the line widths with
+                      <code>.skeleton-w-25</code> &hellip;
+                      <code>.skeleton-w-100</code>. Text does not come in one
+                      length, and without them every line runs full width and
+                      the block reads as a solid slab rather than as writing.
+                    </p>
+
+                    <h5 class="mb-2">Accessibility</h5>
+                    <p>
+                      The skeleton is decoration; the <strong>container</strong>
+                      carries the message. Put <code>aria-busy="true"</code> on
+                      the container and <code>aria-hidden="true"</code> on the
+                      skeleton itself, so assistive tech is told
+                      &ldquo;busy&rdquo; once instead of reading out a dozen
+                      empty blocks. Remove <code>aria-busy</code> when the
+                      content lands.
+                    </p>
+                    <div class="note note-info mb-3">
+                      <strong>Reduced motion: the skeleton stops, the spinners
+                      slow down.</strong> A spinner has to keep turning to mean
+                      anything, so at
+                      <code>prefers-reduced-motion: reduce</code> it is slowed.
+                      A skeleton&rsquo;s shimmer carries nothing the static
+                      block does not, so it is switched off outright and the
+                      placeholder rests at its base colour.
+                    </div>
+
+                    <h5 class="mb-2">Theming</h5>
+                    <p>
+                      Built entirely from existing primitives &mdash; no
+                      one-off colours. Light uses
+                      <code>--cnds-surface-light-200/100</code>, dark uses
+                      <code>--cnds-secondary-gray-800</code> and
+                      <code>--cnds-primary-gray-800</code>. All four are raw
+                      values that neither theme overrides, so what is written
+                      is what renders.
+                    </p>
+                    <div class="note note-info mb-3">
+                      <strong>The sweep travels toward the page ground, in both
+                      themes.</strong> That is what makes them read alike, and
+                      it is <em>not</em> a mirror of the lightness. In light the
+                      base sits 7&nbsp;L* <em>below</em> white and the sweep
+                      lifts it back toward white; in dark the base sits
+                      13.3&nbsp;L* <em>above</em> <code>#252525</code> and the
+                      sweep drops it back down. Either way the brightest moment
+                      of the shimmer is the <em>least</em> contrasty one, and
+                      each sweep lands halfway back to its own ground &mdash;
+                      it is the <em>proportion</em> that carries across, not the
+                      absolute distance.
+                      Mirroring the lightness instead &mdash; a
+                      <em>lighter</em> highlight in dark &mdash; inverts it: the
+                      peak becomes the most contrasty moment and the bar
+                      flashes.
+                    </div>
+                    <p>
+                      Do not re-point these at <code>--cnds-gray-*</code>
+                      &mdash; <code>dark.css</code> inverts those
+                      (<code>gray-200</code> becomes <code>#787878</code>
+                      there), so building on them silently flips the ramp. That
+                      is what previously put the dark skeleton 5.1&times; too
+                      prominent with a sweep 9.6&times; too wide: a near-white
+                      bar strobing on <code>#252525</code>. Measure in
+                      <strong>CIELAB L*</strong> rather than luminance &mdash;
+                      the same luminance delta is a whisper near white and a
+                      shout near black.
+                    </p>
+
+                    <h5 class="mb-2">CSS custom properties</h5>
+                    <div class="table-responsive mb-4">
+                      <table class="table table-sm">
+                        <thead>
+                          <tr>
+                            <th class="th-sm">Variable</th>
+                            <th class="th-sm">Default</th>
+                            <th class="th-sm">Description</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td><code>--cnds-skeleton-bg</code></td>
+                            <td><code>surface-light-200</code> / <code>secondary-gray-800</code></td>
+                            <td>Base colour of the placeholder block.</td>
+                          </tr>
+                          <tr>
+                            <td><code>--cnds-skeleton-highlight</code></td>
+                            <td><code>surface-light-100</code> / <code>primary-gray-800</code></td>
+                            <td>Colour of the sweep that travels across it.</td>
+                          </tr>
+                          <tr>
+                            <td><code>--cnds-skeleton-speed</code></td>
+                            <td><code>1.5s</code></td>
+                            <td>
+                              One pass of the sweep. Slower reads as calmer;
+                              faster reads as an error state.
+                            </td>
+                          </tr>
+                          <tr>
+                            <td><code>--cnds-skeleton-radius</code></td>
+                            <td><code>var(--cnds-border-radius)</code></td>
+                            <td>Corner radius on blocks and text lines.</td>
+                          </tr>
+                          <tr>
+                            <td><code>--cnds-skeleton-text-height</code></td>
+                            <td><code>1em</code></td>
+                            <td>
+                              Height of one <code>.skeleton-text</code> line.
+                              Relative, so it tracks the surrounding font size.
+                            </td>
+                          </tr>
+                          <tr>
+                            <td><code>--cnds-skeleton-gap</code></td>
+                            <td><code>8px</code></td>
+                            <td>
+                              Space between lines in a group, and the base for
+                              the wider gaps in <code>.skeleton-media</code>
+                              and <code>.skeleton-row</code>.
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <h5 class="mb-2">Classes</h5>
+                    <div class="table-responsive mb-4">
+                      <table class="table table-sm">
+                        <thead>
+                          <tr>
+                            <th class="th-sm">Class</th>
+                            <th class="th-sm">Description</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td><code>.skeleton</code></td>
+                            <td>
+                              The shimmer itself. Required on every placeholder
+                              block; the classes below give it a shape.
+                            </td>
+                          </tr>
+                          <tr>
+                            <td><code>.skeleton-text</code></td>
+                            <td>
+                              One line of text, <code>1em</code> tall. A run of
+                              them ends short, the way real text does.
+                            </td>
+                          </tr>
+                          <tr>
+                            <td><code>.skeleton-circle</code></td>
+                            <td>
+                              Avatar or icon. Square by default
+                              (<code>aspect-ratio: 1</code>), so setting a width
+                              is enough.
+                            </td>
+                          </tr>
+                          <tr>
+                            <td><code>.skeleton-rect</code></td>
+                            <td>Block — a button, thumbnail or chart area.</td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <code>.skeleton-w-25</code> &hellip;
+                              <code>-100</code>
+                            </td>
+                            <td>Line width: 25 / 33 / 50 / 66 / 75 / 100%.</td>
+                          </tr>
+                          <tr>
+                            <td><code>.skeleton-group</code></td>
+                            <td>
+                              Vertical stack of lines — a paragraph, a field
+                              group, a table cell.
+                            </td>
+                          </tr>
+                          <tr>
+                            <td><code>.skeleton-media</code></td>
+                            <td>
+                              Leading circle beside a stack of lines — an
+                              avatar row, a person card.
+                            </td>
+                          </tr>
+                          <tr>
+                            <td><code>.skeleton-row</code></td>
+                            <td>
+                              One list row: a body that grows and an optional
+                              trailing action that does not. Deliberately not a
+                              fixed column layout — add columns inside the body
+                              when the list has them. Every
+                              <code>.skeleton-group</code> in a row grows
+                              equally; to pin one to a fixed width, override
+                              with at least the specificity of
+                              <code>.skeleton-row&nbsp;&gt;&nbsp;.skeleton-group</code>
+                              (0,2,0).
+                            </td>
+                          </tr>
+                          <tr>
+                            <td><code>.skeleton-action</code></td>
+                            <td>
+                              Trailing block inside a row; does not shrink.
+                            </td>
+                          </tr>
+                          <tr>
+                            <td><code>.skeleton-list</code></td>
+                            <td>
+                              A run of rows with a divider between them, so the
+                              placeholder reads as separate records rather than
+                              one striped panel.
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </section>
+                  <!--/Section: Skeleton-->
+
+                  <hr class="my-5" />
+
+                  <!-- ═══════════════════════════════════════════
+                       API DOCUMENTATION
+                       No <hr> elements inside this section —
+                       heading spacing provides visual separation.
+                       ═══════════════════════════════════════════ -->
+                  <section id="section-api-docs">
+                    <h3 class="mb-3">API Documentation</h3>
+
+                    <!-- API: Introduction -->
+                    <section id="api-section-introduction">
+                      <h3 class="mb-4">Introduction</h3>
+                      <p>
+                        <code>Nimbus.Loading</code> is a vanilla-JavaScript component that
+                        wraps a container element with a configurable backdrop and spinner
+                        overlay. It can be activated declaratively (via
+                        <code>data-cnds-init="loading"</code> + <code>data-cnds-loading</code>
+                        on the container) or programmatically (via
+                        <code>new Nimbus.Loading(element, options).show()</code>). The component
+                        automatically sets <code>position: relative</code> on the container,
+                        appends a centered <code>.loading-overlay</code> inside it, locks
+                        scroll when in full-screen mode, and exposes static methods to
+                        retrieve or destroy instances. No jQuery or third-party dependencies
+                        are required.
+                      </p>
+                    </section>
+                    <!--/API: Introduction-->
+
+                    <!-- API: Usage -->
+                    <section id="api-section-usage">
+                      <h3 class="mb-4">Usage</h3>
+
+                      <h4 class="mt-4 mb-3">Via data attributes</h3>
+                      <p>
+                        Add <code>data-cnds-init="loading"</code> and
+                        <code>data-cnds-loading</code> directly to the container element.
+                        Use additional <code>data-cnds-*</code> attributes to pass options
+                        without writing any JavaScript.
+                      </p>
+
+                      <!--Section: Code-->
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-html">&lt;div id="my-container"
+     style="height: 300px; width: 100%"
+     data-cnds-init="loading"
+     data-cnds-loading
+     data-cnds-spinner="border"
+     data-cnds-text="Loading"
+     data-cnds-color="primary"&gt;&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+                      <!--/Section: Code-->
+
+                      <h4 class="mb-3">Via JavaScript</h3>
+                      <p>
+                        Pass the container element and an options object to the constructor,
+                        then call <code>.show()</code>. Store the instance reference to call
+                        <code>.hide()</code> or <code>.dispose()</code> later.
+                      </p>
+
+                      <!--Section: Code-->
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-js">const container = document.getElementById('my-container');
+const loader    = new Nimbus.Loading(container, { text: 'Loading' });
+
+loader.show();
+
+// When the async operation completes:
+loader.hide();</code></pre>
+                        </div>
+                      </section>
+                      <!--/Section: Code-->
+
+                    </section>
+                    <!--/API: Usage-->
+
+                    <!-- API: Options -->
+                    <section id="api-section-options">
+                      <h3 class="mb-4">Options</h3>
+
+                      <p>
+                        Options can be passed via data attributes or the JavaScript
+                        constructor. For data attributes, prefix the option name with
+                        <code>data-cnds-</code> — e.g. <code>data-cnds-backdrop="false"</code>.
+                      </p>
+
+                      <div class="table-responsive">
+                        <table
+                          class="table table-striped table-bordered"
+                          aria-label="Loading Management options"
+                        >
+                          <thead>
+                            <tr>
+                              <th scope="col" class="th-sm">Name</th>
+                              <th scope="col" class="th-sm">Type</th>
+                              <th scope="col" class="th-sm">Default</th>
+                              <th scope="col" class="th-sm">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="text-nowrap"><code>spinner</code></td>
+                              <td><i>string</i></td>
+                              <td><code>"border"</code></td>
+                              <td>
+                                Spinner variant. Accepts <code>"border"</code> (rotating ring),
+                                <code>"grow"</code> (pulsing dot), or <code>"dots"</code>
+                                (three-dot bounce).
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>text</code></td>
+                              <td><i>string</i></td>
+                              <td><code>""</code></td>
+                              <td>
+                                Optional label rendered beneath the spinner inside the overlay.
+                                An empty string hides the text element.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>color</code></td>
+                              <td><i>string</i></td>
+                              <td><code>"primary"</code></td>
+                              <td>
+                                Bootstrap color name applied as <code>text-{color}</code> to
+                                the spinner element. Accepts any Bootstrap contextual color
+                                (<code>"primary"</code>, <code>"success"</code>,
+                                <code>"danger"</code>, etc.).
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>backdrop</code></td>
+                              <td><i>boolean</i></td>
+                              <td><code>true</code></td>
+                              <td>
+                                Enable (<code>true</code>) or disable (<code>false</code>) the
+                                semi-transparent background rendered inside the
+                                <code>.loading-overlay</code>.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>fullpage</code></td>
+                              <td><i>boolean</i></td>
+                              <td><code>false</code></td>
+                              <td>
+                                When <code>true</code>, adds <code>.loading-fullpage</code> to
+                                the overlay so it covers the entire viewport
+                                (<code>position: fixed</code>). Lock page scroll separately
+                                via <code>document.body.style.overflow = 'hidden'</code> while
+                                the overlay is visible.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/API: Options-->
+
+                    <!-- API: Methods -->
+                    <section id="api-section-methods">
+                      <h3 class="mb-4">Methods</h3>
+
+                      <h4 class="mt-4 mb-3">Instance methods</h3>
+                      <div class="table-responsive">
+                        <table
+                          class="table table-striped table-bordered"
+                          aria-label="Loading instance methods"
+                        >
+                          <thead>
+                            <tr>
+                              <th scope="col" class="th-sm">Name</th>
+                              <th scope="col" class="th-sm">Description</th>
+                              <th scope="col" class="th-sm">Example</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="text-nowrap"><code>show()</code></td>
+                              <td>
+                                Appends the overlay to the container and transitions it
+                                visible. Fires <code>show.cnds.loading</code> before
+                                showing; call <code>event.preventDefault()</code> to cancel.
+                                No-op if the overlay is already shown.
+                              </td>
+                              <td><code>loader.show()</code></td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>hide()</code></td>
+                              <td>
+                                Removes the <code>show</code> class and detaches the overlay
+                                from the DOM after a 200 ms CSS transition. Fires
+                                <code>hide.cnds.loading</code> before hiding; call
+                                <code>event.preventDefault()</code> to cancel. No-op if
+                                the overlay is not shown.
+                              </td>
+                              <td><code>loader.hide()</code></td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>toggle()</code></td>
+                              <td>
+                                Calls <code>show()</code> if the overlay is currently hidden,
+                                or <code>hide()</code> if it is currently visible.
+                              </td>
+                              <td><code>loader.toggle()</code></td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>dispose()</code></td>
+                              <td>
+                                Hides the overlay, nulls the internal reference, and removes
+                                the instance from the component data store. Call when the
+                                host element is removed from the DOM to prevent memory leaks.
+                              </td>
+                              <td><code>loader.dispose()</code></td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <h4 class="mt-5 mb-3">Static methods</h3>
+                      <div class="table-responsive">
+                        <table
+                          class="table table-striped table-bordered"
+                          aria-label="Loading static methods"
+                        >
+                          <thead>
+                            <tr>
+                              <th scope="col" class="th-sm">Name</th>
+                              <th scope="col" class="th-sm">Description</th>
+                              <th scope="col" class="th-sm">Example</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="text-nowrap"><code>getInstance(el)</code></td>
+                              <td>
+                                Returns the <code>Nimbus.Loading</code> instance associated
+                                with the given element, or <code>null</code> if none exists.
+                              </td>
+                              <td><code>Nimbus.Loading.getInstance(el)</code></td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>getOrCreateInstance(el, config)</code></td>
+                              <td>
+                                Returns the existing instance for the element, or creates
+                                and returns a new one (using <code>config</code>) if the
+                                element has not been initialized.
+                              </td>
+                              <td><code>Nimbus.Loading.getOrCreateInstance(el)</code></td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>show(el, config)</code></td>
+                              <td>
+                                Convenience wrapper. Calls
+                                <code>getOrCreateInstance(el, config)</code> and immediately
+                                invokes <code>.show()</code>. Returns the instance.
+                              </td>
+                              <td><code>Nimbus.Loading.show(el, { text: 'Loading' })</code></td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>hide(el)</code></td>
+                              <td>
+                                Convenience wrapper. Retrieves the existing instance for
+                                <code>el</code> and calls <code>.hide()</code>. No-op if no
+                                instance exists.
+                              </td>
+                              <td><code>Nimbus.Loading.hide(el)</code></td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <!--Section: Code-->
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-js">const el = document.getElementById('my-loader');
+
+// Instance usage
+const loader = new Nimbus.Loading(el, { text: 'Saving…' });
+loader.show();
+loader.hide();    // hides after async work completes
+loader.toggle();  // or toggle visibility
+loader.dispose(); // clean up when host element is removed
+
+// Static convenience
+Nimbus.Loading.show(el, { spinner: 'grow', text: 'Loading' });
+Nimbus.Loading.hide(el);
+
+// Retrieve an existing instance
+const existing = Nimbus.Loading.getInstance(el);
+if (existing) existing.dispose();</code></pre>
+                        </div>
+                      </section>
+                      <!--/Section: Code-->
+
+                    </section>
+                    <!--/API: Methods-->
+
+                    <!-- API: Events -->
+                    <section id="api-section-events">
+                      <h3 class="mb-4">Events</h3>
+
+                      <p>
+                        Both events are dispatched on the container element. Call
+                        <code>event.preventDefault()</code> inside the handler to
+                        cancel the corresponding action.
+                      </p>
+
+                      <div class="table-responsive">
+                        <table
+                          class="table table-striped table-bordered"
+                          aria-label="Loading events"
+                        >
+                          <thead>
+                            <tr>
+                              <th scope="col" class="th-sm">Event</th>
+                              <th scope="col" class="th-sm">Trigger</th>
+                              <th scope="col" class="th-sm">Cancelable</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="text-nowrap"><code>show.cnds.loading</code></td>
+                              <td>
+                                Fired on the container immediately before the overlay is
+                                appended and made visible.
+                              </td>
+                              <td>Yes</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>hide.cnds.loading</code></td>
+                              <td>
+                                Fired on the container immediately before the overlay begins
+                                its hide transition.
+                              </td>
+                              <td>Yes</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <!--Section: Code-->
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-js">const el = document.getElementById('my-loader');
+
+el.addEventListener('show.cnds.loading', (event) => {
+    // Cancel the show if a condition is not met
+    if (!isReady) event.preventDefault();
+});
+
+el.addEventListener('hide.cnds.loading', () => {
+    console.log('Loading overlay hidden');
+});</code></pre>
+                        </div>
+                      </section>
+                      <!--/Section: Code-->
+
+                    </section>
+                    <!--/API: Events-->
+
+                  </section>
+                  <!--/Section: API Documentation-->
+
+                </section>
+                <!--/Section: Docs content-->
+
+              </div>
+              <!-- ./Main column -->
+
+              <!-- ─────────────────────────────────────────────────
+                   RIGHT SIDEBAR — 20 % of row width
+                   Hidden below lg breakpoint.
+                   Sticky attributes (processed by nimbus.js):
+                     data-cnds-sticky="true"          — activates sticky positioning
+                     data-cnds-sticky-boundary="true" — constrains to parent container
+                     data-cnds-sticky-direction="both"— sticks scrolling up OR down
+                     data-cnds-sticky-offset="56"     — clears the 56 px fixed header
+                     data-cnds-sticky-delay="125"     — debounce delay (ms) vs jank
+                   data-cnds-allow-hashes="true" — nimbus.js highlights the matching
+                     nav-link as the user scrolls through sections.
+                   ───────────────────────────────────────────────── -->
+              <div class="col-lg-2 d-none d-lg-block">
+                <div class="sticky-top" style="top: 100px; z-index: 1">
+                  <ul
+                    class="nav flex-column nav-pills menu-sidebar"
+                    data-cnds-allow-hashes="true"
+                  >
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-introduction">Introduction</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-basic-example">Basic example</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-js-init">JS init</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-colors">Colors</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-custom">Custom spinners</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#subsection-growing">Growing spinner</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#subsection-awesome">Font Awesome</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-delay">Delay</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-full">Full screen</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-product-curtains">Product curtains</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#subsection-casefusion">Casefusion</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#subsection-expireon">ExpireOn</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#subsection-hyperlize">Hyperlize</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-skeleton">Skeleton loading</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-api-docs">API Documentation</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#api-section-introduction">Introduction</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#api-section-usage">Usage</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#api-section-options">Options</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#api-section-methods">Methods</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#api-section-events">Events</a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <!-- ./Right Sidebar -->
+
+            </div>
+            <!-- ./Content Row -->
+          </div>
+        </div>
+      </div>
+
+    </main>
+    <!-- ./Content -->
+
+    <!-- ═══════════════════════════════════════════════════════════
+         FOOTER
+         ═══════════════════════════════════════════════════════════ -->
+    <!-- Footer -->
+    <div class="cf-footer cf-footer-app">
+      <footer class="page-footer main-footer" aria-label="Site footer">
+        <div class="w-100 px-3 d-flex align-items-center">
+          <img src="img/cf/core/cloudficient_logo_light.svg" class="cf-logo-light" style="width: 135px;" alt="Cloudficient" />
+          <img src="img/cf/core/cloudficient_logo_dark.svg" class="cf-logo-dark" style="width: 135px;" alt="Cloudficient" />
+          <span class="footer-copyright ms-auto">&copy; <span id="currentYear"></span> Cloudficient</span>
+        </div>
+      </footer>
+    </div>
+    <!-- ./Footer -->
+            <div
+              class="col-12 col-md-5 col-lg-7 col-xl-8 flex-column flex-md-row d-flex justify-content-center footer-links py-0 py-lg-3 py-xl-3"
+            >
+              <a href="#!" target="_blank" class="text-nowrap my-3 my-md-0 mb-0 me-0">Cloudficient</a>
+              <a href="#!" target="_blank" class="text-nowrap my-3 my-md-0 mb-0 me-0">Support</a>
+              <a href="#!" target="_blank" class="text-nowrap my-3 my-md-0 mb-0 me-0">Community</a>
+              <a href="#!" target="_blank" class="text-nowrap my-3 my-md-0 mb-0 me-0">Documentation</a>
+            </div>
+            <div
+              class="col-12 col-md-4 col-lg-3 col-xl-2 d-flex justify-content-center justify-content-xl-end py-lg-1 py-xl-0 social-btns"
+            >
+              <div class="d-flex align-items-center justify-content-center justify-content-xl-end social-btns-container">
+                <a href="https://twitter.com/cloudficient" target="_blank"
+                   data-cnds-toggle="tooltip" data-cnds-placement="top" title="X"
+                   class="social footer-fa-fix" aria-label="X Twitter">
+                  <i class="fab fa-x-twitter fa-lg" aria-hidden="true"></i>
+                </a>
+                <a href="https://www.linkedin.com/company/cloudficient" target="_blank"
+                   data-cnds-toggle="tooltip" data-cnds-placement="top" title="LinkedIn"
+                   class="social" aria-label="Linkedin">
+                  <i class="mdi mdi-24px mdi-linkedin" aria-hidden="true"></i>
+                </a>
+                <a href="https://www.youtube.com/@cloudficient" target="_blank"
+                   data-cnds-toggle="tooltip" data-cnds-placement="top" title="YouTube"
+                   class="social" aria-label="Youtube">
+                  <i class="mdi mdi-24px mdi-youtube" aria-hidden="true"></i>
+                </a>
+              </div>
+            </div>
+            <div class="col-12">
+              <p class="caption text-nowrap p-0 mt-0 mt-lg-3 mb-0 mb-lg-3 text-center">
+                &copy; <span id="currentYear"></span> Cloudficient. All rights reserved.
+              </p>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+    <!-- ./Footer -->
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCRIPTS — load order matters:
+           1. nimbus.js        — core: data-cnds-* attributes, theme, sticky, sidenav
+           2. app.js           — app-level overrides and custom initialisation
+           3. prism.min.js     — syntax highlighting; runs after DOM is ready
+           4. sidenav-loader.js— fetches shared nav HTML → injects into #sidebar-cf
+         ═══════════════════════════════════════════════════════════ -->
+    <script type="text/javascript" src="js/nimbus.js?v=9.0.4"></script>
+    <script type="text/javascript" src="js/app.js?v=9.0.4"></script>
+    <script type="text/javascript" src="plugins/js/prism.min.js"></script>
+    <script type="text/javascript" src="js/sidenav-loader.js"></script>
+
+    <!-- Demo initialisation — deferred until cnds.ready so Nimbus.Loading is
+         available. nimbus.js is an async loader; Nimbus.* components are not
+         present until after it finishes loading and dispatches cnds.ready. -->
+    <script type="text/javascript">
+    (function () {
+        'use strict';
+
+        function initDemos() {
+
+        // ── JS Init demo ─────────────────────────────────────────────────────
+        // Passes the container directly; component adds position:relative and
+        // appends a centered .loading-overlay on show().
+        var jsContainer = document.querySelector('#loading-test-1');
+        if (jsContainer) {
+            new Nimbus.Loading(jsContainer, { text: 'Loading' }).show();
+        }
+
+        // ── Colors demo ───────────────────────────────────────────────────────
+        var colorsContainer = document.querySelector('#loading-test-2');
+        if (colorsContainer) {
+            new Nimbus.Loading(colorsContainer, { color: 'success', text: 'Loading' }).show();
+        }
+
+        // ── Delay demo ────────────────────────────────────────────────────────
+        // The switch inserts a loader element, initialises it with a 5 s delay,
+        // then auto-removes everything after 8 s. Switching off removes
+        // immediately without waiting for the timeout.
+        var switchEl = document.querySelector('#flexSwitchCheckDefault');
+        if (switchEl) {
+            var timeleft = 4;
+
+            switchEl.addEventListener('change', function (e) {
+                var container = document.querySelector('#test');
+
+                if (e.target.checked) {
+                    e.target.setAttribute('aria-checked', 'true');
+
+                    // Build and inject the loader container
+                    var loaderHtml = '<div id="loading-test-6" style="height:300px;width:100%"></div>';
+                    container.insertAdjacentHTML('beforeend', loaderHtml);
+
+                    var delayContainer = document.querySelector('#loading-test-6');
+                    var counter        = document.querySelector('.test-counter');
+
+                    // Countdown ticker updates the aria-live region
+                    var downloadTimer = setInterval(function () {
+                        counter.classList.add('h2', 'd-flex', 'justify-content-center', 'align-items-center');
+                        if (timeleft <= 0) { clearInterval(downloadTimer); timeleft = 4; }
+                        counter.textContent = timeleft;
+                        timeleft -= 1;
+                    }, 1000);
+
+                    // Show overlay after 5 s delay
+                    var loadingDelay = new Nimbus.Loading(delayContainer, { text: 'Loading' });
+                    setTimeout(function () { loadingDelay.show(); }, 5000);
+
+                    // Auto-remove container after 8 s total
+                    setTimeout(function () {
+                        if (delayContainer) { delayContainer.remove(); }
+                    }, 8000);
+
+                } else {
+                    e.target.setAttribute('aria-checked', 'false');
+                    var existing = document.querySelector('#loading-test-6');
+                    if (existing) { existing.remove(); }
+                    var counterEl = document.querySelector('.test-counter');
+                    if (counterEl) { counterEl.textContent = ''; }
+                    timeleft = 4;
+                }
+            });
+        }
+
+        // ── Full screen demo ──────────────────────────────────────────────────
+        // Clicking the button projects a fullpage overlay for 5 s.
+        // fullpage:true adds .loading-fullpage (position:fixed); body overflow
+        // is locked manually since scroll is not a component option.
+        var btnFull = document.querySelector('#btn-full-screen');
+        if (btnFull) {
+            btnFull.addEventListener('click', function () {
+                var loadingFull = new Nimbus.Loading(document.body, {
+                    fullpage: true,
+                    text: 'Loading…'
+                });
+                loadingFull.show();
+                document.body.style.overflow = 'hidden';
+
+                setTimeout(function () {
+                    loadingFull.hide();
+                    document.body.style.overflow = '';
+                }, 5000);
+            });
+        }
+
+        } // end initDemos
+
+        // nimbus.js is an async loader — Nimbus.* components are not available
+        // until it finishes and dispatches cnds.ready. Listen with { once:true }
+        // so the handler fires exactly once and is then automatically removed.
+        document.addEventListener('cnds.ready', initDemos, { once: true });
+
+    }());
+    </script>
+
+    <!-- Inline: populate the footer copyright year — avoids manual annual updates -->
+    <script type="text/javascript">
+      var currentYearElement = document.getElementById('currentYear');
+      if (currentYearElement) {
+        currentYearElement.textContent = new Date().getFullYear();
+      }
+    </script>
+
+  </body>
+</html>

@@ -1,0 +1,1667 @@
+<!--
+* CNDS Nimbus Design System — Hover Effects
+* Version: 1.0.0
+* Layout: Application with SideNav (migrated from Nimbus v8 template)
+* NOTES
+* - Pure HTML5, CSS3, vanilla JavaScript — zero external dependencies
+* - Uses data-cnds-* attributes (replaces data-mdb-*)
+* - Uses Nimbus.* namespace (replaces mdb.*)
+* - Default product theme: CaseFusion (cnds-product-casefusion on <body>; change to cnds-product-hyperlize or cnds-product-expireon)
+-->
+<!doctype html>
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta
+      name="description"
+      content="Hover Effects | Cloudficient Nimbus Design System v1.0.0"
+    />
+    <title>
+      Hover Effects | CNDS v1.0.0 | Cloudficient Nimbus Design System
+    </title>
+    <!-- Nimbus CSS -->
+    <link rel="stylesheet" href="css/nimbus.css" media="all" type="text/css" />
+    <!-- Custom styles | All custom classes/styles/overrides go here! -->
+    <link rel="stylesheet" href="css/app.css" media="all" type="text/css" />
+    <!-- Prism syntax highlighting -->
+    <link
+      rel="stylesheet"
+      href="plugins/css/prism.min.css"
+      media="all"
+      type="text/css"
+    />
+    <!-- Favicons -->
+    <link
+      rel="apple-touch-icon"
+      sizes="57x57"
+      href="img/favicon/apple-icon-57x57.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="60x60"
+      href="img/favicon/apple-icon-60x60.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="72x72"
+      href="img/favicon/apple-icon-72x72.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="76x76"
+      href="img/favicon/apple-icon-76x76.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="114x114"
+      href="img/favicon/apple-icon-114x114.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="120x120"
+      href="img/favicon/apple-icon-120x120.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="144x144"
+      href="img/favicon/apple-icon-144x144.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="152x152"
+      href="img/favicon/apple-icon-152x152.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="img/favicon/apple-icon-180x180.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="192x192"
+      href="img/favicon/android-icon-192x192.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="img/favicon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="96x96"
+      href="img/favicon/favicon-96x96.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="img/favicon/favicon-16x16.png"
+    />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta
+      name="msapplication-TileImage"
+      content="img/favicon/ms-icon-144x144.png"
+    />
+    <!-- ./Favicons -->
+    <!-- Design tokens — load order matters:
+         1. primitives.css  — raw color/spacing values (no theming)
+         2. light.css       — semantic tokens for [data-cnds-theme="light"] / :root
+         3. dark.css        — semantic token overrides for [data-cnds-theme="dark"]
+         All three must appear AFTER nimbus.css so component variables resolve correctly. -->
+    <link rel="stylesheet" href="css/themes/primitives.css" />
+    <link rel="stylesheet" href="css/themes/light.css" />
+    <link rel="stylesheet" href="css/themes/dark.css" />
+
+    <!-- Page-scoped styles for the product example demo.
+         Uses CaseFusion green design tokens and focus + reduced-motion rules. -->
+    <style>
+      /* ---------------------------------------------------------------
+         CaseFusion case card list — product example demo
+         --------------------------------------------------------------- */
+      .cf-case-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      .cf-case-row {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.875rem 1rem;
+        border-bottom: 1px solid var(--cnds-border-color, #dee2e6);
+        border-radius: 0.375rem;
+        background-color: transparent;
+        cursor: pointer;
+        transition: background-color 0.18s ease, box-shadow 0.18s ease;
+        /* Keyboard: same highlight on focus as on hover */
+        outline-offset: 2px;
+      }
+
+      .cf-case-row:last-child {
+        border-bottom: none;
+      }
+
+      .cf-case-row:hover,
+      .cf-case-row:focus-visible {
+        background-color: var(--cnds-product-casefusion-green-50, #f0faf4);
+        box-shadow: inset 3px 0 0 var(--cnds-product-casefusion-green-500, #28a745);
+      }
+
+      .cf-case-row:focus-visible {
+        outline: 2px solid var(--cnds-product-casefusion-green-500, #28a745);
+      }
+
+      /* Suppress transforms/transitions for users who prefer reduced motion */
+      @media (prefers-reduced-motion: reduce) {
+        .cf-case-row {
+          transition: none;
+        }
+      }
+
+      .cf-case-status-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+
+      .cf-case-status-dot.status-active {
+        background-color: var(--cnds-product-casefusion-green-500, #28a745);
+      }
+
+      .cf-case-status-dot.status-pending {
+        background-color: var(--cnds-warning, #ffc107);
+      }
+
+      .cf-case-status-dot.status-closed {
+        background-color: var(--cnds-secondary, #6c757d);
+      }
+
+      .cf-case-id {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--cnds-product-casefusion-green-700, #1a7530);
+        min-width: 5rem;
+      }
+
+      .cf-case-title {
+        flex: 1;
+        font-size: 0.875rem;
+        color: var(--cnds-body-color, #212529);
+      }
+
+      .cf-case-badge {
+        font-size: 0.7rem;
+        padding: 0.2em 0.6em;
+        border-radius: 9999px;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+
+      .cf-case-badge.badge-active {
+        background-color: var(--cnds-product-casefusion-green-100, #d4edda);
+        color: var(--cnds-product-casefusion-green-800, #155724);
+      }
+
+      .cf-case-badge.badge-pending {
+        background-color: #fff3cd;
+        color: #856404;
+      }
+
+      .cf-case-badge.badge-closed {
+        background-color: var(--cnds-surface-light-100, #f8f9fa);
+        color: var(--cnds-secondary, #6c757d);
+      }
+
+      .cf-case-meta {
+        font-size: 0.75rem;
+        color: var(--cnds-text-muted, #6c757d);
+        min-width: 7rem;
+        text-align: right;
+      }
+    </style>
+  </head>
+
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 Bypass Blocks; renders visually hidden until focused -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+    <!-- ============================================================
+         Header
+         ============================================================ -->
+    <div class="sticky-top">
+      <!-- Utility Navigation -->
+      <nav id="UtilityNav" class="nav nav-cf-utility">
+        <div class="w-100 gx-3 px-sm-0 px-lg-3">
+          <ul class="nav nav-cf-utility-ul"></ul>
+        </div>
+      </nav>
+      <!-- ./Utility Navigation -->
+      <!-- Main Navigation -->
+      <nav id="MainNav" class="navbar navbar-expand-xl navbar-cf">
+        <div class="container-fluid p-0 px-3 d-flex">
+          <div class="d-flex flex-fill align-items-center text-truncate">
+            <div class="text-center d-none d-md-block me-3 border-end">
+              <a href="index.html"
+                ><img src="img/cf/core/logo_nimbus.png" class="me-3 mt-n1"
+              alt="Cloudficient Nimbus Design System" /></a>
+            </div>
+            <div class="flex-fill text-truncate">
+              <div class="navbar-cf-title-block">
+                <div
+                  class="navbar-cf-title cf-page-title text-truncate"
+                  style="padding-bottom: 0"
+                >
+                  <span class="cf-page-title-text cf-page-title-brand">v1</span
+                  ><span class="cf-page-title-divider"></span
+                  ><span class="cf-page-title-text">Hover Effects</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- data-cnds-toggle="theme": wired by nimbus.js — flips data-cnds-theme on <html> between "light" and "dark" -->
+          <button
+            class="btn btn-sm btn-outline-secondary ms-2"
+            data-cnds-toggle="theme"
+            aria-label="Toggle theme"
+            title="Toggle theme"
+          >
+            <i class="mdi mdi-weather-night mdi-18px" aria-hidden="true"></i>
+          </button>
+        </div>
+      </nav>
+      <!-- ./Main Navigation -->
+    </div>
+    <!-- ./Header -->
+
+    <!-- ============================================================
+         Content
+         ============================================================ -->
+    <main id="main-content" class="cf-main-app">
+      <!-- Mobile viewport warning -->
+      <div class="d-block d-md-none p-4">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>This application is not
+          optimized for small screens. Please use a large tablet, laptop, or
+          desktop computer to continue.
+        </div>
+      </div>
+      <div class="d-none d-md-block">
+        <!-- Sidenav — markup is intentionally empty; sidenav-loader.js fetches and injects the shared nav HTML.
+             data-cnds-mode="side"           : renders as a persistent side panel (not an overlay/drawer)
+             data-cnds-slim / slim-collapsed : controls compact/icon-only collapsed state
+             data-cnds-content="#slim-content": the sibling panel that shrinks/expands as the nav opens/closes
+             data-cnds-accordion="true"      : collapses other open nav groups when a new one is expanded -->
+        <nav
+          id="sidebar-cf"
+          class="sidenav"
+          data-cnds-mode="side"
+          data-cnds-slim="false"
+          data-cnds-slim-collapsed="false"
+          data-cnds-content="#slim-content"
+          data-cnds-accordion="true"
+        ></nav>
+        <div id="slim-content">
+          <div class="slim-content-box">
+            <!-- Content Row -->
+            <div class="row">
+              <!-- Main column — 80 % of the row width; the remaining 20 % is the right sidebar.
+                   The inline flex overrides are intentional: they pin the ratio regardless of Bootstrap's
+                   grid breakpoints so the sidebar never wraps on large viewports. -->
+              <div class="col-12 col-lg" style="flex: 0 0 80%; max-width: 80%">
+                <!-- ======================================================
+                     Docs content
+                     ====================================================== -->
+                <section class="container-fluid">
+                  <!-- ==================================================
+                       Section: Introduction
+                       ================================================== -->
+                  <section id="section-introduction">                    <p class="mb-4">
+                      Nimbus hover effects provide subtle, CSS-only visual feedback when
+                      a pointer device positions over an interactive element. Three
+                      distinct effect types are available — <strong>overlay</strong>
+                      (a color mask fades in over an image), <strong>zoom</strong>
+                      (the image scales up slightly inside its clipped container), and
+                      <strong>shadow</strong> (a box-shadow elevates the element). All
+                      three can be applied independently or layered together for richer
+                      interactions. Transition speeds are governed by the design token
+                      system and respect the user&rsquo;s
+                      <code>prefers-reduced-motion</code> preference — when reduced
+                      motion is requested, all CSS transitions and transforms are
+                      suppressed automatically. No JavaScript is needed for any of the
+                      core effects; the ripple click effect (an optional add-on) is
+                      initialised by <code>nimbus.js</code> via the
+                      <code>data-cnds-ripple-color</code> attribute.
+                    </p>
+                    <p>
+                      Hover effects in Nimbus are intentionally
+                      <strong>gentle and decorative</strong>. Because Nimbus is a
+                      mobile-first design system, every component must work on touch
+                      screens where hover states do not exist. For this reason, critical
+                      actions or information must never be hidden behind a hover — they
+                      should always be visible or reachable via a standard tap/click.
+                      Hover effects are best applied to image cards, media thumbnails,
+                      list rows, and actionable tiles where the effect communicates
+                      interactivity without gating access to content. Always pair
+                      <code>:hover</code> rules with matching <code>:focus-visible</code>
+                      rules so keyboard users receive the same visual cue, satisfying
+                      WCAG 2.4.7 (Focus Visible) and Section 508 requirements.
+                    </p>
+                    <p class="note note-light">
+                      <strong>Note:</strong> Read the
+                      <a href="#section-api-docs">API Documentation</a> to find all available
+                      options and advanced customization.
+                    </p>
+                    <p class="note note-info">
+                      <strong>Note:</strong> Hover effects are CSS-only and
+                      require no JavaScript. They work with any HTML element and
+                      are fully theme-compliant. To preview components in
+                      different themes, click the theme toggle button
+                      <i class="mdi mdi-weather-night" aria-hidden="true"></i> / <i class="mdi mdi-weather-sunny" aria-hidden="true"></i> in the header navigation bar.
+                    </p>
+                  </section>
+                  <!-- /Section: Introduction -->
+
+                  <hr class="my-5" />
+
+                  <!-- ==================================================
+                       Section: Basic example
+                       ================================================== -->
+                  <section id="section-basic-example">
+                    <h3 class="mb-3">Basic example</h3>
+                    <p>
+                      The most common use of hover effects is turning an image
+                      into a clickable link with an additional ripple effect on
+                      click. In this example we also add a shadow, rounded
+                      corners, and a light ripple color via the
+                      <code>data-cnds-ripple-color</code> attribute.
+                    </p>
+
+                    <!-- Demo -->
+                    <!-- Angular: Apply hover classes directly in templates; CSS handles the :hover state.
+                         Example: <div class="bg-image hover-overlay ripple shadow-1-strong rounded" data-cnds-ripple-color="light">
+                           <img [src]="imageUrl" class="w-100" [alt]="imageAlt" alt="">
+                           <a [routerLink]="cardRoute">
+                             <div class="mask" style="background-color: rgba(251, 251, 251, 0.2)"></div>
+                           </a>
+                         </div>
+                         For programmatic hover state, use (mouseenter)/(mouseleave) events to toggle classes via [ngClass].
+                         Always pair with (focus)/(blur) for keyboard accessibility. -->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section
+                          class="p-4 d-flex justify-content-center w-100"
+                        >
+                          <div
+                            class="bg-image hover-overlay ripple shadow-1-strong rounded"
+                            data-cnds-ripple-color="light"
+                            style="max-width: 22rem"
+                          >
+                            <img
+                              src="img/cf/styleguide/184.webp"
+                              class="w-100"
+                              alt="Basic hover effect demo"
+                            />
+                            <a href="#!" tabindex="0">
+                              <div
+                                class="mask"
+                                style="background-color: rgba(251, 251, 251, 0.2);"
+                              ></div>
+                            </a>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+
+                    <!-- Code -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre
+                          class="line-numbers m-0"
+                        ><code class="language-html">&lt;div class="bg-image hover-overlay ripple shadow-1-strong rounded"
+  data-cnds-ripple-color="light"&gt;
+  &lt;img src="img/cf/styleguide/184.webp" class="w-100" alt="..." /&gt;
+  &lt;a href="#!"&gt;
+    &lt;div class="mask" style="background-color: rgba(251, 251, 251, 0.2)"&gt;&lt;/div&gt;
+  &lt;/a&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                  </section>
+                  <!-- /Section: Basic example -->
+
+                  <hr class="my-5" />
+
+                  <!-- ==================================================
+                       Section: Types
+                       ================================================== -->
+                  <section id="section-types">
+                    <h3 class="mb-3">Types</h3>
+                    <p>
+                      Nimbus provides three types of hover effects:
+                      <strong>overlay</strong>, <strong>zoom</strong>, and
+                      <strong>shadow</strong>. Each can be applied independently
+                      or combined for richer interactions.
+                    </p>
+
+                    <!-- ------------------------------------------------
+                         Subsection: Overlay
+                         ------------------------------------------------ -->
+                    <section id="subsection-overlay">
+                      <h4 class="mt-5 mb-3">Overlay</h4>
+                      <p>
+                        An overlay covers the entire image with a color at a
+                        defined opacity level on hover. You control the color
+                        and transparency by adjusting the RGBA value on the
+                        <code>.mask</code> element.
+                      </p>
+                      <p>
+                        The overlay hover effect relies on masks. See the
+                        <a href="cnds-masks.html">Masks documentation</a> for
+                        more details.
+                      </p>
+                      <p>
+                        Add the <code>.hover-overlay</code> class to the
+                        <code>.bg-image</code> wrapper, then place a
+                        <code>.mask</code> element inside with your desired RGBA
+                        background color.
+                      </p>
+
+                      <!-- Demo: Overlay color grid -->
+                      <!-- Angular: Bind the mask background color dynamically when overlay color is data-driven.
+                           Example: <div class="bg-image hover-overlay">
+                             <img [src]="card.imageUrl" class="w-100" [alt]="card.imageAlt" alt="">
+                             <div class="mask" [style.background-color]="card.overlayColor"></div>
+                           </div>
+                           Always pair with (focus)/(blur) for keyboard accessibility. -->
+                      <section class="pb-4">
+                        <div class="border rounded-5">
+                          <section class="p-4 text-center w-100">
+                            <div class="row">
+                              <div class="col-lg-4 col-md-12 mb-4">
+                                <code>rgba(18, 102, 241, 0.5)</code>
+                                <div class="bg-image hover-overlay">
+                                  <img
+                                    src="img/cf/styleguide/184.webp"
+                                    class="w-100"
+                                    alt="Blue overlay hover effect"
+                                  />
+                                  <div
+                                    class="mask"
+                                    style="background-color: rgba(18, 102, 241, 0.5);"
+                                  ></div>
+                                </div>
+                              </div>
+                              <div class="col-lg-4 col-md-6 mb-4">
+                                <code>rgba(178, 60, 253, 0.2)</code>
+                                <div class="bg-image hover-overlay">
+                                  <img
+                                    src="img/cf/styleguide/184.webp"
+                                    class="w-100"
+                                    alt="Purple overlay hover effect"
+                                  />
+                                  <div
+                                    class="mask"
+                                    style="background-color: rgba(178, 60, 253, 0.2);"
+                                  ></div>
+                                </div>
+                              </div>
+                              <div class="col-lg-4 col-md-6 mb-4">
+                                <code>rgba(0, 183, 74, 0.78)</code>
+                                <div class="bg-image hover-overlay">
+                                  <img
+                                    src="img/cf/styleguide/184.webp"
+                                    class="w-100"
+                                    alt="Green overlay hover effect"
+                                  />
+                                  <div
+                                    class="mask"
+                                    style="background-color: rgba(0, 183, 74, 0.78);"
+                                  ></div>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="row">
+                              <div class="col-lg-4 col-md-12 mb-4">
+                                <code>rgba(249, 49, 84, 0.34)</code>
+                                <div class="bg-image hover-overlay">
+                                  <img
+                                    src="img/cf/styleguide/184.webp"
+                                    class="w-100"
+                                    alt="Red overlay hover effect"
+                                  />
+                                  <div
+                                    class="mask"
+                                    style="background-color: rgba(249, 49, 84, 0.34);"
+                                  ></div>
+                                </div>
+                              </div>
+                              <div class="col-lg-4 col-md-6 mb-4">
+                                <code>rgba(251, 251, 251, 0.35)</code>
+                                <div class="bg-image hover-overlay">
+                                  <img
+                                    src="img/cf/styleguide/184.webp"
+                                    class="w-100"
+                                    alt="White overlay hover effect"
+                                  />
+                                  <div
+                                    class="mask"
+                                    style="background-color: rgba(251, 251, 251, 0.35);"
+                                  ></div>
+                                </div>
+                              </div>
+                              <div class="col-lg-4 col-md-6 mb-4">
+                                <code>rgba(57, 192, 237, 0.3)</code>
+                                <div class="bg-image hover-overlay">
+                                  <img
+                                    src="img/cf/styleguide/184.webp"
+                                    class="w-100"
+                                    alt="Cyan overlay hover effect"
+                                  />
+                                  <div
+                                    class="mask"
+                                    style="background-color: rgba(57, 192, 237, 0.3);"
+                                  ></div>
+                                </div>
+                              </div>
+                            </div>
+                          </section>
+                        </div>
+                      </section>
+
+                      <!-- Code: Overlay -->
+                      <section class="mb-4">
+                        <h4><span class="badge badge-code-html">HTML</span></h4>
+                        <div class="p-0">
+                          <pre
+                            class="line-numbers m-0"
+                          ><code class="language-html">&lt;div class="bg-image hover-overlay"&gt;
+  &lt;img src="img/cf/styleguide/184.webp" class="w-100" alt="..." /&gt;
+  &lt;div class="mask" style="background-color: rgba(18, 102, 241, 0.5)"&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+
+                      <p>You can also set a gradient as an overlay.</p>
+
+                      <!-- Demo: Gradient overlay -->
+                      <!-- Angular: For gradient overlays driven by theme data, bind the background style property.
+                           Example: <div class="bg-image hover-overlay">
+                             <img [src]="card.imageUrl" class="w-100" [alt]="card.title" alt="">
+                             <div class="mask" [ngStyle]="{'background': card.gradient}"></div>
+                           </div>
+                           Always pair with (focus)/(blur) for keyboard accessibility. -->
+                      <section class="pb-4">
+                        <div class="border rounded-5">
+                          <section
+                            class="p-4 d-flex justify-content-center w-100"
+                          >
+                            <div
+                              class="bg-image hover-overlay"
+                              style="max-width: 24rem"
+                            >
+                              <img
+                                src="img/cf/styleguide/184.webp"
+                                class="w-100"
+                                alt="Gradient overlay hover effect"
+                              />
+                              <div
+                                class="mask"
+                                style="background: linear-gradient(45deg, rgba(29, 236, 197, 0.5), rgba(91, 14, 214, 0.5) 100%);"
+                              ></div>
+                            </div>
+                          </section>
+                        </div>
+                      </section>
+
+                      <!-- Code: Gradient overlay -->
+                      <section class="mb-4">
+                        <h4><span class="badge badge-code-html">HTML</span></h4>
+                        <div class="p-0">
+                          <pre
+                            class="line-numbers m-0"
+                          ><code class="language-html">&lt;div class="bg-image hover-overlay"&gt;
+  &lt;img src="img/cf/styleguide/184.webp" class="w-100" alt="..." /&gt;
+  &lt;div class="mask"
+    style="background: linear-gradient(45deg,
+      rgba(29, 236, 197, 0.5),
+      rgba(91, 14, 214, 0.5) 100%)"&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!-- /Subsection: Overlay -->
+
+                    <!-- ------------------------------------------------
+                         Subsection: Zoom
+                         ------------------------------------------------ -->
+                    <section id="subsection-zoom">
+                      <h4 class="mt-5 mb-3">Zoom</h4>
+                      <p>
+                        The zoom hover effect scales the image up slightly when
+                        the user hovers over it. The syntax is simpler than
+                        overlay&mdash;just add the
+                        <code>.hover-zoom</code> class to the
+                        <code>.bg-image</code> element.
+                      </p>
+
+                      <!-- Demo -->
+                      <!-- Angular: Apply .hover-zoom directly in templates; CSS handles the scale transform.
+                           Example: <div class="bg-image hover-zoom">
+                             <img [src]="thumbnail.url" class="w-100" [alt]="thumbnail.alt" alt="">
+                           </div>
+                           Note: prefers-reduced-motion suppresses the scale transform automatically.
+                           Always pair with (focus)/(blur) for keyboard accessibility. -->
+                      <section class="pb-4">
+                        <div class="border rounded-5">
+                          <section
+                            class="p-4 d-flex justify-content-center w-100"
+                          >
+                            <div
+                              class="bg-image hover-zoom"
+                              style="max-width: 22rem"
+                            >
+                              <img
+                                src="img/cf/styleguide/184.webp"
+                                class="w-100"
+                                alt="Zoom hover effect demo"
+                              />
+                            </div>
+                          </section>
+                        </div>
+                      </section>
+
+                      <!-- Code -->
+                      <section class="mb-4">
+                        <h4><span class="badge badge-code-html">HTML</span></h4>
+                        <div class="p-0">
+                          <pre
+                            class="line-numbers m-0"
+                          ><code class="language-html">&lt;div class="bg-image hover-zoom"&gt;
+  &lt;img src="img/cf/styleguide/184.webp" class="w-100" alt="..." /&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!-- /Subsection: Zoom -->
+
+                    <!-- ------------------------------------------------
+                         Subsection: Shadow
+                         ------------------------------------------------ -->
+                    <section id="subsection-shadow">
+                      <h4 class="mt-5 mb-3">Shadow</h4>
+                      <p>
+                        The shadow hover effect is the simplest of all. Add the
+                        <code>.hover-shadow</code> class to any element to apply
+                        a box-shadow transition on hover.
+                      </p>
+
+                      <!-- Demo -->
+                      <!-- Angular: Apply .hover-shadow directly in templates; CSS handles the box-shadow transition.
+                           Example: <img [src]="item.imageUrl" class="w-100 hover-shadow" [alt]="item.title" alt="">
+                           For programmatic control, use [ngClass]="{'hover-shadow': item.isInteractive}".
+                           Always pair with (focus)/(blur) for keyboard accessibility. -->
+                      <section class="pb-4">
+                        <div class="border rounded-5">
+                          <section class="p-4 text-center w-100">
+                            <img
+                              src="img/cf/styleguide/184.webp"
+                              class="w-100 hover-shadow"
+                              alt="Shadow hover effect demo"
+                              style="max-width: 22rem"
+                            />
+                          </section>
+                        </div>
+                      </section>
+
+                      <!-- Code -->
+                      <section class="mb-4">
+                        <h4><span class="badge badge-code-html">HTML</span></h4>
+                        <div class="p-0">
+                          <pre
+                            class="line-numbers m-0"
+                          ><code class="language-html">&lt;img src="img/cf/styleguide/184.webp"
+  class="w-100 hover-shadow" alt="Shadow hover effect" /&gt;</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!-- /Subsection: Shadow -->
+                  </section>
+                  <!-- /Section: Types -->
+
+                  <hr class="my-5" />
+
+                  <!-- ==================================================
+                       Section: Mixing effects
+                       ================================================== -->
+                  <section id="section-mixing-effects">
+                    <h3 class="mb-3">Mixing effects</h3>
+                    <p>
+                      You can freely combine all three hover effects on a single
+                      element. However, keep the Nimbus principle of minimalism
+                      and subtlety in mind&mdash;avoid overloading elements with
+                      too many simultaneous effects.
+                    </p>
+
+                    <!-- Demo -->
+                    <!-- Angular: Combine hover classes freely in templates; CSS handles all three effects simultaneously.
+                         Example: <div class="bg-image hover-overlay hover-zoom hover-shadow ripple">
+                           <img [src]="card.imageUrl" class="w-100" [alt]="card.title" alt="">
+                           <a [routerLink]="card.route">
+                             <div class="mask" [style.background-color]="card.maskColor"></div>
+                           </a>
+                         </div>
+                         For programmatic hover state, use (mouseenter)/(mouseleave) events to toggle classes via [ngClass].
+                         Always pair with (focus)/(blur) for keyboard accessibility. -->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section
+                          class="p-4 d-flex justify-content-center w-100"
+                        >
+                          <div
+                            class="bg-image hover-overlay hover-zoom hover-shadow ripple"
+                            style="max-width: 24rem"
+                          >
+                            <img
+                              src="img/cf/styleguide/184.webp"
+                              class="w-100"
+                              alt="Combined hover effects demo"
+                            />
+                            <a href="#!" tabindex="0">
+                              <div
+                                class="mask"
+                                style="background-color: rgba(57, 192, 237, 0.2);"
+                              ></div>
+                            </a>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+
+                    <!-- Code -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre
+                          class="line-numbers m-0"
+                        ><code class="language-html">&lt;div class="bg-image hover-overlay hover-zoom hover-shadow ripple"&gt;
+  &lt;img src="img/cf/styleguide/184.webp" class="w-100" alt="..." /&gt;
+  &lt;a href="#!"&gt;
+    &lt;div class="mask" style="background-color: rgba(57, 192, 237, 0.2)"&gt;&lt;/div&gt;
+  &lt;/a&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                  </section>
+                  <!-- /Section: Mixing effects -->
+
+                  <hr class="my-5" />
+
+                  <!-- ==================================================
+                       Section: Overlay over mask
+                       ================================================== -->
+                  <section id="section-overlay-over-mask">
+                    <h3 class="mb-3">Overlay over mask</h3>
+                    <p>
+                      When you need text on an image with proper contrast
+                      <em>and</em> a hover effect, layer a
+                      <code>.hover-overlay</code> on top of an existing
+                      <code>.mask</code>. The base mask provides the contrast
+                      for the text, while the hover overlay adds the interactive
+                      feedback.
+                    </p>
+
+                    <!-- Demo -->
+                    <!-- Angular: Layer a static mask for text contrast and a hover-overlay for interaction feedback.
+                         Example: <div class="bg-image ripple" data-cnds-ripple-color="light">
+                           <img [src]="hero.imageUrl" class="w-100" [alt]="hero.imageAlt" alt="">
+                           <a [routerLink]="hero.route">
+                             <div class="mask" style="background-color: rgba(0, 0, 0, 0.4)">
+                               <div class="d-flex justify-content-center align-items-center h-100">
+                                 <p class="text-white mb-0">{{ hero.caption }}</p>
+                               </div>
+                             </div>
+                             <div class="hover-overlay">
+                               <div class="mask" style="background-color: rgba(251, 251, 251, 0.2)"></div>
+                             </div>
+                           </a>
+                         </div>
+                         Always pair with (focus)/(blur) for keyboard accessibility. -->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section
+                          class="p-4 d-flex justify-content-center w-100"
+                        >
+                          <div
+                            class="bg-image ripple"
+                            data-cnds-ripple-color="light"
+                            style="max-width: 24rem"
+                          >
+                            <img
+                              src="img/cf/styleguide/184.webp"
+                              class="w-100"
+                              alt="Overlay over static mask demo"
+                            />
+                            <a href="#!" tabindex="0">
+                              <div
+                                class="mask"
+                                style="background-color: rgba(0, 0, 0, 0.4)"
+                              >
+                                <div
+                                  class="d-flex justify-content-center align-items-center h-100"
+                                >
+                                  <p class="text-white mb-0">Can you see me?</p>
+                                </div>
+                              </div>
+                              <div class="hover-overlay">
+                                <div
+                                  class="mask"
+                                  style="background-color: rgba(251, 251, 251, 0.2);"
+                                ></div>
+                              </div>
+                            </a>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+
+                    <!-- Code -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre
+                          class="line-numbers m-0"
+                        ><code class="language-html">&lt;div class="bg-image ripple" data-cnds-ripple-color="light"&gt;
+  &lt;img src="img/cf/styleguide/184.webp" class="w-100" alt="..." /&gt;
+  &lt;a href="#!"&gt;
+    &lt;div class="mask" style="background-color: rgba(0, 0, 0, 0.4)"&gt;
+      &lt;div class="d-flex justify-content-center align-items-center h-100"&gt;
+        &lt;p class="text-white mb-0"&gt;Can you see me?&lt;/p&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="hover-overlay"&gt;
+      &lt;div class="mask" style="background-color: rgba(251, 251, 251, 0.2)"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                  </section>
+                  <!-- /Section: Overlay over mask -->
+
+                  <hr class="my-5" />
+
+                  <!-- ==================================================
+                       Section: Product example
+                       ================================================== -->
+                  <section id="section-product-example" class="pb-4">
+                    <h3 class="mb-3">Product example</h3>
+                    <p>
+                      The example below shows hover effects applied to a
+                      <strong>CaseFusion</strong> case card list — a common
+                      pattern in the CaseFusion application. Each row highlights
+                      with a CaseFusion green tint on hover (and on
+                      <code>:focus-visible</code> for keyboard users), and a
+                      green left-border accent reinforces the active state. The
+                      status dot and badge use
+                      <code>--cnds-product-casefusion-green-*</code> tokens to
+                      remain theme-aware. Critical content (case ID, title,
+                      status) is always visible — the hover effect is purely
+                      decorative and directional.
+                    </p>
+
+                    <!-- Demo -->
+                    <!-- Angular: Render the case list with *ngFor; the CSS :hover and :focus-visible states
+                         handle the highlight automatically. For programmatic row selection, toggle an
+                         .is-selected class via [ngClass]="{'is-selected': selectedCaseId === case.id}".
+                         Use (click) to navigate and (keydown.enter)/(keydown.space) for keyboard activation.
+                         Always pair hover feedback with (focus)/(blur) or :focus-visible for accessibility. -->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="p-4 w-100">
+                          <div class="d-flex align-items-center mb-3 gap-2">
+                            <i class="mdi mdi-briefcase-outline mdi-18px" aria-hidden="true" style="color: var(--cnds-product-casefusion-green-600, #218838);"></i>
+                            <span class="fw-semibold" style="color: var(--cnds-product-casefusion-green-700, #1a7530);">Active Cases</span>
+                            <span class="badge ms-auto" style="background-color: var(--cnds-product-casefusion-green-100, #d4edda); color: var(--cnds-product-casefusion-green-800, #155724);">5 cases</span>
+                          </div>
+                          <ul class="cf-case-list" role="list" aria-label="CaseFusion active cases">
+                            <li
+                              class="cf-case-row"
+                              role="listitem"
+                              tabindex="0"
+                              aria-label="Case 1001 — Exchange Migration to M365, Active"
+                            >
+                              <span class="cf-case-status-dot status-active" aria-hidden="true"></span>
+                              <span class="cf-case-id">CF-1001</span>
+                              <span class="cf-case-title">Exchange Migration to M365</span>
+                              <span class="cf-case-badge badge-active">Active</span>
+                              <span class="cf-case-meta">
+                                <i class="mdi mdi-account-outline mdi-14px me-1" aria-hidden="true"></i>J. Carter
+                              </span>
+                            </li>
+                            <li
+                              class="cf-case-row"
+                              role="listitem"
+                              tabindex="0"
+                              aria-label="Case 1002 — PST Import Batch 4, Pending"
+                            >
+                              <span class="cf-case-status-dot status-pending" aria-hidden="true"></span>
+                              <span class="cf-case-id">CF-1002</span>
+                              <span class="cf-case-title">PST Import Batch 4</span>
+                              <span class="cf-case-badge badge-pending">Pending</span>
+                              <span class="cf-case-meta">
+                                <i class="mdi mdi-account-outline mdi-14px me-1" aria-hidden="true"></i>M. Patel
+                              </span>
+                            </li>
+                            <li
+                              class="cf-case-row"
+                              role="listitem"
+                              tabindex="0"
+                              aria-label="Case 1003 — SharePoint Online Consolidation, Active"
+                            >
+                              <span class="cf-case-status-dot status-active" aria-hidden="true"></span>
+                              <span class="cf-case-id">CF-1003</span>
+                              <span class="cf-case-title">SharePoint Online Consolidation</span>
+                              <span class="cf-case-badge badge-active">Active</span>
+                              <span class="cf-case-meta">
+                                <i class="mdi mdi-account-outline mdi-14px me-1" aria-hidden="true"></i>S. Williams
+                              </span>
+                            </li>
+                            <li
+                              class="cf-case-row"
+                              role="listitem"
+                              tabindex="0"
+                              aria-label="Case 1004 — Archive Discovery Review, Closed"
+                            >
+                              <span class="cf-case-status-dot status-closed" aria-hidden="true"></span>
+                              <span class="cf-case-id">CF-1004</span>
+                              <span class="cf-case-title">Archive Discovery Review</span>
+                              <span class="cf-case-badge badge-closed">Closed</span>
+                              <span class="cf-case-meta">
+                                <i class="mdi mdi-account-outline mdi-14px me-1" aria-hidden="true"></i>L. Torres
+                              </span>
+                            </li>
+                            <li
+                              class="cf-case-row"
+                              role="listitem"
+                              tabindex="0"
+                              aria-label="Case 1005 — Teams Channel Migration, Pending"
+                            >
+                              <span class="cf-case-status-dot status-pending" aria-hidden="true"></span>
+                              <span class="cf-case-id">CF-1005</span>
+                              <span class="cf-case-title">Teams Channel Migration</span>
+                              <span class="cf-case-badge badge-pending">Pending</span>
+                              <span class="cf-case-meta">
+                                <i class="mdi mdi-account-outline mdi-14px me-1" aria-hidden="true"></i>R. Johnson
+                              </span>
+                            </li>
+                          </ul>
+                        </section>
+                      </div>
+                    </section>
+
+                    <!-- Code -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre
+                          class="line-numbers m-0"
+                        ><code class="language-html">&lt;!-- CaseFusion case row — hover + focus-visible highlight via CSS --&gt;
+&lt;ul class="cf-case-list" role="list" aria-label="CaseFusion active cases"&gt;
+  &lt;li class="cf-case-row" role="listitem" tabindex="0"
+    aria-label="Case 1001 — Exchange Migration to M365, Active"&gt;
+    &lt;span class="cf-case-status-dot status-active" aria-hidden="true"&gt;&lt;/span&gt;
+    &lt;span class="cf-case-id"&gt;CF-1001&lt;/span&gt;
+    &lt;span class="cf-case-title"&gt;Exchange Migration to M365&lt;/span&gt;
+    &lt;span class="cf-case-badge badge-active"&gt;Active&lt;/span&gt;
+    &lt;span class="cf-case-meta"&gt;J. Carter&lt;/span&gt;
+  &lt;/li&gt;
+  &lt;!-- Repeat for each case row --&gt;
+&lt;/ul&gt;</code></pre>
+                      </div>
+                    </section>
+
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-css">CSS</span></h4>
+                      <div class="p-0">
+                        <pre
+                          class="line-numbers m-0"
+                        ><code class="language-css">/* Hover and focus-visible share the same highlight — keyboard parity */
+.cf-case-row:hover,
+.cf-case-row:focus-visible {
+  background-color: var(--cnds-product-casefusion-green-50, #f0faf4);
+  box-shadow: inset 3px 0 0 var(--cnds-product-casefusion-green-500, #28a745);
+}
+
+/* Respect reduced-motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .cf-case-row { transition: none; }
+}</code></pre>
+                      </div>
+                    </section>
+                  </section>
+                  <!-- /Section: Product example -->
+
+                  <hr class="my-5" />
+
+                  <!-- ==================================================
+                       Section: API Documentation
+                       ================================================== -->
+                  <section id="section-api-docs">
+                    <h3 class="mb-3">API Documentation</h3>
+
+                    <!-- API: Introduction -->
+                    <section id="api-section-introduction" class="mt-4">
+                      <h3 class="mb-4">Introduction</h3>
+                      <p>
+                        Hover effects in Nimbus are implemented entirely with
+                        CSS utility classes. No JavaScript initialization is
+                        required. The effects use CSS transitions for smooth,
+                        performant animations that respect the user&rsquo;s
+                        <code>prefers-reduced-motion</code> setting. All color
+                        values are expressed as inline RGBA on <code>.mask</code>
+                        elements, keeping the design-token layer clean. The
+                        ripple click effect is the only addition that requires a
+                        JavaScript hook — it is handled automatically by
+                        <code>nimbus.js</code> when the <code>.ripple</code>
+                        class is present.
+                      </p>
+                    </section>
+                    <!-- /API: Introduction -->
+
+                    <!-- API: Usage -->
+                    <section id="api-section-usage" class="mt-4">
+                      <h3 class="mb-4">Usage</h3>
+
+                      <h5 class="mb-3">Via CSS classes</h5>
+                      <p>
+                        Apply hover effect classes directly to your HTML
+                        elements. No JavaScript initialization or
+                        <code>data-cnds-*</code> attributes are needed for the
+                        core hover effects.
+                      </p>
+
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre
+                            class="line-numbers m-0"
+                          ><code class="language-html">&lt;!-- Overlay hover effect --&gt;
+&lt;div class="bg-image hover-overlay"&gt;
+  &lt;img src="path/to/image.png" class="w-100" alt="..." /&gt;
+  &lt;div class="mask" style="background-color: rgba(0, 0, 0, 0.3)"&gt;&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Zoom hover effect --&gt;
+&lt;div class="bg-image hover-zoom"&gt;
+  &lt;img src="path/to/image.png" class="w-100" alt="..." /&gt;
+&lt;/div&gt;
+
+&lt;!-- Shadow hover effect --&gt;
+&lt;img src="path/to/image.png" class="hover-shadow" alt="..." /&gt;</code></pre>
+                        </div>
+                      </section>
+
+                      <h5 class="mb-3">With ripple effect</h5>
+                      <p>
+                        To add a ripple click effect alongside hover effects,
+                        add the <code>.ripple</code> class and optionally set
+                        the ripple color with
+                        <code>data-cnds-ripple-color</code>.
+                      </p>
+
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre
+                            class="line-numbers m-0"
+                          ><code class="language-html">&lt;div class="bg-image hover-overlay ripple"
+  data-cnds-ripple-color="light"&gt;
+  &lt;img src="path/to/image.png" class="w-100" alt="..." /&gt;
+  &lt;a href="#!"&gt;
+    &lt;div class="mask" style="background-color: rgba(251, 251, 251, 0.2)"&gt;&lt;/div&gt;
+  &lt;/a&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!-- /API: Usage -->
+
+                    <!-- API: CSS Classes -->
+                    <section id="api-section-css-classes" class="mt-4">
+                      <h3 class="mb-4">CSS classes</h3>
+
+                      <h5 class="mb-3">Container classes</h5>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="CSS classes">
+                          <thead>
+                            <tr>
+                              <th class="th-sm">Class</th>
+                              <th class="th-sm">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>.bg-image</code></td>
+                              <td>
+                                Sets up a positioned container with
+                                <code>overflow: hidden</code> for background
+                                image effects. Required wrapper for overlay and
+                                zoom effects.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.bg-fixed</code></td>
+                              <td>
+                                Applies
+                                <code>background-attachment: fixed</code> for
+                                parallax-style backgrounds.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <h5 class="mb-3">Hover effect classes</h5>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="CSS classes">
+                          <thead>
+                            <tr>
+                              <th class="th-sm">Class</th>
+                              <th class="th-sm">CSS property</th>
+                              <th class="th-sm">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>.hover-overlay</code></td>
+                              <td>
+                                Toggles child <code>.mask</code> opacity on
+                                hover
+                              </td>
+                              <td>
+                                Shows a color overlay on the image when hovered.
+                                Requires a <code>.mask</code> child element with
+                                a background color.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.hover-zoom</code></td>
+                              <td>
+                                <code>transform: scale(1.1)</code> on child
+                                <code>img</code>
+                              </td>
+                              <td>
+                                Scales the image up by 10% on hover with a
+                                smooth transition. Container uses
+                                <code>overflow: hidden</code> to clip the scaled
+                                image. Suppressed by
+                                <code>prefers-reduced-motion</code>.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.hover-shadow</code></td>
+                              <td>
+                                <code>box-shadow</code> transition on hover
+                              </td>
+                              <td>
+                                Applies a medium elevation shadow on hover. Can
+                                be used on any element, not just images.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <h5 class="mb-3">Mask &amp; overlay classes</h5>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="CSS classes">
+                          <thead>
+                            <tr>
+                              <th class="th-sm">Class</th>
+                              <th class="th-sm">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>.mask</code></td>
+                              <td>
+                                Absolutely positioned overlay that covers the
+                                entire parent element. Set the background color
+                                via inline <code>style</code> using RGBA values.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.ripple</code></td>
+                              <td>
+                                Adds a Material Design ripple click effect.
+                                Initialised by <code>nimbus.js</code>. Use
+                                <code>data-cnds-ripple-color</code> to set the
+                                ripple color (<code>light</code>,
+                                <code>dark</code>, or any color value).
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <h5 class="mb-3">Shadow utility classes</h5>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="CSS classes">
+                          <thead>
+                            <tr>
+                              <th class="th-sm">Class</th>
+                              <th class="th-sm">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>.shadow-1-strong</code></td>
+                              <td>
+                                Applies a level-1 elevation shadow. Commonly
+                                paired with hover effects for a raised card
+                                appearance.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>.shadow-1</code> &ndash;
+                                <code>.shadow-5</code>
+                              </td>
+                              <td>
+                                Numbered shadow scale from subtle (1) to
+                                dramatic (5). See the
+                                <a href="cnds-shadows.html"
+                                  >Shadows documentation</a
+                                >
+                                for the full list.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>.shadow-1-hover</code> &ndash;
+                                <code>.shadow-5-hover</code>
+                              </td>
+                              <td>
+                                Applies the corresponding shadow level only on
+                                hover with a smooth transition.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!-- /API: CSS Classes -->
+
+                    <!-- API: CSS Custom Properties -->
+                    <section id="api-section-css-variables" class="mt-4">
+                      <h3 class="mb-4">CSS custom properties</h3>
+                      <p>
+                        Hover effects use standard CSS transitions. The
+                        following custom properties from the Nimbus design token
+                        system are relevant:
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="CSS custom properties">
+                          <thead>
+                            <tr>
+                              <th class="th-sm">Property</th>
+                              <th class="th-sm">Default</th>
+                              <th class="th-sm">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>--cnds-shadow-1</code> &ndash;
+                                <code>--cnds-shadow-5</code>
+                              </td>
+                              <td>
+                                See <a href="cnds-shadows.html">Shadows</a>
+                              </td>
+                              <td>
+                                Shadow elevation tokens used by
+                                <code>.hover-shadow</code> and
+                                <code>.shadow-*-hover</code> classes.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-ripple-color</code></td>
+                              <td><code>rgba(0, 0, 0, 0.2)</code></td>
+                              <td>
+                                Default ripple color for the
+                                <code>.ripple</code> effect.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-ripple-duration</code></td>
+                              <td><code>500ms</code></td>
+                              <td>Duration of the ripple animation.</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!-- /API: CSS Custom Properties -->
+
+                    <!-- API: Data Attributes -->
+                    <section id="api-section-data-attributes" class="mt-4">
+                      <h3 class="mb-4">Data attributes</h3>
+                      <p>
+                        The core hover effects (overlay, zoom, shadow) are
+                        CSS-only and do not require data attributes. However,
+                        the ripple effect uses the following:
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Data attributes">
+                          <thead>
+                            <tr>
+                              <th class="th-sm">Attribute</th>
+                              <th class="th-sm">Type</th>
+                              <th class="th-sm">Default</th>
+                              <th class="th-sm">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>data-cnds-ripple-color</code></td>
+                              <td>String</td>
+                              <td><code>dark</code></td>
+                              <td>
+                                Sets the ripple color. Accepts
+                                <code>light</code>, <code>dark</code>, or any
+                                valid CSS color value.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!-- /API: Data Attributes -->
+
+                    <!-- API: Accessibility -->
+                    <section id="api-section-accessibility" class="mt-4">
+                      <h3 class="mb-4">Accessibility</h3>
+                      <p>
+                        Hover effects are purely decorative and do not convey
+                        information. Follow these guidelines to ensure accessible
+                        usage and Section 508 compliance:
+                      </p>
+                      <ul>
+                        <li>
+                          <strong>Focus equivalents (WCAG 2.4.7):</strong> Every
+                          <code>:hover</code> visual change must have a matching
+                          <code>:focus-visible</code> rule so keyboard users
+                          receive the same feedback. Use
+                          <code>:focus-visible</code> (not <code>:focus</code>)
+                          to avoid showing the outline on mouse click.
+                        </li>
+                        <li>
+                          <strong>Do not rely on hover alone:</strong> Never
+                          hide critical content, actions, or state changes behind
+                          a hover — they must be available on tap/click and via
+                          keyboard navigation.
+                        </li>
+                        <li>
+                          <strong>Reduced motion (WCAG 2.3.3):</strong> The CSS
+                          transitions and <code>transform: scale()</code> on
+                          <code>.hover-zoom</code> are suppressed automatically
+                          when the user has
+                          <code>prefers-reduced-motion: reduce</code> set. For
+                          custom hover styles, add the following guard:
+                          <pre class="line-numbers mt-2"><code class="language-css">@media (prefers-reduced-motion: reduce) {
+  .your-hover-element { transition: none; transform: none; }
+}</code></pre>
+                        </li>
+                        <li>
+                          <strong>Color contrast:</strong> Ensure sufficient
+                          contrast between text and its background in both the
+                          default and hover states. When using overlay masks,
+                          verify the combined opacity meets the WCAG AA minimum
+                          of 4.5:1 for normal text and 3:1 for large text.
+                        </li>
+                        <li>
+                          <strong>Alt text:</strong> Always provide meaningful
+                          <code>alt</code> attributes on images used with hover
+                          effects. Use <code>alt=""</code> only when the image
+                          is purely decorative and conveys no information.
+                        </li>
+                        <li>
+                          <strong>Keyboard operability (Section 508 §1194.21):</strong>
+                          Ensure all interactive elements that receive a hover
+                          effect are also reachable and operable via keyboard.
+                          Add <code>tabindex="0"</code> to non-interactive
+                          elements (e.g., <code>&lt;div&gt;</code>,
+                          <code>&lt;li&gt;</code>) that should be focusable.
+                          Handle <code>keydown</code> events for
+                          <kbd>Enter</kbd> and <kbd>Space</kbd> where applicable.
+                        </li>
+                      </ul>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-css">CSS</span></h5>
+                        <div class="p-0">
+                          <pre
+                            class="line-numbers m-0"
+                          ><code class="language-css">/* Recommended pattern: :hover and :focus-visible share the same rule */
+.my-card:hover,
+.my-card:focus-visible {
+  background-color: var(--cnds-surface-hover);
+  box-shadow: var(--cnds-shadow-2);
+}
+
+/* Suppress transforms for reduced-motion users */
+@media (prefers-reduced-motion: reduce) {
+  .my-card { transition: none; }
+}</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!-- /API: Accessibility -->
+
+                  </section>
+                  <!-- /Section: API Documentation -->
+                </section>
+                <!-- /Docs content -->
+              </div>
+              <!-- ./Main column -->
+
+              <!-- ======================================================
+                   Right Sidebar
+                   ====================================================== -->
+              <div class="col-lg-2 d-none d-lg-block">
+                <div class="sticky-top" style="top: 100px; z-index: 1">
+                  <ul
+                    class="nav flex-column nav-pills menu-sidebar"
+                    data-cnds-allow-hashes="true"
+                  >
+                    <!-- Main sections -->
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-introduction">Introduction</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-basic-example">Basic example</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-types">Types</a>
+                      <ul class="nav flex-column list-unstyled ps-3">
+                        <li class="nav-item">
+                          <a class="nav-link" href="#subsection-overlay">Overlay</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="#subsection-zoom">Zoom</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="#subsection-shadow">Shadow</a>
+                        </li>
+                      </ul>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-mixing-effects">Mixing effects</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-overlay-over-mask">Overlay over mask</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-product-example">Product example</a>
+                    </li>
+                    <!-- API Documentation sections -->
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-api-docs">API Documentation</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#api-section-introduction">Introduction</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#api-section-usage">Usage</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#api-section-css-classes">CSS classes</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#api-section-css-variables">CSS custom properties</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#api-section-data-attributes">Data attributes</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                      <a class="nav-link" href="#api-section-accessibility">Accessibility</a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <!-- ./Right Sidebar -->
+            </div>
+            <!-- ./Content Row -->
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- ./Content -->
+
+    <!-- ============================================================
+         Footer
+         ============================================================ -->
+    <!-- Footer -->
+    <div class="cf-footer cf-footer-app">
+      <footer class="page-footer main-footer" aria-label="Site footer">
+        <div class="w-100 px-3 d-flex align-items-center">
+          <img src="img/cf/core/cloudficient_logo_light.svg" class="cf-logo-light" style="width: 135px;" alt="Cloudficient" />
+          <img src="img/cf/core/cloudficient_logo_dark.svg" class="cf-logo-dark" style="width: 135px;" alt="Cloudficient" />
+          <span class="footer-copyright ms-auto">&copy; <span id="currentYear"></span> Cloudficient</span>
+        </div>
+      </footer>
+    </div>
+    <!-- ./Footer -->
+            <div
+              class="col-12 col-md-5 col-lg-7 col-xl-8 flex-column flex-md-row d-flex justify-content-center footer-links py-0 py-lg-3 py-xl-3"
+            >
+              <a
+                href="#!"
+                target="_blank"
+                class="text-nowrap my-3 my-md-0 mb-0 me-0"
+                >Cloudficient</a
+              >
+              <a
+                href="#!"
+                target="_blank"
+                class="text-nowrap my-3 my-md-0 mb-0 me-0"
+                >Support</a
+              >
+              <a
+                href="#!"
+                target="_blank"
+                class="text-nowrap my-3 my-md-0 mb-0 me-0"
+                >Community</a
+              >
+              <a
+                href="#!"
+                target="_blank"
+                class="text-nowrap my-3 my-md-0 mb-0 me-0"
+                >Documentation</a
+              >
+            </div>
+            <div
+              class="col-12 col-md-4 col-lg-3 col-xl-2 d-flex justify-content-center justify-content-xl-end py-lg-1 py-xl-0 social-btns"
+            >
+              <div
+                class="d-flex align-items-center justify-content-center justify-content-xl-end social-btns-container"
+              >
+                <!-- Social icons: X uses Font Awesome (fab fa-*); LinkedIn and YouTube use MDI -->
+                <a
+                  href="https://twitter.com/cloudficient"
+                  target="_blank"
+                  data-cnds-toggle="tooltip"
+                  data-cnds-placement="top"
+                  title="X"
+                  class="social footer-fa-fix"
+                  ><i class="fab fa-x-twitter fa-lg" aria-hidden="true"></i
+                ></a>
+                <a
+                  href="https://www.linkedin.com/company/cloudficient"
+                  target="_blank"
+                  data-cnds-toggle="tooltip"
+                  data-cnds-placement="top"
+                  title="LinkedIn"
+                  class="social"
+                  ><i class="mdi mdi-24px mdi-linkedin" aria-hidden="true"></i
+                ></a>
+                <a
+                  href="https://www.youtube.com/@cloudficient"
+                  target="_blank"
+                  data-cnds-toggle="tooltip"
+                  data-cnds-placement="top"
+                  title="YouTube"
+                  class="social"
+                  ><i class="mdi mdi-24px mdi-youtube" aria-hidden="true"></i
+                ></a>
+              </div>
+            </div>
+            <div class="col-12">
+              <p
+                class="caption text-nowrap p-0 mt-0 mt-lg-3 mb-0 mb-lg-3 text-center"
+              >
+                &copy; <span id="currentYear"></span> Cloudficient. All rights
+                reserved.
+              </p>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+    <!-- ./Footer -->
+
+    <!-- ============================================================
+         Scripts — load order matters:
+         1. nimbus.js       — core framework: processes all data-cnds-* attributes
+                              (theme toggle, sticky sidebar, sidenav, tooltips, ripple)
+         2. app.js          — application-level overrides and custom initialisation
+         3. prism.min.js    — syntax highlighting for <code class="language-*"> blocks;
+                              must run after DOM is ready
+         4. sidenav-loader.js — fetches shared sidenav HTML and injects into #sidebar-cf
+         ============================================================ -->
+    <script type="text/javascript" src="js/nimbus.js?v=9.0.4"></script>
+    <script type="text/javascript" src="js/app.js?v=9.0.4"></script>
+    <script type="text/javascript" src="plugins/js/prism.min.js"></script>
+    <script type="text/javascript" src="js/sidenav-loader.js"></script>
+    <!-- Inline: populate the footer copyright year dynamically so the page never needs a manual update -->
+    <script type="text/javascript">
+      /* ---------------------------------------------------------------
+         Footer: Write current year (vanilla JS — no jQuery)
+         --------------------------------------------------------------- */
+      var currentYearElement = document.getElementById("currentYear");
+      if (currentYearElement) {
+        currentYearElement.textContent = new Date().getFullYear();
+      }
+    </script>
+    <!-- ./Scripts -->
+  </body>
+</html>

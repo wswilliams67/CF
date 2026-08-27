@@ -1,0 +1,1220 @@
+<!--
+* CNDS Nimbus Design System — Infinite Scroll
+* Version: 1.0.0
+* Layout: Application with SideNav (migrated from Nimbus v8 template)
+*
+* Component JS:  js/components/infinite-scroll.js
+*
+* SECTIONS (in document order)
+*   #section-introduction            — Overview and when to use
+*   #section-basic-example           — Vertical scroll list
+*   #section-direction               — Horizontal scroll direction
+*   #section-spinners-and-async-data — Spinner + async data pattern
+*   #section-window                  — Window-level infinite scroll
+*   #section-api-docs                — API Documentation
+*     #api-section-introduction      — Component model overview
+*     #api-section-usage             — Initialisation patterns
+*     #api-section-options           — Options reference
+*     #api-section-methods           — Method reference
+*     #api-section-events            — Event reference
+*
+* NOTES
+* - Pure HTML5, CSS3, vanilla JavaScript — zero external dependencies
+* - Uses data-cnds-* attributes for declarative initialisation
+* - Uses Nimbus.* namespace for programmatic API
+* - Event namespace: completed.cnds.infiniteScroll
+* - Default product theme: CaseFusion (cnds-product-casefusion on <body>; change to cnds-product-hyperlize or cnds-product-expireon)
+-->
+<!doctype html>
+<!-- data-cnds-theme: sets the initial theme ("light" | "dark"). nimbus.js syncs this attribute when the user toggles. -->
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta
+      name="description"
+      content="Infinite Scroll | Cloudficient Nimbus Design System v1.0.0"
+    />
+    <title>Infinite Scroll | CNDS v1.0.0 | Cloudficient Nimbus Design System</title>
+    <!-- Nimbus CSS -->
+    <link rel="stylesheet" href="css/nimbus.css" media="all" type="text/css" />
+    <!-- Custom styles | All custom classes/styles/overrides go here! -->
+    <link rel="stylesheet" href="css/app.css" media="all" type="text/css" />
+    <!-- Prism syntax highlighting -->
+    <link
+      rel="stylesheet"
+      href="plugins/css/prism.min.css"
+      media="all"
+      type="text/css"
+    />
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="57x57"  href="img/favicon/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="60x60"  href="img/favicon/apple-icon-60x60.png" />
+    <link rel="apple-touch-icon" sizes="72x72"  href="img/favicon/apple-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76"  href="img/favicon/apple-icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="img/favicon/apple-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="img/favicon/apple-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="img/favicon/apple-icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="img/favicon/apple-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-icon-180x180.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="img/favicon/android-icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="32x32"  href="img/favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="96x96"  href="img/favicon/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="16x16"  href="img/favicon/favicon-16x16.png" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="msapplication-TileImage" content="img/favicon/ms-icon-144x144.png" />
+    <!-- ./Favicons -->
+    <!-- Design tokens — load order matters:
+         1. primitives.css  — raw color/spacing values (no theming)
+         2. light.css       — semantic tokens for [data-cnds-theme="light"] / :root
+         3. dark.css        — semantic token overrides for [data-cnds-theme="dark"]
+         All three must appear AFTER nimbus.css so component variables resolve correctly. -->
+    <link rel="stylesheet" href="css/themes/primitives.css" />
+    <link rel="stylesheet" href="css/themes/light.css" />
+    <link rel="stylesheet" href="css/themes/dark.css" />
+  </head>
+
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 Bypass Blocks; renders visually hidden until focused -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+    <!-- Header -->
+    <div class="sticky-top">
+      <!-- Utility Navigation -->
+      <nav id="UtilityNav" class="nav nav-cf-utility">
+        <div class="w-100 gx-3 px-sm-0 px-lg-3">
+          <ul class="nav nav-cf-utility-ul"></ul>
+        </div>
+      </nav>
+      <!-- ./Utility Navigation -->
+      <!-- Main Navigation -->
+      <nav id="MainNav" class="navbar navbar-expand-xl navbar-cf">
+        <div class="container-fluid p-0 px-3 d-flex">
+          <div class="d-flex flex-fill align-items-center text-truncate">
+            <div class="text-center d-none d-md-block me-3 border-end">
+              <a href="index.html"
+                ><img src="img/cf/core/logo_nimbus.png" class="me-3 mt-n1"
+                alt="Cloudficient Nimbus Design System" /></a>
+            </div>
+            <div class="flex-fill text-truncate">
+              <div class="navbar-cf-title-block">
+                <div
+                  class="navbar-cf-title cf-page-title text-truncate"
+                  style="padding-bottom: 0"
+                >
+                  <span class="cf-page-title-text cf-page-title-brand">v1</span
+                  ><span class="cf-page-title-divider"></span
+                  ><span class="cf-page-title-text">Infinite Scroll</span>
+                </div>
+              </div>
+            </div>
+            <!-- Hamburger toggler — visible on smaller viewports where the nav collapses -->
+          </div>
+          <!-- data-cnds-toggle="theme": wired by nimbus.js — flips data-cnds-theme on <html> between "light" and "dark" -->
+          <button
+            class="btn btn-sm btn-outline-secondary ms-2"
+            data-cnds-toggle="theme"
+            aria-label="Toggle theme"
+            title="Toggle theme"
+          >
+            <i class="mdi mdi-weather-night mdi-18px" aria-hidden="true"></i>
+          </button>
+        </div>
+      </nav>
+      <!-- ./Main Navigation -->
+    </div>
+    <!-- ./Header -->
+    <!-- Content -->
+    <main id="main-content" class="cf-main-app">
+      <!-- Mobile viewport warning — hidden on md+ where the layout is usable -->
+      <div class="d-block d-md-none p-4">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>This application is not
+          optimized for small screens. Please use a large tablet, laptop, or
+          desktop computer to continue.
+        </div>
+      </div>
+      <div class="d-none d-md-block">
+        <!-- Sidenav — markup is intentionally empty; sidenav-loader.js fetches and injects the shared nav HTML.
+             data-cnds-mode="side"           : renders as a persistent side panel (not an overlay/drawer)
+             data-cnds-slim / slim-collapsed : controls compact/icon-only collapsed state
+             data-cnds-content="#slim-content": the sibling panel that shrinks/expands as the nav opens/closes
+             data-cnds-accordion="true"      : collapses other open nav groups when a new one is expanded -->
+        <nav
+          id="sidebar-cf"
+          class="sidenav"
+          data-cnds-mode="side"
+          data-cnds-slim="false"
+          data-cnds-slim-collapsed="false"
+          data-cnds-content="#slim-content"
+          data-cnds-accordion="true"
+        ></nav>
+        <div id="slim-content">
+          <div class="slim-content-box">
+            <!-- Content Row -->
+            <div class="row">
+              <!-- Main column — 80 % of the row width; the remaining 20 % is the right sidebar.
+                   The inline flex overrides pin the ratio regardless of Bootstrap's grid breakpoints
+                   so the sidebar never wraps on large viewports. -->
+              <div class="col-12 col-lg" style="flex: 0 0 80%; max-width: 80%">
+                <!--Section: Docs content-->
+                <section class="container-fluid">
+
+                  <!--Section: Introduction-->
+                  <section id="section-introduction">
+
+                    <p class="mb-4">
+                      Infinite Scroll attaches a scroll event listener to any scrollable
+                      container — or to the <code>window</code> — and dispatches the
+                      <code>completed.cnds.infiniteScroll</code> custom event each time
+                      the user reaches the scroll boundary. Your code responds to that
+                      event to load or render the next batch of content. Initialization
+                      can be declarative (a single HTML attribute) or programmatic (the
+                      <code>Nimbus.InfiniteScroll</code> constructor).
+                    </p>
+
+                    <p class="mb-4">
+                      Use Infinite Scroll for feeds, activity logs, search results, and any list where loading all
+                      records upfront would degrade page performance. The component works in both vertical and
+                      horizontal orientations — vertical for typical list feeds, horizontal for image carousels and
+                      horizontal card strips. A spinner-and-async-data pattern is also supported: show a loading
+                      indicator on the <code>completed.cnds.infiniteScroll</code> event, fetch the next page, then
+                      append results and hide the spinner.
+                    </p>
+
+                    <p class="note note-light">
+                      <strong>Note:</strong> Read the
+                      <a href="#section-api-docs">API Documentation</a> to find all
+                      available options and advanced customization.
+                    </p>
+
+                    <p class="note note-info">
+                      <strong class="note-label">Note:</strong> To preview components in different
+                      themes, click the theme toggle button
+                      <i class="mdi mdi-weather-night" aria-hidden="true"></i> /
+                      <i class="mdi mdi-weather-sunny" aria-hidden="true"></i>
+                      in the header navigation bar.
+                    </p>
+
+                  </section>
+                  <!--/Section: Introduction-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Basic example-->
+                  <section id="section-basic-example">
+                    <!-- Section title -->
+                    <h3 class="mb-4">Basic example</h3>
+
+                    <p class="my-4">
+                      Add <code>data-cnds-infinite-scroll-init</code> to any scrollable
+                      container. When the user scrolls to the bottom, the component
+                      fires <code>completed.cnds.infiniteScroll</code> on that element.
+                      Listen for that event to append the next batch of items.
+                    </p>
+
+                    <p class="note note-info">
+                      <strong>Note:</strong> The container must be independently
+                      scrollable — set <code>overflow-y: scroll</code> (or
+                      <code>auto</code>) and a fixed <code>max-height</code> so the
+                      browser knows where the scroll boundary is.
+                    </p>
+
+                    <!--
+                      ANGULAR CONVERSION — Basic Infinite Scroll
+                      ─────────────────────────────────────────────────────────────────
+                      Option A — use a custom directive that wraps Nimbus.InfiniteScroll:
+                        <ul cndsInfiniteScroll (cndsScrollCompleted)="loadMore()"
+                            [style.max-height.px]="261" style="overflow-y:scroll">
+                          <li class="list-group-item d-flex align-items-center"
+                              *ngFor="let item of items">
+                            <i class="far fa-{{ item.icon | lowercase }} fa-3x me-4"
+                               aria-hidden="true"></i> {{ item.label }}
+                          </li>
+                        </ul>
+
+                      Option B — @HostListener on the container's scroll event:
+                        @HostListener('scroll', ['$event.target'])
+                        onScroll(el: HTMLElement) {
+                          if (el.scrollHeight - el.scrollTop <= el.clientHeight + 5) {
+                            this.loadMore();
+                          }
+                        }
+                        loadMore() { this.items.push(...this.nextBatch()); }
+                      ─────────────────────────────────────────────────────────────────
+                    -->
+
+                    <!--Section: Demo-->
+                    <section class="pb-4" aria-label="Basic infinite scroll demo">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                          <ul
+                            class="container list-group"
+                            id="basic-example"
+                            data-cnds-infinite-scroll-init
+                            style="max-height: 261px; overflow-y: scroll"
+                            aria-label="Infinite scroll list — scroll down to load more items"
+                          >
+                            <li class="list-group-item d-flex align-items-center">
+                              <i class="far fa-angry fa-3x me-4" aria-hidden="true"></i> Angry
+                            </li>
+                            <li class="list-group-item d-flex align-items-center">
+                              <i class="far fa-dizzy fa-3x me-4" aria-hidden="true"></i> Dizzy
+                            </li>
+                            <li class="list-group-item d-flex align-items-center">
+                              <i class="far fa-flushed fa-3x me-4" aria-hidden="true"></i> Flushed
+                            </li>
+                            <li class="list-group-item d-flex align-items-center">
+                              <i class="far fa-frown fa-3x me-4" aria-hidden="true"></i> Frown
+                            </li>
+                            <li class="list-group-item d-flex align-items-center">
+                              <i class="far fa-grimace fa-3x me-4" aria-hidden="true"></i> Grimace
+                            </li>
+                            <li class="list-group-item d-flex align-items-center">
+                              <i class="far fa-grin fa-3x me-4" aria-hidden="true"></i> Grin
+                            </li>
+                          </ul>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+                    <!-- Angular: Use a scrollable <ul> with a custom directive or @HostListener on (scroll) to detect
+                         the bottom boundary (scrollHeight - scrollTop <= clientHeight + threshold). Render items with
+                         *ngFor and call a loadMore() method that appends the next batch to the items array. -->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;ul class="container list-group"
+    id="basic-example"
+    data-cnds-infinite-scroll-init
+    style="max-height: 261px; overflow-y: scroll"
+    aria-label="Infinite scroll list"&gt;
+  &lt;li class="list-group-item d-flex align-items-center"&gt;
+    &lt;i class="far fa-angry fa-3x me-4" aria-hidden="true"&gt;&lt;/i&gt; Angry
+  &lt;/li&gt;
+  &lt;li class="list-group-item d-flex align-items-center"&gt;
+    &lt;i class="far fa-dizzy fa-3x me-4" aria-hidden="true"&gt;&lt;/i&gt; Dizzy
+  &lt;/li&gt;
+  &lt;!-- … remaining initial items … --&gt;
+&lt;/ul&gt;</code></pre>
+                      </div>
+                    </section>
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">const icons = [
+  'Sad-Tear', 'Meh-Blank', 'Smile-Wink',
+  'Tired', 'Surprise', 'Kiss-Beam', 'Laugh-Squint',
+];
+const basicEl = document.getElementById('basic-example');
+let index = 0;
+
+// Pre-build list items so DOM creation happens once, not on every scroll event
+const items = icons.map((icon) => {
+  const li = document.createElement('li');
+  li.className = 'list-group-item d-flex align-items-center';
+  li.innerHTML = `&lt;i class="far fa-${icon.toLowerCase()} fa-3x me-4" aria-hidden="true"&gt;&lt;/i&gt; ${icon}`;
+  return li;
+});
+
+basicEl.addEventListener('completed.cnds.infiniteScroll', () => {
+  const instance = Nimbus.InfiniteScroll.getInstance(basicEl);
+  if (index >= items.length) { instance.complete(); return; }
+  basicEl.appendChild(items[index]);
+  index++;
+  instance.loaded();
+});</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                  </section>
+                  <!--/Section: Basic example-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Direction-->
+                  <section id="section-direction">
+                    <!-- Section title -->
+                    <h3 class="mb-4">Direction</h3>
+
+                    <p class="my-4">
+                      By default, the component monitors vertical scrolling
+                      (<code>y</code>). Set
+                      <code>data-cnds-infinite-direction="x"</code> on a horizontally
+                      scrollable container to detect when the user reaches the right edge
+                      instead.
+                    </p>
+
+                    <!--
+                      ANGULAR CONVERSION — Horizontal Infinite Scroll
+                      ─────────────────────────────────────────────────────────────────
+                      Replace the data attribute with programmatic initialisation in
+                      ngAfterViewInit:
+
+                        @ViewChild('directionEl') directionEl!: ElementRef;
+
+                        ngAfterViewInit() {
+                          new Nimbus.InfiniteScroll(this.directionEl.nativeElement);
+                          this.directionEl.nativeElement.addEventListener(
+                            'completed.cnds.infiniteScroll', () => this.appendNext()
+                          );
+                        }
+
+                      Or listen directly for the native scroll event and compare
+                      scrollLeft + clientWidth >= scrollWidth to detect the right boundary.
+                      ─────────────────────────────────────────────────────────────────
+                    -->
+
+                    <!--Section: Demo-->
+                    <section class="pb-4" aria-label="Horizontal infinite scroll demo">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 d-flex pb-4">
+                          <div
+                            class="py-3 text-center"
+                            id="direction-example"
+                            style="max-width: 1500px; overflow-x: scroll; white-space: nowrap;"
+                            data-cnds-infinite-scroll-init
+                            data-cnds-infinite-direction="x"
+                            aria-label="Horizontal infinite scroll — scroll right to load more items"
+                          >
+                            <span class="mx-5"><i class="far fa-angry fa-3x me-4" aria-hidden="true"></i> Angry</span>
+                            <span class="mx-5"><i class="far fa-dizzy fa-3x me-4" aria-hidden="true"></i> Dizzy</span>
+                            <span class="mx-5"><i class="far fa-flushed fa-3x me-4" aria-hidden="true"></i> Flushed</span>
+                            <span class="mx-5"><i class="far fa-grimace fa-3x me-4" aria-hidden="true"></i> Grimace</span>
+                            <span class="mx-5"><i class="far fa-grin fa-3x me-4" aria-hidden="true"></i> Grin</span>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+                    <!-- Angular: Add data-cnds-infinite-direction="x" equivalent by initializing Nimbus.InfiniteScroll
+                         in ngAfterViewInit() with { infiniteDirection: 'x' } on a @ViewChild ref. For a pure Angular
+                         approach, listen to (scroll) on the container and check scrollLeft + clientWidth >= scrollWidth
+                         to detect the right edge, then append items via *ngFor on a horizontal flex container. -->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div id="direction-example"
+     style="max-width: 1500px; overflow-x: scroll; white-space: nowrap;"
+     data-cnds-infinite-scroll-init
+     data-cnds-infinite-direction="x"
+     aria-label="Horizontal infinite scroll"&gt;
+  &lt;span class="mx-5"&gt;&lt;i class="far fa-angry fa-3x me-4" aria-hidden="true"&gt;&lt;/i&gt; Angry&lt;/span&gt;
+  &lt;span class="mx-5"&gt;&lt;i class="far fa-dizzy fa-3x me-4" aria-hidden="true"&gt;&lt;/i&gt; Dizzy&lt;/span&gt;
+  &lt;span class="mx-5"&gt;&lt;i class="far fa-flushed fa-3x me-4" aria-hidden="true"&gt;&lt;/i&gt; Flushed&lt;/span&gt;
+  &lt;span class="mx-5"&gt;&lt;i class="far fa-grimace fa-3x me-4" aria-hidden="true"&gt;&lt;/i&gt; Grimace&lt;/span&gt;
+  &lt;span class="mx-5"&gt;&lt;i class="far fa-grin fa-3x me-4" aria-hidden="true"&gt;&lt;/i&gt; Grin&lt;/span&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">const icons = [
+  'Sad-Tear', 'Meh-Blank', 'Smile-Wink',
+  'Tired', 'Surprise', 'Kiss-Beam', 'Laugh-Squint',
+];
+const directionEl = document.getElementById('direction-example');
+let index = 0;
+
+// Pre-build span elements so DOM creation happens once, not on every scroll event
+const items = icons.map((icon) => {
+  const span = document.createElement('span');
+  span.className = 'mx-5';
+  span.innerHTML = `&lt;i class="far fa-${icon.toLowerCase()} fa-3x me-4" aria-hidden="true"&gt;&lt;/i&gt; ${icon}`;
+  return span;
+});
+
+directionEl.addEventListener('completed.cnds.infiniteScroll', () => {
+  const instance = Nimbus.InfiniteScroll.getInstance(directionEl);
+  if (index >= items.length) { instance.complete(); return; }
+  directionEl.appendChild(items[index]);
+  index++;
+  instance.loaded();
+});</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                  </section>
+                  <!--/Section: Direction-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Spinners and asynchronous data-->
+                  <section id="section-spinners-and-async-data">
+                    <!-- Section title -->
+                    <h3 class="mb-4">Spinners and asynchronous data</h3>
+
+                    <p class="my-4">
+                      Show a spinner while your API request is in-flight, then
+                      hide it once the response arrives and new content has been
+                      appended. Keep the spinner inside the scrollable container
+                      so it appears at the bottom of the current content list.
+                    </p>
+
+                    <!--
+                      ANGULAR CONVERSION — Spinners and Async Data
+                      ─────────────────────────────────────────────────────────────────
+                      1. Create a service (e.g. MediaService) with loadNext(): Observable<string>.
+                      2. Inject it into the component and expose a loading$ BehaviorSubject.
+                      3. Subscribe to 'completed.cnds.infiniteScroll' in ngAfterViewInit,
+                         call loadNext(), and toggle loading$ to show/hide the spinner.
+
+                      Template sketch:
+                        &lt;div cndsInfiniteScroll (cndsScrollCompleted)="loadMore()"
+                             style="max-height:500px; overflow-y:scroll"&gt;
+                          &lt;img *ngFor="let url of imageUrls$ | async"
+                               [src]="url" class="img-fluid mb-3" [alt]="'Loaded image'" /&gt;
+                          &lt;div class="spinner-border mx-auto"
+                               [hidden]="!(loading$ | async)"
+                               role="status"
+                               aria-label="Loading more images"&gt;&lt;/div&gt;
+                        &lt;/div&gt;
+                      ─────────────────────────────────────────────────────────────────
+                    -->
+
+                    <!--Section: Demo-->
+                    <section class="pb-4" aria-label="Infinite scroll with spinner demo">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 d-flex pb-4">
+                          <div
+                            class="py-3 text-center w-100"
+                            id="spinners-and-async-example"
+                            data-cnds-infinite-scroll-init
+                            data-cnds-spinner="false"
+                            style="max-height: 500px; overflow-y: scroll"
+                            aria-label="Image feed — scroll down to load more images"
+                          >
+                            <div id="images">
+                              <img
+                                src="img/cf/styleguide/041-1.webp"
+                                class="img-fluid mb-3"
+                                alt="Sample image 1"
+                              />
+                              <img
+                                src="img/cf/styleguide/111.webp"
+                                class="img-fluid mb-3"
+                                alt="Sample image 2"
+                              />
+                              <img
+                                src="img/cf/styleguide/184.webp"
+                                class="img-fluid mb-3"
+                                alt="Sample image 3"
+                              />
+                            </div>
+                            <!-- Spinner is hidden until an async load is in progress -->
+                            <div
+                              class="spinner-border mx-auto"
+                              id="spinner"
+                              role="status"
+                              aria-label="Loading more content"
+                              style="display: none"
+                            >
+                              <span class="visually-hidden">Loading…</span>
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+                    <!-- Angular: Inject a data service that returns an Observable. On scroll completion, set a
+                         loading$ BehaviorSubject to true to show the spinner (*ngIf or [hidden]), call the service,
+                         then push the new image URL into an imageUrls array rendered with *ngFor. Set loading$ to
+                         false in the subscription's next/error handlers to hide the spinner. -->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div id="spinners-and-async-example"
+     data-cnds-infinite-scroll-init
+     data-cnds-spinner="false"
+     style="max-height: 500px; overflow-y: scroll"
+     aria-label="Image feed"&gt;
+  &lt;div id="images"&gt;
+    &lt;img src="..." class="img-fluid mb-3" alt="Sample image 1" /&gt;
+    &lt;img src="..." class="img-fluid mb-3" alt="Sample image 2" /&gt;
+    &lt;img src="..." class="img-fluid mb-3" alt="Sample image 3" /&gt;
+  &lt;/div&gt;
+  &lt;div class="spinner-border mx-auto" id="spinner"
+       role="status" aria-label="Loading more content" style="display: none"&gt;
+    &lt;span class="visually-hidden"&gt;Loading…&lt;/span&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">const spinner = document.getElementById('spinner');
+const imagesContainer = document.getElementById('images');
+const infiniteContainer = document.getElementById('spinners-and-async-example');
+
+const createImg = (url, index) => {
+  const img = document.createElement('img');
+  img.className = 'img-fluid mb-3';
+  img.alt = `Dynamically loaded image ${index}`;
+  img.src = url;
+  return img;
+};
+
+const instance = Nimbus.InfiniteScroll.getInstance(infiniteContainer);
+
+const loadImages = () => {
+  spinner.style.display = 'block';
+  fetch('YOUR_API/getNextItem')
+    .then((response) => response.json())   // response.json() returns a Promise
+    .then((imgUrl) => {
+      spinner.style.display = 'none';
+      imagesContainer.appendChild(createImg(imgUrl, imagesContainer.children.length + 1));
+      instance.loaded();   // re-arm the component for the next scroll
+    })
+    .catch(() => {
+      spinner.style.display = 'none';
+      instance.loaded();   // re-arm even on error so the user can retry
+    });
+};
+
+infiniteContainer.addEventListener('completed.cnds.infiniteScroll', loadImages);</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                  </section>
+                  <!--/Section: Spinners and asynchronous data-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Window-->
+                  <section id="section-window">
+                    <!-- Section title -->
+                    <h3 class="mb-4">Window</h3>
+
+                    <p class="my-4">
+                      Pass the <code>window</code> object to the
+                      <code>Nimbus.InfiniteScroll</code> constructor to trigger
+                      infinite loading as the user scrolls the full page rather
+                      than a fixed-height container. Because window-level scroll
+                      cannot be activated declaratively, you must initialise the
+                      instance in JavaScript.
+                    </p>
+
+                    <p class="note note-info">
+                      <strong>Note:</strong> When multiple InfiniteScroll instances
+                      share the same page, check <code>event.target</code> inside
+                      your listener to confirm it is <code>window</code> before
+                      loading items — other containers fire the same event name on
+                      their own element.
+                    </p>
+
+                    <!--
+                      ANGULAR CONVERSION — Window-level Infinite Scroll
+                      ─────────────────────────────────────────────────────────────────
+                      In the root AppComponent or a layout component:
+
+                        private scrollInstance: any;
+
+                        ngAfterViewInit() {
+                          this.scrollInstance = new Nimbus.InfiniteScroll(window);
+                          window.addEventListener('completed.cnds.infiniteScroll', this.loadPosts);
+                        }
+
+                        ngOnDestroy() {
+                          window.removeEventListener('completed.cnds.infiniteScroll', this.loadPosts);
+                          this.scrollInstance?.dispose();
+                        }
+
+                      Or use the community library ngx-infinite-scroll:
+                        npm install ngx-infinite-scroll
+
+                        &lt;div infiniteScroll (scrolled)="loadPosts()" [fromRoot]="true"&gt;
+                          &lt;app-post-card *ngFor="let post of posts" [post]="post"&gt;&lt;/app-post-card&gt;
+                        &lt;/div&gt;
+                      ─────────────────────────────────────────────────────────────────
+                    -->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;!-- Full-page layout — no fixed height or overflow needed on the container --&gt;
+&lt;main class="my-4"&gt;
+  &lt;div class="container"&gt;
+    &lt;section class="text-center mb-4" id="posts"&gt;
+      &lt;!-- Initial post rows --&gt;
+      &lt;div class="row"&gt;
+        &lt;div class="col-md-6 mb-4"&gt;
+          &lt;div class="bg-image shadow-1-strong rounded mb-4"&gt;
+            &lt;img src="..." class="w-100" alt="Article thumbnail" /&gt;
+          &lt;/div&gt;
+          &lt;h5&gt;Article title&lt;/h5&gt;
+          &lt;p&gt;Article summary text.&lt;/p&gt;
+          &lt;a class="btn btn-info btn-rounded" href="#!" role="button"&gt;Read more&lt;/a&gt;
+        &lt;/div&gt;
+        &lt;!-- … second column … --&gt;
+      &lt;/div&gt;
+      &lt;!-- Spinner row — hidden until load is in-flight --&gt;
+      &lt;div class="row" id="spinner" style="display: none;"&gt;
+        &lt;div class="col-md-12"&gt;
+          &lt;div class="spinner-border mx-auto" role="status" aria-label="Loading more articles"&gt;
+            &lt;span class="visually-hidden"&gt;Loading…&lt;/span&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/section&gt;
+  &lt;/div&gt;
+&lt;/main&gt;</code></pre>
+                      </div>
+                    </section>
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">const postsContainer = document.getElementById('posts');
+const spinner = document.getElementById('spinner');
+
+// Article data — replace with real API responses
+const items = [
+  { img: '...', title: 'Article title', text: 'Article summary text.' },
+  { img: '...', title: 'Article title', text: 'Article summary text.' },
+  { img: '...', title: 'Article title', text: 'Article summary text.' },
+  { img: '...', title: 'Article title', text: 'Article summary text.' },
+  { img: '...', title: 'Article title', text: 'Article summary text.' },
+  { img: '...', title: 'Article title', text: 'Article summary text.' },
+  { img: '...', title: 'Article title', text: 'Article summary text.' },
+  { img: '...', title: 'Article title', text: 'Article summary text.' },
+];
+
+// Build reusable post column template
+const getPostTemplate = (post) => `
+  &lt;div class="col-md-6 mb-4"&gt;
+    &lt;div class="bg-image shadow-1-strong rounded mb-4"&gt;
+      &lt;img src="${post.img}" class="w-100" alt="${post.title}" /&gt;
+    &lt;/div&gt;
+    &lt;h5&gt;${post.title}&lt;/h5&gt;
+    &lt;p&gt;${post.text}&lt;/p&gt;
+    &lt;a class="btn btn-info btn-rounded" href="#!" role="button"&gt;Read more&lt;/a&gt;
+  &lt;/div&gt;
+`;
+
+const posts = items.map(getPostTemplate);
+
+// Group consecutive post templates into row elements (two per row)
+const rows = [];
+for (let i = 0; i &lt; posts.length - 1; i += 2) {
+  const row = document.createElement('div');
+  row.className = 'row';
+  row.innerHTML = posts[i] + posts[i + 1];
+  rows.push(row);
+}
+
+let renderedItems = 0;
+
+const renderItems = (index) => {
+  // Simulate API latency before appending (remove setTimeout in production)
+  setTimeout(() => {
+    spinner.style.display = 'none';
+    postsContainer.appendChild(rows[index]);
+  }, 1500);
+};
+
+const loadItems = () => {
+  if (renderedItems &gt;= rows.length) return;
+  postsContainer.appendChild(spinner);
+  spinner.style.display = 'flex';
+  renderItems(renderedItems);
+  renderedItems++;
+  // Detach listener once all batches have been rendered
+  if (renderedItems === rows.length) {
+    window.removeEventListener('completed.cnds.infiniteScroll', loadItems);
+  }
+};
+
+// Attach scroll listener and initialise on window
+window.addEventListener('completed.cnds.infiniteScroll', loadItems);
+new Nimbus.InfiniteScroll(window);</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                  </section>
+                  <!--/Section: Window-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: API Documentation-->
+                  <section id="section-api-docs">
+                    <h3 class="mb-3">API Documentation</h3>
+
+                    <!--Section: API Introduction-->
+                    <section id="api-section-introduction">
+                      <h4 class="mb-4">Introduction</h4>
+                      <p>
+                        The Nimbus InfiniteScroll component monitors the scroll
+                        position of a container or the browser window and
+                        dispatches the <code>completed.cnds.infiniteScroll</code>
+                        custom event each time the user reaches the scroll
+                        boundary. No content is loaded automatically — the
+                        component only signals that loading should begin; your
+                        event listener performs the actual data fetch and DOM
+                        update.
+                      </p>
+                      <p>
+                        Declarative initialisation (via
+                        <code>data-cnds-infinite-scroll-init</code>) is processed
+                        by <code>nimbus.js</code> on
+                        <code>DOMContentLoaded</code>. Programmatic initialisation
+                        via <code>new Nimbus.InfiniteScroll(element)</code> is
+                        required when the container is not in the initial DOM
+                        (e.g. rendered by a framework) or when targeting
+                        <code>window</code>.
+                      </p>
+                    </section>
+                    <!--/Section: API Introduction-->
+
+                    <!--Section: API Usage-->
+                    <section id="api-section-usage">
+                      <h4 class="mb-4">Usage</h4>
+                      <p>
+                        Add <code>data-cnds-infinite-scroll-init</code> to any
+                        scrollable container to initialise without JavaScript.
+                        All options can also be set via
+                        <code>data-cnds-*</code> attributes on the same element.
+                      </p>
+
+                      <h5 class="mt-5 mb-3">Via data attributes</h5>
+                      <section class="mb-4">
+                        <h6><span class="badge badge-code-html">HTML</span></h6>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-html">&lt;div data-cnds-infinite-scroll-init&gt;
+  Sample content
+&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+
+                      <h5 class="mt-5 mb-3">Via JavaScript</h5>
+                      <section class="mb-4">
+                        <h6><span class="badge badge-code-js">JAVASCRIPT</span></h6>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-js">const el = document.getElementById('my-scroll-container');
+const instance = new Nimbus.InfiniteScroll(el, {
+  infiniteDirection: 'y',   // 'y' (default) | 'x'
+});</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Section: API Usage-->
+
+                    <!--Section: API Options-->
+                    <section id="api-section-options">
+                      <h4 class="mb-4">Options</h4>
+                      <p>
+                        Options can be passed via data attributes or the
+                        JavaScript constructor. For data attributes, prefix the
+                        camelCase option name with <code>data-cnds-</code> — for
+                        example, <code>data-cnds-infinite-direction="x"</code>.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Options">
+                          <thead>
+                            <tr>
+                              <th class="th-sm">Name</th>
+                              <th class="th-sm">Type</th>
+                              <th class="th-sm">Default</th>
+                              <th class="th-sm">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="text-nowrap">
+                                <code>infiniteDirection</code>
+                              </td>
+                              <td><i>String</i></td>
+                              <td><code>'y'</code></td>
+                              <td>
+                                Scroll axis to monitor. Use <code>'y'</code> for
+                                vertical containers and <code>'x'</code> for
+                                horizontal containers.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap">
+                                <code>threshold</code>
+                              </td>
+                              <td><i>Number</i></td>
+                              <td><code>200</code></td>
+                              <td>
+                                Distance in pixels from the scroll end that
+                                triggers the load event. Increase this value to
+                                start loading earlier.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap">
+                                <code>container</code>
+                              </td>
+                              <td><i>Element | null</i></td>
+                              <td><code>null</code></td>
+                              <td>
+                                The element to attach the scroll listener to.
+                                Defaults to the component element itself. Pass
+                                <code>window</code> for full-page scroll
+                                detection.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap">
+                                <code>spinner</code>
+                              </td>
+                              <td><i>Boolean</i></td>
+                              <td><code>true</code></td>
+                              <td>
+                                When <code>true</code>, appends a built-in
+                                spinner to the element while a load is in
+                                progress. Set to <code>false</code> when
+                                managing your own loading indicator.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: API Options-->
+
+                    <!--Section: API Methods-->
+                    <section id="api-section-methods">
+                      <h4 class="mb-4">Methods</h4>
+                      <p>
+                        The following methods are available on a
+                        <code>Nimbus.InfiniteScroll</code> instance. Static
+                        methods (<code>getInstance</code>,
+                        <code>getOrCreateInstance</code>) are called on the class
+                        itself, not on an instance.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Methods">
+                          <thead>
+                            <tr>
+                              <th class="th-sm">Name</th>
+                              <th class="th-sm">Description</th>
+                              <th class="th-sm">Example</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="text-nowrap"><code>loaded</code></td>
+                              <td>
+                                Call this after each successful load to re-arm
+                                the component. Resets the loading flag and
+                                removes the built-in spinner so the next scroll
+                                event can trigger a new load.
+                              </td>
+                              <td>
+                                <code>instance.loaded()</code>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>complete</code></td>
+                              <td>
+                                Signals that all content has been loaded. The
+                                component stops listening for scroll events and
+                                fires <code>complete.cnds.infiniteScroll</code>.
+                                Call this when your data source is exhausted.
+                              </td>
+                              <td>
+                                <code>instance.complete()</code>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>reset</code></td>
+                              <td>
+                                Clears the loading and complete flags, allowing
+                                the component to fire again. Useful for
+                                refreshing the feed without re-creating the
+                                instance.
+                              </td>
+                              <td>
+                                <code>instance.reset()</code>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>dispose</code></td>
+                              <td>
+                                Removes the scroll event listener and destroys
+                                the InfiniteScroll instance associated with the
+                                element. Call this when the component is unmounted
+                                or no longer needed.
+                              </td>
+                              <td>
+                                <code>instance.dispose()</code>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>getInstance</code></td>
+                              <td>
+                                Static method that returns the existing
+                                InfiniteScroll instance bound to a DOM element,
+                                or <code>null</code> if none exists.
+                              </td>
+                              <td>
+                                <code>Nimbus.InfiniteScroll.getInstance(el)</code>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>getOrCreateInstance</code></td>
+                              <td>
+                                Static method that returns the existing instance
+                                for the element or creates and returns a new one
+                                if none exists.
+                              </td>
+                              <td>
+                                <code>Nimbus.InfiniteScroll.getOrCreateInstance(el)</code>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-js">const el = document.getElementById('my-scroll-container');
+const instance = new Nimbus.InfiniteScroll(el);
+
+// Destroy the instance (removes the scroll listener)
+instance.dispose();
+
+// Retrieve an existing instance
+const existing = Nimbus.InfiniteScroll.getInstance(el);
+
+// Retrieve or create an instance
+const safe = Nimbus.InfiniteScroll.getOrCreateInstance(el);</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Section: API Methods-->
+
+                    <!--Section: API Events-->
+                    <section id="api-section-events">
+                      <h4 class="mb-4">Events</h4>
+                      <p>
+                        InfiniteScroll fires one custom event. It is dispatched on
+                        the scrollable element itself (or on <code>window</code>
+                        when the window is the target), so event delegation and
+                        per-element listeners both work correctly.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Events">
+                          <thead>
+                            <tr>
+                              <th class="th-sm">Name</th>
+                              <th class="th-sm">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="text-nowrap">
+                                <code>completed.cnds.infiniteScroll</code>
+                              </td>
+                              <td>
+                                Fired immediately when the user scrolls to the
+                                end of the monitored axis. Add your data-loading
+                                logic in a listener for this event.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-js">const el = document.getElementById('my-scroll-container');
+el.addEventListener('completed.cnds.infiniteScroll', (e) => {
+  // Load the next page of data here
+});</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Section: API Events-->
+
+                  </section>
+                  <!--/Section: API Documentation-->
+
+                </section>
+                <!--/Section: Docs content-->
+              </div>
+              <!-- ./Main column -->
+
+              <!-- Right Sidebar — 20 % of the row width; hidden below lg breakpoint.
+                   Sticky attributes (processed by nimbus.js):
+                     data-cnds-sticky="true"           : activates sticky positioning
+                     data-cnds-sticky-boundary="true"  : constrains sticky to its parent container
+                     data-cnds-sticky-direction="both" : sticks when scrolling up OR down
+                     data-cnds-sticky-offset="56"      : clears the 56 px fixed header
+                     data-cnds-sticky-delay="125"      : debounce delay (ms) to reduce scroll jank
+                   data-cnds-allow-hashes="true" on the <ul>: nimbus.js watches the URL hash
+                     and highlights the matching nav-link as the user scrolls through sections. -->
+              <div class="col-lg-2 d-none d-lg-block">
+                <div class="sticky-top" style="top: 100px; z-index: 1">
+                  <ul
+                    class="nav flex-column nav-pills menu-sidebar"
+                    id="rightNav"
+                    data-cnds-allow-hashes="true"
+                  >
+                    <li class="nav-item"><a class="nav-link" href="#section-introduction">Introduction</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-basic-example">Basic example</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-direction">Direction</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-spinners-and-async-data">Spinners and async data</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-window">Window</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-api-docs">API Documentation</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-introduction">Introduction</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-usage">Usage</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-options">Options</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-methods">Methods</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-events">Events</a></li>
+                  </ul>
+                </div>
+              </div>
+              <!-- ./Right Sidebar -->
+            </div>
+            <!-- ./Content Row -->
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- ./Content -->
+    <!-- Footer -->
+    <div class="cf-footer cf-footer-app">
+      <footer class="page-footer main-footer" aria-label="Site footer">
+        <div class="w-100 px-3 d-flex align-items-center">
+          <img src="img/cf/core/cloudficient_logo_light.svg" class="cf-logo-light" style="width: 135px;" alt="Cloudficient" />
+          <img src="img/cf/core/cloudficient_logo_dark.svg" class="cf-logo-dark" style="width: 135px;" alt="Cloudficient" />
+          <span class="footer-copyright ms-auto">&copy; <span id="currentYear"></span> Cloudficient</span>
+        </div>
+      </footer>
+    </div>
+    <!-- ./Footer -->
+    <!-- SCRIPTS — load order matters:
+         1. nimbus.js       — core framework: processes all data-cnds-* attributes
+                              (theme toggle, sticky, sidenav, tooltips, infinite-scroll init)
+         2. app.js          — application-level overrides and custom initialisation
+         3. prism.min.js    — syntax highlighting for <code class="language-*"> blocks
+         4. sidenav-loader.js — fetches shared sidenav HTML and injects it into #sidebar-cf -->
+    <script type="text/javascript" src="js/nimbus.js?v=9.0.4"></script>
+    <script type="text/javascript" src="js/app.js?v=9.0.4"></script>
+    <script type="text/javascript" src="plugins/js/prism.min.js"></script>
+    <script type="text/javascript" src="js/sidenav-loader.js"></script>
+    <!-- Demo scripts — wire up event listeners for each interactive example on this page.
+         InfiniteScroll auto-inits on elements with data-cnds-infinite-scroll-init;
+         listeners respond to completed.cnds.infiniteScroll and call instance.loaded()
+         after each async load to re-arm the component for the next scroll trigger. -->
+    <script type="text/javascript">
+      (function () {
+
+        // ── Basic example ────────────────────────────────────────────────────────
+        // Pre-builds <li> elements from a static icon list and appends one per
+        // scroll event. Guard (index >= items.length) prevents over-appending.
+        var basicEl = document.getElementById('basic-example');
+        if (basicEl) {
+          var basicIcons = [
+            'Sad-Tear', 'Meh-Blank', 'Smile-Wink',
+            'Tired', 'Surprise', 'Kiss-Beam', 'Laugh-Squint',
+          ];
+          var basicIndex = 0;
+          var basicItems = basicIcons.map(function (icon) {
+            var li = document.createElement('li');
+            li.className = 'list-group-item d-flex align-items-center';
+            li.innerHTML = '<i class="far fa-' + icon.toLowerCase() + ' fa-3x me-4" aria-hidden="true"></i> ' + icon;
+            return li;
+          });
+          basicEl.addEventListener('completed.cnds.infiniteScroll', function () {
+            var instance = Nimbus.InfiniteScroll.getInstance(basicEl);
+            if (basicIndex >= basicItems.length) { instance.complete(); return; }
+            basicEl.appendChild(basicItems[basicIndex]);
+            basicIndex++;
+            instance.loaded();
+          });
+        }
+
+        // ── Direction (horizontal) example ───────────────────────────────────────
+        var dirEl = document.getElementById('direction-example');
+        if (dirEl) {
+          var dirIcons = [
+            'Sad-Tear', 'Meh-Blank', 'Smile-Wink',
+            'Tired', 'Surprise', 'Kiss-Beam', 'Laugh-Squint',
+          ];
+          var dirIndex = 0;
+          var dirItems = dirIcons.map(function (icon) {
+            var span = document.createElement('span');
+            span.className = 'mx-5';
+            span.innerHTML = '<i class="far fa-' + icon.toLowerCase() + ' fa-3x me-4" aria-hidden="true"></i> ' + icon;
+            return span;
+          });
+          dirEl.addEventListener('completed.cnds.infiniteScroll', function () {
+            var instance = Nimbus.InfiniteScroll.getInstance(dirEl);
+            if (dirIndex >= dirItems.length) { instance.complete(); return; }
+            dirEl.appendChild(dirItems[dirIndex]);
+            dirIndex++;
+            instance.loaded();
+          });
+        }
+
+        // ── Spinners & async demo ────────────────────────────────────────────────
+        // Cycles through a local image bank to simulate async API responses without
+        // requiring a real endpoint. Replace imageBank + setTimeout with a real fetch
+        // call in production (see the code example above).
+        var spinner = document.getElementById('spinner');
+        var imagesContainer = document.getElementById('images');
+        var infiniteContainer = document.getElementById('spinners-and-async-example');
+        if (spinner && imagesContainer && infiniteContainer) {
+          var imageBank = [
+            'img/cf/styleguide/scroll-01.jpg',
+            'img/cf/styleguide/scroll-02.jpg',
+            'img/cf/styleguide/scroll-03.jpg',
+            'img/cf/styleguide/scroll-04.jpg',
+            'img/cf/styleguide/scroll-05.jpg',
+            'img/cf/styleguide/scroll-06.jpg',
+            'img/cf/styleguide/scroll-07.jpg',
+            'img/cf/styleguide/scroll-08.jpg',
+            'img/cf/styleguide/scroll-09.jpg',
+            'img/cf/styleguide/scroll-10.jpg',
+          ];
+          var imgIndex = 0;
+
+          infiniteContainer.addEventListener('completed.cnds.infiniteScroll', function () {
+            var instance = Nimbus.InfiniteScroll.getInstance(infiniteContainer);
+            if (imgIndex >= imageBank.length) { instance.complete(); return; }
+            spinner.style.display = 'block';
+            // Simulate async latency; replace with a real fetch() call in production
+            (function (src, idx) {
+              setTimeout(function () {
+                spinner.style.display = 'none';
+                var img = document.createElement('img');
+                img.className = 'img-fluid mb-3';
+                img.alt = 'Sample image ' + (idx + 4);
+                img.src = src;
+                imagesContainer.appendChild(img);
+                instance.loaded();
+              }, 800);
+            })(imageBank[imgIndex], imgIndex);
+            imgIndex++;
+          });
+        }
+
+      })();
+    </script>
+    <!-- Inline: populate the footer copyright year dynamically so the page never needs a manual update -->
+    <script type="text/javascript">
+      var currentYearElement = document.getElementById('currentYear');
+      if (currentYearElement) {
+        currentYearElement.textContent = new Date().getFullYear();
+      }
+    </script>
+  </body>
+</html>

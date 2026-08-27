@@ -1,0 +1,1710 @@
+<!--
+* CNDS Nimbus Design System — Autocomplete
+* Version: 1.0.0
+* Layout: Application with SideNav (migrated from Nimbus v8 template)
+* NOTES
+- Pure HTML5, CSS3, vanilla JavaScript — zero external dependencies
+- Uses data-cnds-* attributes (replaces data-cnds-*)
+- Uses Nimbus.* namespace (replaces mdb.*)
+- Default product theme: CaseFusion (cnds-product-casefusion on <body>; change to cnds-product-hyperlize or cnds-product-expireon)
+-->
+<!doctype html>
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta
+      name="description"
+      content="Autocomplete | Cloudficient Nimbus Design System v1.0.0"
+    />
+    <title>
+      Autocomplete | CNDS v1.0.0 | Cloudficient Nimbus Design System
+    </title>
+    <!-- Nimbus CSS -->
+    <link rel="stylesheet" href="css/nimbus.css" media="all" type="text/css" />
+    <!-- Custom styles -->
+    <link rel="stylesheet" href="css/app.css" media="all" type="text/css" />
+    <!-- Prism syntax highlighting -->
+    <link rel="stylesheet" href="plugins/css/prism.min.css" media="all" type="text/css" />
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="img/favicon/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="60x60" href="img/favicon/apple-icon-60x60.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="img/favicon/apple-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76" href="img/favicon/apple-icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="img/favicon/apple-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="img/favicon/apple-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="img/favicon/apple-icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="img/favicon/apple-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-icon-180x180.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="img/favicon/android-icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="img/favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="img/favicon/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="msapplication-TileImage" content="img/favicon/ms-icon-144x144.png" />
+    <!-- Design Tokens / Primitives & Themes -->
+    <link rel="stylesheet" href="css/themes/primitives.css" />
+    <link rel="stylesheet" href="css/themes/light.css" />
+    <link rel="stylesheet" href="css/themes/dark.css" />
+  </head>
+
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 Bypass Blocks; renders visually hidden until focused -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+    <!-- Header -->
+    <div class="sticky-top">
+      <!-- Utility Navigation -->
+      <nav id="UtilityNav" class="nav nav-cf-utility">
+        <div class="w-100 gx-3 px-sm-0 px-lg-3">
+          <ul class="nav nav-cf-utility-ul"></ul>
+        </div>
+      </nav>
+      <!-- Main Navigation -->
+      <nav id="MainNav" class="navbar navbar-expand-xl navbar-cf">
+        <div class="container-fluid p-0 px-3 d-flex">
+          <div class="d-flex flex-fill align-items-center text-truncate">
+            <div class="text-center d-none d-md-block me-3 border-end">
+              <a href="index.html"><img src="img/cf/core/logo_nimbus.png" class="me-3 mt-n1" alt="Cloudficient Nimbus Design System" /></a>
+            </div>
+            <div class="flex-fill text-truncate">
+              <div class="navbar-cf-title-block">
+                <div class="navbar-cf-title cf-page-title text-truncate" style="padding-bottom: 0;">
+                  <span class="cf-page-title-text cf-page-title-brand">v1</span>
+                  <span class="cf-page-title-divider"></span>
+                  <span class="cf-page-title-text">Autocomplete</span>
+                  </div>
+              </div>
+            </div>
+          </div>
+          <button class="btn btn-sm btn-outline-secondary ms-2" data-cnds-toggle="theme" aria-label="Toggle theme" title="Toggle theme">
+            <i class="mdi mdi-weather-night mdi-18px" aria-hidden="true"></i>
+          </button>
+        </div>
+      </nav>
+    </div>
+    <!-- Content -->
+    <main id="main-content" class="cf-main-app">
+      <div class="d-block d-md-none p-4">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>This application is not optimized for small screens. Please use a large tablet, laptop, or desktop computer to continue.
+        </div>
+      </div>
+      <div class="d-none d-md-block">
+        <nav id="sidebar-cf" class="sidenav" data-cnds-mode="side" data-cnds-slim="false" data-cnds-slim-collapsed="false" data-cnds-content="#slim-content" data-cnds-accordion="true">
+          <!-- Sidenav content loaded by js/sidenav-loader.js -->
+        </nav>
+      <div id="slim-content">
+        <div class="slim-content-box">
+          <div class="row">
+            <div class="col-md-12 col-lg" style="flex: 0 0 80%; max-width: 80%">
+              <!--Section: Docs content-->
+              <section class="container-fluid">
+                <!--Section: Introduction-->
+                <section id="section-introduction">
+                  <!-- Description -->
+                  <p class="mb-4">
+                    The Autocomplete component enhances a standard text input by
+                    displaying a filtered list of suggestions as the user types.
+                    Results are sourced from any array or asynchronous data
+                    function you provide, and the dropdown can be navigated with
+                    the keyboard arrow keys, closed with <code>Escape</code>, and
+                    confirmed with <code>Enter</code> or a mouse click.
+                  </p>
+                  <p class="note note-light">
+                    <strong>Note:</strong> Read the
+                    <a href="#api-section-introduction">API Documentation</a> to find all available
+                    options and advanced customization.
+                  </p>
+                
+                    <p class="note note-info"><strong>Note:</strong> To preview components in different themes, click the theme toggle button <i class="mdi mdi-weather-night" aria-hidden="true"></i> / <i class="mdi mdi-weather-sunny" aria-hidden="true"></i> in the header navigation bar.</p>
+                </section>
+                <!--Section: Introduction-->
+
+                <hr class="my-5" />
+
+                <!--Section: Basic example-->
+                <section id="section-basic-example">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Basic example</h3>
+
+                  <p>
+                    The <code>filter</code> option is required. It accepts a
+                    function that receives the current input value as its
+                    argument and must return either an array of result strings or
+                    a <code>Promise</code> that resolves to one. The component
+                    renders each result as a selectable item in the dropdown.
+                    Selecting an item — by clicking or pressing
+                    <code>Enter</code> — writes its value back into the input
+                    field and closes the dropdown.
+                  </p>
+
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="border rounded-5">
+                      <section
+                        class="w-100 p-4 d-flex justify-content-center pb-4"
+                      >
+                        <div id="basic" class="cf-input-field cf-input-field-casefusion w-25">
+                          <label class="cf-input-label" for="form11">Example label</label>
+                          <div class="cf-input-wrapper">
+                            <input type="text" id="form11" class="cf-input-control" />
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--/Section: Demo-->
+<!-- Angular: Wrap the autocomplete input in a reactive form using FormControl and provide filtered suggestions via an Observable piped through the async pipe.
+     Example: <input type="text" class="cf-input-control" [formControl]="searchControl" /> — subscribe to searchControl.valueChanges, debounce, then pipe through a filter function to populate suggestions$.
+     Initialize new Nimbus.Autocomplete() inside ngAfterViewInit using a filter function that reads from the Observable stream. -->
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <!-- snippet -->
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                <code class="language-html">
+&lt;div id="basic" class="cf-input-field cf-input-field-casefusion"&gt;
+  &lt;label class="cf-input-label" for="form11"&gt;Example label&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;input type="text" id="form11" class="cf-input-control" /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+                                </code>
+                                </pre>
+                    </div>
+                    <!-- /.snippet -->
+                  </section>
+                  <!--/Section: Code-->
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                    <!-- snippet -->
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                <code class="language-js">
+const basicAutocomplete = document.querySelector('#basic');
+const data = ['One', 'Two', 'Three', 'Four', 'Five'];
+const dataFilter = (value) => {
+  return data.filter((item) => {
+    return item.toLowerCase().startsWith(value.toLowerCase());
+  });
+};
+
+new Nimbus.Autocomplete(basicAutocomplete, {
+  filter: dataFilter
+});
+                                </code>
+                                </pre>
+                    </div>
+                    <!-- /.snippet -->
+                  </section>
+                  <!--/Section: Code-->
+                </section>
+                <!--/Section: Basic example-->
+
+                <hr class="my-5" />
+
+                <!--Section: Sizing-->
+                <section id="section-sizing">
+                  <h3 class="mb-3">Sizing</h3>
+
+                  <p>
+                    The autocomplete inherits its input dimensions directly from the
+                    <a href="cnds-inputfields.html"><code>.cf-input-field</code></a>
+                    size modifiers. Apply <code>.cf-input-field-sm</code> or
+                    <code>.cf-input-field-lg</code> to the wrapper — the label,
+                    control padding, and font all scale together.
+                  </p>
+
+                  <div class="table-responsive mb-4">
+                    <table class="table table-sm" aria-label="Sizing">
+                      <thead>
+                        <tr>
+                          <th>Wrapper class</th>
+                          <th>Label</th>
+                          <th>Input font</th>
+                          <th>Vertical padding</th>
+                          <th>Horizontal padding</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr><td><code>.cf-input-field-sm</code></td><td>13px / 800</td><td>13px</td><td>8px</td><td>12px</td></tr>
+                        <tr><td><code>.cf-input-field</code> <em>(default)</em></td><td>14px / 800</td><td>14px</td><td>12px</td><td>20px</td></tr>
+                        <tr><td><code>.cf-input-field-lg</code></td><td>16px / 800</td><td>16px</td><td>14px</td><td>24px</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="border rounded-5">
+                      <section class="w-100 p-4 d-flex justify-content-center align-items-end gap-4 pb-4">
+                        <div id="ac-size-lg" class="cf-input-field cf-input-field-casefusion cf-input-field-lg" style="width: 220px;">
+                          <label class="cf-input-label" for="acSizeLgInput">Large</label>
+                          <div class="cf-input-wrapper">
+                            <input type="text" id="acSizeLgInput" class="cf-input-control" />
+                          </div>
+                        </div>
+
+                        <div id="ac-size-df" class="cf-input-field cf-input-field-casefusion" style="width: 220px;">
+                          <label class="cf-input-label" for="acSizeDfInput">Default</label>
+                          <div class="cf-input-wrapper">
+                            <input type="text" id="acSizeDfInput" class="cf-input-control" />
+                          </div>
+                        </div>
+
+                        <div id="ac-size-sm" class="cf-input-field cf-input-field-casefusion cf-input-field-sm" style="width: 220px;">
+                          <label class="cf-input-label" for="acSizeSmInput">Small</label>
+                          <div class="cf-input-wrapper">
+                            <input type="text" id="acSizeSmInput" class="cf-input-control" />
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--/Section: Demo-->
+<!-- Angular: Apply the size modifier class using [ngClass] or a static class determined by an @Input() size property ('sm' | '' | 'lg').
+     Example: <div class="cf-input-field cf-input-field-casefusion" [ngClass]="'cf-input-field-' + size">...</div>
+     Expose size as an @Input() on a wrapper component so the consuming template can declare the size declaratively. -->
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0"><code class="language-html">&lt;!-- Large --&gt;
+&lt;div class="cf-input-field cf-input-field-casefusion cf-input-field-lg"&gt;
+  &lt;label class="cf-input-label" for="myInput"&gt;Large&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;input type="text" id="myInput" class="cf-input-control" /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Default --&gt;
+&lt;div class="cf-input-field cf-input-field-casefusion"&gt;
+  &lt;label class="cf-input-label" for="myInput"&gt;Default&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;input type="text" id="myInput" class="cf-input-control" /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Small --&gt;
+&lt;div class="cf-input-field cf-input-field-casefusion cf-input-field-sm"&gt;
+  &lt;label class="cf-input-label" for="myInput"&gt;Small&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;input type="text" id="myInput" class="cf-input-control" /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                    </div>
+                  </section>
+                  <!--/Section: Code-->
+                </section>
+                <!--/Section: Sizing-->
+
+                <hr class="my-5" />
+
+                <!--Section: Product themes-->
+                <section id="section-product-themes">
+                  <h3 class="mb-4">Product themes</h3>
+                  <p>
+                    Each Cloudficient product has a designated accent color defined in the design
+                    system. Setting a product class on <code>&lt;body&gt;</code> activates that
+                    color for all autocomplete inputs at once:
+                  </p>
+                  <ul>
+                    <li><code>&lt;body class="cnds-product-casefusion"&gt;</code> — CaseFusion green</li>
+                    <li><code>&lt;body class="cnds-product-hyperlize"&gt;</code> — Hyperlize gold</li>
+                    <li><code>&lt;body class="cnds-product-expireon"&gt;</code> — Expireon indigo</li>
+                  </ul>
+                  <p>
+                    A modifier class on the <code>.cf-input-field</code> wrapper applies the product
+                    accent to an individual input, independent of the body class:
+                  </p>
+                  <ul>
+                    <li><code>.cf-input-field-casefusion</code> — CaseFusion green focus ring</li>
+                    <li><code>.cf-input-field-hyperlize</code> — Hyperlize gold focus ring</li>
+                    <li><code>.cf-input-field-expireon</code> — Expireon indigo focus ring</li>
+                  </ul>
+
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section class="w-100 p-4 d-flex justify-content-center gap-5 pb-4">
+                        <div style="width: 220px;">
+                          <div id="pt-casefusion" class="cf-input-field cf-input-field-casefusion">
+                            <label class="cf-input-label" for="form-pt-cf">CaseFusion</label>
+                            <div class="cf-input-wrapper">
+                              <input type="text" id="form-pt-cf" class="cf-input-control" />
+                            </div>
+                          </div>
+                        </div>
+                        <div style="width: 220px;">
+                          <div id="pt-expireon" class="cf-input-field cf-input-field-expireon">
+                            <label class="cf-input-label" for="form-pt-eo">ExpireOn</label>
+                            <div class="cf-input-wrapper">
+                              <input type="text" id="form-pt-eo" class="cf-input-control" />
+                            </div>
+                          </div>
+                        </div>
+                        <div style="width: 220px;">
+                          <div id="pt-hyperlize" class="cf-input-field cf-input-field-hyperlize">
+                            <label class="cf-input-label" for="form-pt-hl">Hyperlize</label>
+                            <div class="cf-input-wrapper">
+                              <input type="text" id="form-pt-hl" class="cf-input-control" />
+                            </div>
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--/Section: Demo-->
+<!-- Angular: In most applications, set the product class on <body> via a ThemeService; no modifier class is needed on individual inputs.
+     Use the modifier class when an input needs an explicit product accent independent of the body class.
+     Example: <div class="cf-input-field" [ngClass]="'cf-input-field-' + productTheme">...</div> -->
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0">
+                      <pre class="line-numbers m-0"><code class="language-html">&lt;!-- CaseFusion --&gt;
+&lt;div class="cf-input-field cf-input-field-casefusion"&gt;
+  &lt;label class="cf-input-label" for="myCaseFusion"&gt;CaseFusion&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;input type="text" id="myCaseFusion" class="cf-input-control" /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- ExpireOn --&gt;
+&lt;div class="cf-input-field cf-input-field-expireon"&gt;
+  &lt;label class="cf-input-label" for="myExpireOn"&gt;ExpireOn&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;input type="text" id="myExpireOn" class="cf-input-control" /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Hyperlize --&gt;
+&lt;div class="cf-input-field cf-input-field-hyperlize"&gt;
+  &lt;label class="cf-input-label" for="myHyperlize"&gt;Hyperlize&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;input type="text" id="myHyperlize" class="cf-input-control" /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                    </div>
+                  </section>
+                  <!--/Section: Code-->
+                </section>
+                <!--/Section: Product themes-->
+
+                <hr class="my-5" />
+
+                <!--Section: Display value-->
+                <section id="section-display-value">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Display value</h3>
+
+                  <p>
+                    When the <code>filter</code> function returns an array of
+                    objects rather than strings, use the
+                    <code>displayValue</code> option to control what gets shown
+                    to the user. It accepts a function that receives each result
+                    object and returns the string to display — both in the
+                    dropdown list and in the input field after a selection is
+                    made. The underlying object is still passed to event handlers
+                    so you retain access to the full data.
+                  </p>
+
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="border rounded-5">
+                      <section
+                        class="w-100 p-4 d-flex justify-content-center pb-4"
+                      >
+                        <div id="displayValue" class="cf-input-field cf-input-field-casefusion w-25">
+                          <label class="cf-input-label" for="form13">Example label</label>
+                          <div class="cf-input-wrapper">
+                            <input type="text" id="form13" class="cf-input-control" />
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--/Section: Demo-->
+<!-- Angular: When filter returns objects, supply a displayValue function that extracts the display string; pass it as an option when constructing new Nimbus.Autocomplete() in ngAfterViewInit.
+     Example: new Nimbus.Autocomplete(el, { filter: dataFilter, displayValue: (item) => item.title })
+     The selected object is still available in the select event handler so you can update a FormControl with the full object reference. -->
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <!-- snippet -->
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                <code class="language-html">
+&lt;div id="displayValue" class="cf-input-field cf-input-field-casefusion"&gt;
+  &lt;label class="cf-input-label" for="form13"&gt;Example label&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;input type="text" id="form13" class="cf-input-control" /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+                                </code>
+                                </pre>
+                    </div>
+                    <!-- /.snippet -->
+                  </section>
+                  <!--Section: Code-->
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                    <!-- snippet -->
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                <code class="language-js">
+const displayValueAutocomplete = document.querySelector('#displayValue');
+const data = [
+  { title: 'One', description: 'Lorem ipsum dolor sit, amet consectetur adipisicing elit' },
+  { title: 'Two', description: 'Lorem ipsum dolor sit, amet consectetur adipisicing elit' },
+  { title: 'Three', description: 'Lorem ipsum dolor sit, amet consectetur adipisicing elit' },
+  { title: 'Four', description: 'Lorem ipsum dolor sit, amet consectetur adipisicing elit' },
+  { title: 'Five', description: 'Lorem ipsum dolor sit, amet consectetur adipisicing elit' }
+];
+const dataFilter = (value) => {
+  return data.filter((item) => {
+    return item.title.toLowerCase().startsWith(value.toLowerCase());
+  });
+};
+
+new Nimbus.Autocomplete(displayValueAutocomplete, {
+  filter: dataFilter,
+  displayValue: (value) => value.title,
+});
+                                </code>
+                                </pre>
+                    </div>
+                    <!-- /.snippet -->
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--/Section: Display value-->
+
+                <hr class="my-5" />
+
+                <!--Section: Async search-->
+                <section id="section-async-search">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Asynchronous search</h3>
+
+                  <p>
+                    The <code>filter</code> function can return a
+                    <code>Promise</code>, making it straightforward to fetch
+                    suggestions from a remote API. While the promise is pending,
+                    the component displays a loading indicator inside the input
+                    field. Once the response resolves, the dropdown populates
+                    with the returned results. Combine with
+                    <code>displayValue</code> when the API returns objects
+                    instead of plain strings.
+                  </p>
+
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="border rounded-5">
+                      <section
+                        class="w-100 p-4 d-flex justify-content-center pb-4"
+                      >
+                        <div id="async" class="cf-input-field cf-input-field-casefusion autocomplete w-25">
+                          <label class="cf-input-label" for="form2">Example label</label>
+                          <div class="cf-input-wrapper">
+                            <input type="text" id="form2" class="cf-input-control" />
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--/Section: Demo-->
+<!-- Angular: Provide an async filter function that returns a Promise by wrapping an Angular HttpClient call; inject HttpClient into the component and pass the filter to new Nimbus.Autocomplete() in ngAfterViewInit.
+     Example: filter: (query) => this.http.get<any[]>(`/api/search?q=${query}`).pipe(map(r => r.results)).toPromise()
+     Use the async pipe and RxJS operators (debounceTime, switchMap) in a FormControl-based approach for better cancellation of in-flight requests. -->
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <!-- snippet -->
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                <code class="language-html">
+&lt;div id="async" class="cf-input-field cf-input-field-casefusion autocomplete"&gt;
+  &lt;label class="cf-input-label" for="form2"&gt;Example label&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;input type="text" id="form2" class="cf-input-control" /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+                                </code>
+                                </pre>
+                    </div>
+                    <!-- /.snippet -->
+                  </section>
+                  <!--Section: Code-->
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                    <!-- snippet -->
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                <code class="language-js">
+const asyncAutocomplete = document.querySelector('#async');
+const asyncFilter = async (query) => {
+  const url = `https://swapi.py4e.com/api/people/?search=${encodeURI(query)}`;
+  const response = await fetch(url);
+  const data = await response.json();
+  return data.results;
+};
+
+new Nimbus.Autocomplete(asyncAutocomplete, {
+  filter: asyncFilter,
+  displayValue: (value) => value.name
+});
+                                </code>
+                                </pre>
+                    </div>
+                    <!-- /.snippet -->
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--/Section: Async search-->
+
+                <hr class="my-5" />
+
+                <!--Section: Threshold-->
+                <section id="section-threshold">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Threshold</h3>
+
+                  <p>
+                    The <code>threshold</code> option sets the minimum number of
+                    characters the user must type before the
+                    <code>filter</code> function is called and the dropdown
+                    opens. The default value is <code>0</code>, which triggers a
+                    search on every keystroke. Raising the threshold reduces
+                    unnecessary requests for short or ambiguous inputs and is
+                    particularly useful when querying a remote API.
+                  </p>
+
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="border rounded-5">
+                      <section
+                        class="w-100 p-4 d-flex justify-content-center pb-4"
+                      >
+                        <div id="threshold" class="cf-input-field cf-input-field-casefusion w-25">
+                          <label class="cf-input-label" for="form3">Example label</label>
+                          <div class="cf-input-wrapper">
+                            <input type="text" id="form3" class="cf-input-control" placeholder="Type 2 characters to search" />
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--/Section: Demo-->
+<!-- Angular: Pass the threshold value as an @Input() to the autocomplete wrapper component and forward it to the Nimbus.Autocomplete options object in ngAfterViewInit.
+     Example: new Nimbus.Autocomplete(el, { filter: dataFilter, threshold: this.threshold })
+     A threshold of 2 or 3 is recommended when the filter function calls a remote API to reduce unnecessary network requests. -->
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <!-- snippet -->
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                <code class="language-html">
+&lt;div id="threshold" class="cf-input-field cf-input-field-casefusion"&gt;
+  &lt;label class="cf-input-label" for="form3"&gt;Example label&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;input type="text" id="form3" class="cf-input-control" placeholder="Type 2 characters to search" /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+                                </code>
+                                </pre>
+                    </div>
+                    <!-- /.snippet -->
+                  </section>
+                  <!--Section: Code-->
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                    <!-- snippet -->
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                <code class="language-js">
+const thresholdAutocomplete = document.querySelector('#threshold');
+const data = ['One', 'Two', 'Three', 'Four', 'Five'];
+const dataFilter = (value) => {
+  return data.filter((item) => {
+    return item.toLowerCase().startsWith(value.toLowerCase());
+  });
+};
+
+new Nimbus.Autocomplete(thresholdAutocomplete, {
+  filter: dataFilter,
+  threshold: 2
+});
+                                </code>
+                                </pre>
+                    </div>
+                    <!-- /.snippet -->
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--/Section: Threshold-->
+
+                <hr class="my-5" />
+
+                <!--Section: Custom item template-->
+                <section id="section-custom-item">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Custom item template</h3>
+
+                  <p>
+                    Use the <code>itemContent</code> option to render custom
+                    HTML inside each dropdown row instead of a plain text label.
+                    It accepts a function that receives each result object and
+                    returns an HTML string. This is useful for displaying
+                    supplementary information such as a subtitle, icon, or
+                    status indicator alongside the primary result. Use the
+                    <code>listHeight</code> option (in pixels) to increase the
+                    dropdown's maximum height when richer item templates require
+                    more vertical space.
+                  </p>
+
+                  <!--Section: Demo-->
+<!-- Angular: Use a template-based approach for custom item rendering by passing an itemContent function that returns an HTML string; define the HTML template as a component method returning a tagged template literal.
+     Example: new Nimbus.Autocomplete(el, { filter: dataFilter, displayValue: (v) => v.title, itemContent: (r) => `<div class="autocomplete-custom-item-title">${r.title}</div><div class="autocomplete-custom-item-subtitle">${r.subtitle}</div>` })
+     Sanitize any user-supplied strings before inserting them into the itemContent template to prevent XSS vulnerabilities. -->
+                  <style>
+                    .autocomplete-custom-item-content {
+                      display: flex;
+                      flex-direction: column;
+                    }
+
+                    .autocomplete-custom-item-title {
+                      font-weight: 500;
+                    }
+
+                    .autocomplete-custom-item-subtitle {
+                      font-size: 0.8rem;
+                    }
+                  </style>
+                  <section class="pb-4">
+                    <div class="border rounded-5">
+                      <section
+                        class="w-100 p-4 d-flex justify-content-center pb-4"
+                      >
+                        <div id="customItem" class="cf-input-field cf-input-field-casefusion w-25" data-cnds-list-height="290">
+                          <label class="cf-input-label" for="form14">Example label</label>
+                          <div class="cf-input-wrapper">
+                            <input type="text" id="form14" class="cf-input-control" />
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--/Section: Demo-->
+
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <!-- snippet -->
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                <code class="language-html">
+&lt;div id="customItem" class="cf-input-field cf-input-field-casefusion" data-cnds-list-height="290"&gt;
+  &lt;label class="cf-input-label" for="form14"&gt;Example label&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;input type="text" id="form14" class="cf-input-control" /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+                                </code>
+                                </pre>
+                    </div>
+                    <!-- /.snippet -->
+                  </section>
+                  <!--Section: Code-->
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                    <!-- snippet -->
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                <code class="language-js">
+const customItemAutocomplete = document.querySelector('#customItem');
+const data = [
+  { title: 'One', subtitle: 'Secondary text' },
+  { title: 'Two', subtitle: 'Secondary text' },
+  { title: 'Three', subtitle: 'Secondary text' },
+  { title: 'Four', subtitle: 'Secondary text' },
+  { title: 'Five', subtitle: 'Secondary text' },
+  { title: 'Six', subtitle: 'Secondary text' },
+];
+const dataFilter = (value) =&gt; {
+  return data.filter((item) =&gt; {
+    return item.title.toLowerCase().startsWith(value.toLowerCase());
+  });
+};
+
+new Nimbus.Autocomplete(customItemAutocomplete, {
+  filter: dataFilter,
+  displayValue: (value) =&gt; value.title,
+  itemContent: (result) =&gt; {
+    return `
+&lt;div class="autocomplete-custom-item-content"&gt;
+  &lt;div class="autocomplete-custom-item-title"&gt;${result.title}&lt;/div&gt;
+  &lt;div class="autocomplete-custom-item-subtitle"&gt;${result.subtitle}&lt;/div&gt;
+&lt;/div&gt;
+`;
+  },
+});
+                                </code>
+                                </pre>
+                    </div>
+                    <!-- /.snippet -->
+                  </section>
+                  <!--Section: Code-->
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-css">CSS</span></h4>
+                    <!-- snippet -->
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                            <code class="language-css">
+.autocomplete-custom-item-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.autocomplete-custom-item-title {
+  font-weight: 500;
+}
+
+.autocomplete-custom-item-subtitle {
+  font-size: 0.8rem;
+}
+                                            </code>
+                                        </pre>
+                    </div>
+                    <!-- /.snippet -->
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--/Section: Custom item template-->
+
+                <hr class="my-5" />
+
+                <!--Section: Custom content-->
+                <section id="section-custom-content">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Custom content</h3>
+
+                  <p>
+                    Pass an HTML string to the <code>customContent</code> option
+                    to inject a persistent footer element at the bottom of the
+                    dropdown. The element must carry the class
+                    <code>.autocomplete-custom-content</code>. Listen for the
+                    <code>update.cnds.autocomplete</code> event to reactively
+                    update the footer's content — for example, to display a live
+                    count of matching results or a link to view all matches.
+                  </p>
+
+                  <!--Section: Demo-->
+                  <style>
+                    .autocomplete-custom-content {
+                      padding: 6.5px 16px;
+                    }
+                  </style>
+                  <section class="pb-4">
+                    <div class="border rounded-5">
+                      <section
+                        class="w-100 p-4 d-flex justify-content-center pb-4"
+                      >
+                        <div id="customContent" class="cf-input-field cf-input-field-casefusion w-25">
+                          <label class="cf-input-label" for="form16">Example label</label>
+                          <div class="cf-input-wrapper">
+                            <input type="text" id="form16" class="cf-input-control" />
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--/Section: Demo-->
+<!-- Angular: Attach a custom footer to the dropdown by rendering an element with class autocomplete-custom-content inside the wrapper; subscribe to Nimbus' update.cnds.autocomplete event via a fromEvent() Observable to reactively update its text.
+     Example: <div id="customContent" class="cf-input-field cf-input-field-casefusion">...</div>
+     Combine with an @Output() or service call to expose the live result count to parent components for display outside the dropdown. -->
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <!-- snippet -->
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                <code class="language-html">
+&lt;div id="customContent" class="cf-input-field cf-input-field-casefusion"&gt;
+  &lt;label class="cf-input-label" for="form16"&gt;Example label&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;input type="text" id="form16" class="cf-input-control" /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+                                </code>
+                                </pre>
+                    </div>
+                    <!-- /.snippet -->
+                  </section>
+                  <!--Section: Code-->
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                    <!-- snippet -->
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                <code class="language-js">
+const customContentAutocomplete = document.querySelector('#customContent');
+const data = ['One', 'Two', 'Three', 'Four', 'Five'];
+const dataFilter = (value) =&gt; {
+  return data.filter((item) =&gt; {
+    return item.toLowerCase().startsWith(value.toLowerCase());
+  });
+};
+
+new Nimbus.Autocomplete(customContentAutocomplete, {
+  filter: dataFilter,
+  customContent: '&lt;div class="autocomplete-custom-content"&gt;&lt;/div&gt;',
+});
+
+customContentAutocomplete.addEventListener('update.cnds.autocomplete', (event) =&gt; {
+  const resultsLength = event.results.length;
+
+  setTimeout(() =&gt; {
+    const customContentContainer = document.querySelector('.autocomplete-custom-content');
+    customContentContainer.innerHTML = `Search results: ${resultsLength}`;
+  }, 0);
+});
+                                </code>
+                                </pre>
+                    </div>
+                    <!-- /.snippet -->
+                  </section>
+                  <!--Section: Code-->
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-css">CSS</span></h4>
+                    <!-- snippet -->
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                <code class="language-css">
+.autocomplete-custom-content {
+  padding: 6.5px 16px;
+}
+                                </code>
+                                </pre>
+                    </div>
+                    <!-- /.snippet -->
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--Section: Custom content-->
+
+                <hr class="my-5" />
+
+                <!--Section: Validation-->
+                <section id="section-validation">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Validation</h3>
+
+                  <p>
+                    The Autocomplete component integrates with standard HTML5
+                    form validation. Add the <code>required</code> attribute to
+                    the underlying <code>&lt;input&gt;</code> element and wrap
+                    the form with the <code>needs-validation</code> class.
+                    On submit, the browser validates that a value has been
+                    entered; <code>.valid-feedback</code> and
+                    <code>.invalid-feedback</code> elements are shown or hidden
+                    accordingly. Validation state is applied using the native
+                    constraint validation API — no additional configuration of
+                    the Autocomplete instance is required.
+                  </p>
+
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="border rounded-5">
+                      <section
+                        class="w-100 p-4 d-flex justify-content-center pb-4"
+                      >
+                        <form
+                          class="needs-validation"
+                          novalidate
+                          aria-label="Validation demo form"
+                          style="width: 22rem"
+                        >
+                          <div id="validation" class="cf-input-field cf-input-field-casefusion">
+                            <label class="cf-input-label" for="form6">Example label</label>
+                            <div class="cf-input-wrapper">
+                              <input type="text" id="form6" class="cf-input-control" required />
+                            </div>
+                            <div class="cf-input-helper">
+                              <div class="valid-feedback">Looks good!</div>
+                              <div class="invalid-feedback">Input value is required</div>
+                            </div>
+                          </div>
+
+                          <button
+                            type="submit"
+                            id="submit"
+                            class="btn btn-primary mt-3"
+                          >
+                            Submit
+                          </button>
+                        </form>
+                      </section>
+                    </div>
+                  </section>
+                  <!--/Section: Demo-->
+<!-- Angular: Wrap the autocomplete in a reactive form and use Validators on the FormControl; call control.markAsTouched() to trigger validation display, or use the (blur) event on the input.
+     Example: <form [formGroup]="form" (ngSubmit)="onSubmit()"><div class="cf-input-field"><input formControlName="city" /></div></form>
+     The .is-invalid class applied by the Nimbus validation integration maps to Angular's ng-invalid + ng-touched state — add it via [class.is-invalid]="form.controls.city.invalid && form.controls.city.touched". -->
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <!-- snippet -->
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                <code class="language-html">
+&lt;form class="needs-validation" novalidate style="width: 22rem;"&gt;
+  &lt;div id="validation" class="cf-input-field cf-input-field-casefusion"&gt;
+    &lt;label class="cf-input-label" for="form6"&gt;Example label&lt;/label&gt;
+    &lt;div class="cf-input-wrapper"&gt;
+      &lt;input type="text" id="form6" class="cf-input-control" required /&gt;
+    &lt;/div&gt;
+    &lt;div class="cf-input-helper"&gt;
+      &lt;div class="valid-feedback"&gt;Looks good!&lt;/div&gt;
+      &lt;div class="invalid-feedback"&gt;Input value is required&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;button type="submit" id="submit" class="btn btn-primary mt-3"&gt;
+    Submit
+  &lt;/button&gt;
+&lt;/form&gt;
+                                </code>
+                                </pre>
+                    </div>
+                    <!-- /.snippet -->
+                  </section>
+                  <!--Section: Code-->
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                    <!-- snippet -->
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                <code class="language-js">
+const validationAutocomplete = document.querySelector('#validation');
+const data = ['One', 'Two', 'Three', 'Four', 'Five'];
+const dataFilter = (value) => {
+  return data.filter((item) => {
+    return item.toLowerCase().startsWith(value.toLowerCase());
+  });
+};
+
+new Nimbus.Autocomplete(validationAutocomplete, {
+  filter: dataFilter
+});
+                                </code>
+                                </pre>
+                    </div>
+                    <!-- /.snippet -->
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--/Section: Validation-->
+
+                <hr class="my-5" />
+
+                <!--Section: Auto select-->
+                <section id="section-auto-select">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Auto select</h3>
+
+                  <p>
+                    By default, pressing <code>Tab</code> while the dropdown is
+                    open moves focus to the next element without confirming a
+                    result. Set the <code>autoSelect</code> option to
+                    <code>true</code> to change this behaviour: if an item is
+                    currently highlighted in the list, <code>Tab</code> selects
+                    it and writes its value into the input before moving focus.
+                    This is useful in form flows where users are likely to tab
+                    through fields quickly.
+                  </p>
+
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="border rounded-5">
+                      <section
+                        class="w-100 p-4 d-flex justify-content-center pb-4"
+                      >
+                        <div id="auto-select" class="cf-input-field cf-input-field-casefusion">
+                          <label class="cf-input-label" for="form1">Example label</label>
+                          <div class="cf-input-wrapper">
+                            <input type="text" id="form1" class="cf-input-control" />
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--/Section: Demo-->
+<!-- Angular: Enable auto-select by passing autoSelect: true in the Nimbus.Autocomplete options object during ngAfterViewInit initialisation; no additional Angular-specific handling is required.
+     Example: new Nimbus.Autocomplete(document.getElementById('auto-select'), { filter, autoSelect: true });
+     This is useful in tab-heavy data entry forms where users expect Tab to confirm the highlighted suggestion without an explicit click. -->
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <!-- snippet -->
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                <code class="language-html">
+&lt;div id="auto-select" class="cf-input-field cf-input-field-casefusion"&gt;
+  &lt;label class="cf-input-label" for="form1"&gt;Example label&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;input type="text" id="form1" class="cf-input-control" /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+                                </code>
+                                </pre>
+                    </div>
+                    <!-- /.snippet -->
+                  </section>
+                  <!--Section: Code-->
+                  <!--Section: Code-->
+                  <section id="section-api-docs" class="mb-4">
+                    <h3 class="mb-3">API Documentation</h3>
+
+                    <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                    <!-- snippet -->
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                <code class="language-js">
+const autoSelectAutocomplete = document.querySelector('#auto-select');
+const data = ['One', 'Two', 'Three', 'Four', 'Five'];
+const dataFilter = (value) => {
+  return data.filter((item) => {
+    return item.toLowerCase().startsWith(value.toLowerCase());
+  });
+};
+
+new Nimbus.Autocomplete(autoSelectAutocomplete, {
+  filter: dataFilter,
+  autoSelect: true
+});
+                                </code>
+                                </pre>
+                    </div>
+                    <!-- /.snippet -->
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--/Section: Auto select-->
+
+                <hr class="my-5" />
+
+                <!--Section: API Documentation-->
+
+                <!--Section: Introduction-->
+                <section id="api-section-introduction">
+                  <!-- Main title -->
+                  <h3 class="mb-3">Introduction</h3>
+                </section>
+                <!--Section: Introduction-->
+
+                <!--Section: Usage-->
+                <section id="api-section-usage">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Usage</h3>
+
+                  <h5 class="my-4">Via JavaScript</h5>
+
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                    <!-- snippet -->
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                <code class="language-js">
+const myAutocomplete = new Nimbus.Autocomplete(document.getElementById('myAutocomplete'), options)
+                                </code>
+                                </pre>
+                    </div>
+                    <!-- /.snippet -->
+                  </section>
+                </section>
+                <!--Section: Usage-->
+
+                <!--Section: Options-->
+                <section id="api-section-options">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Options</h3>
+
+                  <p>
+                    Options can be passed via data attributes or JavaScript. For
+                    data attributes, append the option name to
+                    <code>data-cnds-</code>, as in
+                    <code>data-cnds-container="body"</code>.
+                  </p>
+
+                  <div class="table-responsive">
+                    <table class="table table-striped table-bordered" aria-label="Options">
+                      <thead>
+                        <tr>
+                          <th class="th-sm">Name</th>
+                          <th class="th-sm">Type</th>
+                          <th class="th-sm">Default</th>
+                          <th class="th-sm">Description</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td class="text-nowrap">
+                            <code class="highlighter-rouge">autoSelect</code>
+                          </td>
+                          <td><i>Boolean</i></td>
+                          <td><code>false</code></td>
+                          <td>When <code>true</code>, pressing Tab selects the currently highlighted item instead of closing the dropdown</td>
+                        </tr>
+
+                        <tr>
+                          <td class="text-nowrap">
+                            <code class="highlighter-rouge">container</code>
+                          </td>
+                          <td><i>String</i></td>
+                          <td><code>'body'</code></td>
+                          <td>CSS selector for the element the dropdown is appended to. Useful when the component sits inside a scrollable or clipping container.</td>
+                        </tr>
+
+                        <tr>
+                          <td class="text-nowrap">
+                            <code class="highlighter-rouge">customContent</code>
+                          </td>
+                          <td><i>String</i></td>
+                          <td><code>''</code></td>
+                          <td>HTML string appended to the dropdown footer. Use with the <code>update.cnds.autocomplete</code> event to populate it dynamically.</td>
+                        </tr>
+
+                        <tr>
+                          <td class="text-nowrap">
+                            <code class="highlighter-rouge">displayValue</code>
+                          </td>
+                          <td><i>Function</i></td>
+                          <td><code>(value) =&gt; value</code></td>
+                          <td>Maps a result item to the string shown in both the dropdown list and the input field after selection. Required when <code>filter</code> returns objects.</td>
+                        </tr>
+
+                        <tr>
+                          <td class="text-nowrap">
+                            <code class="highlighter-rouge">filter</code>
+                          </td>
+                          <td><i>Function</i></td>
+                          <td><code>-</code></td>
+                          <td><strong>Required.</strong> Receives the current input value and must return an array of results or a <code>Promise</code> that resolves to one.</td>
+                        </tr>
+
+                        <tr>
+                          <td class="text-nowrap">
+                            <code class="highlighter-rouge">itemContent</code>
+                          </td>
+                          <td><i>Function</i></td>
+                          <td><code>-</code></td>
+                          <td>Returns an HTML string used as the inner content of each dropdown row. Overrides the default <code>displayValue</code> text rendering.</td>
+                        </tr>
+
+                        <tr>
+                          <td class="text-nowrap">
+                            <code class="highlighter-rouge">listHeight</code>
+                          </td>
+                          <td><i>Number</i></td>
+                          <td><code>190</code></td>
+                          <td>Maximum height of the results list in pixels. Overridable via <code>data-cnds-list-height</code>.</td>
+                        </tr>
+
+                        <tr>
+                          <td class="text-nowrap">
+                            <code class="highlighter-rouge">threshold</code>
+                          </td>
+                          <td><i>Number</i></td>
+                          <td><code>0</code></td>
+                          <td>Minimum number of characters that must be entered before <code>filter</code> is called. Overridable via <code>data-cnds-threshold</code>.</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </section>
+                <!--Section: Options-->
+
+                <!--Section: Methods-->
+                <section id="api-section-methods">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Methods</h3>
+
+                  <div class="table-responsive">
+                    <table class="table table-striped table-bordered" aria-label="Methods">
+                      <thead>
+                        <tr>
+                          <th class="th-sm">Name</th>
+                          <th class="th-sm">Description</th>
+                          <th class="th-sm">Example</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td class="text-nowrap">
+                            <code class="highlighter-rouge">open</code>
+                          </td>
+                          <td>Manually opens a component dropdown</td>
+                          <td>
+                            <code>myAutocomplete.open()</code>
+                          </td>
+                        </tr>
+
+                        <tr>
+                          <td class="text-nowrap">
+                            <code class="highlighter-rouge">close</code>
+                          </td>
+                          <td>Manually closes a component dropdown</td>
+                          <td>
+                            <code>myAutocomplete.close()</code>
+                          </td>
+                        </tr>
+
+                        <tr>
+                          <td class="text-nowrap">
+                            <code class="highlighter-rouge">dispose</code>
+                          </td>
+                          <td>Disposes an autocomplete instance</td>
+                          <td>
+                            <code>myAutocomplete.dispose()</code>
+                          </td>
+                        </tr>
+
+                        <tr>
+                          <td class="text-nowrap">
+                            <code class="highlighter-rouge">getInstance</code>
+                          </td>
+                          <td>
+                            Static method which allows you to get the
+                            autocomplete instance associated to a DOM element.
+                          </td>
+                          <td>
+                            <code
+                              >Autocomplete.getInstance(myAutocomplete)</code
+                            >
+                          </td>
+                        </tr>
+
+                        <tr>
+                          <td class="text-nowrap">
+                            <code class="highlighter-rouge"
+                              >getOrCreateInstance</code
+                            >
+                          </td>
+                          <td>
+                            Static method which returns the autocomplete
+                            instance associated to a DOM element or create a new
+                            one in case it wasn't initialized.
+                          </td>
+                          <td>
+                            <code
+                              >Autocomplete.getOrCreateInstance(myAutocomplete)</code
+                            >
+                          </td>
+                        </tr>
+
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                    <!-- snippet -->
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                <code class="language-js">
+const myAutocomplete = document.getElementById('myAutocomplete');
+const autocomplete = new Nimbus.Autocomplete(myAutocomplete);
+autocomplete.open();
+                                </code>
+                                </pre>
+                    </div>
+                    <!-- /.snippet -->
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--Section: Methods-->
+
+                <!--Section: Events-->
+                <section id="api-section-events">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Events</h3>
+
+                  <div class="table-responsive">
+                    <table class="table table-striped table-bordered" aria-label="Events">
+                      <thead>
+                        <tr>
+                          <th class="th-sm">Name</th>
+                          <th class="th-sm">Description</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td class="text-nowrap">
+                            <code class="highlighter-rouge"
+                              >open.cnds.autocomplete</code
+                            >
+                          </td>
+                          <td>
+                            This event fires immediately when the autocomplete
+                            dropdown is opened.
+                          </td>
+                        </tr>
+
+                        <tr>
+                          <td class="text-nowrap">
+                            <code class="highlighter-rouge"
+                              >close.cnds.autocomplete</code
+                            >
+                          </td>
+                          <td>
+                            This event fires immediately when the autocomplete
+                            dropdown is closed.
+                          </td>
+                        </tr>
+
+                        <tr>
+                          <td class="text-nowrap">
+                            <code class="highlighter-rouge"
+                              >itemSelect.cnds.autocomplete</code
+                            >
+                          </td>
+                          <td>
+                            This event fires immediately when the autocomplete
+                            item is selected.
+                          </td>
+                        </tr>
+
+                        <tr>
+                          <td class="text-nowrap">
+                            <code class="highlighter-rouge"
+                              >update.cnds.autocomplete</code
+                            >
+                          </td>
+                          <td>
+                            This event fires immediately when the autocomplete
+                            results list is updated.
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                    <!-- snippet -->
+                    <div class="p-0">
+                      <pre class="line-numbers m-0">
+                                <code class="language-js">
+const myAutocomplete = document.getElementById('myAutocomplete')
+myAutocomplete.addEventListener('open.cnds.autocomplete', (e) => {
+  // do something...
+})
+                                </code>
+                                </pre>
+                    </div>
+                    <!-- /.snippet -->
+                  </section>
+                  <!--Section: Code-->
+                </section>
+                <!--Section: Events-->
+
+                <!--/Section: API Documentation-->
+              </section>
+              <!--Section: Docs content-->
+            </div>
+
+            <div class="col-lg-2 d-none d-lg-block">
+              <div class="sticky-top" style="top: 100px; z-index: 1">
+                <ul
+                  class="nav flex-column nav-pills menu-sidebar"
+                  id="rightNav"
+                  data-cnds-allow-hashes="true"
+                >
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-introduction"
+                      >Introduction</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-basic-example"
+                      >Basic example</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-sizing">Sizing</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-product-themes"
+                      >Product themes</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-display-value"
+                      >Display value</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-async-search"
+                      >Asynchronous search</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-threshold">Threshold</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-custom-item"
+                      >Custom item template</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-custom-content"
+                      >Custom content</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-validation"
+                      >Validation</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-auto-select"
+                      >Auto select</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#section-api-docs"
+                      >API Documentation</a
+                    >
+                  </li>
+                  <li class="nav-item ms-3">
+                    <a class="nav-link" href="#api-section-introduction">Introduction</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link nav-link-sub" href="#api-section-usage"
+                      >Usage</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link nav-link-sub" href="#api-section-options"
+                      >Options</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link nav-link-sub" href="#api-section-methods"
+                      >Methods</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link nav-link-sub" href="#api-section-events"
+                      >Events</a
+                    >
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Togglers -->
+    </main>
+      <!-- ./Togglers -->
+      </div>
+    </main>
+    <!-- Footer -->
+    <div class="cf-footer cf-footer-app">
+      <footer class="page-footer main-footer" aria-label="Site footer">
+        <div class="w-100 px-3 d-flex align-items-center">
+          <img src="img/cf/core/cloudficient_logo_light.svg" class="cf-logo-light" style="width: 135px;" alt="Cloudficient" />
+          <img src="img/cf/core/cloudficient_logo_dark.svg" class="cf-logo-dark" style="width: 135px;" alt="Cloudficient" />
+          <span class="footer-copyright ms-auto">&copy; <span id="currentYear"></span> Cloudficient</span>
+        </div>
+      </footer>
+    </div>
+    <!-- SCRIPTS -->
+    <script type="text/javascript" src="js/nimbus.js?v=9.0.4"></script>
+    <script type="text/javascript" src="js/app.js?v=9.0.4"></script>
+    <script type="text/javascript" src="plugins/js/prism.min.js"></script>
+    <script type="text/javascript" src="js/sidenav-loader.js"></script>
+    <script type="text/javascript">
+      var currentYearElement = document.getElementById("currentYear");
+      if (currentYearElement) {
+        currentYearElement.textContent = new Date().getFullYear();
+      }
+    </script>
+
+    <!-- Autocomplete demo initializations -->
+    <script type="text/javascript">
+      (function () {
+        function initAutocompletes() {
+
+        // --- Sizing demos ---
+        const sizeData = ["One", "Two", "Three", "Four", "Five"];
+        const sizeFilter = (value) =>
+          sizeData.filter((item) => item.toLowerCase().startsWith(value.toLowerCase()));
+        new Nimbus.Autocomplete(document.querySelector("#ac-size-lg"), { filter: sizeFilter });
+        new Nimbus.Autocomplete(document.querySelector("#ac-size-df"), { filter: sizeFilter });
+        new Nimbus.Autocomplete(document.querySelector("#ac-size-sm"), { filter: sizeFilter });
+
+        // --- Product theme demos ---
+        const ptData = ["One", "Two", "Three", "Four", "Five"];
+        const ptFilter = (value) =>
+          ptData.filter((item) => item.toLowerCase().startsWith(value.toLowerCase()));
+        new Nimbus.Autocomplete(document.querySelector("#pt-casefusion"), { filter: ptFilter });
+        new Nimbus.Autocomplete(document.querySelector("#pt-hyperlize"),  { filter: ptFilter });
+        new Nimbus.Autocomplete(document.querySelector("#pt-expireon"),   { filter: ptFilter });
+
+        // --- Basic example ---
+        const basicAutocomplete = document.querySelector("#basic");
+        const basicData = ["One", "Two", "Three", "Four", "Five"];
+        new Nimbus.Autocomplete(basicAutocomplete, {
+          filter: (value) =>
+            basicData.filter((item) =>
+              item.toLowerCase().startsWith(value.toLowerCase())
+            ),
+        });
+
+        // --- Display value ---
+        const displayValueAutocomplete = document.querySelector("#displayValue");
+        const displayValueData = [
+          { title: "One",   description: "Lorem ipsum dolor sit, amet consectetur adipisicing elit" },
+          { title: "Two",   description: "Lorem ipsum dolor sit, amet consectetur adipisicing elit" },
+          { title: "Three", description: "Lorem ipsum dolor sit, amet consectetur adipisicing elit" },
+          { title: "Four",  description: "Lorem ipsum dolor sit, amet consectetur adipisicing elit" },
+          { title: "Five",  description: "Lorem ipsum dolor sit, amet consectetur adipisicing elit" },
+        ];
+        new Nimbus.Autocomplete(displayValueAutocomplete, {
+          filter: (value) =>
+            displayValueData.filter((item) =>
+              item.title.toLowerCase().startsWith(value.toLowerCase())
+            ),
+          displayValue: (value) => value.title,
+        });
+
+        // --- Async search ---
+        const asyncAutocomplete = document.querySelector("#async");
+        new Nimbus.Autocomplete(asyncAutocomplete, {
+          filter: async (query) => {
+            const url = `https://swapi.py4e.com/api/people/?search=${encodeURI(query)}`;
+            const response = await fetch(url);
+            const data = await response.json();
+            return data.results;
+          },
+          displayValue: (value) => value.name,
+        });
+
+        // --- Threshold ---
+        const thresholdAutocomplete = document.querySelector("#threshold");
+        const thresholdData = ["One", "Two", "Three", "Four", "Five"];
+        new Nimbus.Autocomplete(thresholdAutocomplete, {
+          filter: (value) =>
+            thresholdData.filter((item) =>
+              item.toLowerCase().startsWith(value.toLowerCase())
+            ),
+          threshold: 2,
+        });
+
+        // --- Custom item template ---
+        const customItemAutocomplete = document.querySelector("#customItem");
+        const customItemData = [
+          { title: "One",   subtitle: "Secondary text" },
+          { title: "Two",   subtitle: "Secondary text" },
+          { title: "Three", subtitle: "Secondary text" },
+          { title: "Four",  subtitle: "Secondary text" },
+          { title: "Five",  subtitle: "Secondary text" },
+          { title: "Six",   subtitle: "Secondary text" },
+        ];
+        new Nimbus.Autocomplete(customItemAutocomplete, {
+          filter: (value) =>
+            customItemData.filter((item) =>
+              item.title.toLowerCase().startsWith(value.toLowerCase())
+            ),
+          displayValue: (value) => value.title,
+          itemContent: (result) => `
+<div class="autocomplete-custom-item-content">
+  <div class="autocomplete-custom-item-title">${result.title}</div>
+  <div class="autocomplete-custom-item-subtitle">${result.subtitle}</div>
+</div>`,
+        });
+
+        // --- Custom content ---
+        const customContentAutocomplete = document.querySelector("#customContent");
+        const customContentData = ["One", "Two", "Three", "Four", "Five"];
+        new Nimbus.Autocomplete(customContentAutocomplete, {
+          filter: (value) =>
+            customContentData.filter((item) =>
+              item.toLowerCase().startsWith(value.toLowerCase())
+            ),
+          customContent: '<div class="autocomplete-custom-content"></div>',
+        });
+
+        customContentAutocomplete.addEventListener("update.cnds.autocomplete", (event) => {
+          const resultsLength = event.detail.results.length;
+          setTimeout(() => {
+            const container = document.querySelector(".autocomplete-custom-content");
+            if (container) container.textContent = `Search results: ${resultsLength}`;
+          }, 0);
+        });
+
+        // --- Validation ---
+        const validationAutocomplete = document.querySelector("#validation");
+        const validationData = ["One", "Two", "Three", "Four", "Five"];
+        new Nimbus.Autocomplete(validationAutocomplete, {
+          filter: (value) =>
+            validationData.filter((item) =>
+              item.toLowerCase().startsWith(value.toLowerCase())
+            ),
+        });
+
+        // Form validation submit handler
+        const validationForm = document.querySelector(".needs-validation");
+        if (validationForm) {
+          validationForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            this.classList.add("was-validated");
+          }, false);
+        }
+
+        // --- Auto select ---
+        const autoSelectAutocomplete = document.querySelector("#auto-select");
+        const autoSelectData = ["One", "Two", "Three", "Four", "Five"];
+        new Nimbus.Autocomplete(autoSelectAutocomplete, {
+          filter: (value) =>
+            autoSelectData.filter((item) =>
+              item.toLowerCase().startsWith(value.toLowerCase())
+            ),
+          autoSelect: true,
+        });
+
+        } // end initAutocompletes
+
+        // cnds.ready fires synchronously during nimbus.js execution — before
+        // this inline script runs — so the listener below always misses it.
+        // Mirror the app.js pattern: call directly if Nimbus is already loaded.
+        if (window.Nimbus && window.Nimbus.Autocomplete) {
+          initAutocompletes();
+        } else {
+          document.addEventListener("cnds.ready", initAutocompletes);
+        }
+      })();
+    </script>
+  </body>
+</html>

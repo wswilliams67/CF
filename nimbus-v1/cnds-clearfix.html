@@ -1,0 +1,666 @@
+<!--
+* CNDS Nimbus Design System — Clearfix
+* Version: 1.0.0
+* Layout: Application with SideNav (migrated from Nimbus v8 template)
+*
+* SECTIONS (in document order)
+*   #section-introduction  — Overview and when to use
+*   #section-basic-example — HTML, SCSS mixin, and live demo
+*   #section-api-docs      — API Documentation
+*     #api-section-introduction  — How clearfix works
+*     #api-section-usage         — When and how to apply
+*     #api-section-css-classes   — CSS class and selector reference table
+*     #api-section-css-output    — Compiled CSS output
+*     #api-section-scss-mixin    — SCSS mixin definition and usage
+*     #api-section-accessibility — Accessibility notes
+*
+* NOTES
+* - Pure HTML5, CSS3, vanilla JavaScript — zero external dependencies
+* - Uses data-cnds-* attributes (replaces data-mdb-*)
+* - Uses Nimbus.* namespace (replaces mdb.*)
+* - Default product theme: CaseFusion (cnds-product-casefusion on <body>; change to cnds-product-hyperlize or cnds-product-expireon)
+-->
+<!doctype html>
+<!-- data-cnds-theme: sets the initial theme ("light" | "dark"). nimbus.js syncs this attribute when the user toggles. -->
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta
+      name="description"
+      content="Clearfix | Cloudficient Nimbus Design System v1.0.0"
+    />
+    <title>Clearfix | CNDS v1.0.0 | Cloudficient Nimbus Design System</title>
+    <!-- Nimbus CSS -->
+    <link rel="stylesheet" href="css/nimbus.css" media="all" type="text/css" />
+    <!-- Custom styles | All custom classes/styles/overrides go here! -->
+    <link rel="stylesheet" href="css/app.css" media="all" type="text/css" />
+    <!-- Prism syntax highlighting -->
+    <link
+      rel="stylesheet"
+      href="plugins/css/prism.min.css"
+      media="all"
+      type="text/css"
+    />
+    <!-- Favicons -->
+    <link
+      rel="apple-touch-icon"
+      sizes="57x57"
+      href="img/favicon/apple-icon-57x57.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="60x60"
+      href="img/favicon/apple-icon-60x60.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="72x72"
+      href="img/favicon/apple-icon-72x72.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="76x76"
+      href="img/favicon/apple-icon-76x76.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="114x114"
+      href="img/favicon/apple-icon-114x114.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="120x120"
+      href="img/favicon/apple-icon-120x120.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="144x144"
+      href="img/favicon/apple-icon-144x144.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="152x152"
+      href="img/favicon/apple-icon-152x152.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="img/favicon/apple-icon-180x180.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="192x192"
+      href="img/favicon/android-icon-192x192.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="img/favicon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="96x96"
+      href="img/favicon/favicon-96x96.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="img/favicon/favicon-16x16.png"
+    />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta
+      name="msapplication-TileImage"
+      content="img/favicon/ms-icon-144x144.png"
+    />
+    <!-- ./Favicons -->
+    <!-- Design tokens — load order matters:
+         1. primitives.css  — raw color/spacing values (no theming)
+         2. light.css       — semantic tokens for [data-cnds-theme="light"] / :root
+         3. dark.css        — semantic token overrides for [data-cnds-theme="dark"]
+         All three must appear AFTER nimbus.css so component variables resolve correctly. -->
+    <link rel="stylesheet" href="css/themes/primitives.css" />
+    <link rel="stylesheet" href="css/themes/light.css" />
+    <link rel="stylesheet" href="css/themes/dark.css" />
+  </head>
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 Bypass Blocks; renders visually hidden until focused -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+    <!-- Header -->
+    <div class="sticky-top">
+      <!-- Utility Navigation -->
+      <nav id="UtilityNav" class="nav nav-cf-utility" aria-label="Utility navigation">
+        <div class="w-100 gx-3 px-sm-0 px-lg-3">
+          <ul class="nav nav-cf-utility-ul"></ul>
+        </div>
+      </nav>
+      <!-- ./Utility Navigation -->
+      <!-- Main Navigation -->
+      <nav id="MainNav" class="navbar navbar-expand-xl navbar-cf" aria-label="Main navigation">
+        <div class="container-fluid p-0 px-3 d-flex">
+          <div class="d-flex flex-fill align-items-center text-truncate">
+            <div class="text-center d-none d-md-block me-3 border-end">
+              <a href="index.html"
+                ><img src="img/cf/core/logo_nimbus.png" class="me-3 mt-n1"
+              alt="Cloudficient Nimbus Design System" /></a>
+            </div>
+            <div class="flex-fill text-truncate">
+              <div class="navbar-cf-title-block">
+                <div
+                  class="navbar-cf-title cf-page-title text-truncate"
+                  style="padding-bottom: 0"
+                >
+                  <span class="cf-page-title-text cf-page-title-brand">v1</span
+                  ><span class="cf-page-title-divider"></span
+                  ><span class="cf-page-title-text">Clearfix</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- data-cnds-toggle="theme": wired by nimbus.js — flips data-cnds-theme on <html> between "light" and "dark" -->
+          <button
+            class="btn btn-sm btn-outline-secondary ms-2"
+            data-cnds-toggle="theme"
+            aria-label="Toggle theme"
+            title="Toggle theme"
+          >
+            <i class="mdi mdi-weather-night mdi-18px" aria-hidden="true"></i>
+          </button>
+        </div>
+      </nav>
+      <!-- ./Main Navigation -->
+    </div>
+    <!-- ./Header -->
+    <!-- Content -->
+    <main id="main-content" class="cf-main-app">
+      <!-- Mobile viewport warning -->
+      <div class="d-block d-md-none p-4">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>This application is not
+          optimized for small screens. Please use a large tablet, laptop, or
+          desktop computer to continue.
+        </div>
+      </div>
+      <div class="d-none d-md-block">
+        <!-- Sidenav — markup is intentionally empty; sidenav-loader.js fetches and injects the shared nav HTML.
+             data-cnds-mode="side"           : renders as a persistent side panel (not an overlay/drawer)
+             data-cnds-slim / slim-collapsed : controls compact/icon-only collapsed state
+             data-cnds-content="#slim-content": the sibling panel that shrinks/expands as the nav opens/closes
+             data-cnds-accordion="true"      : collapses other open nav groups when a new one is expanded -->
+        <nav
+          id="sidebar-cf"
+          class="sidenav"
+          aria-label="Site navigation"
+          data-cnds-mode="side"
+          data-cnds-slim="false"
+          data-cnds-slim-collapsed="false"
+          data-cnds-content="#slim-content"
+          data-cnds-accordion="true"
+        ></nav>
+        <div id="slim-content">
+          <div class="slim-content-box">
+            <!-- Content Row -->
+            <div class="row">
+              <!-- Main column — 80 % of the row width; the remaining 20 % is the right sidebar.
+                   The inline flex overrides are intentional: they pin the ratio regardless of Bootstrap's
+                   grid breakpoints so the sidebar never wraps on large viewports. -->
+              <div class="col-12 col-lg" style="flex: 0 0 80%; max-width: 80%">
+                <!--Section: Docs content-->
+                <!-- Outer container-fluid keeps content full-width inside the 80 % main column -->
+                <section class="container-fluid">
+                  <!--Section: Introduction-->
+                  <section id="section-introduction" aria-labelledby="page-heading">
+
+                    <h3 id="page-heading" class="mb-4">Clearfix</h3>
+
+                    <p class="mb-4">
+                      Clearfix is a CSS utility that forces a container element to expand around its
+                      floated children. When all child elements are floated, the parent collapses to
+                      zero height because floated elements are removed from the normal document flow.
+                      Adding <code>.clearfix</code> to the <strong>parent element</strong> inserts an
+                      invisible <code>::after</code> pseudo-element with <code>clear: both</code>,
+                      restoring the container's height without requiring extra markup.
+                    </p>
+                    <p class="my-4">
+                      Use clearfix when a container holds only floated children and must visually wrap
+                      around them — for example, a toolbar with buttons floated to opposite sides.
+                      Modern layouts built with Flexbox or CSS Grid do not require clearfix because
+                      those models keep children within the normal flow. Clearfix is most relevant
+                      when working with legacy float-based layouts or integrating third-party content
+                      that uses floats.
+                    </p>
+
+                    <p class="note note-light">
+                      <strong>Note:</strong> Read the
+                      <a href="#api-section-introduction">API Documentation</a> to find all available
+                      options and advanced customization.
+                    </p>
+
+                    <p class="note note-info"><strong>Note:</strong> To preview components in different themes, click the theme toggle button <i class="mdi mdi-weather-night" aria-hidden="true"></i> / <i class="mdi mdi-weather-sunny" aria-hidden="true"></i> in the header navigation bar.</p>
+                  </section>
+                  <!--/Section: Introduction-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Basic example-->
+                  <section id="section-basic-example" aria-labelledby="heading-basic-example">
+                    <h4 id="heading-basic-example" class="mb-4">Basic example</h4>
+
+                    <p>
+                      The <code>.clearfix</code> class and the <code>clearfix()</code> SCSS mixin are
+                      two ways to apply the same technique. Use the HTML class when working directly
+                      in templates or markup. Use the mixin when you want to extend a custom SCSS
+                      selector without adding a utility class to the HTML.
+                    </p>
+
+                    <p>Apply <code>.clearfix</code> to the parent element in HTML:</p>
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h5><span class="badge badge-code-html">HTML</span></h5>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div class="clearfix"&gt;...&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                    <p>The underlying SCSS mixin generates a <code>::after</code> pseudo-element that clears both float directions:</p>
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h5><span class="badge bg-info">SCSS</span></h5>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-scss">@mixin clearfix() {
+  &amp;::after {
+    display: block;
+    clear: both;
+    content: "";
+  }
+}</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                    <p>Include the mixin in any custom SCSS selector to apply clearfix without adding a class to the HTML:</p>
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h5><span class="badge bg-info">SCSS</span></h5>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-scss">.element {
+  @include clearfix;
+}</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                    <p>
+                      The example below demonstrates the effect in practice. Both buttons are floated
+                      in opposite directions inside a container div. Because <code>.clearfix</code>
+                      is applied to that div, the container stretches to fully enclose both buttons.
+                      Without it, the container would collapse and the buttons would overflow outside
+                      their parent, breaking the layout.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="bg-white border rounded-5">
+                        <section class="p-4 text-center pb-4 w-100">
+                          <div class="bg-blue-50 clearfix">
+                            <button
+                              type="button"
+                              class="btn btn-primary float-start"
+                            >
+                              Example Button floated left
+                            </button>
+                            <button
+                              type="button"
+                              class="btn btn-primary float-end"
+                            >
+                              Example Button floated right
+                            </button>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Clearfix is CSS-only — no directive or binding needed. Copy <div class="clearfix"> directly into any component template.
+     Example: <div class="bg-blue-50 clearfix"><button class="float-start">Left</button><button class="float-end">Right</button></div>
+     Alternatively, apply the clearfix() SCSS mixin to :host or a custom selector to avoid adding the utility class to markup. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h5><span class="badge badge-code-html">HTML</span></h5>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div class="bg-blue-50 clearfix"&gt;
+    &lt;button type="button" class="btn btn-primary float-start"&gt;
+        Example Button floated left
+    &lt;/button&gt;
+    &lt;button type="button" class="btn btn-primary float-end"&gt;
+        Example Button floated right
+    &lt;/button&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Basic example-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: API Documentation-->
+                  <section id="section-api-docs">
+                    <h3 class="mb-3">API Documentation</h3>
+
+                    <!--Section: API Introduction-->
+                    <section id="api-section-introduction">
+                      <h4 class="mb-4">Introduction</h4>
+                      <p>
+                        The Nimbus clearfix utility is a CSS-only helper — no
+                        JavaScript initialization is required. It forces a
+                        container element to expand around its floated children
+                        by inserting a clearing <code>::after</code>
+                        pseudo-element. When all children are floated, the
+                        browser removes them from the normal document flow and
+                        the container collapses to zero height. Clearfix
+                        restores that height by injecting an invisible block
+                        after the floated content that forces the container to
+                        stretch around it.
+                      </p>
+                      <p>
+                        Two equivalent forms are provided: the
+                        <code>.clearfix</code> utility class for use directly
+                        in markup, and the <code>clearfix()</code> SCSS mixin
+                        for applying the same technique inside a custom
+                        selector without adding a class to the HTML.
+                      </p>
+                    </section>
+                    <!--/Section: API Introduction-->
+
+                    <!--Section: API Usage-->
+                    <section id="api-section-usage">
+                      <h4 class="mb-4">Usage</h4>
+                      <p>
+                        Apply <code>.clearfix</code> to the
+                        <strong>parent</strong> container element — not to the
+                        floated children. The class inserts a
+                        <code>::after</code> pseudo-element with
+                        <code>clear: both</code> that restores the container's
+                        height without requiring extra markup. Use the SCSS
+                        mixin when you want to apply the technique to a custom
+                        selector without adding a utility class to the HTML.
+                      </p>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-html">&lt;div class="clearfix"&gt;
+    &lt;button type="button" class="btn btn-primary float-start"&gt;Left&lt;/button&gt;
+    &lt;button type="button" class="btn btn-primary float-end"&gt;Right&lt;/button&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+                      <section class="mb-4">
+                        <h5><span class="badge bg-info">SCSS</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-scss">.my-toolbar {
+  @include clearfix;
+}</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Section: API Usage-->
+
+                    <!--Section: API CSS Classes-->
+                    <section id="api-section-css-classes">
+                      <h4 class="mb-4">CSS classes</h4>
+                      <p>
+                        The following classes and selectors make up the
+                        clearfix implementation. Both are CSS-only and require
+                        no JavaScript.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped" aria-label="CSS classes">
+                          <thead>
+                            <tr>
+                              <th>Class / Selector</th>
+                              <th>Applied to</th>
+                              <th>Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>.clearfix</code></td>
+                              <td>any block container</td>
+                              <td>
+                                Apply to the <strong>parent</strong> of floated
+                                children. Triggers the clearing
+                                <code>::after</code> pseudo-element that forces
+                                the container to expand around its floated
+                                content.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.clearfix::after</code></td>
+                              <td>generated pseudo-element</td>
+                              <td>
+                                The clearing element inserted after all floated
+                                children. Rendered as
+                                <code>display: block</code> with
+                                <code>clear: both</code> and
+                                <code>content: ""</code>. The empty
+                                <code>content</code> value ensures screen
+                                readers do not announce it.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: API CSS Classes-->
+
+                    <!--Section: API CSS Output-->
+                    <section id="api-section-css-output">
+                      <h4 class="mb-4">CSS output</h4>
+                      <p>
+                        Both the <code>.clearfix</code> utility class and the
+                        <code>clearfix()</code> SCSS mixin compile to the same
+                        CSS rule. The <code>display: block</code> declaration
+                        ensures the pseudo-element establishes a block
+                        formatting context so that <code>clear: both</code>
+                        takes effect correctly.
+                      </p>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-css">CSS</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-css">.clearfix::after {
+  display: block;
+  clear: both;
+  content: "";
+}</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Section: API CSS Output-->
+
+                    <!--Section: API SCSS Mixin-->
+                    <section id="api-section-scss-mixin">
+                      <h4 class="mb-4">SCSS mixin</h4>
+                      <p>
+                        The <code>clearfix()</code> mixin generates the same
+                        <code>::after</code> clearing rule as the utility
+                        class. Use it inside any SCSS selector to avoid adding
+                        <code>.clearfix</code> to the HTML. The
+                        <code>&amp;</code> parent-selector reference ensures
+                        the pseudo-element targets the correct compiled
+                        selector.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped" aria-label="SCSS mixin">
+                          <thead>
+                            <tr>
+                              <th>Mixin</th>
+                              <th>Arguments</th>
+                              <th>Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>clearfix()</code></td>
+                              <td>none</td>
+                              <td>
+                                Outputs a <code>::after</code> rule on the
+                                enclosing selector with
+                                <code>display: block</code>,
+                                <code>clear: both</code>, and
+                                <code>content: ""</code>. Include via
+                                <code>@include clearfix;</code> — no arguments
+                                accepted.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <section class="mb-4">
+                        <h5><span class="badge bg-info">SCSS — mixin definition</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-scss">@mixin clearfix() {
+  &amp;::after {
+    display: block;
+    clear: both;
+    content: "";
+  }
+}</code></pre>
+                        </div>
+                      </section>
+                      <section class="mb-4">
+                        <h5><span class="badge bg-info">SCSS — usage</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-scss">.my-toolbar {
+  @include clearfix;
+}
+
+// Compiles to:
+// .my-toolbar::after {
+//   display: block;
+//   clear: both;
+//   content: "";
+// }</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Section: API SCSS Mixin-->
+
+                    <!--Section: API Accessibility-->
+                    <section id="api-section-accessibility">
+                      <h4 class="mb-4">Accessibility</h4>
+                      <p>
+                        Clearfix has no effect on the accessibility tree and
+                        requires no ARIA attributes. The
+                        <code>::after</code> pseudo-element uses
+                        <code>content: ""</code>, which means it carries no
+                        text and is not announced by screen readers. The
+                        technique is purely presentational — it corrects a
+                        layout side-effect of CSS floats without altering
+                        document semantics.
+                      </p>
+                      <ul>
+                        <li>
+                          Do <strong>not</strong> add <code>aria-hidden</code>
+                          to the clearfix container. The container itself may
+                          hold meaningful content; hiding it would remove that
+                          content from the accessibility tree.
+                        </li>
+                        <li>
+                          Floated child elements remain in normal document
+                          order in the DOM and are fully accessible to
+                          keyboard and screen-reader users regardless of their
+                          visual float position.
+                        </li>
+                        <li>
+                          If the floated children form a functional group
+                          (such as a toolbar), wrap them in an appropriate
+                          landmark or labelled region — clearfix itself
+                          provides no grouping semantics.
+                        </li>
+                      </ul>
+                    </section>
+                    <!--/Section: API Accessibility-->
+
+                  </section>
+                  <!--/Section: API Documentation-->
+                </section>
+                <!--/Section: Docs content-->
+              </div>
+              <!-- ./Main column-->
+
+              <!-- Right Sidebar — 20 % of the row width; hidden below lg breakpoint.
+                   Sticky attributes (processed by nimbus.js):
+                     data-cnds-sticky="true"          : activates sticky positioning
+                     data-cnds-sticky-boundary="true" : constrains sticky to its parent container
+                     data-cnds-sticky-direction="both" : sticks when scrolling up OR down
+                     data-cnds-sticky-offset="56"     : clears the 56 px fixed header
+                     data-cnds-sticky-delay="125"     : debounce delay (ms) to reduce scroll jank
+                   data-cnds-allow-hashes="true" on the <ul>: nimbus.js watches the URL hash
+                     and highlights the matching nav-link as the user scrolls through sections. -->
+              <div class="col-lg-2 d-none d-lg-block">
+                <div class="sticky-top" style="top: 100px; z-index: 1">
+                  <ul
+                    class="nav flex-column nav-pills menu-sidebar"
+                    id="rightNav"
+                    data-cnds-allow-hashes="true"
+                  >
+                    <li class="nav-item"><a class="nav-link" href="#section-introduction">Introduction</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-basic-example">Basic example</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-api-docs">API Documentation</a></li>
+                    <li class="nav-item ps-3"><a class="nav-link" href="#api-section-introduction">Introduction</a></li>
+                    <li class="nav-item ps-3"><a class="nav-link" href="#api-section-usage">Usage</a></li>
+                    <li class="nav-item ps-3"><a class="nav-link" href="#api-section-css-classes">CSS classes</a></li>
+                    <li class="nav-item ps-3"><a class="nav-link" href="#api-section-css-output">CSS output</a></li>
+                    <li class="nav-item ps-3"><a class="nav-link" href="#api-section-scss-mixin">SCSS mixin</a></li>
+                    <li class="nav-item ps-3"><a class="nav-link" href="#api-section-accessibility">Accessibility</a></li>
+                  </ul>
+                </div>
+              </div>
+              <!-- ./Right Sidebar -->
+            </div>
+            <!-- ./Content Row -->
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- ./Content -->
+    <!-- Footer -->
+    <div class="cf-footer cf-footer-app">
+      <footer class="page-footer main-footer" aria-label="Site footer">
+        <div class="w-100 px-3 d-flex align-items-center">
+          <img src="img/cf/core/cloudficient_logo_light.svg" class="cf-logo-light" style="width: 135px;" alt="Cloudficient" />
+          <img src="img/cf/core/cloudficient_logo_dark.svg" class="cf-logo-dark" style="width: 135px;" alt="Cloudficient" />
+          <span class="footer-copyright ms-auto">&copy; <span id="currentYear"></span> Cloudficient</span>
+        </div>
+      </footer>
+    </div>
+    <!-- ./Footer -->
+    <!-- SCRIPTS — load order matters:
+         1. nimbus.js    — core framework: processes all data-cnds-* attributes (theme, sticky, sidenav, tooltips…)
+         2. app.js       — application-level overrides and custom initialisation
+         3. prism.min.js — syntax highlighting for <code class="language-*"> blocks; must run after DOM is ready
+         4. sidenav-loader.js — fetches shared sidenav HTML and injects it into #sidebar-cf -->
+    <script type="text/javascript" src="js/nimbus.js?v=9.0.4"></script>
+    <script type="text/javascript" src="js/app.js?v=9.0.4"></script>
+    <script type="text/javascript" src="plugins/js/prism.min.js"></script>
+    <script type="text/javascript" src="js/sidenav-loader.js"></script>
+    <!-- Inline: populate the footer copyright year dynamically so the page never needs a manual update -->
+    <script type="text/javascript">
+      var currentYearElement = document.getElementById("currentYear");
+      if (currentYearElement) {
+        currentYearElement.textContent = new Date().getFullYear();
+      }
+    </script>
+  </body>
+</html>

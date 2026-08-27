@@ -1,0 +1,1189 @@
+<!--
+* CNDS Nimbus Design System — Explorer
+* Version: 1.0.0
+* Layout: Application with SideNav (migrated from Nimbus v8 template)
+*
+* SECTIONS (in document order)
+*   #section-introduction       — Overview and when to use
+*   #section-basic-example      — Live demo + HTML code example
+*   #section-accessibility      — ARIA requirements and keyboard reference
+*   #section-api-docs           — Full API documentation
+*     #api-section-introduction — Component overview and initialization
+*     #api-section-usage        — HTML structure + required JS scripts
+*     #api-section-css-classes  — Explorer-specific CSS class reference
+*     #api-section-css-variables— CNDS theme tokens consumed by the component
+*     #api-section-javascript   — Nimbus.Dropdown instance methods
+*     #api-section-events       — show/hide lifecycle events
+*     #api-section-theme-variables — Light/dark resolved token values
+*     #api-section-accessibility— ARIA attribute requirements table
+*
+* SCRIPTS (load order — see bottom of <body>)
+*   1. nimbus.js          — Core framework; processes data-cnds-* attributes
+*   2. app.js             — Application-level overrides
+*   3. prism.min.js       — Syntax highlighting for .language-* code blocks
+*   4. sidenav-loader.js  — Fetches and injects shared sidenav HTML into #sidebar-cf
+*   5. Inline scripts     — Copyright year + Explorer click/keyboard handlers
+*
+* NOTES
+* - Pure HTML5, CSS3, vanilla JavaScript — zero external dependencies
+* - All data-cnds-* attributes are processed by nimbus.js / app.js
+* - Uses Nimbus.* namespace
+* - Default product theme: CaseFusion (cnds-product-casefusion on <body>; change to cnds-product-hyperlize or cnds-product-expireon)
+* - explorer.css must be loaded before app.css so app overrides take precedence
+-->
+<!doctype html>
+<!-- data-cnds-theme: sets the initial theme ("light" | "dark"). nimbus.js syncs this attribute when the user toggles. -->
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta
+      name="description"
+      content="Explorer | Cloudficient Nimbus Design System v1.0.0"
+    />
+    <title>Explorer | CNDS v1.0.0 | Cloudficient Nimbus Design System</title>
+    <!-- Nimbus CSS -->
+    <link rel="stylesheet" href="css/nimbus.css" media="all" type="text/css" />
+    <!-- Explorer component styles -->
+    <link rel="stylesheet" href="css/components/explorer.css" media="all" type="text/css" />
+    <!-- Custom styles | All custom classes/styles/overrides go here! -->
+    <link rel="stylesheet" href="css/app.css" media="all" type="text/css" />
+    <!-- Prism syntax highlighting -->
+    <link
+      rel="stylesheet"
+      href="plugins/css/prism.min.css"
+      media="all"
+      type="text/css"
+    />
+    <!-- Favicons -->
+    <link
+      rel="apple-touch-icon"
+      sizes="57x57"
+      href="img/favicon/apple-icon-57x57.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="60x60"
+      href="img/favicon/apple-icon-60x60.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="72x72"
+      href="img/favicon/apple-icon-72x72.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="76x76"
+      href="img/favicon/apple-icon-76x76.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="114x114"
+      href="img/favicon/apple-icon-114x114.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="120x120"
+      href="img/favicon/apple-icon-120x120.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="144x144"
+      href="img/favicon/apple-icon-144x144.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="152x152"
+      href="img/favicon/apple-icon-152x152.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="img/favicon/apple-icon-180x180.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="192x192"
+      href="img/favicon/android-icon-192x192.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="img/favicon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="96x96"
+      href="img/favicon/favicon-96x96.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="img/favicon/favicon-16x16.png"
+    />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta
+      name="msapplication-TileImage"
+      content="img/favicon/ms-icon-144x144.png"
+    />
+    <!-- ./Favicons -->
+    <!-- Design tokens — load order matters:
+         1. primitives.css  — raw color/spacing values (no theming)
+         2. light.css       — semantic tokens for [data-cnds-theme="light"] / :root
+         3. dark.css        — semantic token overrides for [data-cnds-theme="dark"]
+         All three must appear AFTER nimbus.css so component variables resolve correctly. -->
+    <link rel="stylesheet" href="css/themes/primitives.css" />
+    <link rel="stylesheet" href="css/themes/light.css" />
+    <link rel="stylesheet" href="css/themes/dark.css" />
+  </head>
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 Bypass Blocks; renders visually hidden until focused -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+    <!-- Header -->
+    <div class="sticky-top">
+      <!-- Utility Navigation -->
+      <nav id="UtilityNav" class="nav nav-cf-utility">
+        <div class="w-100 gx-3 px-sm-0 px-lg-3">
+          <ul class="nav nav-cf-utility-ul"></ul>
+        </div>
+      </nav>
+      <!-- ./Utility Navigation -->
+      <!-- Main Navigation -->
+      <nav id="MainNav" class="navbar navbar-expand-xl navbar-cf">
+        <div class="container-fluid p-0 px-3 d-flex">
+          <div class="d-flex flex-fill align-items-center text-truncate">
+            <div class="text-center d-none d-md-block me-3 border-end">
+              <a href="index.html"
+                ><img src="img/cf/core/logo_nimbus.png" class="me-3 mt-n1"
+              alt="Cloudficient Nimbus Design System" /></a>
+            </div>
+            <div class="flex-fill text-truncate">
+              <div class="navbar-cf-title-block">
+                <div
+                  class="navbar-cf-title cf-page-title text-truncate"
+                  style="padding-bottom: 0"
+                >
+                  <span class="cf-page-title-text cf-page-title-brand">v1</span
+                  ><span class="cf-page-title-divider"></span
+                  ><span class="cf-page-title-text">Explorer</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- data-cnds-toggle="theme": wired by nimbus.js — flips data-cnds-theme on <html> between "light" and "dark" -->
+          <button
+            class="btn btn-sm btn-outline-secondary ms-2"
+            data-cnds-toggle="theme"
+            aria-label="Toggle theme"
+            title="Toggle theme"
+          >
+            <i class="mdi mdi-weather-night mdi-18px" aria-hidden="true"></i>
+          </button>
+        </div>
+      </nav>
+      <!-- ./Main Navigation -->
+    </div>
+    <!-- ./Header -->
+    <!-- Content -->
+    <main id="main-content" class="cf-main-app">
+      <!-- Mobile viewport warning -->
+      <div class="d-block d-md-none p-4">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>This application is not
+          optimized for small screens. Please use a large tablet, laptop, or
+          desktop computer to continue.
+        </div>
+      </div>
+      <div class="d-none d-md-block">
+        <!-- Sidenav — markup is intentionally empty; sidenav-loader.js fetches and injects the shared nav HTML.
+             data-cnds-mode="side"           : renders as a persistent side panel (not an overlay/drawer)
+             data-cnds-slim / slim-collapsed : controls compact/icon-only collapsed state
+             data-cnds-content="#slim-content": the sibling panel that shrinks/expands as the nav opens/closes
+             data-cnds-accordion="true"      : collapses other open nav groups when a new one is expanded -->
+        <nav
+          id="sidebar-cf"
+          class="sidenav"
+          data-cnds-mode="side"
+          data-cnds-slim="false"
+          data-cnds-slim-collapsed="false"
+          data-cnds-content="#slim-content"
+          data-cnds-accordion="true"
+        ></nav>
+        <div id="slim-content">
+          <div class="slim-content-box">
+            <!-- Content Row -->
+            <div class="row">
+              <!-- Main column — 80 % of the row width; the remaining 20 % is the right sidebar.
+                   The inline flex overrides are intentional: they pin the ratio regardless of Bootstrap's
+                   grid breakpoints so the sidebar never wraps on large viewports. -->
+              <div class="col-12 col-lg" style="flex: 0 0 80%; max-width: 80%">
+                <!--Section: Docs content-->
+                <section class="container-fluid">
+                  <!--Section: Introduction-->
+                  <section id="section-introduction">
+                    <p class="mb-4">
+                      The Explorer is a compact, dropdown-driven navigation component designed to
+                      live in the application header. It presents a single interactive trigger — the
+                      <strong>Explore</strong> label with an animated chevron — alongside a pipe
+                      separator and the name of the currently active section. Opening the trigger
+                      reveals a focused menu of destinations; selecting an item closes the menu and
+                      updates the displayed page title.
+                    </p>
+                    <p class="my-4">
+                      Use the Explorer when a page contains two or more discrete sections or
+                      sub-areas that users need to move between, or when a content area supports
+                      sub-navigation from a parent context. It keeps navigation lightweight and
+                      contextual without requiring a full sidebar or separate page per section.
+                    </p>
+
+                    <p class="note note-light"><strong>Note:</strong> Read the <a href="#api-section-introduction">API Documentation</a> to find all available options and advanced customization.</p>
+                    <p class="note note-info"><strong class="note-label">Note:</strong> To preview components in different themes, click the theme toggle button <i class="mdi mdi-weather-night" aria-hidden="true"></i> / <i class="mdi mdi-weather-sunny" aria-hidden="true"></i> in the header navigation bar.</p>
+                  </section>
+                  <!--/Section: Introduction-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Basic example-->
+                  <section id="section-basic-example">
+                    <h3 class="mb-3">Basic example</h3>
+
+                    <p>
+                      The example below shows the Explorer in its default configuration. The trigger
+                      bar contains three parts: the <strong>Explore</strong> label with an animated
+                      chevron on the left, a pipe character as a visual separator, and the active
+                      page title on the right. Clicking the trigger opens the section menu; selecting
+                      an item closes the menu and updates the page title to reflect the chosen
+                      destination. The trigger fills its parent container width while the menu sizes
+                      to fit its longest item.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <!-- Angular: Build ExplorerComponent with @Input() sections array, isOpen boolean, and @HostListener for keyboard/outside-click.
+                         Example: <app-explorer [sections]="sections" initialTitle="Page Title Goes Here"></app-explorer>
+                         Omit data-cnds-toggle="dropdown" — Angular owns open/closed state; Nimbus.Dropdown must not initialize the trigger.
+                    -->
+                    <!--
+                      Full Angular conversion reference — Explorer (Basic Example)
+                      ═══════════════════════════════════════════════════════════════
+
+                      STEP 1 — Generate the component
+                      ─────────────────────────────────
+                      ng generate component explorer
+                        └─ explorer.component.ts   (class)
+                        └─ explorer.component.html (template)
+                        └─ explorer.component.css  (or import explorer.css globally)
+
+                      Import ExplorerComponent in the host module or as a standalone component.
+                      Add explorer.css to angular.json → projects → architect → build → styles[]
+                      so it is bundled globally (same as linking it in <head>).
+
+                      STEP 2 — Define the component class (explorer.component.ts)
+                      ───────────────────────────────────────────────────────────────
+                      import { Component, Input, HostListener, OnInit } from '@angular/core';
+                      import { CommonModule } from '@angular/common';
+
+                      export interface ExplorerSection {
+                        label: string;   // displayed text in menu and page title
+                        href:  string;   // navigation target ('#section-id' or full path)
+                      }
+
+                      @Component({
+                        selector:    'app-explorer',
+                        templateUrl: './explorer.component.html',
+                        standalone:  true,
+                        imports:     [CommonModule],
+                      })
+                      export class ExplorerComponent implements OnInit {
+                        @Input() sections: ExplorerSection[] = [];
+                        @Input() initialTitle = 'Page Title Goes Here';
+
+                        activeTitle = '';
+                        isOpen      = false;
+
+                        // Unique IDs prevent collisions when multiple Explorers appear on one page.
+                        readonly toggleId = `explorer-toggle-${Math.random().toString(36).slice(2)}`;
+                        readonly menuId   = `explorer-menu-${Math.random().toString(36).slice(2)}`;
+
+                        ngOnInit(): void {
+                          this.activeTitle = this.initialTitle;
+                        }
+
+                        toggleMenu(event: Event): void {
+                          event.preventDefault();
+                          this.isOpen = !this.isOpen;
+                        }
+
+                        selectSection(section: ExplorerSection, event: Event): void {
+                          event.preventDefault();
+                          this.activeTitle = section.label;
+                          this.isOpen = false;
+                          // Optionally emit the selected section to a parent component:
+                          // @Output() sectionSelected = new EventEmitter<ExplorerSection>();
+                          // this.sectionSelected.emit(section);
+                          // Then navigate programmatically if using Angular Router:
+                          // this.router.navigateByUrl(section.href);
+                        }
+
+                        // Close menu when clicking outside the component.
+                        @HostListener('document:click', ['$event'])
+                        onDocumentClick(event: Event): void {
+                          const target = event.target as HTMLElement;
+                          if (!target.closest('app-explorer')) {
+                            this.isOpen = false;
+                          }
+                        }
+
+                        // Keyboard navigation — mirrors the vanilla JS handler.
+                        @HostListener('keydown', ['$event'])
+                        onKeydown(event: KeyboardEvent): void {
+                          const target = event.target as HTMLElement;
+                          const isOnTrigger = target.id === this.toggleId;
+                          const isOnItem    = !!target.closest('.dropdown-item');
+
+                          if (isOnTrigger && event.key === ' ') {
+                            event.preventDefault();
+                            this.isOpen = !this.isOpen;
+                            return;
+                          }
+                          if (isOnTrigger && (event.key === 'ArrowDown' || event.key === 'ArrowUp')) {
+                            event.preventDefault();
+                            this.isOpen = true;
+                            // Focus first/last item after Angular's next change-detection cycle.
+                            setTimeout(() => {
+                              const items = document.querySelectorAll<HTMLElement>(`#${this.menuId} .dropdown-item`);
+                              if (items.length) {
+                                (event.key === 'ArrowDown' ? items[0] : items[items.length - 1]).focus();
+                              }
+                            });
+                            return;
+                          }
+                          if (event.key === 'Escape' && this.isOpen) {
+                            event.preventDefault();
+                            this.isOpen = false;
+                            document.getElementById(this.toggleId)?.focus();
+                            return;
+                          }
+                          if (isOnItem) {
+                            const items = Array.from(
+                              document.querySelectorAll<HTMLElement>(`#${this.menuId} .dropdown-item`)
+                            );
+                            const idx = items.indexOf(target);
+                            if (event.key === 'ArrowDown')  { event.preventDefault(); (items[idx + 1] || items[0]).focus(); }
+                            if (event.key === 'ArrowUp')    { event.preventDefault(); idx > 0 ? items[idx - 1].focus() : document.getElementById(this.toggleId)?.focus(); }
+                            if (event.key === 'Home')       { event.preventDefault(); items[0].focus(); }
+                            if (event.key === 'End')        { event.preventDefault(); items[items.length - 1].focus(); }
+                          }
+                        }
+                      }
+
+                      STEP 3 — Template (explorer.component.html)
+                      ─────────────────────────────────────────────
+                      Replace the static HTML below with the following Angular template.
+                      Key changes from the vanilla HTML:
+                        • [attr.aria-expanded]="isOpen"     — reactive ARIA state (no Nimbus.Dropdown)
+                        • [class.show]="isOpen"             — drives menu visibility and CSS animation
+                        • (click)="toggleMenu($event)"      — replaces data-cnds-toggle="dropdown"
+                        • *ngFor="let s of sections"        — renders items from the @Input() array
+                        • (click)="selectSection(s, $event)" — replaces the vanilla JS click handler
+                        • {{ activeTitle }}                  — reactive page title (replaces textContent update)
+                        • Remove data-cnds-toggle="dropdown" — Nimbus.Dropdown must NOT initialize the
+                          trigger; Angular owns the open/closed state entirely.
+
+                      <nav aria-label="Page explorer">
+                        <div class="cf-explorer d-flex">
+                          <div class="dropdown">
+                            <a class="header-dropdown dropdown-toggle"
+                               href="#"
+                               role="button"
+                               [id]="toggleId"
+                               aria-haspopup="true"
+                               [attr.aria-expanded]="isOpen"
+                               [attr.aria-controls]="menuId"
+                               (click)="toggleMenu($event)">
+                              <span class="page-dropdown">
+                                Explore
+                                <i class="mdi mdi-chevron-down cf-explorer-chevron" aria-hidden="true"></i>
+                              </span>
+                              <span class="dropdown-divider" aria-hidden="true">|</span>
+                              <span class="page-title" aria-live="polite">{{ activeTitle }}</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion header-menu"
+                                [class.show]="isOpen"
+                                [id]="menuId"
+                                [attr.aria-labelledby]="toggleId">
+                              <li *ngFor="let section of sections">
+                                <a class="dropdown-item"
+                                   [href]="section.href"
+                                   (click)="selectSection(section, $event)">
+                                  {{ section.label }}
+                                </a>
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                      </nav>
+
+                      STEP 4 — Usage in a parent template
+                      ─────────────────────────────────────
+                      Define the sections array in the parent component:
+
+                        sections = [
+                          { label: 'Section One',   href: '#section-one' },
+                          { label: 'Section Two',   href: '#section-two' },
+                          { label: 'Section Three', href: '#section-three' },
+                        ];
+
+                      Then use the component in the parent template:
+
+                        <app-explorer
+                          [sections]="sections"
+                          initialTitle="Page Title Goes Here">
+                        </app-explorer>
+
+                      STEP 5 — Notes
+                      ───────────────
+                      • Do NOT include the vanilla JS click/keydown handlers when using the Angular
+                        component — the @HostListener decorators replace them entirely.
+                      • Do NOT add data-cnds-toggle="dropdown" to the trigger anchor — omitting it
+                        prevents Nimbus.Dropdown from initializing and conflicting with Angular state.
+                      • The [class.show]="isOpen" binding drives both the CSS open animation
+                        (scaleY + opacity transition in explorer.css) and aria-expanded in sync.
+                      • For Angular Router navigation, inject Router and call
+                        this.router.navigateByUrl(section.href) inside selectSection().
+                      ═══════════════════════════════════════════════════════════════
+                    -->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="p-4">
+                          <!-- nav landmark — distinguishes Explorer from main site navigation (WCAG 2.4.1) -->
+                          <nav aria-label="Page explorer">
+                            <!-- .cf-explorer.d-flex — outer wrapper; d-flex lets the inner .dropdown grow to fill width -->
+                            <div class="cf-explorer d-flex">
+                              <!-- .dropdown — Nimbus dropdown container; nimbus.js scopes instance lookup to this element -->
+                              <div class="dropdown">
+                                <!-- Trigger bar:
+                                     - data-cnds-toggle="dropdown" → auto-initialized by nimbus.js; no JS init needed
+                                     - aria-expanded managed by Nimbus.Dropdown (false → true on open)
+                                     - aria-controls links trigger to menu by id for screen readers -->
+                                <a
+                                  class="header-dropdown dropdown-toggle"
+                                  href="#"
+                                  role="button"
+                                  id="dropdownMenuLink"
+                                  data-cnds-toggle="dropdown"
+                                  aria-haspopup="true"
+                                  aria-expanded="false"
+                                  aria-controls="explorerMenuDemo"
+                                >
+                                  <!-- .page-dropdown — "Explore" label + chevron; link-blue color via --cnds-link-color.
+                                       Chevron rotates 180° via CSS when aria-expanded="true" on the parent <a>. -->
+                                  <span class="page-dropdown">Explore <i class="mdi mdi-chevron-down cf-explorer-chevron" aria-hidden="true"></i></span>
+                                  <!-- Decorative pipe separator — aria-hidden prevents screen readers from announcing "|" -->
+                                  <span class="dropdown-divider" aria-hidden="true">|</span>
+                                  <!-- .page-title — updated by the click handler when a menu item is selected.
+                                       aria-live="polite" announces the new section name to screen readers. -->
+                                  <span class="page-title" aria-live="polite">Page Title Goes Here</span>
+                                </a>
+                                <!-- .header-menu — Explorer menu panel; width auto-sizes to longest item.
+                                     .show class (added by Nimbus.Dropdown) drives the scaleY + opacity animation. -->
+                                <ul
+                                  class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion header-menu"
+                                  id="explorerMenuDemo"
+                                  aria-labelledby="dropdownMenuLink"
+                                >
+                                  <!-- Each .dropdown-item click: updates .page-title text + closes menu via Nimbus.Dropdown.hide() -->
+                                  <li>
+                                    <a class="dropdown-item" href="#">Section 1</a>
+                                  </li>
+                                  <li>
+                                    <a class="dropdown-item" href="#">Section 2</a>
+                                  </li>
+                                  <li>
+                                    <a class="dropdown-item" href="#">Section 3</a>
+                                  </li>
+                                </ul>
+                              </div>
+                            </div>
+                          </nav>
+                        </section>
+                      </div>
+                    </section>
+                    <!--Section: Demo-->
+
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;nav aria-label="Page explorer"&gt;
+    &lt;div class="cf-explorer d-flex"&gt;
+        &lt;div class="dropdown"&gt;
+            &lt;a class="header-dropdown dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+            data-cnds-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+            aria-controls="explorerMenu"&gt;
+                &lt;span class="page-dropdown"&gt;Explore &lt;i class="mdi mdi-chevron-down cf-explorer-chevron" aria-hidden="true"&gt;&lt;/i&gt;&lt;/span&gt;
+                &lt;span class="dropdown-divider" aria-hidden="true"&gt;|&lt;/span&gt;
+                &lt;span class="page-title" aria-live="polite"&gt;Page Title Goes Here&lt;/span&gt;
+            &lt;/a&gt;
+            &lt;ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion header-menu"
+            id="explorerMenu" aria-labelledby="dropdownMenuLink"&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Section 1&lt;/a&gt;&lt;/li&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Section 2&lt;/a&gt;&lt;/li&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#"&gt;Section 3&lt;/a&gt;&lt;/li&gt;
+            &lt;/ul&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/nav&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--Section: Code-->
+                  </section>
+                  <!--/Section: Basic example-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Accessibility-->
+                  <section id="section-accessibility">
+                    <h3 class="mb-3">Accessibility</h3>
+
+                    <p>
+                      Wrap every Explorer instance in a <code>&lt;nav&gt;</code> element with a
+                      descriptive <code>aria-label</code> (e.g., <code>aria-label="Page explorer"</code>)
+                      so assistive technologies expose it as a navigation landmark distinct from the
+                      main site navigation.
+                    </p>
+
+                    <p>
+                      The required ARIA attributes on the trigger <code>&lt;a&gt;</code> are:
+                    </p>
+                    <ul>
+                      <li><code>role="button"</code> — identifies the link as an interactive button to screen readers.</li>
+                      <li><code>aria-haspopup="true"</code> — announces that activating the element opens a popup list.</li>
+                      <li><code>aria-expanded="false|true"</code> — managed automatically by <code>Nimbus.Dropdown</code>; reflects the open/closed state.</li>
+                      <li><code>aria-controls="[menu-id]"</code> — programmatically links the trigger to its menu <code>&lt;ul&gt;</code>.</li>
+                    </ul>
+
+                    <p>
+                      Additional markup requirements:
+                    </p>
+                    <ul>
+                      <li>The pipe separator <code>&lt;span class="dropdown-divider" aria-hidden="true"&gt;</code> must carry <code>aria-hidden="true"</code> so screen readers skip the decorative character.</li>
+                      <li>The page title <code>&lt;span class="page-title" aria-live="polite"&gt;</code> must carry <code>aria-live="polite"</code> so screen readers announce the updated section name when a menu item is selected.</li>
+                      <li>The decorative chevron <code>&lt;i aria-hidden="true"&gt;</code> is already hidden from the accessibility tree.</li>
+                    </ul>
+
+                    <p>
+                      The Explorer ships with full keyboard support:
+                    </p>
+                    <ul>
+                      <li><kbd>Enter</kbd> or <kbd>Space</kbd> on the trigger — opens or closes the menu.</li>
+                      <li><kbd>↓</kbd> on the trigger — opens the menu and moves focus to the first item.</li>
+                      <li><kbd>↑</kbd> on the trigger — opens the menu and moves focus to the last item.</li>
+                      <li><kbd>↓</kbd> / <kbd>↑</kbd> within the menu — moves focus to the next or previous item; <kbd>↑</kbd> from the first item returns focus to the trigger.</li>
+                      <li><kbd>Home</kbd> / <kbd>End</kbd> — move focus to the first or last menu item.</li>
+                      <li><kbd>Escape</kbd> — closes the menu and returns focus to the trigger.</li>
+                    </ul>
+                  </section>
+                  <!--/Section: Accessibility-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: API Documentation-->
+                  <section id="section-api-docs">
+                    <h3 class="mb-3">API Documentation</h3>
+
+                    <!--Section: API Introduction-->
+                    <section id="api-section-introduction">
+                      <h4 class="mb-4">Introduction</h4>
+                      <p>
+                        The Explorer component is built on <code>Nimbus.Dropdown</code>, the Nimbus
+                        design system's JavaScript dropdown engine, combined with
+                        <code>explorer.css</code> which provides the trigger bar layout, animated
+                        chevron, and drop-shadow menu panel. No explicit JavaScript initialization
+                        is required — the <code>data-cnds-toggle="dropdown"</code> attribute on the
+                        trigger is detected and wired automatically by <code>nimbus.js</code> at
+                        page load. A page-title update handler and a keyboard navigation handler
+                        must be included on any page that hosts an Explorer instance; see the
+                        <a href="#api-section-usage">Usage</a> section for the required script.
+                      </p>
+                    </section>
+                    <!--/Section: API Introduction-->
+
+                    <!--Section: API Usage-->
+                    <section id="api-section-usage">
+                      <h4 class="mb-4">Usage</h4>
+                      <p>
+                        Place <code>.cf-explorer.d-flex</code> inside a
+                        <code>&lt;nav aria-label="Page explorer"&gt;</code> landmark. The trigger
+                        <code>&lt;a&gt;</code> requires <code>data-cnds-toggle="dropdown"</code>,
+                        <code>role="button"</code>, <code>aria-haspopup="true"</code>,
+                        <code>aria-expanded="false"</code>, and <code>aria-controls</code> pointing
+                        to the menu <code>&lt;ul&gt;</code> id. Include the three required child
+                        spans inside the trigger and add <code>.header-menu</code> to the dropdown
+                        <code>&lt;ul&gt;</code>.
+                      </p>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-html">&lt;nav aria-label="Page explorer"&gt;
+    &lt;div class="cf-explorer d-flex"&gt;
+        &lt;div class="dropdown"&gt;
+            &lt;a class="header-dropdown dropdown-toggle" href="#" role="button" id="explorerToggle"
+            data-cnds-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+            aria-controls="explorerMenu"&gt;
+                &lt;span class="page-dropdown"&gt;Explore &lt;i class="mdi mdi-chevron-down cf-explorer-chevron" aria-hidden="true"&gt;&lt;/i&gt;&lt;/span&gt;
+                &lt;span class="dropdown-divider" aria-hidden="true"&gt;|&lt;/span&gt;
+                &lt;span class="page-title" aria-live="polite"&gt;Page Title Goes Here&lt;/span&gt;
+            &lt;/a&gt;
+            &lt;ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion header-menu"
+            id="explorerMenu" aria-labelledby="explorerToggle"&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#section-one"&gt;Section One&lt;/a&gt;&lt;/li&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#section-two"&gt;Section Two&lt;/a&gt;&lt;/li&gt;
+                &lt;li&gt;&lt;a class="dropdown-item" href="#section-three"&gt;Section Three&lt;/a&gt;&lt;/li&gt;
+            &lt;/ul&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/nav&gt;</code></pre>
+                        </div>
+                      </section>
+                      <p>
+                        Add the following scripts to the page to wire up the page-title update and
+                        full keyboard navigation:
+                      </p>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-js">JS</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-javascript">// Update page title on item click and close the menu
+document.addEventListener("click", function (e) {
+    var item = e.target.closest(".cf-explorer .dropdown-item");
+    if (!item) return;
+    var explorer = item.closest(".cf-explorer");
+    var title = explorer.querySelector(".page-title");
+    if (title) title.textContent = item.textContent.trim();
+    var toggle = explorer.querySelector('[data-cnds-toggle="dropdown"]');
+    if (toggle) {
+        var instance = Nimbus.Dropdown.getInstance(toggle);
+        if (instance) instance.hide();
+    }
+});
+
+// Keyboard navigation
+document.addEventListener("keydown", function (e) {
+    var explorer = e.target.closest(".cf-explorer");
+    if (!explorer) return;
+    var triggerEl = explorer.querySelector('[data-cnds-toggle="dropdown"]');
+    var menu = explorer.querySelector(".header-menu");
+    var instance = triggerEl && Nimbus.Dropdown.getInstance(triggerEl);
+    var isOpen = menu && menu.classList.contains("show");
+    var isOnTrigger = e.target === triggerEl;
+    var isOnItem = !!e.target.closest(".cf-explorer .dropdown-item");
+    if (isOnTrigger && e.key === " ") {
+        e.preventDefault();
+        if (instance) isOpen ? instance.hide() : instance.show();
+        return;
+    }
+    if (isOnTrigger && (e.key === "ArrowDown" || e.key === "ArrowUp")) {
+        e.preventDefault();
+        if (!isOpen && instance) instance.show();
+        var items = menu ? Array.from(menu.querySelectorAll(".dropdown-item:not(.disabled)")) : [];
+        if (items.length) (e.key === "ArrowDown" ? items[0] : items[items.length - 1]).focus();
+        return;
+    }
+    if (e.key === "Escape" && isOpen) {
+        e.preventDefault();
+        if (instance) instance.hide();
+        if (triggerEl) triggerEl.focus();
+        return;
+    }
+    if (isOnItem) {
+        var menuItems = Array.from(explorer.querySelectorAll(".dropdown-item:not(.disabled)"));
+        var idx = menuItems.indexOf(e.target);
+        if (e.key === "ArrowDown") { e.preventDefault(); (menuItems[idx + 1] || menuItems[0]).focus(); }
+        else if (e.key === "ArrowUp") { e.preventDefault(); idx > 0 ? menuItems[idx - 1].focus() : triggerEl && triggerEl.focus(); }
+        else if (e.key === "Home") { e.preventDefault(); menuItems[0].focus(); }
+        else if (e.key === "End") { e.preventDefault(); menuItems[menuItems.length - 1].focus(); }
+    }
+});</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Section: API Usage-->
+
+                    <!--Section: API CSS Classes-->
+                    <section id="api-section-css-classes">
+                      <h4 class="mb-4">CSS classes</h4>
+                      <p>
+                        The following classes are defined in <code>explorer.css</code> and control
+                        the Explorer's layout, trigger bar, chevron, and menu panel. All structural
+                        classes are CSS-only; JavaScript manages only open/closed state via
+                        <code>.show</code> and <code>aria-expanded</code>.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped" aria-label="CSS classes">
+                          <thead>
+                            <tr>
+                              <th>Class</th>
+                              <th>Element</th>
+                              <th>Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>.cf-explorer</code></td>
+                              <td><code>&lt;div&gt;</code></td>
+                              <td>Outer wrapper. Sets Nunito Bold, <code>line-height: 1</code>, and left margin. Use with Bootstrap's <code>d-flex</code> so the inner <code>.dropdown</code> fills available width.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.header-dropdown</code></td>
+                              <td><code>&lt;a&gt;</code></td>
+                              <td>Trigger bar. Full-width flex container with 8px rounded border, tertiary background, and 9px / 20px padding. Requires <code>.dropdown-toggle</code> for Nimbus dropdown wiring.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.page-dropdown</code></td>
+                              <td><code>&lt;span&gt;</code></td>
+                              <td>Contains the static "Explore" label and animated chevron icon. Renders as <code>inline-flex</code> to align text and icon on the same baseline. Colored with <code>--cnds-link-color</code>.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.cf-explorer-chevron</code></td>
+                              <td><code>&lt;i&gt;</code></td>
+                              <td>MDI chevron icon (<code>mdi-chevron-down</code>) inside <code>.page-dropdown</code>. Transitions to <code>rotate(180deg)</code> when <code>aria-expanded="true"</code> is set on the trigger. Must carry <code>aria-hidden="true"</code>.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.dropdown-divider</code></td>
+                              <td><code>&lt;span&gt;</code></td>
+                              <td>Decorative pipe separator between the label and the page title. Overrides Bootstrap's <code>&lt;hr&gt;</code>-style divider to render as inline text. Must carry <code>aria-hidden="true"</code>.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.page-title</code></td>
+                              <td><code>&lt;span&gt;</code></td>
+                              <td>Displays the active section name. Text is updated by the click handler when a menu item is selected. Must carry <code>aria-live="polite"</code> so screen readers announce the change.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.header-menu</code></td>
+                              <td><code>&lt;ul&gt;</code></td>
+                              <td>Dropdown menu panel. Auto-width (sizes to longest item), 8px border radius, drop shadow, and a <code>scaleY</code> + <code>opacity</code> open animation. Add alongside <code>.dropdown-menu</code>.</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: API CSS Classes-->
+
+                    <!--Section: API CSS Custom Properties-->
+                    <section id="api-section-css-variables">
+                      <h4 class="mb-4">CSS custom properties</h4>
+                      <p>
+                        The Explorer consumes the following CNDS theme tokens. All tokens are
+                        defined in <code>light.css</code> and <code>dark.css</code> and adapt
+                        automatically when the page theme changes. Fallback values are shown in
+                        parentheses.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped" aria-label="CSS custom properties">
+                          <thead>
+                            <tr>
+                              <th>Token</th>
+                              <th>Fallback</th>
+                              <th>Used for</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>--cnds-body-color</code></td>
+                              <td><code>#4f4f4f</code></td>
+                              <td>Trigger text color and pipe separator color.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-link-color</code></td>
+                              <td><code>#215aab</code></td>
+                              <td>"Explore" label color and chevron icon color.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-tertiary-bg</code></td>
+                              <td><code>#f8f9fa</code></td>
+                              <td>Trigger background color and border color in the default (closed) state.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-border-color</code></td>
+                              <td><code>#dee2e6</code></td>
+                              <td>Trigger border color when the menu is open (<code>aria-expanded="true"</code>).</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: API CSS Custom Properties-->
+
+                    <!--Section: API JavaScript-->
+                    <section id="api-section-javascript">
+                      <h4 class="mb-4">JavaScript API</h4>
+                      <p>
+                        The Explorer is initialized automatically by <code>nimbus.js</code> via the
+                        <code>data-cnds-toggle="dropdown"</code> attribute. Retrieve the
+                        <code>Nimbus.Dropdown</code> instance at any time to control the menu
+                        programmatically.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped" aria-label="JavaScript API">
+                          <thead>
+                            <tr>
+                              <th>Method</th>
+                              <th>Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>Nimbus.Dropdown.getInstance(element)</code></td>
+                              <td>Returns the <code>Dropdown</code> instance associated with the given toggle element, or <code>null</code> if none exists.</td>
+                            </tr>
+                            <tr>
+                              <td><code>instance.show()</code></td>
+                              <td>Opens the dropdown menu, adds <code>.show</code> to the toggle and menu, and sets <code>aria-expanded="true"</code>.</td>
+                            </tr>
+                            <tr>
+                              <td><code>instance.hide()</code></td>
+                              <td>Closes the dropdown menu, removes <code>.show</code>, and sets <code>aria-expanded="false"</code>.</td>
+                            </tr>
+                            <tr>
+                              <td><code>instance.toggle()</code></td>
+                              <td>Calls <code>show()</code> if the menu is closed, <code>hide()</code> if it is open.</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: API JavaScript-->
+
+                    <!--Section: API Events-->
+                    <section id="api-section-events">
+                      <h4 class="mb-4">Events</h4>
+                      <p>
+                        <code>Nimbus.Dropdown</code> fires the following events on the toggle
+                        element. Listen with <code>element.addEventListener(eventName, handler)</code>.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped" aria-label="Events">
+                          <thead>
+                            <tr>
+                              <th>Event</th>
+                              <th>Fired</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>show.cnds.dropdown</code></td>
+                              <td>Immediately before the menu opens. Call <code>event.preventDefault()</code> to cancel.</td>
+                            </tr>
+                            <tr>
+                              <td><code>shown.cnds.dropdown</code></td>
+                              <td>After the menu is fully visible and <code>.show</code> has been applied.</td>
+                            </tr>
+                            <tr>
+                              <td><code>hide.cnds.dropdown</code></td>
+                              <td>Immediately before the menu closes.</td>
+                            </tr>
+                            <tr>
+                              <td><code>hidden.cnds.dropdown</code></td>
+                              <td>After the menu is fully hidden and <code>.show</code> has been removed.</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: API Events-->
+
+                    <!--Section: API Theme Variables-->
+                    <section id="api-section-theme-variables">
+                      <h4 class="mb-4">Theme variables</h4>
+                      <p>
+                        The Explorer trigger adapts to the active theme automatically because it
+                        consumes CNDS semantic tokens that are overridden in
+                        <code>dark.css</code>. The table below shows the light and dark resolved
+                        values for each token. The menu panel uses fixed light-theme surface colors
+                        (<code>#f5f5f5</code> background, <code>#141414</code> text,
+                        <code>#e0e0e0</code> hover) and does not currently switch in dark mode.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Theme variables">
+                          <thead>
+                            <tr>
+                              <th>Token</th>
+                              <th>Light value</th>
+                              <th>Dark value</th>
+                              <th>Used for</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>--cnds-body-color</code></td>
+                              <td><code>#4f4f4f</code></td>
+                              <td><code>#e8e8e8</code></td>
+                              <td>Trigger text and pipe separator.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-link-color</code></td>
+                              <td><code>#215aab</code></td>
+                              <td><code>#215aab</code></td>
+                              <td>"Explore" label and chevron icon.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-tertiary-bg</code></td>
+                              <td><code>#f8f9fa</code></td>
+                              <td><code>#2d2d2d</code></td>
+                              <td>Trigger background and closed-state border.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-border-color</code></td>
+                              <td><code>#dee2e6</code></td>
+                              <td><code>#444444</code></td>
+                              <td>Trigger border when <code>aria-expanded="true"</code>.</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: API Theme Variables-->
+
+                    <!--Section: API Accessibility-->
+                    <section id="api-section-accessibility">
+                      <h4 class="mb-4">Accessibility</h4>
+                      <p>
+                        The following ARIA attributes are required on every Explorer instance.
+                        Attributes marked <strong>auto</strong> are managed by
+                        <code>Nimbus.Dropdown</code> at runtime; the remaining attributes must be
+                        present in the authored markup.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped" aria-label="Accessibility">
+                          <thead>
+                            <tr>
+                              <th>Attribute</th>
+                              <th>Element</th>
+                              <th>Value</th>
+                              <th>Notes</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>aria-label</code></td>
+                              <td><code>&lt;nav&gt;</code></td>
+                              <td><code>"Page explorer"</code></td>
+                              <td>Distinguishes the Explorer landmark from the main site navigation.</td>
+                            </tr>
+                            <tr>
+                              <td><code>role="button"</code></td>
+                              <td>trigger <code>&lt;a&gt;</code></td>
+                              <td>static</td>
+                              <td>Identifies the anchor as an interactive button to assistive technologies.</td>
+                            </tr>
+                            <tr>
+                              <td><code>aria-haspopup</code></td>
+                              <td>trigger <code>&lt;a&gt;</code></td>
+                              <td><code>"true"</code></td>
+                              <td>Announces that activating the trigger opens a popup list.</td>
+                            </tr>
+                            <tr>
+                              <td><code>aria-expanded</code></td>
+                              <td>trigger <code>&lt;a&gt;</code></td>
+                              <td><code>"false"</code> / <code>"true"</code></td>
+                              <td><strong>Auto</strong> — toggled by <code>Nimbus.Dropdown</code> on open and close.</td>
+                            </tr>
+                            <tr>
+                              <td><code>aria-controls</code></td>
+                              <td>trigger <code>&lt;a&gt;</code></td>
+                              <td>menu <code>id</code></td>
+                              <td>Programmatically links the trigger to its <code>&lt;ul&gt;</code> menu.</td>
+                            </tr>
+                            <tr>
+                              <td><code>aria-hidden="true"</code></td>
+                              <td><code>.cf-explorer-chevron &lt;i&gt;</code></td>
+                              <td>static</td>
+                              <td>Hides the decorative chevron icon from the accessibility tree.</td>
+                            </tr>
+                            <tr>
+                              <td><code>aria-hidden="true"</code></td>
+                              <td><code>.dropdown-divider &lt;span&gt;</code></td>
+                              <td>static</td>
+                              <td>Hides the decorative pipe separator so screen readers do not announce it.</td>
+                            </tr>
+                            <tr>
+                              <td><code>aria-live="polite"</code></td>
+                              <td><code>.page-title &lt;span&gt;</code></td>
+                              <td>static</td>
+                              <td>Causes screen readers to announce the updated section name when a menu item is selected.</td>
+                            </tr>
+                            <tr>
+                              <td><code>aria-labelledby</code></td>
+                              <td>menu <code>&lt;ul&gt;</code></td>
+                              <td>trigger <code>id</code></td>
+                              <td>Associates the menu list with its trigger for screen reader context.</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <p>
+                        For the full specification, see the
+                        <a rel="nofollow" target="_blank" href="https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/examples/disclosure-navigation/">WAI-ARIA Authoring Practices — Disclosure Navigation Menu Button</a>.
+                      </p>
+                    </section>
+                    <!--/Section: API Accessibility-->
+
+                  </section>
+                  <!--/Section: API Documentation-->
+                </section>
+                <!--/Section: Docs content-->
+              </div>
+              <!-- ./Main column-->
+
+              <!-- Right Sidebar — 20 % of the row width; hidden below lg breakpoint.
+                   Sticky attributes (processed by nimbus.js):
+                     data-cnds-sticky="true"          : activates sticky positioning
+                     data-cnds-sticky-boundary="true" : constrains sticky to its parent container
+                     data-cnds-sticky-direction="both" : sticks when scrolling up OR down
+                     data-cnds-sticky-offset="56"     : clears the 56 px fixed header
+                     data-cnds-sticky-delay="125"     : debounce delay (ms) to reduce scroll jank
+                   data-cnds-allow-hashes="true" on the <ul>: nimbus.js watches the URL hash
+                     and highlights the matching nav-link as the user scrolls through sections. -->
+              <div class="col-lg-2 d-none d-lg-block">
+                <div class="sticky-top" style="top: 100px; z-index: 1">
+                  <ul
+                    class="nav flex-column nav-pills menu-sidebar"
+                    id="rightNav"
+                    data-cnds-allow-hashes="true"
+                  >
+                    <li class="nav-item"><a class="nav-link" href="#section-introduction">Introduction</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-basic-example">Basic example</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-accessibility">Accessibility</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-api-docs">API Documentation</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-introduction">Introduction</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-usage">Usage</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-css-classes">CSS classes</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-css-variables">CSS custom properties</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-javascript">JavaScript API</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-events">Events</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-theme-variables">Theme variables</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-accessibility">Accessibility</a></li>
+                  </ul>
+                </div>
+              </div>
+              <!-- ./Right Sidebar -->
+            </div>
+            <!-- ./Content Row -->
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- ./Content -->
+    <!-- Footer -->
+    <div class="cf-footer cf-footer-app">
+      <footer class="page-footer main-footer" aria-label="Site footer">
+        <div class="w-100 px-3 d-flex align-items-center">
+          <img src="img/cf/core/cloudficient_logo_light.svg" class="cf-logo-light" style="width: 135px;" alt="Cloudficient" />
+          <img src="img/cf/core/cloudficient_logo_dark.svg" class="cf-logo-dark" style="width: 135px;" alt="Cloudficient" />
+          <span class="footer-copyright ms-auto">&copy; <span id="currentYear"></span> Cloudficient</span>
+        </div>
+      </footer>
+    </div>
+    <!-- ./Footer -->
+    <!-- SCRIPTS — load order matters:
+         1. nimbus.js    — core framework: processes all data-cnds-* attributes (theme, sticky, sidenav, tooltips…)
+         2. app.js       — application-level overrides and custom initialisation
+         3. prism.min.js — syntax highlighting for <code class="language-*"> blocks; must run after DOM is ready
+         4. sidenav-loader.js — fetches shared sidenav HTML and injects it into #sidebar-cf -->
+    <script type="text/javascript" src="js/nimbus.js?v=9.0.4"></script>
+    <script type="text/javascript" src="js/app.js?v=9.0.4"></script>
+    <script type="text/javascript" src="plugins/js/prism.min.js"></script>
+    <script type="text/javascript" src="js/sidenav-loader.js"></script>
+    <!-- Inline: populate the footer copyright year dynamically so the page never needs a manual update -->
+    <script type="text/javascript">
+      var currentYearElement = document.getElementById("currentYear");
+      if (currentYearElement) {
+        currentYearElement.textContent = new Date().getFullYear();
+      }
+    </script>
+    <!-- Explorer behaviour scripts:
+         1. Click handler  — updates .page-title text and closes the menu when a .dropdown-item is clicked.
+         2. Keydown handler — adds full keyboard navigation (Space, Arrow keys, Home, End, Escape)
+            per WAI-ARIA Disclosure Navigation Button pattern. Both handlers use event delegation
+            scoped to .cf-explorer so multiple Explorer instances on the same page work independently. -->
+    <script type="text/javascript">
+      document.addEventListener("click", function (e) {
+        var item = e.target.closest(".cf-explorer .dropdown-item");
+        if (!item) return;
+        var explorer = item.closest(".cf-explorer");
+        var title = explorer.querySelector(".page-title");
+        if (title) title.textContent = item.textContent.trim();
+        var toggle = explorer.querySelector('[data-cnds-toggle="dropdown"]');
+        if (toggle) {
+          var instance = Nimbus.Dropdown.getInstance(toggle);
+          if (instance) instance.hide();
+        }
+      });
+
+      document.addEventListener("keydown", function (e) {
+        var explorer = e.target.closest(".cf-explorer");
+        if (!explorer) return;
+
+        var triggerEl = explorer.querySelector('[data-cnds-toggle="dropdown"]');
+        var menu = explorer.querySelector(".header-menu");
+        var instance = triggerEl && Nimbus.Dropdown.getInstance(triggerEl);
+        var isOpen = menu && menu.classList.contains("show");
+        var isOnTrigger = e.target === triggerEl;
+        var isOnItem = !!e.target.closest(".cf-explorer .dropdown-item");
+
+        // Space on trigger → toggle (Enter is handled natively by <a>)
+        if (isOnTrigger && e.key === " ") {
+          e.preventDefault();
+          if (instance) isOpen ? instance.hide() : instance.show();
+          return;
+        }
+
+        // Arrow keys on trigger → open + move focus to first or last item
+        if (isOnTrigger && (e.key === "ArrowDown" || e.key === "ArrowUp")) {
+          e.preventDefault();
+          if (!isOpen && instance) instance.show();
+          var items = menu ? Array.from(menu.querySelectorAll(".dropdown-item:not(.disabled)")) : [];
+          if (items.length) {
+            (e.key === "ArrowDown" ? items[0] : items[items.length - 1]).focus();
+          }
+          return;
+        }
+
+        // Escape → close and return focus to trigger
+        if (e.key === "Escape" && isOpen) {
+          e.preventDefault();
+          if (instance) instance.hide();
+          if (triggerEl) triggerEl.focus();
+          return;
+        }
+
+        // Arrow / Home / End navigation within menu items
+        if (isOnItem) {
+          var menuItems = Array.from(explorer.querySelectorAll(".dropdown-item:not(.disabled)"));
+          var idx = menuItems.indexOf(e.target);
+          if (e.key === "ArrowDown") {
+            e.preventDefault();
+            var next = menuItems[idx + 1] || menuItems[0];
+            next.focus();
+          } else if (e.key === "ArrowUp") {
+            e.preventDefault();
+            if (idx > 0) menuItems[idx - 1].focus();
+            else if (triggerEl) triggerEl.focus();
+          } else if (e.key === "Home") {
+            e.preventDefault();
+            menuItems[0].focus();
+          } else if (e.key === "End") {
+            e.preventDefault();
+            menuItems[menuItems.length - 1].focus();
+          }
+        }
+      });
+    </script>
+  </body>
+</html>

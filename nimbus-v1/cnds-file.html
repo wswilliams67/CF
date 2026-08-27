@@ -1,0 +1,1297 @@
+<!--
+* CNDS Nimbus Design System — File Input
+* Version: 1.0.0
+* Layout: Application with SideNav (migrated from Nimbus v8 template)
+* NOTES
+- Pure HTML5, CSS3, vanilla JavaScript — zero external dependencies
+- Uses data-cnds-* attributes (replaces data-mdb-*)
+- Uses Nimbus.* namespace (replaces mdb.*)
+- Default product theme: CaseFusion (cnds-product-casefusion on <body>; change to cnds-product-hyperlize or cnds-product-expireon)
+-->
+<!doctype html>
+<!-- data-cnds-theme: sets the initial theme ("light" | "dark"). nimbus.js syncs this attribute when the user toggles. -->
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="File Input | Cloudficient Nimbus Design System v1.0.0" />
+    <title>File Input | CNDS v1.0.0 | Cloudficient Nimbus Design System</title>
+    <!-- Nimbus CSS -->
+    <link rel="stylesheet" href="css/nimbus.css" media="all" type="text/css" />
+    <!-- Custom styles | All custom classes/styles/overrides go here! -->
+    <link rel="stylesheet" href="css/app.css" media="all" type="text/css" />
+    <!-- Prism syntax highlighting -->
+    <link rel="stylesheet" href="plugins/css/prism.min.css" media="all" type="text/css" />
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="img/favicon/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="60x60" href="img/favicon/apple-icon-60x60.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="img/favicon/apple-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76" href="img/favicon/apple-icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="img/favicon/apple-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="img/favicon/apple-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="img/favicon/apple-icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="img/favicon/apple-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-icon-180x180.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="img/favicon/android-icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="img/favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="img/favicon/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="msapplication-TileImage" content="img/favicon/ms-icon-144x144.png" />
+    <!-- ./Favicons -->
+    <!-- Design tokens — load order matters:
+         1. primitives.css  — raw color/spacing values (no theming)
+         2. light.css       — semantic tokens for [data-cnds-theme="light"] / :root
+         3. dark.css        — semantic token overrides for [data-cnds-theme="dark"]
+         All three must appear AFTER nimbus.css so component variables resolve correctly. -->
+    <link rel="stylesheet" href="css/themes/primitives.css" />
+    <link rel="stylesheet" href="css/themes/light.css" />
+    <link rel="stylesheet" href="css/themes/dark.css" />
+  </head>
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 Bypass Blocks; renders visually hidden until focused -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+    <!-- Header -->
+    <div class="sticky-top">
+      <!-- Utility Navigation -->
+      <nav id="UtilityNav" class="nav nav-cf-utility">
+        <div class="w-100 gx-3 px-sm-0 px-lg-3">
+          <ul class="nav nav-cf-utility-ul"></ul>
+        </div>
+      </nav>
+      <!-- ./Utility Navigation -->
+      <!-- Main Navigation -->
+      <nav id="MainNav" class="navbar navbar-expand-xl navbar-cf">
+        <div class="container-fluid p-0 px-3 d-flex">
+          <div class="d-flex flex-fill align-items-center text-truncate">
+            <div class="text-center d-none d-md-block me-3 border-end">
+              <a href="index.html"
+                ><img src="img/cf/core/logo_nimbus.png" class="me-3 mt-n1"
+              alt="Cloudficient Nimbus Design System" /></a>
+            </div>
+            <div class="flex-fill text-truncate">
+              <div class="navbar-cf-title-block">
+                <div
+                  class="navbar-cf-title cf-page-title text-truncate"
+                  style="padding-bottom: 0"
+                >
+                  <span class="cf-page-title-text cf-page-title-brand">v1</span
+                  ><span class="cf-page-title-divider"></span
+                  ><span class="cf-page-title-text">File Input</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- data-cnds-toggle="theme": wired by nimbus.js — flips data-cnds-theme on <html> between "light" and "dark" -->
+          <button
+            class="btn btn-sm btn-outline-secondary ms-2"
+            data-cnds-toggle="theme"
+            aria-label="Toggle theme"
+            title="Toggle theme"
+          >
+            <i class="mdi mdi-weather-night mdi-18px" aria-hidden="true"></i>
+          </button>
+        </div>
+      </nav>
+      <!-- ./Main Navigation -->
+    </div>
+    <!-- ./Header -->
+
+    <!-- Content -->
+    <main id="main-content" class="cf-main-app">
+      <!-- Mobile viewport warning -->
+      <div class="d-block d-md-none p-4">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>This application is not
+          optimized for small screens. Please use a large tablet, laptop, or
+          desktop computer to continue.
+        </div>
+      </div>
+      <div class="d-none d-md-block">
+        <!-- Sidenav — markup is intentionally empty; sidenav-loader.js fetches and injects the shared nav HTML.
+             data-cnds-mode="side"           : renders as a persistent side panel (not an overlay/drawer)
+             data-cnds-slim / slim-collapsed : controls compact/icon-only collapsed state
+             data-cnds-content="#slim-content": the sibling panel that shrinks/expands as the nav opens/closes
+             data-cnds-accordion="true"      : collapses other open nav groups when a new one is expanded -->
+        <nav
+          id="sidebar-cf"
+          class="sidenav"
+          data-cnds-mode="side"
+          data-cnds-slim="false"
+          data-cnds-slim-collapsed="false"
+          data-cnds-content="#slim-content"
+          data-cnds-accordion="true"
+        ></nav>
+        <div id="slim-content">
+          <div class="slim-content-box">
+            <!-- Content Row -->
+            <div class="row">
+              <!-- Main column — 80 % of the row width; the remaining 20 % is the right sidebar.
+                   The inline flex overrides pin the ratio regardless of Bootstrap's grid breakpoints. -->
+              <div class="col-12 col-lg" style="flex: 0 0 80%; max-width: 80%">
+                <!--Section: Docs content-->
+                <section class="container-fluid">
+
+                  <!--Section: Introduction-->
+                  <section id="section-introduction">
+
+                    <!-- Description -->
+                    <p class="mb-4">
+                      The File Input component lets users select one or more files from their local
+                      device. It replaces the unstyled browser-native
+                      <code>&lt;input type="file"&gt;</code> with a consistent, theme-aware control
+                      that matches the Nimbus design language: a labelled button, a visual divider,
+                      and a status area that updates with the selected filename once a file is chosen.
+                    </p>
+                    <p class="my-4">
+                      Use the File Input when you need a simple single-field file picker that integrates
+                      with other form controls. For drag-and-drop uploads, multi-file queues, progress
+                      tracking, or file-type validation, use the
+                      <a href="cnds-fileupload.html">Drag &amp; Drop File Upload</a> component instead.
+                    </p>
+
+                    <p class="note note-light">
+                      <strong>Note:</strong> Read the
+                      <a href="#api-section-introduction">API Documentation</a> to find all available
+                      options and advanced customization.
+                    </p>
+
+                    <p class="note note-info">
+                      <strong class="note-label">Note:</strong> To preview components in different themes,
+                      click the theme toggle button <i class="mdi mdi-weather-night" aria-hidden="true"></i> / <i class="mdi mdi-weather-sunny" aria-hidden="true"></i> in the header navigation bar.
+                    </p>
+                  </section>
+                  <!--/Section: Introduction-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Basic example-->
+                  <section id="section-basic-example">
+                    <!-- Section title -->
+                    <h3 class="mb-3">Basic example</h3>
+
+                    <p>
+                      Pair a <code>.form-label</code> with a <code>.cf-file-input</code> wrapper.
+                      Add <code>data-cnds-file-input-init</code> to enable auto-initialisation —
+                      the page script wires up the button click and updates the status text
+                      whenever a file is selected.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center">
+                          <div style="width: 320px">
+                            <label class="form-label" for="fileBasic">Upload document</label>
+                            <div class="cf-file-input" data-cnds-file-input-init>
+                              <button type="button" class="cf-file-input-btn" aria-hidden="true" tabindex="-1">Choose File</button>
+                              <span class="cf-file-input-divider" aria-hidden="true"></span>
+                              <span class="cf-file-input-text">No file chosen</span>
+                              <input type="file" class="cf-file-input-native" id="fileBasic" aria-label="Upload document" />
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Bind a file input in a reactive form using type="file" on the native input; read selected files via a (change) event handler that accesses $event.target.files.
+     Example: <input type="file" (change)="onFileSelected($event)" [disabled]="form.disabled" />
+     Use FileReader or pass the FileList directly to your service for upload. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;label class="form-label" for="fileBasic"&gt;Upload document&lt;/label&gt;
+&lt;div class="cf-file-input" data-cnds-file-input-init&gt;
+    &lt;button type="button" class="cf-file-input-btn" aria-hidden="true" tabindex="-1"&gt;Choose File&lt;/button&gt;
+    &lt;span class="cf-file-input-divider" aria-hidden="true"&gt;&lt;/span&gt;
+    &lt;span class="cf-file-input-text"&gt;No file chosen&lt;/span&gt;
+    &lt;input type="file" class="cf-file-input-native" id="fileBasic" aria-label="Upload document" /&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                    <p>
+                      Add the <code>.disabled</code> class to the wrapper and the <code>disabled</code>
+                      attribute to the <code>&lt;input&gt;</code> to render the component in its
+                      non-interactive state. No <code>data-cnds-file-input-init</code> is needed — the
+                      component does not require JavaScript when disabled.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center">
+                          <div style="width: 320px">
+                            <label class="form-label" for="fileDisabled">Upload document</label>
+                            <div class="cf-file-input disabled">
+                              <button type="button" class="cf-file-input-btn" disabled aria-hidden="true" tabindex="-1">Choose File</button>
+                              <span class="cf-file-input-divider" aria-hidden="true"></span>
+                              <span class="cf-file-input-text">No file chosen</span>
+                              <input type="file" class="cf-file-input-native" id="fileDisabled" disabled aria-label="Upload document" />
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Bind the disabled state of the file input via [attr.disabled]="isDisabled ? '' : null" on the native input and [class.disabled]="isDisabled" on the wrapper.
+     Example: <div class="cf-file-input" [class.disabled]="form.disabled"><input type="file" class="cf-file-input-native" [attr.disabled]="form.disabled ? '' : null" /></div>
+     Reactive forms propagate the disabled state automatically when you call formControl.disable(). -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;label class="form-label" for="fileDisabled"&gt;Upload document&lt;/label&gt;
+&lt;div class="cf-file-input disabled"&gt;
+    &lt;button type="button" class="cf-file-input-btn" disabled aria-hidden="true" tabindex="-1"&gt;Choose File&lt;/button&gt;
+    &lt;span class="cf-file-input-divider" aria-hidden="true"&gt;&lt;/span&gt;
+    &lt;span class="cf-file-input-text"&gt;No file chosen&lt;/span&gt;
+    &lt;input type="file" class="cf-file-input-native" id="fileDisabled" disabled aria-label="Upload document" /&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Basic example-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Sizing-->
+                  <section id="section-sizing">
+                    <!-- Section title -->
+                    <h3 class="mb-3">Sizing</h3>
+
+                    <p>
+                      Three size variants are available to match the height of adjacent form controls.
+                      Apply <code>.cf-file-input-lg</code> or <code>.cf-file-input-sm</code> alongside
+                      <code>.cf-file-input</code> to select the appropriate size. The default
+                      (no modifier) sits between the two.
+                    </p>
+
+                    <div class="table-responsive mb-4">
+                      <table class="table table-sm" aria-label="Sizing">
+                        <thead>
+                          <tr>
+                            <th>Modifier class</th>
+                            <th>Font size</th>
+                            <th>Vertical padding</th>
+                            <th>Horizontal padding</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr><td><code>.cf-file-input-lg</code></td><td>16px</td><td>14px</td><td>24px</td></tr>
+                          <tr><td><code>.cf-file-input</code> <em>(default)</em></td><td>14px</td><td>12px</td><td>20px</td></tr>
+                          <tr><td><code>.cf-file-input-sm</code></td><td>13px</td><td>8px</td><td>12px</td></tr>
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center">
+                          <div style="width: 320px" class="d-flex flex-column gap-3">
+
+                            <!-- Large -->
+                            <div>
+                              <label class="cf-input-label mb-1" for="fileLg">Large</label>
+                              <div class="cf-file-input cf-file-input-lg" data-cnds-file-input-init>
+                                <button type="button" class="cf-file-input-btn" aria-hidden="true" tabindex="-1">Choose File</button>
+                                <span class="cf-file-input-divider" aria-hidden="true"></span>
+                                <span class="cf-file-input-text">No file chosen</span>
+                                <input type="file" class="cf-file-input-native" id="fileLg" aria-label="Large file input" />
+                              </div>
+                            </div>
+
+                            <!-- Default -->
+                            <div>
+                              <label class="cf-input-label mb-1" for="fileDefault">Default</label>
+                              <div class="cf-file-input" data-cnds-file-input-init>
+                                <button type="button" class="cf-file-input-btn" aria-hidden="true" tabindex="-1">Choose File</button>
+                                <span class="cf-file-input-divider" aria-hidden="true"></span>
+                                <span class="cf-file-input-text">No file chosen</span>
+                                <input type="file" class="cf-file-input-native" id="fileDefault" aria-label="Default file input" />
+                              </div>
+                            </div>
+
+                            <!-- Small -->
+                            <div>
+                              <label class="cf-input-label mb-1" for="fileSm">Small</label>
+                              <div class="cf-file-input cf-file-input-sm" data-cnds-file-input-init>
+                                <button type="button" class="cf-file-input-btn" aria-hidden="true" tabindex="-1">Choose File</button>
+                                <span class="cf-file-input-divider" aria-hidden="true"></span>
+                                <span class="cf-file-input-text">No file chosen</span>
+                                <input type="file" class="cf-file-input-native" id="fileSm" aria-label="Small file input" />
+                              </div>
+                            </div>
+
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Apply size modifier classes via [ngClass] bound to a component @Input() for size ('sm' | '' | 'lg').
+     Example: <div class="cf-file-input" [ngClass]="size === 'lg' ? 'cf-file-input-lg' : size === 'sm' ? 'cf-file-input-sm' : ''"><input type="file" class="cf-file-input-native" (change)="onFileSelected($event)" /></div>
+     Expose size as an @Input() so parent components can select the appropriate variant for their form layout. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;!-- Large --&gt;
+&lt;label class="form-label" for="fileLg"&gt;Large&lt;/label&gt;
+&lt;div class="cf-file-input cf-file-input-lg" data-cnds-file-input-init&gt;
+    &lt;button type="button" class="cf-file-input-btn" aria-hidden="true" tabindex="-1"&gt;Choose File&lt;/button&gt;
+    &lt;span class="cf-file-input-divider" aria-hidden="true"&gt;&lt;/span&gt;
+    &lt;span class="cf-file-input-text"&gt;No file chosen&lt;/span&gt;
+    &lt;input type="file" class="cf-file-input-native" id="fileLg" aria-label="Large file input" /&gt;
+&lt;/div&gt;
+
+&lt;!-- Default --&gt;
+&lt;label class="form-label" for="fileDefault"&gt;Default&lt;/label&gt;
+&lt;div class="cf-file-input" data-cnds-file-input-init&gt;
+    &lt;button type="button" class="cf-file-input-btn" aria-hidden="true" tabindex="-1"&gt;Choose File&lt;/button&gt;
+    &lt;span class="cf-file-input-divider" aria-hidden="true"&gt;&lt;/span&gt;
+    &lt;span class="cf-file-input-text"&gt;No file chosen&lt;/span&gt;
+    &lt;input type="file" class="cf-file-input-native" id="fileDefault" aria-label="Default file input" /&gt;
+&lt;/div&gt;
+
+&lt;!-- Small --&gt;
+&lt;label class="form-label" for="fileSm"&gt;Small&lt;/label&gt;
+&lt;div class="cf-file-input cf-file-input-sm" data-cnds-file-input-init&gt;
+    &lt;button type="button" class="cf-file-input-btn" aria-hidden="true" tabindex="-1"&gt;Choose File&lt;/button&gt;
+    &lt;span class="cf-file-input-divider" aria-hidden="true"&gt;&lt;/span&gt;
+    &lt;span class="cf-file-input-text"&gt;No file chosen&lt;/span&gt;
+    &lt;input type="file" class="cf-file-input-native" id="fileSm" aria-label="Small file input" /&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Sizing-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Multiple-->
+                  <section id="section-multiple">
+                    <!-- Section title -->
+                    <h3 class="mb-3">Multiple files</h3>
+
+                    <p>
+                      Add the <code>multiple</code> attribute to the hidden
+                      <code>&lt;input&gt;</code> to allow the user to select more than one file at
+                      a time. When multiple files are chosen, the status text displays a count
+                      (e.g., <em>3 files selected</em>) rather than a single filename.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center">
+                          <div style="width: 320px">
+                            <label class="form-label" for="fileMultiple">Attach files</label>
+                            <div class="cf-file-input" data-cnds-file-input-init>
+                              <button type="button" class="cf-file-input-btn" aria-hidden="true" tabindex="-1">Choose File</button>
+                              <span class="cf-file-input-divider" aria-hidden="true"></span>
+                              <span class="cf-file-input-text">No file chosen</span>
+                              <input type="file" class="cf-file-input-native" id="fileMultiple" multiple aria-label="Attach files" />
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Enable multi-file selection by binding [attr.multiple]="allowMultiple ? '' : null" on the native input, then iterate $event.target.files in the (change) handler.
+     Example: <input type="file" class="cf-file-input-native" [attr.multiple]="allowMultiple ? '' : null" (change)="onFilesSelected($event)" />
+     In the handler, convert FileList to an Array with Array.from($event.target.files) before passing to your upload service. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;label class="form-label" for="fileMultiple"&gt;Attach files&lt;/label&gt;
+&lt;div class="cf-file-input" data-cnds-file-input-init&gt;
+    &lt;button type="button" class="cf-file-input-btn" aria-hidden="true" tabindex="-1"&gt;Choose File&lt;/button&gt;
+    &lt;span class="cf-file-input-divider" aria-hidden="true"&gt;&lt;/span&gt;
+    &lt;span class="cf-file-input-text"&gt;No file chosen&lt;/span&gt;
+    &lt;input type="file" class="cf-file-input-native" id="fileMultiple" multiple aria-label="Attach files" /&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Multiple-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Product example-->
+                  <section id="section-product-example">
+                    <!-- Section title -->
+                    <h3 class="mb-3">Product example</h3>
+
+                    <p>
+                      Apply a <code>.cf-file-input-{product}</code> modifier directly to the
+                      <code>.cf-file-input</code> wrapper to activate the product brand focus ring.
+                      The button, divider, and status text remain unchanged — only the
+                      <code>:focus-within</code> border and shadow reflect the product palette.
+                    </p>
+
+                    <!-- ── CaseFusion ───────────────────────────────────────── -->
+                    <h4 class="mt-4 mb-3"><span class="badge badge-casefusion">CaseFusion</span></h4>
+
+                    <p>
+                      Add <code>.cf-file-input-casefusion</code> to switch the focus ring to the
+                      CaseFusion green brand color. The example shows two file fields on a migration
+                      case record — one for supporting evidence documents and one for migration log
+                      files.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center">
+                          <div style="width: 400px">
+                            <div class="card">
+                              <div class="card-header d-flex align-items-center gap-2">
+                                <i class="mdi mdi-folder-open-outline mdi-18px" aria-hidden="true"></i>
+                                <strong>Case #1042 — Exchange Migration</strong>
+                              </div>
+                              <div class="card-body">
+                                <div class="mb-3">
+                                  <label class="form-label" for="fileCaseEvidence">Case evidence</label>
+                                  <div class="cf-file-input cf-file-input-casefusion" data-cnds-file-input-init>
+                                    <button type="button" class="cf-file-input-btn" aria-hidden="true" tabindex="-1">Choose File</button>
+                                    <span class="cf-file-input-divider" aria-hidden="true"></span>
+                                    <span class="cf-file-input-text">No file chosen</span>
+                                    <input type="file" class="cf-file-input-native" id="fileCaseEvidence" aria-label="Case evidence" />
+                                  </div>
+                                  <div class="form-text">Accepted types: PDF, DOCX, XLSX, PNG, JPG (max 25 MB)</div>
+                                </div>
+                                <div class="mb-3">
+                                  <label class="form-label" for="fileCaseLogs">Migration logs</label>
+                                  <div class="cf-file-input cf-file-input-casefusion" data-cnds-file-input-init>
+                                    <button type="button" class="cf-file-input-btn" aria-hidden="true" tabindex="-1">Choose File</button>
+                                    <span class="cf-file-input-divider" aria-hidden="true"></span>
+                                    <span class="cf-file-input-text">No file chosen</span>
+                                    <input type="file" class="cf-file-input-native" id="fileCaseLogs" multiple aria-label="Migration logs" />
+                                  </div>
+                                  <div class="form-text">Attach one or more log files from the migration run.</div>
+                                </div>
+                                <button type="button" class="btn btn-primary btn-sm">Attach to case</button>
+                              </div>
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Add the product modifier class via [ngClass]="'cf-file-input-' + productTheme" driven by an @Input() or app config token.
+     Example: <div class="cf-file-input" [ngClass]="'cf-file-input-' + product"><input type="file" class="cf-file-input-native" (change)="onFileSelected($event)" /></div>
+     Inject the product theme token from a shared ConfigService so all file inputs across the app automatically reflect the active product. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div class="mb-3"&gt;
+    &lt;label class="form-label" for="fileCaseEvidence"&gt;Case evidence&lt;/label&gt;
+    &lt;div class="cf-file-input cf-file-input-casefusion" data-cnds-file-input-init&gt;
+        &lt;button type="button" class="cf-file-input-btn" aria-hidden="true" tabindex="-1"&gt;Choose File&lt;/button&gt;
+        &lt;span class="cf-file-input-divider" aria-hidden="true"&gt;&lt;/span&gt;
+        &lt;span class="cf-file-input-text"&gt;No file chosen&lt;/span&gt;
+        &lt;input type="file" class="cf-file-input-native" id="fileCaseEvidence" aria-label="Case evidence" /&gt;
+    &lt;/div&gt;
+    &lt;div class="form-text"&gt;Accepted types: PDF, DOCX, XLSX, PNG, JPG (max 25 MB)&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="mb-3"&gt;
+    &lt;label class="form-label" for="fileCaseLogs"&gt;Migration logs&lt;/label&gt;
+    &lt;div class="cf-file-input cf-file-input-casefusion" data-cnds-file-input-init&gt;
+        &lt;button type="button" class="cf-file-input-btn" aria-hidden="true" tabindex="-1"&gt;Choose File&lt;/button&gt;
+        &lt;span class="cf-file-input-divider" aria-hidden="true"&gt;&lt;/span&gt;
+        &lt;span class="cf-file-input-text"&gt;No file chosen&lt;/span&gt;
+        &lt;input type="file" class="cf-file-input-native" id="fileCaseLogs" multiple aria-label="Migration logs" /&gt;
+    &lt;/div&gt;
+    &lt;div class="form-text"&gt;Attach one or more log files from the migration run.&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                    <!-- ── ExpireOn ──────────────────────────────────────────── -->
+                    <h4 class="mt-5 mb-3"><span class="badge badge-expireon">ExpireOn</span></h4>
+
+                    <p>
+                      Add <code>.cf-file-input-expireon</code> to switch the focus ring to the
+                      ExpireOn indigo brand color. The example shows a policy upload form where a
+                      user attaches a license agreement and supporting documentation before
+                      submitting a renewal request.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center">
+                          <div style="width: 400px">
+                            <div class="card">
+                              <div class="card-header d-flex align-items-center gap-2">
+                                <i class="mdi mdi-file-sign mdi-18px" aria-hidden="true"></i>
+                                <strong>Policy Renewal — Adobe Creative Cloud</strong>
+                              </div>
+                              <div class="card-body">
+                                <div class="mb-3">
+                                  <label class="form-label" for="fileEoLicense">License agreement</label>
+                                  <div class="cf-file-input cf-file-input-expireon" data-cnds-file-input-init>
+                                    <button type="button" class="cf-file-input-btn" aria-hidden="true" tabindex="-1">Choose File</button>
+                                    <span class="cf-file-input-divider" aria-hidden="true"></span>
+                                    <span class="cf-file-input-text">No file chosen</span>
+                                    <input type="file" class="cf-file-input-native" id="fileEoLicense" accept=".pdf,.docx" aria-label="License agreement" />
+                                  </div>
+                                  <div class="form-text">Accepted types: PDF, DOCX</div>
+                                </div>
+                                <div class="mb-3">
+                                  <label class="form-label" for="fileEoSupporting">Supporting documents</label>
+                                  <div class="cf-file-input cf-file-input-expireon" data-cnds-file-input-init>
+                                    <button type="button" class="cf-file-input-btn" aria-hidden="true" tabindex="-1">Choose File</button>
+                                    <span class="cf-file-input-divider" aria-hidden="true"></span>
+                                    <span class="cf-file-input-text">No file chosen</span>
+                                    <input type="file" class="cf-file-input-native" id="fileEoSupporting" multiple aria-label="Supporting documents" />
+                                  </div>
+                                  <div class="form-text">Attach any additional documents required for renewal.</div>
+                                </div>
+                                <button type="button" class="btn btn-primary btn-sm">Submit renewal</button>
+                              </div>
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Restrict accepted file types by binding [attr.accept]="acceptedTypes" on the native input, where acceptedTypes is an @Input() string like '.pdf,.docx'.
+     Example: <input type="file" class="cf-file-input-native" [attr.accept]="acceptedTypes" (change)="onFileSelected($event)" />
+     Always display the accepted types in a visible hint below the input because the accept attribute alone is not announced by all screen readers. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div class="mb-3"&gt;
+    &lt;label class="form-label" for="fileEoLicense"&gt;License agreement&lt;/label&gt;
+    &lt;div class="cf-file-input cf-file-input-expireon" data-cnds-file-input-init&gt;
+        &lt;button type="button" class="cf-file-input-btn" aria-hidden="true" tabindex="-1"&gt;Choose File&lt;/button&gt;
+        &lt;span class="cf-file-input-divider" aria-hidden="true"&gt;&lt;/span&gt;
+        &lt;span class="cf-file-input-text"&gt;No file chosen&lt;/span&gt;
+        &lt;input type="file" class="cf-file-input-native" id="fileEoLicense" accept=".pdf,.docx" aria-label="License agreement" /&gt;
+    &lt;/div&gt;
+    &lt;div class="form-text"&gt;Accepted types: PDF, DOCX&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="mb-3"&gt;
+    &lt;label class="form-label" for="fileEoSupporting"&gt;Supporting documents&lt;/label&gt;
+    &lt;div class="cf-file-input cf-file-input-expireon" data-cnds-file-input-init&gt;
+        &lt;button type="button" class="cf-file-input-btn" aria-hidden="true" tabindex="-1"&gt;Choose File&lt;/button&gt;
+        &lt;span class="cf-file-input-divider" aria-hidden="true"&gt;&lt;/span&gt;
+        &lt;span class="cf-file-input-text"&gt;No file chosen&lt;/span&gt;
+        &lt;input type="file" class="cf-file-input-native" id="fileEoSupporting" multiple aria-label="Supporting documents" /&gt;
+    &lt;/div&gt;
+    &lt;div class="form-text"&gt;Attach any additional documents required for renewal.&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                    <!-- ── Hyperlize ─────────────────────────────────────────── -->
+                    <h4 class="mt-5 mb-3"><span class="badge badge-hyperlize">Hyperlize</span></h4>
+
+                    <p>
+                      Add <code>.cf-file-input-hyperlize</code> to switch the focus ring to the
+                      Hyperlize amber brand color. The example shows a crawl configuration form
+                      where a user uploads a sitemap and a custom URL exclusion rules file before
+                      starting a new crawl job.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center">
+                          <div style="width: 400px">
+                            <div class="card">
+                              <div class="card-header d-flex align-items-center gap-2">
+                                <i class="mdi mdi-web mdi-18px" aria-hidden="true"></i>
+                                <strong>New Crawl Job — acme-intranet.com</strong>
+                              </div>
+                              <div class="card-body">
+                                <div class="mb-3">
+                                  <label class="form-label" for="fileHlSitemap">Sitemap</label>
+                                  <div class="cf-file-input cf-file-input-hyperlize" data-cnds-file-input-init>
+                                    <button type="button" class="cf-file-input-btn" aria-hidden="true" tabindex="-1">Choose File</button>
+                                    <span class="cf-file-input-divider" aria-hidden="true"></span>
+                                    <span class="cf-file-input-text">No file chosen</span>
+                                    <input type="file" class="cf-file-input-native" id="fileHlSitemap" accept=".xml" aria-label="Sitemap" />
+                                  </div>
+                                  <div class="form-text">Upload an XML sitemap to seed the crawl.</div>
+                                </div>
+                                <div class="mb-3">
+                                  <label class="form-label" for="fileHlExclusions">URL exclusion rules</label>
+                                  <div class="cf-file-input cf-file-input-hyperlize" data-cnds-file-input-init>
+                                    <button type="button" class="cf-file-input-btn" aria-hidden="true" tabindex="-1">Choose File</button>
+                                    <span class="cf-file-input-divider" aria-hidden="true"></span>
+                                    <span class="cf-file-input-text">No file chosen</span>
+                                    <input type="file" class="cf-file-input-native" id="fileHlExclusions" accept=".txt,.csv" aria-label="URL exclusion rules" />
+                                  </div>
+                                  <div class="form-text">Accepted types: TXT, CSV (one pattern per line)</div>
+                                </div>
+                                <button type="button" class="btn btn-primary btn-sm">Start crawl</button>
+                              </div>
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Combine [attr.accept] and [attr.multiple] on the same native input for full declarative control of accepted types and selection mode.
+     Example: <input type="file" class="cf-file-input-native" [attr.accept]="acceptedTypes" [attr.multiple]="allowMultiple ? '' : null" (change)="onFilesSelected($event)" />
+     Validate both file type and count in the (change) handler and surface errors through a reactive form validator or a template variable. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div class="mb-3"&gt;
+    &lt;label class="form-label" for="fileHlSitemap"&gt;Sitemap&lt;/label&gt;
+    &lt;div class="cf-file-input cf-file-input-hyperlize" data-cnds-file-input-init&gt;
+        &lt;button type="button" class="cf-file-input-btn" aria-hidden="true" tabindex="-1"&gt;Choose File&lt;/button&gt;
+        &lt;span class="cf-file-input-divider" aria-hidden="true"&gt;&lt;/span&gt;
+        &lt;span class="cf-file-input-text"&gt;No file chosen&lt;/span&gt;
+        &lt;input type="file" class="cf-file-input-native" id="fileHlSitemap" accept=".xml" aria-label="Sitemap" /&gt;
+    &lt;/div&gt;
+    &lt;div class="form-text"&gt;Upload an XML sitemap to seed the crawl.&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="mb-3"&gt;
+    &lt;label class="form-label" for="fileHlExclusions"&gt;URL exclusion rules&lt;/label&gt;
+    &lt;div class="cf-file-input cf-file-input-hyperlize" data-cnds-file-input-init&gt;
+        &lt;button type="button" class="cf-file-input-btn" aria-hidden="true" tabindex="-1"&gt;Choose File&lt;/button&gt;
+        &lt;span class="cf-file-input-divider" aria-hidden="true"&gt;&lt;/span&gt;
+        &lt;span class="cf-file-input-text"&gt;No file chosen&lt;/span&gt;
+        &lt;input type="file" class="cf-file-input-native" id="fileHlExclusions" accept=".txt,.csv" aria-label="URL exclusion rules" /&gt;
+    &lt;/div&gt;
+    &lt;div class="form-text"&gt;Accepted types: TXT, CSV (one pattern per line)&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+
+                  </section>
+                  <!--/Section: Product example-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: Validation-->
+                  <section id="section-validation">
+                    <!-- Section title -->
+                    <h3 class="mb-3">Validation</h3>
+
+                    <p>
+                      Wrap the <code>.cf-file-input</code> in a
+                      <code>.cf-input-field.cf-input-field-casefusion</code> container and add
+                      <code>is-invalid</code> to show the error state. Place a
+                      <code>.cf-input-label</code> inside the wrapper for the field label (include
+                      <code>&lt;span class="cf-input-required"&gt;*&lt;/span&gt;</code> for required fields),
+                      a <code>.cf-input-wrapper</code> around the <code>.cf-file-input</code>, and
+                      a <code>.cf-input-helper</code> containing a <code>.cf-input-error</code> span
+                      for the error message. The <code>.cf-input-field.is-invalid .cf-input-error</code>
+                      rule in <code>forms.css</code> handles visibility automatically.
+                    </p>
+
+                    <!--Section: Demo-->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center">
+                          <div style="width: 320px">
+                            <div class="cf-input-field cf-input-field-casefusion is-invalid">
+                              <label class="cf-input-label" for="fileValidation">Attachment <span class="cf-input-required">*</span></label>
+                              <div class="cf-input-wrapper">
+                                <div class="cf-file-input" data-cnds-file-input-init>
+                                  <button type="button" class="cf-file-input-btn" aria-hidden="true" tabindex="-1">Choose File</button>
+                                  <span class="cf-file-input-divider" aria-hidden="true"></span>
+                                  <span class="cf-file-input-text">No file chosen</span>
+                                  <input type="file" class="cf-file-input-native" id="fileValidation" aria-describedby="error-file-validation" aria-invalid="true" required />
+                                </div>
+                              </div>
+                              <div class="cf-input-helper">
+                                <span class="cf-input-error" id="error-file-validation">Please upload a file.</span>
+                              </div>
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                    <!--/Section: Demo-->
+<!-- Angular: Show the invalid state by binding [class.is-invalid]="fileControl.invalid && fileControl.touched" on the .cf-input-field wrapper.
+     Example: <div class="cf-input-field cf-input-field-casefusion" [class.is-invalid]="fileControl.invalid && fileControl.touched"><input type="file" class="cf-file-input-native" [attr.aria-invalid]="fileControl.invalid && fileControl.touched ? 'true' : null" (change)="onFileSelected($event)" /></div>
+     Use a custom validator on the FormControl to check that files is not empty and surface the error message from the control's errors object. -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div class="cf-input-field cf-input-field-casefusion is-invalid"&gt;
+  &lt;label class="cf-input-label" for="fileValidation"&gt;Attachment &lt;span class="cf-input-required"&gt;*&lt;/span&gt;&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;div class="cf-file-input" data-cnds-file-input-init&gt;
+      &lt;button type="button" class="cf-file-input-btn" aria-hidden="true" tabindex="-1"&gt;Choose File&lt;/button&gt;
+      &lt;span class="cf-file-input-divider" aria-hidden="true"&gt;&lt;/span&gt;
+      &lt;span class="cf-file-input-text"&gt;No file chosen&lt;/span&gt;
+      &lt;input type="file" class="cf-file-input-native" id="fileValidation" aria-describedby="error-file-validation" aria-invalid="true" required /&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="cf-input-helper"&gt;
+    &lt;span class="cf-input-error" id="error-file-validation"&gt;Please upload a file.&lt;/span&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: Validation-->
+
+                  <hr class="my-5" />
+
+                  <!--Section: API Documentation-->
+                  <section id="section-api-docs">
+                    <h3 class="mb-3">API Documentation</h3>
+
+                    <!--Section: API Introduction-->
+                    <section id="api-section-introduction">
+                      <h4 class="mb-4">Introduction</h4>
+                      <p>
+                        The Nimbus File Input is a lightweight custom component built from standard
+                        HTML elements — a flex container, a visual button, a divider, and a status
+                        text span — with a hidden native <code>&lt;input type="file"&gt;</code>
+                        inside. The native input handles all browser file-dialog logic, accessibility
+                        semantics, and keyboard interaction; the visible elements provide the
+                        consistent Nimbus visual treatment.
+                      </p>
+                      <p>
+                        JavaScript initialisation wires up two event listeners: a <code>click</code>
+                        handler on the visible button that delegates to <code>input.click()</code>,
+                        and a <code>change</code> handler on the native input that updates the
+                        status text with the selected filename or a file count for multiple
+                        selections. No framework or build step is required.
+                      </p>
+                    </section>
+                    <!--/Section: API Introduction-->
+
+                    <!--Section: API Usage-->
+                    <section id="api-section-usage">
+                      <h4 class="mb-4">Usage</h4>
+                      <p>
+                        The minimum required markup is a <code>.cf-file-input</code> wrapper
+                        containing the four child elements below. Always associate a visible
+                        <code>.form-label</code> with the native input via matching
+                        <code>for</code> / <code>id</code> attributes. Supply
+                        <code>aria-label</code> on the native input when the label text is not
+                        adjacent (see <a href="#api-section-accessibility">Accessibility</a>).
+                      </p>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-html">HTML</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-html">&lt;label class="form-label" for="myFile"&gt;Choose a file&lt;/label&gt;
+&lt;div class="cf-file-input" data-cnds-file-input-init&gt;
+    &lt;button type="button" class="cf-file-input-btn" aria-hidden="true" tabindex="-1"&gt;Choose File&lt;/button&gt;
+    &lt;span class="cf-file-input-divider" aria-hidden="true"&gt;&lt;/span&gt;
+    &lt;span class="cf-file-input-text"&gt;No file chosen&lt;/span&gt;
+    &lt;input type="file" class="cf-file-input-native" id="myFile" aria-label="Choose a file" /&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Section: API Usage-->
+
+                    <!--Section: API JavaScript-->
+                    <section id="api-section-javascript">
+                      <h4 class="mb-4">JavaScript</h4>
+                      <p>
+                        Adding <code>data-cnds-file-input-init</code> to the wrapper element enables
+                        <strong>auto-initialisation</strong>. The page script (or
+                        <code>nimbus.js</code> in production) calls
+                        <code>CNDSFileInput.autoInit()</code> on
+                        <code>DOMContentLoaded</code>, which finds every matching wrapper and
+                        attaches the event listeners automatically.
+                      </p>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-js">JS</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-js">// Auto-init — called once on DOMContentLoaded
+CNDSFileInput.autoInit();
+
+// Manual init — pass any .cf-file-input element
+var wrapper = document.querySelector(".cf-file-input");
+CNDSFileInput.init(wrapper);</code></pre>
+                        </div>
+                      </section>
+                      <p>
+                        The <code>CNDSFileInput.init()</code> function attaches two listeners to the
+                        wrapper element passed in:
+                      </p>
+                      <ul>
+                        <li>
+                          <strong>Button click</strong> — calls <code>input.click()</code> to
+                          open the OS file-picker dialog.
+                        </li>
+                        <li>
+                          <strong>Input change</strong> — reads <code>input.files</code> and
+                          writes either the selected filename or a count string (e.g.,
+                          <em>3 files selected</em>) into <code>.cf-file-input-text</code>.
+                          Adds the <code>.has-file</code> class to apply the full-contrast text
+                          color; removes it when the selection is cleared.
+                        </li>
+                      </ul>
+                    </section>
+                    <!--/Section: API JavaScript-->
+
+                    <!--Section: API CSS Classes-->
+                    <section id="api-section-css-classes">
+                      <h4 class="mb-4">CSS classes</h4>
+                      <div class="table-responsive">
+                        <table class="table table-striped" aria-label="CSS classes">
+                          <thead>
+                            <tr>
+                              <th>Class</th>
+                              <th>Element</th>
+                              <th>Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>.cf-file-input</code></td>
+                              <td><code>&lt;div&gt;</code></td>
+                              <td>
+                                Required wrapper. Renders as <code>display: flex</code> with a
+                                border, border-radius, and <code>overflow: hidden</code> so all
+                                children are clipped to the rounded corners. Hosts all CSS
+                                custom properties.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.cf-file-input-sm</code></td>
+                              <td><code>&lt;div&gt;</code></td>
+                              <td>
+                                Small size modifier. Reduces font size to 13 px, vertical padding to 8 px, and horizontal padding to 12 px. Apply alongside <code>.cf-file-input</code>.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.cf-file-input-lg</code></td>
+                              <td><code>&lt;div&gt;</code></td>
+                              <td>
+                                Large size modifier. Increases font size to 16 px, vertical padding to 14 px, and horizontal padding to 24 px.
+                                Apply alongside <code>.cf-file-input</code>.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.cf-file-input.disabled</code></td>
+                              <td><code>&lt;div&gt;</code></td>
+                              <td>
+                                Disabled state. Sets <code>opacity: 0.65</code>,
+                                <code>pointer-events: none</code>, and applies the disabled
+                                background. Also match with <code>disabled</code> on the native
+                                input and button.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.cf-file-input-btn</code></td>
+                              <td><code>&lt;button&gt;</code></td>
+                              <td>
+                                Visual "Choose File" button. Rendered with
+                                <code>aria-hidden="true"</code> and <code>tabindex="-1"</code>
+                                — it is a visual affordance only. JavaScript delegates
+                                its <code>click</code> event to the hidden native input.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.cf-file-input-divider</code></td>
+                              <td><code>&lt;span&gt;</code></td>
+                              <td>
+                                1 px vertical rule separating the button from the status text.
+                                Color inherits <code>--cnds-file-border-color</code>.
+                                Mark with <code>aria-hidden="true"</code>.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.cf-file-input-text</code></td>
+                              <td><code>&lt;span&gt;</code></td>
+                              <td>
+                                Status text area. Shows "No file chosen" by default. Updated
+                                by JavaScript to the selected filename or a count string.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.cf-file-input-text.has-file</code></td>
+                              <td><code>&lt;span&gt;</code></td>
+                              <td>
+                                Added by JavaScript once a file is selected. Changes the text
+                                color from the muted placeholder value to
+                                <code>--cnds-file-text-selected-color</code>.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.cf-file-input-native</code></td>
+                              <td><code>&lt;input type="file"&gt;</code></td>
+                              <td>
+                                The hidden native file input. Visually clipped to 1 px ×
+                                1 px using the <code>clip</code> technique so it remains in the
+                                tab order. All standard <code>&lt;input type="file"&gt;</code>
+                                attributes (<code>accept</code>, <code>multiple</code>,
+                                <code>disabled</code>, etc.) apply here.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.cf-file-input-casefusion</code></td>
+                              <td><code>&lt;div&gt;</code></td>
+                              <td>
+                                CaseFusion product modifier. Overrides the <code>:focus-within</code>
+                                ring to the CaseFusion green brand color
+                                (<code>#2e892a</code> light / <code>#7dd67a</code> dark).
+                                Apply alongside <code>.cf-file-input</code>.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.cf-file-input-expireon</code></td>
+                              <td><code>&lt;div&gt;</code></td>
+                              <td>
+                                ExpireOn product modifier. Overrides the <code>:focus-within</code>
+                                ring to the ExpireOn indigo brand color
+                                (<code>#4e45d6</code> light / <code>#b6b4ee</code> dark).
+                                Apply alongside <code>.cf-file-input</code>.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>.cf-file-input-hyperlize</code></td>
+                              <td><code>&lt;div&gt;</code></td>
+                              <td>
+                                Hyperlize product modifier. Overrides the <code>:focus-within</code>
+                                ring to the Hyperlize amber brand color
+                                (<code>#926a08</code> light / <code>#f6bf37</code> dark).
+                                Apply alongside <code>.cf-file-input</code>.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: API CSS Classes-->
+
+                    <!--Section: API CSS Custom Properties-->
+                    <section id="api-section-css-variables">
+                      <h4 class="mb-4">CSS custom properties</h4>
+                      <p>
+                        All custom properties are defined on <code>.cf-file-input</code> in
+                        <code>forms.css</code>. Override them per-instance via an inline
+                        <code>style</code> attribute, or globally by targeting
+                        <code>.cf-file-input</code> in a CSS rule.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped" aria-label="CSS custom properties">
+                          <thead>
+                            <tr>
+                              <th>Property</th>
+                              <th>Default (light)</th>
+                              <th>Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>--cnds-file-btn-color</code></td>
+                              <td><code>var(--cnds-body-color, #4f4f4f)</code></td>
+                              <td>Text color of the "Choose File" button.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-file-btn-bg</code></td>
+                              <td><code>var(--cnds-input-disabled-bg, #e9ecef)</code></td>
+                              <td>Background of the "Choose File" button.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-file-btn-hover-bg</code></td>
+                              <td><code>#d5d9dd</code></td>
+                              <td>Button background on mouse hover.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-file-border-color</code></td>
+                              <td><code>var(--cnds-input-border-color, #bdbdbd)</code></td>
+                              <td>
+                                Border color of the wrapper and the vertical divider.
+                                Overridden to the product focus color on
+                                <code>:focus-within</code>.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-file-bg</code></td>
+                              <td><code>var(--cnds-input-bg, #fff)</code></td>
+                              <td>Background of the wrapper (status text area).</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-file-text-color</code></td>
+                              <td><code>var(--cnds-input-placeholder-color, #757575)</code></td>
+                              <td>
+                                Muted text color shown while no file is selected ("No file chosen").
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-file-text-selected-color</code></td>
+                              <td><code>var(--cnds-input-color, #4f4f4f)</code></td>
+                              <td>Full-contrast text color applied once a file is selected (via <code>.has-file</code>).</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-file-border-radius</code></td>
+                              <td><code>0.25rem</code> (4 px)</td>
+                              <td>Corner radius of the wrapper.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-file-padding-x</code></td>
+                              <td><code>1rem</code> (16 px)</td>
+                              <td>Horizontal padding inside the button and status text areas.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-file-padding-y</code></td>
+                              <td><code>0.75rem</code> (12 px)</td>
+                              <td>Vertical padding (default size). Overridden by size modifiers.</td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-file-font-size</code></td>
+                              <td><code>0.875rem</code> (14 px)</td>
+                              <td>Font size for button text and status text. Overridden by size modifiers.</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: API CSS Custom Properties-->
+
+                    <!--Section: API Theme Variables-->
+                    <section id="api-section-theme-variables">
+                      <h4 class="mb-4">Theme variables</h4>
+                      <p>
+                        The following custom properties are overridden in
+                        <code>forms.css</code> on the
+                        <code>[data-cnds-theme="dark"] .cf-file-input</code> selector. All
+                        foreground values meet WCAG AA contrast requirements against their
+                        respective background.
+                      </p>
+                      <div class="table-responsive">
+                        <table class="table table-striped table-bordered" aria-label="Theme variables">
+                          <thead>
+                            <tr>
+                              <th>Token</th>
+                              <th>Light value</th>
+                              <th>Dark value</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td><code>--cnds-file-btn-bg</code></td>
+                              <td><code>var(--cnds-input-disabled-bg, #e9ecef)</code></td>
+                              <td><code>rgba(255, 255, 255, 0.1)</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-file-btn-hover-bg</code></td>
+                              <td><code>#d5d9dd</code></td>
+                              <td><code>rgba(255, 255, 255, 0.16)</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-file-btn-color</code></td>
+                              <td><code>var(--cnds-body-color, #4f4f4f)</code></td>
+                              <td><code>var(--cnds-surface-light-200, #ebebeb)</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-file-border-color</code></td>
+                              <td><code>var(--cnds-input-border-color, #bdbdbd)</code></td>
+                              <td><code>rgba(255, 255, 255, 0.2)</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-file-bg</code></td>
+                              <td><code>var(--cnds-input-bg, #fff)</code></td>
+                              <td><code>var(--cnds-surface-dark-400, #2a2a2a)</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-file-text-color</code></td>
+                              <td><code>var(--cnds-input-placeholder-color, #757575)</code></td>
+                              <td><code>var(--cnds-surface-light-600, #a3a3a3)</code></td>
+                            </tr>
+                            <tr>
+                              <td><code>--cnds-file-text-selected-color</code></td>
+                              <td><code>var(--cnds-input-color, #4f4f4f)</code></td>
+                              <td><code>var(--cnds-surface-light-200, #ebebeb)</code></td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Section: API Theme Variables-->
+
+                    <!--Section: API Accessibility-->
+                    <section id="api-section-accessibility">
+                      <h4 class="mb-4">Accessibility</h4>
+                      <p>
+                        The component is built around the native
+                        <code>&lt;input type="file"&gt;</code>, which carries all required file-picker
+                        semantics for assistive technologies without additional ARIA markup.
+                        Follow the guidelines below to ensure the full component remains accessible:
+                      </p>
+                      <ul>
+                        <li>
+                          Always pair the component with a visible <code>.form-label</code> that
+                          references the native input via matching <code>for</code> / <code>id</code>
+                          attributes. This gives screen readers an accessible name for the file picker.
+                        </li>
+                        <li>
+                          Supply <code>aria-label</code> on the native input when the label text is
+                          not adjacent or when additional context is needed (e.g.,
+                          <code>aria-label="Case evidence — PDF or DOCX only"</code>).
+                        </li>
+                        <li>
+                          The visual button must carry <code>aria-hidden="true"</code> and
+                          <code>tabindex="-1"</code>. It is a presentation-only element — the
+                          native input handles keyboard activation (Tab to focus, Space/Enter to
+                          open the dialog).
+                        </li>
+                        <li>
+                          The divider <code>&lt;span&gt;</code> must carry
+                          <code>aria-hidden="true"</code> to suppress it from the accessibility tree.
+                        </li>
+                        <li>
+                          The <code>:focus-within</code> rule on <code>.cf-file-input</code> provides
+                          a visible focus ring around the entire wrapper when the native input is
+                          keyboard-focused, satisfying WCAG 2.1 SC 2.4.7 (Focus Visible).
+                        </li>
+                        <li>
+                          When restricting accepted file types, always communicate the constraint
+                          in visible text (e.g., a <code>.form-text</code> hint below the input)
+                          in addition to the <code>accept</code> attribute. The <code>accept</code>
+                          attribute alone is not announced by all screen readers.
+                        </li>
+                      </ul>
+                    </section>
+                    <!--/Section: API Accessibility-->
+
+                  </section>
+                  <!--/Section: API Documentation-->
+
+                </section>
+                <!--/Section: Docs content-->
+              </div>
+              <!-- ./Main column -->
+
+              <!-- Right Sidebar — 20 % of the row width; hidden below lg breakpoint.
+                   Sticky attributes (processed by nimbus.js):
+                     data-cnds-sticky="true"           : activates sticky positioning
+                     data-cnds-sticky-boundary="true"  : constrains sticky to its parent container
+                     data-cnds-sticky-direction="both" : sticks when scrolling up OR down
+                     data-cnds-sticky-offset="56"      : clears the 56 px fixed header
+                     data-cnds-sticky-delay="125"      : debounce delay (ms) to reduce scroll jank
+                   data-cnds-allow-hashes="true" on the <ul>: nimbus.js watches the URL hash
+                     and highlights the matching nav-link as the user scrolls through sections. -->
+              <div class="col-lg-2 d-none d-lg-block">
+                <div class="sticky-top" style="top: 100px; z-index: 1">
+                  <ul class="nav flex-column nav-pills menu-sidebar" id="rightNav" data-cnds-allow-hashes="true">
+                    <li class="nav-item"><a class="nav-link" href="#section-introduction">Introduction</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-basic-example">Basic example</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-sizing">Sizing</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-multiple">Multiple files</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-product-example">Product example</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-validation">Validation</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-api-docs">API Documentation</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-introduction">Introduction</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-usage">Usage</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-javascript">JavaScript</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-css-classes">CSS classes</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-css-variables">CSS custom properties</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-theme-variables">Theme variables</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-accessibility">Accessibility</a></li>
+                  </ul>
+                </div>
+              </div>
+              <!-- ./Right Sidebar -->
+            </div>
+            <!-- ./Content Row -->
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- ./Content -->
+
+    <!-- Footer -->
+    <div class="cf-footer cf-footer-app">
+      <footer class="page-footer main-footer" aria-label="Site footer">
+        <div class="w-100 px-3 d-flex align-items-center">
+          <img src="img/cf/core/cloudficient_logo_light.svg" class="cf-logo-light" style="width: 135px;" alt="Cloudficient" />
+          <img src="img/cf/core/cloudficient_logo_dark.svg" class="cf-logo-dark" style="width: 135px;" alt="Cloudficient" />
+          <span class="footer-copyright ms-auto">&copy; <span id="currentYear"></span> Cloudficient</span>
+        </div>
+      </footer>
+    </div>
+    <!-- ./Footer -->
+
+    <!-- SCRIPTS -->
+    <script type="text/javascript" src="js/nimbus.js?v=9.0.4"></script>
+    <script type="text/javascript" src="js/app.js?v=9.0.4"></script>
+    <script type="text/javascript" src="plugins/js/prism.min.js"></script>
+    <script type="text/javascript" src="js/sidenav-loader.js"></script>
+    <script type="text/javascript">
+      // ─── Footer year ───────────────────────────────────────────────────────
+      var currentYearElement = document.getElementById("currentYear");
+      if (currentYearElement) {
+        currentYearElement.textContent = new Date().getFullYear();
+      }
+
+      // ─── CNDSFileInput ──────────────────────────────────────────────────────
+      // Initialises .cf-file-input components. In production this logic lives
+      // in nimbus.js; it is inlined here for the documentation page demo.
+      var CNDSFileInput = {
+
+        /**
+         * Initialise a single .cf-file-input wrapper.
+         * @param {HTMLElement} wrapper — the .cf-file-input element
+         */
+        init: function (wrapper) {
+          var btn       = wrapper.querySelector(".cf-file-input-btn");
+          var input     = wrapper.querySelector(".cf-file-input-native");
+          var statusEl  = wrapper.querySelector(".cf-file-input-text");
+
+          // Guard: bail if required children are missing or component already inited
+          if (!btn || !input || !statusEl || wrapper.dataset.cndsFileInputReady) return;
+          wrapper.dataset.cndsFileInputReady = "true";
+
+          // Clicking the visual button opens the OS file-picker dialog
+          btn.addEventListener("click", function () {
+            input.click();
+          });
+
+          // Update status text when the user selects (or clears) files
+          input.addEventListener("change", function () {
+            if (input.files && input.files.length > 0) {
+              statusEl.textContent =
+                input.multiple && input.files.length > 1
+                  ? input.files.length + " files selected"
+                  : input.files[0].name;
+              statusEl.classList.add("has-file");
+            } else {
+              statusEl.textContent = "No file chosen";
+              statusEl.classList.remove("has-file");
+            }
+          });
+        },
+
+        /**
+         * Auto-initialise all [data-cnds-file-input-init] wrappers on the page.
+         * Called once on DOMContentLoaded.
+         */
+        autoInit: function () {
+          document
+            .querySelectorAll(".cf-file-input[data-cnds-file-input-init]")
+            .forEach(CNDSFileInput.init);
+        }
+      };
+
+      document.addEventListener("DOMContentLoaded", function () {
+        CNDSFileInput.autoInit();
+      });
+    </script>
+  </body>
+</html>

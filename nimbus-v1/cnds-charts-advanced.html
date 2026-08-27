@@ -1,0 +1,1371 @@
+<!--
+* CNDS Nimbus Design System — Charts advanced usage
+* Version: 1.0.0
+* Layout: Application with SideNav (migrated from Nimbus v8 template)
+*
+* SECTIONS (in document order)
+*   #section-introduction          — Overview, API link, theme note
+*   #section-options               — Chart options: per-bar colors, axis color overrides
+*   #section-mixed                 — Mixed bar + line chart (shared y-axis)
+*   #section-data-labels           — Legend, grid, tooltip, animation, and title toggles
+*   #section-dual-y-axis           — Mixed chart with independent right y-axis
+*   #section-funnel                — Funnel visualization via horizontal bar
+*   #section-formatting-y-axis     — Chart title, height, padding, and y-axis formatting
+*   #section-formatting-tooltips   — Scatter chart with logarithmic X axis and tooltip formatting
+*   #section-double-datasets       — Grouped bar chart with two datasets and custom colors
+*   #section-async-data            — Async fetch with update()
+*   #section-api-docs              — API Documentation
+*     #api-section-introduction    — Component model overview
+*     #api-section-constructor     — Constructor signature and config
+*     #api-section-methods         — Public methods: update(), destroy()
+*
+* NOTES
+* - Pure HTML5, CSS3, vanilla JavaScript — zero external dependencies
+* - Uses data-cnds-* attributes (replaces data-mdb-*)
+* - Uses Nimbus.* namespace (replaces mdb.*)
+* - Default product theme: CaseFusion (cnds-product-casefusion on <body>; change to cnds-product-hyperlize or cnds-product-expireon)
+-->
+<!doctype html>
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="Charts advanced usage | Cloudficient Nimbus Design System v1.0.0" />
+    <title>Charts advanced usage | CNDS v1.0.0 | Cloudficient Nimbus Design System</title>
+    <!-- Nimbus CSS -->
+    <link rel="stylesheet" href="css/nimbus.css" media="all" type="text/css" />
+    <!-- Custom styles -->
+    <link rel="stylesheet" href="css/app.css" media="all" type="text/css" />
+    <!-- Prism syntax highlighting -->
+    <link rel="stylesheet" href="plugins/css/prism.min.css" media="all" type="text/css" />
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="57x57"   href="img/favicon/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="60x60"   href="img/favicon/apple-icon-60x60.png" />
+    <link rel="apple-touch-icon" sizes="72x72"   href="img/favicon/apple-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76"   href="img/favicon/apple-icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="img/favicon/apple-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="img/favicon/apple-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="img/favicon/apple-icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="img/favicon/apple-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-icon-180x180.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="img/favicon/android-icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="32x32"   href="img/favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="96x96"   href="img/favicon/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="16x16"   href="img/favicon/favicon-16x16.png" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="msapplication-TileImage" content="img/favicon/ms-icon-144x144.png" />
+    <!-- ./Favicons -->
+    <!-- Design tokens — load order matters:
+         1. primitives.css  — raw color/spacing values (no theming)
+         2. light.css       — semantic tokens for [data-cnds-theme="light"] / :root
+         3. dark.css        — semantic token overrides for [data-cnds-theme="dark"]
+         All three must appear AFTER nimbus.css so component variables resolve correctly. -->
+    <link rel="stylesheet" href="css/themes/primitives.css" />
+    <link rel="stylesheet" href="css/themes/light.css" />
+    <link rel="stylesheet" href="css/themes/dark.css" />
+  </head>
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 Bypass Blocks; renders visually hidden until focused -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+
+    <!-- =====================================================================
+         HEADER — sticky top bar: utility nav + main nav with page title
+         ===================================================================== -->
+    <div class="sticky-top">
+      <!-- Utility Navigation -->
+      <nav id="UtilityNav" class="nav nav-cf-utility" aria-label="Utility navigation">
+        <div class="w-100 gx-3 px-sm-0 px-lg-3">
+          <ul class="nav nav-cf-utility-ul"></ul>
+        </div>
+      </nav>
+      <!-- ./Utility Navigation -->
+
+      <!-- Main Navigation -->
+      <nav id="MainNav" class="navbar navbar-expand-xl navbar-cf" aria-label="Main navigation">
+        <div class="container-fluid p-0 px-3 d-flex">
+          <div class="d-flex flex-fill align-items-center text-truncate">
+            <div class="text-center d-none d-md-block me-3 border-end">
+              <a href="index.html">
+                <img src="img/cf/core/logo_nimbus.png" class="me-3 mt-n1"
+                     alt="Cloudficient Nimbus Design System" />
+              </a>
+            </div>
+            <div class="flex-fill text-truncate">
+              <div class="navbar-cf-title-block">
+                <div class="navbar-cf-title cf-page-title text-truncate" style="padding-bottom: 0">
+                  <span class="cf-page-title-text cf-page-title-brand">v1</span
+                  ><span class="cf-page-title-divider"></span
+                  ><span class="cf-page-title-text">Charts advanced usage</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- data-cnds-toggle="theme": wired by nimbus.js — flips data-cnds-theme on <html>
+               between "light" and "dark" and swaps the icon via CSS. -->
+          <button
+            class="btn btn-sm btn-outline-secondary ms-2"
+            data-cnds-toggle="theme"
+            aria-label="Toggle theme"
+            title="Toggle theme"
+          >
+            <!-- MDI: moon / sun icons — the visible icon is swapped by the theme toggle CSS -->
+            <i class="mdi mdi-weather-night mdi-18px" aria-hidden="true"></i>
+          </button>
+        </div>
+      </nav>
+      <!-- ./Main Navigation -->
+    </div>
+    <!-- ./Header -->
+
+    <!-- =====================================================================
+         CONTENT — two-column layout: left 80 % content, right 20 % sticky nav
+         ===================================================================== -->
+    <main id="main-content" class="cf-main-app">
+
+      <!-- Mobile viewport warning — hidden on md+ screens -->
+      <div class="d-block d-md-none p-4">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>
+          This application is not optimized for small screens. Please use a large tablet,
+          laptop, or desktop computer to continue.
+        </div>
+      </div>
+
+      <!-- Desktop layout — hidden on screens smaller than md -->
+      <div class="d-none d-md-block">
+
+        <!-- Sidenav — markup is intentionally empty; sidenav-loader.js fetches and injects
+             the shared nav HTML at runtime.
+             data-cnds-mode="side"            : persistent side panel (not overlay/drawer)
+             data-cnds-slim / slim-collapsed  : compact/icon-only collapsed state
+             data-cnds-content="#slim-content": sibling panel that shrinks/expands with nav
+             data-cnds-accordion="true"       : collapse other open groups on expand -->
+        <nav
+          id="sidebar-cf"
+          class="sidenav"
+          data-cnds-mode="side"
+          data-cnds-slim="false"
+          data-cnds-slim-collapsed="false"
+          data-cnds-content="#slim-content"
+          data-cnds-accordion="true"
+          aria-label="Site navigation"
+        ></nav>
+
+        <div id="slim-content">
+          <div class="slim-content-box">
+            <!-- Content Row: 80/20 split -->
+            <div class="row">
+
+              <!-- ============================================================
+                   MAIN COLUMN — 80 % of row width
+                   ============================================================ -->
+              <div class="col-12 col-lg" style="flex: 0 0 80%; max-width: 80%">
+                <section class="container-fluid">
+
+                  <!-- ========================================================
+                       INTRODUCTION
+                       ======================================================== -->
+                  <section id="section-introduction">
+                    <p class="mb-4">
+                      This page demonstrates advanced patterns for the Nimbus SVG chart library.
+                      Every example uses the native <code>Nimbus.Chart</code> constructor with a
+                      flat configuration object — no jQuery, no Chart.js, and no external
+                      charting library required.
+                    </p>
+
+                    <p class="mb-4">
+                      Advanced topics covered here include per-bar custom colors, mixed bar-and-line charts, dual y-axis configuration, funnel visualizations, y-axis formatting, custom tooltips, grouped multi-dataset charts, and async data loading via the <code>update()</code> method. For the full API reference and basic chart types, see the <a href="cnds-charts.html">Charts documentation</a>.
+                    </p>
+
+                    <!-- API docs note — displayed before theme note per design spec -->
+                    <p class="note note-light">
+                      <strong>Note:</strong> Read the
+                      <a href="cnds-charts.html#section-api-docs">API Documentation</a>
+                      to find all available options and advanced customization.
+                    </p>
+
+                    <p class="note note-info">
+                      <strong class="note-label">Note:</strong> To preview components in
+                      different themes, click the theme toggle button
+                      <i class="mdi mdi-weather-night" aria-hidden="true"></i> /
+                      <i class="mdi mdi-weather-sunny" aria-hidden="true"></i>
+                      in the header navigation bar.
+                    </p>
+                  </section>
+                  <!--/Section: Introduction-->
+
+                  <hr class="my-5" />
+
+                  <!-- ========================================================
+                       CUSTOM COLORS
+                       ======================================================== -->
+                  <!--Section: Options-->
+                  <section id="section-options">
+                    <h3 class="mb-3">Options</h3>
+
+                    <p>
+                      The chart engine exposes a wide set of top-level config properties that let
+                      you tailor the appearance of any chart type without writing custom CSS.
+                      Pass an array to <code>backgroundColor</code> and <code>borderColor</code>
+                      on a dataset object to give each individual bar a distinct fill and stroke.
+                      Use <code>xAxisColor</code> and <code>yAxisColor</code> to recolor the axis
+                      tick labels independently of the chart palette. Other commonly used options
+                      include <code>barWidth</code> (bar thickness as a fraction of the available
+                      slot), <code>padding</code> (inner drawing margins), and
+                      <code>height</code> (chart height in pixels).
+                    </p>
+
+                    <!-- Live demo -->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center">
+                          <div style="width: 50rem">
+                            <div
+                              id="chart-options"
+                              role="img"
+                              aria-label="Bar chart with per-bar custom colors and colored axis labels"
+                            ></div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+<!-- Angular: Add nimbus.js and nimbus.css to angular.json, then initialise the chart in ngAfterViewInit using @ViewChild and ElementRef.
+     Example: @ViewChild('chartRef') chartRef!: ElementRef; ngAfterViewInit() { this.chart = new (window as any).Nimbus.Chart(this.chartRef.nativeElement, { type:'bar', labels:[...], datasets:[{backgroundColor:[...], borderColor:[...]}], xAxisColor:'#4285F4', yAxisColor:'#f44242' }); }
+     Call this.chart.destroy() in ngOnDestroy to prevent memory leaks when the component is removed. -->
+                    <!-- HTML snippet -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div id="chart-options"&gt;&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+
+                    <!-- JavaScript snippet -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">new Nimbus.Chart(document.getElementById('chart-options'), {
+  type: 'bar',
+  labels: ['January', 'February', 'March', 'April', 'May', 'June'],
+  datasets: [{
+    label: 'Traffic',
+    data: [30, 15, 62, 65, 61, 6],
+    backgroundColor: [
+      'rgba(255, 99, 132, 0.2)',
+      'rgba(54, 162, 235, 0.2)',
+      'rgba(255, 206, 86, 0.2)',
+      'rgba(75, 192, 192, 0.2)',
+      'rgba(153, 102, 255, 0.2)',
+      'rgba(255, 159, 64, 0.2)'
+    ],
+    borderColor: [
+      'rgba(255, 99, 132, 1)',
+      'rgba(54, 162, 235, 1)',
+      'rgba(255, 206, 86, 1)',
+      'rgba(75, 192, 192, 1)',
+      'rgba(153, 102, 255, 1)',
+      'rgba(255, 159, 64, 1)'
+    ],
+    borderWidth: 1
+  }],
+  xAxisColor: '#4285F4',
+  yAxisColor: '#f44242'
+});</code></pre>
+                      </div>
+                    </section>
+                  </section>
+                  <!--/Section: Options-->
+
+
+                  <hr class="my-5" />
+
+                  <!-- ========================================================
+                       MIXED CHART
+                       ======================================================== -->
+                  <!--Section: Mixed chart-->
+                  <section id="section-mixed">
+                    <h3 class="mb-3">Mixed chart</h3>
+
+                    <p>
+                      Combine bar and line series in the same chart by setting
+                      <code>type: "bar"</code> at the top level and adding
+                      <code>type: "line"</code> to any individual dataset object. Both series
+                      share the same y-axis scale. Use <code>borderColor</code> and
+                      <code>borderWidth</code> on a line dataset to control its stroke, and
+                      <code>pointBackgroundColor</code> to color the data-point dots independently.
+                    </p>
+
+                    <!-- Live demo -->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center">
+                          <div style="width: 50rem">
+                            <div
+                              id="chart-mixed"
+                              role="img"
+                              aria-label="Mixed chart combining bar and line series on a shared y-axis"
+                            ></div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+<!-- Angular: Combine bar and line datasets by using @ViewChild and instantiating Nimbus.Chart in ngAfterViewInit with mixed dataset types.
+     Example: datasets: [{ label: 'Impressions', data: [...] }, { type: 'line', label: '...', data: [...], borderColor: '#94DFD7', borderWidth: 2 }]
+     Both series share the same y-axis; call this.chart.destroy() in ngOnDestroy. -->
+                    <!-- HTML snippet -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div id="chart-mixed"&gt;&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+
+                    <!-- JavaScript snippet -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">new Nimbus.Chart(document.getElementById('chart-mixed'), {
+  type: 'bar',
+  labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+  datasets: [
+    {
+      label: 'Impressions',
+      data: [2112, 2343, 2545, 3423, 2365, 1985, 987]
+    },
+    {
+      type: 'line',
+      label: 'Impressions (absolute top) %',
+      data: [211, 2543, 2745, 3123, 2765, 1485, 587],
+      borderColor: '#94DFD7',
+      borderWidth: 2,
+      pointBackgroundColor: '#94DFD7'
+    }
+  ]
+});</code></pre>
+                      </div>
+                    </section>
+                  </section>
+                  <!--/Section: Mixed chart-->
+
+                  <hr class="my-5" />
+
+                  <!-- ========================================================
+                       DATA LABELS
+                       ======================================================== -->
+                  <!--Section: Data labels-->
+                  <section id="section-data-labels">
+                    <h3 class="mb-3">Data labels</h3>
+
+                    <p>
+                      Use <code>title</code> to add a centered heading above the chart —
+                      it gives readers immediate context for what the data represents. Control
+                      which labeling elements appear using the boolean flags
+                      <code>showLegend</code>, <code>showGrid</code>, and
+                      <code>showTooltip</code>, all of which default to <code>true</code>.
+                      The legend labels each dataset by name; the tooltip surfaces the exact
+                      value and dataset label when a user hovers over a data point. Set
+                      <code>animated</code> to <code>false</code> to skip the entrance animation —
+                      useful in dashboards that refresh on a timer so users do not see repeated
+                      transitions.
+                    </p>
+
+                    <!-- Live demo -->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center">
+                          <div style="width: 30rem">
+                            <div
+                              id="chart-data-labels"
+                              role="img"
+                              aria-label="Pie chart with title, legend, and tooltip enabled"
+                            ></div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+<!-- Angular: Pass title, showLegend, showTooltip, showGrid, and animated flags as top-level config properties when instantiating in ngAfterViewInit.
+     Example: new (window as any).Nimbus.Chart(this.chartRef.nativeElement, { type:'pie', title:'Weekly Traffic Sources', datasets:[...], showLegend:true, showTooltip:true, animated:true });
+     Set animated:false on auto-refresh dashboards to prevent repeated entrance transitions on data updates. -->
+                    <!-- HTML snippet -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div id="chart-data-labels"&gt;&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+
+                    <!-- JavaScript snippet -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">new Nimbus.Chart(document.getElementById('chart-data-labels'), {
+  type: 'pie',
+  title: 'Weekly Traffic Sources',
+  labels: ['January', 'February', 'March', 'April', 'May'],
+  datasets: [{
+    label: 'Traffic',
+    data: [30, 45, 62, 65, 61]
+  }],
+  showLegend:  true,
+  showTooltip: true,
+  animated:    true
+});</code></pre>
+                      </div>
+                    </section>
+                  </section>
+                  <!--/Section: Data labels-->
+
+                  <hr class="my-5" />
+
+                  <!-- ========================================================
+                       DUAL Y-AXIS
+                       ======================================================== -->
+                  <!--Section: Dual y-axis-->
+                  <section id="section-dual-y-axis">
+                    <h3 class="mb-3">Dual y-axis</h3>
+
+                    <p>
+                      When two series have very different value ranges, add
+                      <code>yAxisID: "right"</code> to any dataset to plot it against an
+                      independent right-side scale. The chart engine automatically computes and
+                      renders both axes. Use <code>y2AxisColor</code> on the top-level config to
+                      tint the right axis labels — matching it to the dataset color makes the
+                      association immediately clear to readers.
+                    </p>
+
+                    <!-- Live demo -->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center">
+                          <div style="width: 50rem">
+                            <div
+                              id="chart-dual-y-axis"
+                              role="img"
+                              aria-label="Mixed chart with bar impressions on the left axis and line click-through rate on an independent right axis"
+                            ></div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+<!-- Angular: Add yAxisID:'right' to any dataset to plot it on an independent right-side scale, and set y2AxisColor to match the dataset line color.
+     Example: datasets: [{ label:'Impressions', data:[...] }, { type:'line', yAxisID:'right', label:'CTR %', data:[...], borderColor:'#94DFD7' }], y2AxisColor:'#94DFD7'
+     Both axes are computed automatically by the Nimbus.Chart engine — no additional scale configuration is required. -->
+                    <!-- HTML snippet -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div id="chart-dual-y-axis"&gt;&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+
+                    <!-- JavaScript snippet -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">new Nimbus.Chart(document.getElementById('chart-dual-y-axis'), {
+  type: 'bar',
+  labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+  datasets: [
+    {
+      label: 'Impressions',
+      data: [2112, 2343, 2545, 3423, 2365, 1985, 987]
+    },
+    {
+      type: 'line',
+      yAxisID: 'right',
+      label: 'Click-through rate (%)',
+      data: [9.9, 10.8, 10.8, 9.1, 11.7, 7.5, 8.8],
+      borderColor: '#94DFD7',
+      borderWidth: 2,
+      pointBackgroundColor: '#94DFD7'
+    }
+  ],
+  y2AxisColor: '#94DFD7'
+});</code></pre>
+                      </div>
+                    </section>
+                  </section>
+                  <!--/Section: Dual y-axis-->
+
+                  <hr class="my-5" />
+
+                  <!-- ========================================================
+                       FUNNEL
+                       ======================================================== -->
+                  <!--Section: Funnel-->
+                  <section id="section-funnel">
+                    <h3 class="mb-3">Funnel</h3>
+
+                    <p>
+                      A funnel chart visualizes a sequential reduction in values through a
+                      pipeline — such as website traffic narrowing from views to checkout to
+                      purchase. Build it by combining <code>type: "bar"</code> with
+                      <code>indexAxis: "y"</code> and setting <code>showLegend: false</code> to
+                      remove the dataset label from the display. Sort your data in descending order
+                      so the widest bar appears at the top.
+                    </p>
+
+                    <!-- Live demo -->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center">
+                          <div style="width: 50rem">
+                            <div
+                              id="chart-funnel"
+                              role="img"
+                              aria-label="Funnel chart showing product views, checkout, and purchases"
+                            ></div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+<!-- Angular: Create a funnel visualization by setting type:'bar', indexAxis:'y', and showLegend:false in the Nimbus.Chart config.
+     Example: new (window as any).Nimbus.Chart(this.chartRef.nativeElement, { type:'bar', indexAxis:'y', showLegend:false, labels:['Views','Checkout','Purchases'], datasets:[{data:[2112,343,45]}] });
+     Sort data descending so the widest bar renders at the top of the funnel. -->
+                    <!-- HTML snippet -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div id="chart-funnel"&gt;&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+
+                    <!-- JavaScript snippet -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">new Nimbus.Chart(document.getElementById('chart-funnel'), {
+  type: 'bar',
+  indexAxis: 'y',
+  showLegend: false,
+  labels: ['Product views', 'Checkout', 'Purchases'],
+  datasets: [{
+    data: [2112, 343, 45]
+  }]
+});</code></pre>
+                      </div>
+                    </section>
+                  </section>
+                  <!--/Section: Funnel-->
+
+                  <hr class="my-5" />
+
+                  <!-- ========================================================
+                       FORMATTING VALUES ON THE Y AXIS
+                       ======================================================== -->
+                  <!--Section: Formatting values on the Y axis-->
+                  <section id="section-formatting-y-axis">
+                    <h3 class="mb-3">Formatting values on the Y axis</h3>
+
+                    <p>
+                      The chart engine automatically computes y-axis tick values from the data
+                      range and rounds them to clean human-readable intervals. Use
+                      <code>yAxisColor</code> to recolor the y-axis tick labels to match a
+                      specific dataset or brand color. Increase the chart's <code>height</code>
+                      (default <code>300</code> px) to spread tick marks further apart and reduce
+                      visual crowding on dense datasets. Fine-tune the internal drawing area with
+                      <code>padding</code> — an object with <code>top</code>, <code>right</code>,
+                      <code>bottom</code>, and <code>left</code> values — to create extra room for
+                      long axis labels, rotated tick text, or a right-side legend.
+                    </p>
+
+                    <!-- Live demo -->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center">
+                          <div style="width: 50rem">
+                            <div
+                              id="chart-formatting-y-axis"
+                              role="img"
+                              aria-label="Bar chart with custom title Monthly Sales and increased height"
+                            ></div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+<!-- Angular: Set title, height, and padding in the Nimbus.Chart config to control y-axis appearance and chart dimensions.
+     Example: new (window as any).Nimbus.Chart(this.chartRef.nativeElement, { type:'bar', title:'Monthly Sales', height:350, datasets:[{label:'Sales', data:[...]}] });
+     Bind height and padding as component @Input() properties to make the chart adaptable to different dashboard layouts. -->
+                    <!-- HTML snippet -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div id="chart-formatting-y-axis"&gt;&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+
+                    <!-- JavaScript snippet -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">new Nimbus.Chart(document.getElementById('chart-formatting-y-axis'), {
+  type: 'bar',
+  title: 'Monthly Sales',
+  height: 350,
+  labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+  datasets: [{
+    label: 'Sales',
+    data: [2112, 2343, 2545, 3423, 2365, 1985, 987]
+  }]
+});</code></pre>
+                      </div>
+                    </section>
+                  </section>
+                  <!--/Section: Formatting values on the Y axis-->
+
+                  <hr class="my-5" />
+
+                  <!-- ========================================================
+                       FORMATTING VALUES IN THE TOOLTIPS
+                       ======================================================== -->
+                  <!--Section: Formatting values in the tooltips-->
+                  <section id="section-formatting-tooltips">
+                    <h3 class="mb-3">Formatting values in the tooltips</h3>
+
+                    <p>
+                      The hover tooltip displays the dataset <code>label</code> as a bold title,
+                      followed by a color swatch and the data value for each series at that point.
+                      For scatter and bubble charts the tooltip shows both the
+                      <code>x</code> and <code>y</code> values. Set <code>showTooltip: false</code>
+                      to disable tooltips entirely, or disable per-series visibility via the
+                      legend toggles to suppress specific series from appearing in the tooltip.
+                      The example below uses a logarithmic x-axis scatter chart — hovering over
+                      any point shows the exact frequency and dB value in the tooltip.
+                    </p>
+
+                    <!-- Live demo -->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center">
+                          <div style="width: 50rem">
+                            <div
+                              id="chart-formatting-tooltips"
+                              role="img"
+                              aria-label="Scatter chart with logarithmic X axis showing frequency response"
+                            ></div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+<!-- Angular: Use type:'scatter' with xScale:'log' for logarithmic axes; tooltips are enabled by default and display x/y values automatically.
+     Example: new (window as any).Nimbus.Chart(this.chartRef.nativeElement, { type:'scatter', xScale:'log', title:'Frequency Response (dB)', datasets:[{label:'Channel A', data:[{x:1,y:-1.7}, ...]}] });
+     Set showTooltip:false to disable tooltips globally, or hide individual series via the legend toggle at runtime. -->
+                    <!-- HTML snippet -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div id="chart-formatting-tooltips"&gt;&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+
+                    <!-- JavaScript snippet -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">new Nimbus.Chart(document.getElementById('chart-formatting-tooltips'), {
+  type: 'scatter',
+  xScale: 'log',
+  title: 'Frequency Response (dB)',
+  datasets: [{
+    label: 'Channel A',
+    data: [
+      { x: 1,    y: -1.7  }, { x: 2,    y: -4.1  },
+      { x: 5,    y: -8.2  }, { x: 10,   y: -14.5 },
+      { x: 20,   y: -21.0 }, { x: 50,   y: -29.4 },
+      { x: 100,  y: -35.9 }, { x: 200,  y: -41.0 },
+      { x: 500,  y: -47.3 }, { x: 1000, y: -53.1 }
+    ]
+  }]
+});</code></pre>
+                      </div>
+                    </section>
+                  </section>
+                  <!--/Section: Formatting values in the tooltips-->
+
+                  <hr class="my-5" />
+
+                  <!-- ========================================================
+                       DOUBLE DATASETS IN A BAR CHART
+                       ======================================================== -->
+                  <!--Section: Double datasets in a bar chart-->
+                  <section id="section-double-datasets">
+                    <h3 class="mb-3">Double datasets in a bar chart</h3>
+
+                    <p>
+                      Pass two dataset objects in the <code>datasets</code> array to render a
+                      grouped bar chart with side-by-side bars for each category. Override the
+                      palette color on the second dataset using <code>backgroundColor</code> and
+                      <code>borderColor</code> string values to visually distinguish the series.
+                    </p>
+
+                    <!-- Live demo -->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center">
+                          <div style="width: 50rem">
+                            <div
+                              id="chart-double-datasets"
+                              role="img"
+                              aria-label="Grouped bar chart comparing Users and Page views by device type"
+                            ></div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+<!-- Angular: Pass multiple dataset objects in the datasets array to render grouped bars; override the second dataset's colors with backgroundColor and borderColor.
+     Example: datasets: [{ label:'Users', data:[510,653,255] }, { label:'Page views', data:[1251,1553,1355], backgroundColor:'#94DFD7', borderColor:'#94DFD7' }]
+     Bind datasets as a component @Input() to make the grouped chart reusable across different data sources. -->
+                    <!-- HTML snippet -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div id="chart-double-datasets"&gt;&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+
+                    <!-- JavaScript snippet -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">new Nimbus.Chart(document.getElementById('chart-double-datasets'), {
+  type: 'bar',
+  labels: ['Desktop', 'Mobile', 'Tablet'],
+  datasets: [
+    {
+      label: 'Users',
+      data: [510, 653, 255]
+    },
+    {
+      label: 'Page views',
+      data: [1251, 1553, 1355],
+      backgroundColor: '#94DFD7',
+      borderColor: '#94DFD7'
+    }
+  ]
+});</code></pre>
+                      </div>
+                    </section>
+                  </section>
+                  <!--/Section: Double datasets in a bar chart-->
+
+                  <hr class="my-5" />
+
+                  <!-- ========================================================
+                       ASYNC DATA
+                       ======================================================== -->
+                  <!--Section: Async data-->
+                  <section id="section-async-data">
+                    <h3 class="mb-3">Async data</h3>
+
+                    <p>
+                      Initialise the chart with an empty or minimal config, then call
+                      <code>update({ labels, datasets })</code> once your data arrives. The method
+                      merges the new values into the existing configuration and re-renders the
+                      chart in place. This pattern works with any async source — <code>fetch</code>,
+                      <code>XMLHttpRequest</code>, WebSockets, or an Angular <code>HttpClient</code>
+                      observable. The live demo below fetches the 7-day maximum temperature forecast
+                      for London from the free
+                      <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo</a>
+                      weather API — no API key required.
+                    </p>
+
+                    <!-- Live demo -->
+                    <section class="pb-4">
+                      <div class="border rounded-5">
+                        <section class="w-100 p-4 d-flex justify-content-center">
+                          <div style="width: 50rem">
+                            <div
+                              id="chart-async-data"
+                              role="img"
+                              aria-label="Bar chart showing 7-day maximum temperature forecast for London, populated asynchronously"
+                            ></div>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+<!-- Angular: Initialise an empty chart in ngAfterViewInit, then call this.chart.update({ labels, datasets }) inside an HttpClient subscription.
+     Example: ngAfterViewInit() { this.chart = new (window as any).Nimbus.Chart(el, {type:'bar'}); this.http.get(url).subscribe(d => this.chart.update({ labels:[...], datasets:[{label:'...', data:[...]}] })); }
+     Inject HttpClient via the constructor; the update() call merges new data and re-renders in place without destroying the chart instance. -->
+                    <!-- HTML snippet -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-html">&lt;div id="chart-async-data"&gt;&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
+
+                    <!-- JavaScript snippet -->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                      <div class="p-0">
+                        <pre class="line-numbers m-0"><code class="language-js">// 1. Create an empty chart — renders nothing until update() is called
+const asyncChart = new Nimbus.Chart(
+  document.getElementById('chart-async-data'),
+  { type: 'bar' }
+);
+
+// 2. Fetch 7-day max temperature forecast for London (Open-Meteo — free, no API key)
+const url = 'https://api.open-meteo.com/v1/forecast'
+  + '?latitude=51.51&amp;longitude=-0.13'
+  + '&amp;daily=temperature_2m_max&amp;forecast_days=7'
+  + '&amp;timezone=Europe%2FLondon';
+
+fetch(url)
+  .then(response => response.json())
+  .then(data => {
+    asyncChart.update({
+      labels:   data.daily.time.map(d => d.slice(5).replace('-', '/')),
+      datasets: [{
+        label: 'Max temperature (°C) — London',
+        data:  data.daily.temperature_2m_max
+      }]
+    });
+  })
+  .catch(err => console.warn('[CNDS] Async chart fetch failed:', err));</code></pre>
+                      </div>
+                    </section>
+                  </section>
+                  <!--/Section: Async data-->
+
+                  <hr class="my-5" />
+
+                  <!-- ========================================================
+                       API DOCUMENTATION
+                       ======================================================== -->
+                  <!--Section: API docs-->
+                  <section id="section-api-docs">
+                    <h3 class="mb-3">API Documentation</h3>
+                    <p>Reference for the <code>Nimbus.Chart</code> constructor, <code>update()</code> and <code>destroy()</code> methods used in the advanced examples on this page.</p>
+
+                    <!--Subsection: Introduction-->
+                    <section id="api-section-introduction">
+                      <h3 class="mb-4">Introduction</h3>
+
+                      <p>
+                        <code>Nimbus.Chart</code> is a lightweight, self-contained SVG charting
+                        class exposed on the global <code>window.Nimbus</code> namespace. It
+                        requires no external libraries and produces fully theme-aware, accessible
+                        SVG output. All configuration is supplied as a single flat JavaScript
+                        object — there is no nested <code>options</code> wrapper and no separate
+                        data object.
+                      </p>
+
+                      <p>
+                        For the full list of configuration options see the
+                        <a href="cnds-charts.html#api-section-options">Charts API reference</a>.
+                      </p>
+                    </section>
+                    <!--/Subsection: Introduction-->
+
+                    <!--Subsection: Constructor-->
+                    <section id="api-section-constructor">
+                      <h3 class="mb-4">Constructor</h3>
+
+                      <p>
+                        Create a new chart by passing the target DOM element and a configuration
+                        object to the constructor. Store the returned instance if you need to call
+                        <code>update()</code> or <code>destroy()</code> later.
+                      </p>
+
+                      <section class="mb-4">
+                        <h4><span class="badge badge-code-js">JAVASCRIPT</span></h3>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-js">const chart = new Nimbus.Chart(element, config);</code></pre>
+                        </div>
+                      </section>
+
+                      <div class="table-responsive mb-4">
+                        <table class="table table-bordered table-striped" aria-label="Constructor parameter reference">
+                          <thead>
+                            <tr>
+                              <th class="th-sm">Parameter</th>
+                              <th class="th-sm">Type</th>
+                              <th>Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="text-nowrap"><code>element</code></td>
+                              <td><i>HTMLElement</i></td>
+                              <td>
+                                The <code>&lt;div&gt;</code> container the chart will be rendered
+                                into. Obtain it via <code>document.getElementById()</code> or
+                                <code>document.querySelector()</code>.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>config</code></td>
+                              <td><i>Object</i></td>
+                              <td>
+                                Flat configuration object. All options are optional except
+                                <code>datasets</code> for non-declarative charts. See the
+                                <a href="cnds-charts.html#api-section-options">Options reference</a>
+                                for the full property list.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <p>
+                        Key config properties used in the examples on this page:
+                      </p>
+
+                      <div class="table-responsive mb-4">
+                        <table class="table table-bordered table-striped" aria-label="Advanced config properties reference">
+                          <thead>
+                            <tr>
+                              <th class="th-sm">Property</th>
+                              <th class="th-sm">Type</th>
+                              <th class="th-sm">Default</th>
+                              <th>Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="text-nowrap"><code>indexAxis</code></td>
+                              <td><i>String</i></td>
+                              <td><code>"x"</code></td>
+                              <td>Set to <code>"y"</code> for a horizontal bar chart.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>xScale</code></td>
+                              <td><i>String</i></td>
+                              <td><code>"linear"</code></td>
+                              <td>Set to <code>"log"</code> for a base-10 logarithmic x-axis on scatter charts.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>title</code></td>
+                              <td><i>String</i></td>
+                              <td><code>null</code></td>
+                              <td>Optional centered heading rendered above the SVG.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>height</code></td>
+                              <td><i>Number</i></td>
+                              <td><code>300</code></td>
+                              <td>Chart height in pixels.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>showLegend</code></td>
+                              <td><i>Boolean</i></td>
+                              <td><code>true</code></td>
+                              <td>Show or hide the dataset legend below the chart.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>showGrid</code></td>
+                              <td><i>Boolean</i></td>
+                              <td><code>true</code></td>
+                              <td>Show or hide background grid lines.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>showTooltip</code></td>
+                              <td><i>Boolean</i></td>
+                              <td><code>true</code></td>
+                              <td>Show or hide the hover tooltip.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>animated</code></td>
+                              <td><i>Boolean</i></td>
+                              <td><code>true</code></td>
+                              <td>Animate the chart on initial render. Set to <code>false</code> for frequently-refreshed dashboards.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>xAxisColor</code></td>
+                              <td><i>String | null</i></td>
+                              <td><code>null</code></td>
+                              <td>CSS color string for x-axis tick labels. Defaults to the theme label color.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>yAxisColor</code></td>
+                              <td><i>String | null</i></td>
+                              <td><code>null</code></td>
+                              <td>CSS color string for y-axis (left) tick labels. Defaults to the theme label color.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>y2AxisColor</code></td>
+                              <td><i>String | null</i></td>
+                              <td><code>null</code></td>
+                              <td>CSS color string for the right y-axis tick labels in a dual-axis chart. Match this to the <code>borderColor</code> of the right-axis dataset to make the association visually clear.</td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>dataset.yAxisID</code></td>
+                              <td><i>String</i></td>
+                              <td><code>"left"</code></td>
+                              <td>Per-dataset property. Set to <code>"right"</code> to plot the dataset against an independent right-side scale. The chart engine computes separate min/max ranges for the left and right axes automatically.</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                    <!--/Subsection: Constructor-->
+
+                    <!--Subsection: Methods-->
+                    <section id="api-section-methods">
+                      <h3 class="mb-4">Methods</h3>
+
+                      <div class="table-responsive mb-4">
+                        <table class="table table-bordered table-striped" aria-label="Public method reference">
+                          <thead>
+                            <tr>
+                              <th class="th-sm">Method</th>
+                              <th>Description</th>
+                              <th class="th-sm">Example</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="text-nowrap"><code>update(config)</code></td>
+                              <td>
+                                Merges a partial config object into the current configuration and
+                                re-renders the chart. Pass <code>labels</code>, <code>datasets</code>,
+                                or any top-level option key. Commonly used to load data
+                                asynchronously after chart creation.
+                              </td>
+                              <td class="text-nowrap"><code>chart.update({ labels, datasets })</code></td>
+                            </tr>
+                            <tr>
+                              <td class="text-nowrap"><code>destroy()</code></td>
+                              <td>
+                                Removes the chart SVG, tooltip element, and all event listeners
+                                from the DOM. Call before navigating away from a view or before
+                                re-initialising a chart in the same container.
+                              </td>
+                              <td class="text-nowrap"><code>chart.destroy()</code></td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <h4 class="mt-4 mb-3">update() example</h3>
+                      <section class="mb-4">
+                        <h5><span class="badge badge-code-js">JAVASCRIPT</span></h5>
+                        <div class="p-0">
+                          <pre class="line-numbers m-0"><code class="language-js">// Create chart with initial data
+const chart = new Nimbus.Chart(document.getElementById('my-chart'), {
+  type: 'bar',
+  labels: ['Jan', 'Feb', 'Mar'],
+  datasets: [{ label: 'Sales', data: [100, 200, 150] }]
+});
+
+// Later — replace labels and datasets and re-render
+chart.update({
+  labels:   ['Apr', 'May', 'Jun'],
+  datasets: [{ label: 'Sales', data: [180, 220, 195] }]
+});</code></pre>
+                        </div>
+                      </section>
+                    </section>
+                    <!--/Subsection: Methods-->
+
+                  </section>
+                  <!--/Section: API docs-->
+
+                </section>
+                <!--/Section: Docs content-->
+              </div>
+              <!-- ./Main column -->
+
+              <!-- ============================================================
+                   RIGHT SIDEBAR — sticky page-level navigation
+                   data-cnds-sticky="true"          : activates sticky positioning
+                   data-cnds-sticky-boundary="true" : constrains sticky to parent container
+                   data-cnds-sticky-direction="both" : sticks on scroll up AND down
+                   data-cnds-sticky-offset="56"     : clears the 56 px fixed header
+                   data-cnds-sticky-delay="125"     : debounce delay (ms) reduces scroll jank
+                   data-cnds-allow-hashes="true"    : nimbus.js highlights active section link
+                   ============================================================ -->
+              <div class="col-lg-2 d-none d-lg-block">
+                <nav aria-label="Page sections">
+                  <div class="sticky-top" style="top: 100px; z-index: 1">
+                    <ul
+                      class="nav flex-column nav-pills menu-sidebar"
+                      data-cnds-allow-hashes="true"
+                    >
+                      <li class="nav-item"><a class="nav-link" href="#section-introduction">Introduction</a></li>
+                      <li class="nav-item"><a class="nav-link" href="#section-options">Options</a></li>
+                      <li class="nav-item"><a class="nav-link" href="#section-mixed">Mixed chart</a></li>
+                      <li class="nav-item"><a class="nav-link" href="#section-data-labels">Data labels</a></li>
+                      <li class="nav-item"><a class="nav-link" href="#section-dual-y-axis">Dual y-axis</a></li>
+                      <li class="nav-item"><a class="nav-link" href="#section-funnel">Funnel</a></li>
+                      <li class="nav-item"><a class="nav-link" href="#section-formatting-y-axis">Formatting values on the Y axis</a></li>
+                      <li class="nav-item"><a class="nav-link" href="#section-formatting-tooltips">Formatting values in the tooltips</a></li>
+                      <li class="nav-item"><a class="nav-link" href="#section-double-datasets">Double datasets in a bar chart</a></li>
+                      <li class="nav-item"><a class="nav-link" href="#section-async-data">Async data</a></li>
+                      <li class="nav-item"><a class="nav-link" href="#section-api-docs">API Documentation</a></li>
+                      <li class="nav-item ms-3"><a class="nav-link" href="#api-section-introduction">Introduction</a></li>
+                      <li class="nav-item ms-3"><a class="nav-link" href="#api-section-constructor">Constructor</a></li>
+                      <li class="nav-item ms-3"><a class="nav-link" href="#api-section-methods">Methods</a></li>
+                    </ul>
+                  </div>
+                </nav>
+              </div>
+              <!-- ./Right Sidebar -->
+
+            </div>
+            <!-- ./Content Row -->
+          </div>
+        </div>
+      </div>
+      <!-- ./Desktop layout -->
+
+    </main>
+    <!-- ./Content -->
+
+    <!-- =====================================================================
+         FOOTER
+         ===================================================================== -->
+    <!-- Footer -->
+    <div class="cf-footer cf-footer-app">
+      <footer class="page-footer main-footer" aria-label="Site footer">
+        <div class="w-100 px-3 d-flex align-items-center">
+          <img src="img/cf/core/cloudficient_logo_light.svg" class="cf-logo-light" style="width: 135px;" alt="Cloudficient" />
+          <img src="img/cf/core/cloudficient_logo_dark.svg" class="cf-logo-dark" style="width: 135px;" alt="Cloudficient" />
+          <span class="footer-copyright ms-auto">&copy; <span id="currentYear"></span> Cloudficient</span>
+        </div>
+      </footer>
+    </div>
+    <!-- ./Footer -->
+            <div class="col-12 col-md-5 col-lg-7 col-xl-8 flex-column flex-md-row d-flex justify-content-center footer-links py-0 py-lg-3 py-xl-3">
+              <a href="#!" target="_blank" class="text-nowrap my-3 my-md-0 mb-0 me-0">Cloudficient</a>
+              <a href="#!" target="_blank" class="text-nowrap my-3 my-md-0 mb-0 me-0">Support</a>
+              <a href="#!" target="_blank" class="text-nowrap my-3 my-md-0 mb-0 me-0">Community</a>
+              <a href="#!" target="_blank" class="text-nowrap my-3 my-md-0 mb-0 me-0">Documentation</a>
+            </div>
+            <div class="col-12 col-md-4 col-lg-3 col-xl-2 d-flex justify-content-center justify-content-xl-end py-lg-1 py-xl-0 social-btns">
+              <div class="d-flex align-items-center justify-content-center justify-content-xl-end social-btns-container">
+                <!-- Font Awesome: X/Twitter brand icon -->
+                <a href="https://twitter.com/cloudficient" target="_blank"
+                   data-cnds-toggle="tooltip" data-cnds-placement="top" title="X"
+                   class="social footer-fa-fix" aria-label="Cloudficient on X">
+                  <i class="fab fa-x-twitter fa-lg" aria-hidden="true"></i>
+                </a>
+                <!-- MDI: LinkedIn brand icon -->
+                <a href="https://www.linkedin.com/company/cloudficient" target="_blank"
+                   data-cnds-toggle="tooltip" data-cnds-placement="top" title="LinkedIn"
+                   class="social" aria-label="Cloudficient on LinkedIn">
+                  <i class="mdi mdi-24px mdi-linkedin" aria-hidden="true"></i>
+                </a>
+                <!-- MDI: YouTube brand icon -->
+                <a href="https://www.youtube.com/@cloudficient" target="_blank"
+                   data-cnds-toggle="tooltip" data-cnds-placement="top" title="YouTube"
+                   class="social" aria-label="Cloudficient on YouTube">
+                  <i class="mdi mdi-24px mdi-youtube" aria-hidden="true"></i>
+                </a>
+              </div>
+            </div>
+            <div class="col-12">
+              <p class="caption text-nowrap p-0 mt-0 mt-lg-3 mb-0 mb-lg-3 text-center">
+                &copy; <span id="currentYear"></span> Cloudficient. All rights reserved.
+              </p>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+    <!-- ./Footer -->
+
+    <!-- =====================================================================
+         SCRIPTS — load order matters:
+         1. nimbus.js       — core framework: data-cnds-* attributes, theme, sticky, sidenav
+         2. app.js          — application-level overrides and custom initialisation
+         3. prism.min.js    — syntax highlighting; must run after DOM is ready
+         4. sidenav-loader.js — fetches shared sidenav HTML and injects into #sidebar-cf
+         ===================================================================== -->
+    <script type="text/javascript" src="js/nimbus.js?v=9.0.59"></script>
+    <script type="text/javascript" src="js/app.js?v=9.0.59"></script>
+    <script type="text/javascript" src="plugins/js/prism.min.js"></script>
+    <script type="text/javascript" src="js/sidenav-loader.js"></script>
+
+    <!-- Inline: chart demos initialised after nimbus.js loads all component scripts.
+         The cnds.ready event fires once every component script has loaded and the DataAPI
+         has initialised all data-cnds-* elements in the DOM. -->
+    <script type="text/javascript">
+      /* -----------------------------------------------------------------------
+         Copyright year — keeps the footer date current without manual updates.
+         ----------------------------------------------------------------------- */
+      var currentYearElement = document.getElementById('currentYear');
+      if (currentYearElement) {
+        currentYearElement.textContent = new Date().getFullYear();
+      }
+
+      /* -----------------------------------------------------------------------
+         Chart initialisation — deferred until the cnds.ready event confirms
+         all Nimbus component scripts (including charts.js) have loaded.
+         ----------------------------------------------------------------------- */
+      document.addEventListener('cnds.ready', function () {
+
+        /* --- Options --------------------------------------------------------- */
+        new Nimbus.Chart(document.getElementById('chart-options'), {
+          type: 'bar',
+          labels: ['January', 'February', 'March', 'April', 'May', 'June'],
+          datasets: [{
+            label: 'Traffic',
+            data: [30, 15, 62, 65, 61, 6],
+            backgroundColor: [
+              'rgba(255, 99, 132, 0.2)',
+              'rgba(54, 162, 235, 0.2)',
+              'rgba(255, 206, 86, 0.2)',
+              'rgba(75, 192, 192, 0.2)',
+              'rgba(153, 102, 255, 0.2)',
+              'rgba(255, 159, 64, 0.2)'
+            ],
+            borderColor: [
+              'rgba(255, 99, 132, 1)',
+              'rgba(54, 162, 235, 1)',
+              'rgba(255, 206, 86, 1)',
+              'rgba(75, 192, 192, 1)',
+              'rgba(153, 102, 255, 1)',
+              'rgba(255, 159, 64, 1)'
+            ],
+            borderWidth: 1
+          }],
+          xAxisColor: '#4285F4',
+          yAxisColor: '#f44242'
+        });
+
+        /* --- Mixed chart (bar + line, shared y-axis) --------------------------- */
+        new Nimbus.Chart(document.getElementById('chart-mixed'), {
+          type: 'bar',
+          labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+          datasets: [
+            {
+              label: 'Impressions',
+              data: [2112, 2343, 2545, 3423, 2365, 1985, 987]
+            },
+            {
+              type: 'line',
+              label: 'Impressions (absolute top) %',
+              data: [211, 2543, 2745, 3123, 2765, 1485, 587],
+              borderColor: '#94DFD7',
+              borderWidth: 2,
+              pointBackgroundColor: '#94DFD7'
+            }
+          ]
+        });
+
+        /* --- Data labels ----------------------------------------------------- */
+        new Nimbus.Chart(document.getElementById('chart-data-labels'), {
+          type: 'pie',
+          title: 'Weekly Traffic Sources',
+          labels: ['January', 'February', 'March', 'April', 'May'],
+          datasets: [{
+            label: 'Traffic',
+            data: [30, 45, 62, 65, 61]
+          }],
+          showLegend:  true,
+          showTooltip: true,
+          animated:    true
+        });
+
+        /* --- Dual y-axis (bar + line, independent right axis) ------------------ */
+        new Nimbus.Chart(document.getElementById('chart-dual-y-axis'), {
+          type: 'bar',
+          labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+          datasets: [
+            {
+              label: 'Impressions',
+              data: [2112, 2343, 2545, 3423, 2365, 1985, 987]
+            },
+            {
+              type: 'line',
+              yAxisID: 'right',
+              label: 'Click-through rate (%)',
+              data: [9.9, 10.8, 10.8, 9.1, 11.7, 7.5, 8.8],
+              borderColor: '#94DFD7',
+              borderWidth: 2,
+              pointBackgroundColor: '#94DFD7'
+            }
+          ],
+          y2AxisColor: '#94DFD7'
+        });
+
+        /* --- Funnel ---------------------------------------------------------- */
+        new Nimbus.Chart(document.getElementById('chart-funnel'), {
+          type: 'bar',
+          indexAxis: 'y',
+          showLegend: false,
+          labels: ['Product views', 'Checkout', 'Purchases'],
+          datasets: [{
+            data: [2112, 343, 45]
+          }]
+        });
+
+        /* --- Formatting values on the Y axis --------------------------------- */
+        new Nimbus.Chart(document.getElementById('chart-formatting-y-axis'), {
+          type: 'bar',
+          title: 'Monthly Sales',
+          height: 350,
+          labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+          datasets: [{
+            label: 'Sales',
+            data: [2112, 2343, 2545, 3423, 2365, 1985, 987]
+          }]
+        });
+
+        /* --- Formatting values in the tooltips ------------------------------- */
+        new Nimbus.Chart(document.getElementById('chart-formatting-tooltips'), {
+          type: 'scatter',
+          xScale: 'log',
+          title: 'Frequency Response (dB)',
+          datasets: [{
+            label: 'Channel A',
+            data: [
+              { x: 1,    y: -1.7  }, { x: 2,    y: -4.1  },
+              { x: 5,    y: -8.2  }, { x: 10,   y: -14.5 },
+              { x: 20,   y: -21.0 }, { x: 50,   y: -29.4 },
+              { x: 100,  y: -35.9 }, { x: 200,  y: -41.0 },
+              { x: 500,  y: -47.3 }, { x: 1000, y: -53.1 }
+            ]
+          }]
+        });
+
+        /* --- Double datasets in a bar chart ---------------------------------- */
+        new Nimbus.Chart(document.getElementById('chart-double-datasets'), {
+          type: 'bar',
+          labels: ['Desktop', 'Mobile', 'Tablet'],
+          datasets: [
+            {
+              label: 'Users',
+              data: [510, 653, 255]
+            },
+            {
+              label: 'Page views',
+              data: [1251, 1553, 1355],
+              backgroundColor: '#94DFD7',
+              borderColor:     '#94DFD7'
+            }
+          ]
+        });
+
+        /* --- Async data ------------------------------------------------------ */
+        /* 1. Create empty chart; renders blank until update() fires. */
+        var asyncChart = new Nimbus.Chart(
+          document.getElementById('chart-async-data'),
+          { type: 'bar' }
+        );
+
+        /* 2. Fetch 7-day max temperature forecast from Open-Meteo (free, no key). */
+        fetch('https://api.open-meteo.com/v1/forecast'
+            + '?latitude=51.51&longitude=-0.13'
+            + '&daily=temperature_2m_max&forecast_days=7'
+            + '&timezone=Europe%2FLondon')
+          .then(function (response) { return response.json(); })
+          .then(function (data) {
+            asyncChart.update({
+              labels:   data.daily.time.map(function (d) { return d.slice(5).replace('-', '/'); }),
+              datasets: [{
+                label: 'Max temperature (°C) — London',
+                data:  data.daily.temperature_2m_max
+              }]
+            });
+          })
+          .catch(function (err) {
+            console.warn('[CNDS] Async chart fetch failed:', err);
+          });
+
+      }); /* end cnds.ready */
+    </script>
+
+  </body>
+</html>

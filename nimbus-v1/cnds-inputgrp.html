@@ -1,0 +1,1526 @@
+<!--
+* CNDS Nimbus Design System — Input Group
+* Version: 1.0.0
+* Layout: Application with SideNav (migrated from Nimbus v8 template)
+*
+* Component CSS:  css/components/forms.css  (.input-group and variants)
+* Theme overrides: css/themes/light.css | css/themes/dark.css
+*
+* SECTIONS (in document order)
+*   #section-introduction        — Overview and when to use
+*   #section-basic-example       — Text addons on either side
+*   #section-wrapping            — flex-nowrap to disable wrapping
+*   #section-sizing              — sm / default / lg
+*   #section-product-themes      — CaseFusion / ExpireOn / Hyperlize
+*   #section-no-border           — border-0 on input-group-text
+*   #section-checkboxes-radios   — Checkbox and radio addons
+*   #section-multiple-inputs     — Multiple <input>s in one group
+*   #section-multiple-addons     — Multiple addon spans
+*   #section-button-addons       — Button addons
+*   #section-buttons-dropdowns   — Dropdown button addons
+*   #section-segmented-buttons   — Split dropdown button addons
+*   #section-file-input          — File upload within input group
+*   #section-accessibility       — WAI-ARIA guidance
+*   #section-api-docs            — API Documentation
+*     #api-section-introduction   — Component model overview
+*     #api-section-usage          — Minimum markup pattern
+*     #api-section-css-classes    — Class reference table
+*     #api-section-css-variables  — Custom property reference table
+*     #api-section-theme-variables — Light/dark values
+*     #api-section-accessibility  — Required ARIA attributes
+*
+* NOTES
+* - Pure HTML5, CSS3, vanilla JavaScript — zero external dependencies
+* - Dropdown addons use data-cnds-toggle="dropdown" (wired by nimbus.js)
+* - No JavaScript required for text/button/checkbox addons
+* - Uses Nimbus.* namespace
+* - Default product theme: CaseFusion (cnds-product-casefusion on <body>; change to cnds-product-hyperlize or cnds-product-expireon)
+-->
+<!DOCTYPE html>
+<html lang="en" data-cnds-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="Input Group | Cloudficient Nimbus Design System v1.0.0" />
+    <title>Input Group | CNDS v1.0.0 | Cloudficient Nimbus Design System</title>
+    <!-- Nimbus CSS -->
+    <link rel="stylesheet" href="css/nimbus.css" media="all" type="text/css" />
+    <!-- Custom styles | All custom classes/styles/overrides go here! -->
+    <link rel="stylesheet" href="css/app.css" media="all" type="text/css" />
+    <!-- Prism syntax highlighting -->
+    <link rel="stylesheet" href="plugins/css/prism.min.css" media="all" type="text/css" />
+    <link rel="apple-touch-icon" sizes="57x57" href="img/favicon/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="60x60" href="img/favicon/apple-icon-60x60.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="img/favicon/apple-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76" href="img/favicon/apple-icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="img/favicon/apple-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="img/favicon/apple-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="img/favicon/apple-icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="img/favicon/apple-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-icon-180x180.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="img/favicon/android-icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="img/favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="img/favicon/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="msapplication-TileImage" content="img/favicon/ms-icon-144x144.png" />
+    <!-- Design tokens — load order matters:
+         1. primitives.css  — raw color/spacing values (no theming)
+         2. light.css       — semantic tokens for [data-cnds-theme="light"] / :root
+         3. dark.css        — semantic token overrides for [data-cnds-theme="dark"]
+         All three must appear AFTER nimbus.css so component variables resolve correctly. -->
+    <link rel="stylesheet" href="css/themes/primitives.css" />
+    <link rel="stylesheet" href="css/themes/light.css" />
+    <link rel="stylesheet" href="css/themes/dark.css" />
+  </head>
+  <!-- cnds-product-casefusion sets --cnds-product-accent to CaseFusion green,
+       cascading the product accent color to every Nimbus component on the page.
+       Change to cnds-product-hyperlize or cnds-product-expireon to switch the product. -->
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 Bypass Blocks; renders visually hidden until focused -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+    <!-- Header —
+         .sticky-top keeps the header fixed while the sidenav + content scroll beneath it.
+         nav#UtilityNav is populated by app.js; nav#MainNav holds the logo, page title, and
+         the theme toggle (data-cnds-toggle="theme" is handled by nimbus.js). -->
+    <div class="sticky-top">
+      <!-- Utility Navigation -->
+      <nav id="UtilityNav" class="nav nav-cf-utility">
+        <div class="w-100 gx-3 px-sm-0 px-lg-3">
+          <ul class="nav nav-cf-utility-ul"></ul>
+        </div>
+      </nav>
+      <!-- ./Utility Navigation -->
+      <!-- Main Navigation -->
+      <nav id="MainNav" class="navbar navbar-expand-xl navbar-cf">
+        <div class="container-fluid p-0 px-3 d-flex">
+          <div class="d-flex flex-fill align-items-center text-truncate">
+            <div class="text-center d-none d-md-block me-3 border-end">
+              <a href="index.html"
+                ><img src="img/cf/core/logo_nimbus.png" class="me-3 mt-n1"
+              alt="Cloudficient Nimbus Design System" /></a>
+            </div>
+            <div class="flex-fill text-truncate">
+              <div class="navbar-cf-title-block">
+                <div
+                  class="navbar-cf-title cf-page-title text-truncate"
+                  style="padding-bottom: 0"
+                >
+                  <span class="cf-page-title-text cf-page-title-brand">v1</span
+                  ><span class="cf-page-title-divider"></span
+                  ><span class="cf-page-title-text">Input Group</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- data-cnds-toggle="theme": wired by nimbus.js — flips data-cnds-theme on <html> between "light" and "dark" -->
+          <button
+            class="btn btn-sm btn-outline-secondary ms-2"
+            data-cnds-toggle="theme"
+            aria-label="Toggle theme"
+            title="Toggle theme"
+          >
+            <i class="mdi mdi-weather-night mdi-18px" aria-hidden="true"></i>
+          </button>
+        </div>
+      </nav>
+      <!-- ./Main Navigation -->
+    </div>
+    <!-- ./Header -->
+    <!-- Content -->
+    <main id="main-content" class="cf-main-app">
+      <!-- Mobile viewport warning -->
+      <div class="d-block d-md-none p-4">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>This application is not
+          optimized for small screens. Please use a large tablet, laptop, or
+          desktop computer to continue.
+        </div>
+      </div>
+      <div class="d-none d-md-block">
+        <!-- Sidenav — markup is intentionally empty; sidenav-loader.js fetches and injects the shared nav HTML.
+             data-cnds-mode="side"           : renders as a persistent side panel (not an overlay/drawer)
+             data-cnds-slim / slim-collapsed : controls compact/icon-only collapsed state
+             data-cnds-content="#slim-content": the sibling panel that shrinks/expands as the nav opens/closes
+             data-cnds-accordion="true"      : collapses other open nav groups when a new one is expanded -->
+        <nav
+          id="sidebar-cf"
+          class="sidenav"
+          data-cnds-mode="side"
+          data-cnds-slim="false"
+          data-cnds-slim-collapsed="false"
+          data-cnds-content="#slim-content"
+          data-cnds-accordion="true"
+        ></nav>
+        <!-- #slim-content shrinks its left margin when the sidenav collapses to slim/icon mode.
+             .slim-content-box maintains consistent inner padding at all sidenav widths. -->
+        <div id="slim-content">
+          <div class="slim-content-box">
+            <!-- Two-column docs layout: 80 % main content + 20 % sticky right sidebar.
+                 Inline flex overrides are intentional — they pin the column ratio independently
+                 of Bootstrap's responsive grid breakpoints. -->
+            <div class="row">
+              <!-- Main column (80 %) -->
+              <div class="col-12 col-lg" style="flex: 0 0 80%; max-width: 80%">
+                <!--Section: Docs content-->
+                <section class="container-fluid">
+
+                  <!--Section: Introduction-->
+                  <section id="section-introduction">
+                  <p>Input Groups extend form controls by prepending or appending text labels, icons, buttons, or dropdown triggers to a text input, select, or textarea. All content within an <code>.input-group</code> renders as a single joined widget — borders collapse between children, and border-radius is applied only to the outermost corners.</p>
+                  <p>Use an input group when the addon provides essential context for the field (for example, a currency symbol, a URL prefix, or an action button that operates on the input value). For standalone decorative icons inside the field, use the Input Fields component instead.</p>
+                  <p class="note note-light">
+                    <strong>Note:</strong> Read the
+                    <a href="#api-section-introduction">API Documentation</a> to find all available
+                    options and advanced customization.
+                  </p>
+
+                  <p class="note note-info"><strong class="note-label">Note:</strong> To preview components in different themes, click the theme toggle button <i class="mdi mdi-weather-night" aria-hidden="true"></i> / <i class="mdi mdi-weather-sunny" aria-hidden="true"></i> in the header navigation bar.</p>
+                </section>
+
+                <hr class="my-5" />
+
+                <!-- ═══════════════════════════════════════════════════ -->
+                <!-- SECTION: Basic example                             -->
+                <!-- ═══════════════════════════════════════════════════ -->
+                <!--
+                  ANGULAR CONVERSION — Basic example
+                  ─────────────────────────────────────────────────────
+                  The markup is used as-is in an Angular component template.
+                  Bind each <input> with formControlName inside a ReactiveFormsModule
+                  FormGroup, or use [(ngModel)] with FormsModule:
+
+                    <div class="input-group mb-3">
+                      <span class="input-group-text">@</span>
+                      <input type="text" class="form-control"
+                             formControlName="username"
+                             placeholder="Username" />
+                    </div>
+
+                  For the textarea variant, apply the same binding pattern:
+                    <textarea class="form-control" formControlName="notes"></textarea>
+
+                  Static addon text (<span class="input-group-text">) requires no
+                  Angular changes — it is purely decorative markup.
+                -->
+                <section id="section-basic-example">
+                  <h3>Basic example</h3>
+                  <p>Place one addon or button on either side of an input. You may also place one on both sides. Always place <code>&lt;label&gt;</code> elements outside the <code>.input-group</code> wrapper.</p>
+
+                  <section class="pb-4">
+                    <div class="border rounded-5">
+                      <section class="p-4">
+                        <div class="w-50 mx-auto">
+                          <div class="input-group mb-3">
+                            <span class="input-group-text" id="addon1">@</span>
+                            <input type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="addon1" />
+                          </div>
+                          <div class="input-group mb-3">
+                            <input type="text" class="form-control" placeholder="Recipient's username" aria-label="Recipient's username" aria-describedby="addon2" />
+                            <span class="input-group-text" id="addon2">@example.com</span>
+                          </div>
+                          <div class="mb-3">
+                            <label for="igBasicUrl" class="form-label">Your vanity URL</label>
+                            <div class="input-group" id="addon3">
+                              <span class="input-group-text">https://example.com/users/</span>
+                              <input type="text" class="form-control" id="igBasicUrl" aria-label="Your vanity URL" />
+                            </div>
+                          </div>
+                          <div class="input-group mb-3">
+                            <span class="input-group-text">$</span>
+                            <input type="text" class="form-control" aria-label="Amount (to the nearest dollar)" />
+                            <span class="input-group-text">.00</span>
+                          </div>
+                          <div class="input-group mb-3">
+                            <input type="text" class="form-control" placeholder="Username" aria-label="Username" />
+                            <span class="input-group-text">@</span>
+                            <input type="text" class="form-control" placeholder="Server" aria-label="Server" />
+                          </div>
+                          <div class="input-group">
+                            <span class="input-group-text">With textarea</span>
+                            <textarea class="form-control" aria-label="With a textarea"></textarea>
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!-- Angular: Use the markup as-is in any Angular component template. Bind each <input> with
+                       formControlName inside a ReactiveFormsModule FormGroup or [(ngModel)] with FormsModule.
+                       Static .input-group-text addon spans require no Angular changes. -->
+
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0"><pre class="line-numbers m-0"><code class="language-html">&lt;div class="input-group mb-3"&gt;
+  &lt;span class="input-group-text" id="addon1"&gt;@&lt;/span&gt;
+  &lt;input type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="addon1" /&gt;
+&lt;/div&gt;
+
+&lt;div class="input-group mb-3"&gt;
+  &lt;input type="text" class="form-control" placeholder="Recipient's username" aria-label="Recipient's username" aria-describedby="addon2" /&gt;
+  &lt;span class="input-group-text" id="addon2"&gt;@example.com&lt;/span&gt;
+&lt;/div&gt;
+
+&lt;div class="mb-3"&gt;
+  &lt;label for="igBasicUrl" class="form-label"&gt;Your vanity URL&lt;/label&gt;
+  &lt;div class="input-group" id="addon3"&gt;
+    &lt;span class="input-group-text"&gt;https://example.com/users/&lt;/span&gt;
+    &lt;input type="text" class="form-control" id="igBasicUrl" aria-label="Your vanity URL" /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="input-group mb-3"&gt;
+  &lt;span class="input-group-text"&gt;$&lt;/span&gt;
+  &lt;input type="text" class="form-control" aria-label="Amount (to the nearest dollar)" /&gt;
+  &lt;span class="input-group-text"&gt;.00&lt;/span&gt;
+&lt;/div&gt;
+
+&lt;div class="input-group mb-3"&gt;
+  &lt;input type="text" class="form-control" placeholder="Username" aria-label="Username" /&gt;
+  &lt;span class="input-group-text"&gt;@&lt;/span&gt;
+  &lt;input type="text" class="form-control" placeholder="Server" aria-label="Server" /&gt;
+&lt;/div&gt;
+
+&lt;div class="input-group"&gt;
+  &lt;span class="input-group-text"&gt;With textarea&lt;/span&gt;
+  &lt;textarea class="form-control" aria-label="With a textarea"&gt;&lt;/textarea&gt;
+&lt;/div&gt;</code></pre></div>
+                  </section>
+                </section>
+
+                <hr class="my-5" />
+
+                <!-- ═══════════════════════════════════════════════════ -->
+                <!-- SECTION: Wrapping                                  -->
+                <!-- ═══════════════════════════════════════════════════ -->
+                <!--
+                  ANGULAR CONVERSION — Wrapping
+                  ─────────────────────────────────────────────────────
+                  No Angular-specific changes required. The .flex-nowrap class
+                  is pure CSS. Bind the input as normal:
+
+                    <div class="input-group flex-nowrap">
+                      <span class="input-group-text">@</span>
+                      <input type="text" class="form-control"
+                             formControlName="username" />
+                    </div>
+
+                  To toggle wrapping dynamically, use [class.flex-nowrap]="noWrap"
+                  bound to a component property.
+                -->
+                <section id="section-wrapping">
+                  <h3>Wrapping</h3>
+                  <p>Input groups wrap by default via <code>flex-wrap: wrap</code>. Disable wrapping with <code>.flex-nowrap</code>.</p>
+
+                  <section class="pb-4">
+                    <div class="border rounded-5">
+                      <section class="p-4">
+                        <div class="w-25 mx-auto">
+                          <div class="input-group flex-nowrap">
+                            <span class="input-group-text" id="addonWrap">@</span>
+                            <input type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="addonWrap" />
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!-- Angular: .flex-nowrap is a pure CSS utility — no directive needed. Bind conditionally with
+                       [class.flex-nowrap]="noWrap" where noWrap is a component boolean. Bind the input with
+                       formControlName or [(ngModel)] as normal. -->
+
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0"><pre class="line-numbers m-0"><code class="language-html">&lt;div class="input-group flex-nowrap"&gt;
+  &lt;span class="input-group-text" id="addonWrap"&gt;@&lt;/span&gt;
+  &lt;input type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="addonWrap" /&gt;
+&lt;/div&gt;</code></pre></div>
+                  </section>
+                </section>
+
+                <hr class="my-5" />
+
+                <!-- ═══════════════════════════════════════════════════ -->
+                <!--Section: Sizing-->
+                <section id="section-sizing">
+                  <!-- Section title -->
+                  <h3 class="mb-3">Sizing</h3>
+
+                  <p>
+                    Add <code>.input-group-lg</code> or <code>.input-group-sm</code> to the <code>.input-group</code> wrapper. Both the addon and the input scale together.
+                  </p>
+
+                  <div class="table-responsive mb-4">
+                    <table class="table table-sm" aria-label="Sizing">
+                      <thead>
+                        <tr>
+                          <th>Modifier class</th>
+                          <th>Font size</th>
+                          <th>Vertical padding</th>
+                          <th>Horizontal padding</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr><td><code>.input-group-lg</code></td><td>16px</td><td>14px</td><td>24px</td></tr>
+                        <tr><td><code>.input-group</code> <em>(default)</em></td><td>14px</td><td>12px</td><td>20px</td></tr>
+                        <tr><td><code>.input-group-sm</code></td><td>13px</td><td>8px</td><td>12px</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="border rounded-5">
+                      <section class="w-100 p-4 d-flex justify-content-center align-items-end gap-4 pb-4">
+                        <div style="width: 280px;">
+                          <label class="cf-input-label mb-1" for="igSizeLg">Large</label>
+                          <div class="input-group input-group-lg">
+                            <span class="input-group-text">@</span>
+                            <input type="text" class="form-control" id="igSizeLg" aria-label="Username large" />
+                          </div>
+                        </div>
+                        <div style="width: 280px;">
+                          <label class="cf-input-label mb-1" for="igSizeDefault">Default</label>
+                          <div class="input-group">
+                            <span class="input-group-text">@</span>
+                            <input type="text" class="form-control" id="igSizeDefault" aria-label="Username default" />
+                          </div>
+                        </div>
+                        <div style="width: 280px;">
+                          <label class="cf-input-label mb-1" for="igSizeSm">Small</label>
+                          <div class="input-group input-group-sm">
+                            <span class="input-group-text">@</span>
+                            <input type="text" class="form-control" id="igSizeSm" aria-label="Username small" />
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--/Section: Demo-->
+                  <!-- Angular: Size modifier classes (.input-group-lg, .input-group-sm) are pure CSS — no
+                       directives needed. To drive size dynamically, bind [ngClass]="'input-group-' + size"
+                       where size is an @Input() of 'sm' | '' | 'lg', and use reactive FormControl or [(ngModel)] on each input. -->
+
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0"><pre class="line-numbers m-0"><code class="language-html">&lt;!-- Large --&gt;
+&lt;div class="input-group input-group-lg"&gt;
+  &lt;span class="input-group-text"&gt;@&lt;/span&gt;
+  &lt;input type="text" class="form-control" placeholder="Large" /&gt;
+&lt;/div&gt;
+
+&lt;!-- Default --&gt;
+&lt;div class="input-group"&gt;
+  &lt;span class="input-group-text"&gt;@&lt;/span&gt;
+  &lt;input type="text" class="form-control" placeholder="Default" /&gt;
+&lt;/div&gt;
+
+&lt;!-- Small --&gt;
+&lt;div class="input-group input-group-sm"&gt;
+  &lt;span class="input-group-text"&gt;@&lt;/span&gt;
+  &lt;input type="text" class="form-control" placeholder="Small" /&gt;
+&lt;/div&gt;</code></pre></div>
+                  </section>
+                  <!--/Section: Code-->
+                </section>
+                <!--/Section: Sizing-->
+
+                <hr class="my-5" />
+
+                <!--Section: Product themes-->
+                <section id="section-product-themes">
+                  <!-- Section title -->
+                  <h3 class="mb-4">Product themes</h3>
+                  <p>
+                    Each Cloudficient product has a designated accent color defined in the design
+                    system. Setting a product class on <code>&lt;body&gt;</code> activates that
+                    color for all input groups at once:
+                  </p>
+                  <ul>
+                    <li><code>&lt;body class="cnds-product-casefusion"&gt;</code> — CaseFusion green</li>
+                    <li><code>&lt;body class="cnds-product-hyperlize"&gt;</code> — Hyperlize gold</li>
+                    <li><code>&lt;body class="cnds-product-expireon"&gt;</code> — Expireon indigo</li>
+                  </ul>
+                  <p>
+                    A modifier class on the <code>.cf-input-field</code> wrapper applies the product
+                    accent to an individual input group, independent of the body class:
+                  </p>
+                  <ul>
+                    <li><code>.cf-input-field-casefusion</code> — CaseFusion green focus ring</li>
+                    <li><code>.cf-input-field-hyperlize</code> — Hyperlize gold focus ring</li>
+                    <li><code>.cf-input-field-expireon</code> — Expireon indigo focus ring</li>
+                  </ul>
+
+                  <!--Section: Demo-->
+                  <section class="pb-4">
+                    <div class="bg-white border rounded-5">
+                      <section class="w-100 p-4 d-flex justify-content-center gap-5 pb-4">
+                        <div style="width: 280px;">
+                          <div class="cf-input-field cf-input-field-casefusion">
+                            <label class="cf-input-label" for="igProdCf">CaseFusion</label>
+                            <div class="cf-input-wrapper">
+                              <div class="input-group">
+                                <span class="input-group-text">@</span>
+                                <input type="text" class="form-control" id="igProdCf" />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div style="width: 280px;">
+                          <div class="cf-input-field cf-input-field-expireon">
+                            <label class="cf-input-label" for="igProdEo">ExpireOn</label>
+                            <div class="cf-input-wrapper">
+                              <div class="input-group">
+                                <span class="input-group-text">@</span>
+                                <input type="text" class="form-control" id="igProdEo" />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div style="width: 280px;">
+                          <div class="cf-input-field cf-input-field-hyperlize">
+                            <label class="cf-input-label" for="igProdHl">Hyperlize</label>
+                            <div class="cf-input-wrapper">
+                              <div class="input-group">
+                                <span class="input-group-text">@</span>
+                                <input type="text" class="form-control" id="igProdHl" />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!--/Section: Demo-->
+                  <!-- Angular: Set the product theme class on the host <body> or pass it as an @Input() on a wrapper
+                       component using [ngClass]="'cf-input-field-' + product". The product accent color cascades to
+                       all child input groups automatically via CSS custom properties — no per-input directive needed. -->
+
+                  <!--Section: Code-->
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0"><pre class="line-numbers m-0"><code class="language-html">&lt;!-- CaseFusion --&gt;
+&lt;div class="cf-input-field cf-input-field-casefusion"&gt;
+  &lt;label class="cf-input-label" for="igProdCf"&gt;CaseFusion&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;div class="input-group"&gt;
+      &lt;span class="input-group-text"&gt;@&lt;/span&gt;
+      &lt;input type="text" class="form-control" id="igProdCf" /&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- ExpireOn --&gt;
+&lt;div class="cf-input-field cf-input-field-expireon"&gt;
+  &lt;label class="cf-input-label" for="igProdEo"&gt;ExpireOn&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;div class="input-group"&gt;
+      &lt;span class="input-group-text"&gt;@&lt;/span&gt;
+      &lt;input type="text" class="form-control" id="igProdEo" /&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Hyperlize --&gt;
+&lt;div class="cf-input-field cf-input-field-hyperlize"&gt;
+  &lt;label class="cf-input-label" for="igProdHl"&gt;Hyperlize&lt;/label&gt;
+  &lt;div class="cf-input-wrapper"&gt;
+    &lt;div class="input-group"&gt;
+      &lt;span class="input-group-text"&gt;@&lt;/span&gt;
+      &lt;input type="text" class="form-control" id="igProdHl" /&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre></div>
+                  </section>
+                  <!--/Section: Code-->
+                </section>
+                <!--/Section: Product themes-->
+
+                <hr class="my-5" />
+
+                <!-- ═══════════════════════════════════════════════════ -->
+                <!-- SECTION: No border                                 -->
+                <!-- ═══════════════════════════════════════════════════ -->
+                <!--
+                  ANGULAR CONVERSION — No border
+                  ─────────────────────────────────────────────────────
+                  No Angular-specific changes required — .border-0 and
+                  .bg-transparent are pure CSS utility classes. Bind the input
+                  as normal with formControlName or [(ngModel)].
+
+                  For a search field, emit the value via an Output:
+
+                    <input type="text" class="form-control rounded"
+                           formControlName="search"
+                           (input)="onSearch($event)" />
+                -->
+                <section id="section-no-border">
+                  <h3>No border</h3>
+                  <p>Add <code>.border-0</code> and <code>.bg-transparent</code> to the <code>.input-group-text</code> element and <code>.rounded</code> to the <code>.form-control</code> to create a borderless variant — useful for search bars and inline filters.</p>
+
+                  <section class="pb-4">
+                    <div class="border rounded-5">
+                      <section class="p-4">
+                        <div class="w-50 mx-auto">
+                          <div class="input-group mb-3">
+                            <span class="input-group-text border-0 bg-transparent" id="addonNb1"><i class="fas fa-search" aria-hidden="true"></i></span>
+                            <input type="text" class="form-control rounded" placeholder="Search" aria-label="Search" aria-describedby="addonNb1" />
+                          </div>
+                          <div class="input-group mb-3">
+                            <span class="input-group-text border-0 bg-transparent" id="addonNb2">@</span>
+                            <input type="text" class="form-control rounded" placeholder="Username" aria-label="Username" aria-describedby="addonNb2" />
+                          </div>
+                          <div class="input-group mb-3">
+                            <input type="text" class="form-control rounded" placeholder="Recipient's username" aria-label="Recipient's username" aria-describedby="addonNb3" />
+                            <span class="input-group-text border-0 bg-transparent" id="addonNb3">@example.com</span>
+                          </div>
+                          <div class="mb-3">
+                            <label for="igNbUrl" class="form-label">Your vanity URL</label>
+                            <div class="input-group">
+                              <span class="input-group-text border-0 bg-transparent">https://example.com/users/</span>
+                              <input type="text" class="form-control rounded" id="igNbUrl" aria-label="Your vanity URL" />
+                            </div>
+                          </div>
+                          <div class="input-group mb-3">
+                            <span class="input-group-text border-0 bg-transparent">$</span>
+                            <input type="text" class="form-control rounded" aria-label="Amount (to the nearest dollar)" />
+                            <span class="input-group-text border-0 bg-transparent">.00</span>
+                          </div>
+                          <div class="input-group">
+                            <span class="input-group-text border-0 bg-transparent">With textarea</span>
+                            <textarea class="form-control rounded" aria-label="With a textarea"></textarea>
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!-- Angular: .border-0, .bg-transparent, and .rounded are pure CSS utilities — no directives needed.
+                       For a search input, bind with [formControl]="searchControl" and emit search values via an
+                       @Output() or pipe through debounceTime + distinctUntilChanged from RxJS. -->
+
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0"><pre class="line-numbers m-0"><code class="language-html">&lt;div class="input-group mb-3"&gt;
+  &lt;span class="input-group-text border-0 bg-transparent" id="addonNb1"&gt;&lt;i class="fas fa-search"&gt;&lt;/i&gt;&lt;/span&gt;
+  &lt;input type="text" class="form-control rounded" placeholder="Search" aria-label="Search" aria-describedby="addonNb1" /&gt;
+&lt;/div&gt;
+
+&lt;div class="input-group mb-3"&gt;
+  &lt;span class="input-group-text border-0 bg-transparent" id="addonNb2"&gt;@&lt;/span&gt;
+  &lt;input type="text" class="form-control rounded" placeholder="Username" aria-label="Username" aria-describedby="addonNb2" /&gt;
+&lt;/div&gt;
+
+&lt;div class="input-group mb-3"&gt;
+  &lt;input type="text" class="form-control rounded" placeholder="Recipient's username" aria-label="Recipient's username" aria-describedby="addonNb3" /&gt;
+  &lt;span class="input-group-text border-0 bg-transparent" id="addonNb3"&gt;@example.com&lt;/span&gt;
+&lt;/div&gt;
+
+&lt;div class="mb-3"&gt;
+  &lt;label for="igNbUrl" class="form-label"&gt;Your vanity URL&lt;/label&gt;
+  &lt;div class="input-group"&gt;
+    &lt;span class="input-group-text border-0 bg-transparent"&gt;https://example.com/users/&lt;/span&gt;
+    &lt;input type="text" class="form-control rounded" id="igNbUrl" aria-label="Your vanity URL" /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="input-group mb-3"&gt;
+  &lt;span class="input-group-text border-0 bg-transparent"&gt;$&lt;/span&gt;
+  &lt;input type="text" class="form-control rounded" aria-label="Amount (to the nearest dollar)" /&gt;
+  &lt;span class="input-group-text border-0 bg-transparent"&gt;.00&lt;/span&gt;
+&lt;/div&gt;
+
+&lt;div class="input-group"&gt;
+  &lt;span class="input-group-text border-0 bg-transparent"&gt;With textarea&lt;/span&gt;
+  &lt;textarea class="form-control rounded" aria-label="With a textarea"&gt;&lt;/textarea&gt;
+&lt;/div&gt;</code></pre></div>
+                  </section>
+                </section>
+
+                <hr class="my-5" />
+
+                <!-- ═══════════════════════════════════════════════════ -->
+                <!-- SECTION: Checkboxes and radios                     -->
+                <!-- ═══════════════════════════════════════════════════ -->
+                <!--
+                  ANGULAR CONVERSION — Checkboxes and radios
+                  ─────────────────────────────────────────────────────
+                  Bind the checkbox and radio with formControlName inside a
+                  FormGroup, or use [(ngModel)] with FormsModule:
+
+                    <div class="input-group mb-3">
+                      <div class="input-group-text">
+                        <input class="form-check-input mt-0" type="checkbox"
+                               formControlName="agree"
+                               aria-label="Checkbox for following text input" />
+                      </div>
+                      <input type="text" class="form-control"
+                             formControlName="detail" />
+                    </div>
+
+                  For a radio group, use a shared formControlName across multiple
+                  radio inputs and set distinct [value] attributes on each:
+
+                    <input type="radio" formControlName="option" [value]="'a'" />
+                -->
+                <section id="section-checkboxes-radios">
+                  <h3>Checkboxes and radios</h3>
+                  <p>Place any checkbox or radio inside a <code>&lt;div class="input-group-text"&gt;</code> addon instead of text.</p>
+
+                  <section class="pb-4">
+                    <div class="border rounded-5">
+                      <section class="p-4">
+                        <div class="w-25 mx-auto">
+                          <div class="input-group mb-3">
+                            <div class="input-group-text">
+                              <input class="form-check-input mt-0" type="checkbox" value="" aria-label="Checkbox for following text input" />
+                            </div>
+                            <input type="text" class="form-control" aria-label="Text input with checkbox" />
+                          </div>
+                          <div class="input-group">
+                            <div class="input-group-text">
+                              <input class="form-check-input mt-0" type="radio" value="" aria-label="Radio button for following text input" />
+                            </div>
+                            <input type="text" class="form-control" aria-label="Text input with radio button" />
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!-- Angular: Bind the checkbox with formControlName="agree" inside a FormGroup, or use
+                       [(ngModel)]="isChecked". For a radio group, share a single formControlName across all radio
+                       inputs and set a distinct [value] on each; use FormControl's valueChanges observable for reactivity. -->
+
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0"><pre class="line-numbers m-0"><code class="language-html">&lt;div class="input-group mb-3"&gt;
+  &lt;div class="input-group-text"&gt;
+    &lt;input class="form-check-input mt-0" type="checkbox" value="" aria-label="Checkbox for following text input" /&gt;
+  &lt;/div&gt;
+  &lt;input type="text" class="form-control" aria-label="Text input with checkbox" /&gt;
+&lt;/div&gt;
+
+&lt;div class="input-group"&gt;
+  &lt;div class="input-group-text"&gt;
+    &lt;input class="form-check-input mt-0" type="radio" value="" aria-label="Radio button for following text input" /&gt;
+  &lt;/div&gt;
+  &lt;input type="text" class="form-control" aria-label="Text input with radio button" /&gt;
+&lt;/div&gt;</code></pre></div>
+                  </section>
+                </section>
+
+                <hr class="my-5" />
+
+                <!-- ═══════════════════════════════════════════════════ -->
+                <!-- SECTION: Multiple inputs                           -->
+                <!-- ═══════════════════════════════════════════════════ -->
+                <!--
+                  ANGULAR CONVERSION — Multiple inputs
+                  ─────────────────────────────────────────────────────
+                  Give each <input> its own formControlName within the same
+                  FormGroup:
+
+                    this.form = this.fb.group({
+                      firstName: [''],
+                      lastName:  ['']
+                    });
+
+                    <div class="input-group">
+                      <span class="input-group-text">First and last name</span>
+                      <input type="text" class="form-control"
+                             formControlName="firstName" aria-label="First name" />
+                      <input type="text" class="form-control"
+                             formControlName="lastName" aria-label="Last name" />
+                    </div>
+
+                  Note: Angular Reactive Forms validation only flags the group
+                  as invalid; per-input error display requires individual
+                  FormControl references.
+                -->
+                <section id="section-multiple-inputs">
+                  <h3>Multiple inputs</h3>
+                  <p>While multiple <code>&lt;input&gt;</code> elements are supported visually, form validation styles only apply when the group contains a single <code>&lt;input&gt;</code>.</p>
+
+                  <section class="pb-4">
+                    <div class="border rounded-5">
+                      <section class="p-4">
+                        <div class="w-75 mx-auto">
+                          <div class="input-group">
+                            <span class="input-group-text">First and last name</span>
+                            <input type="text" aria-label="First name" class="form-control" />
+                            <input type="text" aria-label="Last name" class="form-control" />
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!-- Angular: Give each <input> its own formControlName within a single FormGroup — e.g.
+                       firstName and lastName. Note that Angular Reactive Forms validation only flags the
+                       group as invalid; per-input error messages require individual FormControl references. -->
+
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0"><pre class="line-numbers m-0"><code class="language-html">&lt;div class="input-group"&gt;
+  &lt;span class="input-group-text"&gt;First and last name&lt;/span&gt;
+  &lt;input type="text" aria-label="First name" class="form-control" /&gt;
+  &lt;input type="text" aria-label="Last name" class="form-control" /&gt;
+&lt;/div&gt;</code></pre></div>
+                  </section>
+                </section>
+
+                <hr class="my-5" />
+
+                <!-- ═══════════════════════════════════════════════════ -->
+                <!-- SECTION: Multiple addons                           -->
+                <!-- ═══════════════════════════════════════════════════ -->
+                <!--
+                  ANGULAR CONVERSION — Multiple addons
+                  ─────────────────────────────────────────────────────
+                  Static addon spans require no Angular changes. Bind the input
+                  with formControlName as normal. To make addon text dynamic,
+                  use interpolation in the span:
+
+                    <span class="input-group-text">{{ currencySymbol }}</span>
+                    <span class="input-group-text">{{ unit }}</span>
+                    <input type="text" class="form-control"
+                           formControlName="amount" />
+                -->
+                <section id="section-multiple-addons">
+                  <h3>Multiple addons</h3>
+                  <p>Stack multiple addon spans to group related symbols or units.</p>
+
+                  <section class="pb-4">
+                    <div class="border rounded-5">
+                      <section class="p-4">
+                        <div class="w-25 mx-auto">
+                          <div class="input-group mb-3">
+                            <span class="input-group-text">$</span>
+                            <span class="input-group-text">0.00</span>
+                            <input type="text" class="form-control" aria-label="Dollar amount (with dot and two decimal places)" />
+                          </div>
+                          <div class="input-group">
+                            <input type="text" class="form-control" aria-label="Dollar amount (with dot and two decimal places)" />
+                            <span class="input-group-text">$</span>
+                            <span class="input-group-text">0.00</span>
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!-- Angular: Static addon spans require no Angular changes. To render addon text dynamically,
+                       use interpolation: <span class="input-group-text">{{ currencySymbol }}</span>.
+                       Bind the input with formControlName or [(ngModel)] as usual. -->
+
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0"><pre class="line-numbers m-0"><code class="language-html">&lt;div class="input-group mb-3"&gt;
+  &lt;span class="input-group-text"&gt;$&lt;/span&gt;
+  &lt;span class="input-group-text"&gt;0.00&lt;/span&gt;
+  &lt;input type="text" class="form-control" aria-label="Dollar amount (with dot and two decimal places)" /&gt;
+&lt;/div&gt;
+
+&lt;div class="input-group"&gt;
+  &lt;input type="text" class="form-control" aria-label="Dollar amount (with dot and two decimal places)" /&gt;
+  &lt;span class="input-group-text"&gt;$&lt;/span&gt;
+  &lt;span class="input-group-text"&gt;0.00&lt;/span&gt;
+&lt;/div&gt;</code></pre></div>
+                  </section>
+                </section>
+
+                <hr class="my-5" />
+
+                <!-- ═══════════════════════════════════════════════════ -->
+                <!-- SECTION: Button addons                             -->
+                <!-- ═══════════════════════════════════════════════════ -->
+                <!--
+                  ANGULAR CONVERSION — Button addons
+                  ─────────────────────────────────────────────────────
+                  Replace the plain click with an Angular (click) event binding.
+                  Keep type="button" to prevent accidental form submission:
+
+                    <div class="input-group mb-3">
+                      <button class="btn btn-secondary" type="button"
+                              (click)="onAction()">Button</button>
+                      <input type="text" class="form-control"
+                             formControlName="value" />
+                    </div>
+
+                  For multiple buttons, bind each to a distinct handler:
+                    (click)="onClear()"  /  (click)="onSearch()"
+
+                  Disable the button reactively with [disabled]:
+                    [disabled]="form.invalid || isLoading"
+                -->
+                <section id="section-button-addons">
+                  <h3>Button addons</h3>
+                  <p>Replace the <code>input-group-text</code> with a <code>&lt;button&gt;</code> to create an actionable addon. Use <code>btn-secondary</code> to match the secondary button hierarchy.</p>
+
+                  <section class="pb-4">
+                    <div class="border rounded-5">
+                      <section class="p-4">
+                        <div class="w-50 mx-auto">
+                          <div class="input-group mb-3">
+                            <button class="btn btn-secondary" type="button" id="btnAddon1">Button</button>
+                            <input type="text" class="form-control" aria-label="Example text with button addon" aria-describedby="btnAddon1" />
+                          </div>
+                          <div class="input-group mb-3">
+                            <input type="text" class="form-control" aria-label="Example text with button addon" aria-describedby="btnAddon2" />
+                            <button class="btn btn-secondary" type="button" id="btnAddon2">Button</button>
+                          </div>
+                          <div class="input-group mb-3">
+                            <button class="btn btn-secondary" type="button" id="btnAddon3">Button</button>
+                            <button class="btn btn-secondary" type="button" id="btnAddon4">Button</button>
+                            <input type="text" class="form-control" aria-label="Example text with two button addons" aria-describedby="btnAddon3 btnAddon4" />
+                          </div>
+                          <div class="input-group">
+                            <input type="text" class="form-control" aria-label="Example text with two button addons" aria-describedby="btnAddon5 btnAddon6" />
+                            <button class="btn btn-secondary" type="button" id="btnAddon5">Button</button>
+                            <button class="btn btn-secondary" type="button" id="btnAddon6">Button</button>
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!-- Angular: Replace plain onclick with a (click) event binding on each button. Keep type="button"
+                       to prevent accidental form submission. Disable reactively with [disabled]="form.invalid || isLoading".
+                       Bind the input with formControlName or [(ngModel)]. -->
+
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0"><pre class="line-numbers m-0"><code class="language-html">&lt;div class="input-group mb-3"&gt;
+  &lt;button class="btn btn-secondary" type="button" id="btnAddon1"&gt;Button&lt;/button&gt;
+  &lt;input type="text" class="form-control" aria-label="Example text with button addon" aria-describedby="btnAddon1" /&gt;
+&lt;/div&gt;
+
+&lt;div class="input-group mb-3"&gt;
+  &lt;input type="text" class="form-control" aria-label="Example text with button addon" aria-describedby="btnAddon2" /&gt;
+  &lt;button class="btn btn-secondary" type="button" id="btnAddon2"&gt;Button&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class="input-group mb-3"&gt;
+  &lt;button class="btn btn-secondary" type="button" id="btnAddon3"&gt;Button&lt;/button&gt;
+  &lt;button class="btn btn-secondary" type="button" id="btnAddon4"&gt;Button&lt;/button&gt;
+  &lt;input type="text" class="form-control" aria-label="Example text with two button addons" aria-describedby="btnAddon3 btnAddon4" /&gt;
+&lt;/div&gt;
+
+&lt;div class="input-group"&gt;
+  &lt;input type="text" class="form-control" aria-label="Example text with two button addons" aria-describedby="btnAddon5 btnAddon6" /&gt;
+  &lt;button class="btn btn-secondary" type="button" id="btnAddon5"&gt;Button&lt;/button&gt;
+  &lt;button class="btn btn-secondary" type="button" id="btnAddon6"&gt;Button&lt;/button&gt;
+&lt;/div&gt;</code></pre></div>
+                  </section>
+                </section>
+
+                <hr class="my-5" />
+
+                <!-- ═══════════════════════════════════════════════════ -->
+                <!-- SECTION: Buttons with dropdowns                    -->
+                <!-- ═══════════════════════════════════════════════════ -->
+                <!--
+                  ANGULAR CONVERSION — Buttons with dropdowns
+                  ─────────────────────────────────────────────────────
+                  Replace data-cnds-toggle="dropdown" with a component-managed
+                  open/close state. Remove the Nimbus JS attribute entirely and
+                  control visibility with *ngIf or [class.show]:
+
+                    isOpen = false;
+
+                    <div class="dropdown">
+                      <button class="btn btn-secondary dropdown-toggle rounded-end-0"
+                              type="button"
+                              (click)="isOpen = !isOpen"
+                              [attr.aria-expanded]="isOpen">
+                        Dropdown <i class="mdi mdi-chevron-down" aria-hidden="true"></i>
+                      </button>
+                      <ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion"
+                          [class.show]="isOpen">
+                        <li><a class="dropdown-item" (click)="onSelect('action1')">Action</a></li>
+                        <li><a class="dropdown-item" (click)="onSelect('action2')">Another action</a></li>
+                      </ul>
+                    </div>
+                    <input type="text" class="form-control" formControlName="value" />
+
+                  Close the dropdown on outside click using a @HostListener or
+                  the Angular CDK Overlay.
+                -->
+                <section id="section-buttons-dropdowns">
+                  <h3>Buttons with dropdowns</h3>
+                  <p>Combine a dropdown toggle button with a text input. Use <code>data-cnds-toggle="dropdown"</code> on the toggle button — nimbus.js wires the open/close behaviour automatically. Square off the corners that connect to the input using <code>.rounded-end-0</code> or <code>.rounded-start-0</code>.</p>
+
+                  <section class="pb-4">
+                    <div class="border rounded-5">
+                      <section class="p-4">
+                        <div class="w-50 mx-auto">
+                          <!-- Group 1: dropdown left -->
+                          <div class="input-group mb-3">
+                            <div class="dropdown">
+                              <button class="btn btn-secondary dropdown-toggle rounded-end-0" type="button" data-cnds-toggle="dropdown" aria-expanded="false">
+                                Dropdown <i class="mdi mdi-chevron-down" aria-hidden="true"></i>
+                              </button>
+                              <ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion">
+                                <li><a class="dropdown-item" href="#!">Action</a></li>
+                                <li><a class="dropdown-item" href="#!">Another action</a></li>
+                                <li><a class="dropdown-item" href="#!">Something else here</a></li>
+                              </ul>
+                            </div>
+                            <input type="text" class="form-control" aria-label="Text input with dropdown button" />
+                          </div>
+                          <!-- Group 2: dropdown right -->
+                          <div class="input-group mb-3">
+                            <input type="text" class="form-control" aria-label="Text input with dropdown button" />
+                            <div class="dropdown">
+                              <button class="btn btn-secondary dropdown-toggle rounded-start-0" type="button" data-cnds-toggle="dropdown" aria-expanded="false">
+                                Dropdown <i class="mdi mdi-chevron-down" aria-hidden="true"></i>
+                              </button>
+                              <ul class="dropdown-menu dropdown-menu-end dropdown-menu-product dropdown-menu-casefusion">
+                                <li><a class="dropdown-item" href="#!">Action</a></li>
+                                <li><a class="dropdown-item" href="#!">Another action</a></li>
+                                <li><a class="dropdown-item" href="#!">Something else here</a></li>
+                              </ul>
+                            </div>
+                          </div>
+                          <!-- Group 3: dropdown on both sides -->
+                          <div class="input-group">
+                            <div class="dropdown">
+                              <button class="btn btn-secondary dropdown-toggle rounded-end-0" type="button" data-cnds-toggle="dropdown" aria-expanded="false">
+                                Dropdown <i class="mdi mdi-chevron-down" aria-hidden="true"></i>
+                              </button>
+                              <ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion">
+                                <li><a class="dropdown-item" href="#!">Action</a></li>
+                                <li><a class="dropdown-item" href="#!">Another action</a></li>
+                                <li><a class="dropdown-item" href="#!">Something else here</a></li>
+                              </ul>
+                            </div>
+                            <input type="text" class="form-control" aria-label="Text input with two dropdown buttons" />
+                            <div class="dropdown">
+                              <button class="btn btn-secondary dropdown-toggle rounded-start-0" type="button" data-cnds-toggle="dropdown" aria-expanded="false">
+                                Dropdown <i class="mdi mdi-chevron-down" aria-hidden="true"></i>
+                              </button>
+                              <ul class="dropdown-menu dropdown-menu-end dropdown-menu-product dropdown-menu-casefusion">
+                                <li><a class="dropdown-item" href="#!">Action</a></li>
+                                <li><a class="dropdown-item" href="#!">Another action</a></li>
+                                <li><a class="dropdown-item" href="#!">Something else here</a></li>
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!-- Angular: Remove data-cnds-toggle="dropdown" and manage open state with a boolean property:
+                       isOpen = false. Drive visibility with [class.show]="isOpen" on the .dropdown-menu. Render
+                       items with *ngFor and close on outside click using @HostListener('document:click') or
+                       @angular/cdk/overlay for production-grade dropdown positioning. -->
+
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0"><pre class="line-numbers m-0"><code class="language-html">&lt;!-- Dropdown on the left --&gt;
+&lt;div class="input-group mb-3"&gt;
+  &lt;div class="dropdown"&gt;
+    &lt;button class="btn btn-secondary dropdown-toggle rounded-end-0" type="button" data-cnds-toggle="dropdown" aria-expanded="false"&gt;
+      Dropdown &lt;i class="mdi mdi-chevron-down"&gt;&lt;/i&gt;
+    &lt;/button&gt;
+    &lt;ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion"&gt;
+      &lt;li&gt;&lt;a class="dropdown-item" href="#!"&gt;Action&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a class="dropdown-item" href="#!"&gt;Another action&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a class="dropdown-item" href="#!"&gt;Something else here&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/div&gt;
+  &lt;input type="text" class="form-control" aria-label="Text input with dropdown button" /&gt;
+&lt;/div&gt;
+
+&lt;!-- Dropdown on the right --&gt;
+&lt;div class="input-group mb-3"&gt;
+  &lt;input type="text" class="form-control" aria-label="Text input with dropdown button" /&gt;
+  &lt;div class="dropdown"&gt;
+    &lt;button class="btn btn-secondary dropdown-toggle rounded-start-0" type="button" data-cnds-toggle="dropdown" aria-expanded="false"&gt;
+      Dropdown &lt;i class="mdi mdi-chevron-down"&gt;&lt;/i&gt;
+    &lt;/button&gt;
+    &lt;ul class="dropdown-menu dropdown-menu-end dropdown-menu-product dropdown-menu-casefusion"&gt;
+      &lt;li&gt;&lt;a class="dropdown-item" href="#!"&gt;Action&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a class="dropdown-item" href="#!"&gt;Another action&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a class="dropdown-item" href="#!"&gt;Something else here&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Dropdown on both sides --&gt;
+&lt;div class="input-group"&gt;
+  &lt;div class="dropdown"&gt;
+    &lt;button class="btn btn-secondary dropdown-toggle rounded-end-0" type="button" data-cnds-toggle="dropdown" aria-expanded="false"&gt;
+      Dropdown &lt;i class="mdi mdi-chevron-down"&gt;&lt;/i&gt;
+    &lt;/button&gt;
+    &lt;ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion"&gt;
+      &lt;li&gt;&lt;a class="dropdown-item" href="#!"&gt;Action&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a class="dropdown-item" href="#!"&gt;Another action&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a class="dropdown-item" href="#!"&gt;Something else here&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/div&gt;
+  &lt;input type="text" class="form-control" aria-label="Text input with two dropdown buttons" /&gt;
+  &lt;div class="dropdown"&gt;
+    &lt;button class="btn btn-secondary dropdown-toggle rounded-start-0" type="button" data-cnds-toggle="dropdown" aria-expanded="false"&gt;
+      Dropdown &lt;i class="mdi mdi-chevron-down"&gt;&lt;/i&gt;
+    &lt;/button&gt;
+    &lt;ul class="dropdown-menu dropdown-menu-end dropdown-menu-product dropdown-menu-casefusion"&gt;
+      &lt;li&gt;&lt;a class="dropdown-item" href="#!"&gt;Action&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a class="dropdown-item" href="#!"&gt;Another action&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a class="dropdown-item" href="#!"&gt;Something else here&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre></div>
+                  </section>
+                </section>
+
+                <hr class="my-5" />
+
+                <!-- ═══════════════════════════════════════════════════ -->
+                <!-- SECTION: Segmented buttons                         -->
+                <!-- ═══════════════════════════════════════════════════ -->
+                <!--
+                  ANGULAR CONVERSION — Segmented buttons
+                  ─────────────────────────────────────────────────────
+                  Same pattern as Buttons with dropdowns above. The action button
+                  gets a (click) binding; the split toggle button controls dropdown
+                  open state. Use separate booleans if both left and right dropdowns
+                  can be open independently:
+
+                    isLeftOpen  = false;
+                    isRightOpen = false;
+
+                    <button class="btn btn-secondary rounded-end-0" type="button"
+                            (click)="onAction()">Action</button>
+                    <div class="dropdown">
+                      <button class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-0"
+                              type="button"
+                              (click)="isLeftOpen = !isLeftOpen"
+                              [attr.aria-expanded]="isLeftOpen" aria-label="Collapse">
+                        <i class="mdi mdi-chevron-down" aria-hidden="true"></i>
+                      </button>
+                      <ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion"
+                          [class.show]="isLeftOpen">
+                        <li><a class="dropdown-item" (click)="onSelect('a')">Action</a></li>
+                      </ul>
+                    </div>
+                    <input type="text" class="form-control" formControlName="value" />
+                -->
+                <section id="section-segmented-buttons">
+                  <h3>Segmented buttons</h3>
+                  <p>A segmented button pairs a plain action button with a split <code>dropdown-toggle-split</code> chevron button, giving users both a direct action and a dropdown of alternatives.</p>
+
+                  <section class="pb-4">
+                    <div class="border rounded-5">
+                      <section class="p-4">
+                        <div class="w-50 mx-auto">
+                          <!-- Group 1: segmented left -->
+                          <div class="input-group mb-3">
+                            <button type="button" class="btn btn-secondary rounded-end-0">Action</button>
+                            <div class="dropdown">
+                              <button type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-0" data-cnds-toggle="dropdown" aria-expanded="false" aria-label="Collapse">
+                                <i class="mdi mdi-chevron-down" aria-hidden="true"></i>
+                              </button>
+                              <ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion">
+                                <li><a class="dropdown-item" href="#!">Action</a></li>
+                                <li><a class="dropdown-item" href="#!">Another action</a></li>
+                                <li><a class="dropdown-item" href="#!">Something else here</a></li>
+                              </ul>
+                            </div>
+                            <input type="text" class="form-control" aria-label="Text input with segmented button on the left" />
+                          </div>
+                          <!-- Group 2: segmented right -->
+                          <div class="input-group">
+                            <input type="text" class="form-control" aria-label="Text input with segmented button on the right" />
+                            <button type="button" class="btn btn-secondary rounded-0">Action</button>
+                            <div class="dropdown">
+                              <button type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-start-0" data-cnds-toggle="dropdown" aria-expanded="false" aria-label="Collapse">
+                                <i class="mdi mdi-chevron-down" aria-hidden="true"></i>
+                              </button>
+                              <ul class="dropdown-menu dropdown-menu-end dropdown-menu-product dropdown-menu-casefusion">
+                                <li><a class="dropdown-item" href="#!">Action</a></li>
+                                <li><a class="dropdown-item" href="#!">Another action</a></li>
+                                <li><a class="dropdown-item" href="#!">Something else here</a></li>
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!-- Angular: Bind the action button with (click)="onAction()" and remove data-cnds-toggle="dropdown".
+                       Manage the split dropdown's open state with a separate boolean (e.g. isSplitOpen) and drive
+                       visibility with [class.show]="isSplitOpen" and [attr.aria-expanded]="isSplitOpen". -->
+
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0"><pre class="line-numbers m-0"><code class="language-html">&lt;!-- Segmented button on the left --&gt;
+&lt;div class="input-group mb-3"&gt;
+  &lt;button type="button" class="btn btn-secondary rounded-end-0"&gt;Action&lt;/button&gt;
+  &lt;div class="dropdown"&gt;
+    &lt;button type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-0" data-cnds-toggle="dropdown" aria-expanded="false"&gt;
+      &lt;i class="mdi mdi-chevron-down"&gt;&lt;/i&gt;
+    &lt;/button&gt;
+    &lt;ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion"&gt;
+      &lt;li&gt;&lt;a class="dropdown-item" href="#!"&gt;Action&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a class="dropdown-item" href="#!"&gt;Another action&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a class="dropdown-item" href="#!"&gt;Something else here&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/div&gt;
+  &lt;input type="text" class="form-control" aria-label="Text input with segmented button on the left" /&gt;
+&lt;/div&gt;
+
+&lt;!-- Segmented button on the right --&gt;
+&lt;div class="input-group"&gt;
+  &lt;input type="text" class="form-control" aria-label="Text input with segmented button on the right" /&gt;
+  &lt;button type="button" class="btn btn-secondary rounded-0"&gt;Action&lt;/button&gt;
+  &lt;div class="dropdown"&gt;
+    &lt;button type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-start-0" data-cnds-toggle="dropdown" aria-expanded="false"&gt;
+      &lt;i class="mdi mdi-chevron-down"&gt;&lt;/i&gt;
+    &lt;/button&gt;
+    &lt;ul class="dropdown-menu dropdown-menu-end dropdown-menu-product dropdown-menu-casefusion"&gt;
+      &lt;li&gt;&lt;a class="dropdown-item" href="#!"&gt;Action&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a class="dropdown-item" href="#!"&gt;Another action&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a class="dropdown-item" href="#!"&gt;Something else here&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre></div>
+                  </section>
+                </section>
+
+                <hr class="my-5" />
+
+                <!-- ═══════════════════════════════════════════════════ -->
+                <!-- SECTION: File input                                -->
+                <!-- ═══════════════════════════════════════════════════ -->
+                <!--
+                  ANGULAR CONVERSION — File input
+                  ─────────────────────────────────────────────────────
+                  Do not use formControlName on <input type="file"> — Angular
+                  Reactive Forms does not support file inputs directly. Instead,
+                  read the selected file via a (change) event handler and store
+                  the FileList on the component:
+
+                    selectedFile: File | null = null;
+
+                    onFileChange(event: Event): void {
+                      const input = event.target as HTMLInputElement;
+                      this.selectedFile = input.files?.[0] ?? null;
+                    }
+
+                    <div class="input-group mb-3">
+                      <label class="input-group-text" for="igFile01">Upload</label>
+                      <input type="file" class="form-control" id="igFile01"
+                             (change)="onFileChange($event)" />
+                    </div>
+
+                  To upload, pass this.selectedFile to an HttpClient FormData call.
+                -->
+                <section id="section-file-input">
+                  <h3>File input</h3>
+                  <p>Use a <code>&lt;label class="input-group-text"&gt;</code> paired with <code>&lt;input type="file" class="form-control"&gt;</code> to add a contextual label before or after a file picker. For a fully styled standalone file picker — with custom 'Choose File' button, status text, and theme-aware design — use the <a href="cnds-file.html">File Input</a> component.</p>
+
+                  <section class="pb-4">
+                    <div class="border rounded-5">
+                      <section class="p-4">
+                        <div class="w-50 mx-auto">
+                          <div class="input-group mb-3">
+                            <label class="input-group-text" for="igFile01">Upload</label>
+                            <input type="file" class="form-control" id="igFile01" />
+                          </div>
+                          <div class="input-group">
+                            <input type="file" class="form-control" id="igFile02" />
+                            <label class="input-group-text" for="igFile02">Upload</label>
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <!-- Angular: Do not use formControlName on <input type="file"> — Reactive Forms does not support
+                       file inputs. Instead, read the selected file via (change)="onFileChange($event)", extract
+                       event.target.files[0], and pass the File to an HttpClient FormData call for upload. -->
+
+                  <section class="mb-4">
+                    <h4><span class="badge badge-code-html">HTML</span></h4>
+                    <div class="p-0"><pre class="line-numbers m-0"><code class="language-html">&lt;div class="input-group mb-3"&gt;
+  &lt;label class="input-group-text" for="igFile01"&gt;Upload&lt;/label&gt;
+  &lt;input type="file" class="form-control" id="igFile01" /&gt;
+&lt;/div&gt;
+
+&lt;div class="input-group"&gt;
+  &lt;input type="file" class="form-control" id="igFile02" /&gt;
+  &lt;label class="input-group-text" for="igFile02"&gt;Upload&lt;/label&gt;
+&lt;/div&gt;</code></pre></div>
+                  </section>
+                </section>
+
+                <hr class="my-5" />
+
+                <!-- ═══════════════════════════════════════════════════ -->
+                <!-- SECTION: Accessibility                             -->
+                <!-- ═══════════════════════════════════════════════════ -->
+                <section id="section-accessibility">
+                  <h3>Accessibility</h3>
+                  <p>Screen readers will have trouble with your forms if you don't include a label for every input. For input groups, the <code>.input-group-text</code> addon is not announced as a label by default — ensure each <code>&lt;input&gt;</code> has either a visible <code>&lt;label&gt;</code> with a matching <code>for</code> attribute, or an <code>aria-label</code> / <code>aria-labelledby</code> attribute.</p>
+                  <p>Use <code>aria-describedby</code> on the <code>&lt;input&gt;</code> pointing to the <code>id</code> of the <code>.input-group-text</code> addon when the addon supplies supplementary context (for example, a currency symbol or a domain suffix) rather than a primary label. For icon-only addons, add a <code>&lt;span class="visually-hidden"&gt;</code> inside the <code>.input-group-text</code> to give screen readers a text alternative.</p>
+                </section>
+
+                <hr class="my-5" />
+
+                <!-- ═══════════════════════════════════════════════════ -->
+                <!-- SECTION: API Documentation                         -->
+                <!-- ═══════════════════════════════════════════════════ -->
+                <section id="section-api-docs">
+                  <h3>API Documentation</h3>
+
+                  <!-- API: Introduction -->
+                  <section id="api-section-introduction">
+                    <h4>Introduction</h3>
+                    <p>The <code>.input-group</code> component is built entirely in CSS — no JavaScript initialisation is required for text, checkbox, radio, or button addons. Dropdown toggle buttons within an input group require <code>data-cnds-dropdown-init</code> on the <code>&lt;button&gt;</code> element; nimbus.js registers the click handler and manages the open/closed state. The component uses a shared set of form custom properties from <code>forms.css</code> — no dedicated input-group variables are defined.</p>
+                  </section>
+
+                  <!-- API: Usage -->
+                  <section id="api-section-usage">
+                    <h4>Usage</h3>
+                    <p>Wrap any combination of <code>.input-group-text</code>, <code>&lt;button&gt;</code>, and <code>.form-control</code> elements inside a <code>.input-group</code> div. The order in the DOM determines the visual left-to-right order.</p>
+                    <section class="mb-4">
+                      <h5><span class="badge badge-code-html">HTML</span></h5>
+                      <div class="p-0"><pre class="line-numbers m-0"><code class="language-html">&lt;div class="input-group"&gt;
+  &lt;span class="input-group-text" id="desc-addon"&gt;@&lt;/span&gt;
+  &lt;input type="text" class="form-control" aria-label="Username" aria-describedby="desc-addon" /&gt;
+&lt;/div&gt;</code></pre></div>
+                    </section>
+                  </section>
+
+                  <!-- API: CSS classes -->
+                  <section id="api-section-css-classes">
+                    <h4>CSS classes</h3>
+                    <div class="table-responsive">
+                      <table class="table table-bordered" aria-label="CSS classes">
+                        <thead>
+                          <tr>
+                            <th>Class</th>
+                            <th>Element</th>
+                            <th>Description</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td><code>.input-group</code></td>
+                            <td><code>&lt;div&gt;</code></td>
+                            <td>Required wrapper. <code>display: flex; flex-wrap: wrap; align-items: stretch</code>. All direct children share a collapsed border and joined border-radius.</td>
+                          </tr>
+                          <tr>
+                            <td><code>.input-group-sm</code></td>
+                            <td><code>&lt;div&gt;</code></td>
+                            <td>Small size modifier. Scales all children to the <code>form-control-sm</code> height and padding.</td>
+                          </tr>
+                          <tr>
+                            <td><code>.input-group-lg</code></td>
+                            <td><code>&lt;div&gt;</code></td>
+                            <td>Large size modifier. Scales all children to the <code>form-control-lg</code> height and padding.</td>
+                          </tr>
+                          <tr>
+                            <td><code>.input-group-text</code></td>
+                            <td><code>&lt;span&gt;</code> or <code>&lt;label&gt;</code></td>
+                            <td>Addon container. Renders as a flex row, vertically centred. Shares border and background with the enclosing group.</td>
+                          </tr>
+                          <tr>
+                            <td><code>.flex-nowrap</code></td>
+                            <td>utility on <code>&lt;div&gt;</code></td>
+                            <td>Prevents the group from wrapping onto a second line (<code>flex-wrap: nowrap</code>).</td>
+                          </tr>
+                          <tr>
+                            <td><code>.has-validation</code></td>
+                            <td><code>&lt;div&gt;</code></td>
+                            <td>Signals that the group contains a validated input. Adjusts border-radius so the validation feedback icon is not hidden by rounded corners.</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </section>
+
+                  <!-- API: CSS custom properties -->
+                  <section id="api-section-css-variables">
+                    <h4>CSS custom properties</h3>
+                    <p><code>.input-group</code> inherits the form-control custom properties defined in <code>forms.css</code>. Override any of these on a parent element to restyle the entire group.</p>
+                    <div class="table-responsive">
+                      <table class="table table-bordered" aria-label="CSS custom properties">
+                        <thead>
+                          <tr>
+                            <th>Property</th>
+                            <th>Default</th>
+                            <th>Description</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td><code>--cnds-input-padding-y</code></td>
+                            <td><code>0.375rem</code></td>
+                            <td>Vertical padding used by <code>.input-group-text</code> and <code>.form-control</code>.</td>
+                          </tr>
+                          <tr>
+                            <td><code>--cnds-input-padding-x</code></td>
+                            <td><code>0.75rem</code></td>
+                            <td>Horizontal padding used by <code>.input-group-text</code> and <code>.form-control</code>.</td>
+                          </tr>
+                          <tr>
+                            <td><code>--cnds-input-font-size</code></td>
+                            <td><code>1rem</code></td>
+                            <td>Font size for all children. Overridden by <code>input-group-sm</code> / <code>input-group-lg</code>.</td>
+                          </tr>
+                          <tr>
+                            <td><code>--cnds-input-border-width</code></td>
+                            <td><code>1px</code></td>
+                            <td>Border width on <code>.input-group-text</code> and <code>.form-control</code>. Negative margin collapses adjacent borders.</td>
+                          </tr>
+                          <tr>
+                            <td><code>--cnds-input-border-color</code></td>
+                            <td><code>var(--cnds-primary-gray-300, #bdbdbd)</code></td>
+                            <td>Shared border color. Theme-aware — overridden in dark mode.</td>
+                          </tr>
+                          <tr>
+                            <td><code>--cnds-input-border-radius</code></td>
+                            <td><code>0.25rem</code></td>
+                            <td>Applied only to the first and last children; inner children have their adjacent corners set to <code>0</code>.</td>
+                          </tr>
+                          <tr>
+                            <td><code>--cnds-input-disabled-bg</code></td>
+                            <td><code>#e9ecef</code></td>
+                            <td>Background of <code>.input-group-text</code> and disabled <code>.form-control</code>.</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </section>
+
+                  <!-- API: Theme variables -->
+                  <section id="api-section-theme-variables">
+                    <h4>Theme variables</h3>
+                    <p>The following properties are overridden in <code>dark.css</code> on the <code>[data-cnds-theme="dark"]</code> selector.</p>
+                    <div class="table-responsive">
+                      <table class="table table-bordered" aria-label="Theme variables">
+                        <thead>
+                          <tr>
+                            <th>Token</th>
+                            <th>Light value</th>
+                            <th>Dark value</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td><code>--cnds-input-border-color</code></td>
+                            <td><code>var(--cnds-primary-gray-300, #bdbdbd)</code></td>
+                            <td><code>rgba(255, 255, 255, 0.2)</code></td>
+                          </tr>
+                          <tr>
+                            <td><code>--cnds-input-disabled-bg</code></td>
+                            <td><code>#e9ecef</code></td>
+                            <td><code>rgba(255, 255, 255, 0.1)</code></td>
+                          </tr>
+                          <tr>
+                            <td><code>--cnds-body-color</code></td>
+                            <td><code>#4f4f4f</code></td>
+                            <td><code>var(--cnds-surface-light-200, #ebebeb)</code></td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </section>
+
+                  <!-- API: Accessibility -->
+                  <section id="api-section-accessibility">
+                    <h4>Accessibility</h3>
+                    <ul>
+                      <li>Every <code>&lt;input&gt;</code> must have an accessible name. Use a visible <code>&lt;label for="id"&gt;</code> outside the <code>.input-group</code>, or supply <code>aria-label</code> on the input.</li>
+                      <li>Use <code>aria-describedby</code> on the <code>&lt;input&gt;</code> pointing to the <code>id</code> of a <code>.input-group-text</code> that supplies supplementary context (units, domain suffix, currency symbol).</li>
+                      <li>For icon-only <code>.input-group-text</code> addons, include <code>&lt;span class="visually-hidden"&gt;descriptive text&lt;/span&gt;</code> inside the addon so screen readers announce the purpose.</li>
+                      <li>Dropdown toggle buttons must have <code>aria-expanded="false"</code> set initially; nimbus.js toggles it on open/close.</li>
+                      <li>Do not rely on the visual position of addons alone to convey meaning — all context must be available in text through labels or ARIA attributes.</li>
+                    </ul>
+                  </section>
+                </section>
+
+                </section>
+                <!--/Section: Docs content-->
+
+                <!-- Bottom padding -->
+                <div class="pb-5"></div>
+
+              </div><!-- /main col -->
+
+              <!-- Right Sidebar — 20 % of the row width; hidden below lg breakpoint.
+                   Sticky attributes (processed by nimbus.js):
+                     data-cnds-sticky="true"          : activates sticky positioning
+                     data-cnds-sticky-boundary="true" : constrains sticky to its parent container
+                     data-cnds-sticky-direction="both" : sticks when scrolling up OR down
+                     data-cnds-sticky-offset="56"     : clears the 56 px fixed header
+                     data-cnds-sticky-delay="125"     : debounce delay (ms) to reduce scroll jank
+                   data-cnds-allow-hashes="true" on the <ul>: nimbus.js watches the URL hash
+                     and highlights the matching nav-link as the user scrolls through sections. -->
+              <!-- Right sidebar (20 %) — hidden below lg breakpoint.
+                   margin-top aligns the nav with the first section heading. -->
+              <div class="col-lg-2 d-none d-lg-block">
+                <div class="sticky-top" style="top: 100px; z-index: 1">
+                  <ul
+                    class="nav flex-column nav-pills menu-sidebar"
+                    id="rightNav"
+                    data-cnds-allow-hashes="true"
+                  >
+                    <li class="nav-item"><a class="nav-link" href="#section-introduction">Introduction</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-basic-example">Basic example</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-wrapping">Wrapping</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-sizing">Sizing</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-product-themes">Product themes</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-no-border">No border</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-checkboxes-radios">Checkboxes and radios</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-multiple-inputs">Multiple inputs</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-multiple-addons">Multiple addons</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-button-addons">Button addons</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-buttons-dropdowns">Buttons with dropdowns</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-segmented-buttons">Segmented buttons</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-file-input">File input</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-accessibility">Accessibility</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-api-docs">API Documentation</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-introduction">Introduction</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-usage">Usage</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-css-classes">CSS classes</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-css-variables">CSS custom properties</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-theme-variables">Theme variables</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link" href="#api-section-accessibility">Accessibility</a></li>
+                  </ul>
+                </div>
+              </div><!-- /right sidebar -->
+
+            </div><!-- /row -->
+          </div><!-- /slim-content-box -->
+
+    <!-- Footer -->
+    <div class="cf-footer cf-footer-app">
+      <footer class="page-footer main-footer" aria-label="Site footer">
+        <div class="w-100 px-3 d-flex align-items-center">
+          <img src="img/cf/core/cloudficient_logo_light.svg" class="cf-logo-light" style="width: 135px;" alt="Cloudficient" />
+          <img src="img/cf/core/cloudficient_logo_dark.svg" class="cf-logo-dark" style="width: 135px;" alt="Cloudficient" />
+          <span class="footer-copyright ms-auto">&copy; <span id="currentYear"></span> Cloudficient</span>
+        </div>
+      </footer>
+    </div>
+
+        </div><!-- /slim-content -->
+      </div><!-- /d-none d-md-block -->
+    </main>
+
+    <!-- SCRIPTS — load order matters:
+         1. nimbus.js   — core framework: theme toggle, dropdowns, sticky, tooltips, sidenav init
+         2. app.js      — app-level init: utility nav population, layout helpers
+         3. prism.min.js — syntax highlighting for all <code class="language-html"> blocks
+         4. sidenav-loader.js — XHR-fetches includes/sidenav.html and injects it into #sidebar-cf,
+                                then calls Nimbus.Sidenav.getOrCreateInstance() to activate side mode -->
+    <script type="text/javascript" src="js/nimbus.js?v=9.0.4"></script>
+    <script type="text/javascript" src="js/app.js?v=9.0.4"></script>
+    <script type="text/javascript" src="plugins/js/prism.min.js"></script>
+    <script type="text/javascript" src="js/sidenav-loader.js"></script>
+    <script type="text/javascript">
+      // Populate footer copyright year dynamically so the HTML never needs updating.
+      var currentYearElement = document.getElementById("currentYear");
+      if (currentYearElement) {
+        currentYearElement.textContent = new Date().getFullYear();
+      }
+    </script>
+  </body>
+</html>
