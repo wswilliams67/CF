@@ -304,33 +304,72 @@
               <p class="np-person-name" id="npiPersonName">&nbsp;</p>
               <p class="np-person-meta" id="npiPersonMeta">&nbsp;</p>
             </div>
+            <!-- ══ PERSON ACTIONS ═════════════════════════════════════
+                 TWO DROPDOWNS, and the split is read-only vs everything else.
+
+                 EXPORT AS is separate because it is the only one of the four
+                 that changes nothing — and because a distinct export control
+                 is the CaseFusion pattern: Case Details › Legal Holds draws
+                 the same secondary Nimbus/Dropdown labelled "Export As". The
+                 label keeps the "As", which is what says the items are
+                 FORMATS rather than export targets.
+
+                 ACTIONS is rightmost, per the action-direction paradigm — it
+                 carries the most severe thing on the screen.
+
+                 NOTHING HERE WRITES. Merge navigates to #17474, Split opens
+                 #17516, Export starts a job, and Delete is gated behind a
+                 confirmation whose behaviour is still an open decision — see
+                 the DECISION sticky on the Figma section.
+                 ════════════════════════════════════════════════════════ -->
             <div class="np-person-actions">
-              <!-- Navigates away to #17474. Nothing merges from this screen,
-                   which is read-only throughout. -->
-              <button type="button" class="btn btn-secondary" id="npiMerge">Merge</button>
-              <!-- Nimbus/Dropdown — person-level actions only, and a real
-                   dropdown rather than a button that looks like one: the
-                   wrapper, data-cnds-toggle and .dropdown-menu are all three
-                   required for js/components/dropdown.js to bind it. -->
+
+              <!-- Nimbus/Dropdown — export formats. The item list is
+                   PROVISIONAL: which formats a person's identity set offers is
+                   a PM/DM call. CSV and PDF are what CaseFusion offers
+                   elsewhere. -->
+              <div class="dropdown">
+                <button type="button" class="btn btn-secondary dropdown-toggle"
+                        id="npiExport" data-cnds-toggle="dropdown"
+                        aria-expanded="false" aria-haspopup="menu">
+                  Export As
+                  <i class="mdi mdi-chevron-down" aria-hidden="true"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion dropdown-menu-end" role="menu"
+                    aria-labelledby="npiExport">
+                  <li role="none"><a class="dropdown-item" role="menuitem" href="#"
+                    data-npi-action="export-csv">CSV</a></li>
+                  <li role="none"><a class="dropdown-item" role="menuitem" href="#"
+                    data-npi-action="export-pdf">PDF</a></li>
+                </ul>
+              </div>
+
+              <!-- Nimbus/Dropdown — person-level actions, and a real dropdown
+                   rather than a button that looks like one: the wrapper,
+                   data-cnds-toggle and .dropdown-menu are all three required
+                   for js/components/dropdown.js to bind it. Nimbus removed the
+                   CSS caret (`.dropdown-toggle::after { display: none }` —
+                   "use MDI chevron icons in markup instead"), so without the
+                   icon below the control draws as a plain button. -->
               <div class="dropdown">
                 <button type="button" class="btn btn-secondary dropdown-toggle"
                         id="npiActions" data-cnds-toggle="dropdown"
                         aria-expanded="false" aria-haspopup="menu">
                   Actions
-                  <!-- Nimbus REMOVED the CSS caret — components/dropdown.css
-                       sets `.dropdown-toggle::after { display: none }` and says
-                       "use MDI chevron icons in markup instead". So a Nimbus
-                       dropdown draws nothing at all without this icon, which is
-                       the chevron the Nimbus/Dropdown component carries inside
-                       its own fr_label at 18×18. -->
                   <i class="mdi mdi-chevron-down" aria-hidden="true"></i>
                 </button>
-                <ul class="dropdown-menu dropdown-menu-end" role="menu"
+                <ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion dropdown-menu-end" role="menu"
                     aria-labelledby="npiActions">
                   <li role="none"><a class="dropdown-item" role="menuitem" href="#"
-                    data-npi-action="split">Split identities</a></li>
+                    data-npi-action="merge">Merge into another person</a></li>
                   <li role="none"><a class="dropdown-item" role="menuitem" href="#"
-                    data-npi-action="export">Export identity set</a></li>
+                    data-npi-action="split">Split identities</a></li>
+                  <!-- The divider separates the reversible actions from the
+                       one that is not. -->
+                  <li role="none"><hr class="dropdown-divider" /></li>
+                  <li role="none"><a class="dropdown-item dropdown-item-danger"
+                    role="menuitem" href="#"
+                    data-npi-action="delete">Delete person</a></li>
                 </ul>
               </div>
             </div>
@@ -657,6 +696,71 @@
         <div class="offcanvas-body" id="npiDetailBody"><!-- rendered by the page script --></div>
         <div class="offcanvas-footer npi-detail-footer">
           <button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas">Close</button>
+        </div>
+      </div>
+
+      <!-- ══ DELETE PERSON — confirmation ═══════════════════════════════════
+           STUBBED, DELIBERATELY. What "Delete person" actually does is an open
+           decision — see the DECISION sticky on the #17475 Figma section. Two
+           constraints rule out a plain row delete:
+
+             · FR-95 makes the audit log immutable, so the history cannot go
+               with the person;
+             · the identities are SOURCE records, so the next ingestion
+               re-delivers the same keys and the matcher rebuilds the person.
+
+           The three candidates — suppress, unmatch, tombstone — each need
+           different copy and a different consequence line, so the body below
+           states the question rather than pretending to an answer. It is wired
+           to nothing: Cancel and the ✕ are the only working controls, and the
+           primary is disabled.
+
+           WHEN THE DECISION LANDS: replace #npiDeleteBody, enable the primary,
+           and decide whether this needs a typed confirmation. Group Dispatch
+           uses one because it acts on thousands of pairs; one person probably
+           warrants a named confirm instead, but that is part of the same call.
+
+           `data-cnds-backdrop="static"` matches Group Dispatch — a destructive
+           confirm must not be dismissible by a stray backdrop click.
+           ═══════════════════════════════════════════════════════════════════ -->
+      <div class="modal fade np-delete-person" id="npiDelete" tabindex="-1"
+           data-cnds-backdrop="static" data-cnds-keyboard="true"
+           aria-labelledby="npiDeleteTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+
+            <div class="modal-header">
+              <h2 class="modal-title" id="npiDeleteTitle">Delete person</h2>
+              <button type="button" class="btn-close" data-cnds-dismiss="modal"
+                      aria-label="Cancel"></button>
+            </div>
+
+            <div class="modal-body" id="npiDeleteBody">
+              <p class="npi-delete-subject" id="npiDeleteSubject">&nbsp;</p>
+              <div class="alert alert-warning npi-delete-pending" role="status">
+                <i class="mdi mdi-alert" aria-hidden="true"></i>
+                <span>What this does is not yet decided, so this dialog cannot
+                  state the consequence. Deleting cannot remove the audit
+                  history (FR-95), and cannot remove the source records the
+                  identities came from &mdash; those return on the next
+                  ingestion. Pending a decision between suppressing the person,
+                  returning its records to Unmatched, or keeping a deleted
+                  tombstone.</span>
+              </div>
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary"
+                      data-cnds-dismiss="modal">Cancel</button>
+              <!-- Disabled until the behaviour is decided. It carries no
+                   tooltip: a disabled control cannot receive pointer events, so
+                   the reason is stated in the body above where it is readable
+                   by everyone. -->
+              <button type="button" class="btn btn-danger" id="npiDeleteConfirm"
+                      disabled>Delete person</button>
+            </div>
+
+          </div>
         </div>
       </div>
 

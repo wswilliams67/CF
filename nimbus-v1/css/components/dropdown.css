@@ -164,6 +164,44 @@
   background-color: transparent;
 }
 
+/* --- Destructive item ---
+   For an item that deletes or otherwise cannot be undone. The word still
+   carries the meaning ("Delete …"), so the colour reinforces rather than
+   encodes it — which is what keeps this readable without colour.
+
+   ALL FOUR STATES ARE RESTATED, and that is the whole point of the variant.
+   `.dropdown-item:hover`, `:focus`, `.active` and `:active` each set colour at
+   0,2,0, so a utility class such as `.text-danger` (0,1,0) wins the base state
+   and LOSES every interactive one: the item would sit red until the cursor
+   reached it, then revert to the normal link colour at the exact moment before
+   the click, and identically on keyboard focus. That is backwards for the one
+   item that most needs its warning held.
+
+   Convention: put it last in the menu, below a .dropdown-divider. */
+.dropdown-item-danger {
+  color: var(--cnds-danger-text-emphasis);
+}
+
+.dropdown-item-danger:hover,
+.dropdown-item-danger:focus {
+  color: var(--cnds-danger-text-emphasis);
+  background-color: var(--cnds-danger-bg-subtle);
+}
+
+.dropdown-item-danger.active,
+.dropdown-item-danger:active {
+  color: var(--cnds-danger-text-emphasis);
+  background-color: var(--cnds-danger-bg-subtle);
+}
+
+/* Disabled still wins: an unavailable destructive item must read as
+   unavailable first and destructive second. */
+.dropdown-item-danger.disabled,
+.dropdown-item-danger:disabled {
+  color: var(--cnds-dropdown-link-disabled-color);
+  background-color: transparent;
+}
+
 /* --- Dropdown Header --- */
 .dropdown-header {
   display: block;

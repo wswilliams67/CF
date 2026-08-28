@@ -865,16 +865,85 @@
     });
   }
 
+  /**
+   * One delegated handler for every action on the screen.
+   *
+   * Delegated rather than bound per row, because the rows are replaced on
+   * every query — a per-row listener would be rebound ten times a keystroke.
+   *
+   * ONLY TWO OF THESE DO ANYTHING TODAY, and that is the design rather than an
+   * omission: this screen is read-only, so every other action leaves it.
+   *
+   *   view-event    opens the detail panel — the one thing that stays here
+   *   delete        opens the confirmation, which is itself stubbed pending
+   *                 the decision on what deleting a person means
+   *
+   *   merge         → #17474        split       → #17516
+   *   export-csv/pdf → an export job (format list is a PM/DM call)
+   *   view-record   → the identity detail route
+   *
+   * Those five are left as no-ops WITH their handlers present, so the wiring
+   * is visible to whoever implements them and the menu is testable now.
+   */
   function wireRowActions() {
     document.addEventListener("click", function (event) {
-      var btn = event.target.closest("[data-npi-action]");
-      if (!btn) return;
-      var action = btn.getAttribute("data-npi-action");
-      if (action === "view-event") openDetail(btn.getAttribute("data-npi-event"));
-      /* view-record and the person-level actions land with #17474 and the
-         Split story; they are stubbed rather than left dead so the rows are
-         testable end to end today. */
+      var el = event.target.closest("[data-npi-action]");
+      if (!el) return;
+      var action = el.getAttribute("data-npi-action");
+
+      if (action === "view-event") {
+        openDetail(el.getAttribute("data-npi-event"));
+        return;
+      }
+
+      if (action === "delete") {
+        event.preventDefault();
+        openDeleteConfirm();
+        return;
+      }
+
+      /* The rest navigate away or start a job; none of them writes from here. */
+      if (["merge", "split", "export-csv", "export-pdf", "view-record"]
+            .indexOf(action) !== -1) {
+        event.preventDefault();
+      }
     });
+  }
+
+  /**
+   * The delete confirmation.
+   *
+   * Names the person in the body, because a destructive confirm that says
+   * "this person" is one the operator can agree to without checking which
+   * person they are on.
+   *
+   * The primary stays DISABLED: what deleting does is undecided, so the dialog
+   * cannot state a consequence and must not offer to commit one.
+   */
+  function openDeleteConfirm() {
+    var el = byId("npiDelete");
+    if (!el) return;
+    /* The name comes from the RENDERED HEADER, not from `person`.
+       The header is reachable the moment the page paints, while the person
+       query takes ~650ms — so a fast operator (or a test) can open this dialog
+       before `person` exists, and an earlier build then showed a destructive
+       confirm with a blank subject line. Reading the heading keeps the dialog
+       naming exactly what the operator can see behind it, whenever it opens. */
+    var subject = byId("npiDeleteSubject");
+    if (subject) {
+      var nameEl = byId("npiPersonName");
+      var name = nameEl ? nameEl.textContent.trim() : "";
+      var count = person ? person.identityCount : null;
+      subject.textContent = name
+        ? (count === null
+            ? "Delete " + name + "?"
+            : "Delete " + name + " and their " + formatCount(count) +
+              (count === 1 ? " identity?" : " identities?"))
+        : "Delete this person?";
+    }
+    if (window.Nimbus && window.Nimbus.Modal) {
+      window.Nimbus.Modal.getOrCreateInstance(el).show();
+    }
   }
 
   function init() {
