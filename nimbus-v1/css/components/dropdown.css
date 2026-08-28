@@ -53,7 +53,15 @@
   position: absolute;
   z-index: var(--cnds-dropdown-zindex);
   display: none;
-  min-width: var(--cnds-dropdown-min-width);
+  /* THE FLOOR IS ALWAYS AT LEAST THE PARENT BUTTON'S WIDTH.
+     .dropdown is position:relative and shrink-wraps its toggle, and the menu
+     is absolute inside it, so 100% here resolves to the button's width — a
+     menu can grow past its toggle but never sit narrower than it.
+
+     max() keeps the token as a SECOND floor on top of that: default menus
+     still start at 10rem and product menus at 264px. Set the token to 0 to
+     hug the content, and the button width is what remains. */
+  min-width: max(var(--cnds-dropdown-min-width), 100%);
   padding: var(--cnds-dropdown-padding-y) var(--cnds-dropdown-padding-x);
   margin: 0;
   font-size: var(--cnds-dropdown-font-size);

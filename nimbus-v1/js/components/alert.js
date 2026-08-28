@@ -558,6 +558,35 @@
     window.addEventListener("resize", _scheduleAlign);
   }
 
+  // An alert inside a HIDDEN container measures zero — display:none collapses
+  // every rect — so the pass at load skips it and it keeps the centred default
+  // however long its message is. Modals, offcanvases, tab panes and collapses
+  // are all hidden at load, which is most of the places a long alert lives.
+  //
+  // Re-measure whenever one of them becomes visible. These fire on the
+  // container element and bubble, so one listener per type on document covers
+  // every instance, including markup added later.
+  if (typeof document !== "undefined" && document.addEventListener) {
+    var SHOWN_EVENTS = [
+      "shown.cnds.modal",
+      "shown.cnds.offcanvas",
+      "shown.cnds.tab",
+      "shown.cnds.collapse"
+    ];
+    for (var e = 0; e < SHOWN_EVENTS.length; e++) {
+      document.addEventListener(SHOWN_EVENTS[e], function (event) {
+        // Scope to the container that just opened where we can — a modal with
+        // one alert should not re-measure every alert on the page.
+        var scope = event && event.target && event.target.querySelectorAll
+          ? event.target
+          : document;
+        var found = scope.querySelectorAll(".alert");
+        if (!found.length) return;
+        for (var i = 0; i < found.length; i++) alignAlertIcon(found[i]);
+      });
+    }
+  }
+
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", function () {
       initAlerts();

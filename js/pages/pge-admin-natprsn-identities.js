@@ -519,11 +519,13 @@
    *
    * BOTH ROW TYPES DRAW THE SAME BOX: `Mon / D / YYYY`, a vertical
    * Nimbus/Divider, then the time. Ledger events put `h:mm` over `AM|PM`
-   * there; employment facts have no time of day, so they put **N/A**.
+   * there; employment facts have no time of day, so they put an **em dash**.
    *
-   * The N/A is Scott's, 08-28-2026 — the earlier fact variant dropped the
-   * divider and the time block entirely and centred the date alone in the
-   * box, which read as a half-built card rather than as an absent value.
+   * Stating the absence is Scott's, 08-28-2026 — the earlier fact variant
+   * dropped the divider and the time block entirely and centred the date alone
+   * in the box, which read as a half-built card rather than as an absent
+   * value. The dash replaced "N/A" the same day: the stamp holds numbers, and
+   * a dash says "nothing here" without putting a word among them.
    * Stating the absence is the same rule the identity rows follow for
    * "Matched on:", and it keeps one stamp shape down the whole list.
    *
@@ -555,7 +557,11 @@
                (hasTime
                  ? '<span class="npi-stamp-clock">' + esc(e.time) + "</span>" +
                    '<span class="npi-stamp-meridiem">' + esc(e.meridiem) + "</span>"
-                 : '<span class="npi-stamp-clock">N/A</span>') +
+                 /* An em dash, not "N/A" — the stamp is a date card, and a
+                    dash reads as "nothing here" without adding a word to a
+                    box that holds numbers. The aria-label carries the meaning
+                    in full, so nothing is lost to a screen reader. */
+                 : '<span class="npi-stamp-clock">&mdash;</span>') +
              "</span>" +
            "</div>";
   }

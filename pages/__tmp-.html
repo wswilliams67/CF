@@ -1,0 +1,803 @@
+<!-- ============================================================================
+     Nimbus v1 Portable Design System — CaseFusion 1.6
+     Page:       Admin › Natural Persons › Identities
+     File:       pages/pge-admin-natprsn-identities.html
+     Work item:  #17475
+     Figma:      CaseFusion v1.5 — Tenant Manager, section 12457:6785
+     Entry:      the per-card IDENTITIES button in the Natural Persons list
+
+     WHAT THIS SCREEN IS
+     ───────────────────
+     One person, three tabs, ONE route. The page title, the person header and
+     the tab bar persist across all three; only the content region changes.
+
+         Identities        every source record attached to this person
+         Pending matches   other people who may be the same human  (#17515)
+         History           the immutable audit log for this person
+
+     READ-ONLY THROUGHOUT. Nothing on this screen writes. MERGE navigates to
+     #17474, candidate adjudication happens in #17515's pair review, and the
+     audit log is immutable by FR-95. If a control here ever needs to write,
+     that is a design question before it is an implementation one.
+
+     FILES
+     ─────
+     css/pages/pge-admin-natprsn.css              shared with the list AND the
+                                                  queue — a change here hits
+                                                  three screens, two signed off
+     css/pages/frame-ca-sidenav.css               AppFrame chrome — shared
+     js/pages/frame-ca-sidenav.js                 AppFrame controller — shared
+     js/pages/pge-admin-natprsn-identities.data.js   THE BACKEND SEAM
+     js/pages/pge-admin-natprsn-identities.js        Screen controller — THIS page
+
+     ANGULAR: one routed component with three child views, not three routes —
+     the tabs share the person and must not re-fetch it on every switch.
+     ========================================================================= -->
+<html lang="en" data-cnds-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="CaseFusion — Admin, Natural Person Identities | Cloudficient Nimbus v1 Portable Design System" />
+    <title>Identities — Case Administrator · CaseFusion</title>
+
+    <!-- ═══════════════════ NIMBUS v1 CORE CSS ═══════════════════
+         Matches includes/head-css-core.html. Order matters:
+         nimbus → app → themes (primitives → light → dark) → page CSS.
+
+         Do NOT add per-component <link>s here: css/nimbus.css already
+         @imports every component stylesheet (cards, toolbars, select,
+         pagination, badges, …) plus the MDI + FontAwesome icon fonts.
+         Re-linking a component after app.css inverts the cascade and lets
+         the raw component defaults win over the app overrides.
+         ═══════════════════════════════════════════════════════════ -->
+    <link rel="stylesheet" href="../css/nimbus.css" media="all" type="text/css" />
+    <link rel="stylesheet" href="../css/app.css" media="all" type="text/css" />
+    <link rel="stylesheet" href="../css/themes/primitives.css" media="all" type="text/css" />
+    <link rel="stylesheet" href="../css/themes/light.css" media="all" type="text/css" />
+    <link rel="stylesheet" href="../css/themes/dark.css" media="all" type="text/css" />
+
+    <!-- ═══════════════════ PAGE CSS ════════════════════════════
+         Frame first, screen second — the screen stylesheet adjusts a couple
+         of frame values (.cf-page-title margin) and must win.
+         ═════════════════════════════════════════════════════════ -->
+    <link rel="stylesheet" href="../css/pages/frame-ca-sidenav.css" media="all" type="text/css" />
+    <link rel="stylesheet" href="../css/pages/pge-admin-natprsn.css" media="all" type="text/css" />
+
+    <!-- ═══════════════════ FAVICONS ════════════════════════════ -->
+    <link rel="apple-touch-icon" sizes="57x57"   href="../img/favicon/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="60x60"   href="../img/favicon/apple-icon-60x60.png" />
+    <link rel="apple-touch-icon" sizes="72x72"   href="../img/favicon/apple-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76"   href="../img/favicon/apple-icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="../img/favicon/apple-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="../img/favicon/apple-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="../img/favicon/apple-icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="../img/favicon/apple-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="../img/favicon/apple-icon-180x180.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="../img/favicon/android-icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="32x32"   href="../img/favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="96x96"   href="../img/favicon/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="16x16"   href="../img/favicon/favicon-16x16.png" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="msapplication-TileImage" content="../img/favicon/ms-icon-144x144.png" />
+  </head>
+
+  <body class="cnds-product-casefusion">
+    <!-- Skip navigation — WCAG 2.4.1 -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         SIDE NAV — fixed, below header, left of content; scrolls within
+
+         MARKUP CONTRACT (from tmpl_ca_sidenav.html — unchanged here):
+         a.sidenav-link ids MUST start "navlink_" for leaves and
+         "tog_submenu_" for category rows; §5 of the frame script finds each
+         kind by that prefix, so the ids are load-bearing, not cosmetic. The
+         <span> label is what becomes the slim-mode tooltip, so it must carry
+         the visible text.
+
+         `show` is the Nimbus open state for .sidenav; this frame's nav is
+         permanently open, so it is set in the markup rather than toggled.
+
+         The sections below replace the template's "Menu Item N" placeholders.
+         ADMIN is the current section: .active + aria-current="page" — the
+         queue lives under Admin, same as the Natural Persons list it opens
+         from, so the nav does not move when the operator crosses between them.
+
+         ANGULAR: SidenavComponent with a NavItem[]; `active` comes from
+         routerLinkActive, not a hard-coded class.
+         ════════════════════════════════════════════════════════════════ -->
+    <nav id="caSidenav" class="sidenav show" aria-label="Application navigation">
+
+      <!-- Slim/expand toggle. .sidebar-header (app.css) makes this row sticky
+           inside the scrolling panel so the control never scrolls away. -->
+      <div class="sidebar-header">
+        <button
+          type="button"
+          id="caSidenavToggle"
+          class="ca-nav-toggle"
+          aria-label="Collapse navigation"
+          aria-expanded="true"
+          aria-controls="caSidenav"
+        >
+          <span class="mdi mdi-menu-open" aria-hidden="true"></span>
+        </button>
+      </div>
+
+      <ul class="sidenav-menu" id="caSidenavMenu">
+
+        <li class="sidenav-item" title="Tenant Overview" data-original-title="Tenant Overview">
+          <a id="navlink_TenantOverview" class="sidenav-link" href="#!">
+            <i class="mdi mdi-home-account mdi-18px me-2" aria-hidden="true"></i>
+            <span>Tenant Overview</span>
+          </a>
+        </li>
+
+        <li class="sidenav-item" title="My Cases" data-original-title="My Cases">
+          <a id="navlink_MyCases" class="sidenav-link" href="#!">
+            <i class="mdi mdi-folder-account mdi-18px me-2" aria-hidden="true"></i>
+            <span>My Cases</span>
+          </a>
+        </li>
+
+        <li class="sidenav-item" title="Admin" data-original-title="Admin">
+          <a id="navlink_Admin" class="sidenav-link active" href="#!" aria-current="page">
+            <i class="mdi mdi-shield-account mdi-18px me-2" aria-hidden="true"></i>
+            <span>Admin</span>
+          </a>
+        </li>
+
+      </ul>
+    </nav><!-- /#caSidenav -->
+
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         STICKY HEADER — unchanged from tmpl_ca_sidenav.html.
+         Behaviour lives in js/pages/frame-ca-sidenav.js §2–§5.
+         ════════════════════════════════════════════════════════════════ -->
+    <div class="sticky-top" id="caHeader">
+
+      <!-- UTILITY NAV — app.css .nav-cf-utility, with its .fr_logo (left) /
+           .fr_tools (right) sub-structure. Keep the tool order: notifications,
+           theme, portal, account, each separated by .nav-cf-utility-divider. -->
+      <nav class="nav nav-cf-utility" id="UtilityNav" aria-label="Utility navigation">
+        <div class="fr_logo">
+          <img src="../img/cf/core/logo_casefusion.svg" width="32" height="36" alt="CaseFusion" />
+          <div class="fr_product-name">
+            <span class="product-bold">Case</span>
+            <span class="product-light">Fusion</span>
+          </div>
+        </div>
+        <div class="fr_tools">
+          <!-- NOTIFICATIONS. The popover is re-parented to <body> on init (it is
+               position:fixed and wider than the bar), so #navAlertWrapper is only
+               the pre-init home — outside-click is measured against the popover. -->
+          <div class="nav-alert-popover-wrapper" id="navAlertWrapper">
+            <button type="button" class="nav-icon-btn" id="navBellBtn" aria-label="Notifications" aria-haspopup="dialog" aria-expanded="false" aria-controls="navAlertPopover" data-cnds-toggle="tooltip" data-cnds-placement="bottom" data-cnds-delay="0" title="Notifications">
+              <span class="mdi mdi-bell" id="navBellIcon" aria-hidden="true"></span>
+              <span class="nav-bell-badge" id="navBellBadge" aria-live="polite" aria-atomic="true"></span>
+            </button>
+            <!-- No aria-modal: this is a non-modal popover. Focus is not trapped
+                 and an outside click dismisses it, so claiming modality would
+                 make assistive tech hide the rest of the page for no reason. -->
+            <div class="notif-popover" id="navAlertPopover" role="dialog" aria-label="Notifications" aria-hidden="true">
+              <div class="notif-header">
+                <span class="notif-header-title">Notifications</span>
+                <div class="notif-header-counts">
+                  <span class="notif-count-unread">0 Unread</span>
+                  <span class="notif-header-divider"></span>
+                  <span class="notif-count-total">0 Total</span>
+                </div>
+              </div>
+              <!-- Rows are rendered by §3 of the frame script. -->
+              <div class="notif-list" id="notifList"></div>
+            </div>
+          </div>
+
+          <span class="nav-cf-utility-divider" aria-hidden="true"></span>
+
+          <!-- THEME. data-cnds-toggle="theme" is handled by app.js: it flips
+               data-cnds-theme on <html> and persists the choice. §4 of the
+               frame script only mirrors the icon and the tooltip label. -->
+          <button type="button" class="nav-icon-btn" id="themeToggle" data-cnds-toggle="theme" aria-label="Toggle theme" title="Switch to light theme">
+            <span class="mdi mdi-weather-night" aria-hidden="true"></span>
+          </button>
+
+          <span class="nav-cf-utility-divider" aria-hidden="true"></span>
+
+          <!-- PORTAL SWITCHER. A span[role="button"] rather than a <button> so
+               the label can truncate mid-flex; the frame script wires Enter/Space. -->
+          <div class="portal-switcher-wrapper" id="portalSwitcherWrapper">
+            <span class="portal-switcher" id="portalSwitcherToggle" role="button" tabindex="0" aria-haspopup="menu" aria-expanded="false" aria-controls="portalMenu">
+              <span class="mdi mdi-account-switch-outline" aria-hidden="true"></span>
+              <span class="portal-switcher-label">{{Portal Name}}</span>
+              <span id="portalChevron" class="mdi mdi-chevron-down" aria-hidden="true"></span>
+            </span>
+            <div class="account-menu" id="portalMenu" role="menu" aria-hidden="true">
+              <div class="account-menu-header">Portal</div>
+              <a class="account-menu-item active" href="#!" role="menuitem">Tenant/Case Portal</a>
+              <a class="account-menu-item" href="#!" role="menuitem">Custodian Portal</a>
+              <a class="account-menu-item" href="#!" role="menuitem">SME Portal</a>
+            </div>
+          </div>
+          <span class="nav-cf-utility-divider" aria-hidden="true"></span>
+
+          <!-- ACCOUNT. .user-avatar holds the user's initials; aria-hidden
+               because the adjacent label already announces the name. -->
+          <div class="user-info-wrapper" id="userAccountWrapper">
+            <span class="user-info" id="userAccountToggle" role="button" tabindex="0" aria-haspopup="menu" aria-expanded="false" aria-controls="accountMenu">
+              <span class="user-avatar" aria-hidden="true">SW</span>
+              <span class="user-name-label">{{User Name}}</span>
+            </span>
+            <div class="account-menu" id="accountMenu" role="menu" aria-hidden="true">
+              <div class="account-menu-header">Account</div>
+              <a class="account-menu-item" href="#!" role="menuitem">Preferences</a>
+              <a class="account-menu-item" href="#!" role="menuitem">Sign Out</a>
+            </div>
+          </div>
+        </div><!-- /.fr_tools -->
+      </nav><!-- /#UtilityNav -->
+
+    </div><!-- /#caHeader / .sticky-top -->
+
+
+
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         MAIN CONTENT — a single slot. .ca-main carries the margin-left that
+         clears the fixed sidenav, and .ca-main-slim is added/removed by the
+         frame script in step with the panel's width.
+         ════════════════════════════════════════════════════════════════ -->
+    <main id="main-content" class="ca-main">
+      <!-- Small-screen notice. The frame assumes a fixed 220px sidenav plus a
+           content column, so it is not laid out for phones. -->
+      <div class="d-block d-md-none mb-3">
+        <div class="alert alert-warning" role="alert">
+          <i class="mdi mdi-alert mdi-18px me-1" aria-hidden="true"></i>
+          This application is not optimised for small screens. Use a large tablet, laptop, or desktop to continue.
+        </div>
+      </div>
+
+      <div class="ca-content" id="caContent">
+        <div class="np-page np-identities">
+          <!-- ══ PAGE TITLE — Nimbus/PageTitle, two-part with back ═════════
+               NATURAL PERSONS │ IDENTITIES. This is NOT a breadcrumb: it names
+               the screen, not the path taken to it. The ACTIVE TAB is the
+               position indicator, which is why the title never changes as tabs
+               do — see the tab bar below.
+
+               The back control is an <a> with a real href, not a button — it
+               navigates, so open-in-new-tab and the status bar must work. It
+               returns the list to the state it saved on the way here
+               (sessionStorage cf16.natprsn.list.state) rather than resetting
+               filters or paging.
+
+               ANGULAR: <a routerLink="/admin/natural-persons">.
+               ════════════════════════════════════════════════════════════ -->
+          <div class="np-header np-header-title" id="npiHeader">
+            <div class="cf-page-title">
+              <a class="cf-page-title-back np-title-back"
+                 href="pge-admin-natprsn-list.html"
+                 aria-label="Back to Natural Persons">
+                <i class="mdi mdi-arrow-left-circle" aria-hidden="true"></i>
+              </a>
+              <span class="cf-page-title-text np-title-parent">Natural Persons</span>
+              <span class="cf-page-title-divider" aria-hidden="true"></span>
+              <h1 class="cf-page-title-text">Identities</h1>
+            </div>
+          </div><!-- /.np-header -->
+
+          <!-- ══ PERSON HEADER ════════════════════════════════════════════
+               The subject of the screen. Name at H4/Bold 22, then one muted
+               line at Paragraph/Small 12 carrying email, job title and the
+               record and source counts.
+
+               THE COUNTS ARE ALWAYS THE UNFILTERED TOTALS. They answer "how
+               big is this person", so they must not move when the operator
+               searches inside a tab — the same rule the queue's stat tiles
+               follow. The filtered count lives in each tab's toolbar.
+
+               Person-scoped actions live HERE and never inside a tab, so
+               there is exactly one place to act on the person.
+               ════════════════════════════════════════════════════════════ -->
+          <div class="np-person-header" id="npiPersonHeader">
+            <div class="np-person-id">
+              <p class="np-person-name" id="npiPersonName">&nbsp;</p>
+              <p class="np-person-meta" id="npiPersonMeta">&nbsp;</p>
+            </div>
+            <!-- ══ PERSON ACTIONS ═════════════════════════════════════
+                 TWO DROPDOWNS, and the split is read-only vs everything else.
+
+                 EXPORT AS is separate because it is the only one of the four
+                 that changes nothing — and because a distinct export control
+                 is the CaseFusion pattern: Case Details › Legal Holds draws
+                 the same secondary Nimbus/Dropdown labelled "Export As". The
+                 label keeps the "As", which is what says the items are
+                 FORMATS rather than export targets.
+
+                 ACTIONS is rightmost, per the action-direction paradigm — it
+                 carries the most severe thing on the screen.
+
+                 NOTHING HERE WRITES. Merge navigates to #17474, Split opens
+                 #17516, Export starts a job, and Delete is gated behind a
+                 confirmation whose behaviour is still an open decision — see
+                 the DECISION sticky on the Figma section.
+                 ════════════════════════════════════════════════════════ -->
+            <div class="np-person-actions">
+
+              <!-- Nimbus/Dropdown — export formats. The item list is
+                   PROVISIONAL: which formats a person's identity set offers is
+                   a PM/DM call. CSV and PDF are what CaseFusion offers
+                   elsewhere. -->
+              <div class="dropdown">
+                <button type="button" class="btn btn-secondary dropdown-toggle"
+                        id="npiExport" data-cnds-toggle="dropdown"
+                        aria-expanded="false" aria-haspopup="menu">
+                  Export As
+                  <i class="mdi mdi-chevron-down" aria-hidden="true"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion dropdown-menu-end" role="menu"
+                    aria-labelledby="npiExport">
+                  <li role="none"><a class="dropdown-item" role="menuitem" href="#"
+                    data-npi-action="export-csv">CSV</a></li>
+                  <li role="none"><a class="dropdown-item" role="menuitem" href="#"
+                    data-npi-action="export-pdf">PDF</a></li>
+                </ul>
+              </div>
+
+              <!-- Nimbus/Dropdown — person-level actions, and a real dropdown
+                   rather than a button that looks like one: the wrapper,
+                   data-cnds-toggle and .dropdown-menu are all three required
+                   for js/components/dropdown.js to bind it. Nimbus removed the
+                   CSS caret (`.dropdown-toggle::after { display: none }` —
+                   "use MDI chevron icons in markup instead"), so without the
+                   icon below the control draws as a plain button. -->
+              <div class="dropdown">
+                <button type="button" class="btn btn-secondary dropdown-toggle"
+                        id="npiActions" data-cnds-toggle="dropdown"
+                        aria-expanded="false" aria-haspopup="menu">
+                  Actions
+                  <i class="mdi mdi-chevron-down" aria-hidden="true"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion dropdown-menu-end" role="menu"
+                    aria-labelledby="npiActions">
+                  <li role="none"><a class="dropdown-item" role="menuitem" href="#"
+                    data-npi-action="merge">Merge into another person</a></li>
+                  <li role="none"><a class="dropdown-item" role="menuitem" href="#"
+                    data-npi-action="split">Split identities</a></li>
+                  <!-- The divider separates the reversible actions from the
+                       one that is not. -->
+                  <li role="none"><hr class="dropdown-divider" /></li>
+                  <li role="none"><a class="dropdown-item dropdown-item-danger"
+                    role="menuitem" href="#"
+                    data-npi-action="delete">Delete person</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- ══ TABS — Nimbus/Tabs ═══════════════════════════════════════
+               THREE tabs, one screen, one route. Switching changes the content
+               region only: the page title, the person header and the person
+               context all persist, because they describe the person rather
+               than the view.
+
+               "Pending matches" carries its count in a Nimbus tab badge
+               (.nav-tab-badge), written by the page script. The count is the
+               UNFILTERED total and the badge is REMOVED entirely at zero — a
+               zero badge reads as a broken counter rather than a healthy empty
+               state. The badge is aria-hidden and the count is announced
+               through the pane's own live region, so the tab is not read out
+               as "Pending matches 12" on every arrow key.
+
+               ANGULAR: replace data-cnds-tab-init with (click)="tab = …" and
+               keep the three panes as child views of one routed component —
+               three routes would re-fetch the person on every switch.
+               ════════════════════════════════════════════════════════════ -->
+          <!-- nav-justified: the three tabs split the 1156 evenly at 385 each
+               and centre their labels, matching Nimbus/Tabs in the frame where
+               every tab is layoutSizingHorizontal=FILL. Without it Nimbus lays
+               them out left-aligned at their label widths, so the bar reads as
+               a toolbar rather than a segmented control. -->
+          <ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-casefusion nav-justified np-tabs"
+              id="npiTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <a data-cnds-tab-init class="nav-link active" id="npiTabIdentities"
+                 href="#npiPaneIdentities" role="tab"
+                 aria-controls="npiPaneIdentities" aria-selected="true">Identities</a>
+            </li>
+            <li class="nav-item" role="presentation">
+              <a data-cnds-tab-init class="nav-link" id="npiTabCandidates"
+                 href="#npiPaneCandidates" role="tab" tabindex="-1"
+                 aria-controls="npiPaneCandidates" aria-selected="false">Pending matches<span
+                 class="nav-tab-badge" aria-hidden="true"></span></a>
+            </li>
+            <li class="nav-item" role="presentation">
+              <a data-cnds-tab-init class="nav-link" id="npiTabHistory"
+                 href="#npiPaneHistory" role="tab" tabindex="-1"
+                 aria-controls="npiPaneHistory" aria-selected="false">History</a>
+            </li>
+          </ul>
+
+          <div class="tab-content np-tab-content">
+
+            <!-- ══ TAB 1 — IDENTITIES ═════════════════════════════════════
+                 Every source record attached to this person, as ONE FLAT LIST
+                 in payload order — AD first, then HRIS. There is no source
+                 grouping: the design draws a single list and lets the "Source"
+                 sort carry the ordering, which keeps one row shape for the
+                 whole tab.
+
+                 The list is a Nimbus/ListGroup in its FLUSH variant, so the
+                 separator between rows is the list-group's own bottom border
+                 (and the last row has none). Tabs 2 and 3 draw their rows with
+                 <hr class="hr"> siblings instead — that is what their frames
+                 specify, and the two produce the same hairline.
+                 ══════════════════════════════════════════════════════════ -->
+            <section class="tab-pane fade show active" id="npiPaneIdentities"
+                     role="tabpanel" aria-labelledby="npiTabIdentities" tabindex="0">
+
+              <!-- Nimbus/Alert, type info. Present ONLY on the inherited state
+                   (?state=inherited): the rows alone cannot explain why two of
+                   them have no recorded basis. Written by the page script from
+                   the response's `notice`, and absent otherwise. -->
+              <div class="alert alert-info npi-tab-notice" id="npiIdNotice" role="status" hidden>
+                <!-- .alert-icon is the component's own 24px box. Without it the
+                     glyph sits in the flex row raw and takes its font metrics
+                     rather than the icon size. -->
+                <span class="alert-icon" aria-hidden="true"><i class="mdi mdi-information"></i></span>
+                <span id="npiIdNoticeText"></span>
+              </div>
+
+              <div class="btn-toolbar btn-toolbar-gray btn-toolbar-list np-toolbar" role="toolbar"
+                   aria-label="Search and sort identities">
+                <div class="cf-input-wrapper np-toolbar-search">
+                  <input type="text" class="cf-input-control" id="npiIdSearch"
+                         placeholder="Search identities &hellip;" aria-label="Search identities"
+                         data-cnds-input-clear-init />
+                  <button type="button" class="mdi mdi-close-circle cf-input-clear"
+                          aria-label="Clear search" hidden></button>
+                </div>
+                <span class="vr vr-blurry npi-toolbar-rule" aria-hidden="true"></span>
+                <div class="npi-toolbar-field">
+                  <label class="np-toolbar-label" for="npiIdSort">Sort By</label>
+                  <select id="npiIdSort" class="form-control-sm" data-cnds-select-init
+                          aria-label="Sort identities">
+                    <option value="source" selected>Source</option>
+                    <option value="effective">Effective date</option>
+                  </select>
+                </div>
+                <!-- Nimbus/Button, tertiary — LABELLED, not icon-only. The
+                     word is what makes an arrow mean a sort direction rather
+                     than a move or a download.
+
+                     "DSC", NOT "DESC". The two labels must be the same width
+                     or the button resizes as the operator toggles it, shifting
+                     the total beside it. Three characters each is the whole
+                     reason for the abbreviation — do not "correct" it. -->
+                <button type="button" class="btn btn-tertiary btn-sm np-sort-dir"
+                        id="npiIdDir" data-dir="asc" aria-label="Sort ascending, click to reverse">
+                  <i class="mdi mdi-arrow-up-circle" aria-hidden="true"></i>
+                  <span class="npi-sort-dir-label">ASC</span>
+                </button>
+                <span class="vr vr-blurry npi-toolbar-rule" aria-hidden="true"></span>
+                <p class="np-toolbar-total" id="npiIdTotal" aria-live="polite">&nbsp;</p>
+              </div>
+
+              <div class="list-group list-group-flush np-rows np-record-rows" id="npiIdRows"
+                   aria-label="Identities"><!-- rendered by the page script --></div>
+
+              <!-- ══ PAGER — Nimbus/Pagination, toolbar variant ═══════════
+                   ALWAYS PRESENT, at every result count. The design draws it
+                   on a four-row list reading "1-4 of 4" with all four arrows
+                   disabled: the control never appears or vanishes under the
+                   cursor as the operator filters.
+                   ═══════════════════════════════════════════════════════ -->
+              <div class="pagination-toolbar np-pager" id="npiIdPager">
+                <label class="pagination-toolbar-label" for="npiIdPageSize">Results per page:</label>
+                <select id="npiIdPageSize" class="form-control-sm" data-cnds-select-init aria-label="Results per page">
+                  <option value="10" selected>10</option>
+                  <option value="25">25</option>
+                  <option value="50">50</option>
+                </select>
+                <span class="pagination-toolbar-range" id="npiIdRange" aria-live="polite">0 of 0</span>
+                <nav class="pagination-toolbar-nav" aria-label="Page navigation">
+                  <button type="button" class="pagination-toolbar-btn" data-npi-page="first" aria-label="First page" disabled><i class="mdi mdi-skip-previous" aria-hidden="true"></i></button>
+                  <button type="button" class="pagination-toolbar-btn" data-npi-page="prev"  aria-label="Previous page" disabled><i class="mdi mdi-chevron-left" aria-hidden="true"></i></button>
+                  <button type="button" class="pagination-toolbar-btn" data-npi-page="next"  aria-label="Next page" disabled><i class="mdi mdi-chevron-right" aria-hidden="true"></i></button>
+                  <button type="button" class="pagination-toolbar-btn" data-npi-page="last"  aria-label="Last page" disabled><i class="mdi mdi-skip-next" aria-hidden="true"></i></button>
+                </nav>
+              </div>
+            </section>
+
+            <!-- ══ TAB 2 — PENDING MATCHES ════════════════════════════════
+                 Other NATURAL PERSONS who may be the same human as this one.
+                 This tab lists them and links out; NO DECISION IS RECORDED
+                 HERE — that is #17515's pair review.
+
+                 TWO TIERS ONLY: "Needs corroboration" and "Near match,
+                 refused". A pair that matched on two or more keys, or on the
+                 UPN, resolves on its own and never appears here — it shows up
+                 under History as a Linked event. The note says so, which is
+                 what stops the missing third tier from reading as a bug.
+
+                 Sorted by match STRENGTH, strongest tier first, newest flagged
+                 within a tier. The sort control, the visible order and the
+                 direction indicator must always agree.
+                 ══════════════════════════════════════════════════════════ -->
+            <section class="tab-pane fade" id="npiPaneCandidates"
+                     role="tabpanel" aria-labelledby="npiTabCandidates" tabindex="0">
+
+              <!-- A single muted line, NOT an Alert. It is standing context
+                   for a read-only tab, not an event — alert chrome here would
+                   outweigh the list it introduces every time the tab opens. -->
+              <p class="npi-tab-note" id="npiCandNote">Decisions are made in the adjudication queue
+                &mdash; this tab is read-only. Pairs resolve automatically when two or more keys
+                match, or when the UPN matches; those are not listed here and appear under
+                History.</p>
+
+              <div class="btn-toolbar btn-toolbar-gray btn-toolbar-list np-toolbar" role="toolbar"
+                   id="npiCandToolbar" aria-label="Search, filter and sort candidates">
+                <div class="cf-input-wrapper np-toolbar-search">
+                  <input type="text" class="cf-input-control" id="npiCandSearch"
+                         placeholder="Search &hellip;" aria-label="Search candidates"
+                         data-cnds-input-clear-init />
+                  <button type="button" class="mdi mdi-close-circle cf-input-clear"
+                          aria-label="Clear search" hidden></button>
+                </div>
+                <span class="vr vr-blurry npi-toolbar-rule" aria-hidden="true"></span>
+                <div class="npi-toolbar-field">
+                  <label class="np-toolbar-label" for="npiCandShow">Show</label>
+                  <select id="npiCandShow" class="form-control-sm" data-cnds-select-init
+                          aria-label="Filter candidates by tier">
+                    <option value="all" selected>All</option>
+                    <option value="needs-corroboration">Needs corroboration</option>
+                    <option value="near-match-refused">Near match, refused</option>
+                  </select>
+                </div>
+                <div class="npi-toolbar-field">
+                  <label class="np-toolbar-label" for="npiCandSort">Sort By</label>
+                  <select id="npiCandSort" class="form-control-sm" data-cnds-select-init
+                          aria-label="Sort candidates">
+                    <option value="strength" selected>Strength</option>
+                    <option value="flagged">Flagged date</option>
+                  </select>
+                </div>
+                <button type="button" class="btn btn-tertiary btn-sm np-sort-dir"
+                        id="npiCandDir" data-dir="desc" aria-label="Sort descending, click to reverse">
+                  <i class="mdi mdi-arrow-down-circle" aria-hidden="true"></i>
+                  <span class="npi-sort-dir-label">DSC</span>
+                </button>
+                <span class="vr vr-blurry npi-toolbar-rule" aria-hidden="true"></span>
+                <p class="np-toolbar-total" id="npiCandTotal" aria-live="polite">&nbsp;</p>
+              </div>
+
+              <div class="np-rows np-candidate-rows" id="npiCandRows"
+                   aria-label="Candidates"><!-- rendered by the page script --></div>
+
+              <div class="pagination-toolbar np-pager" id="npiCandPager">
+                <label class="pagination-toolbar-label" for="npiCandPageSize">Results per page:</label>
+                <select id="npiCandPageSize" class="form-control-sm" data-cnds-select-init aria-label="Results per page">
+                  <option value="10" selected>10</option>
+                  <option value="25">25</option>
+                  <option value="50">50</option>
+                </select>
+                <span class="pagination-toolbar-range" id="npiCandRange" aria-live="polite">0 of 0</span>
+                <nav class="pagination-toolbar-nav" aria-label="Page navigation">
+                  <button type="button" class="pagination-toolbar-btn" data-npi-page="first" aria-label="First page" disabled><i class="mdi mdi-skip-previous" aria-hidden="true"></i></button>
+                  <button type="button" class="pagination-toolbar-btn" data-npi-page="prev"  aria-label="Previous page" disabled><i class="mdi mdi-chevron-left" aria-hidden="true"></i></button>
+                  <button type="button" class="pagination-toolbar-btn" data-npi-page="next"  aria-label="Next page" disabled><i class="mdi mdi-chevron-right" aria-hidden="true"></i></button>
+                  <button type="button" class="pagination-toolbar-btn" data-npi-page="last"  aria-label="Last page" disabled><i class="mdi mdi-skip-next" aria-hidden="true"></i></button>
+                </nav>
+              </div>
+            </section>
+
+            <!-- ══ TAB 3 — HISTORY ════════════════════════════════════════
+                 The audit record for this person, newest first. READ-ONLY AND
+                 IMMUTABLE (FR-95). No row is ever removed — a retraction is
+                 its OWN event rather than a deletion of the entry it reverses.
+
+                 ONE stream, TWO row types, distinguished by their SECOND
+                 column only, so the list still reads as one thing:
+                   ledger event   Subject / Detail / Decided by [/ Subject now]
+                   employment fact  From / To / Recorded
+                 Both carry the same DETAILS action — a mixed VIEW/DETAILS
+                 column reads as two affordances when it is one.
+
+                 THERE IS NO EMPTY STATE. Every person has at least a creation
+                 event, so an empty History cannot occur; the only empty this
+                 tab can show is a search that matched nothing.
+                 ══════════════════════════════════════════════════════════ -->
+            <section class="tab-pane fade" id="npiPaneHistory"
+                     role="tabpanel" aria-labelledby="npiTabHistory" tabindex="0">
+
+              <div class="btn-toolbar btn-toolbar-gray btn-toolbar-list np-toolbar" role="toolbar"
+                   aria-label="Search, filter and sort history">
+                <div class="cf-input-wrapper np-toolbar-search">
+                  <input type="text" class="cf-input-control" id="npiHistSearch"
+                         placeholder="Search &hellip;" aria-label="Search history"
+                         data-cnds-input-clear-init />
+                  <button type="button" class="mdi mdi-close-circle cf-input-clear"
+                          aria-label="Clear search" hidden></button>
+                </div>
+                <span class="vr vr-blurry npi-toolbar-rule" aria-hidden="true"></span>
+                <div class="npi-toolbar-field">
+                  <label class="np-toolbar-label" for="npiHistShow">Show</label>
+                  <select id="npiHistShow" class="form-control-sm" data-cnds-select-init
+                          aria-label="Filter history by kind">
+                    <option value="all" selected>All</option>
+                    <option value="decisions">Decisions</option>
+                    <option value="facts">Employment facts</option>
+                  </select>
+                </div>
+                <!-- Date/Time is the only sort a chronological ledger has.
+                     It is a control rather than a caption because the
+                     direction button beside it needs something to reverse. -->
+                <div class="npi-toolbar-field">
+                  <label class="np-toolbar-label" for="npiHistSort">Sort By</label>
+                  <select id="npiHistSort" class="form-control-sm" data-cnds-select-init
+                          aria-label="Sort history">
+                    <option value="at" selected>Date/Time</option>
+                  </select>
+                </div>
+                <button type="button" class="btn btn-tertiary btn-sm np-sort-dir"
+                        id="npiHistDir" data-dir="desc" aria-label="Sort descending, click to reverse">
+                  <i class="mdi mdi-arrow-down-circle" aria-hidden="true"></i>
+                  <span class="npi-sort-dir-label">DSC</span>
+                </button>
+                <span class="vr vr-blurry npi-toolbar-rule" aria-hidden="true"></span>
+                <p class="np-toolbar-total" id="npiHistTotal" aria-live="polite">&nbsp;</p>
+              </div>
+
+              <div class="np-rows np-history-rows" id="npiHistRows"
+                   aria-label="Audit history, newest first"><!-- rendered by the page script --></div>
+
+              <div class="pagination-toolbar np-pager" id="npiHistPager">
+                <label class="pagination-toolbar-label" for="npiHistPageSize">Results per page:</label>
+                <select id="npiHistPageSize" class="form-control-sm" data-cnds-select-init aria-label="Results per page">
+                  <option value="10" selected>10</option>
+                  <option value="25">25</option>
+                  <option value="50">50</option>
+                </select>
+                <span class="pagination-toolbar-range" id="npiHistRange" aria-live="polite">0 of 0</span>
+                <nav class="pagination-toolbar-nav" aria-label="Page navigation">
+                  <button type="button" class="pagination-toolbar-btn" data-npi-page="first" aria-label="First page" disabled><i class="mdi mdi-skip-previous" aria-hidden="true"></i></button>
+                  <button type="button" class="pagination-toolbar-btn" data-npi-page="prev"  aria-label="Previous page" disabled><i class="mdi mdi-chevron-left" aria-hidden="true"></i></button>
+                  <button type="button" class="pagination-toolbar-btn" data-npi-page="next"  aria-label="Next page" disabled><i class="mdi mdi-chevron-right" aria-hidden="true"></i></button>
+                  <button type="button" class="pagination-toolbar-btn" data-npi-page="last"  aria-label="Last page" disabled><i class="mdi mdi-skip-next" aria-hidden="true"></i></button>
+                </nav>
+              </div>
+            </section>
+
+          </div><!-- /.tab-content -->
+        </div><!-- /.np-page -->
+      </div><!-- /#caContent -->
+    </main><!-- /#main-content -->
+      <!-- ══ IDENTITY DETAIL PANEL — Nimbus/Offcanvas ═══════════════════════
+           Opened by VIEW on any History row, at 720px — the full panel width,
+           since nothing sits beneath it here (the queue's panels are 1080
+           because they overlay a list the operator keeps referring to).
+
+           ALWAYS LIVE, including when the event's subject has moved. A
+           "Subject now:" line states where it went — "No longer a separate
+           person" after a merge, or the person it is linked to now after a
+           withdrawal. The link is never disabled: the event happened and must
+           stay inspectable.
+
+           CLOSE, the header X and ESC all return to History.
+
+           ANGULAR: OffcanvasComponent with @Input() event; the "subject now"
+           line comes from the event, not from a second lookup.
+           ═══════════════════════════════════════════════════════════════════ -->
+      <div class="offcanvas offcanvas-end npi-detail-panel" tabindex="-1"
+           id="npiDetailPanel" aria-labelledby="npiDetailTitle"
+           data-cnds-backdrop="true" data-cnds-keyboard="true">
+        <div class="offcanvas-header">
+          <h2 class="offcanvas-title npi-detail-title" id="npiDetailTitle">&nbsp;</h2>
+          <button type="button" class="btn-close" data-cnds-dismiss="offcanvas"
+                  aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body" id="npiDetailBody"><!-- rendered by the page script --></div>
+        <div class="offcanvas-footer npi-detail-footer">
+          <button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas">Close</button>
+        </div>
+      </div>
+
+      <!-- ══ DELETE PERSON — confirmation ═══════════════════════════════════
+           STUBBED, DELIBERATELY. What "Delete person" actually does is an open
+           decision — see the DECISION sticky on the #17475 Figma section. Two
+           constraints rule out a plain row delete:
+
+             · FR-95 makes the audit log immutable, so the history cannot go
+               with the person;
+             · the identities are SOURCE records, so the next ingestion
+               re-delivers the same keys and the matcher rebuilds the person.
+
+           The three candidates — suppress, unmatch, tombstone — each need
+           different copy and a different consequence line, so the body below
+           states the question rather than pretending to an answer. It is wired
+           to nothing: Cancel and the ✕ are the only working controls, and the
+           primary is disabled.
+
+           WHEN THE DECISION LANDS: replace #npiDeleteBody, enable the primary,
+           and decide whether this needs a typed confirmation. Group Dispatch
+           uses one because it acts on thousands of pairs; one person probably
+           warrants a named confirm instead, but that is part of the same call.
+
+           `data-cnds-backdrop="static"` matches Group Dispatch — a destructive
+           confirm must not be dismissible by a stray backdrop click.
+           ═══════════════════════════════════════════════════════════════════ -->
+      <div class="modal fade np-delete-person" id="npiDelete" tabindex="-1"
+           data-cnds-backdrop="static" data-cnds-keyboard="true"
+           aria-labelledby="npiDeleteTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+
+            <div class="modal-header">
+              <h2 class="modal-title" id="npiDeleteTitle">Delete person</h2>
+              <button type="button" class="btn-close" data-cnds-dismiss="modal"
+                      aria-label="Cancel"></button>
+            </div>
+
+            <div class="modal-body" id="npiDeleteBody">
+              <p class="npi-delete-subject" id="npiDeleteSubject">&nbsp;</p>
+              <div class="alert alert-warning npi-delete-pending" role="status">
+                <span class="alert-icon" aria-hidden="true"><i class="mdi mdi-alert"></i></span>
+                <span>What this does is not yet decided, so this dialog cannot
+                  state the consequence. Deleting cannot remove the audit
+                  history (FR-95), and cannot remove the source records the
+                  identities came from &mdash; those return on the next
+                  ingestion. Pending a decision between suppressing the person,
+                  returning its records to Unmatched, or keeping a deleted
+                  tombstone.</span>
+              </div>
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary"
+                      data-cnds-dismiss="modal">Cancel</button>
+              <!-- PRIMARY, not danger. Scott, 08-28-2026: "primary button is
+                   the pattern, not semantic. That may change down the road but
+                   for now it stays primary." The destructive tone lives on the
+                   MENU ITEM that opens this dialog; once the operator is here,
+                   the dialog itself is the warning.
+
+                   Disabled until the behaviour is decided. It carries no
+                   tooltip: a disabled control cannot receive pointer events, so
+                   the reason is stated in the body above where it is readable
+                   by everyone. -->
+              <button type="button" class="btn btn-primary" id="npiDeleteConfirm"
+                      disabled>Delete person</button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    <!-- ══ SCRIPTS ════════════════════════════════════════════════════════
+         nimbus.js is a LOADER: it injects everything under js/core,
+         js/components and js/plugins at runtime, then fires `cnds.ready`.
+         Anything touching a component class must run inside that event — the
+         page controller does.
+         ═══════════════════════════════════════════════════════════════════ -->
+    <script type="text/javascript" src="../js/nimbus.js"></script>
+    <script type="text/javascript" src="../js/app.js"></script>
+
+    <!-- Frame controller — shared by every 1.6 page. -->
+    <script type="text/javascript" src="../js/pages/frame-ca-sidenav.js"></script>
+
+    <!-- ══ DATA SERVICE ══════════════════════════════════════════════════
+         MUST load before the controller.
+
+         The whole backend seam: every record on this screen comes through
+         NaturalPersonService, and connecting the API means re-pointing its
+         methods at real endpoints. No other file on this page holds a record
+         or knows a URL.
+         ═══════════════════════════════════════════════════════════════════ -->
+    <script type="text/javascript" src="../js/pages/pge-admin-natprsn-identities.data.js"></script>
+
+    <!-- Screen controller — this page only. -->
+    <script type="text/javascript" src="../js/pages/pge-admin-natprsn-identities.js"></script>
+
+<script>document.addEventListener("cnds.ready",function(){setTimeout(function(){document.getElementById("npiExport exp").click();},500);setTimeout(function(){var m=document.getElementById("npiExport exp").closest(".dropdown").querySelector(".dropdown-menu");var t=document.getElementById("npiExport exp");var pre=document.createElement("pre");pre.id="PROBE";pre.textContent=JSON.stringify({menuW:Math.round(m.getBoundingClientRect().width),toggleW:Math.round(t.getBoundingClientRect().width)});document.body.appendChild(pre);},1400);});</script>
+  </body>
+</html>
