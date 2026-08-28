@@ -305,10 +305,25 @@
 /* --- Tab links (override Bootstrap nav-tabs defaults) --- */
 .nav-tabs-nimbus .nav-link {
   min-width: 97px;
-  /* the padding alone yields 39px; the badge is 20px tall, so the tab is held
-     at 47px (14 + 20 + 13) and does not grow when a badge is present */
+  /* THE TAB IS 47px TALL WHETHER OR NOT IT CARRIES A BADGE OR AN ICON.
+     Getting that right is a box-model sum, and the sum has to include the
+     3px indicator border, because these are border-box:
+
+         12 top  +  20 content  +  12 bottom  +  3 border  =  47
+
+     20px is therefore the CEILING for anything sitting beside the label —
+     the badge is exactly 20, an icon is 18, and the 14px label is shorter
+     still, so a label-only tab falls to 41 and is held at 47 by min-height.
+     align-items:center then centres whichever of them is there.
+
+     The padding was 14/13 until 2026-08-28, from a comment that computed
+     14 + 20 + 13 = 47 and omitted the border. A badge tab actually came out
+     at 50 while its neighbours stayed 47, so the active tab's indicator sat
+     3px above the bar's bottom edge and the underline visibly broke.
+     If a taller affordance is ever needed here, change this padding and this
+     comment together — do not raise min-height and leave the sum wrong. */
   min-height: 47px;
-  padding: 14px 16px 13px;
+  padding: 12px 16px;
   background: var(--nimbus-tab-bg);
   color: var(--nimbus-tab-text);
   font-family: 'Nunito Sans', var(--cnds-font-family-sans-serif, sans-serif);

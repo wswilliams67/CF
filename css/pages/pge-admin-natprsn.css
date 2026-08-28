@@ -2093,3 +2093,668 @@
    what this page was hand-correcting for. A consumer that reverses it again
    re-breaks it.
    ───────────────────────────────────────────────────────────────────────── */
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   17 · IDENTITIES SCREEN  —  #17475
+
+   The third consumer of this stylesheet, after the list and the queue. Every
+   rule below is scoped to a class this screen introduces; nothing here
+   restyles a shared one, so a change in this section cannot reach the two
+   signed-off screens.
+
+   The record, candidate and event rows all reuse §10's .np-row family — same
+   four-column shape, same blurry column rules, same small buttons. Only the
+   column widths differ, and they are stated per row type.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ---- Person header ------------------------------------------------------
+   The subject of the screen. Name at 22/700 (Figma Typography/H4/Bold), then
+   ONE muted line at 12 (Paragraph/Small) carrying email, job title and the
+   person's unfiltered totals. Actions sit right and hug. */
+.np-person-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 0 0 4px;
+}
+
+.np-person-id {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.np-person-name {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--cnds-body-color);
+}
+
+.np-person-meta {
+  margin: 0;
+  font-size: var(--cnds-paragraph-font-size-sm, 0.75rem);
+  color: var(--cnds-text-muted);
+}
+
+.np-person-actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 8px;
+  align-items: center;
+}
+
+/* ---- Tabs ---------------------------------------------------------------
+   Nimbus/Tabs supplies the whole control. The only page-level need is the
+   space between the bar and the pane beneath it. */
+.np-tabs {
+  margin: 16px 0 0;
+}
+
+/* ---- The flex chain that floats the pager -------------------------------
+   §4's pager is sticky to the bottom of the viewport AND takes up the slack
+   with `margin-top: auto`. Both need it to be a flex child of a column that
+   actually stretches — on the list and the queue it is a direct child of
+   .np-page, which is that column.
+
+   Here it is two levels down, inside a tab pane, so the chain has to be
+   rebuilt: .np-tab-content and the ACTIVE pane both become stretching flex
+   columns. Nimbus sets `display: block` on a shown pane; only the shown one is
+   overridden, so the hidden panes keep their `display: none`.
+
+   Without this the pager sits wherever the list happens to end — under the
+   last row on a short page, which is exactly the position the floating
+   treatment exists to prevent. */
+.np-tab-content {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  padding-top: 16px;
+}
+
+.np-tab-content > .tab-pane.active {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* The list is what absorbs the free space, so the pager lands at the foot of
+   the pane rather than immediately under the last row. */
+.np-tab-content > .tab-pane.active > .np-rows {
+  flex: 1 1 auto;
+}
+
+/* …and NOTHING ELSE in the pane may absorb it.
+
+   §2 and §11 both set `.np-page .np-toolbar { flex: 1 1 auto }`, which is
+   right on the list and the queue: there the toolbar sits in a HORIZONTAL row
+   beside a CTA and "flex: 1" means take the spare WIDTH. In this pane the same
+   declaration is read down a vertical column, so it means take the spare
+   HEIGHT — and the bar grew to ~380px with the search field floating in the
+   middle of it.
+
+   The toolbar still grows horizontally where it should: that is
+   .np-toolbar-search inside it, which is untouched. */
+.np-tab-content > .tab-pane.active > .np-toolbar,
+.np-tab-content > .tab-pane.active > .npi-tab-note,
+.np-tab-content > .tab-pane.active > .npi-tab-notice,
+.np-tab-content > .tab-pane.active > .np-pager {
+  flex: 0 0 auto;
+}
+
+/* ---- Toolbar ------------------------------------------------------------
+   Nimbus/Toolbars, list variant. Search takes the slack; the fields, the
+   direction button and the total hug at the right. Two blurry vertical rules
+   segment it — after Search and before the total — exactly as the frames draw
+   them, so the bar reads as three zones rather than one run of controls. */
+.np-identities .np-toolbar {
+  align-items: center;
+  gap: 12px;
+  margin-bottom: var(--np-gap);
+}
+
+.np-identities .np-toolbar-search {
+  flex: 1 1 auto;
+  min-width: 200px;
+}
+
+/* 25px is the frame's own divider height — deliberately shorter than the
+   38px controls either side, so it separates without boxing them in. */
+.np-identities .npi-toolbar-rule {
+  flex-shrink: 0;
+  align-self: center;
+  height: 25px;
+  margin: 0;
+}
+
+/* Label and control side by side, NOT stacked. Nimbus/Select renders its own
+   label above the field when it finds one adjacent; these labels sit inside
+   the field wrapper so the component leaves them alone and the whole toolbar
+   keeps one baseline. */
+.np-identities .npi-toolbar-field {
+  display: flex;
+  flex-shrink: 0;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Toolbar/Label — 14px Medium, Text/DEFAULT (not muted). NIMBUS HAS NO CLASS
+   for this style; flagged to Scott. The size is the paragraph token, which is
+   the same 14px the style resolves to. */
+.np-identities .np-toolbar-label {
+  flex-shrink: 0;
+  margin: 0;
+  font-size: var(--cnds-paragraph-font-size, 14px);
+  font-weight: var(--cnds-font-weight-medium, 500);
+  white-space: nowrap;
+  color: var(--cnds-body-color);
+}
+
+/* "Total: 12" — the view's own count, and the last thing in the bar.
+   Typography/Paragraph/Default. */
+.np-identities .np-toolbar-total {
+  flex-shrink: 0;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--cnds-body-color);
+}
+
+/* Icon AND word. The word is load-bearing: an arrow on its own reads as a
+   move or a download as readily as a sort order. */
+.np-identities .np-sort-dir {
+  display: inline-flex;
+  flex-shrink: 0;
+  gap: 4px;
+  align-items: center;
+}
+
+/* Button/Small — the same text style the button's own label uses. */
+.np-identities .npi-sort-dir-label {
+  font-size: var(--cnds-btn-font-size-sm, 0.75rem);
+  font-weight: var(--cnds-font-weight-extrabold, 800);
+  letter-spacing: 0.04em;
+}
+
+/* ---- Tab-level notes ----------------------------------------------------
+   Two different weights, and the difference is deliberate.
+
+   .npi-tab-note is standing context for a read-only tab — it is true every
+   time the tab opens, so it is a muted line, not an alert. Alert chrome on
+   something permanent trains the operator to stop reading alerts.
+
+   .npi-tab-notice IS a Nimbus/Alert, and appears only when the data is unusual
+   (associations with no recorded basis). Its rarity is what earns the chrome. */
+/* Typography/Paragraph/Default — 14px. Muted, because it is standing context
+   rather than an event, but NOT shrunk: the frame sets it at full paragraph
+   size and it is the sentence that explains why the tab has no controls. */
+.np-identities .npi-tab-note {
+  margin: 0 0 var(--np-gap);
+  line-height: 1.5;
+  color: var(--cnds-text-muted);
+}
+
+.np-identities .npi-tab-notice {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin-bottom: var(--np-gap);
+}
+
+/* ---- List containers ----------------------------------------------------
+   Tab 1 is a FLUSH Nimbus/ListGroup: the hairline between rows is the list
+   group's own bottom border, and the last row has none. Tabs 2 and 3 draw
+   <hr class="hr"> siblings instead, which is what their frames specify. The
+   two produce the same hairline; do not unify them without changing both
+   frames first. */
+.np-identities .np-record-rows.list-group-flush {
+  --cnds-list-group-bg: transparent;
+  border-radius: 0;
+  background: none;
+}
+
+.np-identities .np-record-rows.list-group-flush > .list-group-item {
+  background: none;
+}
+
+/* 4px, so each <hr> sits with 4 above and 4 below it — the `rows` frame's
+   itemSpacing, with the divider counted as one of its children. Tab 1 needs
+   none: its rows are list-group items and the border is inside them. */
+.np-identities .np-candidate-rows,
+.np-identities .np-history-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.np-identities .np-candidate-rows .hr,
+.np-identities .np-history-rows .hr {
+  margin: 0;
+  border: 0;
+}
+
+/* ---- Row shells ---------------------------------------------------------
+   COLUMN WIDTHS ARE THE FRAMES', not approximations of them.
+
+     identity / pending match   300 · 210 · 456 · 91
+     history                    400 · 599 · 91
+
+   Both add up to 1156 once the 16px gaps and the 1px rules are counted, which
+   is why the third column is the one that flexes: it absorbs the rounding so
+   the first divider holds one x down the whole list. */
+.np-identities .np-row-record,
+.np-identities .np-row-candidate,
+.np-identities .np-row-event {
+  display: flex;
+  gap: 16px;
+  align-items: stretch;
+  padding: 8px 0;
+}
+
+/* The pending-match row is the one exception: 4px, not 8. Its frame is 80px
+   tall against the identity row's 84 for the same content, and the difference
+   is entirely this padding. */
+.np-identities .np-row-candidate {
+  padding: 4px 0;
+}
+
+/* NO `border: 0` on the rows. Tab 1's rows ARE .list-group-items, and the
+   hairline between them is that component's own bottom border — zeroing it
+   here (an earlier pass did) silently deleted the separator on one tab while
+   the other two, which use <hr> siblings, kept theirs. */
+.np-identities .np-record-rows.list-group-flush > .list-group-item {
+  border-color: var(--cnds-border-color);
+}
+
+/* COLUMN GAPS ARE THE FRAMES', and they are not uniform:
+     col 1 (identity)        4     key over meta
+     col 2 (identity)        4     status over "Asserted:"
+     col 2 (pending match)   4     same as the identity row (Scott, 08-28-2026)
+     col 3 (both)            8     reason over the matched-keys block
+     col 2 (history)         4     three or four label/value lines
+   4px — Nimbus gap-1 — is the default, and column 2 keeps it on every row
+   type: the status and the date beneath it are one fact, so gap-2 read as two.
+   Only column 3 takes the 8. */
+.np-identities .npi-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  justify-content: center;
+  min-width: 0;
+}
+
+.np-identities .npi-col-why {
+  gap: 8px;
+}
+
+
+.np-identities .npi-col-id      { flex: 0 0 300px; } .npi-col-status  { flex: 0 0 210px; } .npi-col-why     { flex: 1 1 456px; } .npi-col-actions {
+  flex: 0 0 91px;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+/* 36px, matching the frames and §10's queue rows — .btn-sm alone renders 32.
+   The label must never wrap: a wrapped label changes the row's height and
+   breaks the alignment of every divider below it. If one ever outgrows 91,
+   widen the column rather than letting it fold. */
+.np-identities .npi-col-actions .btn {
+  min-height: 36px;
+  box-shadow: none;
+  white-space: nowrap;
+}
+
+/* History: a wider first column, because it carries the stamp AND the title
+   side by side, and no separate status column — the title IS the verdict.
+
+   justify-content is flex-START, overriding .npi-col's centring. Centred, each
+   stamp floats to a different x as its title changes length, and the column
+   stops reading as the spine that makes a two-type list look like one list. */
+.np-identities .npi-col-when {
+  flex: 0 0 400px;
+  flex-direction: row;
+  gap: 16px;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.npi-col-detail { flex: 1 1 599px; }
+
+.np-identities .npi-event-id {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+/* The column rules span the row's content, not its padding. */
+.np-identities .np-rule {
+  flex-shrink: 0;
+  align-self: stretch;
+  margin: 0;
+}
+
+/* ---- Row text -----------------------------------------------------------
+   EVERY SIZE HERE COMES FROM A NIMBUS TEXT STYLE, and the markup carries the
+   class that supplies it. This section sets placement and colour only —
+   margins, wrapping, the muted/default token — never a font-size. An earlier
+   pass declared 0.75rem on almost everything and flattened the whole screen
+   to 12px; if you find yourself typing `font-size` below, the class is
+   missing from the markup instead.
+
+   The mapping, read off the frames:
+
+     key / title        Typography/H6/Bold            .h6        16 / 700
+     meta               Typography/Paragraph/Small    .small     12 / 400
+     status (identity)  Typography/Paragraph/Bold     .bold      14 / 700
+     status (candidate) Forms/Label/Large/Default     —          16 / 600
+     label (rows 1–2)   Typography/Paragraph/Bold     .bold      14 / 700
+     value (rows 1–2)   Typography/Paragraph/Default  p          14 / 400
+     label (history)    Typography/Small/Bold         .small.bold 12 / 700
+     value (history)    Typography/Paragraph/Small    .small     12 / 400
+
+   Three of those have NO Nimbus class — Forms/Label/Large, Toolbar/Label and
+   the 10px X-small family. They are flagged to Scott; until they exist the
+   rules below reach for the underlying token, never a literal px. */
+
+/* Typography/H6/Bold — 16px / 700.
+   TWO NIMBUS RULES HAVE TO BE BEATEN TO GET THERE, and both are worth knowing:
+
+   1. `.h6` supplies the 16px but NOT the weight: --cnds-headings-font-weight
+      is 400. The markup carries `.bold` beside it, which typography.css
+      resolves to 700 via its own `.h6.bold` rule.
+
+   2. list-group.css then does this to anything inside a list-group item:
+          .list-group-item .h6 { font-size: 0.88rem; font-weight: 300 }
+      At 0,2,0 and imported after typography.css, it beats BOTH `.h6` and
+      `.h6.bold` — so tab 1's keys came out 14.08px Light while tabs 2 and 3,
+      which are not list-group items, came out correct. Restated here at 0,3,0.
+      Flagged to Scott as a Nimbus question: a component that silently
+      restyles heading classes nested inside it will bite every consumer that
+      puts a real heading in a list row. */
+.np-identities .npi-key,
+.np-identities .npi-title {
+  margin: 0;
+  line-height: 1.35;
+  color: var(--cnds-body-color);
+  overflow-wrap: anywhere;
+}
+
+.np-identities .np-record-rows .list-group-item .h6 {
+  font-size: var(--cnds-h6-font-size, 16px);
+  font-weight: var(--cnds-font-weight-bold, 700);
+}
+
+.np-identities .npi-meta {
+  margin: 0;
+  line-height: 1.4;
+  color: var(--cnds-text-muted);
+}
+
+.np-identities .npi-pair {
+  margin: 0;
+  line-height: var(--cnds-paragraph-line-height, 1.43);
+  color: var(--cnds-body-color);
+  overflow-wrap: anywhere;
+}
+
+/* Muted label, full-contrast value. 8px is the frame's `pair` itemSpacing —
+   the label and value are separate text nodes there, not one string, so the
+   gap is a real measurement rather than the width of a space character. */
+.np-identities .npi-label {
+  margin-right: 8px;
+  color: var(--cnds-text-muted);
+}
+
+/* Typography/Paragraph/Bold — 14px / 700, on ALL THREE row types. §10's
+   shared .np-status is 12/600, which is right for the queue's rows and a size
+   too small here.
+
+   The pending-match row's frame specified Forms/Label/Large (16/600), a step
+   larger than the identity row's for the same element. Scott, 08-28-2026: it
+   matches. One status size on this screen. */
+.np-identities .np-row-record .np-status,
+.np-identities .np-row-candidate .np-status,
+.np-identities .np-row-event .np-status {
+  font-size: var(--cnds-paragraph-font-size, 14px);
+  font-weight: var(--cnds-font-weight-bold, 700);
+}
+
+/* "Matched on:" puts its label on its own line, because the values wrap. A
+   wrapped value that starts underneath its own label reads as a second value
+   rather than the continuation of the first. */
+/* "Matched on:" label above its values. The gap differs by row type — 0 on
+   the identity row, 4 on the pending match — which is what the frames draw. */
+.np-identities .npi-keys {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.np-identities .np-row-candidate .npi-keys {
+  gap: 4px;
+}
+
+.np-identities .npi-keys .npi-label {
+  margin: 0;                 /* owns its own line — no inline gap to the value */
+  line-height: var(--cnds-paragraph-line-height, 1.43);
+}
+
+.np-identities .npi-keys-value {
+  margin: 0;
+  line-height: var(--cnds-paragraph-line-height, 1.43);
+  color: var(--cnds-body-color);
+  overflow-wrap: anywhere;
+}
+
+/* Where the subject of an event has since moved. Fourth line on the rows that
+   have it, at the same weight as the other three: it is a fact about the
+   event, not a warning about it. */
+.np-identities .npi-resolution {
+  color: var(--cnds-body-color);
+}
+
+/* Employment facts carry no decision, so they take the quietest status tone on
+   the screen rather than one of the semantic four. */
+.np-identities .np-status-muted {
+  color: var(--cnds-text-muted);
+}
+
+/* ---- History date stamp -------------------------------------------------
+   84 × 52, radius 8, one border. The size is FIXED and IDENTICAL on both row
+   types — that is what makes the stamp column read as a spine down the list.
+
+   BOTH ROW TYPES DRAW THE SAME BOX — date, blurry rule, time. Ledger events
+   put h:mm over AM|PM in the time slot; employment facts have no time of day
+   and put N/A there instead (Scott, 08-28-2026). The earlier fact variant
+   dropped the rule and the time block and centred the date alone, which read
+   as a half-built card rather than as an absent value.
+
+   Do NOT let either variant hug to its content, and do NOT stretch either to
+   the row height: both were tried, and a stamp that changed size between
+   neighbouring rows read as meaning that was not there. */
+.np-identities .npi-stamp {
+  display: flex;
+  flex-shrink: 0;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 84px;
+  height: 52px;
+  padding: 4px 8px;
+  border: 1px solid var(--cnds-border-color);
+  border-radius: 8px;
+  background: var(--cnds-surface-bg, transparent);
+}
+
+.np-identities .npi-stamp-date,
+.np-identities .npi-stamp-time {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1;
+  text-align: center;
+}
+
+/* Typography/X-small/Default and Typography/Paragraph/X-small, both 10px.
+   NIMBUS HAS THE TOKEN BUT NO CLASS for either — flagged to Scott. Until one
+   exists the token is the honest reference; a literal 10px here would be the
+   raw size the text-style rule forbids.
+
+   All three stamp texts are Text/DEFAULT in the frames, not muted: the stamp
+   is data, and data is never dimmed. */
+.np-identities .npi-stamp-month,
+.np-identities .npi-stamp-year,
+.np-identities .npi-stamp-meridiem,
+.np-identities .npi-stamp-clock {
+  font-size: var(--cnds-paragraph-font-size-xs, 10px);
+  line-height: 1.2;
+  color: var(--cnds-body-color);
+}
+
+/* Typography/Paragraph/Bold — .bold in the markup supplies the weight. */
+.np-identities .npi-stamp-day {
+  font-size: var(--cnds-paragraph-font-size, 14px);
+  line-height: 1.2;
+  color: var(--cnds-body-color);
+}
+
+/* The rule inside the stamp DOES fill — 44px, the stamp's 52 less its 4/4
+   padding — even though the stamp itself is a fixed box. */
+.np-identities .npi-stamp-rule {
+  align-self: stretch;
+  margin: 0;
+}
+
+/* ---- Pager --------------------------------------------------------------
+   Nimbus/Pagination supplies the whole bar; §4 supplies the sticky behaviour,
+   shared with the list and the queue. Nothing to add per tab. */
+
+/* ---- Empty states -------------------------------------------------------
+   CENTRED IS THE DEFAULT (Scott, 08-28-2026), so this screen takes §5's
+   .np-empty verbatim — dashed border, centred, 64px of air — and adds nothing
+   for the ordinary "your filter matched nothing" case.
+
+   The C1 frame draws its copy left-aligned; the default wins over that, and
+   the frame is the one to change. One modifier only, for the whole-pane case
+   where a person genuinely has no candidates: three paragraphs need a wider
+   measure than a one-line note, or the middle one wraps into a column. */
+.np-identities .np-empty-page .np-empty-note {
+  max-width: 760px;
+}
+
+/* ---- Identity detail panel ---------------------------------------------
+   720px — the full panel width, since nothing sits beneath it here. The
+   queue's panels are 1080 because they overlay a list the operator keeps
+   referring to; this one does not. */
+.np-identities .npi-detail-panel {
+  width: 720px;
+  max-width: 100vw;
+}
+
+.np-identities .npi-detail-title {
+  font-size: var(--cnds-h5-font-size, 1.125rem);
+  text-transform: none;
+}
+
+.np-identities .npi-detail-when {
+  margin: 0 0 16px;
+  font-size: var(--cnds-paragraph-font-size-sm, 0.75rem);
+  color: var(--cnds-text-muted);
+}
+
+.np-identities .npi-detail-facts {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.np-identities .npi-detail-fact {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--cnds-border-color);
+}
+
+.np-identities .npi-detail-fact:last-child {
+  border-bottom: 0;
+}
+
+.np-identities .npi-detail-value {
+  margin: 0;
+  font-size: var(--cnds-paragraph-font-size, 0.875rem);
+  color: var(--cnds-body-color);
+  overflow-wrap: anywhere;
+}
+
+.np-identities .npi-detail-subject {
+  margin-top: 16px;
+}
+
+.np-identities .npi-detail-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px 24px;
+  border-top: 1px solid var(--cnds-border-color);
+}
+
+/* ---- Skeleton geometry --------------------------------------------------
+   The shape is the point: a skeleton earns its place over a spinner only by
+   standing in the real row's shape, so the content does not jump when it
+   lands. Columns match the row it replaces. */
+.np-identities .npi-skeleton-record {
+  display: flex;
+  gap: 16px;
+  padding: 16px 0;
+}
+
+.np-identities .npi-skeleton-record > .skeleton-group {
+  flex: 1 1 0;
+}
+
+/* ---- Responsive ---------------------------------------------------------
+   Below 1200 the four-column row cannot hold its widths, so it stacks and the
+   column rules go — a blurry rule between stacked blocks separates nothing.
+   The row keeps its reading order, which is why the actions land last. */
+@media (max-width: 1200px) {
+  .np-identities .np-row-record,
+  .np-identities .np-row-candidate,
+  .np-identities .np-row-event {
+    flex-wrap: wrap;
+  }
+
+  .np-identities .np-row-record .np-rule,
+  .np-identities .np-row-candidate .np-rule,
+  .np-identities .np-row-event .np-rule {
+    display: none;
+  }
+
+  .np-identities .npi-col-id,
+  .np-identities .npi-col-status,
+  .np-identities .npi-col-why,
+  .np-identities .npi-col-when,
+  .np-identities .npi-col-detail {
+    flex: 1 1 100%;
+  }
+
+  .np-identities .npi-col-actions {
+    flex: 1 1 100%;
+    align-items: flex-start;
+  }
+
+  .np-identities .np-toolbar {
+    flex-wrap: wrap;
+  }
+
+  .np-identities .npi-toolbar-rule {
+    display: none;
+  }
+}
