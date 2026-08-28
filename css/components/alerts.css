@@ -62,6 +62,26 @@
   min-height: 1px;
 }
 
+/* --- Icon alignment: centred while short, top-aligned once tall ---
+   The default is `center` on .alert above, which is right for the one- and
+   two-line alerts this component was drawn against.
+
+   At three lines or more it stops being right: the glyph floats in the middle
+   of a paragraph, level with nothing, and reads as decoration rather than as a
+   marker for the message. Then it aligns to the first line.
+
+   CSS CANNOT COUNT LINES, so components/alert.js measures each alert against
+   its own line-height and applies this class at 3+. Authors can also set it by
+   hand — for a message known to be long, or one that grows from data.
+
+   It is a class rather than a bare `align-items` override on a size modifier
+   because the trigger is the RENDERED line count, which changes with the
+   container width: a two-line alert becomes four in a narrow panel, and the
+   script re-measures on resize. */
+.alert-align-top {
+  align-items: flex-start;
+}
+
 /* --- Alert icon (prefix) --- */
 .alert .alert-icon {
   flex-shrink: 0;

@@ -1286,6 +1286,98 @@ document
 
                             <hr class="my-5">
 
+                            <!--Section: Icon alignment-->
+                            <section id="section-icon-alignment">
+                              <h3 class="mb-4">Icon alignment</h3>
+                              <p>
+                                An alert with a leading icon wraps it in
+                                <code>.alert-icon</code> &mdash; the component's own
+                                24px box. A bare <code>&lt;i class="mdi …"&gt;</code>
+                                is sized by its font metrics instead, so the glyph
+                                does not match the other alerts on the page.
+                              </p>
+                              <p>
+                                <strong>The icon centres while the message is short
+                                and moves to the first line once it is tall.</strong>
+                                Centring is right at one or two lines. At three or
+                                more the glyph ends up level with the middle of a
+                                paragraph, marking nothing &mdash; so it aligns to
+                                the first line instead.
+                              </p>
+                              <p>
+                                <strong>CSS cannot count lines</strong>, so
+                                <code>components/alert.js</code> measures each alert
+                                against its own <code>line-height</code> and applies
+                                <code>.alert-align-top</code> at three lines or more.
+                                The trigger is the <em>rendered</em> count, not the
+                                character count &mdash; a two-line alert becomes four
+                                in a narrow panel &mdash; so it re-measures on resize.
+                                It runs over every <code>.alert</code>, whether or not
+                                the element was initialised as a component.
+                              </p>
+                              <p>
+                                Apply <code>.alert-align-top</code> by hand for a
+                                message you know will be long. After writing an
+                                alert's text from script, call
+                                <code>Nimbus.Alert.alignIcons()</code> &mdash; the line
+                                count is not known until it renders.
+                              </p>
+
+                              <!--Section: Demo-->
+                              <section class="pb-4">
+                                <div class="border rounded-5 p-4">
+                                  <div style="max-width: 420px">
+                                    <div class="alert alert-info" role="alert">
+                                      <span class="alert-icon" aria-hidden="true"><i class="mdi mdi-information"></i></span>
+                                      <span>One line &mdash; the icon centres.</span>
+                                    </div>
+                                    <div class="alert alert-info" role="alert">
+                                      <span class="alert-icon" aria-hidden="true"><i class="mdi mdi-information"></i></span>
+                                      <span>Two lines of message text, which still centres the icon between them.</span>
+                                    </div>
+                                    <div class="alert alert-warning" role="alert">
+                                      <span class="alert-icon" aria-hidden="true"><i class="mdi mdi-alert"></i></span>
+                                      <span>Three lines or more, at which point the icon stops centring and aligns itself to the first line of the message.</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </section>
+                              <!--Section: Demo-->
+
+                              <!--Section: Code-->
+                              <section class="mb-4">
+                                <h4><span class="badge badge-code-html">HTML</span></h4>
+                                <div class="p-0">
+                                  <pre class="line-numbers m-0"><code class="language-html">
+&lt;!-- .alert-icon is the component's 24px box. Alignment is automatic. --&gt;
+&lt;div class="alert alert-warning" role="alert"&gt;
+  &lt;span class="alert-icon" aria-hidden="true"&gt;&lt;i class="mdi mdi-alert"&gt;&lt;/i&gt;&lt;/span&gt;
+  &lt;span&gt;Your message here.&lt;/span&gt;
+&lt;/div&gt;
+
+&lt;!-- Force it, for a message known to be long --&gt;
+&lt;div class="alert alert-warning alert-align-top" role="alert"&gt; … &lt;/div&gt;</code></pre>
+                                </div>
+                              </section>
+                              <!--Section: Code-->
+
+                              <!--Section: Code-->
+                              <section class="mb-4">
+                                <h4><span class="badge badge-code-js">JAVASCRIPT</span></h4>
+                                <div class="p-0">
+                                  <pre class="line-numbers m-0"><code class="language-javascript">
+// After writing alert text from script, re-measure:
+document.querySelector("#my-alert span:last-child").textContent = message;
+Nimbus.Alert.alignIcons();          // all alerts
+Nimbus.Alert.alignIcon(element);    // just one</code></pre>
+                                </div>
+                              </section>
+                              <!--Section: Code-->
+                            </section>
+                            <!--Section: Icon alignment-->
+
+                            <hr class="my-5">
+
                             <!-- Section: API -->
                             <section id="section-api-docs">
                               <h3 class="mb-3">API Documentation</h3>

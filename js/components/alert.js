@@ -491,12 +491,81 @@
     }
   }
 
+  // -----------------------------------------------------------------------
+  // Icon alignment — centred while short, top-aligned once tall
+  //
+  // .alert centres its children, which is right for the one- and two-line
+  // alerts the component was drawn against. At three lines or more the glyph
+  // ends up level with the middle of a paragraph, marking nothing — so it
+  // moves to the first line via .alert-align-top.
+  //
+  // CSS cannot count lines, hence measuring here. The trigger is the RENDERED
+  // count, not the character count: a two-line alert becomes four in a narrow
+  // panel, so this re-runs on resize.
+  //
+  // Runs over EVERY .alert with an icon, whether or not the element was
+  // instantiated as a component — a static alert in markup is the common case
+  // and never gets a Nimbus instance.
+  // -----------------------------------------------------------------------
+  var ALIGN_TOP_CLASS = "alert-align-top";
+  var LINE_THRESHOLD = 2;          // 3 or more lines goes to the top
+
+  function _messageBounds(alert, icon) {
+    // Everything that is not the icon or the close control is the message.
+    var top = null, bottom = null;
+    for (var i = 0; i < alert.children.length; i++) {
+      var child = alert.children[i];
+      if (child === icon) continue;
+      if (child.classList.contains("btn-close")) continue;
+      if (child.getAttribute("data-cnds-dismiss") === "alert") continue;
+      var r = child.getBoundingClientRect();
+      if (!r.height) continue;
+      top = top === null ? r.top : Math.min(top, r.top);
+      bottom = bottom === null ? r.bottom : Math.max(bottom, r.bottom);
+    }
+    return top === null ? 0 : bottom - top;
+  }
+
+  function alignAlertIcon(alert) {
+    var icon = alert.querySelector(".alert-icon");
+    if (!icon) return;
+
+    var cs = window.getComputedStyle(alert);
+    var lh = parseFloat(cs.lineHeight);
+    if (!lh || isNaN(lh)) lh = parseFloat(cs.fontSize) * 1.5;
+    if (!lh) return;
+
+    var h = _messageBounds(alert, icon);
+    if (!h) return;
+
+    // Half a line of tolerance so a hair over two lines does not flip it.
+    var tall = h / lh > LINE_THRESHOLD + 0.5;
+    alert.classList.toggle(ALIGN_TOP_CLASS, tall);
+  }
+
+  function alignAllAlertIcons() {
+    var alerts = document.querySelectorAll(".alert");
+    for (var i = 0; i < alerts.length; i++) alignAlertIcon(alerts[i]);
+  }
+
+  var _alignTimer = null;
+  function _scheduleAlign() {
+    clearTimeout(_alignTimer);
+    _alignTimer = setTimeout(alignAllAlertIcons, 100);
+  }
+
+  if (typeof window !== "undefined" && window.addEventListener) {
+    window.addEventListener("resize", _scheduleAlign);
+  }
+
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", function () {
       initAlerts();
+      alignAllAlertIcons();
     });
   } else {
     initAlerts();
+    alignAllAlertIcons();
   }
 
   // -----------------------------------------------------------------------
@@ -504,6 +573,11 @@
   // -----------------------------------------------------------------------
   window.Nimbus = window.Nimbus || {};
   window.Nimbus.Alert = Alert;
+
+  /* Re-measure after writing an alert's text from script — the line count is
+     what drives the icon's alignment, and it is not known until it renders. */
+  Alert.alignIcons = alignAllAlertIcons;
+  Alert.alignIcon = alignAlertIcon;
 
   if (window.Nimbus.DataAPI) {
     window.Nimbus.DataAPI.registerComponent("alert", Alert);
