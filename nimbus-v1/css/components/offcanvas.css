@@ -34,6 +34,58 @@
     Surface/Frame/Border      #cccccc / #787878  → footer border-top
     Text/Default              #141414 / #e8e8e8  → text
 */
+/* ---------------------------------------------------------------------------
+   STATIC BACKDROP — the "not that way" nudge
+
+   With `backdrop: "static"` the dimmed area stays visible but does not dismiss.
+   Something has to acknowledge the click, or the panel reads as broken rather
+   than as deliberate, so it shifts a few pixels toward the viewport and back.
+
+   The direction follows the panel's own edge: an `.offcanvas-end` panel has its
+   escape route to the right, so it recoils LEFT, which is the direction the eye
+   already associates with "staying". Duration is short enough to read as
+   resistance, not as an animation.
+   --------------------------------------------------------------------------- */
+.offcanvas-static {
+  animation: cnds-offcanvas-nudge 0.25s ease-in-out;
+}
+
+@keyframes cnds-offcanvas-nudge {
+  0%, 100% { transform: translateX(0); }
+  30%      { transform: translateX(-10px); }
+  60%      { transform: translateX(4px); }
+}
+
+.offcanvas-start.offcanvas-static {
+  animation-name: cnds-offcanvas-nudge-start;
+}
+
+@keyframes cnds-offcanvas-nudge-start {
+  0%, 100% { transform: translateX(0); }
+  30%      { transform: translateX(10px); }
+  60%      { transform: translateX(-4px); }
+}
+
+/* Top and bottom panels recoil on their own axis. */
+.offcanvas-top.offcanvas-static,
+.offcanvas-bottom.offcanvas-static {
+  animation-name: cnds-offcanvas-nudge-y;
+}
+
+@keyframes cnds-offcanvas-nudge-y {
+  0%, 100% { transform: translateY(0); }
+  30%      { transform: translateY(6px); }
+  60%      { transform: translateY(-3px); }
+}
+
+/* The library's standing guard: motion is a nicety, the block is the message.
+   Collapsed rather than removed so the JS animationend listener still fires. */
+@media (prefers-reduced-motion: reduce) {
+  .offcanvas-static {
+    animation-duration: 1ms !important;
+  }
+}
+
 .offcanvas {
   /* z-index */
   --cnds-offcanvas-zindex: var(--cnds-zindex-offcanvas, 1045);

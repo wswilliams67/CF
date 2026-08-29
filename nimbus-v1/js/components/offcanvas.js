@@ -22,6 +22,8 @@
   const CLASS_SHOW = "show";
   const CLASS_OFFCANVAS_OPEN = "offcanvas-open";
 
+  const CLASS_STATIC = "offcanvas-static";
+
   const Default = {
     backdrop: true,
     keyboard: true,
@@ -29,7 +31,13 @@
   };
 
   const DefaultType = {
-    backdrop: "boolean",
+    /* `true` | `false` | "static" — matching Modal. "static" keeps the backdrop
+       visible and dimmed but inert: clicking it nudges the panel instead of
+       dismissing it. For a panel the operator cannot re-open once it is gone —
+       one reached by a deep link, or one holding an unsaved decision — an
+       accidental click on the dimmed area destroys the arrival, and a panel
+       that vanishes is worse than one that declines to. */
+    backdrop: "(boolean|string)",
     keyboard: "boolean",
     scroll: "boolean"
   };
@@ -154,8 +162,38 @@
       Utils.reflow(this._backdrop);
       this._backdrop.classList.add(CLASS_SHOW);
 
-      this._backdropClickHandler = () => this.hide();
+      /* A static backdrop is still shown and still swallows the click — it just
+         does not dismiss. Without the nudge nothing happens at all, which reads
+         as a broken control rather than a deliberate one. */
+      this._backdropClickHandler = () => {
+        if (this._config.backdrop === "static") {
+          this._triggerStaticAnimation();
+          return;
+        }
+        this.hide();
+      };
       this._backdrop.addEventListener("click", this._backdropClickHandler);
+    }
+
+    /**
+     * Nudge the panel to say "not that way".
+     *
+     * The class is removed on animationend rather than on a timer, so the
+     * duration lives in CSS alone and `prefers-reduced-motion` — which
+     * collapses it — does not leave the class stuck for 300ms of nothing. The
+     * timeout is a fallback for the case where the animation never runs.
+     */
+    _triggerStaticAnimation() {
+      const el = this._element;
+      if (el.classList.contains(CLASS_STATIC)) return;
+      el.classList.add(CLASS_STATIC);
+
+      const clear = () => {
+        el.classList.remove(CLASS_STATIC);
+        el.removeEventListener("animationend", clear);
+      };
+      el.addEventListener("animationend", clear);
+      setTimeout(clear, 500);
     }
 
     _hideBackdrop() {

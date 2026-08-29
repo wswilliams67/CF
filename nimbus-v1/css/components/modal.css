@@ -4,6 +4,29 @@
    ============================================================ */
 
 /* --- Modal Backdrop --- */
+/* ---------------------------------------------------------------------------
+   STATIC BACKDROP — the "not that way" nudge
+
+   Modal.js has applied `.modal-static` on a static-backdrop click since it was
+   written, but nothing ever styled it, so the click produced no feedback at all
+   — indistinguishable from a dead control. A centred dialog has no edge to
+   recoil toward, so it pulses in scale instead.
+   --------------------------------------------------------------------------- */
+.modal-static .modal-dialog {
+  animation: cnds-modal-nudge 0.25s ease-in-out;
+}
+
+@keyframes cnds-modal-nudge {
+  0%, 100% { transform: scale(1); }
+  40%      { transform: scale(1.015); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-static .modal-dialog {
+    animation-duration: 1ms !important;
+  }
+}
+
 .modal-backdrop {
   --cnds-backdrop-zindex: var(--cnds-zindex-modal-backdrop, 1050);
   --cnds-backdrop-bg: var(--cnds-modal-backdrop-bg, #000);

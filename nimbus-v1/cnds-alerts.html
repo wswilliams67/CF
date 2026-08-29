@@ -1373,6 +1373,46 @@ Nimbus.Alert.alignIcon(element);    // just one</code></pre>
                                 </div>
                               </section>
                               <!--Section: Code-->
+                              <!--Section: Declaring the alignment-->
+                              <section class="mb-4">
+                                <h4 class="mb-3">Declaring it instead — <code>data-cnds-alert-align</code></h4>
+
+                                <p>
+                                  The automatic pass has to <strong>measure</strong>, and an alert inside a
+                                  <code>display: none</code> container measures zero. So a long alert in a modal,
+                                  offcanvas, tab pane or collapse paints centred and then jumps to the top the
+                                  moment its container opens. That is correct, and it is visible.
+                                </p>
+
+                                <p>
+                                  When the content is known at author time, declare the alignment instead.
+                                  <code>data-cnds-alert-align="top"</code> (or <code>"center"</code>) applies the
+                                  class up front, so the first paint is already right, and tells the automatic pass
+                                  to leave that alert alone.
+                                </p>
+
+                                <p>
+                                  Authoring <code>.alert-align-top</code> on its own is <strong>not</strong> enough:
+                                  the automatic pass sets the class both ways and will strip it on any pass that
+                                  measures short. The attribute is what makes the choice stick.
+                                </p>
+
+                                <!-- Angular: bind [attr.data-cnds-alert-align] when the copy is static; leave it off for user- or API-supplied text so the length is measured. -->
+                                <div class="p-0">
+                                  <pre class="line-numbers m-0"><code class="language-html">&lt;!-- Five lines, inside a modal: pin it and skip the measurement --&gt;
+&lt;div class="alert alert-warning alert-align-top"
+     data-cnds-alert-align="top" role="status"&gt;
+  &lt;span class="alert-icon" aria-hidden="true"&gt;&lt;i class="mdi mdi-alert"&gt;&lt;/i&gt;&lt;/span&gt;
+  &lt;span&gt;A long message that will always wrap …&lt;/span&gt;
+&lt;/div&gt;</code></pre>
+                                </div>
+
+                                <p class="mt-3 mb-0">
+                                  Leave it off for text that comes from a user, an API or a translation — there the
+                                  line count is not knowable in advance and measuring is the point.
+                                </p>
+                              </section>
+                              <!--Section: Declaring the alignment-->
                             </section>
                             <!--Section: Icon alignment-->
 

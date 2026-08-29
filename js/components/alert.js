@@ -530,6 +530,29 @@
     var icon = alert.querySelector(".alert-icon");
     if (!icon) return;
 
+    /*
+     * AN EXPLICIT CHOICE IS NOT REMEASURED.
+     *
+     * `data-cnds-alert-align="top"` (or "center") is the author saying they
+     * already know, and the automatic pass leaves it alone — the class is
+     * applied here so the very first paint is right.
+     *
+     * Without this, an alert that is obviously long can only reach the top
+     * alignment by BEING MEASURED, which cannot happen until its container is
+     * visible. So a five-line alert in a modal paints centred and then jumps to
+     * the top the moment the modal opens. Authoring the class instead would not
+     * help: the toggle below sets it both ways and would strip it on any pass
+     * that measured short.
+     *
+     * Automatic stays the default. This is for the case where the content is
+     * known at author time and the flicker is not worth it.
+     */
+    var declared = alert.getAttribute("data-cnds-alert-align");
+    if (declared === "top" || declared === "center") {
+      alert.classList.toggle(ALIGN_TOP_CLASS, declared === "top");
+      return;
+    }
+
     var cs = window.getComputedStyle(alert);
     var lh = parseFloat(cs.lineHeight);
     if (!lh || isNaN(lh)) lh = parseFloat(cs.fontSize) * 1.5;

@@ -1186,5 +1186,36 @@
     <!-- Screen controller — this page only. -->
     <script type="text/javascript" src="../js/pages/pge-admin-natprsn-queue.js"></script>
 
-  </body>
+  
+<script>
+document.addEventListener("cnds.ready", function () {
+  var out = [];
+  function state(t) {
+    var p = document.getElementById("npqPairReview");
+    return t + " :: panel " + (p.classList.contains("show") ? "OPEN" : "closed");
+  }
+  setTimeout(function () {
+    var panel = document.getElementById("npqPairReview");
+    out.push(state("deep-link arrival"));
+    var bd = document.querySelector(".offcanvas-backdrop");
+    out.push("backdrop present  :: " + !!bd);
+    if (bd) { bd.click(); }
+    setTimeout(function () {
+      out.push(state("after backdrop click"));
+      document.dispatchEvent(new KeyboardEvent("keydown", {key:"Escape", bubbles:true}));
+      setTimeout(function () {
+        out.push(state("after Escape"));
+        var close = document.querySelector("#npqPairReview .offcanvas-footer .btn-secondary");
+        close.click();
+        setTimeout(function () {
+          out.push(state("after Close button"));
+          var pre=document.createElement("pre");pre.id="PROBE";
+          pre.textContent=out.join("\n");document.body.appendChild(pre);
+        }, 600);
+      }, 400);
+    }, 600);
+  }, 3200);
+});
+</script>
+</body>
 </html>

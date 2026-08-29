@@ -347,6 +347,14 @@
             const instance = OffcanvasClass.getInstance(openOffcanvas);
             if (instance) {
               if (instance._config && instance._config.keyboard === false) return;
+              // Static backdrop: animate instead of closing — same contract as
+              // the modal branch above, so the two components behave alike.
+              if (instance._config && instance._config.backdrop === "static") {
+                if (typeof instance._triggerStaticAnimation === "function") {
+                  instance._triggerStaticAnimation();
+                }
+                return;
+              }
               if (typeof instance.hide === "function") {
                 instance.hide();
               }

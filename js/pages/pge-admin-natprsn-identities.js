@@ -173,6 +173,33 @@
    * Nimbus fires shown.cnds.tab after the pane is visible, which is what we
    * want: measuring or focusing inside a hidden pane gives zero heights.
    */
+  /**
+   * OPEN THE TAB THE OPERATOR CAME FROM — ?tab=
+   *
+   * The Pending Match Queue's return link carries the tab as well as the
+   * person, because a pending match is only visible on TAB 2. Landing on tab 1
+   * puts the operator on the identity list and makes them find their way back
+   * to the row they were reading — a smaller version of the same hunt the deep
+   * link exists to remove.
+   *
+   * Runs before the panes load, so the tab that opens is the one that fetches;
+   * the other two stay unloaded until they are asked for.
+   *
+   * An unrecognised or absent value falls through to tab 1, which is the right
+   * default for someone arriving from the Natural Persons list.
+   */
+  function openRequestedTab() {
+    var m = /[?&]tab=([^&]+)/.exec(window.location.search);
+    if (!m) return;
+    var want = { identities: "npiTabIdentities",
+                 pending:    "npiTabCandidates",
+                 candidates: "npiTabCandidates",
+                 history:    "npiTabHistory" }[decodeURIComponent(m[1])];
+    var el = want && byId(want);
+    if (!el || el.classList.contains("active")) return;
+    el.click();
+  }
+
   function wireTabs() {
     var map = {
       npiTabIdentities: loadIdentities,
@@ -438,10 +465,10 @@
              '<div class="npi-col npi-col-actions">' +
                /* A link, not a button: it leaves the screen. Opening the queue
                   filtered to this pair is #17515's entry point. */
-               '<a class="btn btn-tertiary btn-sm" ' +
-                 'href="pge-admin-natprsn-pndmtchque.html" ' +
+               '<button type="button" class="btn btn-tertiary btn-sm" ' +
+                 'data-npi-action="review-pair" data-npi-candidate="' + esc(c.id) + '" ' +
                  'aria-label="' + esc("Review the pair with " + c.name) +
-                 '">Review</a>' +
+                 '">Review</button>' +
              "</div>" +
            "</article>";
   }
@@ -717,6 +744,400 @@
     });
   }
 
+  /**
+   * The IDENTITY DETAIL panel — what DETAILS opens on the Identities tab.
+   *
+   * Screen B. A different panel from §8's, and deliberately so: this one shows
+   * a SOURCE RECORD's own field values, that one shows an audit event. They
+   * are 648 and 720 wide respectively because their frames say so.
+   *
+   * THE VALUES ARE THE SOURCE'S, NOT THE PERSON'S — "as recorded in HRIS,
+   * before merging". So the display name here can disagree with the person
+   * header behind the panel, and that disagreement is usually why it was
+   * opened. Never reconcile the two.
+   *
+   * An absent value is an em dash. Which fields a source did NOT populate is
+   * evidence, so no row is dropped and no blank is left ambiguous.
+   */
+  /**
+   * One field of the source record.
+   *
+   * Typography/Paragraph/Bold for the label and /Default for the value — both
+   * 14px, NOT the 12px `.small` the rest of the panel's captions use. An
+   * earlier pass shrank the whole body to 12 and the field list stopped
+   * reading as the panel's content.
+   *
+   * `tone` comes from the data, never from comparing strings here:
+   *   danger  the value disagrees with the person it is attached to
+   *   muted   the source did not populate this field
+   */
+  function detailPair(f) {
+    var tone = f.tone === "danger" ? " npi-panel-value-danger"
+             : f.tone === "muted"  ? " npi-panel-value-muted" : "";
+    return '<div class="npi-panel-pair">' +
+      '<p class="bold npi-panel-label">' + esc(f.label) + "</p>" +
+      '<p class="npi-panel-value' + tone + '">' + esc(f.value) + "</p></div>";
+  }
+
+  function openRecordDetail(recordId) {
+    var el = byId("npiRecordPanel");
+    if (!el) return;
+
+    var title = byId("npiRecordTitle");
+    var body = byId("npiRecordBody");
+    if (body) {
+      body.innerHTML = '<div class="skeleton-group">' +
+        skelText("skeleton-w-50") + skelText() + skelText("skeleton-w-75") + "</div>";
+    }
+    if (window.Nimbus && window.Nimbus.Offcanvas) {
+      window.Nimbus.Offcanvas.getOrCreateInstance(el).show();
+    }
+
+    svc.identityDetail(recordId).then(function (r) {
+      if (!r) {
+        if (body) body.innerHTML = '<p class="np-row-note">That identity is no longer available.</p>';
+        return;
+      }
+      /* The panel is titled with the PERSON, matching the frame — the record
+         it belongs to is the first line of the body. */
+      if (title) title.textContent = person ? person.name : r.key;
+
+      var context =
+        '<div class="npi-panel-context">' +
+          /* Typography/H4/Bold — the record identifier is the panel's
+             subject, a step above the section headings below it. */
+          '<p class="h4 bold npi-panel-record">' + esc(r.source) +
+            " &nbsp;&middot;&nbsp; " + esc(r.key) + "</p>" +
+          '<p class="small npi-meta">Effective ' + esc(r.effective) + "</p>" +
+        "</div>";
+
+      var values = r.original
+        ? '<section class="npi-panel-section">' +
+            '<div class="npi-panel-heading">' +
+              '<h3 class="h6 bold npi-panel-h">Original values</h3>' +
+              '<p class="small npi-meta">As recorded in ' + esc(r.source) +
+                ", before merging</p>" +
+            "</div>" +
+            r.original.map(detailPair).join("") +
+          "</section>"
+        : '<section class="npi-panel-section">' +
+            '<div class="npi-panel-heading">' +
+              '<h3 class="h6 bold npi-panel-h">Original values</h3>' +
+            "</div>" +
+            '<p class="small npi-meta">This record\u2019s field values were not ' +
+              "captured. The association is real; the values behind it are not held.</p>" +
+          "</section>";
+
+      var keys = (r.keys || []).map(function (k) {
+        return '<div class="npi-panel-key">' +
+          '<p class="npi-panel-keytype">' + esc(k.type) + "</p>" +
+          (k.status
+            ? '<p class="np-status np-status-' + esc(k.tone || "muted") + '">' +
+              esc(k.status) + "</p>"
+            : "") +
+        "</div>";
+      }).join("");
+
+      /* Nimbus/Divider, horizontal + blurry — the same rule the list rows use
+         between columns, here separating the record's own values from the
+         account of why it was attached. Added to the frame 08-28-2026. */
+      var why =
+        '<hr class="hr hr-blurry npi-panel-rule" aria-hidden="true" />' +
+        '<section class="npi-panel-section npi-panel-section-why">' +
+          '<div class="npi-panel-heading">' +
+            '<h3 class="h6 bold npi-panel-h">Why it linked</h3>' +
+            '<p class="small npi-meta">' + esc(r.assertedLabel.replace(":", "")) +
+              " " + esc(r.asserted) + "</p>" +
+          "</div>" +
+          (r.reason
+            ? '<p class="npi-pair"><span class="bold npi-label">Reason:</span> ' +
+              (r.reasonVerbatim ? "\u201c" + esc(r.reason) + "\u201d" : esc(r.reason)) +
+              "</p>"
+            : "") +
+          keys +
+          /* Not optional copy — it is why the panel shows key TYPES and never
+             the values that matched. */
+          '<p class="small npi-meta npi-panel-note">Key types only &mdash; matched ' +
+            "values are stored as hashes and are never displayed.</p>" +
+        "</section>";
+
+      if (body) body.innerHTML = context + values + why;
+    });
+  }
+
+  /**
+   * The PAIR REVIEW panel — what REVIEW opens on the Pending matches tab.
+   *
+   * The same evidence the queue's pair review shows, for the pair the row is
+   * about: the two people, the field-by-field comparison, and the matcher's
+   * explanation. 1080px, matching the queue's panel, because it overlays a
+   * list the operator keeps referring to.
+   *
+   * READ-ONLY. No decision bar and no SKIP — the tab's own note says decisions
+   * are made in the queue, and a decision surface here would contradict it.
+   * The footer link is the way to act on the pair.
+   *
+   * The verdict vocabulary is the queue's — Match / Differs / Only one side —
+   * so the same pair reads identically in both places.
+   */
+  /* The drawing's words, verbatim: "Matches" / "Differs" / "One Side".
+     Not "Match" / "Only one side", which is what an earlier pass used. */
+  /**
+   * The verdict vocabulary, and its colours, straight off the frame:
+   *
+   *   Matches   Text/Success    Differs  Text/DANGER  (not caution)
+   *   One Side  Text/Muted      Expected Text/Muted
+   *
+   * "Expected" is the Source row's own verdict — two records from different
+   * systems are supposed to differ there, so it must never read as evidence
+   * against the pair.
+   */
+  var AGREE = {
+    "Matches":  { cls: "np-agree-match",    icon: "mdi-check" },
+    "Differs":  { cls: "np-agree-differs",  icon: "mdi-close" },
+    "One Side": { cls: "np-agree-one",      icon: "mdi-minus" },
+    "Expected": { cls: "np-agree-expected", icon: "mdi-minus" }
+  };
+
+  /**
+   * ONE SIDE OF THE PAIR — fr_person-distinct / fr_person-established.
+   *
+   * Four lines, in the frame's own typography, and each line is a different
+   * kind of fact rather than a different size of the same one:
+   *
+   *   role         Paragraph/Default 14 · Text/Muted   which side this is
+   *   name         H6/Bold 16        · Text/Default    who
+   *   count        Paragraph/Default 14 · Text/Default how much is attached
+   *   provenance   Paragraph/Small 12   · Text/Muted   where the record came from
+   *
+   * The count line is the IDENTITY COUNT ONLY. An earlier pass appended the
+   * source system to it ("1 identity · AD"), which put a provenance fact on
+   * the size line and then repeated provenance again underneath.
+   *
+   * The hold state is a Nimbus/Badge and is ALWAYS rendered: "No holds" is
+   * stated rather than left blank, because a missing badge cannot distinguish
+   * "checked, none found" from "could not check".
+   */
+  function pairCard(role, name, count, provenance, hold) {
+    return '<div class="npi-pair-person">' +
+      '<p class="npi-pair-role">' + esc(role) + "</p>" +
+      '<p class="h6 bold npi-pair-name">' + esc(name) + "</p>" +
+      '<p class="npi-pair-count">' + esc(count) + "</p>" +
+      '<p class="small npi-pair-prov">' + esc(provenance) + "</p>" +
+      (hold
+        ? '<span class="badge badge-warning npi-pair-hold">' + esc(hold) + "</span>"
+        : '<span class="badge badge-secondary npi-pair-hold">No holds</span>') +
+    "</div>";
+  }
+
+  /**
+   * Nimbus/Category at C5 — 16px ExtraBold with the CaseFusion highlight bar —
+   * and the caption at Paragraph/Default muted, pushed to the right.
+   *
+   * C5, not C6. C6 is 14px, which put the section heading BELOW the caption
+   * beside it in size and made the caption read as the heading.
+   */
+  function pairHeading(text, caption) {
+    return '<div class="npi-pair-head">' +
+      '<h3 class="cf-category cf-cat-5 highlight-casefusion npi-pair-category">' +
+        esc(text) + "</h3>" +
+      (caption ? '<p class="npi-pair-caption">' + esc(caption) + "</p>" : "") +
+    "</div>";
+  }
+
+  /** Nimbus/Icon SM + Paragraph/Small muted — `fr_note` on the frame. */
+  function footnote(html) {
+    return '<p class="np-footnote">' +
+      '<i class="mdi mdi-information-outline" aria-hidden="true"></i>' +
+      "<span>" + html + "</span></p>";
+  }
+
+  /**
+   * LEAVE BY THE PANEL, NOT THROUGH IT — the same rule as the queue's return
+   * links, applied to the outbound half of the same journey.
+   *
+   * "Review in the queue" is a real link, so left alone it navigates while the
+   * pair review panel is still fully open across three quarters of the screen,
+   * and the queue replaces a lit panel with no intermediate state. Sliding the
+   * panel shut first gives the eye something to follow out.
+   *
+   * Modifier and middle clicks are left to the browser; the navigation races a
+   * derived timer against `hidden.cnds.offcanvas` so a missing animation can
+   * never strand the operator on a link that does nothing. See the twin of
+   * this in pge-admin-natprsn-queue.js → wireReturnNavigation().
+   */
+  function wirePairPanelExit() {
+    var link = byId("npiPairToQueue");
+    if (!link) return;
+
+    link.addEventListener("click", function (ev) {
+      if (ev.button !== 0 || ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey) return;
+      var href = link.getAttribute("href");
+      if (!href || href === "#") return;
+
+      ev.preventDefault();
+
+      var panel = byId("npiPairPanel");
+      var done = false;
+      function go() {
+        if (done) return;
+        done = true;
+        window.location.href = href;
+      }
+
+      if (!panel || !window.Nimbus || !window.Nimbus.Offcanvas) { go(); return; }
+      var inst = window.Nimbus.Offcanvas.getInstance(panel);
+      if (!inst) { go(); return; }
+
+      panel.addEventListener("hidden.cnds.offcanvas", go, { once: true });
+      var secs = parseFloat(getComputedStyle(panel).transitionDuration) || 0.3;
+      window.setTimeout(go, secs * 1000 + 50);
+      inst.hide();
+    });
+  }
+
+  function openPairReview(candidateId) {
+    var el = byId("npiPairPanel");
+    if (!el) return;
+    var title = byId("npiPairTitle");
+    var body = byId("npiPairBody");
+    if (body) {
+      body.innerHTML = '<div class="skeleton-group">' +
+        skelText("skeleton-w-50") + skelText() + skelText("skeleton-w-75") + "</div>";
+    }
+    if (window.Nimbus && window.Nimbus.Offcanvas) {
+      window.Nimbus.Offcanvas.getOrCreateInstance(el).show();
+    }
+
+    svc.candidate(candidateId).then(function (c) {
+      if (!c) {
+        if (body) body.innerHTML = '<p class="np-row-note">That pending match is no longer available.</p>';
+        return;
+      }
+      if (title) title.textContent = c.name + " \u2014 " + person.name;
+
+      /* REVIEW IN THE QUEUE opens THIS PAIR, not the queue's first row.
+         Without the hint the operator lands on the default screen and has to
+         find again the pair they were already looking at. The queue resolves
+         the hint and falls back to its own default only if the pair is gone
+         (decided, or withdrawn) \u2014 and says so when it does. */
+      var toQueue = byId("npiPairToQueue");
+      if (toQueue) {
+        var hint = c.pairHint || { est: person.name, cand: c.name };
+        /* `from` is the PERSON, not the pair: it is what the queue needs to
+           offer a way back here, and it is the only part of the handoff that
+           survives the operator skipping on to another pair. */
+        toQueue.href = "pge-admin-natprsn-pndmtchque.html" +
+          "?pair=" + encodeURIComponent(c.id) +
+          "&est=" + encodeURIComponent(hint.est) +
+          "&cand=" + encodeURIComponent(hint.cand) +
+          "&from=" + encodeURIComponent(person.id) +
+          "&fromName=" + encodeURIComponent(person.name);
+      }
+
+      var cards = c.cards || { candidate: {}, person: {} };
+
+      /* A hold on either side is the first thing shown \u2014 it changes what a
+         decision means, so it cannot sit below the evidence. */
+      var holdAlert = cards.person.hold || cards.candidate.hold
+        ? '<div class="alert alert-caution npi-pair-holdalert" role="status">' +
+            '<span class="alert-icon" aria-hidden="true"><i class="mdi mdi-alert-octagon"></i></span>' +
+            "<span>One of these people is under legal hold. Deciding does not " +
+            "lift the hold.</span></div>"
+        : "";
+
+      var persons =
+        '<div class="npi-pair-persons">' +
+          pairCard("CANDIDATE", c.name,
+                   formatCount(c.identityCount) +
+                     (c.identityCount === 1 ? " identity" : " identities"),
+                   cards.candidate.created || "", cards.candidate.hold) +
+          '<div class="np-persons-arrow" aria-hidden="true">' +
+            '<i class="mdi mdi-arrow-right-thick"></i></div>' +
+          pairCard("ESTABLISHED PERSON", person.name,
+                   formatCount(person.identityCount) + " identities",
+                   cards.person.created || "", cards.person.hold) +
+        "</div>";
+
+      /* THE SAME TABLE THE QUEUE DRAWS. `.np-compare` already carries the
+         frame's column rail (64/169/278/278/243 across 1032) and the
+         Table/Row/Header and Table/Row/Data typography, so this panel and the
+         queue's cannot drift \u2014 there is one implementation, not two. */
+      var rows = (c.compare || []).map(function (r) {
+        var v = AGREE[r.agree] || AGREE["One Side"];
+        return "<tr>" +
+          '<td class="np-col-verdict ' + v.cls + '">' +
+            '<i class="mdi ' + v.icon + '" aria-hidden="true"></i>' +
+            '<span class="visually-hidden">' + esc(r.agree) + "</span></td>" +
+          '<td class="np-col-field">' + esc(r.field) + "</td>" +
+          '<td class="np-col-value">' + esc(r.candidate || "\u2014") + "</td>" +
+          '<td class="np-col-value">' + esc(r.person || "\u2014") + "</td>" +
+          '<td class="np-col-agree ' + v.cls + '">' + esc(r.agree) + "</td>" +
+        "</tr>";
+      }).join("");
+
+      /* No header above the verdict column \u2014 the frame leaves it blank, and
+         an icon column headed "Agreement" would duplicate the word that
+         already ends the row. The cell still exists so the header row has as
+         many cells as the body rows. */
+      var comparison =
+        '<section class="npi-pair-section">' +
+          pairHeading("FIELD COMPARISON", "Values from each source record, pre-merge") +
+          '<div class="table-responsive">' +
+            '<table class="table np-compare">' +
+              "<thead><tr>" +
+                '<th scope="col" class="np-col-verdict">' +
+                  '<span class="visually-hidden">Agreement</span></th>' +
+                '<th scope="col" class="np-col-field">Field</th>' +
+                /* Candidate first, matching the card above it. */
+                '<th scope="col" class="np-col-value">Candidate</th>' +
+                '<th scope="col" class="np-col-value">Established</th>' +
+                '<th scope="col" class="np-col-agree">Agreement</th>' +
+              "</tr></thead><tbody>" + rows + "</tbody>" +
+            "</table>" +
+          "</div>" +
+        "</section>";
+
+      /* WHY THIS PAIR WAS REFUSED. The reason is quoted at H6/Bold \u2014 it is the
+         matcher's own words, not a caption \u2014 and each matching key is a
+         Nimbus/List/Unordered bullet with the tier it earned beside it. */
+      var keys = (c.matchedOn || []).map(function (k) {
+        return '<li class="npi-pair-key">' +
+          '<span class="npi-pair-keytype">' + esc(k) + "</span>" +
+          '<span class="np-status np-status-' + esc(c.tone) + '">' +
+            esc(c.tierLabel) + "</span></li>";
+      }).join("");
+
+      var explanation =
+        '<section class="npi-pair-section np-why">' +
+          pairHeading("WHY THIS PAIR WAS REFUSED", "Refused " + c.flagged) +
+          /* The matcher's NAMED REASON, quoted — "2 corroborating keys" — not
+             the tier label, which is already stated beside every key below.
+             The two say different things: what was found, and what it earned. */
+          '<p class="h6 bold npi-pair-reason">&ldquo;' +
+            esc(c.reason || c.tierLabel) + "&rdquo;</p>" +
+          '<ul class="cf-list highlight-casefusion npi-pair-keys">' + keys + "</ul>" +
+          /* `.np-footnote` is the queue's own footnote — the icon is a real
+             Nimbus/Icon SM (16px) and the text is wrapped so the flex row can
+             align it to the icon's first line. Inline, with no wrapper, the
+             glyph inherited the note's 12px and rendered at half size. */
+          footnote(esc(c.why) + ". Policy requires more than this to merge " +
+                   "automatically, so the identity became a distinct person " +
+                   "pending review.") +
+          footnote("Key types only &mdash; matched values are hashes and are " +
+                   "never displayed.") +
+        "</section>";
+
+      /* NO read-only alert. An earlier pass added an "nothing is decided here"
+         info banner; the frame has no such block, and the tab's own note above
+         the list already says decisions are made in the queue. Saying it twice
+         inside one screen makes the panel argue with itself. What the operator
+         needs is the way OUT to the queue, which is the footer link. */
+
+      if (body) body.innerHTML = holdAlert + persons + comparison + explanation;
+    });
+  }
+
   /* ═══════════════════════════════════════════════════════════════════════
      9 · WIRING + INIT
      ═══════════════════════════════════════════════════════════════════════ */
@@ -886,7 +1307,7 @@
    *
    *   merge         → #17474        split       → #17516
    *   export-csv/pdf → an export job (format list is a PM/DM call)
-   *   view-record   → the identity detail route
+   *   view-record   opens the identity detail panel (screen B)
    *
    * Those five are left as no-ops WITH their handlers present, so the wiring
    * is visible to whoever implements them and the menu is testable now.
@@ -902,6 +1323,18 @@
         return;
       }
 
+      if (action === "review-pair") {
+        event.preventDefault();
+        openPairReview(el.getAttribute("data-npi-candidate"));
+        return;
+      }
+
+      if (action === "view-record") {
+        event.preventDefault();
+        openRecordDetail(el.getAttribute("data-npi-record"));
+        return;
+      }
+
       if (action === "delete") {
         event.preventDefault();
         openDeleteConfirm();
@@ -909,7 +1342,7 @@
       }
 
       /* The rest navigate away or start a job; none of them writes from here. */
-      if (["merge", "split", "export-csv", "export-pdf", "view-record"]
+      if (["merge", "split", "export-csv", "export-pdf"]
             .indexOf(action) !== -1) {
         event.preventDefault();
       }
@@ -962,7 +1395,9 @@
     svc.person().then(renderPerson);
 
     wireTabs();
+    openRequestedTab();
     wireRowActions();
+    wirePairPanelExit();
 
     onSearch("npiIdSearch", "identities", loadIdentities);
     onSelect("npiIdSort", "identities", "sort", loadIdentities);

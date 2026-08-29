@@ -302,12 +302,368 @@
   var MOCK_PAIRS = [
     { id: "pm-1", groupId: "sig-two-keys", established: "Byrne, Jennifer", candidate: "Byrne, Jenny", sources: ["AD", "HRIS"],
       establishedMeta: "4 identities · First seen 06-01-2024",
+      candidateMeta: "1 identity · Created 08-10-2026 by refused merge",
+      legalHold: "Acme v. Byrne, on legal hold since 03-03-2026",
+      refusedOn: "08-10-2026",
+      status: "Pending", tone: "default",
+      matchedOn: ["Full name + email address"], reason: "2 corroborating keys",
+      note: "Needs corroboration. Two keys matched; policy requires more than this to merge automatically.",
+      compare: [{"field": "Surname", "established": "Byrne", "distinct": "Byrne", "verdict": "match"}, {"field": "Given name", "established": "Jennifer", "distinct": "Jenny", "verdict": "differ"}, {"field": "Email", "established": "j.byrne@acme.com", "distinct": "j.byrne@acme-hr.example", "verdict": "differ"}, {"field": "Job title", "established": "Claims Analyst", "distinct": null, "verdict": "missing", "agree": "One side"}, {"field": "Source", "established": "AD", "distinct": "HRIS", "verdict": "missing", "agree": "Expected"}] },
+    /*
+     * THE REST OF JENNIFER BYRNE'S PENDING MATCHES.
+     *
+     * Identity Records (#17475) shows twelve pending matches for this person
+     * and its "Review in the queue" link hands the pair over here. Only
+     * "Byrne, Jenny" (pm-1) existed, so eleven of those twelve links resolved
+     * to nothing and the operator landed on the default queue — the exact
+     * hunt-for-it-again the link is supposed to remove.
+     *
+     * These are the SAME pairs that screen lists, generated from its fixture
+     * so the two cannot disagree about who is pending against whom.
+     *
+     * THE QUEUE'S TOTALS DO NOT MOVE. generatePairs() pads each group up to
+     * GROUP_SIZES, counting curated adjudicable pairs first — so eleven
+     * curated rows displace eleven filler rows and every tile, group count and
+     * pager total reads exactly as before. Verified, not assumed.
+     *
+     * Group follows the evidence, not the tier label: two keys → sig-two-keys,
+     * a single full-name key → sig-shared-address, a refused near match →
+     * sig-cohort-only.
+     */
+    { id: "pm-b1", groupId: "sig-two-keys", established: "Byrne, Jennifer", candidate: "Byrne, Jennifer M.",
+      sources: ["AD", "AD"],
+      establishedMeta: "4 identities · First seen 06-01-2024",
+      candidateMeta: "2 identities · Created 08-12-2026 by refused merge",
+      legalHold: "Acme v. Byrne, on legal hold since 03-03-2026",
+      refusedOn: "08-12-2026",
+      status: "Pending", tone: "default",
+      matchedOn: ["Full name + phone number"], reason: "2 corroborating keys",
+      note: "Needs corroboration. Two keys matched; policy requires more than this to merge automatically.",
+      compare: [{"field": "Surname", "established": "Byrne", "distinct": "Byrne", "verdict": "match"}, {"field": "Given name", "established": "Jennifer", "distinct": "Jennifer M.", "verdict": "differ"}, {"field": "Email", "established": "j.byrne@acme.com", "distinct": "j.byrne@acme.com", "verdict": "match"}, {"field": "Job title", "established": "Claims Analyst", "distinct": null, "verdict": "missing", "agree": "One side"}, {"field": "Source", "established": "AD", "distinct": "AD", "verdict": "match"}] },
+    { id: "pm-b2", groupId: "sig-two-keys", established: "Byrne, Jennifer", candidate: "Byrne-Adams, Jennifer",
+      sources: ["AD", "HRIS"],
+      establishedMeta: "4 identities · First seen 06-01-2024",
       candidateMeta: "1 identity · Created 08-11-2026 by refused merge",
       legalHold: "Acme v. Byrne, on legal hold since 03-03-2026",
       refusedOn: "08-11-2026",
       status: "Pending", tone: "default",
       matchedOn: ["Full name + email address"], reason: "2 corroborating keys",
-      note: "Needs corroboration. Two keys matched; policy requires more than this to merge automatically." },
+      note: "Needs corroboration. Two keys matched; policy requires more than this to merge automatically.",
+      compare: [{"field": "Surname", "established": "Byrne", "distinct": "Byrne-Adams", "verdict": "differ"}, {"field": "Given name", "established": "Jennifer", "distinct": "Jennifer", "verdict": "match"}, {"field": "Email", "established": "j.byrne@acme.com", "distinct": "j.byrne@acme-hr.example", "verdict": "differ"}, {"field": "Job title", "established": "Claims Analyst", "distinct": null, "verdict": "missing", "agree": "One side"}, {"field": "Source", "established": "AD", "distinct": "HRIS", "verdict": "missing", "agree": "Expected"}] },
+    { id: "pm-b4", groupId: "sig-two-keys", established: "Byrne, Jennifer", candidate: "Byrne, J.",
+      sources: ["AD", "AD"],
+      establishedMeta: "4 identities · First seen 06-01-2024",
+      candidateMeta: "2 identities · Created 08-09-2026 by refused merge",
+      legalHold: "Acme v. Byrne, on legal hold since 03-03-2026",
+      refusedOn: "08-09-2026",
+      status: "Pending", tone: "default",
+      matchedOn: ["Full name + phone number"], reason: "2 corroborating keys",
+      note: "Needs corroboration. Two keys matched; policy requires more than this to merge automatically.",
+      compare: [{"field": "Surname", "established": "Byrne", "distinct": "Byrne", "verdict": "match"}, {"field": "Given name", "established": "Jennifer", "distinct": "J.", "verdict": "differ"}, {"field": "Email", "established": "j.byrne@acme.com", "distinct": "j.byrne@acme.com", "verdict": "match"}, {"field": "Job title", "established": "Claims Analyst", "distinct": null, "verdict": "missing", "agree": "One side"}, {"field": "Source", "established": "AD", "distinct": "AD", "verdict": "match"}] },
+    { id: "pm-b5", groupId: "sig-shared-address", established: "Byrne, Jennifer", candidate: "Byrne, Jennifer",
+      sources: ["AD", "AD"],
+      establishedMeta: "4 identities · First seen 06-01-2024",
+      candidateMeta: "1 identity · Created 08-06-2026 by refused merge",
+      legalHold: "Acme v. Byrne, on legal hold since 03-03-2026",
+      refusedOn: "08-06-2026",
+      status: "Pending", tone: "default",
+      matchedOn: ["Full name"], reason: "shared address, single key",
+      note: "Needs corroboration. Single key on a shared address — not identifying on its own.",
+      compare: [{"field": "Surname", "established": "Byrne", "distinct": "Byrne", "verdict": "match"}, {"field": "Given name", "established": "Jennifer", "distinct": "Jennifer", "verdict": "match"}, {"field": "Email", "established": "j.byrne@acme.com", "distinct": "j.byrne@acme.com", "verdict": "match"}, {"field": "Job title", "established": "Claims Analyst", "distinct": null, "verdict": "missing", "agree": "One side"}, {"field": "Source", "established": "AD", "distinct": "AD", "verdict": "match"}] },
+    { id: "pm-b6", groupId: "sig-two-keys", established: "Byrne, Jennifer", candidate: "Byrne, Jennifer L.",
+      sources: ["AD", "HRIS"],
+      establishedMeta: "4 identities · First seen 06-01-2024",
+      candidateMeta: "2 identities · Created 08-03-2026 by refused merge",
+      legalHold: "Acme v. Byrne, on legal hold since 03-03-2026",
+      refusedOn: "08-03-2026",
+      status: "Pending", tone: "default",
+      matchedOn: ["Full name + email address"], reason: "2 corroborating keys",
+      note: "Needs corroboration. Two keys matched; policy requires more than this to merge automatically.",
+      compare: [{"field": "Surname", "established": "Byrne", "distinct": "Byrne", "verdict": "match"}, {"field": "Given name", "established": "Jennifer", "distinct": "Jennifer L.", "verdict": "differ"}, {"field": "Email", "established": "j.byrne@acme.com", "distinct": "j.byrne@acme-hr.example", "verdict": "differ"}, {"field": "Job title", "established": "Claims Analyst", "distinct": null, "verdict": "missing", "agree": "One side"}, {"field": "Source", "established": "AD", "distinct": "HRIS", "verdict": "missing", "agree": "Expected"}] },
+    { id: "pm-b7", groupId: "sig-cohort-only", established: "Byrne, Jennifer", candidate: "Burns, Jennifer",
+      sources: ["AD", "HRIS"],
+      establishedMeta: "4 identities · First seen 06-01-2024",
+      candidateMeta: "1 identity · Created 08-08-2026 by refused merge",
+      legalHold: "Acme v. Byrne, on legal hold since 03-03-2026",
+      refusedOn: "08-08-2026",
+      status: "Pending", tone: "default",
+      matchedOn: ["Full name + email address"], reason: "cohort match, no corroboration",
+      note: "Near-match strength. No corroborating evidence on this pair.",
+      compare: [{"field": "Surname", "established": "Byrne", "distinct": "Burns", "verdict": "differ"}, {"field": "Given name", "established": "Jennifer", "distinct": "Jennifer", "verdict": "match"}, {"field": "Email", "established": "j.byrne@acme.com", "distinct": "j.byrne@acme-hr.example", "verdict": "differ"}, {"field": "Job title", "established": "Claims Analyst", "distinct": null, "verdict": "missing", "agree": "One side"}, {"field": "Source", "established": "AD", "distinct": "HRIS", "verdict": "missing", "agree": "Expected"}] },
+    { id: "pm-b8", groupId: "sig-cohort-only", established: "Byrne, Jennifer", candidate: "Byrnes, Jennifer",
+      sources: ["AD", "HRIS"],
+      establishedMeta: "4 identities · First seen 06-01-2024",
+      candidateMeta: "1 identity · Created 08-05-2026 by refused merge",
+      legalHold: "Acme v. Byrne, on legal hold since 03-03-2026",
+      refusedOn: "08-05-2026",
+      status: "Pending", tone: "default",
+      matchedOn: ["Full name + phone number"], reason: "cohort match, no corroboration",
+      note: "Near-match strength. No corroborating evidence on this pair.",
+      compare: [{"field": "Surname", "established": "Byrne", "distinct": "Byrnes", "verdict": "differ"}, {"field": "Given name", "established": "Jennifer", "distinct": "Jennifer", "verdict": "match"}, {"field": "Email", "established": "j.byrne@acme.com", "distinct": "j.byrne@acme-hr.example", "verdict": "differ"}, {"field": "Job title", "established": "Claims Analyst", "distinct": null, "verdict": "missing", "agree": "One side"}, {"field": "Source", "established": "AD", "distinct": "HRIS", "verdict": "missing", "agree": "Expected"}] },
+    { id: "pm-b9", groupId: "sig-cohort-only", established: "Byrne, Jennifer", candidate: "J Byrne",
+      sources: ["AD", "AD"],
+      establishedMeta: "4 identities · First seen 06-01-2024",
+      candidateMeta: "1 identity · Created 08-04-2026 by refused merge",
+      legalHold: "Acme v. Byrne, on legal hold since 03-03-2026",
+      refusedOn: "08-04-2026",
+      status: "Pending", tone: "default",
+      matchedOn: ["Full name"], reason: "cohort match, no corroboration",
+      note: "Near-match strength. No corroborating evidence on this pair.",
+      compare: [{"field": "Surname", "established": "Byrne", "distinct": "J Byrne", "verdict": "differ"}, {"field": "Given name", "established": "Jennifer", "distinct": null, "verdict": "differ"}, {"field": "Email", "established": "j.byrne@acme.com", "distinct": "j.byrne@acme.com", "verdict": "match"}, {"field": "Job title", "established": "Claims Analyst", "distinct": null, "verdict": "missing", "agree": "One side"}, {"field": "Source", "established": "AD", "distinct": "AD", "verdict": "match"}] },
+    { id: "pm-b10", groupId: "sig-cohort-only", established: "Byrne, Jennifer", candidate: "Jen Byrne",
+      sources: ["AD", "AD"],
+      establishedMeta: "4 identities · First seen 06-01-2024",
+      candidateMeta: "1 identity · Created 08-01-2026 by refused merge",
+      legalHold: "Acme v. Byrne, on legal hold since 03-03-2026",
+      refusedOn: "08-01-2026",
+      status: "Pending", tone: "default",
+      matchedOn: ["Full name"], reason: "cohort match, no corroboration",
+      note: "Near-match strength. No corroborating evidence on this pair.",
+      compare: [{"field": "Surname", "established": "Byrne", "distinct": "Jen Byrne", "verdict": "differ"}, {"field": "Given name", "established": "Jennifer", "distinct": null, "verdict": "differ"}, {"field": "Email", "established": "j.byrne@acme.com", "distinct": "j.byrne@acme.com", "verdict": "match"}, {"field": "Job title", "established": "Claims Analyst", "distinct": null, "verdict": "missing", "agree": "One side"}, {"field": "Source", "established": "AD", "distinct": "AD", "verdict": "match"}] },
+    { id: "pm-b11", groupId: "sig-cohort-only", established: "Byrne, Jennifer", candidate: "Byrne, Jennie",
+      sources: ["AD", "HRIS"],
+      establishedMeta: "4 identities · First seen 06-01-2024",
+      candidateMeta: "1 identity · Created 07-29-2026 by refused merge",
+      legalHold: "Acme v. Byrne, on legal hold since 03-03-2026",
+      refusedOn: "07-29-2026",
+      status: "Pending", tone: "default",
+      matchedOn: ["Full name"], reason: "cohort match, no corroboration",
+      note: "Near-match strength. No corroborating evidence on this pair.",
+      compare: [{"field": "Surname", "established": "Byrne", "distinct": "Byrne", "verdict": "match"}, {"field": "Given name", "established": "Jennifer", "distinct": "Jennie", "verdict": "differ"}, {"field": "Email", "established": "j.byrne@acme.com", "distinct": "j.byrne@acme-hr.example", "verdict": "differ"}, {"field": "Job title", "established": "Claims Analyst", "distinct": null, "verdict": "missing", "agree": "One side"}, {"field": "Source", "established": "AD", "distinct": "HRIS", "verdict": "missing", "agree": "Expected"}] },
+    { id: "pm-b12", groupId: "sig-cohort-only", established: "Byrne, Jennifer", candidate: "Byrne, Jenifer",
+      sources: ["AD", "AD"],
+      establishedMeta: "4 identities · First seen 06-01-2024",
+      candidateMeta: "1 identity · Created 07-22-2026 by refused merge",
+      legalHold: "Acme v. Byrne, on legal hold since 03-03-2026",
+      refusedOn: "07-22-2026",
+      status: "Pending", tone: "default",
+      matchedOn: ["Full name"], reason: "cohort match, no corroboration",
+      note: "Near-match strength. No corroborating evidence on this pair.",
+      compare: [{"field": "Surname", "established": "Byrne", "distinct": "Byrne", "verdict": "match"}, {"field": "Given name", "established": "Jennifer", "distinct": "Jenifer", "verdict": "differ"}, {"field": "Email", "established": "j.byrne@acme.com", "distinct": "j.byrne@acme.com", "verdict": "match"}, {"field": "Job title", "established": "Claims Analyst", "distinct": null, "verdict": "missing", "agree": "One side"}, {"field": "Source", "established": "AD", "distinct": "AD", "verdict": "match"}] },
+    /*
+     * EVERY PENDING MATCH THE NATURAL PERSONS LIST CAN REACH.
+     *
+     * Jennifer Byrne is the Identity Records FIXTURE — she is not a row in
+     * pge-admin-natprsn-list.html, so the only way to see her is to open the
+     * identities screen with no ?personId. Backfilling her twelve pairs alone
+     * therefore fixed the one case nobody can click: every person actually
+     * reachable from the list still handed the queue a pair it did not hold,
+     * and "Review in the queue" toasted instead of opening.
+     *
+     * These twenty-two are the candidates the fourteen DIRECTORY people
+     * generate, read straight out of that screen's own service rather than
+     * retyped — so the pair the operator was just reading is the pair that
+     * opens here. Three people (Von Hohenstein, Andersen, Brightwater) have no
+     * pending matches at all, which is the point of that empty state and is
+     * left alone.
+     *
+     * THE QUEUE'S TOTALS DO NOT MOVE. generatePairs() pads each group up to
+     * GROUP_SIZES counting curated adjudicable pairs first, so curated rows
+     * displace filler one for one. Verified against a stashed baseline, not
+     * assumed.
+     *
+     * Group follows the evidence, not the tier label: two keys → sig-two-keys,
+     * a single full-name key → sig-shared-address, a refused near match →
+     * sig-cohort-only.
+     */
+    { id: "pm-d1", groupId: "sig-two-keys", established: "Lindqvist, Frances", candidate: "Lindqvist, Frances M.",
+      sources: ["AD", "AD"],
+      establishedMeta: "2 identities · First seen 06-01-2024",
+      candidateMeta: "1 identity · Created 08-12-2026 by refused merge",
+      refusedOn: "08-12-2026",
+      status: "Pending", tone: "default",
+      matchedOn: ["Full name + phone number"], reason: "2 corroborating keys",
+      note: "Needs corroboration. Two keys matched; policy requires more than this to merge automatically.",
+      compare: [{"field": "Surname", "established": "Lindqvist", "distinct": "Lindqvist", "verdict": "match"}, {"field": "Given name", "established": "Frances", "distinct": "Frances M.", "verdict": "differ"}, {"field": "Email", "established": "frances.lindqvist@northwind.example", "distinct": "lindqvist@northwind.example", "verdict": "differ"}, {"field": "Job title", "established": "Compliance Officer", "distinct": null, "verdict": "missing", "agree": "One side"}, {"field": "Source", "established": "AD", "distinct": "AD", "verdict": "match"}] },
+    { id: "pm-d2", groupId: "sig-two-keys", established: "Lindqvist, Frances", candidate: "Lindqvist-Adams, Frances",
+      sources: ["AD", "HRIS"],
+      establishedMeta: "2 identities · First seen 06-01-2024",
+      candidateMeta: "2 identities · Created 08-11-2026 by refused merge",
+      refusedOn: "08-11-2026",
+      status: "Pending", tone: "default",
+      matchedOn: ["Full name + email address"], reason: "2 corroborating keys",
+      note: "Needs corroboration. Two keys matched; policy requires more than this to merge automatically.",
+      compare: [{"field": "Surname", "established": "Lindqvist", "distinct": "Lindqvist-Adams", "verdict": "differ"}, {"field": "Given name", "established": "Frances", "distinct": "Frances", "verdict": "match"}, {"field": "Email", "established": "frances.lindqvist@northwind.example", "distinct": "lindqvistadams@northwind.example", "verdict": "differ"}, {"field": "Job title", "established": "Compliance Officer", "distinct": null, "verdict": "missing", "agree": "One side"}, {"field": "Source", "established": "AD", "distinct": "HRIS", "verdict": "missing", "agree": "Expected"}] },
+    { id: "pm-d3", groupId: "sig-cohort-only", established: "Lindqvist, Frances", candidate: "Lindqvist, Frances J.",
+      sources: ["AD", "AD"],
+      establishedMeta: "2 identities · First seen 06-01-2024",
+      candidateMeta: "1 identity · Created 08-08-2026 by refused merge",
+      refusedOn: "08-08-2026",
+      status: "Pending", tone: "default",
+      matchedOn: ["Full name + phone number"], reason: "cohort match, no corroboration",
+      note: "Near-match strength. No corroborating evidence on this pair.",
+      compare: [{"field": "Surname", "established": "Lindqvist", "distinct": "Lindqvist", "verdict": "match"}, {"field": "Given name", "established": "Frances", "distinct": "Frances J.", "verdict": "differ"}, {"field": "Email", "established": "frances.lindqvist@northwind.example", "distinct": "lindqvist@northwind.example", "verdict": "differ"}, {"field": "Job title", "established": "Compliance Officer", "distinct": null, "verdict": "missing", "agree": "One side"}, {"field": "Source", "established": "AD", "distinct": "AD", "verdict": "match"}] },
+    { id: "pm-d4", groupId: "sig-two-keys", established: "Raghunathan, Priya", candidate: "Raghunathan, Priya M.",
+      sources: ["AD", "AD"],
+      establishedMeta: "4 identities · First seen 06-01-2024",
+      candidateMeta: "1 identity · Created 08-12-2026 by refused merge",
+      refusedOn: "08-12-2026",
+      status: "Pending", tone: "default",
+      matchedOn: ["Full name + phone number"], reason: "2 corroborating keys",
+      note: "Needs corroboration. Two keys matched; policy requires more than this to merge automatically.",
+      compare: [{"field": "Surname", "established": "Raghunathan", "distinct": "Raghunathan", "verdict": "match"}, {"field": "Given name", "established": "Priya", "distinct": "Priya M.", "verdict": "differ"}, {"field": "Email", "established": "priya.raghunathan@northwind.example", "distinct": "raghunathan@northwind.example", "verdict": "differ"}, {"field": "Job title", "established": "Claims Analyst", "distinct": null, "verdict": "missing", "agree": "One side"}, {"field": "Source", "established": "AD", "distinct": "AD", "verdict": "match"}] },
+    { id: "pm-d5", groupId: "sig-two-keys", established: "Webb, Marcus", candidate: "Webb, Marcus M.",
+      sources: ["AD", "AD"],
+      establishedMeta: "2 identities · First seen 06-01-2024",
+      candidateMeta: "1 identity · Created 08-12-2026 by refused merge",
+      refusedOn: "08-12-2026",
+      status: "Pending", tone: "default",
+      matchedOn: ["Full name + phone number"], reason: "2 corroborating keys",
+      note: "Needs corroboration. Two keys matched; policy requires more than this to merge automatically.",
+      compare: [{"field": "Surname", "established": "Webb", "distinct": "Webb", "verdict": "match"}, {"field": "Given name", "established": "Marcus", "distinct": "Marcus M.", "verdict": "differ"}, {"field": "Email", "established": "marcus.webb@northwind.example", "distinct": "webb@northwind.example", "verdict": "differ"}, {"field": "Job title", "established": "Claims Adjuster", "distinct": null, "verdict": "missing", "agree": "One side"}, {"field": "Source", "established": "AD", "distinct": "AD", "verdict": "match"}] },
+    { id: "pm-d6", groupId: "sig-two-keys", established: "Webb, Marcus", candidate: "Webb-Adams, Marcus",
+      sources: ["AD", "HRIS"],
+      establishedMeta: "2 identities · First seen 06-01-2024",
+      candidateMeta: "2 identities · Created 08-11-2026 by refused merge",
+      refusedOn: "08-11-2026",
+      status: "Pending", tone: "default",
+      matchedOn: ["Full name + email address"], reason: "2 corroborating keys",
+      note: "Needs corroboration. Two keys matched; policy requires more than this to merge automatically.",
+      compare: [{"field": "Surname", "established": "Webb", "distinct": "Webb-Adams", "verdict": "differ"}, {"field": "Given name", "established": "Marcus", "distinct": "Marcus", "verdict": "match"}, {"field": "Email", "established": "marcus.webb@northwind.example", "distinct": "webbadams@northwind.example", "verdict": "differ"}, {"field": "Job title", "established": "Claims Adjuster", "distinct": null, "verdict": "missing", "agree": "One side"}, {"field": "Source", "established": "AD", "distinct": "HRIS", "verdict": "missing", "agree": "Expected"}] },
+    { id: "pm-d7", groupId: "sig-two-keys", established: "Ní Bhraonáin, Aoife", candidate: "Ní Bhraonáin, Aoife M.",
+      sources: ["AD", "AD"],
+      establishedMeta: "3 identities · First seen 06-01-2024",
+      candidateMeta: "1 identity · Created 08-12-2026 by refused merge",
+      refusedOn: "08-12-2026",
+      status: "Pending", tone: "default",
+      matchedOn: ["Full name + phone number"], reason: "2 corroborating keys",
+      note: "Needs corroboration. Two keys matched; policy requires more than this to merge automatically.",
+      compare: [{"field": "Surname", "established": "Ní Bhraonáin", "distinct": "Ní Bhraonáin", "verdict": "match"}, {"field": "Given name", "established": "Aoife", "distinct": "Aoife M.", "verdict": "differ"}, {"field": "Email", "established": "aoife.nibhraonain@northwind.example", "distinct": "nbhraonin@northwind.example", "verdict": "differ"}, {"field": "Job title", "established": "Case Manager", "distinct": null, "verdict": "missing", "agree": "One side"}, {"field": "Source", "established": "AD", "distinct": "AD", "verdict": "match"}] },
+    { id: "pm-d8", groupId: "sig-two-keys", established: "Ní Bhraonáin, Aoife", candidate: "Ní Bhraonáin-Adams, Aoife",
+      sources: ["AD", "HRIS"],
+      establishedMeta: "3 identities · First seen 06-01-2024",
+      candidateMeta: "2 identities · Created 08-11-2026 by refused merge",
+      refusedOn: "08-11-2026",
+      status: "Pending", tone: "default",
+      matchedOn: ["Full name + email address"], reason: "2 corroborating keys",
+      note: "Needs corroboration. Two keys matched; policy requires more than this to merge automatically.",
+      compare: [{"field": "Surname", "established": "Ní Bhraonáin", "distinct": "Ní Bhraonáin-Adams", "verdict": "differ"}, {"field": "Given name", "established": "Aoife", "distinct": "Aoife", "verdict": "match"}, {"field": "Email", "established": "aoife.nibhraonain@northwind.example", "distinct": "nbhraoninadams@northwind.example", "verdict": "differ"}, {"field": "Job title", "established": "Case Manager", "distinct": null, "verdict": "missing", "agree": "One side"}, {"field": "Source", "established": "AD", "distinct": "HRIS", "verdict": "missing", "agree": "Expected"}] },
+    { id: "pm-d9", groupId: "sig-cohort-only", established: "Ní Bhraonáin, Aoife", candidate: "Ní Bhraonáin, Aoife J.",
+      sources: ["AD", "AD"],
+      establishedMeta: "3 identities · First seen 06-01-2024",
+      candidateMeta: "1 identity · Created 08-08-2026 by refused merge",
+      refusedOn: "08-08-2026",
+      status: "Pending", tone: "default",
+      matchedOn: ["Full name + phone number"], reason: "cohort match, no corroboration",
+      note: "Near-match strength. No corroborating evidence on this pair.",
+      compare: [{"field": "Surname", "established": "Ní Bhraonáin", "distinct": "Ní Bhraonáin", "verdict": "match"}, {"field": "Given name", "established": "Aoife", "distinct": "Aoife J.", "verdict": "differ"}, {"field": "Email", "established": "aoife.nibhraonain@northwind.example", "distinct": "nbhraonin@northwind.example", "verdict": "differ"}, {"field": "Job title", "established": "Case Manager", "distinct": null, "verdict": "missing", "agree": "One side"}, {"field": "Source", "established": "AD", "distinct": "AD", "verdict": "match"}] },
+    { id: "pm-d10", groupId: "sig-two-keys", established: "Wei, Chen", candidate: "Wei, Chen M.",
+      sources: ["AD", "AD"],
+      establishedMeta: "2 identities · First seen 06-01-2024",
+      candidateMeta: "1 identity · Created 08-12-2026 by refused merge",
+      refusedOn: "08-12-2026",
+      status: "Pending", tone: "default",
+      matchedOn: ["Full name + phone number"], reason: "2 corroborating keys",
+      note: "Needs corroboration. Two keys matched; policy requires more than this to merge automatically.",
+      compare: [{"field": "Surname", "established": "Wei", "distinct": "Wei", "verdict": "match"}, {"field": "Given name", "established": "Chen", "distinct": "Chen M.", "verdict": "differ"}, {"field": "Email", "established": "chen.wei@northwind.example", "distinct": "wei@northwind.example", "verdict": "differ"}, {"field": "Job title", "established": "Records Analyst", "distinct": null, "verdict": "missing", "agree": "One side"}, {"field": "Source", "established": "AD", "distinct": "AD", "verdict": "match"}] },
+    { id: "pm-d11", groupId: "sig-two-keys", established: "Moreira, Isabela", candidate: "Moreira, Isabela M.",
+      sources: ["AD", "AD"],
+      establishedMeta: "3 identities · First seen 06-01-2024",
+      candidateMeta: "1 identity · Created 08-12-2026 by refused merge",
+      refusedOn: "08-12-2026",
+      status: "Pending", tone: "default",
+      matchedOn: ["Full name + phone number"], reason: "2 corroborating keys",
+      note: "Needs corroboration. Two keys matched; policy requires more than this to merge automatically.",
+      compare: [{"field": "Surname", "established": "Moreira", "distinct": "Moreira", "verdict": "match"}, {"field": "Given name", "established": "Isabela", "distinct": "Isabela M.", "verdict": "differ"}, {"field": "Email", "established": "isabela.moreira@northwind.example", "distinct": "moreira@northwind.example", "verdict": "differ"}, {"field": "Job title", "established": "Claims Analyst", "distinct": null, "verdict": "missing", "agree": "One side"}, {"field": "Source", "established": "AD", "distinct": "AD", "verdict": "match"}] },
+    { id: "pm-d12", groupId: "sig-two-keys", established: "Moreira, Isabela", candidate: "Moreira-Adams, Isabela",
+      sources: ["AD", "HRIS"],
+      establishedMeta: "3 identities · First seen 06-01-2024",
+      candidateMeta: "2 identities · Created 08-11-2026 by refused merge",
+      refusedOn: "08-11-2026",
+      status: "Pending", tone: "default",
+      matchedOn: ["Full name + email address"], reason: "2 corroborating keys",
+      note: "Needs corroboration. Two keys matched; policy requires more than this to merge automatically.",
+      compare: [{"field": "Surname", "established": "Moreira", "distinct": "Moreira-Adams", "verdict": "differ"}, {"field": "Given name", "established": "Isabela", "distinct": "Isabela", "verdict": "match"}, {"field": "Email", "established": "isabela.moreira@northwind.example", "distinct": "moreiraadams@northwind.example", "verdict": "differ"}, {"field": "Job title", "established": "Claims Analyst", "distinct": null, "verdict": "missing", "agree": "One side"}, {"field": "Source", "established": "AD", "distinct": "HRIS", "verdict": "missing", "agree": "Expected"}] },
+    { id: "pm-d13", groupId: "sig-two-keys", established: "Liu, Jennifer", candidate: "Liu, Jennifer M.",
+      sources: ["AD", "AD"],
+      establishedMeta: "4 identities · First seen 06-01-2024",
+      candidateMeta: "1 identity · Created 08-12-2026 by refused merge",
+      refusedOn: "08-12-2026",
+      status: "Pending", tone: "default",
+      matchedOn: ["Full name + phone number"], reason: "2 corroborating keys",
+      note: "Needs corroboration. Two keys matched; policy requires more than this to merge automatically.",
+      compare: [{"field": "Surname", "established": "Liu", "distinct": "Liu", "verdict": "match"}, {"field": "Given name", "established": "Jennifer", "distinct": "Jennifer M.", "verdict": "differ"}, {"field": "Email", "established": "jennifer.liu@northwind.example", "distinct": "liu@northwind.example", "verdict": "differ"}, {"field": "Job title", "established": "Claims Adjuster", "distinct": null, "verdict": "missing", "agree": "One side"}, {"field": "Source", "established": "AD", "distinct": "AD", "verdict": "match"}] },
+    { id: "pm-d14", groupId: "sig-two-keys", established: "Liu, Jennifer", candidate: "Liu-Adams, Jennifer",
+      sources: ["AD", "HRIS"],
+      establishedMeta: "4 identities · First seen 06-01-2024",
+      candidateMeta: "2 identities · Created 08-11-2026 by refused merge",
+      refusedOn: "08-11-2026",
+      status: "Pending", tone: "default",
+      matchedOn: ["Full name + email address"], reason: "2 corroborating keys",
+      note: "Needs corroboration. Two keys matched; policy requires more than this to merge automatically.",
+      compare: [{"field": "Surname", "established": "Liu", "distinct": "Liu-Adams", "verdict": "differ"}, {"field": "Given name", "established": "Jennifer", "distinct": "Jennifer", "verdict": "match"}, {"field": "Email", "established": "jennifer.liu@northwind.example", "distinct": "liuadams@northwind.example", "verdict": "differ"}, {"field": "Job title", "established": "Claims Adjuster", "distinct": null, "verdict": "missing", "agree": "One side"}, {"field": "Source", "established": "AD", "distinct": "HRIS", "verdict": "missing", "agree": "Expected"}] },
+    { id: "pm-d15", groupId: "sig-cohort-only", established: "Liu, Jennifer", candidate: "Liu, Jennifer J.",
+      sources: ["AD", "AD"],
+      establishedMeta: "4 identities · First seen 06-01-2024",
+      candidateMeta: "1 identity · Created 08-08-2026 by refused merge",
+      refusedOn: "08-08-2026",
+      status: "Pending", tone: "default",
+      matchedOn: ["Full name + phone number"], reason: "cohort match, no corroboration",
+      note: "Near-match strength. No corroborating evidence on this pair.",
+      compare: [{"field": "Surname", "established": "Liu", "distinct": "Liu", "verdict": "match"}, {"field": "Given name", "established": "Jennifer", "distinct": "Jennifer J.", "verdict": "differ"}, {"field": "Email", "established": "jennifer.liu@northwind.example", "distinct": "liu@northwind.example", "verdict": "differ"}, {"field": "Job title", "established": "Claims Adjuster", "distinct": null, "verdict": "missing", "agree": "One side"}, {"field": "Source", "established": "AD", "distinct": "AD", "verdict": "match"}] },
+    { id: "pm-d16", groupId: "sig-two-keys", established: "El-Sayed, Ahmed", candidate: "El-Sayed, Ahmed M.",
+      sources: ["AD", "AD"],
+      establishedMeta: "2 identities · First seen 06-01-2024",
+      candidateMeta: "1 identity · Created 08-12-2026 by refused merge",
+      refusedOn: "08-12-2026",
+      status: "Pending", tone: "default",
+      matchedOn: ["Full name + phone number"], reason: "2 corroborating keys",
+      note: "Needs corroboration. Two keys matched; policy requires more than this to merge automatically.",
+      compare: [{"field": "Surname", "established": "El-Sayed", "distinct": "El-Sayed", "verdict": "match"}, {"field": "Given name", "established": "Ahmed", "distinct": "Ahmed M.", "verdict": "differ"}, {"field": "Email", "established": "ahmed.elsayed@northwind.example", "distinct": "elsayed@northwind.example", "verdict": "differ"}, {"field": "Job title", "established": "Compliance Officer", "distinct": null, "verdict": "missing", "agree": "One side"}, {"field": "Source", "established": "AD", "distinct": "AD", "verdict": "match"}] },
+    { id: "pm-d17", groupId: "sig-two-keys", established: "Lindholm, Greta", candidate: "Lindholm, Greta M.",
+      sources: ["AD", "AD"],
+      establishedMeta: "3 identities · First seen 06-01-2024",
+      candidateMeta: "1 identity · Created 08-12-2026 by refused merge",
+      refusedOn: "08-12-2026",
+      status: "Pending", tone: "default",
+      matchedOn: ["Full name + phone number"], reason: "2 corroborating keys",
+      note: "Needs corroboration. Two keys matched; policy requires more than this to merge automatically.",
+      compare: [{"field": "Surname", "established": "Lindholm", "distinct": "Lindholm", "verdict": "match"}, {"field": "Given name", "established": "Greta", "distinct": "Greta M.", "verdict": "differ"}, {"field": "Email", "established": "greta.lindholm@northwind.example", "distinct": "lindholm@northwind.example", "verdict": "differ"}, {"field": "Job title", "established": "Records Analyst", "distinct": null, "verdict": "missing", "agree": "One side"}, {"field": "Source", "established": "AD", "distinct": "AD", "verdict": "match"}] },
+    { id: "pm-d18", groupId: "sig-two-keys", established: "Lindholm, Greta", candidate: "Lindholm-Adams, Greta",
+      sources: ["AD", "HRIS"],
+      establishedMeta: "3 identities · First seen 06-01-2024",
+      candidateMeta: "2 identities · Created 08-11-2026 by refused merge",
+      refusedOn: "08-11-2026",
+      status: "Pending", tone: "default",
+      matchedOn: ["Full name + email address"], reason: "2 corroborating keys",
+      note: "Needs corroboration. Two keys matched; policy requires more than this to merge automatically.",
+      compare: [{"field": "Surname", "established": "Lindholm", "distinct": "Lindholm-Adams", "verdict": "differ"}, {"field": "Given name", "established": "Greta", "distinct": "Greta", "verdict": "match"}, {"field": "Email", "established": "greta.lindholm@northwind.example", "distinct": "lindholmadams@northwind.example", "verdict": "differ"}, {"field": "Job title", "established": "Records Analyst", "distinct": null, "verdict": "missing", "agree": "One side"}, {"field": "Source", "established": "AD", "distinct": "HRIS", "verdict": "missing", "agree": "Expected"}] },
+    { id: "pm-d19", groupId: "sig-two-keys", established: "Okonkwo, Samuel", candidate: "Okonkwo, Samuel M.",
+      sources: ["AD", "AD"],
+      establishedMeta: "4 identities · First seen 06-01-2024",
+      candidateMeta: "1 identity · Created 08-12-2026 by refused merge",
+      refusedOn: "08-12-2026",
+      status: "Pending", tone: "default",
+      matchedOn: ["Full name + phone number"], reason: "2 corroborating keys",
+      note: "Needs corroboration. Two keys matched; policy requires more than this to merge automatically.",
+      compare: [{"field": "Surname", "established": "Okonkwo", "distinct": "Okonkwo", "verdict": "match"}, {"field": "Given name", "established": "Samuel", "distinct": "Samuel M.", "verdict": "differ"}, {"field": "Email", "established": "samuel.okonkwo@northwind.example", "distinct": "okonkwo@northwind.example", "verdict": "differ"}, {"field": "Job title", "established": "Claims Analyst", "distinct": null, "verdict": "missing", "agree": "One side"}, {"field": "Source", "established": "AD", "distinct": "AD", "verdict": "match"}] },
+    { id: "pm-d20", groupId: "sig-two-keys", established: "Okonkwo, Samuel", candidate: "Okonkwo-Adams, Samuel",
+      sources: ["AD", "HRIS"],
+      establishedMeta: "4 identities · First seen 06-01-2024",
+      candidateMeta: "2 identities · Created 08-11-2026 by refused merge",
+      refusedOn: "08-11-2026",
+      status: "Pending", tone: "default",
+      matchedOn: ["Full name + email address"], reason: "2 corroborating keys",
+      note: "Needs corroboration. Two keys matched; policy requires more than this to merge automatically.",
+      compare: [{"field": "Surname", "established": "Okonkwo", "distinct": "Okonkwo-Adams", "verdict": "differ"}, {"field": "Given name", "established": "Samuel", "distinct": "Samuel", "verdict": "match"}, {"field": "Email", "established": "samuel.okonkwo@northwind.example", "distinct": "okonkwoadams@northwind.example", "verdict": "differ"}, {"field": "Job title", "established": "Claims Analyst", "distinct": null, "verdict": "missing", "agree": "One side"}, {"field": "Source", "established": "AD", "distinct": "HRIS", "verdict": "missing", "agree": "Expected"}] },
+    { id: "pm-d21", groupId: "sig-cohort-only", established: "Okonkwo, Samuel", candidate: "Okonkwo, Samuel J.",
+      sources: ["AD", "AD"],
+      establishedMeta: "4 identities · First seen 06-01-2024",
+      candidateMeta: "1 identity · Created 08-08-2026 by refused merge",
+      refusedOn: "08-08-2026",
+      status: "Pending", tone: "default",
+      matchedOn: ["Full name + phone number"], reason: "cohort match, no corroboration",
+      note: "Near-match strength. No corroborating evidence on this pair.",
+      compare: [{"field": "Surname", "established": "Okonkwo", "distinct": "Okonkwo", "verdict": "match"}, {"field": "Given name", "established": "Samuel", "distinct": "Samuel J.", "verdict": "differ"}, {"field": "Email", "established": "samuel.okonkwo@northwind.example", "distinct": "okonkwo@northwind.example", "verdict": "differ"}, {"field": "Job title", "established": "Claims Analyst", "distinct": null, "verdict": "missing", "agree": "One side"}, {"field": "Source", "established": "AD", "distinct": "AD", "verdict": "match"}] },
+    { id: "pm-d22", groupId: "sig-two-keys", established: "Ramírez, Diego", candidate: "Ramírez, Diego M.",
+      sources: ["AD", "AD"],
+      establishedMeta: "3 identities · First seen 06-01-2024",
+      candidateMeta: "1 identity · Created 08-12-2026 by refused merge",
+      refusedOn: "08-12-2026",
+      status: "Pending", tone: "default",
+      matchedOn: ["Full name + phone number"], reason: "2 corroborating keys",
+      note: "Needs corroboration. Two keys matched; policy requires more than this to merge automatically.",
+      compare: [{"field": "Surname", "established": "Ramírez", "distinct": "Ramírez", "verdict": "match"}, {"field": "Given name", "established": "Diego", "distinct": "Diego M.", "verdict": "differ"}, {"field": "Email", "established": "diego.ramirez@northwind.example", "distinct": "ramrez@northwind.example", "verdict": "differ"}, {"field": "Job title", "established": "Case Manager", "distinct": null, "verdict": "missing", "agree": "One side"}, {"field": "Source", "established": "AD", "distinct": "AD", "verdict": "match"}] },
     { id: "pm-2", groupId: "sig-two-keys", established: "Okafor, Chidi", candidate: "Okafor, C.", sources: ["HRIS", "HRIS"],
       establishedMeta: "2 identities · First seen 02-14-2023",
       candidateMeta: "1 identity · Created 08-12-2026 by refused merge",
@@ -937,20 +1293,106 @@
       }
       if (!pair) return resolve([]);
 
+      /*
+       * A PAIR CARRIES ITS OWN COMPARISON when one is recorded.
+       *
+       * Identity Records (#17475) shows the same pair in its own read-only
+       * panel, and the two screens must not describe it differently — an
+       * operator who reads a pair there and opens it here is looking at one
+       * thing. Every pair reachable from the Natural Persons list has its rows
+       * baked in, harvested from that screen's service rather than retyped, so
+       * the two panels agree field for field.
+       *
+       * The fallback below is for the FILLER pairs, which exist only to give
+       * the queue its volume and are never deep-linked into.
+       */
+      if (pair.compare) return resolve(pair.compare.slice());
+
       var estGiven = pair.established.split(", ")[1] || "";
       var canGiven = pair.candidate.split(", ")[1] || "";
+      var estSur = pair.established.split(",")[0];
+      var canSur = pair.candidate.split(",")[0];
+      var domain = "acme.example";
       return resolve([
-        { field: "Surname", established: pair.established.split(",")[0],
-          distinct: pair.candidate.split(",")[0], verdict: "match" },
+        /* Derived from THIS pair, not from a fixture person. Every field here
+           used to state Jennifer Byrne's facts — her email and her job title —
+           whichever pair was open, so a filler pair's panel described someone
+           else entirely. */
+        { field: "Surname", established: estSur, distinct: canSur,
+          verdict: estSur === canSur ? "match" : "differ" },
         { field: "Given name", established: estGiven, distinct: canGiven,
           verdict: estGiven === canGiven ? "match" : "differ" },
-        { field: "Email", established: "j.byrne@acme.example",
-          distinct: "j.byrne@acme.example", verdict: "match" },
+        { field: "Email",
+          established: (estGiven.charAt(0) + "." + estSur).toLowerCase().replace(/[^a-z.]/g, "") + "@" + domain,
+          distinct: (canGiven.charAt(0) + "." + canSur).toLowerCase().replace(/[^a-z.]/g, "") + "@" + domain,
+          verdict: estGiven.charAt(0) === canGiven.charAt(0) && estSur === canSur ? "match" : "differ" },
         { field: "Job title", established: "Claims Analyst", distinct: null,
           verdict: "missing", agree: "One side" },
+        /* Two records from different systems are SUPPOSED to differ on source. */
         { field: "Source", established: pair.sources[0], distinct: pair.sources[1],
-          verdict: "missing", agree: "Expected" }
+          verdict: "missing",
+          agree: pair.sources[0] === pair.sources[1] ? "Matches" : "Expected" }
       ]);
+    },
+
+    /**
+     * GET /api/tenants/{tenantId}/pending-matches/resolve?pair=&est=&cand=
+     *
+     * @param {{pair?:string, est?:string, cand?:string}} hint
+     * @returns {Promise<{id:string|null, reason:string}>}
+     *
+     * DEEP LINK RESOLUTION. Identity Records (#17475) shows a read-only pair
+     * review and hands the operator out to this screen to actually decide —
+     * "Review in the queue". That link has to land on the pair they were
+     * reading, so it carries a hint and this turns the hint into a pair id.
+     *
+     * Three ways it can answer, and the caller must handle all three:
+     *
+     *   · an exact id hit          — the two screens shared a row id
+     *   · a match on the two names — the business key both sides agree on,
+     *                                which is what survives the screens being
+     *                                backed by different tables
+     *   · null                     — the pair is not here. That is a REAL
+     *                                outcome, not an error: it was decided,
+     *                                withdrawn, or belongs to another tenant.
+     *                                `reason` says which so the caller can say
+     *                                so rather than silently showing page one.
+     *
+     * A DECIDED pair still resolves. The operator asked for that pair; showing
+     * it with its recorded decision answers the question they came with, where
+     * "not found" would read as data loss.
+     */
+    resolvePair: function (hint) {
+      var h = hint || {};
+      if (!h.pair && !h.cand) return resolve({ id: null, reason: "no-hint" });
+
+      var i;
+      if (h.pair) {
+        for (i = 0; i < MOCK_PAIRS.length; i++) {
+          if (MOCK_PAIRS[i].id === h.pair) {
+            return resolve({ id: h.pair, reason: "id" });
+          }
+        }
+      }
+
+      /* Names are compared case- and punctuation-insensitively: they cross a
+         URL and two fixtures, and "Byrne, Jenny" vs "byrne,jenny" is the same
+         pair by any reading a human would give it. */
+      function norm(v) {
+        return String(v || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+      }
+      var wantCand = norm(h.cand);
+      var wantEst = norm(h.est);
+      if (wantCand) {
+        for (i = 0; i < MOCK_PAIRS.length; i++) {
+          var p = MOCK_PAIRS[i];
+          if (norm(p.candidate) === wantCand &&
+              (!wantEst || norm(p.established) === wantEst)) {
+            return resolve({ id: p.id, reason: "name" });
+          }
+        }
+      }
+      return resolve({ id: null, reason: "not-found" });
     },
 
     /**

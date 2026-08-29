@@ -203,6 +203,55 @@
      was built.
      ═══════════════════════════════════════════════════════════════════════ */
 
+  /* ═══════════════════════════════════════════════════════════════════════
+     2b · THE PERSON DIRECTORY — how this screen is reached
+
+     The Natural Persons list links each card's IDENTITIES button to
+     `…-identities.html?personId=np-1001`, so this screen is ALWAYS about one
+     person and the id says which. Honouring it is what makes list → identities
+     a real flow rather than two screens that happen to share a look.
+
+     These 14 mirror the list's own `DEMO_PERSONS` — same ids, same names — so
+     a click carries through. They are duplicated rather than imported because
+     the two screens stand in for two ENDPOINTS: when this becomes an API,
+     `GET /natural-persons/{id}` answers here and nothing is shared but the id.
+
+     A person the directory does not know, or no id at all, falls back to the
+     Byrne fixture below — the one the Figma frames draw. That keeps the
+     designed screen reproducible from a bare URL.
+     ═══════════════════════════════════════════════════════════════════════ */
+
+  var DIRECTORY = [
+    { id: "np-1001", name: "Frances Lindqvist", first: "Frances", last: "Lindqvist",
+      employeeId: "EMP-004182", location: "Stockholm, SE", email: "frances.lindqvist@northwind.example", phone: "+46 8 555 0142" },
+    { id: "np-1002", name: "Albert Von Hohenstein-Zimmermannberg-Featherstahlscheidt", first: "Albert", last: "Von Hohenstein-Zimmermannberg-Featherstahlscheidt",
+      employeeId: "EMP-004183", location: "Munich, DE", email: "albert.vonhohenstein@northwind.example", phone: "+49 89 555 0117" },
+    { id: "np-1003", name: "Priya Raghunathan", first: "Priya", last: "Raghunathan",
+      employeeId: "EMP-004190", location: "Bengaluru, IN", email: "priya.raghunathan@northwind.example", phone: "+91 80 5550 1442" },
+    { id: "np-1004", name: "Marcus Webb", first: "Marcus", last: "Webb",
+      employeeId: "EMP-004201", location: "Austin, TX, US", email: "marcus.webb@northwind.example", phone: "+1 512 555 0166" },
+    { id: "np-1005", name: "Aoife N\u00ed Bhraon\u00e1in", first: "Aoife", last: "N\u00ed Bhraon\u00e1in",
+      employeeId: "EMP-004212", location: "Dublin, IE", email: "aoife.nibhraonain@northwind.example", phone: "+353 1 555 0129" },
+    { id: "np-1006", name: "Tobias Andersen", first: "Tobias", last: "Andersen",
+      employeeId: "EMP-004219", location: "Oslo, NO", email: "tobias.andersen@northwind.example", phone: "+47 21 555 0108" },
+    { id: "np-1007", name: "Chen Wei", first: "Chen", last: "Wei",
+      employeeId: "EMP-004228", location: "Singapore, SG", email: "chen.wei@northwind.example", phone: "+65 6555 0183" },
+    { id: "np-1008", name: "Isabela Moreira", first: "Isabela", last: "Moreira",
+      employeeId: "EMP-004235", location: "S\u00e3o Paulo, BR", email: "isabela.moreira@northwind.example", phone: "+55 11 5555 0121" },
+    { id: "np-1009", name: "Jennifer Liu", first: "Jennifer", last: "Liu",
+      employeeId: "EMP-004241", location: "Vancouver, BC, CA", email: "jennifer.liu@northwind.example", phone: "+1 604 555 0193" },
+    { id: "np-1010", name: "Ahmed El-Sayed", first: "Ahmed", last: "El-Sayed",
+      employeeId: "EMP-004250", location: "Cairo, EG", email: "ahmed.elsayed@northwind.example", phone: "+20 2 5550 0147" },
+    { id: "np-1011", name: "Greta Lindholm", first: "Greta", last: "Lindholm",
+      employeeId: "EMP-004262", location: "Helsinki, FI", email: "greta.lindholm@northwind.example", phone: "+358 9 555 0155" },
+    { id: "np-1012", name: "Samuel Okonkwo", first: "Samuel", last: "Okonkwo",
+      employeeId: "EMP-004270", location: "Lagos, NG", email: "samuel.okonkwo@northwind.example", phone: "+234 1 555 0178" },
+    { id: "np-1013", name: "Hannah Brightwater", first: "Hannah", last: "Brightwater",
+      employeeId: "EMP-004281", location: "Manchester, UK", email: "hannah.brightwater@northwind.example", phone: "+44 161 555 0164" },
+    { id: "np-1014", name: "Diego Ram\u00edrez", first: "Diego", last: "Ram\u00edrez",
+      employeeId: "EMP-004293", location: "Madrid, ES", email: "diego.ramirez@northwind.example", phone: "+34 91 555 0136" }
+  ];
+
   var PERSON = {
     id: "np-1042",
     name: "Byrne, Jennifer",
@@ -275,6 +324,106 @@
       reason: "2 corroborating keys", reasonVerbatim: true,
       matchedOn: ["Full name + email address", "Full name + phone number"] }
   ];
+
+  /*
+   * THE IDENTITY DETAIL PANEL — what DETAILS opens on the Identities tab.
+   *
+   * ORIGINAL VALUES ARE THE SOURCE'S, NOT THE PERSON'S. That is the whole
+   * point of the section: it shows the record exactly as AD or HRIS delivered
+   * it, before any merging. So `givenName` here is "Jill" while the person
+   * displays as "Byrne, Jennifer" — the mismatch is data, not a typo, and it
+   * is often the reason an operator opened the panel.
+   *
+   * An absent value is an em dash, never a blank row and never omitted: which
+   * fields a source did NOT populate is itself evidence.
+   *
+   * `keys` carries the key TYPES only. Matched values are stored as hashes and
+   * can never be displayed — the note at the foot of the panel says so, and it
+   * is not optional copy.
+   */
+  var DETAIL = {
+    "ir-44192": {
+      original: [
+        /* "Jill" disagrees with the person's display name, and the frame paints
+           it Text/Danger. That is the panel earning its keep: the mismatch
+           between what a source holds and what the person shows is usually the
+           reason someone opened it. `tone` carries it — never infer the
+           highlight by comparing strings in the view. */
+        { label: "Given name", value: "Jill", tone: "danger" },
+        { label: "Surname", value: "Byrne" },
+        { label: "Display name", value: "Byrne, Jennifer" },
+        { label: "Email", value: "j.byrne@acme.com" },
+        /* Absent, and muted rather than dropped — which fields a source did
+           NOT populate is evidence. */
+        { label: "UPN", value: "—", tone: "muted" },
+        /* Also disagrees with the person — two flagged fields, not one. */
+        { label: "Phone", value: "+1 847 555 0912", tone: "danger" },
+        { label: "Job title", value: "Claims Analyst" },
+        { label: "Department", value: "Complex Claims" },
+        { label: "Manager", value: "Hawkins, Guy" },
+        { label: "Location", value: "Remote — Illinois" },
+        { label: "Country", value: "United States" },
+        { label: "Account status", value: "Active" },
+        { label: "Employee ID", value: "44192" }
+      ],
+      keys: null      /* derived — see keyVerdicts() */
+    },
+    "ir-44201": {
+      original: [
+        { label: "Given name", value: "Jennifer" },
+        { label: "Surname", value: "Byrne" },
+        { label: "Display name", value: "Jennifer Byrne" },
+        { label: "Email", value: "jennifer.byrne@acme.com" },
+        { label: "UPN", value: "jennifer.byrne@acme.com" },
+        /* Also disagrees with the person — two flagged fields, not one. */
+        { label: "Phone", value: "+1 847 555 0912", tone: "danger" },
+        { label: "Job title", value: "Claims Analyst" },
+        { label: "Department", value: "Complex Claims" },
+        { label: "Manager", value: "Hawkins, Guy" },
+        { label: "Location", value: "Chicago, Illinois" },
+        { label: "Country", value: "United States" },
+        { label: "Account status", value: "Active" },
+        { label: "Employee ID", value: "—", tone: "muted" }
+      ],
+      keys: null      /* derived — see keyVerdicts() */
+    },
+    "ir-44205": {
+      original: [
+        { label: "Given name", value: "J." },
+        { label: "Surname", value: "Byrne" },
+        { label: "Display name", value: "J. Byrne" },
+        { label: "Email", value: "j.byrne@acme.com" },
+        { label: "UPN", value: "j.byrne@acme.com" },
+        { label: "Phone", value: "—", tone: "muted" },
+        { label: "Job title", value: "Claims Analyst" },
+        { label: "Department", value: "—", tone: "muted" },
+        { label: "Manager", value: "—", tone: "muted" },
+        { label: "Location", value: "—", tone: "muted" },
+        { label: "Country", value: "United States" },
+        { label: "Account status", value: "Active" },
+        { label: "Employee ID", value: "—", tone: "muted" }
+      ],
+      keys: null      /* derived — see keyVerdicts() */
+    },
+    "ir-44120": {
+      original: [
+        { label: "Given name", value: "Jennifer" },
+        { label: "Surname", value: "Byrne" },
+        { label: "Display name", value: "Byrne, Jennifer" },
+        { label: "Email", value: "j.byrne@acme.com" },
+        { label: "UPN", value: "—", tone: "muted" },
+        { label: "Phone", value: "+1 847 555 0912" },
+        { label: "Job title", value: "Claims Adjuster" },
+        { label: "Department", value: "Claims Operations" },
+        { label: "Manager", value: "Howard, Esther" },
+        { label: "Location", value: "Springfield, Illinois" },
+        { label: "Country", value: "United States" },
+        { label: "Account status", value: "Active" },
+        { label: "Employee ID", value: "44120" }
+      ],
+      keys: null      /* derived — see keyVerdicts() */
+    }
+  };
 
   /*
    * EDGE-STATE OVERLAYS — screens A2 to A5.
@@ -359,6 +508,96 @@
    *
    * `strength` orders the tiers (2 above 1); `flagged` orders within a tier.
    */
+  /* The fixture person's comparison rows, matching the queue's vocabulary. */
+  /* The person cards carry provenance and hold state — the frame shows
+     "Created … by refused merge" / "First seen …" and a Nimbus/Badge for holds.
+     A hold is shown on either side; "No holds" is stated rather than left
+     blank, because absence of a badge cannot distinguish "checked, none" from
+     "not checked". */
+  /**
+   * The matcher's NAMED REASON for refusing a pair — the quoted line at the
+   * top of the pair review panel.
+   *
+   * It is not the tier label. The tier says what the evidence EARNED
+   * ("Needs corroboration"); the reason says what the matcher FOUND
+   * ("2 corroborating keys"). The frame shows both, one quoted above the keys
+   * and one beside each key, and rendering the tier in both places made the
+   * panel state the same fact twice while omitting the one the operator came
+   * for.
+   *
+   * Derived from the evidence rather than stored, and derived by exactly the
+   * rule the Pending Match Queue's fixture uses, so a pair carries the same
+   * reason on both screens.
+   *
+   * @param {{matchedOn:string[], tier:string}} c
+   * @returns {string}
+   */
+  function reasonFor(c) {
+    if (c.tier === "near-match-refused") return "cohort match, no corroboration";
+    return (c.matchedOn[0] || "").indexOf(" + ") !== -1
+      ? "2 corroborating keys"
+      : "shared address, single key";
+  }
+
+  /**
+   * The HANDOFF a "Review in the queue" link carries.
+   *
+   * A pending match is a PAIR, and the pair is adjudicated on #17515 — so the
+   * link has to name the pair, not just the queue. It carries the two display
+   * names rather than an internal row id because the two screens are backed by
+   * different tables today and will be backed by different endpoints tomorrow:
+   * the names are the business key both sides already agree on, and the id is
+   * only meaningful inside whichever fixture minted it.
+   *
+   * `pair` goes along as a courtesy — when the queue happens to hold a row
+   * with that id it is an exact hit and no name matching is needed.
+   *
+   * @param {string} established  this screen's subject, "Surname, Given"
+   * @param {string} candidate    the flagged person, same form
+   * @returns {{est:string, cand:string}}
+   */
+  function pairHint(established, candidate) {
+    return { est: established, cand: candidate };
+  }
+
+  function fixtureCards(c) {
+    return {
+      candidate: { created: "Created " + c.flagged + " by refused merge", hold: null },
+      person: { created: "First seen 06-01-2024",
+                hold: "On Legal Hold Since 03-03-2026  ·  Acme v. Byrne" }
+    };
+  }
+
+  /**
+   * THE FIVE FIELDS THE FRAME COMPARES — Surname, Given name, Email, Job title,
+   * Source, in that order.
+   *
+   * Surname and given name are compared SEPARATELY rather than as one display
+   * name: a nickname changes the given name while the surname holds, and a
+   * marriage does the reverse. Collapsed into one row the two cases look
+   * identical, and they are not equally good evidence.
+   *
+   * `Source` carries its own verdict, "Expected" — two records from different
+   * systems are supposed to differ there, so it must never read as evidence
+   * against the pair.
+   */
+  function fixtureComparison(c) {
+    var given = (c.name.split(",")[1] || "").trim() || "\u2014";
+    var surname = (c.name.split(",")[0] || "").trim();
+    var theirEmail = "j.byrne@" + (c.sources[0] === "AD" ? "acme.com" : "acme-hr.example");
+    return [
+      { field: "Surname", candidate: surname, person: "Byrne",
+        agree: surname === "Byrne" ? "Matches" : "Differs" },
+      { field: "Given name", candidate: given, person: "Jennifer",
+        agree: given === "Jennifer" ? "Matches" : "Differs" },
+      { field: "Email", candidate: theirEmail, person: "j.byrne@acme.com",
+        agree: theirEmail === "j.byrne@acme.com" ? "Matches" : "Differs" },
+      { field: "Job title", candidate: "\u2014", person: "Claims Analyst", agree: "One Side" },
+      { field: "Source", candidate: c.sources[0], person: "AD",
+        agree: c.sources[0] === "AD" ? "Matches" : "Expected" }
+    ];
+  }
+
   var CANDIDATES = [
     { id: "np-2201", name: "Byrne, Jennifer M.", identityCount: 2, sources: ["AD", "HRIS"],
       tier: "needs-corroboration", tierLabel: "Needs corroboration", tone: "caution", strength: 2,
@@ -560,6 +799,290 @@
   }
 
   /* ═══════════════════════════════════════════════════════════════════════
+     2c · PER-PERSON DATA — derived, so any person in the directory opens
+
+     Everything above this line is the Byrne fixture: the exact rows the Figma
+     frames draw, kept verbatim so the designed screen reproduces. Everything
+     below BUILDS an equivalent set for any other person from their own name,
+     email, phone and employee id.
+
+     Derived rather than hand-written for fourteen people because the point is
+     the flow, not fourteen bespoke stories — and because a generator cannot
+     drift from the shapes the screen renders. Every field the row components
+     read is produced here; if a renderer starts reading a new one, this is
+     where it has to be added or the other thirteen people break.
+
+     WHEN THE API LANDS none of this survives. The service below is the seam:
+     point its four methods at endpoints and delete §2b, §2c and §3.
+     ═══════════════════════════════════════════════════════════════════════ */
+
+  /* A stable pseudo-random from the person id, so a given person always gets
+     the same data — a demo that reshuffles on reload is not a demo. */
+  function seedOf(id) {
+    var n = 0;
+    for (var i = 0; i < id.length; i++) n = (n * 31 + id.charCodeAt(i)) >>> 0;
+    return n;
+  }
+  function pick(seed, list, salt) {
+    return list[(seed + (salt || 0)) % list.length];
+  }
+
+  var SOURCES = ["AD", "HRIS"];
+  var TITLES = ["Claims Analyst", "Claims Adjuster", "Case Manager",
+                "Compliance Officer", "Records Analyst"];
+  var DEPARTMENTS = ["Complex Claims", "Claims Operations", "Compliance",
+                     "Records Management"];
+  var MANAGERS = ["Hawkins, Guy", "Howard, Esther", "Nakamura, Erin",
+                  "Powell, Marcus"];
+
+  function derivePerson(d) {
+    var seed = seedOf(d.id);
+    var ids = deriveIdentities(d, seed);
+    var sources = {};
+    ids.forEach(function (r) { sources[r.source] = true; });
+    return {
+      id: d.id,
+      name: d.last + ", " + d.first,
+      email: d.email,
+      jobTitle: pick(seed, TITLES),
+      identityCount: ids.length,
+      sourceCount: Object.keys(sources).length
+    };
+  }
+
+  function deriveIdentities(d, seed) {
+    var handle = (d.first.charAt(0) + d.last).toLowerCase().replace(/[^a-z]/g, "");
+    var full = (d.first + "." + d.last).toLowerCase().replace(/[^a-z.]/g, "");
+    var empNo = d.employeeId.replace(/[^0-9]/g, "") || "0000";
+    var count = 2 + (seed % 3);                    /* 2 to 4 identities */
+
+    var template = [
+      { key: full, source: "AD", effective: "09-02-2024",
+        status: "Linked", tone: "success", assertedLabel: "Asserted:",
+        asserted: "09-02-2024", reason: "2 corroborating keys", reasonVerbatim: true,
+        matchedOn: ["Full name + email address", "Employee ID"] },
+      { key: empNo, source: "HRIS", effective: "08-19-2024",
+        status: "Established", tone: "success", assertedLabel: "Asserted:",
+        asserted: "08-19-2024", reason: "Created this person", reasonVerbatim: true,
+        matchedOn: ["No earlier person shared a key"] },
+      { key: handle, source: "AD", effective: "08-11-2026",
+        status: "Linked", tone: "success", assertedLabel: "Asserted:",
+        asserted: "08-11-2026", reason: "Accepted on UPN", reasonVerbatim: true,
+        matchedOn: ["UPN"] },
+      { key: String(Number(empNo) + 72), source: "HRIS", effective: "05-14-2026",
+        status: "Linked", tone: "success", assertedLabel: "Asserted:",
+        asserted: "05-14-2026", reason: "2 corroborating keys", reasonVerbatim: true,
+        matchedOn: ["Full name + email address", "Full name + phone number"] }
+    ];
+
+    return template.slice(0, count).map(function (r, i) {
+      var out = Object.assign({}, r);
+      out.id = d.id + "-ir-" + i;
+      return out;
+    });
+  }
+
+  /* An em dash is an absent value and is muted; everything else is default. */
+  function val(label, value) {
+    return value === "—" ? { label: label, value: value, tone: "muted" }
+                         : { label: label, value: value };
+  }
+
+  /**
+   * The per-key verdict in the detail panel.
+   *
+   * THE DESIGN CONTAINS EXACTLY ONE VERDICT — "Needs corroboration", in
+   * Text/Caution. There is no "Corroborated", no green, and no second word:
+   * every key-row drawn anywhere in the frames carries that one label or none.
+   * An earlier pass invented a green CORROBORATED and it did not match.
+   *
+   * The rule the drawing implies: the label marks a key that is NOT sufficient
+   * on its own. The one panel the frames draw has two keys and flags both,
+   * under a reason of "2 corroborating keys" — so the flag describes the key
+   * TYPE's strength, not whether this particular join was corroborated.
+   *
+   * So: more than one key means each of them needed the others, and each is
+   * flagged. A single key was sufficient by itself — or is not a key at all,
+   * like "No earlier person shared a key" — and carries no label. A row with
+   * no status renders the key type alone, which is what the renderer does when
+   * `status` is absent.
+   */
+  function keyVerdicts(matchedOn) {
+    var list = matchedOn || [];
+    return list.map(function (k) {
+      return list.length > 1
+        ? { type: k, status: "Needs corroboration", tone: "caution" }
+        : { type: k };
+    });
+  }
+
+  function deriveDetail(d, seed, record) {
+    return {
+      original: [
+        { label: "Given name", value: d.first },
+        { label: "Surname", value: d.last },
+        { label: "Display name", value: d.last + ", " + d.first },
+        { label: "Email", value: d.email },
+        val("UPN", record.source === "AD" ? d.email : "—"),
+        val("Phone", d.phone || "—"),
+        { label: "Job title", value: pick(seed, TITLES) },
+        { label: "Department", value: pick(seed, DEPARTMENTS, 1) },
+        { label: "Manager", value: pick(seed, MANAGERS, 2) },
+        { label: "Location", value: d.location },
+        { label: "Country", value: d.location.split(", ").pop() },
+        { label: "Account status", value: "Active" },
+        val("Employee ID", record.source === "HRIS" ? d.employeeId : "—")
+      ],
+      keys: keyVerdicts(record.matchedOn)
+    };
+  }
+
+  /**
+   * The field-by-field comparison behind one pending match.
+   *
+   * Same shape and vocabulary as the queue's pair review (#17515) so the two
+   * panels cannot drift: `field`, the two values, and an `agree` verdict of
+   * "Matches" | "Differs" | "One Side". The column order follows the person
+   * cards — candidate first, then this person.
+   *
+   * Values are the SOURCES' own, so a field can differ without the pair being
+   * wrong; that judgement is the operator's and is made in the queue.
+   */
+  function deriveComparison(d, cand, seed) {
+    var given = (cand.name.split(",")[1] || "").trim() || "\u2014";
+    var surname = (cand.name.split(",")[0] || "").trim();
+    var theirEmail = (surname.toLowerCase().replace(/[^a-z]/g, "") || "x") +
+      "@" + (d.email.split("@")[1] || "acme.com");
+    return [
+      { field: "Surname", candidate: surname, person: d.last,
+        agree: surname === d.last ? "Matches" : "Differs" },
+      { field: "Given name", candidate: given, person: d.first,
+        agree: given === d.first ? "Matches" : "Differs" },
+      { field: "Email", candidate: theirEmail, person: d.email,
+        agree: theirEmail === d.email ? "Matches" : "Differs" },
+      { field: "Job title", candidate: "\u2014", value: null, person: pick(seed, TITLES),
+        agree: "One Side" },
+      { field: "Source", candidate: cand.sources[0], person: "AD",
+        agree: cand.sources[0] === "AD" ? "Matches" : "Expected" }
+    ];
+  }
+
+  function deriveCandidates(d, seed) {
+    /**
+     * `on` says WHICH HALF of the display name the variant alters, because
+     * "Surname, Given" puts them on opposite sides of the comma. Appending
+     * every suffix to the surname — which an earlier pass did — produced
+     * "Byrne M., Jennifer" and "Byrne, J., Jennifer", neither of which is a
+     * name a source system would ever emit.
+     *
+     * This also keeps the generated names in the SAME form the Pending Match
+     * Queue writes ("Patel, Anaya R."), which is what lets the queue resolve
+     * a pair handed to it from this screen. See `pairHint` below.
+     */
+    var variants = [
+      { on: "given", suffix: " M.", why: "Middle initial variant, same work location",
+        keys: ["Full name + phone number"] },
+      { on: "surname", suffix: "-Adams", why: "Hyphenated surname after a recorded name change",
+        keys: ["Full name + email address"] },
+      { on: "given", suffix: " J.", why: "Initial-form name with matching department",
+        keys: ["Full name + phone number"] },
+      { on: "surname", suffix: "s", why: "Surname plural variant",
+        keys: ["Full name + phone number"] },
+      { on: "given", suffix: " (dup)", why: "Same display name on a different domain",
+        keys: ["Full name"] }
+    ];
+    var count = seed % 4;                          /* 0 to 3 — some have none */
+    return variants.slice(0, count).map(function (v, i) {
+      var refused = i >= 2;
+      return {
+        id: d.id + "-cand-" + i,
+        name: v.on === "surname"
+          ? d.last + v.suffix + ", " + d.first
+          : d.last + ", " + d.first + v.suffix,
+        identityCount: 1 + (i % 2),
+        sources: [SOURCES[i % 2]],
+        tier: refused ? "near-match-refused" : "needs-corroboration",
+        tierLabel: refused ? "Near match, refused" : "Needs corroboration",
+        tone: refused ? "muted" : "caution",
+        strength: refused ? 1 : 2,
+        flagged: ["08-12-2026", "08-11-2026", "08-08-2026", "08-04-2026"][i],
+        why: v.why,
+        matchedOn: v.keys,
+        /* Filled below — needs the finished candidate to build against. */
+        compare: null
+      };
+    }).map(function (c) {
+      c.compare = deriveComparison(d, c, seed);
+      c.cards = { candidate: { created: "Created " + c.flagged + " by refused merge", hold: null },
+                  person: { created: "First seen 06-01-2024", hold: null } };
+      c.reason = reasonFor(c);
+      c.pairHint = pairHint(d.last + ", " + d.first, c.name);
+      return c;
+    });
+  }
+
+  function deriveHistory(d, seed) {
+    var ids = deriveIdentities(d, seed);
+    var out = [];
+    ids.forEach(function (r, i) {
+      out.push({
+        id: d.id + "-ev-" + i, kind: "event", at: r.asserted,
+        time: ["10:05", "2:22", "9:41", "8:12"][i % 4],
+        meridiem: i % 2 ? "PM" : "AM",
+        title: r.status,
+        subject: r.key + " (" + r.source + ")",
+        detail: r.reason,
+        decidedBy: r.matchedOn.length > 1 ? "System (auto-merge)" : "System (ingestion)"
+      });
+    });
+    out.push({
+      id: d.id + "-fact-0", kind: "fact", at: "06-15-2026",
+      title: "Job title changed", source: "HRIS",
+      record: d.employeeId.replace(/[^0-9]/g, "") || "0000",
+      from: pick(seed, TITLES, 3), to: pick(seed, TITLES),
+      recorded: "06-18-2026"
+    });
+    out.push({
+      id: d.id + "-fact-1", kind: "fact", at: "03-02-2026",
+      title: "Manager changed", source: "HRIS",
+      record: d.employeeId.replace(/[^0-9]/g, "") || "0000",
+      from: pick(seed, MANAGERS, 1), to: pick(seed, MANAGERS, 2),
+      recorded: "03-05-2026"
+    });
+    return out;
+  }
+
+  /* Which person is this screen about? The list hands the id over in the URL. */
+  function requestedPersonId() {
+    try {
+      return (new RegExp("[?&]personId=([^&]+)").exec(window.location.search) || [])[1] || "";
+    } catch (e) { return ""; }
+  }
+
+  var DIRECTORY_ENTRY = (function () {
+    var want = requestedPersonId();
+    if (!want) return null;
+    var hit = DIRECTORY.filter(function (d) { return d.id === want; })[0];
+    return hit || null;
+  })();
+
+  /* One object the service reads, so every method scopes the same way. */
+  var SUBJECT = (function () {
+    if (!DIRECTORY_ENTRY) return null;              /* fall back to the fixture */
+    var d = DIRECTORY_ENTRY, seed = seedOf(d.id);
+    var ids = deriveIdentities(d, seed);
+    var detail = {};
+    ids.forEach(function (r) { detail[r.id] = deriveDetail(d, seed, r); });
+    return {
+      person: derivePerson(d),
+      records: ids,
+      candidates: deriveCandidates(d, seed),
+      history: deriveHistory(d, seed),
+      detail: detail
+    };
+  })();
+
+  /* ═══════════════════════════════════════════════════════════════════════
      3b · EDGE-STATE SWITCHER — a review aid, not a feature
 
      Frames A2 to A5 are states of ONE screen, so they are reachable by query
@@ -639,7 +1162,7 @@
      * operator searches inside a tab.
      */
     person: function () {
-      return resolve(edgeState.person());
+      return resolve(SUBJECT ? SUBJECT.person : edgeState.person());
     },
 
     /**
@@ -661,7 +1184,7 @@
      */
     identities: function (query) {
       query = query || {};
-      var all = edgeState.records();
+      var all = SUBJECT ? SUBJECT.records : edgeState.records();
       var sources = {};
       all.forEach(function (r) { sources[r.source] = true; });
 
@@ -678,7 +1201,7 @@
       }
       var out = page(rows, query);
       out.sources = Object.keys(sources).length;
-      if (edgeState.notice()) out.notice = edgeState.notice();
+      if (!SUBJECT && edgeState.notice()) out.notice = edgeState.notice();
       return resolve(out);
     },
 
@@ -698,7 +1221,8 @@
      */
     candidates: function (query) {
       query = query || {};
-      var all = edgeState.candidates().slice();
+      var all = (SUBJECT ? SUBJECT.candidates : edgeState.candidates()).slice();
+      if (!SUBJECT) all.forEach(function (c) { if (!c.compare) c.compare = fixtureComparison(c); });
       var rows = all.filter(function (c) {
         if (query.show && query.show !== "all" && c.tier !== query.show) return false;
         return matchesSearch(c, query.search);
@@ -734,7 +1258,8 @@
      */
     history: function (query) {
       query = query || {};
-      var rows = HISTORY.filter(function (e) {
+      var source = SUBJECT ? SUBJECT.history : HISTORY;
+      var rows = source.filter(function (e) {
         if (query.show === "decisions" && e.kind !== "event") return false;
         if (query.show === "facts" && e.kind !== "fact") return false;
         return matchesSearch(e, query.search);
@@ -747,6 +1272,28 @@
     },
 
     /**
+     * GET /api/tenants/{tenantId}/natural-persons/{personId}/candidates/{id}
+     * @returns {Promise<Candidate|null>}
+     *
+     * Backs the pair review panel opened from a Pending matches row. Returns
+     * the same object the list row was built from, plus its `compare` rows —
+     * so the panel and the row can never disagree about the same pair.
+     */
+    candidate: function (id) {
+      var pool = SUBJECT ? SUBJECT.candidates : edgeState.candidates();
+      var hit = pool.filter(function (c) { return c.id === id; })[0];
+      if (!hit) return resolve(null);
+      var out = Object.assign({}, hit);
+      if (!out.compare) out.compare = fixtureComparison(hit);
+      if (!out.cards) out.cards = fixtureCards(hit);
+      if (!out.reason) out.reason = reasonFor(hit);
+      /* The pair, named the way the queue names it, so REVIEW IN THE QUEUE can
+         open this exact pair instead of the queue's default row. */
+      if (!out.pairHint) out.pairHint = pairHint(PERSON.name, hit.name);
+      return resolve(out);
+    },
+
+    /**
      * GET /api/tenants/{tenantId}/identity-records/{recordId}
      * @returns {Promise<IdentityRecord|null>}
      *
@@ -756,9 +1303,29 @@
      * withdrawn or a person that was merged away.
      */
     identityDetail: function (id) {
-      var all = RECORDS.concat(RECORDS_ENDED, RECORDS_SINGLE, [RECORD_BY_HAND]);
+      if (SUBJECT) {
+        var r = SUBJECT.records.filter(function (x) { return x.id === id; })[0];
+        if (!r) return resolve(null);
+        var o = Object.assign({}, r);
+        var dd = SUBJECT.detail[id];
+        if (dd) { o.original = dd.original.slice(); o.keys = keyVerdicts(r.matchedOn); }
+        return resolve(o);
+      }
+      var all = RECORDS.concat(RECORDS_INHERITED, RECORDS_ENDED, RECORDS_SINGLE,
+                               [RECORD_BY_HAND]);
       var hit = all.filter(function (r) { return r.id === id; })[0];
-      return resolve(hit ? Object.assign({}, hit) : null);
+      if (!hit) return resolve(null);
+
+      var out = Object.assign({}, hit);
+      var d = DETAIL[id];
+      if (d) { out.original = d.original.slice(); out.keys = keyVerdicts(hit.matchedOn); }
+      else {
+        /* A record with no captured field values still opens — the panel says
+           so rather than refusing. Same rule as the absent `reason`. */
+        out.original = null;
+        out.keys = keyVerdicts(hit.matchedOn);
+      }
+      return resolve(out);
     },
 
     /**
@@ -766,7 +1333,8 @@
      * @returns {Promise<HistoryEvent|null>}
      */
     historyEvent: function (id) {
-      var hit = HISTORY.filter(function (e) { return e.id === id; })[0];
+      var pool = SUBJECT ? SUBJECT.history : HISTORY;
+      var hit = pool.filter(function (e) { return e.id === id; })[0];
       return resolve(hit ? Object.assign({}, hit) : null);
     }
   };

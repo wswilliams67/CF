@@ -20,6 +20,33 @@
   --cnds-table-hover-bg: rgba(0, 0, 0, 0.075);
   --cnds-table-divider-color: var(--cnds-table-border-color);
 
+  /* --- Typography and cell rhythm -----------------------------------------
+     ONE definition, shared with the DataTable plugin.
+
+     `.table` is the basic table and `.datatable` is the dynamic one, but they
+     are the same object to a reader and must be indistinguishable. They were
+     not: the DataTable carried this typography and the basic table carried
+     none, so a plain <table> fell back to the 16px body size at weight 400 and
+     rendered visibly heavier than a DataTable beside it.
+
+     THE DATATABLE'S VALUES WIN, per Scott 08-28-2026. plugins/datatable.css
+     now consumes these tokens rather than restating them, so the two cannot
+     drift again — change a value here and both tables move together.
+
+     Note the header weight is 700 and tracking 0.03em. The Figma text style
+     `Table/Row/Header` says ExtraBold 800 at tracking 0; the ruling is that
+     the shipped DataTable is correct, so the STYLE is what needs updating.  */
+  --cnds-table-cell-padding-y: 1rem;
+  --cnds-table-cell-padding-x: 1.4rem;
+  --cnds-table-font-size: 0.875rem;
+  --cnds-table-font-weight: var(--cnds-font-weight-normal, 400);
+  --cnds-table-line-height: var(--cnds-body-line-height, 1.5);
+
+  --cnds-table-header-font-size: 12px;
+  --cnds-table-header-font-weight: 700;
+  --cnds-table-header-letter-spacing: 0.03em;
+  --cnds-table-header-text-transform: uppercase;
+
   width: 100%;
   margin-bottom: 1rem;
   vertical-align: top;
@@ -27,7 +54,10 @@
 }
 
 .table > :not(caption) > * > * {
-  padding: 0.5rem 0.5rem;
+  padding: var(--cnds-table-cell-padding-y) var(--cnds-table-cell-padding-x);
+  font-size: var(--cnds-table-font-size);
+  font-weight: var(--cnds-table-font-weight);
+  line-height: var(--cnds-table-line-height);
   color: var(
     --cnds-table-color-state,
     var(--cnds-table-color-type, var(--cnds-table-color))
@@ -46,6 +76,17 @@
 }
 .table > thead {
   vertical-align: bottom;
+}
+
+/* Header cells — `Table/Row/Header`. Scoped to > thead > tr > th so a `th`
+   used as a ROW header inside tbody keeps the data typography: it labels a
+   row, it does not head a column, and shouting it in 12px caps would be
+   wrong twice over. */
+.table > thead > tr > th {
+  font-size: var(--cnds-table-header-font-size);
+  font-weight: var(--cnds-table-header-font-weight);
+  letter-spacing: var(--cnds-table-header-letter-spacing);
+  text-transform: var(--cnds-table-header-text-transform);
 }
 
 /* --- Bordered --- */
@@ -86,9 +127,13 @@
   --cnds-table-bg-state: var(--cnds-table-active-bg);
 }
 
-/* --- Small --- */
-.table-sm > :not(caption) > * > * {
-  padding: 0.25rem 0.25rem;
+/* --- Small ---
+   Matches `.datatable-sm`: the vertical padding halves and the type steps
+   down, but the horizontal rhythm holds so a compact table still lines up
+   with a default one beside it. */
+.table-sm {
+  --cnds-table-cell-padding-y: 0.5rem;
+  --cnds-table-font-size: 0.8125rem;
 }
 
 /* --- Table Color Variants --- */

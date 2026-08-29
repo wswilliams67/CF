@@ -672,6 +672,56 @@
         </div><!-- /.np-page -->
       </div><!-- /#caContent -->
     </main><!-- /#main-content -->
+      <!-- ══ PAIR REVIEW PANEL — Nimbus/Offcanvas ══════════════════════════
+           Opened by REVIEW on any Pending matches row. 1080px = 75% of the
+           1440 viewport, matching the queue's own pair review and the
+           Measurement panel — it overlays a list the operator keeps referring
+           to, unlike the 720px identity panel which does not.
+
+           READ-ONLY, and that is the tab's own rule rather than an omission:
+           the note above the list says "Decisions are made in the adjudication
+           queue — this tab is read-only." So this panel shows the same
+           evidence the queue's does — the two people, the field comparison,
+           the matcher's explanation — and offers no decision. The way to act
+           on the pair is the link in the footer, which opens it in the queue.
+
+           NO WALKER STEP either. The queue's title reads "Pair 7 of 124"
+           because it is a station in a walk; here the operator arrived from
+           one person's list and there is no walk to count.
+
+           ANGULAR: <cf-pair-review-panel [pair]="pair" readonly> — the same
+           component the queue uses, with its decision bar projected off.
+           ═══════════════════════════════════════════════════════════════════ -->
+      <div class="offcanvas offcanvas-end np-pair-panel" tabindex="-1"
+           id="npiPairPanel" aria-labelledby="npiPairTitle"
+           data-cnds-backdrop="true" data-cnds-keyboard="true">
+        <div class="offcanvas-header">
+          <h2 class="offcanvas-title npi-detail-title" id="npiPairTitle">&nbsp;</h2>
+          <button type="button" class="btn-close" data-cnds-dismiss="offcanvas"
+                  aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body" id="npiPairBody"><!-- rendered by the page script --></div>
+        <!-- REVIEW IN THE QUEUE is the CTA of this panel and takes the
+             right-most slot, per the action direction paradigm: forward is
+             rightward, and the rightmost control is the one the operator is
+             being sent to. This tab is read-only — the pair is adjudicated on
+             #17515 — so leaving here IS the action, and it is primary.
+
+             Close sits to its left as the way out that does nothing. An
+             earlier pass had both secondary and the CTA on the left, which
+             made the panel look like it offered no action at all.
+
+             It is an <a>, not a <button>: it navigates. The href is rewritten
+             per-pair by the page script so the queue opens on THIS pair — see
+             openPairReview(). -->
+        <div class="offcanvas-footer npi-detail-footer">
+          <button type="button" class="btn btn-secondary"
+                  data-cnds-dismiss="offcanvas">Close</button>
+          <a class="btn btn-primary" id="npiPairToQueue"
+             href="pge-admin-natprsn-pndmtchque.html">Review in the queue</a>
+        </div>
+      </div>
+
       <!-- ══ IDENTITY DETAIL PANEL — Nimbus/Offcanvas ═══════════════════════
            Opened by VIEW on any History row, at 720px — the full panel width,
            since nothing sits beneath it here (the queue's panels are 1080
@@ -697,6 +747,38 @@
                   aria-label="Close"></button>
         </div>
         <div class="offcanvas-body" id="npiDetailBody"><!-- rendered by the page script --></div>
+        <div class="offcanvas-footer npi-detail-footer">
+          <button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas">Close</button>
+        </div>
+      </div>
+
+      <!-- ══ IDENTITY DETAIL PANEL — Nimbus/Offcanvas ══════════════════════
+           Opened by DETAILS on any IDENTITIES row (screen B). Slides in from
+           the right over the list, which stays behind it — the operator is
+           inspecting one identity in the context of the others, not leaving
+           the tab.
+
+           720px, the same as the History panel. The frames drew this one at
+           648, and Scott ruled them equal: it is the same affordance opened
+           from two tabs, and a panel whose width depended on which tab you
+           came from would read as two different things.
+
+           THE BODY IS THE SOURCE'S VIEW OF THE PERSON, before any merging —
+           so its display name can disagree with the person header above it.
+           That disagreement is usually why the panel was opened.
+
+           ANGULAR: OffcanvasComponent with @Input() record; the field list is
+           data, not markup — do not hard-code the thirteen rows.
+           ═══════════════════════════════════════════════════════════════════ -->
+      <div class="offcanvas offcanvas-end np-record-panel" tabindex="-1"
+           id="npiRecordPanel" aria-labelledby="npiRecordTitle"
+           data-cnds-backdrop="true" data-cnds-keyboard="true">
+        <div class="offcanvas-header">
+          <h2 class="offcanvas-title npi-detail-title" id="npiRecordTitle">&nbsp;</h2>
+          <button type="button" class="btn-close" data-cnds-dismiss="offcanvas"
+                  aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body" id="npiRecordBody"><!-- rendered by the page script --></div>
         <div class="offcanvas-footer npi-detail-footer">
           <button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas">Close</button>
         </div>
@@ -740,7 +822,15 @@
 
             <div class="modal-body" id="npiDeleteBody">
               <p class="npi-delete-subject" id="npiDeleteSubject">&nbsp;</p>
-              <div class="alert alert-warning npi-delete-pending" role="status">
+              <!-- ALIGNMENT DECLARED, not measured. This alert is five lines
+                   and always will be, and it lives in a modal — which is
+                   display:none at load, so the automatic pass cannot measure it
+                   until the modal opens. The result was the icon painting
+                   centred and jumping to the top as the dialog appeared.
+                   data-cnds-alert-align="top" applies the class up front and
+                   tells Nimbus not to remeasure. -->
+              <div class="alert alert-warning alert-align-top npi-delete-pending"
+                   data-cnds-alert-align="top" role="status">
                 <span class="alert-icon" aria-hidden="true"><i class="mdi mdi-alert"></i></span>
                 <span>What this does is not yet decided, so this dialog cannot
                   state the consequence. Deleting cannot remove the audit

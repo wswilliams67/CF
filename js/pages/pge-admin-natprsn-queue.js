@@ -1390,6 +1390,7 @@
                           (pair.reason ? " \u2014 \u201c" + pair.reason + "\u201d" : "");
     }
     renderStep();
+    renderReturn();
 
     /* Legal hold. Shown only when a side is actually on hold, and it says
        plainly that deciding does not lift it. Absence of hold DATA is not the
@@ -1977,14 +1978,73 @@
        together rather than end to end, so the operator does not wait on a
        round trip before anything moves. */
     if (el && window.Nimbus && window.Nimbus.Offcanvas) {
-      window.Nimbus.Offcanvas.getOrCreateInstance(el).show();
+      /* A DEEP-LINKED ARRIVAL IS STATIC — see the note below closePairReview()
+         for why. getOrCreateInstance() ignores config when an instance already
+         exists, and the contract differs between the two entry points, so any
+         instance built for the other one is disposed first. */
+      var wantStatic = !!linkedFrom;
+      var inst = window.Nimbus.Offcanvas.getInstance(el);
+      if (inst && !!(inst._config && inst._config.backdrop === "static") !== wantStatic) {
+        inst.dispose();
+        inst = null;
+      }
+      if (!inst) {
+        inst = window.Nimbus.Offcanvas.getOrCreateInstance(el, wantStatic
+          ? { backdrop: "static", keyboard: false }
+          : { backdrop: true, keyboard: true });
+      }
+      inst.show();
     }
     showRecord(startId, false);
   }
 
+  /**
+   * ─────────────────────────────────────────────────────────────────────────
+   * WHY CLOSE DOES NOT NAVIGATE  (decided 08-28-2026)
+   *
+   * Pair Review has two entry points:
+   *
+   *   1. REVIEW on a queue row — the operator came from this list.
+   *   2. "Review in the queue" from Identity Records (#17475) — they arrived
+   *      by deep link, FOR ONE PAIR, and never chose this queue.
+   *
+   * Case 2 used to strand them: Close dropped them on a list they had not
+   * asked for, with no way back to the person whose identities they had been
+   * reading. The fix is a BACK LINK in the panel header, not a smarter Close.
+   *
+   * Close keeps meaning close. A control that navigates only when you arrived
+   * a particular way behaves differently based on history the operator cannot
+   * see, and it would do so immediately after a decision is recorded — the
+   * worst moment to land somewhere unexpected. The back link is also better
+   * placed: it belongs at the top where people look for it, and it names the
+   * person, which the header's "Pair 7 of 124" cannot.
+   *
+   * Returning them is worth offering rather than merely permitting: the
+   * decision they came to make invalidates the row they were reading, so
+   * Identity Records has something new to show them.
+   *
+   * THE SKIP GUARD. SKIP walks the queue's worklist, so three skips after a
+   * deep-linked arrival the operator is on a pair with no connection to that
+   * person. renderReturn() therefore compares `linkedFrom.pairId` against the
+   * pair currently open and hides the link the moment the walk moves off it —
+   * otherwise the panel would offer to return them "to Byrne, Jennifer" from a
+   * pair she has nothing to do with.
+   *
+   * `linkedFrom` is cleared here as well: the arrival is spent once the panel
+   * closes, and any pair opened from the queue afterwards is a normal visit.
+   * ─────────────────────────────────────────────────────────────────────────
+   */
   function closePairReview() {
     walk = { ids: [], at: -1, groupId: null };
     openPair = null;
+    /* The arrival is spent. Re-opening any pair from the queue afterwards is a
+       normal visit, and must not offer a way back to a person the operator has
+       already left. */
+    linkedFrom = null;
+    var back = byId("npqPairReturn");
+    if (back) back.hidden = true;
+    var backFoot = byId("npqPairReturnFoot");
+    if (backFoot) backFoot.hidden = true;
     var el = byId("npqPairReview");
     if (el && window.Nimbus && window.Nimbus.Offcanvas) {
       var inst = window.Nimbus.Offcanvas.getInstance(el);
@@ -2718,6 +2778,245 @@
     });
   }
 
+  /**
+   * DEEP LINK — ?pair=&est=&cand=
+   *
+   * Identity Records (#17475) shows a read-only pair review and sends the
+   * operator here to decide. They arrive already knowing which pair they want,
+   * so landing them on the default queue and making them search for it again
+   * is the whole problem this solves.
+   *
+   * Runs AFTER the first render, and independently of it: resolution is one
+   * more fetch, and the queue is perfectly usable while it is in flight.
+   *
+   * Three outcomes, all of them said out loud:
+   *
+   *   · resolved      the panel opens on that pair, with the full worklist
+   *                   behind it — so SKIP still walks the queue from there
+   *                   rather than dead-ending on the one linked record.
+   *   · not found     a toast explains the pair is no longer in the queue.
+   *                   Silently showing page one would look like the link had
+   *                   worked, and that is the worse failure.
+   *   · no hint       a plain visit. Nothing happens.
+   *
+   * The query string is stripped once handled, so closing the panel and
+   * reloading does not reopen it, and the URL the operator may bookmark from
+   * here is the queue rather than one transient pair.
+   */
+  /**
+   * WHERE A DEEP-LINKED ARRIVAL CAME FROM, or null on a normal queue visit.
+   *
+   * `pairId` is the pair they arrived FOR. It is compared against the pair
+   * currently open, because SKIP walks on: three skips later the operator is
+   * on a pair that has nothing to do with that person, and an offer to return
+   * "to Byrne, Jennifer" from there would be a non-sequitur.
+   *
+   * @type {{pairId:string, personId:string, personName:string}|null}
+   */
+  var linkedFrom = null;
+
+  /**
+   * The one sentence both return controls wear, from the deep-link frame:
+   *
+   *     Back to {{firstname lastname}}'s Identity Record
+   *
+   * NAME ORDER IS FLIPPED. Everywhere else in this feature a person is
+   * "Surname, Given" — that is a SORT key, and it is right in a list, a column
+   * and a pair heading. This is a sentence, and "Back to Byrne, Jennifer's
+   * Identity Record" reads as though the comma were part of the possessive.
+   * The frame says `{{firstname lastname}}`, so the sentence gets natural
+   * order and the lists keep theirs.
+   *
+   * Falls back to the stored form when there is no comma to split on — a
+   * mononym, or a name already in natural order — rather than guessing.
+   */
+  function naturalName(name) {
+    var at = String(name || "").indexOf(", ");
+    if (at === -1) return name;
+    return name.slice(at + 2) + " " + name.slice(0, at);
+  }
+
+  function returnLabel(name) {
+    return "Back to " + naturalName(name) + "\u2019s Identity Record";
+  }
+
+  /**
+   * Show or hide BOTH return controls — the header link and the footer button.
+   *
+   * Called from renderPanel(), so it re-evaluates on every record the walk
+   * lands on rather than only on arrival.
+   */
+  function renderReturn() {
+    var link = byId("npqPairReturn");
+    var label = byId("npqPairReturnLabel");
+    var foot = byId("npqPairReturnFoot");
+
+    var show = !!(linkedFrom && openPair && openPair.id === linkedFrom.pairId);
+    /* &tab=pending — a pending match lives on TAB 2, and that is the tab the
+       operator was on when they left. Returning them to tab 1 would hand them
+       the identity list and make them find the row again. */
+    var href = show
+      ? "pge-admin-natprsn-identities.html?personId=" +
+        encodeURIComponent(linkedFrom.personId) + "&tab=pending"
+      : "#";
+    var text = show ? returnLabel(linkedFrom.personName) : "";
+
+    if (link) {
+      link.hidden = !show;
+      link.href = href;
+      if (label) label.textContent = text;
+    }
+    if (foot) {
+      foot.hidden = !show;
+      foot.href = href;
+      foot.textContent = text;
+    }
+  }
+
+  /**
+   * LEAVE BY THE PANEL, NOT THROUGH IT.
+   *
+   * Both return controls are real links, and left alone the browser navigates
+   * the instant they are clicked — while the offcanvas is still fully open and
+   * covering three quarters of the viewport. The next screen then replaces a
+   * lit panel with no intermediate state, which is the stark cut Scott called
+   * out (08-28-2026): "the panel needs to close first before the screen
+   * jumps/fades."
+   *
+   * So: slide the panel shut, THEN navigate. The operator watches the thing
+   * they were reading close before the ground changes underneath it.
+   *
+   * FOUR THINGS THIS HAS TO GET RIGHT
+   *
+   *  · Modifier clicks are not ours. Cmd/Ctrl/Shift/middle-click and any
+   *    target opens a new context; swallowing those to run an animation in a
+   *    tab the operator is leaving anyway would break a browser convention to
+   *    no benefit.
+   *
+   *  · The navigation must not depend on the animation. `hidden.cnds.offcanvas`
+   *    is the signal, but a missing Nimbus, a disposed instance or a dropped
+   *    transitionend would strand the operator on a panel whose link no longer
+   *    works. A timer races the event and whichever lands first navigates,
+   *    guarded so it only happens once.
+   *
+   *  · The fallback is derived, not guessed. The panel's own transition
+   *    duration is read off the element, so a retune in offcanvas.css carries
+   *    here, and `prefers-reduced-motion` — which collapses the transition —
+   *    shortens the wait instead of holding the operator for 300ms of nothing.
+   *
+   *  · It is still a link. href stays real, so hover shows the target and
+   *    "open in new tab" works; only the plain left-click is intercepted.
+   */
+  /**
+   * A DEEP-LINKED PANEL IS STATIC. Click-away and Escape are disabled; the only
+   * ways out are Close and the two return controls.
+   *
+   * THE PANEL CANNOT BE REOPENED. That is the whole reason. Scott, 08-28-2026:
+   * "they may have not meant to click away and then they have no way to get the
+   * panel back open without backing out themselves."
+   *
+   * A deep-linked arrival is a one-shot: openLinkedPair() strips the query
+   * string as it resolves, so there is no URL left to reload, and the pair is
+   * one row somewhere in 5,281 that the operator would now have to hunt for —
+   * the exact hunt the deep link exists to remove. A stray click on the dimmed
+   * area therefore does not just dismiss a panel, it destroys the arrival.
+   *
+   * Opened from a queue ROW the behaviour is unchanged, and should be: that
+   * operator can see the row they came from and click REVIEW again, so
+   * click-away is a harmless shortcut back to the list.
+   *
+   * This is also what makes the URL strip safe. With the panel static, every
+   * close is deliberate — Close or a return control — so there is no accidental
+   * dismissal left for a reload to have to recover from.
+   *
+   * IT IS A LIBRARY FEATURE NOW, not a page workaround. Nimbus/Offcanvas gained
+   * `backdrop: "static"` on 08-28-2026 at Scott's approval, matching the option
+   * Nimbus/Modal already had: the backdrop stays visible and dimmed, the click
+   * is swallowed, and the panel nudges to say "not that way". The first version
+   * of this was a capture-phase listener on document swallowing backdrop clicks
+   * and Escape — it worked, but a page reaching around a component to change
+   * how it dismisses is exactly the kind of thing that goes stale.
+   *
+   * Not trapping the operator: Close and both return controls are visible and
+   * focusable, so there are three keyboard-reachable ways out. Escape is
+   * disabled because it does the same damage as a stray backdrop click, not to
+   * make the panel inescapable.
+   */
+
+  function wireReturnNavigation() {
+    ["npqPairReturn", "npqPairReturnFoot"].forEach(function (id) {
+      var el = byId(id);
+      if (!el) return;
+
+      el.addEventListener("click", function (ev) {
+        if (ev.button !== 0 || ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey) return;
+        var href = el.getAttribute("href");
+        if (!href || href === "#") return;
+
+        ev.preventDefault();
+
+        var panel = byId("npqPairReview");
+        var done = false;
+        function go() {
+          if (done) return;
+          done = true;
+          window.location.href = href;
+        }
+
+        if (!panel || !window.Nimbus || !window.Nimbus.Offcanvas) { go(); return; }
+        var inst = window.Nimbus.Offcanvas.getInstance(panel);
+        if (!inst) { go(); return; }
+
+        panel.addEventListener("hidden.cnds.offcanvas", go, { once: true });
+
+        /* Belt and braces. 50ms of headroom over the panel's own transition so
+           the event normally wins and this only fires if it never arrives. */
+        var secs = parseFloat(getComputedStyle(panel).transitionDuration) || 0.3;
+        window.setTimeout(go, secs * 1000 + 50);
+
+        inst.hide();
+      });
+    });
+  }
+
+  function openLinkedPair() {
+    if (!window.URLSearchParams) return;                /* IE11 — plain visit */
+    var q = new URLSearchParams(window.location.search);
+    var hint = { pair: q.get("pair"), est: q.get("est"), cand: q.get("cand") };
+    if (!hint.pair && !hint.cand) return;
+    var fromId = q.get("from");
+    var fromName = q.get("fromName");
+
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+
+    svc.resolvePair(hint).then(function (res) {
+      if (!res || !res.id) {
+        toast(hint.cand
+          ? "The pair with " + hint.cand + " is no longer in the queue. " +
+            "It may already have been decided."
+          : "That pending match is no longer in the queue.",
+          { color: "info", persist: true });
+        return;
+      }
+      /* The worklist is the CURRENT query's — the operator arrived on an
+         unfiltered queue, so this is the whole adjudicable set and SKIP walks
+         it normally. openPairReview() inserts the linked pair itself if the
+         walk does not contain it, which is what happens when the pair is
+         already decided. */
+      /* Recorded against the RESOLVED id, not the hint's: the hint may have
+         matched on names, and renderReturn() compares against the open pair. */
+      if (fromId) {
+        linkedFrom = { pairId: res.id, personId: fromId,
+                       personName: fromName || "the person" };
+      }
+      svc.worklist(currentQuery(), null).then(function (ids) {
+        openPairReview(res.id, ids, null);
+      });
+    });
+  }
+
   function init() {
     /* The service is a hard dependency — without it the screen has nothing to
        show, and failing loudly here is better than four empty panels. */
@@ -2738,6 +3037,7 @@
     wirePager();
     wireRowActions();
     wirePairReview();
+    wireReturnNavigation();
     wireGroupDispatch();
 
     refreshStats();
@@ -2767,6 +3067,9 @@
     window.addEventListener("resize", syncToolsOffset, { passive: true });
 
     wireHeaderElevation();
+
+    /* Last, so the panel opens over a queue that is already drawn. */
+    openLinkedPair();
   }
 
   /**

@@ -783,7 +783,8 @@
   font-size: 14px;
   font-weight: 400;
   line-height: 1.2;
-  letter-spacing: 1px;
+  /* Paragraph/Default tracks at 0. The 1px here was invented. */
+  letter-spacing: 0;
   text-transform: uppercase;
   color: var(--cnds-body-color);
 }
@@ -902,7 +903,8 @@
   margin: 0;
   font-family: var(--cnds-font-family-base);
   font-size: 16px;
-  font-weight: 600;
+  /* 700 — H6/Bold. 600 is not a weight this design uses anywhere. */
+  font-weight: var(--cnds-font-weight-bold, 700);
   line-height: 1.3;
   color: var(--cnds-body-color);
   overflow-wrap: anywhere;
@@ -956,11 +958,34 @@
    semantic colour already carry the emphasis without matching the subject's
    size. Colour is a Text/* token, never a badge — statuses in this product are
    coloured text. */
+/*
+ * THE STATUS. One declaration, and every status on both screens uses it.
+ *
+ * Figma is unambiguous — 112 status layers across the #17515 and #17475
+ * sections, all `Typography/Paragraph/Bold`: 14px, weight 700, LETTER-SPACING
+ * ZERO, colour by tone. Verified by reading the layers, not by eye.
+ *
+ * Three things were wrong here and each was found separately, which is the
+ * real defect: 12px instead of 14, weight 600 instead of 700, and 0.4px of
+ * tracking the design does not have. The size and weight had already been
+ * patched back in three scattered override rules; those are gone now, because
+ * a base that disagrees with the design and three overrides that fix it is how
+ * the fourth place gets missed.
+ *
+ * `text-transform` rather than typed capitals: the frames type the caps into
+ * the string, but the DATA is sentence case and has to stay that way — it is
+ * read out by screen readers and reused in sentences. The render is identical.
+ */
 .np-status {
-  font-size: var(--cnds-paragraph-font-size-sm, 0.75rem);
-  font-weight: 600;
+  font-size: var(--cnds-paragraph-font-size, 14px);
+  font-weight: var(--cnds-font-weight-bold, 700);
   text-transform: uppercase;
-  letter-spacing: 0.4px;
+  letter-spacing: 0;
+}
+
+/* Text/Muted — a fact that carries no decision. */
+.np-status-muted {
+  color: var(--cnds-text-muted);
 }
 
 .np-status-default {
@@ -1454,6 +1479,20 @@
   margin: 0;
 }
 
+/*
+ * NO TYPOGRAPHY HERE ANY MORE.
+ *
+ * Header and cell type now come from Nimbus — components/tables.css defines
+ * --cnds-table-header-* and --cnds-table-* and plugins/datatable.css consumes
+ * the same tokens, so `.table` and `.datatable` are identical by construction.
+ * This page used to restate all of it, and restated it wrongly: weight 800 and
+ * zero tracking read off the Figma style, against the shipped DataTable's 700
+ * and 0.03em. Scott ruled the DataTable correct (08-28-2026), so the Figma
+ * style is what changes, and the page states nothing.
+ *
+ * What stays is the frame's own COLUMN RAIL and its 16px square cell padding —
+ * geometry specific to this comparison, not typography.
+ */
 .np-compare th,
 .np-compare td {
   padding: 16px;
@@ -1466,25 +1505,6 @@
 .np-compare .np-col-field   { width: 169px; }
 .np-compare .np-col-value   { width: 278px; }
 .np-compare .np-col-agree   { width: 243px; }
-
-/*
- * Table column headers — Figma text style `Table/Row/Header`:
- * Nunito Sans ExtraBold 12, uppercase.
- *
- * Nimbus's .table carries no header typography of its own (`.table > thead`
- * sets vertical-align only), so this is the page's job — but it is ONE rule
- * shared by every table on the screen rather than a copy per table. The
- * comparison table had it at weight 700; ExtraBold is 800, which is what the
- * style actually specifies.
- */
-.np-compare thead th,
-.np-measure-table thead th {
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: var(--cnds-text-muted);
-}
 
 /* Verdict colours are NOT declared here. Nimbus ships semantic text classes —
    .text-success-emphasis, .text-danger-emphasis and .text-muted — and the
@@ -1510,10 +1530,14 @@
   gap: 8px;
 }
 
+/* H6/Bold 16 — the matcher's own words carry the same weight as the two names
+   above them. It was 14, which put the quoted reason below the key list it
+   introduces. The Identity Records pair review states this with `.h6.bold`;
+   this is the same value reached the same way. */
 .np-why-quote {
   margin: 0;
-  font-size: 14px;
-  font-weight: 700;
+  font-size: var(--cnds-h6-font-size, 16px);
+  font-weight: var(--cnds-font-weight-bold, 700);
   color: var(--cnds-body-color);
 }
 
@@ -1546,16 +1570,33 @@
   gap: var(--np-gap);
 }
 
-/* 12px — DELIBERATELY one step under the 14px Figma draws (Typography/
-   Paragraph/Bold, same size as the key it qualifies). Scott, 2026-08-26: the
-   status reads too loud beside the key. Uppercase at weight 700 already
-   carries the emphasis; matching the key's size on top of that made a
-   qualifier compete with its subject. */
+/* 14px Bold — Typography/Paragraph/Bold, the same size as the key it
+   qualifies, matching the frame.
+
+   THIS REVERSES A 2026-08-26 CALL. It was 12px then, one step under the
+   drawing, because the status read too loud beside the key. Scott, 08-28-2026,
+   looking at this panel after the Identity Records pair review had been set to
+   14: "the status is also wrong size here." One verdict size across the
+   product beats a per-panel judgement — the same words, about the same pair,
+   cannot be two sizes depending on which screen opened them. */
+/* 12px Bold — Typography/Small/Bold, ONE STEP UNDER the 14px every other
+   status on these screens uses.
+
+   Scott's call, twice: 08-26-2026 and again 08-28-2026 after a spell at 14.
+   The reasoning has not changed — inside a pair review the status qualifies the
+   KEY beside it rather than heading a row, and at the key's own size, uppercase
+   and bold, a qualifier competes with its subject. In a LIST the status is the
+   row's headline and takes the full 14.
+
+   So the size difference is deliberate and carries meaning: 14 says "this is
+   what this row is", 12 says "this is what that key earned". */
 .np-key-status {
   flex-shrink: 0;
-  font-size: var(--cnds-paragraph-font-size-sm, 0.75rem);
-  font-weight: 700;
-  letter-spacing: 0.5px;
+  font-size: var(--cnds-paragraph-font-size-sm, 12px);
+  font-weight: var(--cnds-font-weight-bold, 700);
+  /* Zero. The 0.5px here and 0.4px on .np-status were two different invented
+     values for a design that specifies neither. */
+  letter-spacing: 0;
   text-transform: uppercase;
 }
 
@@ -1704,6 +1745,69 @@
    The one thing NOT inherited is `text-transform: capitalize`. See the note
    on .np-panel-step below.
    ───────────────────────────────────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────────────────────
+   BACK LINK — deep-linked arrivals into Pair Review only
+
+   Figma `Queue — Pair Review panel — Deep Link` (13902:28603), fr_return.
+   The first thing in the panel BODY, not a header element: gap 8 between the
+   icon and the text, 16 below the row, and nothing above it.
+
+   `[hidden]` collapses it entirely on a normal queue visit, so the padding
+   below goes with it and the legal-hold alert sits where it always has.
+   ───────────────────────────────────────────────────────────────────────── */
+.np-panel .np-panel-return {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  /* NO padding-bottom.
+     The frame's fr_return carries 16 below it because its fr_body gaps at 0 —
+     the padding IS the gap there. This panel's .offcanvas-body is a flex column
+     with a 24px gap, so the same 16 was landing ON TOP of it: 40px between the
+     link and the first card, which is what read as the hidden alert holding
+     space. The alert is display:none and contributes nothing; the two spacing
+     systems were stacking.
+     One system wins, and it is the panel's own 24px rhythm — the alternative is
+     a negative margin to claw back 8px, which breaks the moment the gap is
+     retuned. */ 
+  /* Paragraph/Small. The frame colours the icon `Text/Link` and the label
+     `Surface/Button/Label/Tertiary`; both resolve to the same blue, so the row
+     takes one colour rather than two names for one value. */
+  font-size: var(--cnds-paragraph-font-size-sm);
+  line-height: 1;
+  color: var(--cnds-link-color);
+  text-decoration: none;
+}
+
+.np-panel .np-panel-return:hover,
+.np-panel .np-panel-return:focus-visible {
+  text-decoration: underline;
+}
+
+/* Nimbus/Icon SM — 16px, matched to the frame's icon FRAME rather than to the
+   13px of ink the vector actually draws. */
+.np-panel .np-panel-return .mdi {
+  flex-shrink: 0;
+  font-size: var(--cnds-icon-sm);
+  line-height: 1;
+}
+
+/*
+ * The footer's return is a real Nimbus tertiary button. Its PLACEMENT is the
+ * one thing it needs: the frame's fr_actions is SPACE_BETWEEN, so the return
+ * is pinned to the far left of the footer and Close to the far right — not the
+ * two of them sitting together on the right, which is where flex-end alone
+ * puts them.
+ *
+ * `margin-right: auto` rather than restating justify-content on the footer:
+ * Nimbus's .offcanvas-footer is flex-end, and that is CORRECT for the normal
+ * case. Switching it to space-between would strand a lone Close on the LEFT
+ * every time the return is hidden — which is every visit that is not a deep
+ * link. The auto margin only exists while the button does.
+ */
+.np-panel .offcanvas-footer .np-panel-return-foot {
+  margin-right: auto;
+}
+
 .np-panel .np-panel-title {
   display: flex;
   align-items: center;
@@ -2279,7 +2383,7 @@
 .np-identities .npi-sort-dir-label {
   font-size: var(--cnds-btn-font-size-sm, 0.75rem);
   font-weight: var(--cnds-font-weight-extrabold, 800);
-  letter-spacing: 0.04em;
+  letter-spacing: 0;   /* Button/Small tracks at 0 */
 }
 
 /* ---- Person-action menus: hug the contents ------------------------------
@@ -2510,13 +2614,22 @@
   font-weight: var(--cnds-font-weight-bold, 700);
 }
 
-.np-identities .npi-meta {
+/* Also matched inside the two panels and the modal. They are siblings of
+   <main>, NOT descendants of .np-page — the same trap that left the delete
+   dialog's alert centred and its subject line unstyled. Any shared class this
+   screen uses in a panel needs its scope listed here. */
+.np-identities .npi-meta,
+.np-record-panel .npi-meta,
+.np-detail-panel .npi-meta,
+.np-delete-person .npi-meta {
   margin: 0;
   line-height: 1.4;
   color: var(--cnds-text-muted);
 }
 
-.np-identities .npi-pair {
+.np-identities .npi-pair,
+.np-record-panel .npi-pair,
+.npi-detail-panel .npi-pair {
   margin: 0;
   line-height: var(--cnds-paragraph-line-height, 1.43);
   color: var(--cnds-body-color);
@@ -2531,19 +2644,6 @@
   color: var(--cnds-text-muted);
 }
 
-/* Typography/Paragraph/Bold — 14px / 700, on ALL THREE row types. §10's
-   shared .np-status is 12/600, which is right for the queue's rows and a size
-   too small here.
-
-   The pending-match row's frame specified Forms/Label/Large (16/600), a step
-   larger than the identity row's for the same element. Scott, 08-28-2026: it
-   matches. One status size on this screen. */
-.np-identities .np-row-record .np-status,
-.np-identities .np-row-candidate .np-status,
-.np-identities .np-row-event .np-status {
-  font-size: var(--cnds-paragraph-font-size, 14px);
-  font-weight: var(--cnds-font-weight-bold, 700);
-}
 
 /* "Matched on:" puts its label on its own line, because the values wrap. A
    wrapped value that starts underneath its own label reads as a second value
@@ -2577,12 +2677,6 @@
    event, not a warning about it. */
 .np-identities .npi-resolution {
   color: var(--cnds-body-color);
-}
-
-/* Employment facts carry no decision, so they take the quietest status tone on
-   the screen rather than one of the semantic four. */
-.np-identities .np-status-muted {
-  color: var(--cnds-text-muted);
 }
 
 /* ---- History date stamp -------------------------------------------------
@@ -2669,33 +2763,43 @@
   max-width: 760px;
 }
 
-/* ---- Identity detail panel ---------------------------------------------
-   720px — the full panel width, since nothing sits beneath it here. The
-   queue's panels are 1080 because they overlay a list the operator keeps
-   referring to; this one does not. */
-.np-identities .npi-detail-panel {
+/* ---- History detail panel ----------------------------------------------
+   EVERY RULE HERE IS UNSCOPED. This offcanvas is a sibling of <main>, so a
+   `.np-identities` prefix cannot match it — with the prefix on, the panel took
+   Nimbus's 400px default and none of its interior styling applied at all.
+   The `npi-` names are unique to this screen and need no scope. */
+/* UNSCOPED, deliberately. The offcanvas is a sibling of <main>, so a
+   `.np-identities` prefix never matches it and the panel silently fell back to
+   Nimbus's 400px default. The class name is unique to this screen, so it needs
+   no scope. Same trap as the delete modal and the .npi-meta captions. */
+.npi-detail-panel {
   width: 720px;
   max-width: 100vw;
 }
 
-.np-identities .npi-detail-title {
-  font-size: var(--cnds-h5-font-size, 1.125rem);
+/* NO font-size. .offcanvas-title is Flyout/Title (16 / Medium) via its own
+   --cnds-offcanvas-title-* tokens, which is exactly what the frames specify.
+   An earlier pass overrode it to h5 and made it 18. Only the capitalisation
+   is ours: these titles are person names and record keys, which must not be
+   title-cased. */
+.npi-detail-title,
+.np-record-panel .npi-detail-title {
   text-transform: none;
 }
 
-.np-identities .npi-detail-when {
+.npi-detail-when {
   margin: 0 0 16px;
   font-size: var(--cnds-paragraph-font-size-sm, 0.75rem);
   color: var(--cnds-text-muted);
 }
 
-.np-identities .npi-detail-facts {
+.npi-detail-facts {
   display: flex;
   flex-direction: column;
   gap: 0;
 }
 
-.np-identities .npi-detail-fact {
+.npi-detail-fact {
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -2703,26 +2807,360 @@
   border-bottom: 1px solid var(--cnds-border-color);
 }
 
-.np-identities .npi-detail-fact:last-child {
+.npi-detail-fact:last-child {
   border-bottom: 0;
 }
 
-.np-identities .npi-detail-value {
+.npi-detail-value {
   margin: 0;
   font-size: var(--cnds-paragraph-font-size, 0.875rem);
   color: var(--cnds-body-color);
   overflow-wrap: anywhere;
 }
 
-.np-identities .npi-detail-subject {
+.npi-detail-subject {
   margin-top: 16px;
 }
 
-.np-identities .npi-detail-footer {
+/* NO RULE FOR .npi-detail-footer. Nimbus's .offcanvas-footer already supplies
+   every one of these — flex, justify-content: flex-end, an 8px gap, 8px
+   padding and the top border — and its tokens are exactly the frame's values.
+   The override that used to sit here set 16/24 and was the only thing on
+   either panel that disagreed with the drawing. The class stays in the markup
+   as a hook; it deliberately styles nothing. */
+
+/* Alert/Text is 14px on every frame in this feature; Nimbus's
+   --cnds-alert-font-size defaults to 1rem, so every alert on these screens was
+   rendering a step large. Set through the component's own token rather than by
+   restyling .alert's children, so the icon — which sizes off its own token —
+   is untouched.
+
+   Scoped to this page, NOT changed in Nimbus: 1rem may well be right for an
+   alert that stands alone on a page, and these all sit inside panels and
+   modals where they are body copy. Worth raising as a library question. */
+.np-page .alert,
+.np-panel .alert,
+.np-pair-panel .alert,
+.np-record-panel .alert,
+.npi-detail-panel .alert,
+.np-delete-person .alert {
+  /* ON .alert, not on an ancestor. Nimbus declares --cnds-alert-font-size in
+     the .alert rule itself, and a custom property set on the element beats one
+     inherited from a wrapper — so scoping this to the page container looked
+     right and changed nothing. */
+  --cnds-alert-font-size: var(--cnds-paragraph-font-size, 14px);
+}
+
+/* ---- Pair review panel (Pending matches → REVIEW) -----------------------
+   1080 = 75% of the 1440 viewport, matching the queue's own pair review and
+   the Measurement panel. Wider than the 720px identity panel because it
+   overlays a list the operator keeps referring to while reading it.
+
+   Unscoped, like every other panel rule here — the offcanvas is a sibling of
+   <main> and a .np-identities prefix could only stop it matching. */
+.np-pair-panel {
+  width: 1080px;
+  max-width: 100vw;
+}
+
+.np-pair-panel .offcanvas-body {
   display: flex;
-  justify-content: flex-end;
-  padding: 16px 24px;
-  border-top: 1px solid var(--cnds-border-color);
+  flex-direction: column;
+  /* fr_pair-review stacks its sections at 16, not 24. */
+  gap: 16px;
+}
+
+/* Candidate → this person, reading left to right in the direction of the
+   merge, with the arrow between them. The card order is the same one the
+   comparison columns follow. */
+.np-pair-panel .npi-pair-persons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* CENTRED — the default on this product, and the same treatment the queue's
+   own pair cards get. Each card is a self-contained summary of one person
+   rather than a column of a form, so there is no left rail for the eye to
+   run down and a ragged right edge is the only thing left-aligning buys. */
+.np-pair-panel .npi-pair-person {
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 16px;
+  border: 1px solid var(--cnds-border-color);
+  border-radius: 8px;
+  text-align: center;
+}
+
+/* CANDIDATE / ESTABLISHED PERSON — Paragraph/Default muted, NOT `.small`.
+   The frame sets it at the body size; shrinking it made the two cards read as
+   captions rather than as the two halves of the pair. */
+.np-pair-panel .npi-pair-role {
+  margin: 0;
+  font-size: var(--cnds-paragraph-font-size);
+  letter-spacing: 0;
+  color: var(--cnds-text-muted);
+}
+
+.np-pair-panel .npi-pair-name {
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: var(--cnds-body-color);
+}
+
+/* The identity COUNT, at full contrast — it is a fact about the person, not
+   metadata about the record. */
+.np-pair-panel .npi-pair-count {
+  margin: 0;
+  font-size: var(--cnds-paragraph-font-size);
+  color: var(--cnds-body-color);
+}
+
+/* Where the record came from. Paragraph/Small, muted. */
+.np-pair-panel .npi-pair-prov {
+  margin: 0;
+  color: var(--cnds-text-muted);
+}
+
+/* No margin of its own — fr_person-* stacks every child at gap 4, badge
+   included, and an extra 8 here made the card 158 tall against the frame's
+   148. `align-self: center` stops the badge stretching to the card width;
+   without it the flex stretch would defeat the centring. */
+.np-pair-panel .npi-pair-hold {
+  align-self: center;
+}
+
+/* A hold changes what a decision MEANS, so it sits above the evidence. */
+.np-pair-panel .npi-pair-holdalert {
+  margin: 0;
+}
+
+.np-pair-panel .npi-pair-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* fr_section-head: Nimbus/Category at C5 on the left, the caption right-aligned
+   on the far side of a `grow` spacer.
+
+   The component's 16px padding-bottom is sized for a page heading standing on
+   its own; inside a panel section it doubles the 8px section gap. Overridden
+   through the component's own token so the ::before highlight bar — which
+   measures from the same variable — shortens with it instead of overhanging. */
+.np-pair-panel .npi-pair-head {
+  display: flex;
+  gap: 16px;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+/* The component's OWN padding-bottom stands — 16px at C5, which is what makes
+   fr_section-head 36 tall on the frame (4 top + 16 text + 16 bottom) and what
+   opens the gap between the heading and the evidence under it.
+   Zeroing it, as an earlier pass did, closed that gap to the section's 8px and
+   left the heading sitting on top of its own content. */
+.np-pair-panel .npi-pair-category {
+  margin: 0;
+  flex: 0 0 auto;
+}
+
+/* Paragraph/DEFAULT muted — the same size as the body text, not `.small`. */
+.np-pair-panel .npi-pair-caption {
+  margin: 0;
+  font-size: var(--cnds-paragraph-font-size);
+  text-align: right;
+  color: var(--cnds-text-muted);
+}
+
+/* Verdict colours. Differs is DANGER — the frame's Text/Danger. Caution was a
+   guess, and it made a disagreeing field look like a warning about the field
+   rather than evidence against the pair.
+
+   Expected shares One Side's muted treatment: two records from different
+   systems are SUPPOSED to differ on Source, so that row must never be counted
+   against the match. */
+.np-pair-panel .np-agree-match    { color: var(--cnds-success-text-emphasis); }
+.np-pair-panel .np-agree-differs  { color: var(--cnds-danger-text-emphasis); }
+.np-pair-panel .np-agree-one      { color: var(--cnds-text-muted); }
+.np-pair-panel .np-agree-expected { color: var(--cnds-text-muted); }
+
+/* The matcher's own words, quoted, at H6/Bold — the same weight as the two
+   names above, because it carries the same evidential weight. */
+.np-pair-panel .npi-pair-reason {
+  margin: 0;
+  color: var(--cnds-body-color);
+}
+
+/* Nimbus/List/Unordered draws the bullet; the tier label sits at the end of
+   each row. Values are never shown — they are hashes. */
+.np-pair-panel .npi-pair-keys {
+  margin: 0;
+}
+
+.np-pair-panel .npi-pair-key {
+  display: flex;
+  gap: 16px;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.np-pair-panel .npi-pair-keytype {
+  font-size: var(--cnds-paragraph-font-size);
+  color: var(--cnds-body-color);
+}
+
+/* 12px, matching .np-key-status in the queue's pair review. The two panels show
+   the same verdict about the same pair and must not differ; see the note there
+   for why a pair review's status sits under the list's. */
+.np-pair-panel .np-status {
+  margin: 0;
+  font-size: var(--cnds-paragraph-font-size-sm, 12px);
+}
+
+/* ---- Identity detail panel (screen B) -----------------------------------
+   720 wide, the SAME as the History panel. The frames drew this one at 648 and
+   that one at 720, and Scott ruled them equal (08-28-2026): they are the same
+   affordance opened from two tabs, and a panel that changed width depending on
+   which tab you were on would read as two different things.
+
+   Both are the full panel width here — nothing sits beneath them that the
+   operator keeps referring to, unlike the queue's 1080px panels which overlay
+   a list being worked. */
+.np-record-panel {
+  width: 720px;
+  max-width: 100vw;
+}
+
+.np-record-panel .offcanvas-body {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.np-record-panel .npi-panel-context {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.np-record-panel .npi-panel-record {
+  margin: 0;
+  color: var(--cnds-body-color);
+}
+
+.np-record-panel .npi-panel-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* "Why it linked" is tighter than the field list above it — 8, not 16. Its
+   rows are a short argument that reads as one block, where the field list is
+   a reference table that needs the air. */
+.np-record-panel .npi-panel-section-why {
+  gap: 8px;
+}
+
+/* Nimbus/Divider between the two sections. It is a flex child of the body, so
+   it takes the body's own 24px gap either side and needs no margin. */
+.np-record-panel .npi-panel-rule {
+  margin: 0;
+  border: 0;
+}
+
+/* Section label and its caption on one line — the caption qualifies the
+   label ("as recorded in HRIS"), so stacking them reads as two headings. */
+/* Label left, caption pushed to the RIGHT edge. The frame gives the caption
+   layoutSizingHorizontal=FILL with textAlignHorizontal=RIGHT, so it takes the
+   remaining width and sets its text against the far edge — not sitting a gap
+   away from the label, which is where it landed before. */
+.np-record-panel .npi-panel-heading {
+  display: flex;
+  gap: 16px;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+
+.np-record-panel .npi-panel-heading .npi-meta {
+  flex: 1 1 auto;
+  text-align: right;
+}
+
+/* Typography/H6/Bold — .h6 and .bold in the markup carry the size and weight.
+   list-group.css is not in play here, so no restatement is needed. */
+.np-record-panel .npi-panel-h {
+  margin: 0;
+  color: var(--cnds-body-color);
+}
+
+/* A fixed label column, so the values line up down the panel rather than
+   stepping in and out with the length of each label. 160px is the frame's. */
+.np-record-panel .npi-panel-pair,
+.np-record-panel .npi-panel-key {
+  display: flex;
+  gap: 16px;
+  align-items: baseline;
+}
+
+/* Text/DEFAULT, not muted. These are field names in a data list, not the
+   quiet label of a label/value pair in a row — the frame gives them the same
+   contrast as their values and distinguishes them by weight alone. */
+.np-record-panel .npi-panel-label {
+  flex: 0 0 160px;
+  margin: 0;
+  color: var(--cnds-body-color);
+}
+
+.np-record-panel .npi-panel-value,
+.np-record-panel .npi-panel-keytype {
+  flex: 1 1 auto;
+  margin: 0;
+  color: var(--cnds-body-color);
+  overflow-wrap: anywhere;
+}
+
+/* A value that disagrees with the person it is attached to. The frame paints
+   it Text/Danger — this is the one place on the screen where a colour is
+   carrying a finding rather than decorating one, so it is worth the weight. */
+.np-record-panel .npi-panel-value-danger {
+  color: var(--cnds-danger-text-emphasis);
+}
+
+/* A field the source did not populate. Muted, because the em dash is the
+   absence of data rather than data. */
+.np-record-panel .npi-panel-value-muted {
+  color: var(--cnds-text-muted);
+}
+
+/* The key row puts its verdict at the right, against the key type. */
+.np-record-panel .npi-panel-key {
+  justify-content: space-between;
+}
+
+.np-record-panel .npi-panel-key .np-status {
+  flex-shrink: 0;
+}
+
+/* 16px, not the 8 the list rows use — the panel's `pair` frame sets its own
+   itemSpacing and it is wider here. */
+.np-record-panel .npi-pair .npi-label {
+  margin-right: 16px;
+}
+
+.np-record-panel .npi-panel-note {
+  margin: 0;
+}
+
+/* The verdict is a <p> and keeps the browser's 1rem bottom margin without
+   this. That margin was adding 16px to every key row on top of the section's
+   own 16px gap, so the rows sat 52px apart against the frame's 36. */
+.np-record-panel .np-status {
+  margin: 0;
 }
 
 /* ---- Delete person — confirmation ---------------------------------------
