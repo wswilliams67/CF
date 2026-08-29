@@ -1,0 +1,788 @@
+<title>Identity Records Test Pass</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;450;500;600&display=swap">
+
+<style>
+  /* ── Tokens ───────────────────────────────────────────────────────────
+     Light is the complete palette on bare :root. Dark redefines only the
+     tokens, twice, so the OS default and an explicit toggle both resolve. */
+  :root {
+    --paper:      #F3F6F3;
+    --card:       #FFFFFF;
+    --card-sunk:  #ECF0EC;
+    --ink:        #14181C;
+    --ink-soft:   #3B453F;
+    --muted:      #5C665F;
+    --rule:       #D8DFD9;
+    --rule-soft:  #E7ECE7;
+
+    --accent:     #1F5F5B;   /* structure, progress, focus — deep teal   */
+    --accent-ink: #133D3A;
+    --pass:       #2E892A;   /* CaseFusion green — semantic, not accent  */
+    --fail:       #B3261E;
+    --hold:       #8A6100;
+    --pass-wash:  #E8F3E7;
+    --fail-wash:  #FBEAE9;
+    --hold-wash:  #FAF1DF;
+
+    --shadow:     0 1px 2px rgba(20, 24, 28, .06), 0 8px 24px rgba(20, 24, 28, .05);
+
+    --step: 1.5rem;
+    --measure: 68ch;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:      #0E1114;
+      --card:       #171B1F;
+      --card-sunk:  #12161A;
+      --ink:        #E6EBE7;
+      --ink-soft:   #BAC4BD;
+      --muted:      #8A948D;
+      --rule:       #2A3138;
+      --rule-soft:  #21272C;
+
+      --accent:     #6FBFB8;
+      --accent-ink: #A8DAD5;
+      --pass:       #7EC97A;
+      --fail:       #F09891;
+      --hold:       #E0B65C;
+      --pass-wash:  #17251A;
+      --fail-wash:  #2A1817;
+      --hold-wash:  #261F12;
+
+      --shadow:     0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper:      #0E1114;
+    --card:       #171B1F;
+    --card-sunk:  #12161A;
+    --ink:        #E6EBE7;
+    --ink-soft:   #BAC4BD;
+    --muted:      #8A948D;
+    --rule:       #2A3138;
+    --rule-soft:  #21272C;
+
+    --accent:     #6FBFB8;
+    --accent-ink: #A8DAD5;
+    --pass:       #7EC97A;
+    --fail:       #F09891;
+    --hold:       #E0B65C;
+    --pass-wash:  #17251A;
+    --fail-wash:  #2A1817;
+    --hold-wash:  #261F12;
+
+    --shadow:     0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  code, .mono, .id, kbd {
+    font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-variant-ligatures: none;
+  }
+
+  a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
+
+  /* ── Running header ─────────────────────────────────────────────────── */
+  .bar {
+    position: sticky; top: 0; z-index: 10;
+    background: color-mix(in srgb, var(--paper) 88%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--rule);
+  }
+  .bar-in {
+    max-width: 60rem; margin: 0 auto; padding: .7rem 1.5rem;
+    display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+  }
+  .bar-title {
+    font-family: Newsreader, Georgia, serif;
+    font-size: 1.05rem; font-weight: 600; letter-spacing: -.01em;
+    margin-right: auto;
+  }
+  .bar-title span { color: var(--muted); font-weight: 400; }
+  .count {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: .8rem; font-variant-numeric: tabular-nums;
+    color: var(--ink-soft);
+  }
+  .count b { color: var(--ink); font-weight: 600; }
+  .meter {
+    flex: 1 1 12rem; min-width: 8rem; height: 4px;
+    background: var(--rule); border-radius: 2px; overflow: hidden;
+  }
+  .meter i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .25s ease; }
+
+  .btn {
+    font: inherit; font-size: .8rem;
+    padding: .34rem .7rem; border-radius: 5px;
+    border: 1px solid var(--rule); background: var(--card); color: var(--ink-soft);
+    cursor: pointer;
+  }
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── Page ───────────────────────────────────────────────────────────── */
+  main { max-width: 60rem; margin: 0 auto; padding: 3rem 1.5rem 6rem; }
+
+  .lede { max-width: var(--measure); }
+  h1 {
+    font-family: Newsreader, Georgia, serif;
+    font-size: clamp(2rem, 4.5vw, 2.9rem);
+    line-height: 1.1; font-weight: 500; letter-spacing: -.02em;
+    margin: 0 0 .4rem; text-wrap: balance;
+  }
+  .story {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: .8rem; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--accent); margin: 0 0 1rem;
+  }
+  .lede p { color: var(--ink-soft); margin: 0 0 .8rem; }
+
+  .setup {
+    margin: 2.5rem 0 0; padding: 1.25rem 1.4rem;
+    background: var(--card); border: 1px solid var(--rule);
+    border-radius: 8px; box-shadow: var(--shadow);
+  }
+  .setup h2 {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: .75rem; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--muted); margin: 0 0 .8rem; font-weight: 500;
+  }
+  .setup dl { margin: 0; display: grid; grid-template-columns: max-content 1fr; gap: .45rem 1.2rem; }
+  .setup dt { color: var(--muted); font-size: .85rem; }
+  .setup dd { margin: 0; font-size: .9rem; }
+  .setup dd.mono { font-size: .82rem; word-break: break-all; }
+
+  .note {
+    margin-top: 1rem; padding: .8rem 1rem;
+    background: var(--hold-wash); border-left: 3px solid var(--hold);
+    border-radius: 0 5px 5px 0; font-size: .88rem; color: var(--ink-soft);
+  }
+  .note strong { color: var(--ink); }
+
+  /* ── Sections ───────────────────────────────────────────────────────── */
+  section { margin-top: 3.25rem; }
+  .sec-head { display: flex; align-items: baseline; gap: .8rem; margin-bottom: .3rem; flex-wrap: wrap; }
+  .sec-letter {
+    font-family: "IBM Plex Mono", monospace; font-size: .75rem; font-weight: 600;
+    letter-spacing: .06em; color: var(--card);
+    background: var(--accent); padding: .18rem .45rem; border-radius: 4px;
+  }
+  h2.sec {
+    font-family: Newsreader, Georgia, serif;
+    font-size: 1.45rem; font-weight: 600; letter-spacing: -.015em;
+    margin: 0; text-wrap: balance;
+  }
+  .sec-count { font-family: "IBM Plex Mono", monospace; font-size: .78rem; color: var(--muted); margin-left: auto; font-variant-numeric: tabular-nums; }
+  .sec-note { color: var(--muted); font-size: .9rem; margin: 0 0 1.1rem; max-width: var(--measure); }
+
+  /* ── Checks ─────────────────────────────────────────────────────────── */
+  .checks { display: flex; flex-direction: column; gap: .5rem; }
+
+  .check {
+    display: grid;
+    grid-template-columns: auto 4.6rem 1fr;
+    gap: 0 .85rem;
+    padding: .9rem 1.1rem;
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    transition: border-color .15s, background .15s;
+  }
+  .check:has(input:checked) { background: var(--card-sunk); border-color: var(--rule-soft); }
+  .check:has(input:checked) .body { opacity: .55; }
+
+  .check input[type=checkbox] {
+    appearance: none; width: 1.05rem; height: 1.05rem; margin: .28rem 0 0;
+    border: 1.5px solid var(--muted); border-radius: 4px;
+    background: transparent; cursor: pointer; display: grid; place-content: center;
+  }
+  .check input[type=checkbox]::after {
+    content: ""; width: .55rem; height: .3rem; margin-top: -.12rem;
+    border-left: 2px solid var(--card); border-bottom: 2px solid var(--card);
+    transform: rotate(-45deg) scale(0); transition: transform .12s ease;
+  }
+  .check input[type=checkbox]:checked { background: var(--pass); border-color: var(--pass); }
+  .check input[type=checkbox]:checked::after { transform: rotate(-45deg) scale(1); }
+
+  .id {
+    font-size: .74rem; font-weight: 600; letter-spacing: .04em;
+    color: var(--accent-ink); background: var(--pass-wash);
+    padding: .2rem .3rem; border-radius: 4px; height: fit-content; margin-top: .2rem;
+    text-align: center;
+  }
+  :root[data-theme="dark"] .id,
+  :root:not([data-theme="light"]) .id { color: var(--accent); }
+  @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .id { color: var(--accent-ink); } }
+
+  .body > * { margin: 0; }
+  .body { display: flex; flex-direction: column; gap: .3rem; }
+  .do { font-weight: 500; }
+  .expect { color: var(--ink-soft); }
+  .expect::before {
+    content: "Expect";
+    font-family: "IBM Plex Mono", monospace; font-size: .68rem; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--pass);
+    margin-right: .5rem;
+  }
+  .why {
+    font-size: .86rem; color: var(--muted);
+    border-left: 2px solid var(--rule); padding-left: .7rem; margin-top: .15rem;
+  }
+  .why::before { content: "Why "; font-weight: 600; color: var(--ink-soft); }
+
+  .val {
+    font-family: "IBM Plex Mono", monospace; font-size: .84em;
+    background: var(--card-sunk); padding: .08rem .3rem; border-radius: 3px;
+    color: var(--ink);
+  }
+  .tag {
+    font-family: "IBM Plex Mono", monospace; font-size: .66rem;
+    letter-spacing: .07em; text-transform: uppercase;
+    padding: .12rem .4rem; border-radius: 3px; white-space: nowrap;
+    align-self: flex-start;
+  }
+  .tag-dev { background: var(--hold-wash); color: var(--hold); }
+  .tag-blocked { background: var(--fail-wash); color: var(--fail); }
+
+  .checks-foot {
+    margin-top: 1rem; font-size: .85rem; color: var(--muted);
+    display: flex; gap: .6rem; align-items: baseline;
+  }
+
+  footer {
+    margin-top: 4rem; padding-top: 1.5rem;
+    border-top: 1px solid var(--rule);
+    font-size: .85rem; color: var(--muted);
+    display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; animation: none !important; }
+  }
+
+  @media (max-width: 620px) {
+    .check { grid-template-columns: auto 1fr; }
+    .check .id { grid-column: 2; margin-bottom: .3rem; text-align: left; width: fit-content; }
+    .check .body { grid-column: 2; }
+  }
+</style>
+
+<div class="bar">
+  <div class="bar-in">
+    <div class="bar-title">Identity Records <span>· #17475</span></div>
+    <div class="meter" aria-hidden="true"><i id="meter"></i></div>
+    <div class="count"><b id="done">0</b> / <span id="total">0</span> checked</div>
+    <button class="btn" id="reset" type="button">Reset</button>
+  </div>
+</div>
+
+<main>
+
+  <div class="lede">
+    <p class="story">Test pass · built 08-28-2026</p>
+    <h1>Natural Person Identity Records</h1>
+    <p>This walks the whole #17475 workflow as an operator meets it — from the Natural Persons
+      list, through the three tabs, out to the Pending Match Queue and back again. Every expected
+      value below was read off the built screens, not from the design, so a wrong-but-plausible
+      result gets caught instead of waved through.</p>
+    <p>Tick as you go. Ticks are saved in this browser, so you can stop and come back.</p>
+  </div>
+
+  <div class="setup">
+    <h2>Before you start</h2>
+    <dl>
+      <dt>Start here</dt>
+      <dd class="mono"><a href="https://wswilliams67.github.io/CF/pages/pge-admin-natprsn-list.html">wswilliams67.github.io/CF/pages/pge-admin-natprsn-list.html</a></dd>
+      <dt>Test subject</dt>
+      <dd><span class="val">Ní Bhraonáin, Aoife</span> — 3 identities, 3 pending matches, 5 history events</dd>
+      <dt>Empty-state subject</dt>
+      <dd><span class="val">Von Hohenstein-Zimmermannberg-Featherstahlscheidt, Albert</span></dd>
+      <dt>Viewport</dt>
+      <dd>1440 wide or more. Below that the layout reflows and the column widths in these checks will not match.</dd>
+      <dt>Theme</dt>
+      <dd>Run once in dark and once in light — the toggle is in the top utility bar.</dd>
+    </dl>
+    <div class="note">
+      <strong>Nothing here writes.</strong> Every screen reads from a demo data seam, so you can
+      click anything without consequence. Refreshing restores the starting state. Two controls are
+      deliberately inert and are called out where they appear.
+    </div>
+  </div>
+
+  <!-- ══ A ═══════════════════════════════════════════════════════════ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-letter">A</span>
+      <h2 class="sec">Getting in</h2>
+      <span class="sec-count" data-count></span>
+    </div>
+    <p class="sec-note">The list hands a person to the Identity Records screen. If the wrong person
+      arrives, nothing after this section means anything.</p>
+    <div class="checks">
+
+      <label class="check"><input type="checkbox"><span class="id">A1</span><div class="body">
+        <p class="do">Open the Natural Persons list.</p>
+        <p class="expect">The toolbar reads <span class="val">Total Persons: 14</span> and the pager reads <span class="val">1-10 of 14</span>.</p>
+        <p class="why">10 per page is the product default. A pager showing 100 is a known regression, not a preference.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">A2</span><div class="body">
+        <p class="do">Find <span class="val">Ní Bhraonáin, Aoife</span> and click <span class="val">IDENTITIES</span> on that row.</p>
+        <p class="expect">The Identity Records screen opens with that person in the header — <span class="val">aoife.nibhraonain@northwind.example · Case Manager · 3 identities from 2 sources</span>.</p>
+        <p class="why">The list passes the person in the address. Landing on a different person, or on a default, means the handoff dropped it.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">A3</span><div class="body">
+        <p class="do">Read the three tabs.</p>
+        <p class="expect"><span class="val">Identities</span>, <span class="val">Pending matches</span> with a badge reading <span class="val">3</span>, and <span class="val">History</span>. The tabs fill the full width evenly.</p>
+        <p class="why">The count belongs in a badge, not in the label as <span class="val">[3]</span>. Badge and tab-1 total are independent counts and can disagree — that is a real bug worth catching.</p>
+      </div></label>
+
+    </div>
+  </section>
+
+  <!-- ══ B ═══════════════════════════════════════════════════════════ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-letter">B</span>
+      <h2 class="sec">Tab 1 — Identities</h2>
+      <span class="sec-count" data-count></span>
+    </div>
+    <p class="sec-note">Every source record attached to this person, as one flat list in payload
+      order. Not grouped by source — the flatness is the point.</p>
+    <div class="checks">
+
+      <label class="check"><input type="checkbox"><span class="id">B1</span><div class="body">
+        <p class="do">Count the rows and read the pager.</p>
+        <p class="expect">3 rows, and <span class="val">Total: 3</span> with <span class="val">1-3 of 3</span>.</p>
+        <p class="why">The total is the whole result set, not the page. It must not change when you page or sort — only when you search or filter.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">B2</span><div class="body">
+        <p class="do">Read one row across all four columns.</p>
+        <p class="expect">Identity key, then source and effective date, then status with its asserted metadata, then a <span class="val">Details</span> button on the right.</p>
+        <p class="why">Actions sit right, and severity increases right-to-left. A destructive action appearing left of a benign one is a paradigm break.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">B3</span><div class="body">
+        <p class="do">Click the sort direction button beside the sort menu.</p>
+        <p class="expect">It toggles between <span class="val">ASC</span> and <span class="val">DSC</span> and the button does not change width.</p>
+        <p class="why"><span class="val">DSC</span> is deliberate, not a typo — three characters each way, so the control cannot resize under the cursor.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">B4</span><div class="body">
+        <p class="do">Click <span class="val">Details</span> on any row.</p>
+        <p class="expect">A panel slides in from the right at 720px carrying that row's record — not the first row's.</p>
+        <p class="why">The panel is fed by the row you clicked. Showing a fixed record regardless is the classic failure here.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">B5</span><div class="body">
+        <p class="do">Close the panel and reopen it from a different row.</p>
+        <p class="expect">The content changes to the new row.</p>
+        <p class="why">Confirms the panel refills rather than caching the first record it was given.</p>
+      </div></label>
+
+    </div>
+  </section>
+
+  <!-- ══ C ═══════════════════════════════════════════════════════════ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-letter">C</span>
+      <h2 class="sec">Tab 2 — Pending matches</h2>
+      <span class="sec-count" data-count></span>
+    </div>
+    <p class="sec-note">People flagged as possibly this person. Read-only: decisions are made in the
+      adjudication queue, and this tab says so.</p>
+    <div class="checks">
+
+      <label class="check"><input type="checkbox"><span class="id">C1</span><div class="body">
+        <p class="do">Open the <span class="val">Pending matches</span> tab.</p>
+        <p class="expect">A note above the list: <span class="val">Decisions are made in the adjudication queue — this tab is read-only.</span> Then 3 rows and <span class="val">Total: 3</span>.</p>
+        <p class="why">The note explains why there are no decision buttons. Without it the absence reads as a missing feature.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">C2</span><div class="body">
+        <p class="do">Read the first row.</p>
+        <p class="expect"><span class="val">Ní Bhraonáin, Aoife M.</span> · <span class="val">1 identity · AD</span> · status <span class="val">NEEDS CORROBORATION</span> · <span class="val">Flagged: 08-12-2026</span> · a Why line · and <span class="val">Matched on: Full name + phone number</span>.</p>
+        <p class="why">Key <em>types</em> only. Matched values are hashes and must never appear on screen.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">C3</span><div class="body">
+        <p class="do">Compare the status size here against the same status inside the review panel later.</p>
+        <p class="expect">14px here in the list row.</p>
+        <p class="why">A list row's status is its headline and takes the full size; inside a pair review it qualifies a key and steps down to 12. The difference is deliberate.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">C4</span><div class="body">
+        <p class="do">Click <span class="val">Review</span> on the first row.</p>
+        <p class="expect">A panel opens at 1080px titled <span class="val">Ní Bhraonáin, Aoife M. — Ní Bhraonáin, Aoife</span>.</p>
+        <p class="why">Wider than the 720px identity panel because it overlays a list the operator keeps referring to.</p>
+      </div></label>
+
+    </div>
+  </section>
+
+  <!-- ══ D ═══════════════════════════════════════════════════════════ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-letter">D</span>
+      <h2 class="sec">The pair review panel</h2>
+      <span class="sec-count" data-count></span>
+    </div>
+    <p class="sec-note">The evidence behind one pending match. Same content as the queue's own panel,
+      minus the decision bar.</p>
+    <div class="checks">
+
+      <label class="check"><input type="checkbox"><span class="id">D1</span><div class="body">
+        <p class="do">Read the two person cards at the top.</p>
+        <p class="expect">Left: <span class="val">CANDIDATE</span> / <span class="val">Ní Bhraonáin, Aoife M.</span> / <span class="val">1 identity</span> / <span class="val">Created 08-12-2026 by refused merge</span> / a <span class="val">No holds</span> badge. Right: <span class="val">ESTABLISHED PERSON</span> / <span class="val">Ní Bhraonáin, Aoife</span> / <span class="val">3 identities</span>. An arrow points left to right between them. Card contents are centred.</p>
+        <p class="why">The count line is the identity count only. If it reads <span class="val">1 identity · AD</span> the source has leaked onto the size line and is then repeated below it.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">D2</span><div class="body">
+        <p class="do">Check the hold badge on both cards.</p>
+        <p class="expect">Both say <span class="val">No holds</span>. Neither card is blank there.</p>
+        <p class="why">"No holds" is stated, never left empty — a missing badge cannot tell you whether the hold was checked and found absent, or never checked.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">D3</span><div class="body">
+        <p class="do">Read the <span class="val">FIELD COMPARISON</span> table.</p>
+        <p class="expect">Exactly 5 rows, in order: <span class="val">Surname</span>, <span class="val">Given name</span>, <span class="val">Email</span>, <span class="val">Job title</span>, <span class="val">Source</span>. Columns run: verdict icon, Field, Candidate, Established, Agreement — candidate before established, matching the cards above.</p>
+        <p class="why">Cards and columns must read in the same order or the eye has to flip halfway down the panel.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">D4</span><div class="body">
+        <p class="do">Read the Agreement column's colours.</p>
+        <p class="expect"><span class="val">Matches</span> green, <span class="val">Differs</span> <strong>red</strong>, <span class="val">One Side</span> and <span class="val">Expected</span> grey.</p>
+        <p class="why">Differs is danger, not caution. And <span class="val">Expected</span> on the Source row is grey on purpose — two records from different systems are supposed to differ there, so it must never count against the pair.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">D5</span><div class="body">
+        <p class="do">Read the <span class="val">WHY THIS PAIR WAS REFUSED</span> section.</p>
+        <p class="expect">The quoted line is <span class="val">“2 corroborating keys”</span>. Below it, a bulleted key <span class="val">Full name + phone number</span> with <span class="val">NEEDS CORROBORATION</span> at the end of the row.</p>
+        <p class="why">Two different facts: the quote is what the matcher <em>found</em>, the label is what it <em>earned</em>. If both read "Needs corroboration" the panel is stating one fact twice and omitting the other.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">D6</span><div class="body">
+        <p class="do">Read the two footnotes under the keys.</p>
+        <p class="expect">Each has a small circled-i icon beside the first line of text, and the second reads <span class="val">Key types only — matched values are hashes and are never displayed.</span></p>
+        <p class="why">The icon aligns to the first line, not the middle of the block, so a wrapping note keeps its marker where the sentence starts.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">D7</span><div class="body">
+        <p class="do">Look at the panel footer.</p>
+        <p class="expect"><span class="val">Close</span> on the left, <span class="val">Review in the queue</span> on the right as the filled primary button.</p>
+        <p class="why">Leaving for the queue is the only action this read-only panel has, so it is the call to action and takes the rightmost slot.</p>
+      </div></label>
+
+    </div>
+  </section>
+
+  <!-- ══ E ═══════════════════════════════════════════════════════════ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-letter">E</span>
+      <h2 class="sec">Out to the queue and back</h2>
+      <span class="sec-count" data-count></span>
+    </div>
+    <p class="sec-note">The round trip. This is the sequence most likely to strand someone, so walk
+      it exactly as written.</p>
+    <div class="checks">
+
+      <label class="check"><input type="checkbox"><span class="id">E1</span><div class="body">
+        <p class="do">With the pair review panel open, click <span class="val">Review in the queue</span>.</p>
+        <p class="expect">The panel slides shut <em>first</em>, then the queue loads. No jump straight to the new screen over a still-open panel.</p>
+        <p class="why">Replacing a lit panel with a whole new screen has nothing for the eye to follow.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">E2</span><div class="body">
+        <p class="do">Read the queue's pair review panel that opens on arrival.</p>
+        <p class="expect">It opens straight onto <span class="val">Ní Bhraonáin, Aoife · Ní Bhraonáin, Aoife M. — “2 corroborating keys”</span>. You are <strong>not</strong> dropped on the queue list to find it.</p>
+        <p class="why">Landing on the default queue and hunting for the pair again is the entire failure this link exists to prevent.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">E3</span><div class="body">
+        <p class="do">Compare this panel's field table against the one you just left.</p>
+        <p class="expect">Same 5 fields, same values, same verdicts, same quoted reason, same matched key.</p>
+        <p class="why">Two screens describing one pair differently is the thing that makes a demo look broken. If they disagree, note both readings in the bug.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">E4</span><div class="body">
+        <p class="do">Look for the back link at the top of the panel content, and the button in the footer.</p>
+        <p class="expect">Both read <span class="val">Back to Aoife Ní Bhraonáin's Identity Record</span> — the top one with a circled back-arrow, the footer one as a plain tertiary button on the far left with <span class="val">Close</span> on the far right.</p>
+        <p class="why">Given name first here, deliberately: this is a sentence, not a sort key, so "Ní Bhraonáin, Aoife's" would read as though the comma were part of the possessive.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">E5</span><div class="body">
+        <p class="do">Click anywhere on the dimmed area outside the panel. Then press <kbd>Esc</kbd>.</p>
+        <p class="expect">The panel stays open both times and gives a small nudge.</p>
+        <p class="why">You arrived here for one pair and the address has already been cleaned up — if a stray click dismissed it, that pair is one row among 5,281 and you would have to hunt for it. Opened from a queue row instead, click-away <em>does</em> close it, which is correct there.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">E6</span><div class="body">
+        <p class="do">Click <span class="val">SKIP</span> in the decision bar, then look for the back link again.</p>
+        <p class="expect">The panel advances to another pair and <strong>both</strong> back controls disappear. Click-away and <kbd>Esc</kbd> now work normally.</p>
+        <p class="why">You have walked off the pair you arrived for, so an offer to return "to Aoife Ní Bhraonáin" would no longer be about anything on screen.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">E7</span><div class="body">
+        <p class="do">Go back and re-enter by the deep link, then click the footer's <span class="val">Back to …</span> button.</p>
+        <p class="expect">The panel closes first, then Identity Records opens on <strong>tab 2, Pending matches</strong> — not tab 1 — with Aoife Ní Bhraonáin as the subject.</p>
+        <p class="why">A pending match is only visible on tab 2. Returning to tab 1 makes you find your way back to the row you were reading.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">E8</span><div class="body">
+        <p class="do">Repeat E1–E2 for a second person — open <span class="val">Liu, Jennifer</span> from the list and follow the same path.</p>
+        <p class="expect">The queue opens on <em>her</em> pair, not Aoife's and not a default.</p>
+        <p class="why">One working example can be a coincidence. All 14 people in the list have their pairs wired; two confirms the mechanism.</p>
+      </div></label>
+
+    </div>
+  </section>
+
+  <!-- ══ F ═══════════════════════════════════════════════════════════ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-letter">F</span>
+      <h2 class="sec">Tab 3 — History</h2>
+      <span class="sec-count" data-count></span>
+    </div>
+    <p class="sec-note">One chronological stream, newest first. Two row types share it: ledger
+      decisions and identity facts.</p>
+    <div class="checks">
+
+      <label class="check"><input type="checkbox"><span class="id">F1</span><div class="body">
+        <p class="do">Open the <span class="val">History</span> tab.</p>
+        <p class="expect">5 rows, <span class="val">Total: 5</span>, newest at the top.</p>
+        <p class="why">A queue and a ledger both want newest first. An ascending default here is wrong even though the control allows it.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">F2</span><div class="body">
+        <p class="do">Read the date stamp at the left of a row.</p>
+        <p class="expect">Month, day, year and a time, stacked — plain text, no calendar chip or icon.</p>
+        <p class="why">The chip has been tried and reverted twice. If one is there, the wrong build is deployed.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">F3</span><div class="body">
+        <p class="do">Find a row with no recorded time.</p>
+        <p class="expect">An em dash — <span class="val">—</span> — where the time would be. Not <span class="val">n/a</span>, not blank.</p>
+        <p class="why">A dash states that the fact is absent. "n/a" reads as a value.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">F4</span><div class="body">
+        <p class="do">Read a decision row in full.</p>
+        <p class="expect">A verdict such as <span class="val">Linked</span>, then <span class="val">Subject:</span>, <span class="val">Detail:</span> and <span class="val">Decided by:</span> lines, then <span class="val">Details</span>.</p>
+        <p class="why">Every ledger row names who or what decided it. A decision with no author is unauditable.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">F5</span><div class="body">
+        <p class="do">Click <span class="val">Details</span> on a history row.</p>
+        <p class="expect">A panel opens at 720px — the same width as the tab-1 identity panel.</p>
+        <p class="why">Same affordance opened from two tabs. A panel that changed width by tab would read as two different things.</p>
+      </div></label>
+
+    </div>
+  </section>
+
+  <!-- ══ G ═══════════════════════════════════════════════════════════ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-letter">G</span>
+      <h2 class="sec">Person actions</h2>
+      <span class="sec-count" data-count></span>
+    </div>
+    <p class="sec-note">The two header menus. One of these opens a dialog that is deliberately
+      unfinished — see the note on G4.</p>
+    <div class="checks">
+
+      <label class="check"><input type="checkbox"><span class="id">G1</span><div class="body">
+        <p class="do">Open <span class="val">EXPORT AS</span> in the person header.</p>
+        <p class="expect">A menu with <span class="val">CSV</span> and <span class="val">PDF</span>, right-aligned to the button.</p>
+        <p class="why">The format list is provisional and awaiting sign-off — flag additions rather than assuming they are missing.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">G2</span><div class="body">
+        <p class="do">Open <span class="val">ACTIONS</span>.</p>
+        <p class="expect">Three items — <span class="val">Merge into another person</span>, <span class="val">Split identities</span>, a divider, then <span class="val">Delete person</span> in red. Both buttons show a chevron and are the same height.</p>
+        <p class="why">The divider and the red separate a destructive action from two reversible ones.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">G3</span><div class="body">
+        <p class="do">Choose <span class="val">Delete person</span>.</p>
+        <p class="expect">A dialog opens with an amber alert. The alert's icon sits at the <strong>top</strong> of its text block from the moment the dialog appears — it must not start centred and jump up.</p>
+        <p class="why">The icon top-aligns for blocks of three lines or more. It used to compute that only after the dialog opened, which was visible as a jump.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">G4</span><div class="body">
+        <span class="tag tag-blocked">Known — decision pending</span>
+        <p class="do">Read the dialog's copy and try the confirm button.</p>
+        <p class="expect">The copy says the consequence is <strong>not yet decided</strong>. <span class="val">Delete person</span> is a filled primary button and is <strong>disabled</strong>. <span class="val">Cancel</span> works.</p>
+        <p class="why">What "delete" means here is an open product decision — suppress, unmatch, or tombstone. The dialog states that rather than inventing a consequence, and confirm stays disabled so a stubbed dialog cannot be actioned. <strong>Not a bug.</strong></p>
+      </div></label>
+
+    </div>
+  </section>
+
+  <!-- ══ H ═══════════════════════════════════════════════════════════ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-letter">H</span>
+      <h2 class="sec">Edge states</h2>
+      <span class="sec-count" data-count></span>
+    </div>
+    <p class="sec-note">Documented states that look like failures if you meet them cold. Each is
+      reachable from the list.</p>
+    <div class="checks">
+
+      <label class="check"><input type="checkbox"><span class="id">H1</span><div class="body">
+        <p class="do">Open <span class="val">Von Hohenstein-Zimmermannberg-Featherstahlscheidt, Albert</span> and go to <span class="val">Pending matches</span>.</p>
+        <p class="expect">A centred empty state: <span class="val">No pending matches for this person</span> and an explanation. <strong>No badge on the tab</strong>, and no toolbar or pager.</p>
+        <p class="why">Zero is a healthy result, not a failure — most people have no pending matches. The toolbar goes too: there is nothing to search, sort or page.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">H2</span><div class="body">
+        <p class="do">Check that the very long surname does not break the header or the row layout.</p>
+        <p class="expect">It wraps or truncates cleanly. Nothing overlaps and the page does not scroll sideways.</p>
+        <p class="why">That name is in the demo data specifically to catch layouts that assume a short one.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">H3</span><div class="body">
+        <p class="do">On any person, look for an identity whose basis was never recorded.</p>
+        <p class="expect">It says so plainly — the link is real, only the explanation is missing.</p>
+        <p class="why">Absent is not the same as empty. A blank reason and an unrecorded reason are different facts and must not render alike.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">H4</span><div class="body">
+        <p class="do">Follow a deep link to a pair that is no longer in the queue — open any pair review, then edit the address so <span class="val">cand=</span> is a name that does not exist.</p>
+        <span class="tag tag-dev">Address bar</span>
+        <p class="expect">The queue loads normally and a message says the pair is no longer there and may already have been decided. You are not left staring at an unexplained list.</p>
+        <p class="why">A pair vanishing is a real outcome — decided, withdrawn, another tenant. Silently showing page one would look like the link had worked.</p>
+      </div></label>
+
+    </div>
+  </section>
+
+  <!-- ══ I ═══════════════════════════════════════════════════════════ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-letter">I</span>
+      <h2 class="sec">Across the screen</h2>
+      <span class="sec-count" data-count></span>
+    </div>
+    <p class="sec-note">Things that are only wrong when compared with something else, so they survive
+      a section-by-section pass.</p>
+    <div class="checks">
+
+      <label class="check"><input type="checkbox"><span class="id">I1</span><div class="body">
+        <p class="do">Look at every date on all three tabs and in both panels.</p>
+        <p class="expect">All <span class="val">mm-dd-yyyy</span>, e.g. <span class="val">08-12-2026</span>.</p>
+        <p class="why">No ISO dates anywhere. They tend to survive in panels and tooltips after the lists are fixed.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">I2</span><div class="body">
+        <p class="do">Compare row heights and gaps between tab 1 and tab 2.</p>
+        <p class="expect">Consistent rhythm; a solid divider between rows, and a softer blurred one between columns within a row.</p>
+        <p class="why">The two divider styles are what stop the list reading as a spreadsheet grid.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">I3</span><div class="body">
+        <p class="do">Watch for anything greyed out to indicate state — a dimmed row, a faded count.</p>
+        <p class="expect">Nothing. State is shown by the status label and by which actions are present.</p>
+        <p class="why">Dimming data suggests it is less true. Records are either shown properly or not shown.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">I4</span><div class="body">
+        <p class="do">Switch the theme in the utility bar and re-scan one screen from each tab.</p>
+        <p class="expect">Everything stays legible — verdict colours, status labels, disabled buttons, panel backdrops.</p>
+        <p class="why">Semantic colours are the usual casualty: a green that reads on dark can vanish on light.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">I5</span><div class="body">
+        <p class="do">Tab through a tab pane, a panel and the delete dialog using the keyboard only.</p>
+        <p class="expect">Focus is always visible, panels trap focus while open, and <kbd>Esc</kbd> closes them — except the deep-linked pair review, per E5.</p>
+        <p class="why">The one place Esc is disabled has three visible ways out, so a keyboard user is never trapped.</p>
+      </div></label>
+
+    </div>
+  </section>
+
+  <footer>
+    <div>#17475 · Natural Person Identity Records · test pass built 08-28-2026</div>
+    <div>Ticks are stored in this browser only.</div>
+  </footer>
+
+</main>
+
+<script>
+  (function () {
+    "use strict";
+    var KEY = "cf17475-test-pass-v1";
+    var boxes = Array.prototype.slice.call(document.querySelectorAll(".check input[type=checkbox]"));
+    var doneEl = document.getElementById("done");
+    var totalEl = document.getElementById("total");
+    var meter = document.getElementById("meter");
+
+    boxes.forEach(function (b, i) { b.dataset.idx = i; });
+    totalEl.textContent = boxes.length;
+
+    function load() {
+      try {
+        var raw = window.localStorage.getItem(KEY);
+        if (!raw) return;
+        JSON.parse(raw).forEach(function (i) { if (boxes[i]) boxes[i].checked = true; });
+      } catch (e) { /* private window, cleared storage — start unticked */ }
+    }
+
+    function save() {
+      try {
+        var on = boxes.reduce(function (acc, b, i) { if (b.checked) acc.push(i); return acc; }, []);
+        window.localStorage.setItem(KEY, JSON.stringify(on));
+      } catch (e) { /* nothing to do — the pass still works, it just won't resume */ }
+    }
+
+    function paint() {
+      var n = boxes.filter(function (b) { return b.checked; }).length;
+      doneEl.textContent = n;
+      meter.style.width = boxes.length ? (n / boxes.length * 100) + "%" : "0";
+      document.querySelectorAll("section").forEach(function (sec) {
+        var out = sec.querySelector("[data-count]");
+        if (!out) return;
+        var local = sec.querySelectorAll(".check input[type=checkbox]");
+        var hit = sec.querySelectorAll(".check input[type=checkbox]:checked");
+        out.textContent = hit.length + " / " + local.length;
+      });
+    }
+
+    boxes.forEach(function (b) {
+      b.addEventListener("change", function () { save(); paint(); });
+    });
+
+    document.getElementById("reset").addEventListener("click", function () {
+      boxes.forEach(function (b) { b.checked = false; });
+      save(); paint();
+    });
+
+    load();
+    paint();
+  }());
+</script>
