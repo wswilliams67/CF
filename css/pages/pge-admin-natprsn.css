@@ -948,39 +948,49 @@
   margin: 0;
 }
 
-/* 12px. The comment here used to claim "one step down" and declare no size at
-   all, so it inherited the 16px body and rendered at 14px only because the row
-   set that — a claim the CSS never actually made. Now stated.
-
-   DELIBERATELY one step under the 14px Figma draws (Typography/Paragraph/Bold).
-   Scott, 2026-08-26: too loud across the screens. The row's subject is the
-   group title or the pair names; the status qualifies it, and uppercase plus a
-   semantic colour already carry the emphasis without matching the subject's
-   size. Colour is a Text/* token, never a badge — statuses in this product are
-   coloured text. */
 /*
- * THE STATUS. One declaration, and every status on both screens uses it.
+ * THE STATUS — Typography/Paragraph/Small/Bold: 12px, weight 700, letter-spacing
+ * ZERO, colour by tone. This is the size everywhere on #17475 and #17515.
  *
- * Figma is unambiguous — 112 status layers across the #17515 and #17475
- * sections, all `Typography/Paragraph/Bold`: 14px, weight 700, LETTER-SPACING
- * ZERO, colour by tone. Verified by reading the layers, not by eye.
+ * Scott, 08-28-2026: "other than the main tab lists, standardize all of the
+ * status text sizes for 17475 to paragraph/sm/bold."
  *
- * Three things were wrong here and each was found separately, which is the
- * real defect: 12px instead of 14, weight 600 instead of 700, and 0.4px of
- * tracking the design does not have. The size and weight had already been
- * patched back in three scattered override rules; those are gone now, because
- * a base that disagrees with the design and three overrides that fix it is how
- * the fourth place gets missed.
+ * THE LIST ROW IS THE ONLY EXCEPTION, and it is stated below rather than here.
+ * In a list the status is the row's headline — the one word that says what the
+ * row IS — so it takes the full 14. Everywhere else it qualifies something
+ * beside it: a matched key, a field, a record in a panel the operator opened
+ * to read one thing. At the qualified thing's own size, uppercase and bold, a
+ * qualifier competes with its subject.
+ *
+ * The base is the SMALL size on purpose. The exception is the smaller set and
+ * naming it explicitly is what stops the next panel being missed — which is
+ * exactly how the history detail panel sat at 14 while the pair review sat
+ * at 12.
  *
  * `text-transform` rather than typed capitals: the frames type the caps into
  * the string, but the DATA is sentence case and has to stay that way — it is
- * read out by screen readers and reused in sentences. The render is identical.
+ * read aloud by screen readers and reused in sentences. The render is identical.
  */
 .np-status {
-  font-size: var(--cnds-paragraph-font-size, 14px);
+  font-size: var(--cnds-paragraph-font-size-sm, 12px);
   font-weight: var(--cnds-font-weight-bold, 700);
   text-transform: uppercase;
   letter-spacing: 0;
+}
+
+/*
+ * THE EXCEPTION — a status in a MAIN TAB LIST row, at Paragraph/Bold 14.
+ *
+ * All four list surfaces across both screens: Identities, Pending matches and
+ * History on #17475, and the group and pair rows on #17515. Panels are
+ * deliberately absent from this list.
+ */
+.np-row-record .np-status,
+.np-row-candidate .np-status,
+.np-row-event .np-status,
+.np-row-group .np-status,
+.np-row-pair .np-status {
+  font-size: var(--cnds-paragraph-font-size, 14px);
 }
 
 /* Text/Muted — a fact that carries no decision. */
@@ -1570,26 +1580,15 @@
   gap: var(--np-gap);
 }
 
-/* 14px Bold — Typography/Paragraph/Bold, the same size as the key it
-   qualifies, matching the frame.
-
-   THIS REVERSES A 2026-08-26 CALL. It was 12px then, one step under the
-   drawing, because the status read too loud beside the key. Scott, 08-28-2026,
-   looking at this panel after the Identity Records pair review had been set to
-   14: "the status is also wrong size here." One verdict size across the
-   product beats a per-panel judgement — the same words, about the same pair,
-   cannot be two sizes depending on which screen opened them. */
-/* 12px Bold — Typography/Small/Bold, ONE STEP UNDER the 14px every other
-   status on these screens uses.
-
-   Scott's call, twice: 08-26-2026 and again 08-28-2026 after a spell at 14.
-   The reasoning has not changed — inside a pair review the status qualifies the
-   KEY beside it rather than heading a row, and at the key's own size, uppercase
-   and bold, a qualifier competes with its subject. In a LIST the status is the
-   row's headline and takes the full 14.
-
-   So the size difference is deliberate and carries meaning: 14 says "this is
-   what this row is", 12 says "this is what that key earned". */
+/*
+ * The queue pair review's key-row label. Same 12/700 as every non-list status
+ * (see THE STATUS), stated rather than inherited because this element is not
+ * an .np-status — it is this panel's own label class.
+ *
+ * History, since this value moved three times: 12 on 08-26, 14 on 08-28 when
+ * the two pair reviews disagreed, then 12 again the same day once the rule was
+ * settled globally — panels are small, main tab lists are not.
+ */
 .np-key-status {
   flex-shrink: 0;
   font-size: var(--cnds-paragraph-font-size-sm, 12px);
@@ -2628,8 +2627,7 @@
 }
 
 .np-identities .npi-pair,
-.np-record-panel .npi-pair,
-.npi-detail-panel .npi-pair {
+.np-record-panel .npi-pair {
   margin: 0;
   line-height: var(--cnds-paragraph-line-height, 1.43);
   color: var(--cnds-body-color);
@@ -2768,14 +2766,6 @@
    `.np-identities` prefix cannot match it — with the prefix on, the panel took
    Nimbus's 400px default and none of its interior styling applied at all.
    The `npi-` names are unique to this screen and need no scope. */
-/* UNSCOPED, deliberately. The offcanvas is a sibling of <main>, so a
-   `.np-identities` prefix never matches it and the panel silently fell back to
-   Nimbus's 400px default. The class name is unique to this screen, so it needs
-   no scope. Same trap as the delete modal and the .npi-meta captions. */
-.npi-detail-panel {
-  width: 720px;
-  max-width: 100vw;
-}
 
 /* NO font-size. .offcanvas-title is Flyout/Title (16 / Medium) via its own
    --cnds-offcanvas-title-* tokens, which is exactly what the frames specify.
@@ -2842,7 +2832,6 @@
 .np-panel .alert,
 .np-pair-panel .alert,
 .np-record-panel .alert,
-.npi-detail-panel .alert,
 .np-delete-person .alert {
   /* ON .alert, not on an ancestor. Nimbus declares --cnds-alert-font-size in
      the .alert rule itself, and a custom property set on the element beats one
@@ -3014,12 +3003,10 @@
   color: var(--cnds-body-color);
 }
 
-/* 12px, matching .np-key-status in the queue's pair review. The two panels show
-   the same verdict about the same pair and must not differ; see the note there
-   for why a pair review's status sits under the list's. */
+/* Size comes from the base now — see THE STATUS above. Only the margin reset
+   belongs to this panel. */
 .np-pair-panel .np-status {
   margin: 0;
-  font-size: var(--cnds-paragraph-font-size-sm, 12px);
 }
 
 /* ---- Identity detail panel (screen B) -----------------------------------

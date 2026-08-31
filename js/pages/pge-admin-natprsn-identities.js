@@ -74,6 +74,11 @@
    * number across all three would put an operator on page 3 of a list they
    * just opened.
    */
+  /* ANGULAR: this whole object becomes component state — one signal or
+     BehaviorSubject per tab holding {query, result, loaded}. `loaded` exists so
+     a tab fetches once on first reveal rather than on every switch; in Angular
+     that is the same guard, not a router resolver, because the tabs are one
+     route and a resolver would fetch all three up front. */
   var state = {
     /* Identities open ASCENDING on Source, because "Source" ascending IS the
        payload's own order — the list starts as the backend sent it, and the
@@ -151,6 +156,9 @@
    * a broken counter, where a bare label reads as a healthy empty state. The
    * empty copy in the pane says the same in words.
    */
+  /* ANGULAR: an @Input() on the tab strip. The badge count and tab 1's total
+     are DIFFERENT numbers from DIFFERENT endpoints — pending matches vs identity
+     records — and may legitimately disagree. Do not derive one from the other. */
   function setCandidateCount(n) {
     var tab = byId("npiTabCandidates");
     if (!tab) return;
@@ -188,6 +196,10 @@
    * An unrecognised or absent value falls through to tab 1, which is the right
    * default for someone arriving from the Natural Persons list.
    */
+  /* ANGULAR: read from ActivatedRoute.queryParamMap and set the active tab
+     before first render. Keep it a query param, not a route segment — the tab is
+     a view of one resource, and a segment would make three routes for one screen
+     and break the browser Back that #17515's return link depends on. */
   function openRequestedTab() {
     var m = /[?&]tab=([^&]+)/.exec(window.location.search);
     if (!m) return;
@@ -200,6 +212,10 @@
     el.click();
   }
 
+  /* ANGULAR: replaced entirely by (selectedIndexChange) on the tab group plus
+     the per-tab `loaded` guard above. The double binding here — Nimbus's
+     shown.cnds.tab AND a click fallback — exists only because the Nimbus
+     component may be absent; Angular has one event and needs one handler. */
   function wireTabs() {
     var map = {
       npiTabIdentities: loadIdentities,
@@ -235,6 +251,10 @@
    * stands in the real row's shape, so the content does not jump when it
    * lands.
    */
+  /* ANGULAR: skeletons are Nimbus markup, not logic — a <cf-skeleton> with a
+     row count and column shape, shown while the request is in flight. Do not
+     re-implement the delay: Nimbus already holds it back so a fast response
+     never flashes a skeleton. */
   function skelText(extra) {
     return '<div class="skeleton skeleton-text' + (extra ? " " + extra : "") + '"></div>';
   }
@@ -320,6 +340,10 @@
    * in quotation marks, unaltered, abbreviations included. Unquoted means the
    * sentence was composed for this screen.
    */
+  /* ANGULAR: <cf-identity-row [record]="r"> in an @for. The four-column rail
+     and the divider rules are CSS and stay in the page stylesheet; only the row
+     becomes a component. Keep the DETAILS button emitting an id upward rather
+     than opening the panel itself — the panel is a sibling, not a child. */
   function recordHtml(r) {
     var reason = r.reasonVerbatim ? "“" + r.reason + "”" : r.reason;
 
@@ -391,6 +415,10 @@
     renderPager("Id", result, "identities", loadIdentities);
   }
 
+  /* ANGULAR: one service call returning an Observable of the paged result.
+     Every list endpoint on this screen takes {page, pageSize, search, sort, dir}
+     and returns {rows, total, ...} — `total` is the RESULT SET, not the page, and
+     the toolbar total must bind to it and not to rows.length. */
   function loadIdentities() {
     var s = state.identities;
     var token = ++s.token;
@@ -561,6 +589,11 @@
    * either to the row height: both were tried and both made neighbouring rows
    * look like they meant different things.
    */
+  /* ANGULAR: <cf-date-stamp [at]="e.at" [time]="e.time"> — plain text, no
+     calendar chip (tried and reverted twice). An event with no recorded time
+     renders an em dash, never "n/a": a dash states the fact is absent, "n/a"
+     reads as a value. Dates are mm-dd-yyyy throughout; do not switch to a
+     locale pipe without checking that. */
   function stampHtml(e) {
     var p = String(e.at).split("-");           /* mm-dd-yyyy */
     var month = MONTHS[Number(p[0]) - 1] || "";
@@ -637,14 +670,15 @@
                "</div>" +
              "</div>" + COL_RULE +
 
-             '<div class="npi-col npi-col-detail">' + detail + "</div>" + COL_RULE +
-
-             '<div class="npi-col npi-col-actions">' +
-               '<button type="button" class="btn btn-tertiary btn-sm" ' +
-                 'data-npi-action="view-event" data-npi-event="' + esc(e.id) + '" ' +
-                 'aria-label="' + esc("Details for " + e.title + " on " + e.at) + '">' +
-                 "Details</button>" +
-             "</div>" +
+             /* NO ACTIONS COLUMN. The DETAILS button and the panel behind it
+                were removed on 08-28-2026 (PM): the panel restated the subject,
+                the detail and the decider, and all three are already on the row.
+                An affordance that opens a copy of what you are looking at costs
+                a click and teaches the operator that panels are not worth
+                opening.
+                The detail column absorbs the freed width — it is flex: 1 1 599
+                and simply grows. */
+             '<div class="npi-col npi-col-detail">' + detail + "</div>" +
            "</article>";
   }
 
@@ -686,91 +720,6 @@
      8 · IDENTITY DETAIL PANEL
      ═══════════════════════════════════════════════════════════════════════ */
 
-  /**
-   * Opened by DETAILS on any history row.
-   *
-   * Always opens, including when the subject has moved — the event happened
-   * and must stay inspectable. Where the subject went is stated in the body
-   * rather than the control being disabled.
-   */
-  function openDetail(eventId) {
-    var el = byId("npiDetailPanel");
-    if (!el) return;
-
-    var title = byId("npiDetailTitle");
-    var body = byId("npiDetailBody");
-    if (title) title.textContent = "Event detail";
-    if (body) {
-      body.innerHTML = '<div class="skeleton-group">' +
-        skelText("skeleton-w-50") + skelText() + skelText("skeleton-w-75") + "</div>";
-    }
-
-    if (window.Nimbus && window.Nimbus.Offcanvas) {
-      window.Nimbus.Offcanvas.getOrCreateInstance(el).show();
-    }
-
-    svc.historyEvent(eventId).then(function (e) {
-      if (!e) {
-        if (body) body.innerHTML = '<p class="np-row-note">That event is no longer available.</p>';
-        return;
-      }
-      if (title) title.textContent = e.title;
-
-      /* Same label/value grammar as the row it was opened from, stacked
-         instead of paired, so the panel reads as the row expanded rather than
-         as a different account of the same event. */
-      var fields = e.kind === "event"
-        ? [["Subject", e.subject], ["Detail", e.detail], ["Decided by", e.decidedBy]]
-        : [["From", e.from], ["To", e.to],
-           ["Source", e.source + "  ·  " + e.record], ["Recorded", e.recorded]];
-
-      var rows = fields.filter(function (f) { return f[1]; }).map(function (f) {
-        return '<div class="npi-detail-fact">' +
-          '<p class="npi-label">' + esc(f[0]) + "</p>" +
-          '<p class="npi-detail-value">' + esc(f[1]) + "</p></div>";
-      }).join("");
-
-      if (body) {
-        body.innerHTML =
-          '<p class="npi-detail-when">' + esc(e.at) +
-            (e.time ? " at " + esc(e.time) + " " + esc(e.meridiem) : "") + "</p>" +
-          '<div class="npi-detail-facts">' + rows + "</div>" +
-          (e.subjectNow
-            ? '<div class="alert alert-caution npi-detail-subject">' +
-              '<span class="npi-label">Subject now:</span> ' + esc(e.subjectNow) +
-              "</div>"
-            : "");
-      }
-    });
-  }
-
-  /**
-   * The IDENTITY DETAIL panel — what DETAILS opens on the Identities tab.
-   *
-   * Screen B. A different panel from §8's, and deliberately so: this one shows
-   * a SOURCE RECORD's own field values, that one shows an audit event. They
-   * are 648 and 720 wide respectively because their frames say so.
-   *
-   * THE VALUES ARE THE SOURCE'S, NOT THE PERSON'S — "as recorded in HRIS,
-   * before merging". So the display name here can disagree with the person
-   * header behind the panel, and that disagreement is usually why it was
-   * opened. Never reconcile the two.
-   *
-   * An absent value is an em dash. Which fields a source did NOT populate is
-   * evidence, so no row is dropped and no blank is left ambiguous.
-   */
-  /**
-   * One field of the source record.
-   *
-   * Typography/Paragraph/Bold for the label and /Default for the value — both
-   * 14px, NOT the 12px `.small` the rest of the panel's captions use. An
-   * earlier pass shrank the whole body to 12 and the field list stopped
-   * reading as the panel's content.
-   *
-   * `tone` comes from the data, never from comparing strings here:
-   *   danger  the value disagrees with the person it is attached to
-   *   muted   the source did not populate this field
-   */
   function detailPair(f) {
     var tone = f.tone === "danger" ? " npi-panel-value-danger"
              : f.tone === "muted"  ? " npi-panel-value-muted" : "";
@@ -966,6 +915,9 @@
    * never strand the operator on a link that does nothing. See the twin of
    * this in pge-admin-natprsn-queue.js → wireReturnNavigation().
    */
+  /* ANGULAR: (click) with $event.preventDefault(), then router.navigate() in
+     the offcanvas's hidden callback. Keep the timer race — a dropped animation
+     event must never leave a link that does nothing. */
   function wirePairPanelExit() {
     var link = byId("npiPairToQueue");
     if (!link) return;
@@ -996,6 +948,12 @@
     });
   }
 
+  /* ANGULAR: <cf-pair-review-panel [candidateId]="id" [readonly]="true">. The
+     SAME component #17515 uses with its decision bar projected off — that is what
+     stops the two panels drifting, and check-pair-consistency.js is the gate that
+     proves the DATA agrees too.
+     The footer CTA's href is built per-pair (see below); in Angular that is a
+     routerLink with queryParams, not a string. */
   function openPairReview(candidateId) {
     var el = byId("npiPairPanel");
     if (!el) return;
@@ -1184,6 +1142,9 @@
    *
    * @param {string} prefix  the id stem: "Id" | "Cand" | "Hist"
    */
+  /* ANGULAR: <cf-pagination [total]="r.total" [page]="r.page" [pageSize]="10">
+     with (pageChange). Default page size is 10 across the product; a pager
+     defaulting to 100 is a regression, not a preference. */
   function renderPager(prefix, result, key, reload) {
     var range = byId("npi" + prefix + "Range");
     if (range) {
@@ -1298,16 +1259,19 @@
    * Delegated rather than bound per row, because the rows are replaced on
    * every query — a per-row listener would be rebound ten times a keystroke.
    *
-   * ONLY TWO OF THESE DO ANYTHING TODAY, and that is the design rather than an
-   * omission: this screen is read-only, so every other action leaves it.
+   * ONLY THREE OF THESE DO ANYTHING TODAY, and that is the design rather than
+   * an omission: this screen is read-only, so every other action leaves it.
    *
-   *   view-event    opens the detail panel — the one thing that stays here
+   *   view-record   opens the identity detail panel (screen B), from tab 1
+   *   review-pair   opens the read-only pair review, from tab 2
    *   delete        opens the confirmation, which is itself stubbed pending
    *                 the decision on what deleting a person means
    *
    *   merge         → #17474        split       → #17516
    *   export-csv/pdf → an export job (format list is a PM/DM call)
-   *   view-record   opens the identity detail panel (screen B)
+   *
+   * `view-event` is GONE — the History tab's DETAILS button and its panel were
+   * removed on 08-28-2026 (PM) as a restatement of the row.
    *
    * Those five are left as no-ops WITH their handlers present, so the wiring
    * is visible to whoever implements them and the menu is testable now.
@@ -1317,11 +1281,6 @@
       var el = event.target.closest("[data-npi-action]");
       if (!el) return;
       var action = el.getAttribute("data-npi-action");
-
-      if (action === "view-event") {
-        openDetail(el.getAttribute("data-npi-event"));
-        return;
-      }
 
       if (action === "review-pair") {
         event.preventDefault();
@@ -1359,6 +1318,10 @@
    * The primary stays DISABLED: what deleting does is undecided, so the dialog
    * cannot state a consequence and must not offer to commit one.
    */
+  /* ANGULAR: <cf-confirm-dialog>. BLOCKED — what "Delete person" deletes is an
+     open product decision (suppress / unmatch / tombstone), so the copy is
+     stubbed and the confirm button is disabled. Do not wire this to a service
+     call until that lands; see openQuestions in pages-manifest.json. */
   function openDeleteConfirm() {
     var el = byId("npiDelete");
     if (!el) return;

@@ -532,6 +532,10 @@
    * @param {{matchedOn:string[], tier:string}} c
    * @returns {string}
    */
+  /* ANGULAR: this derivation moves SERVER-SIDE. The reason is the matcher's
+     own account of why it refused, so the API should return it rather than the
+     client inferring it from the key shape — this function exists only so the
+     demo agrees with #17515 without the two fixtures being wired together. */
   function reasonFor(c) {
     if (c.tier === "near-match-refused") return "cohort match, no corroboration";
     return (c.matchedOn[0] || "").indexOf(" + ") !== -1
@@ -1053,6 +1057,10 @@
   }
 
   /* Which person is this screen about? The list hands the id over in the URL. */
+  /* ANGULAR: ActivatedRoute.queryParamMap.get('personId'). The subject is a
+     QUERY PARAM, not a path segment, because #17515's return link appends
+     &tab= alongside it and the browser Back button has to land on the same
+     view the operator left. */
   function requestedPersonId() {
     try {
       return (new RegExp("[?&]personId=([^&]+)").exec(window.location.search) || [])[1] || "";
@@ -1326,17 +1334,16 @@
         out.keys = keyVerdicts(hit.matchedOn);
       }
       return resolve(out);
-    },
-
-    /**
-     * GET /api/tenants/{tenantId}/natural-persons/{personId}/history/{eventId}
-     * @returns {Promise<HistoryEvent|null>}
-     */
-    historyEvent: function (id) {
-      var pool = SUBJECT ? SUBJECT.history : HISTORY;
-      var hit = pool.filter(function (e) { return e.id === id; })[0];
-      return resolve(hit ? Object.assign({}, hit) : null);
     }
+
+    /* NO historyEvent ENDPOINT. The History tab's DETAILS button and its panel
+       were removed on 08-28-2026 (PM): the panel restated the subject, the
+       detail and the decider, all of which the row already carries. Nothing
+       fetches a single event any more.
+
+       If a real per-event view is ever wanted it should show something the row
+       does NOT — the full assertion, its supersession chain — rather than the
+       same three fields again. */
   };
 
   window.CaseFusion = window.CaseFusion || {};
