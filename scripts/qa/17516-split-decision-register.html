@@ -1,0 +1,365 @@
+<title>Split Identities Decision Register</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+  :root {
+    --paper:      #F1F4F5;
+    --card:       #FFFFFF;
+    --sunk:       #E6EBED;
+    --ink:        #16191C;
+    --ink-soft:   #39434A;
+    --muted:      #5D686F;
+    --rule:       #D3DBDE;
+    --rule-soft:  #E4EAEC;
+
+    --accent:     #2E3A54;   /* structure only — indigo slate            */
+    --accent-2:   #4A5C82;
+    --block:      #8C2F39;   /* BLOCKING — oxblood                       */
+    --block-wash: #F7E9EA;
+    --high:       #8A6210;   /* HIGH                                     */
+    --high-wash:  #FAF1DE;
+    --open:       #46605C;   /* open, unranked                           */
+    --open-wash:  #E7EEEC;
+
+    --shadow: 0 1px 2px rgba(22,25,28,.05), 0 10px 28px rgba(22,25,28,.06);
+    --measure: 70ch;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #0D1013; --card: #171B1F; --sunk: #12161A;
+      --ink: #E7ECEE; --ink-soft: #BDC6CB; --muted: #8B959B;
+      --rule: #2A3238; --rule-soft: #1F262B;
+      --accent: #93A6CC; --accent-2: #B3C2E0;
+      --block: #EE9298; --block-wash: #2B1719;
+      --high: #E3B65A; --high-wash: #271F10;
+      --open: #8FC0B8; --open-wash: #16221F;
+      --shadow: 0 1px 2px rgba(0,0,0,.45), 0 10px 28px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #0D1013; --card: #171B1F; --sunk: #12161A;
+    --ink: #E7ECEE; --ink-soft: #BDC6CB; --muted: #8B959B;
+    --rule: #2A3238; --rule-soft: #1F262B;
+    --accent: #93A6CC; --accent-2: #B3C2E0;
+    --block: #EE9298; --block-wash: #2B1719;
+    --high: #E3B65A; --high-wash: #271F10;
+    --open: #8FC0B8; --open-wash: #16221F;
+    --shadow: 0 1px 2px rgba(0,0,0,.45), 0 10px 28px rgba(0,0,0,.35);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font-family: "Public Sans", ui-sans-serif, system-ui, sans-serif;
+    font-size: 15px; line-height: 1.6; -webkit-font-smoothing: antialiased;
+  }
+  code, .mono { font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace; }
+  a { color: var(--accent-2); text-underline-offset: 2px; }
+  a:focus-visible { outline: 2px solid var(--accent-2); outline-offset: 2px; }
+
+  main { max-width: 58rem; margin: 0 auto; padding: 3.5rem 1.5rem 6rem; }
+
+  /* ── Masthead ─────────────────────────────────────────────────── */
+  .eyebrow {
+    font-family: "IBM Plex Mono", monospace; font-size: .74rem;
+    letter-spacing: .12em; text-transform: uppercase; color: var(--muted);
+    margin: 0 0 .9rem;
+  }
+  h1 {
+    font-family: "Instrument Serif", Georgia, serif; font-weight: 400;
+    font-size: clamp(2.4rem, 6vw, 3.6rem); line-height: 1.02;
+    letter-spacing: -.01em; margin: 0 0 .6rem; text-wrap: balance;
+  }
+  .standfirst { font-size: 1.06rem; color: var(--ink-soft); max-width: var(--measure); margin: 0; }
+
+  /* ── Summary strip ────────────────────────────────────────────── */
+  .strip {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+    gap: 1px; background: var(--rule); border: 1px solid var(--rule);
+    border-radius: 10px; overflow: hidden; margin: 2.5rem 0 0;
+  }
+  .stat { background: var(--card); padding: 1rem 1.1rem; }
+  .stat b {
+    display: block; font-family: "Instrument Serif", Georgia, serif;
+    font-size: 2rem; line-height: 1; font-weight: 400; font-variant-numeric: tabular-nums;
+  }
+  .stat span {
+    display: block; margin-top: .35rem; font-size: .78rem;
+    letter-spacing: .04em; color: var(--muted);
+  }
+  .stat.is-block b { color: var(--block); }
+  .stat.is-high  b { color: var(--high); }
+
+  .callout {
+    margin-top: 1.6rem; padding: 1.1rem 1.3rem;
+    background: var(--block-wash); border-left: 3px solid var(--block);
+    border-radius: 0 8px 8px 0; max-width: var(--measure);
+  }
+  .callout p { margin: 0; color: var(--ink-soft); }
+  .callout strong { color: var(--ink); }
+
+  /* ── Owner groups ─────────────────────────────────────────────── */
+  .group { margin-top: 3.5rem; }
+  .group-head { border-bottom: 2px solid var(--ink); padding-bottom: .5rem; margin-bottom: .5rem; }
+  .group-head h2 {
+    font-family: "Instrument Serif", Georgia, serif; font-weight: 400;
+    font-size: 1.9rem; margin: 0; letter-spacing: -.01em;
+  }
+  .group > p.intro { color: var(--muted); font-size: .95rem; max-width: var(--measure); margin: .7rem 0 1.6rem; }
+
+  /* ── Question cards ───────────────────────────────────────────── */
+  .q {
+    background: var(--card); border: 1px solid var(--rule);
+    border-radius: 10px; padding: 1.4rem 1.5rem; margin-bottom: 1rem;
+    box-shadow: var(--shadow);
+  }
+  .q-top { display: flex; align-items: baseline; gap: .7rem; flex-wrap: wrap; margin-bottom: .55rem; }
+  .ref {
+    font-family: "IBM Plex Mono", monospace; font-size: .74rem; font-weight: 600;
+    color: var(--muted);
+  }
+  .flag {
+    font-family: "IBM Plex Mono", monospace; font-size: .66rem; font-weight: 600;
+    letter-spacing: .08em; text-transform: uppercase;
+    padding: .16rem .45rem; border-radius: 4px;
+  }
+  .flag-block { background: var(--block-wash); color: var(--block); }
+  .flag-high  { background: var(--high-wash);  color: var(--high); }
+  .flag-open  { background: var(--open-wash);  color: var(--open); }
+  .screens {
+    margin-left: auto; font-family: "IBM Plex Mono", monospace;
+    font-size: .72rem; color: var(--muted);
+  }
+
+  .q h3 {
+    font-size: 1.16rem; font-weight: 600; margin: 0 0 .6rem;
+    line-height: 1.3; text-wrap: balance;
+  }
+  .q p { margin: 0 0 .7rem; color: var(--ink-soft); }
+  .q p:last-child { margin-bottom: 0; }
+
+  .branches { margin: .9rem 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: .4rem; }
+  .branches li {
+    display: grid; grid-template-columns: 1.4rem 1fr; gap: .6rem;
+    padding: .55rem .7rem; background: var(--sunk); border-radius: 6px;
+    font-size: .93rem; color: var(--ink-soft);
+  }
+  .branches .k {
+    font-family: "IBM Plex Mono", monospace; font-weight: 600;
+    color: var(--accent-2); font-size: .85rem;
+  }
+  .cost {
+    margin-top: .9rem; padding-top: .8rem; border-top: 1px dashed var(--rule);
+    font-size: .9rem; color: var(--muted);
+  }
+  .cost b { color: var(--ink-soft); font-weight: 600; }
+
+  .deadline {
+    display: inline-block; margin-top: .8rem;
+    font-size: .85rem; padding: .4rem .7rem;
+    background: var(--high-wash); color: var(--high);
+    border-radius: 6px; font-weight: 500;
+  }
+
+  footer {
+    margin-top: 4.5rem; padding-top: 1.4rem; border-top: 1px solid var(--rule);
+    font-size: .85rem; color: var(--muted);
+    display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+  }
+
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
+  @media (max-width: 600px) { .screens { margin-left: 0; flex-basis: 100%; } }
+</style>
+
+<main>
+
+  <p class="eyebrow">Split identities · #17516 · for PM / DM · 09-01-2026</p>
+  <h1>Eight answers stand between Split and a build</h1>
+  <p class="standfirst">The design is finished — nineteen screens at Nimbus fidelity, fully flowed.
+    What is not settled is what the system underneath is allowed to do. These are every open
+    question on the board, in one list.</p>
+
+  <div class="strip">
+    <div class="stat is-block"><b>1</b><span>blocking</span></div>
+    <div class="stat is-high"><b>5</b><span>marked high</span></div>
+    <div class="stat"><b>3</b><span>yours to decide</span></div>
+    <div class="stat"><b>4</b><span>engineering facts</span></div>
+    <div class="stat"><b>1</b><span>has a deadline</span></div>
+  </div>
+
+  <div class="callout">
+    <p><strong>Only three of these are product decisions.</strong> Four are questions about what the
+      ledger and the projection builder can already do — they need routing to engineering, not
+      deciding. The eighth is contingent: its answer falls out of one of the four. Splitting them
+      that way is the fastest route to a build, because the engineering four can be answered in
+      parallel with your three.</p>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <section class="group">
+    <div class="group-head"><h2>Yours to decide</h2></div>
+    <p class="intro">Product and policy calls. Nothing external answers these.</p>
+
+    <article class="q">
+      <div class="q-top">
+        <span class="ref">S-1</span>
+        <span class="flag flag-block">Blocking</span>
+        <span class="screens">B · B2 · C · D</span>
+      </div>
+      <h3>Can a legal hold be inherited by the person a split creates?</h3>
+      <p>The screens currently <em>assert</em> that it can. B, B3, B4 and B5 show
+        <span class="mono">On Legal Hold · 2 matters</span> on <strong>both</strong> people, and
+        B1, B2, C and D show <span class="mono">Acme v. Byrne — inherited</span> on the new person.
+        The per-badge “Inherited” label was dropped on 08-19, so the claim is now carried by the
+        matching counts rather than by a word — which makes it easy to ship without anyone noticing
+        it was never ruled on.</p>
+      <p>The split concept (§6) asserts inheritance but defers to <strong>merge §2</strong>, which is
+        itself blocking and owned by whoever owns spoliation risk. Merge §2 offers three options:</p>
+      <ul class="branches">
+        <li><span class="k">A</span><span>Rewrite the hold’s custodian list.</span></li>
+        <li><span class="k">B</span><span>Leave the hold where it is and give the identity a redirect.</span></li>
+        <li><span class="k">C</span><span>Refuse the operation entirely while a hold is in force.</span></li>
+      </ul>
+      <p class="cost"><b>Why it blocks:</b> C removes four screens rather than restyling them. And
+        the workflow-attribution panel (B3/B4) deliberately does <em>not</em> offer legal holds as an
+        attributable workflow — that choice was made pending this ruling and has to be revisited
+        either way.</p>
+      <p class="cost"><b>Needs legal in the room</b>, not just product. It is a spoliation-risk
+        question wearing a UI costume.</p>
+    </article>
+
+    <article class="q">
+      <div class="q-top">
+        <span class="ref">S-2</span>
+        <span class="flag flag-open">Open</span>
+        <span class="screens">B3 · B4</span>
+      </div>
+      <h3>Must every case be attributed before the split can be applied?</h3>
+      <p>The attribution panel lets workflows be assigned for all cases at once or case by case.
+        What it does not say is whether <span class="mono">APPLY ATTRIBUTIONS</span> is available
+        before every case has been decided.</p>
+      <ul class="branches">
+        <li><span class="k">A</span><span>A default exists — unattributed workflows stay with the original person — so <span class="mono">APPLY</span> is always live and the panel is optional. <em>This is what the screens currently imply.</em></span></li>
+        <li><span class="k">B</span><span>Attribution is required, so <span class="mono">APPLY</span> stays disabled until every case is set — matching the house rule that a primary CTA is disabled until the form validates.</span></li>
+      </ul>
+      <p class="cost"><b>The trade:</b> B is safer for a split that divides preservation-relevant
+        work, but it makes the panel mandatory on a flow where most splits are clean.</p>
+      <p class="cost"><b>Bundled with it:</b> the panel has no empty state. A person on no cases has
+        nothing to attribute, so <span class="mono">CHOOSE WORKFLOW ATTRIBUTIONS</span> should
+        probably not be offered at all in that case — worth confirming while you are here.</p>
+    </article>
+
+    <article class="q">
+      <div class="q-top">
+        <span class="ref">S-3</span>
+        <span class="flag flag-open">Open</span>
+        <span class="screens">Edge §7</span>
+      </div>
+      <h3>In shadow mode, is Split hidden or shown-disabled?</h3>
+      <p>With no projection authority the action cannot run. Hiding it leaves no explanation for why
+        a control someone expects is missing; disabling it needs copy stating why.</p>
+      <p class="cost"><b>Currently drawn as shown-disabled with an explanatory state</b>, which is
+        the more informative of the two and consistent with how the rest of this feature set treats
+        unavailable actions. Confirm or overturn.</p>
+    </article>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <section class="group">
+    <div class="group-head"><h2>Questions for engineering</h2></div>
+    <p class="intro">Not decisions — facts about what already exists. Each one changes what the
+      interface is allowed to promise, so the answer shapes the build either way.</p>
+
+    <article class="q">
+      <div class="q-top">
+        <span class="ref">S-4</span>
+        <span class="flag flag-high">High</span>
+        <span class="screens">B</span>
+      </div>
+      <h3>Is a dry-run rebuild available?</h3>
+      <p>The entire preview assumes we can retract hypothetically and get the resulting projection
+        back <em>without committing</em>. #17378 verifies a real retraction and rebuild; no
+        hypothetical path is called out anywhere.</p>
+      <p>Without one the interface can only offer a button whose effect it cannot describe — on the
+        operation that exists to correct irreversible mistakes.</p>
+      <p class="cost"><b>Fallback if the answer is no:</b> commit-then-undo, which inverts the
+        preview-before-consequence pattern used everywhere else in this feature set. Workable, but it
+        is a different design, not a smaller one.</p>
+      <p class="deadline">⏱ Timing — retrofitting a dry-run onto a projection builder written only
+        to commit is materially harder than building it in. This needs answering <strong>while
+        #17377 is in flight</strong>.</p>
+    </article>
+
+    <article class="q">
+      <div class="q-top">
+        <span class="ref">S-5</span>
+        <span class="flag flag-high">High</span>
+        <span class="screens">Foundation · C</span>
+      </div>
+      <h3>Are assertions individually retractable — and is a retraction itself an appended assertion?</h3>
+      <p>The whole model rests on this. “Recorded, not erased” on screen C, and the history claim on
+        <em>both</em> resulting people, depend on the ledger <strong>appending</strong> a retraction
+        rather than deleting a row.</p>
+      <p class="cost"><b>If the ledger deletes instead:</b> screen C’s central promise is false and
+        the audit story for a split has to be rewritten before anything is built.</p>
+    </article>
+
+    <article class="q">
+      <div class="q-top">
+        <span class="ref">S-6</span>
+        <span class="flag flag-high">High</span>
+        <span class="screens">A</span>
+      </div>
+      <h3>Is an operator-asserted join supported, and is it distinguishable from a key-derived one?</h3>
+      <p><span class="mono">Move to a specific person</span> is a retraction <em>plus</em> a manual
+        join. Two parts: can the ledger record that at all, and can a later reviewer tell a human
+        decision from a machine match?</p>
+      <p class="cost"><b>Why the second half matters as much as the first:</b> if the two are
+        indistinguishable in the record, every operator-moved identity looks like the matcher’s work
+        when the log is read back — which is exactly the question a declaration would be asked.</p>
+    </article>
+
+    <article class="q">
+      <div class="q-top">
+        <span class="ref">S-7</span>
+        <span class="flag flag-open">Open</span>
+        <span class="screens">D</span>
+      </div>
+      <h3>Is the rebuild synchronous per person, or queued?</h3>
+      <p>Determines whether the After state shows a progress indicator at all.</p>
+      <p class="cost"><b>Why it is not cosmetic:</b> <span class="mono">pfizerpoc</span> holds 61,888
+        persons, so a rebuild may not be instant. A person page showing a stale projection with no
+        indication is worse than one that says plainly it is rebuilding.</p>
+    </article>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <section class="group">
+    <div class="group-head"><h2>Falls out of the answers above</h2></div>
+    <p class="intro">Do not put this one to anyone directly — it resolves itself once S-5 and S-6
+      are answered.</p>
+
+    <article class="q">
+      <div class="q-top">
+        <span class="ref">S-8</span>
+        <span class="flag flag-high">High</span>
+        <span class="screens">B2</span>
+      </div>
+      <h3>Can an identity re-home onto an existing person, or does retraction always mint a new one?</h3>
+      <p>The preview copy differs materially between the two: B2 names the destination person and
+        its identity count, which only makes sense if re-homing is possible.</p>
+      <p class="cost"><b>The outcome is binary, and one branch deletes a screen.</b> If retraction
+        always mints, <strong>B2 should be deleted rather than shipped as a state that cannot
+        occur</strong> — so this is worth resolving before the build starts rather than during it.</p>
+    </article>
+  </section>
+
+  <footer>
+    <div>Split identities · #17516 · gathered from the eight stickies on Figma section <span class="mono">12994:24015</span></div>
+    <div>Identity Records #17475 shipped 08-28 — the dependency that blocked Split is clear</div>
+  </footer>
+
+</main>
