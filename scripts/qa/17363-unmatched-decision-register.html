@@ -1,0 +1,435 @@
+<title>Unmatched Records Decision Register</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+  :root {
+    --paper:      #F1F4F5;
+    --card:       #FFFFFF;
+    --sunk:       #E6EBED;
+    --ink:        #16191C;
+    --ink-soft:   #39434A;
+    --muted:      #5D686F;
+    --rule:       #D3DBDE;
+    --rule-soft:  #E4EAEC;
+
+    --accent:     #2E3A54;   /* structure only — indigo slate            */
+    --accent-2:   #4A5C82;
+    --block:      #8C2F39;   /* BLOCKING — oxblood                       */
+    --block-wash: #F7E9EA;
+    --high:       #8A6210;   /* HIGH                                     */
+    --high-wash:  #FAF1DE;
+    --open:       #46605C;   /* open, unranked                           */
+    --done:       #2F6B3C;   /* answered                                 */
+    --done-wash:  #E7F1E9;
+    --open-wash:  #E7EEEC;
+
+    --shadow: 0 1px 2px rgba(22,25,28,.05), 0 10px 28px rgba(22,25,28,.06);
+    --measure: 70ch;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #0D1013; --card: #171B1F; --sunk: #12161A;
+      --ink: #E7ECEE; --ink-soft: #BDC6CB; --muted: #8B959B;
+      --rule: #2A3238; --rule-soft: #1F262B;
+      --accent: #93A6CC; --accent-2: #B3C2E0;
+      --block: #EE9298; --block-wash: #2B1719;
+      --high: #E3B65A; --high-wash: #271F10;
+      --open: #8FC0B8; --open-wash: #16221F;
+      --done: #86C594; --done-wash: #16251A;
+      --shadow: 0 1px 2px rgba(0,0,0,.45), 0 10px 28px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #0D1013; --card: #171B1F; --sunk: #12161A;
+    --ink: #E7ECEE; --ink-soft: #BDC6CB; --muted: #8B959B;
+    --rule: #2A3238; --rule-soft: #1F262B;
+    --accent: #93A6CC; --accent-2: #B3C2E0;
+    --block: #EE9298; --block-wash: #2B1719;
+    --high: #E3B65A; --high-wash: #271F10;
+    --open: #8FC0B8; --open-wash: #16221F;
+    --done: #86C594; --done-wash: #16251A;
+    --shadow: 0 1px 2px rgba(0,0,0,.45), 0 10px 28px rgba(0,0,0,.35);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font-family: "Public Sans", ui-sans-serif, system-ui, sans-serif;
+    font-size: 15px; line-height: 1.6; -webkit-font-smoothing: antialiased;
+  }
+  code, .mono { font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace; }
+  a { color: var(--accent-2); text-underline-offset: 2px; }
+  a:focus-visible { outline: 2px solid var(--accent-2); outline-offset: 2px; }
+
+  main { max-width: 58rem; margin: 0 auto; padding: 3.5rem 1.5rem 6rem; }
+
+  /* ── Masthead ─────────────────────────────────────────────────── */
+  .eyebrow {
+    font-family: "IBM Plex Mono", monospace; font-size: .74rem;
+    letter-spacing: .12em; text-transform: uppercase; color: var(--muted);
+    margin: 0 0 .9rem;
+  }
+  h1 {
+    font-family: "Instrument Serif", Georgia, serif; font-weight: 400;
+    font-size: clamp(2.4rem, 6vw, 3.6rem); line-height: 1.02;
+    letter-spacing: -.01em; margin: 0 0 .6rem; text-wrap: balance;
+  }
+  .standfirst { font-size: 1.06rem; color: var(--ink-soft); max-width: var(--measure); margin: 0; }
+
+  /* ── Summary strip ────────────────────────────────────────────── */
+  .strip {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+    gap: 1px; background: var(--rule); border: 1px solid var(--rule);
+    border-radius: 10px; overflow: hidden; margin: 2.5rem 0 0;
+  }
+  .stat { background: var(--card); padding: 1rem 1.1rem; }
+  .stat b {
+    display: block; font-family: "Instrument Serif", Georgia, serif;
+    font-size: 2rem; line-height: 1; font-weight: 400; font-variant-numeric: tabular-nums;
+  }
+  .stat span {
+    display: block; margin-top: .35rem; font-size: .78rem;
+    letter-spacing: .04em; color: var(--muted);
+  }
+  .stat.is-block b { color: var(--block); }
+  .stat.is-high  b { color: var(--high); }
+  .stat.is-answered b { color: var(--done); }
+
+  .callout {
+    margin-top: 1.6rem; padding: 1.1rem 1.3rem;
+    background: var(--block-wash); border-left: 3px solid var(--block);
+    border-radius: 0 8px 8px 0; max-width: var(--measure);
+  }
+  .callout p { margin: 0; color: var(--ink-soft); }
+  .callout strong { color: var(--ink); }
+
+  /* ── Owner groups ─────────────────────────────────────────────── */
+  .group { margin-top: 3.5rem; }
+  .group-head { border-bottom: 2px solid var(--ink); padding-bottom: .5rem; margin-bottom: .5rem; }
+  .group-head h2 {
+    font-family: "Instrument Serif", Georgia, serif; font-weight: 400;
+    font-size: 1.9rem; margin: 0; letter-spacing: -.01em;
+  }
+  .group > p.intro { color: var(--muted); font-size: .95rem; max-width: var(--measure); margin: .7rem 0 1.6rem; }
+
+  /* ── Question cards ───────────────────────────────────────────── */
+  .q {
+    background: var(--card); border: 1px solid var(--rule);
+    border-radius: 10px; padding: 1.4rem 1.5rem; margin-bottom: 1rem;
+    box-shadow: var(--shadow);
+  }
+  .q-top { display: flex; align-items: baseline; gap: .7rem; flex-wrap: wrap; margin-bottom: .55rem; }
+  .ref {
+    font-family: "IBM Plex Mono", monospace; font-size: .74rem; font-weight: 600;
+    color: var(--muted);
+  }
+  .flag {
+    font-family: "IBM Plex Mono", monospace; font-size: .66rem; font-weight: 600;
+    letter-spacing: .08em; text-transform: uppercase;
+    padding: .16rem .45rem; border-radius: 4px;
+  }
+  .flag-block { background: var(--block-wash); color: var(--block); }
+  .flag-high  { background: var(--high-wash);  color: var(--high); }
+  .flag-open  { background: var(--open-wash);  color: var(--open); }
+  .flag-done  { background: var(--done-wash);  color: var(--done); }
+  .ruling {
+    margin: .9rem 0 0; padding: .85rem 1rem;
+    background: var(--done-wash); border-left: 3px solid var(--done);
+    border-radius: 0 6px 6px 0; font-size: .95rem; color: var(--ink-soft);
+  }
+  .ruling b { display: block; font-size: .7rem; letter-spacing: .09em; text-transform: uppercase;
+              color: var(--done); margin-bottom: .3rem; font-family: "IBM Plex Mono", monospace; }
+  .consequence { margin-top: .8rem; font-size: .92rem; }
+  .consequence b { color: var(--ink); }
+  .screens {
+    margin-left: auto; font-family: "IBM Plex Mono", monospace;
+    font-size: .72rem; color: var(--muted);
+  }
+
+  .q h3 {
+    font-size: 1.16rem; font-weight: 600; margin: 0 0 .6rem;
+    line-height: 1.3; text-wrap: balance;
+  }
+  .q p { margin: 0 0 .7rem; color: var(--ink-soft); }
+  .q p:last-child { margin-bottom: 0; }
+
+  .branches { margin: .9rem 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: .4rem; }
+  .branches li {
+    display: grid; grid-template-columns: 1.4rem 1fr; gap: .6rem;
+    padding: .55rem .7rem; background: var(--sunk); border-radius: 6px;
+    font-size: .93rem; color: var(--ink-soft);
+  }
+  .branches .k {
+    font-family: "IBM Plex Mono", monospace; font-weight: 600;
+    color: var(--accent-2); font-size: .85rem;
+  }
+  .cost {
+    margin-top: .9rem; padding-top: .8rem; border-top: 1px dashed var(--rule);
+    font-size: .9rem; color: var(--muted);
+  }
+  .cost b { color: var(--ink-soft); font-weight: 600; }
+
+  .deadline {
+    display: inline-block; margin-top: .8rem;
+    font-size: .85rem; padding: .4rem .7rem;
+    background: var(--high-wash); color: var(--high);
+    border-radius: 6px; font-weight: 500;
+  }
+
+  footer {
+    margin-top: 4.5rem; padding-top: 1.4rem; border-top: 1px solid var(--rule);
+    font-size: .85rem; color: var(--muted);
+    display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+  }
+
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
+  @media (max-width: 600px) { .screens { margin-left: 0; flex-basis: 100%; } }
+</style>
+
+<main>
+
+  <p class="eyebrow">Unmatched source records · #17363 · compiled 09-01-2026</p>
+  <h1>Four calls, three of them already drawn</h1>
+  <p class="standfirst">The section went from three screens to eleven on 09-01-2026, which answered
+    most of what its sticky was asking. Three of the four decisions below now have screens attached
+    — you are confirming a drawn answer, not commissioning one. The fourth is the original question,
+    still open, and it cannot sensibly be answered without the crosswalk's C-4 beside it.</p>
+
+  <div class="strip">
+    <div class="stat is-block"><b>1</b><span>blocking</span></div>
+    <div class="stat is-high"><b>4</b><span>for the PM</span></div>
+    <div class="stat"><b>2</b><span>for engineering</span></div>
+    <div class="stat is-answered"><b>3</b><span>drawn since the sticky</span></div>
+    <div class="stat is-high"><b>1</b><span>still undrawn</span></div>
+  </div>
+
+  <div class="callout">
+    <p><strong>U-1 and the crosswalk's C-4 are the same question asked twice.</strong> Neither
+      surface has a route into it, and each register proposes the other as the way in. Answered
+      separately, the likely outcome is two screens that point only at each other and at nothing in
+      the product. They want one answer, made once.</p>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <section class="group">
+    <div class="group-head"><h2>Yours to decide</h2></div>
+    <p class="intro">Product and policy calls. Where a screen is already drawn, it is named — the
+      decision is to keep it or drop it, not to design it.</p>
+
+    <article class="q">
+      <div class="q-top">
+        <span class="ref">U-1</span>
+        <span class="flag flag-block">Blocking</span>
+        <span class="screens">whole section</span>
+      </div>
+      <h3>How does anyone reach unmatched source records?</h3>
+
+      <p class="consequence">Nothing in the file links to this surface. It was built as a top-level
+        destination with no back control, and that was an assumption rather than a decision.</p>
+
+      <p class="consequence"><b>Three candidates, from the docs.</b>
+        <span class="mono">a</span> Legacy Data Import completion — <span class="mono">EXPERIENCE.md</span>
+        already names this "the entry point" for remediation, and it is the recommendation.
+        <span class="mono">b</span> The crosswalk, which keeps unmatched records visible as
+        <span class="mono">(unmatched)</span> rows.
+        <span class="mono">c</span> A nav entry under Administration › Identity — argued against,
+        because the nav is nine flat entries and this cohort may be empty for another tenant.</p>
+
+      <p class="cost"><b>Answer it with #17384, not after it.</b> The crosswalk has no route in
+        either, and option <span class="mono">b</span> on its register proposes reaching the
+        crosswalk <em>through this screen</em>. Whichever way it goes, the page title gains a back
+        control naming its origin — <span class="mono">‹ Legacy data import</span> or
+        <span class="mono">‹ Crosswalk</span> — and this stops being top-level.</p>
+    </article>
+
+    <article class="q">
+      <div class="q-top">
+        <span class="ref">U-2</span>
+        <span class="flag flag-high">Drawn · needs a number</span>
+        <span class="screens">Small cohort</span>
+      </div>
+      <h3>Below what size do the shares stop being shown?</h3>
+
+      <p class="consequence">The Outlook and Cohort profile cards are built on percentages. Below
+        some cohort size those stop being measurements: a share of twelve records moves in steps of
+        8.3, so <span class="mono">41.7%</span> reads as precision when it is one record either way.</p>
+
+      <p class="consequence"><b>Drawn at twelve records.</b> The small-cohort screen suppresses every
+        share to an em dash and keeps the counts, which stay exact and actionable at that size. The
+        note above the cards carries the reason, so the dashes do not read as missing data.</p>
+
+      <p class="cost">What is needed is the cut-off itself — the point where a percentage stops
+        being a measurement. It cannot be inferred from the design.</p>
+    </article>
+
+    <article class="q">
+      <div class="q-top">
+        <span class="ref">U-3</span>
+        <span class="flag flag-high">High · PM and DM</span>
+        <span class="screens">Export · Export in progress · Export ready</span>
+      </div>
+      <h3>Do unmatched exports need a log of their own?</h3>
+
+      <p class="consequence"><span class="mono">EXPORT</span> on the Overview and
+        <span class="mono">EXPORT SEGMENT</span> on Browse both produce a file, and the progress
+        dialog says it is ready to download. The crosswalk's equivalent dialog instead says the job
+        <em>appears under Exports</em> — because the crosswalk has an Exports list. This feature
+        does not.</p>
+
+      <p class="cost"><b>If these runs have to be auditable</b> — who exported the cohort, when, and
+        with which filter — they belong in the crosswalk's existing Exports list rather than a second
+        list built here. That makes this a routing decision rather than a new screen, and it is the
+        same shape as C-9 on the crosswalk register, which added the export detail panel for exactly
+        that reason.</p>
+    </article>
+
+    <article class="q">
+      <div class="q-top">
+        <span class="ref">U-4</span>
+        <span class="flag flag-high">Drawn · confirm or drop</span>
+        <span class="screens">Re-measure confirm</span>
+      </div>
+      <h3>Should Re-measure be confirmed before it runs?</h3>
+
+      <p class="consequence">It is drawn behind a confirmation. Re-measure is the only action on the
+        Overview that changes system state, and it recalculates every count on the screen across
+        58,287 source records. The dialog says what moves and what does not, because the word
+        <em>re-measure</em> does not make that obvious on its own.</p>
+
+      <p class="cost"><b>Drop it if the measurement is cheap.</b> If a re-measure is seconds rather
+        than minutes, the dialog is friction on a safe, repeatable action and Re-measure should fire
+        straight into the progress state. That depends on U-6, which is why the two travel together.</p>
+    </article>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <section class="group">
+    <div class="group-head"><h2>Questions for engineering</h2></div>
+    <p class="intro">The screens assume an answer to both. If either assumption is wrong, a drawn
+      decision above changes with it.</p>
+
+    <article class="q">
+      <div class="q-top">
+        <span class="ref">U-5</span>
+        <span class="flag flag-high">High</span>
+        <span class="screens">Overview</span>
+      </div>
+      <h3>Is the measurement scheduled, or only run on demand?</h3>
+
+      <p class="consequence">The Overview now carries a last-measured stamp reading
+        <span class="mono">08-05-2026</span> — a week before the screen's own date — beside a manual
+        <span class="mono">RE-MEASURE</span> control. That combination only makes sense if
+        measurement is on demand.</p>
+
+      <p class="cost">If it runs on a schedule, the stamp is still right but the button changes
+        meaning: it becomes "run it early", not "run it at all", and the copy on both the button and
+        the confirmation needs to say so.</p>
+    </article>
+
+    <article class="q">
+      <div class="q-top">
+        <span class="ref">U-6</span>
+        <span class="flag flag-open">Open</span>
+        <span class="screens">Re-measure in progress</span>
+      </div>
+      <h3>How long does a re-measure take, and can it be interrupted?</h3>
+
+      <p class="consequence">The progress dialog is drawn with <span class="mono">CANCEL</span> and
+        <span class="mono">RUN IN BACKGROUND</span>, and deliberately without the
+        <span class="mono">PAUSE</span> that the export dialog it was built from carries — an export
+        writes a file that can be resumed part-written, and half a measurement is not a thing to
+        return to.</p>
+
+      <p class="cost">Two things follow from the real duration. It settles U-4, and it decides
+        whether <span class="mono">CANCEL</span> can actually stop work already in flight or is only
+        a way to close the dialog.</p>
+    </article>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <section class="group">
+    <div class="group-head"><h2>Drawn since the sticky was written</h2></div>
+    <p class="intro">All three were listed as undrawn on the section's sticky. Recorded so they are
+      not re-raised; no action needed beyond the confirmations above.</p>
+
+    <article class="q">
+      <div class="q-top">
+        <span class="ref">U-7</span>
+        <span class="flag flag-done">Drawn</span>
+        <span class="screens">every action-bar screen</span>
+      </div>
+      <h3>The last-measured stamp — the stated reason Re-measure exists</h3>
+
+      <p class="consequence">Every count on the Overview comes from a measurement run, not a live
+        query, so the screen has to say when it ran. Without it there is no telling a stale
+        <span class="mono">25,444</span> from a current one, and the control beside it means nothing.</p>
+
+      <p class="cost">It carries the delta against the previous run — <span class="mono">up 312</span>
+        — because the direction is the finding. A cohort growing after an ingestion is a different
+        situation from one shrinking, and the figure alone says neither.</p>
+    </article>
+
+    <article class="q">
+      <div class="q-top">
+        <span class="ref">U-8</span>
+        <span class="flag flag-done">Drawn</span>
+        <span class="screens">Zero unmatched</span>
+      </div>
+      <h3>What the Overview shows when nothing is unmatched</h3>
+
+      <p class="consequence">The Outlook and Cohort profile cards are <b>hidden rather than filled
+        with zeros</b> — they profile a population, and with none they state nothing while implying
+        there is something to read.</p>
+
+      <p class="cost"><span class="mono">EXPORT</span> and <span class="mono">BROWSE</span> are
+        <b>removed rather than disabled</b>: there is nothing to browse and an empty file is not a
+        useful artefact. <span class="mono">RE-MEASURE</span> stays and is the point of the screen —
+        a zero is a claim someone will ask you to evidence later, and the stamp is what evidences it.</p>
+    </article>
+
+    <article class="q">
+      <div class="q-top">
+        <span class="ref">U-9</span>
+        <span class="flag flag-done">Drawn</span>
+        <span class="screens">Re-measure confirm → in progress → Re-measured · Export → in progress → ready</span>
+      </div>
+      <h3>Both flows now have confirmation and end states</h3>
+
+      <p class="consequence">Re-measure runs confirm → in progress → re-measured, and Export runs
+        modal → in progress → ready. Each end state carries <b>both</b> toasts, drawn together for
+        developer reference — they are alternatives and never appear at once.</p>
+
+      <p class="cost">The re-measured screen is the <em>after</em> state, not a copy of the Overview:
+        it shows 24,912 against the 25,444 every earlier screen carries, every share still resolves,
+        and the two partition segments still sum to the cohort. The toast confirms the change; the
+        screen is the change.</p>
+    </article>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <section class="group">
+    <div class="group-head"><h2>Still undrawn</h2></div>
+    <p class="intro">The one item from the ticket doc that none of the decisions above covers.</p>
+
+    <article class="q">
+      <div class="q-top">
+        <span class="ref">U-10</span>
+        <span class="flag flag-high">Needs a destination</span>
+        <span class="screens">Overview</span>
+      </div>
+      <h3>The ingestion-failures footnote has nowhere to go</h3>
+
+      <p class="consequence">Doc question 4 in <span class="mono">17363-quarantine.md</span>. The
+        Overview's framing is that <em>nothing here failed</em> — these records arrived without a
+        matching identifier and became people on their own. Records that genuinely failed ingestion
+        are a different population, and the footnote exists to send someone to them.</p>
+
+      <p class="cost">There is no screen to send them to. Until there is, the footnote cannot be
+        drawn, and the Overview carries only half of the distinction it is making.</p>
+    </article>
+  </section>
+
+</main>

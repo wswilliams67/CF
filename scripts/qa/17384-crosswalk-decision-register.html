@@ -1,0 +1,462 @@
+<title>Crosswalk Decision Register</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+  :root {
+    --paper:      #F1F4F5;
+    --card:       #FFFFFF;
+    --sunk:       #E6EBED;
+    --ink:        #16191C;
+    --ink-soft:   #39434A;
+    --muted:      #5D686F;
+    --rule:       #D3DBDE;
+    --rule-soft:  #E4EAEC;
+
+    --accent:     #2E3A54;   /* structure only — indigo slate            */
+    --accent-2:   #4A5C82;
+    --block:      #8C2F39;   /* BLOCKING — oxblood                       */
+    --block-wash: #F7E9EA;
+    --high:       #8A6210;   /* HIGH                                     */
+    --high-wash:  #FAF1DE;
+    --open:       #46605C;   /* open, unranked                           */
+    --done:       #2F6B3C;   /* answered                                 */
+    --done-wash:  #E7F1E9;
+    --open-wash:  #E7EEEC;
+
+    --shadow: 0 1px 2px rgba(22,25,28,.05), 0 10px 28px rgba(22,25,28,.06);
+    --measure: 70ch;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #0D1013; --card: #171B1F; --sunk: #12161A;
+      --ink: #E7ECEE; --ink-soft: #BDC6CB; --muted: #8B959B;
+      --rule: #2A3238; --rule-soft: #1F262B;
+      --accent: #93A6CC; --accent-2: #B3C2E0;
+      --block: #EE9298; --block-wash: #2B1719;
+      --high: #E3B65A; --high-wash: #271F10;
+      --open: #8FC0B8; --open-wash: #16221F;
+      --done: #86C594; --done-wash: #16251A;
+      --shadow: 0 1px 2px rgba(0,0,0,.45), 0 10px 28px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #0D1013; --card: #171B1F; --sunk: #12161A;
+    --ink: #E7ECEE; --ink-soft: #BDC6CB; --muted: #8B959B;
+    --rule: #2A3238; --rule-soft: #1F262B;
+    --accent: #93A6CC; --accent-2: #B3C2E0;
+    --block: #EE9298; --block-wash: #2B1719;
+    --high: #E3B65A; --high-wash: #271F10;
+    --open: #8FC0B8; --open-wash: #16221F;
+    --done: #86C594; --done-wash: #16251A;
+    --shadow: 0 1px 2px rgba(0,0,0,.45), 0 10px 28px rgba(0,0,0,.35);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font-family: "Public Sans", ui-sans-serif, system-ui, sans-serif;
+    font-size: 15px; line-height: 1.6; -webkit-font-smoothing: antialiased;
+  }
+  code, .mono { font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace; }
+  a { color: var(--accent-2); text-underline-offset: 2px; }
+  a:focus-visible { outline: 2px solid var(--accent-2); outline-offset: 2px; }
+
+  main { max-width: 58rem; margin: 0 auto; padding: 3.5rem 1.5rem 6rem; }
+
+  /* ── Masthead ─────────────────────────────────────────────────── */
+  .eyebrow {
+    font-family: "IBM Plex Mono", monospace; font-size: .74rem;
+    letter-spacing: .12em; text-transform: uppercase; color: var(--muted);
+    margin: 0 0 .9rem;
+  }
+  h1 {
+    font-family: "Instrument Serif", Georgia, serif; font-weight: 400;
+    font-size: clamp(2.4rem, 6vw, 3.6rem); line-height: 1.02;
+    letter-spacing: -.01em; margin: 0 0 .6rem; text-wrap: balance;
+  }
+  .standfirst { font-size: 1.06rem; color: var(--ink-soft); max-width: var(--measure); margin: 0; }
+
+  /* ── Summary strip ────────────────────────────────────────────── */
+  .strip {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+    gap: 1px; background: var(--rule); border: 1px solid var(--rule);
+    border-radius: 10px; overflow: hidden; margin: 2.5rem 0 0;
+  }
+  .stat { background: var(--card); padding: 1rem 1.1rem; }
+  .stat b {
+    display: block; font-family: "Instrument Serif", Georgia, serif;
+    font-size: 2rem; line-height: 1; font-weight: 400; font-variant-numeric: tabular-nums;
+  }
+  .stat span {
+    display: block; margin-top: .35rem; font-size: .78rem;
+    letter-spacing: .04em; color: var(--muted);
+  }
+  .stat.is-block b { color: var(--block); }
+  .stat.is-high  b { color: var(--high); }
+  .stat.is-answered b { color: var(--done); }
+
+  .callout {
+    margin-top: 1.6rem; padding: 1.1rem 1.3rem;
+    background: var(--block-wash); border-left: 3px solid var(--block);
+    border-radius: 0 8px 8px 0; max-width: var(--measure);
+  }
+  .callout p { margin: 0; color: var(--ink-soft); }
+  .callout strong { color: var(--ink); }
+
+  /* ── Owner groups ─────────────────────────────────────────────── */
+  .group { margin-top: 3.5rem; }
+  .group-head { border-bottom: 2px solid var(--ink); padding-bottom: .5rem; margin-bottom: .5rem; }
+  .group-head h2 {
+    font-family: "Instrument Serif", Georgia, serif; font-weight: 400;
+    font-size: 1.9rem; margin: 0; letter-spacing: -.01em;
+  }
+  .group > p.intro { color: var(--muted); font-size: .95rem; max-width: var(--measure); margin: .7rem 0 1.6rem; }
+
+  /* ── Question cards ───────────────────────────────────────────── */
+  .q {
+    background: var(--card); border: 1px solid var(--rule);
+    border-radius: 10px; padding: 1.4rem 1.5rem; margin-bottom: 1rem;
+    box-shadow: var(--shadow);
+  }
+  .q-top { display: flex; align-items: baseline; gap: .7rem; flex-wrap: wrap; margin-bottom: .55rem; }
+  .ref {
+    font-family: "IBM Plex Mono", monospace; font-size: .74rem; font-weight: 600;
+    color: var(--muted);
+  }
+  .flag {
+    font-family: "IBM Plex Mono", monospace; font-size: .66rem; font-weight: 600;
+    letter-spacing: .08em; text-transform: uppercase;
+    padding: .16rem .45rem; border-radius: 4px;
+  }
+  .flag-block { background: var(--block-wash); color: var(--block); }
+  .flag-high  { background: var(--high-wash);  color: var(--high); }
+  .flag-open  { background: var(--open-wash);  color: var(--open); }
+  .flag-done  { background: var(--done-wash);  color: var(--done); }
+  .ruling {
+    margin: .9rem 0 0; padding: .85rem 1rem;
+    background: var(--done-wash); border-left: 3px solid var(--done);
+    border-radius: 0 6px 6px 0; font-size: .95rem; color: var(--ink-soft);
+  }
+  .ruling b { display: block; font-size: .7rem; letter-spacing: .09em; text-transform: uppercase;
+              color: var(--done); margin-bottom: .3rem; font-family: "IBM Plex Mono", monospace; }
+  .consequence { margin-top: .8rem; font-size: .92rem; }
+  .consequence b { color: var(--ink); }
+  .screens {
+    margin-left: auto; font-family: "IBM Plex Mono", monospace;
+    font-size: .72rem; color: var(--muted);
+  }
+
+  .q h3 {
+    font-size: 1.16rem; font-weight: 600; margin: 0 0 .6rem;
+    line-height: 1.3; text-wrap: balance;
+  }
+  .q p { margin: 0 0 .7rem; color: var(--ink-soft); }
+  .q p:last-child { margin-bottom: 0; }
+
+  .branches { margin: .9rem 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: .4rem; }
+  .branches li {
+    display: grid; grid-template-columns: 1.4rem 1fr; gap: .6rem;
+    padding: .55rem .7rem; background: var(--sunk); border-radius: 6px;
+    font-size: .93rem; color: var(--ink-soft);
+  }
+  .branches .k {
+    font-family: "IBM Plex Mono", monospace; font-weight: 600;
+    color: var(--accent-2); font-size: .85rem;
+  }
+  .cost {
+    margin-top: .9rem; padding-top: .8rem; border-top: 1px dashed var(--rule);
+    font-size: .9rem; color: var(--muted);
+  }
+  .cost b { color: var(--ink-soft); font-weight: 600; }
+
+  .deadline {
+    display: inline-block; margin-top: .8rem;
+    font-size: .85rem; padding: .4rem .7rem;
+    background: var(--high-wash); color: var(--high);
+    border-radius: 6px; font-weight: 500;
+  }
+
+  footer {
+    margin-top: 4.5rem; padding-top: 1.4rem; border-top: 1px solid var(--rule);
+    font-size: .85rem; color: var(--muted);
+    display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+  }
+
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
+  @media (max-width: 600px) { .screens { margin-left: 0; flex-basis: 100%; } }
+</style>
+
+<main>
+
+  <p class="eyebrow">Crosswalk &amp; export · #17384 · compiled 09-01-2026</p>
+  <h1>Four for you, two blocked, three already closed</h1>
+  <p class="standfirst">Three stickies sat on this board. The sharpest of them — that the Exports
+    list logged the <em>job</em> but never recorded what the export <em>was</em> — has been answered
+    in the design and is closed. What remains is mostly ownership and routing: who owns a saved view,
+    how anyone reaches the crosswalk at all, and one contradiction between two stories that stops a
+    screen being drawn.</p>
+
+  <div class="strip">
+    <div class="stat is-block"><b>1</b><span>blocking</span></div>
+    <div class="stat is-high"><b>4</b><span>for the PM</span></div>
+    <div class="stat is-high"><b>2</b><span>blocked design work</span></div>
+    <div class="stat"><b>2</b><span>for engineering</span></div>
+    <div class="stat is-answered"><b>3</b><span>closed since the stickies</span></div>
+  </div>
+
+  <div class="callout">
+    <p><strong>The crosswalk currently has no way in.</strong> It is reachable only from Unmatched
+      Source Records, and that surface has its own sticky saying nothing in the file links to
+      <em>it</em> either. Two orphans pointing at each other is not a route, and C-4 is the one that
+      unblocks the pair. It is worth settling alongside the Unmatched question rather than after it.</p>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <section class="group">
+    <div class="group-head"><h2>Yours to decide</h2></div>
+    <p class="intro">Product and policy calls. Nothing external answers these.</p>
+
+    <article class="q">
+      <div class="q-top">
+        <span class="ref">C-1</span>
+        <span class="flag flag-high">High</span>
+        <span class="screens">Default · Export</span>
+      </div>
+      <h3>Does an export contain the columns you can see, or all of them?</h3>
+
+      <p class="consequence">The toolbar's <span class="mono">COLUMNS</span> control sets what the
+        <em>table</em> displays. The export modal sets what the <em>file</em> contains. They are
+        separate today, so an operator can hide three columns, export, and find all of them in the
+        file — which will be read as a bug rather than a design.</p>
+
+      <p class="consequence"><b>Proposal:</b> the export defaults to the visible column set, so the
+        choice is made once, in the place the operator already made it. They can still override it in
+        the export modal.</p>
+
+      <p class="cost"><b>Either ruling is now safe to build against.</b> The Export detail panel
+        records the actual column set per run — <span class="mono">Columns: Source record, Source,
+        Natural person, Linked by, How, When</span> — so the ambiguity does not survive the export
+        whichever way you answer. What your answer decides is what the operator sees at export time.</p>
+    </article>
+
+    <article class="q">
+      <div class="q-top">
+        <span class="ref">C-2</span>
+        <span class="flag flag-block">Blocking</span>
+        <span class="screens">Save view · Load view · delete confirmation</span>
+      </div>
+      <h3>Is a saved view personal, or shared across the tenant?</h3>
+
+      <p class="consequence">Nothing in the flow says whose views these are. No owner appears on any
+        row, which reads as "personal" by implication — but it was never decided, and three things
+        depend on it.</p>
+
+      <p class="consequence"><b>It decides whether rename exists at all.</b> A personal view can be
+        renamed freely. A shared one carries somebody else's name in somebody else's workflow, and
+        renaming it silently changes what a colleague is looking for.</p>
+
+      <p class="consequence"><b>It decides who gets DELETE.</b> Today every row has it. If views are
+        shared, one operator can delete a view another operator built and relies on.</p>
+
+      <p class="cost"><b>And it decides the confirmation copy.</b> The dialog currently says the view
+        is gone and cannot be undone. If views are shared, that sentence is doing far more work than
+        it appears to, and should say whose view is being removed and who else loses it. This is why
+        C-2 blocks: the copy cannot be written until the answer is known.</p>
+    </article>
+
+    <article class="q">
+      <div class="q-top">
+        <span class="ref">C-3</span>
+        <span class="flag flag-high">High</span>
+        <span class="screens">Exports · Export detail</span>
+      </div>
+      <h3>How long does a generated export file stay downloadable?</h3>
+
+      <p class="consequence">The board states a retention window it was never given. Rows read
+        <span class="mono">Ready — expires in 2 days</span> and <span class="mono">Ready — expires
+        tomorrow</span>; two rows already show <span class="mono">Expired</span> with
+        <span class="mono">RUN AGAIN</span> in place of Download. Those are drawn from an assumption.</p>
+
+      <p class="cost">The window sets the expiry on every row and in the detail panel, and it decides
+        a behaviour nobody has specified: what happens when Download is pressed on a job that expired
+        while the list was open. Engineering needs to confirm what the storage actually does, but the
+        window itself is a policy call.</p>
+    </article>
+
+    <article class="q">
+      <div class="q-top">
+        <span class="ref">C-4</span>
+        <span class="flag flag-high">High</span>
+        <span class="screens">whole section</span>
+      </div>
+      <h3>How does anyone reach the crosswalk?</h3>
+
+      <p class="consequence">There is no route to it from the product. The only link in the file comes
+        from Unmatched Source Records — and that surface's own sticky says nothing links to it either,
+        and that its top-level placement "is an assumption, not a decision".</p>
+
+      <p class="consequence"><b>Three candidates.</b> A nav entry under Administration; from Legacy
+        Data Import completion, which <span class="mono">EXPERIENCE.md</span> already names as the
+        entry point for remediation; or from Unmatched Source Records, once that one has a route of
+        its own.</p>
+
+      <p class="cost"><b>Answer this with the Unmatched question, not after it.</b> Option 2 on the
+        Unmatched sticky proposes reaching Unmatched <em>via the crosswalk</em>. That cannot be the
+        answer while the crosswalk is itself unreachable, so answering them separately risks a
+        circular route. Whichever way it goes, the page title gains a back control naming its
+        origin, and the screens stop being top-level.</p>
+    </article>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <section class="group">
+    <div class="group-head"><h2>Design work waiting on an answer</h2></div>
+    <p class="intro">Drawn work that cannot start, or cannot finish, until something above is settled.</p>
+
+    <article class="q">
+      <div class="q-top">
+        <span class="ref">C-5</span>
+        <span class="flag flag-block">Blocked · DM then PM</span>
+        <span class="screens">not drawn</span>
+      </div>
+      <h3>The decision export cannot be drawn — two stories contradict each other</h3>
+
+      <p class="consequence">Part 1 assigns the decision export to #17384: who decided what, and when.
+        Its column set runs straight into a conflict. <b>#17384 asks for the joining key type
+        <em>and value</em>. #17515 states that matched values are hashes that must never be
+        displayed.</b> Both cannot hold.</p>
+
+      <p class="cost"><b>The rule is still live even though the sentence went away.</b> The footnote
+        that said so — "Key types only — matched values are hashes and are never displayed" — was
+        removed from #17475 and #17515 on 09-01-2026 as redundant, because those screens never show a
+        value. An export is the one place that <em>would</em>, so removing the note did not remove the
+        constraint. A ruling is needed before the screen exists.</p>
+    </article>
+
+    <article class="q">
+      <div class="q-top">
+        <span class="ref">C-6</span>
+        <span class="flag flag-high">To draw</span>
+        <span class="screens">Default · Load view</span>
+      </div>
+      <h3>A loaded view has no active state, and no modified state</h3>
+
+      <p class="consequence">Loading a view applies its filters, sort and column set, then closes the
+        modal. From that moment the crosswalk looks exactly as it would if the operator had set those
+        filters by hand — nothing names the view that is running.</p>
+
+      <p class="cost">Which leaves the follow-on question undrawn: when the operator then changes a
+        filter, is the view <em>modified</em>? Does the toolbar offer to update it, silently detach
+        from it, or keep showing its name while no longer matching it? There is also no "update this
+        view" anywhere — Save view only ever creates. Three states are missing: view active, view
+        modified, and update-in-place.</p>
+    </article>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <section class="group">
+    <div class="group-head"><h2>Questions for engineering</h2></div>
+    <p class="intro">The screens already assume an answer to each of these. If the assumption is
+      wrong, the copy on them is wrong.</p>
+
+    <article class="q">
+      <div class="q-top">
+        <span class="ref">C-7</span>
+        <span class="flag flag-high">High</span>
+        <span class="screens">Exports · Export failure</span>
+      </div>
+      <h3>Is there a bounded, resumable bulk endpoint?</h3>
+
+      <p class="consequence">The Exports list draws a row reading <span class="mono">Paused at
+        22,140</span> with a <span class="mono">RESUME</span> action, and a failure that
+        <span class="mono">stopped after 1,204 of 12,406</span> with <span class="mono">RETRY</span>.
+        Both assume the server can continue a partial run rather than start it over.</p>
+
+      <p class="cost">If it cannot, <span class="mono">RESUME</span> is the wrong label, the partial
+        counts are misleading, and both rows need redrawing as a restart.</p>
+    </article>
+
+    <article class="q">
+      <div class="q-top">
+        <span class="ref">C-8</span>
+        <span class="flag flag-open">Open</span>
+        <span class="screens">Default</span>
+      </div>
+      <h3>Does the crosswalk read the same projection as the persona endpoint?</h3>
+
+      <p class="consequence">If it does not, the crosswalk's record counts can disagree with the
+        person list's for the same tenant — on the one feature whose purpose is to be reconciled
+        against a customer's own source extract.</p>
+
+      <p class="cost">Listed as unanswered in the doc. It does not block drawing, but it decides
+        whether the counts are defensible.</p>
+    </article>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <section class="group">
+    <div class="group-head"><h2>Closed since these stickies were written</h2></div>
+    <p class="intro">Recorded so the stickies are not re-raised. No action needed.</p>
+
+    <article class="q">
+      <div class="q-top">
+        <span class="ref">C-9</span>
+        <span class="flag flag-done">Closed by design</span>
+        <span class="screens">Export detail</span>
+      </div>
+      <h3>The Exports list logged the job, but never what the export was</h3>
+
+      <p class="consequence">The sticky raised four gaps: <span class="mono">Scope: Current
+        filter</span> was unrecoverable after the fact; no row named who ran it; the column set was
+        not recorded; and the failure reason lived behind an Ok button with nothing to return to.</p>
+
+      <p class="consequence"><b>All four are now in the Export detail panel.</b> It carries the
+        resolved filter rather than the label — Scope, Source, Linked by, How, Decider, Date range,
+        Records — plus the column set, <span class="mono">Run by: S. Wills · started 2:41 PM,
+        finished 2:47 PM</span>, the file name and expiry, and the failure reason as a record rather
+        than a dialog.</p>
+
+      <p class="cost">The panel is read-only by design: the row's own action — Download, Resume,
+        Retry, Run again — stays on the row.</p>
+    </article>
+
+    <article class="q">
+      <div class="q-top">
+        <span class="ref">C-10</span>
+        <span class="flag flag-done">Closed</span>
+        <span class="screens">Default toolbar</span>
+      </div>
+      <h3>The Exports list had no route in</h3>
+
+      <p class="consequence">It could be reached only by running a <em>new</em> export — Default →
+        Export → Export in progress → Exports — so checking whether last week's export finished meant
+        starting another one.</p>
+
+      <p class="cost">An <span class="mono">EXPORTS LIST</span> secondary button now sits in the
+        toolbar beside <span class="mono">EXPORT</span>. It needed a second action slot on
+        Nimbus/Toolbars, which was added to v1 and v2, the styleguide, 1.6 and 2.0, and has been
+        published and accepted.</p>
+    </article>
+
+    <article class="q">
+      <div class="q-top">
+        <span class="ref">C-11</span>
+        <span class="flag flag-done">Closed</span>
+        <span class="screens">Exports</span>
+      </div>
+      <h3>The Export detail panel had no trigger</h3>
+
+      <p class="consequence">Every row action was specific — Download, Resume, Retry, Run again — and
+        none of them opened the panel, so the screen it led to was unreachable.</p>
+
+      <p class="cost"><b>The timestamp in each row is now the link.</b> A VIEW button was considered
+        and ruled out: Nimbus/ListGroup exposes a single <span class="mono">Show Action</span> slot,
+        so a second button would have meant a library change across five trees. The timestamp is the
+        row's identifier, and the crosswalk table already links its record ids the same way.</p>
+    </article>
+  </section>
+
+</main>
