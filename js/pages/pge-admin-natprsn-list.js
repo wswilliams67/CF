@@ -661,6 +661,11 @@
     if (dirBtn) {
       dirBtn.addEventListener("click", function () {
         state.dir = state.dir === "asc" ? "desc" : "asc";
+        state.page = 1;          /* reversing a sort is a new sort — same rule
+                                    as the field select above. Page 2 of ASC
+                                    and page 2 of DSC share no rows, so staying
+                                    put lands the user somewhere they never
+                                    asked for and cannot navigate back to. */
         syncSortDirButton(dirBtn);
         render();
       });
