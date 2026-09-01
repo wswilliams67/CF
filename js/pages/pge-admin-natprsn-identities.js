@@ -336,16 +336,17 @@
    *     operator and mean different things to the audit, so the design states
    *     the absence instead of dropping the line.
    *
-   * A reason flagged `reasonVerbatim` is the SOURCE's own wording and is shown
-   * in quotation marks, unaltered, abbreviations included. Unquoted means the
-   * sentence was composed for this screen.
+   * Reason codes are NEVER quoted (PM, 09-01-2026). `reasonVerbatim` still
+   * marks which strings are the source system's own wording, unaltered and
+   * abbreviations included, but that provenance is now developer-facing only —
+   * every reason renders the same way on screen.
    */
   /* ANGULAR: <cf-identity-row [record]="r"> in an @for. The four-column rail
      and the divider rules are CSS and stay in the page stylesheet; only the row
      becomes a component. Keep the DETAILS button emitting an id upward rather
      than opening the panel itself — the panel is a sibling, not a child. */
   function recordHtml(r) {
-    var reason = r.reasonVerbatim ? "“" + r.reason + "”" : r.reason;
+    var reason = r.reason;
 
     return '<article class="np-row np-row-record list-group-item" ' +
              'data-npi-record="' + esc(r.id) + '">' +
@@ -794,20 +795,23 @@
         '<hr class="hr hr-blurry npi-panel-rule" aria-hidden="true" />' +
         '<section class="npi-panel-section npi-panel-section-why">' +
           '<div class="npi-panel-heading">' +
-            '<h3 class="h6 bold npi-panel-h">Why it linked</h3>' +
+            '<h3 class="h6 bold npi-panel-h">Link reason</h3>' +
             '<p class="small npi-meta">' + esc(r.assertedLabel.replace(":", "")) +
               " " + esc(r.asserted) + "</p>" +
           "</div>" +
+          /* NO "Reason:" label and NO quotes. The heading above already names
+             this value, so a label repeats it; and reason codes are system
+             vocabulary rather than the source system quoted verbatim, so
+             quoting them implied a provenance they do not have.
+             PM ruling, 09-01-2026. `reasonVerbatim` is still carried by the
+             service — it now marks provenance for developers only. */
           (r.reason
-            ? '<p class="npi-pair"><span class="bold npi-label">Reason:</span> ' +
-              (r.reasonVerbatim ? "\u201c" + esc(r.reason) + "\u201d" : esc(r.reason)) +
-              "</p>"
+            ? '<p class="npi-pair">' + esc(r.reason) + "</p>"
             : "") +
+          /* The "Key types only — matched values are hashes" note was removed
+             09-01-2026 (PM): the list never shows a value, so the note answered
+             a question the screen does not raise. */
           keys +
-          /* Not optional copy — it is why the panel shows key TYPES and never
-             the values that matched. */
-          '<p class="small npi-meta npi-panel-note">Key types only &mdash; matched ' +
-            "values are stored as hashes and are never displayed.</p>" +
         "</section>";
 
       if (body) body.innerHTML = context + values + why;
@@ -1035,7 +1039,7 @@
       }).join("");
 
       /* No header above the verdict column \u2014 the frame leaves it blank, and
-         an icon column headed "Agreement" would duplicate the word that
+         an icon column headed "Field state" would duplicate the words that
          already ends the row. The cell still exists so the header row has as
          many cells as the body rows. */
       var comparison =
@@ -1045,12 +1049,12 @@
             '<table class="table np-compare">' +
               "<thead><tr>" +
                 '<th scope="col" class="np-col-verdict">' +
-                  '<span class="visually-hidden">Agreement</span></th>' +
+                  '<span class="visually-hidden">Field state</span></th>' +
                 '<th scope="col" class="np-col-field">Field</th>' +
                 /* Candidate first, matching the card above it. */
                 '<th scope="col" class="np-col-value">Candidate</th>' +
                 '<th scope="col" class="np-col-value">Established</th>' +
-                '<th scope="col" class="np-col-agree">Agreement</th>' +
+                '<th scope="col" class="np-col-agree">Field state</th>' +
               "</tr></thead><tbody>" + rows + "</tbody>" +
             "</table>" +
           "</div>" +
@@ -1072,8 +1076,9 @@
           /* The matcher's NAMED REASON, quoted — "2 corroborating keys" — not
              the tier label, which is already stated beside every key below.
              The two say different things: what was found, and what it earned. */
-          '<p class="h6 bold npi-pair-reason">&ldquo;' +
-            esc(c.reason || c.tierLabel) + "&rdquo;</p>" +
+          /* Unquoted — see the note on the record panel's reason above. */
+          '<p class="h6 bold npi-pair-reason">' +
+            esc(c.reason || c.tierLabel) + "</p>" +
           '<ul class="cf-list highlight-casefusion npi-pair-keys">' + keys + "</ul>" +
           /* `.np-footnote` is the queue's own footnote — the icon is a real
              Nimbus/Icon SM (16px) and the text is wrapped so the flex row can
@@ -1082,8 +1087,6 @@
           footnote(esc(c.why) + ". Policy requires more than this to merge " +
                    "automatically, so the identity became a distinct person " +
                    "pending review.") +
-          footnote("Key types only &mdash; matched values are hashes and are " +
-                   "never displayed.") +
         "</section>";
 
       /* NO read-only alert. An earlier pass added an "nothing is decided here"

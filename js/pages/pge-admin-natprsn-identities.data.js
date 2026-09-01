@@ -316,7 +316,7 @@
       status: "Established", tone: "success",
       assertedLabel: "Asserted:", asserted: "08-19-2024",
       reason: "Created this person", reasonVerbatim: true,
-      matchedOn: ["No earlier person shared a key"] },
+      matchedOn: ["No keys matched on an existing person."] },
 
     { id: "ir-44192", key: "44192", source: "HRIS", effective: "05-14-2026",
       status: "Linked", tone: "success",
@@ -490,7 +490,7 @@
       status: "Established", tone: "success",
       assertedLabel: "Asserted:", asserted: "04-02-2026",
       reason: "Created this person", reasonVerbatim: true,
-      matchedOn: ["No earlier person shared a key"] }
+      matchedOn: ["No keys matched on an existing person."] }
   ];
 
   /*
@@ -605,7 +605,7 @@
   var CANDIDATES = [
     { id: "np-2201", name: "Byrne, Jennifer M.", identityCount: 2, sources: ["AD", "HRIS"],
       tier: "needs-corroboration", tierLabel: "Needs corroboration", tone: "caution", strength: 2,
-      flagged: "08-12-2026", why: "Middle initial variant, same work location",
+      flagged: "08-12-2026", why: "Middle initial does not match, same work location",
       matchedOn: ["Full name + phone number"] },
     { id: "np-2202", name: "Byrne-Adams, Jennifer", identityCount: 1, sources: ["HRIS"],
       tier: "needs-corroboration", tierLabel: "Needs corroboration", tone: "caution", strength: 2,
@@ -613,7 +613,7 @@
       matchedOn: ["Full name + email address"] },
     { id: "np-2203", name: "Byrne, Jenny", identityCount: 1, sources: ["HRIS"],
       tier: "needs-corroboration", tierLabel: "Needs corroboration", tone: "caution", strength: 2,
-      flagged: "08-10-2026", why: "Nickname variant of an existing person",
+      flagged: "08-10-2026", why: "Nickname does not match an existing person",
       matchedOn: ["Full name + email address"] },
     { id: "np-2204", name: "Byrne, J.", identityCount: 2, sources: ["AD"],
       tier: "needs-corroboration", tierLabel: "Needs corroboration", tone: "caution", strength: 2,
@@ -633,7 +633,7 @@
       matchedOn: ["Full name + email address"] },
     { id: "np-2208", name: "Byrnes, Jennifer", identityCount: 1, sources: ["HRIS"],
       tier: "near-match-refused", tierLabel: "Near match, refused", tone: "muted", strength: 1,
-      flagged: "08-05-2026", why: "Surname plural variant",
+      flagged: "08-05-2026", why: "Surname does not match, plural form",
       matchedOn: ["Full name + phone number"] },
     { id: "np-2209", name: "J Byrne", identityCount: 1, sources: ["AD"],
       tier: "near-match-refused", tierLabel: "Near match, refused", tone: "muted", strength: 1,
@@ -649,11 +649,11 @@
        grammar. Replace wholesale when the endpoint lands. */
     { id: "np-2211", name: "Byrne, Jennie", identityCount: 1, sources: ["HRIS"],
       tier: "near-match-refused", tierLabel: "Near match, refused", tone: "muted", strength: 1,
-      flagged: "07-29-2026", why: "Given-name spelling variant",
+      flagged: "07-29-2026", why: "Given name does not match, spelling",
       matchedOn: ["Full name"] },
     { id: "np-2212", name: "Byrne, Jenifer", identityCount: 1, sources: ["AD"],
       tier: "near-match-refused", tierLabel: "Near match, refused", tone: "muted", strength: 1,
-      flagged: "07-22-2026", why: "Single-character given-name variant",
+      flagged: "07-22-2026", why: "Given name does not match, single character",
       matchedOn: ["Full name"] }
   ];
 
@@ -747,7 +747,7 @@
     { id: "ev-8999", kind: "event", at: "08-19-2024", time: "7:30", meridiem: "AM",
       title: "Established",
       subject: "44120 (HRIS)",
-      detail: "Created this person — no earlier person shared a key",
+      detail: "Created this person — no keys matched on an existing person",
       decidedBy: "System (ingestion)" }
   ];
 
@@ -868,7 +868,7 @@
       { key: empNo, source: "HRIS", effective: "08-19-2024",
         status: "Established", tone: "success", assertedLabel: "Asserted:",
         asserted: "08-19-2024", reason: "Created this person", reasonVerbatim: true,
-        matchedOn: ["No earlier person shared a key"] },
+        matchedOn: ["No keys matched on an existing person."] },
       { key: handle, source: "AD", effective: "08-11-2026",
         status: "Linked", tone: "success", assertedLabel: "Asserted:",
         asserted: "08-11-2026", reason: "Accepted on UPN", reasonVerbatim: true,
@@ -907,7 +907,7 @@
    *
    * So: more than one key means each of them needed the others, and each is
    * flagged. A single key was sufficient by itself — or is not a key at all,
-   * like "No earlier person shared a key" — and carries no label. A row with
+   * like "No keys matched on an existing person." — and carries no label. A row
    * no status renders the key type alone, which is what the renderer does when
    * `status` is absent.
    */
@@ -984,13 +984,13 @@
      * a pair handed to it from this screen. See `pairHint` below.
      */
     var variants = [
-      { on: "given", suffix: " M.", why: "Middle initial variant, same work location",
+      { on: "given", suffix: " M.", why: "Middle initial does not match, same work location",
         keys: ["Full name + phone number"] },
       { on: "surname", suffix: "-Adams", why: "Hyphenated surname after a recorded name change",
         keys: ["Full name + email address"] },
       { on: "given", suffix: " J.", why: "Initial-form name with matching department",
         keys: ["Full name + phone number"] },
-      { on: "surname", suffix: "s", why: "Surname plural variant",
+      { on: "surname", suffix: "s", why: "Surname does not match, plural form",
         keys: ["Full name + phone number"] },
       { on: "given", suffix: " (dup)", why: "Same display name on a different domain",
         keys: ["Full name"] }

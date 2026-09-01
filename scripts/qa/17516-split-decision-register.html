@@ -21,6 +21,8 @@
     --high:       #8A6210;   /* HIGH                                     */
     --high-wash:  #FAF1DE;
     --open:       #46605C;   /* open, unranked                           */
+    --done:       #2F6B3C;   /* answered                                 */
+    --done-wash:  #E7F1E9;
     --open-wash:  #E7EEEC;
 
     --shadow: 0 1px 2px rgba(22,25,28,.05), 0 10px 28px rgba(22,25,28,.06);
@@ -36,6 +38,7 @@
       --block: #EE9298; --block-wash: #2B1719;
       --high: #E3B65A; --high-wash: #271F10;
       --open: #8FC0B8; --open-wash: #16221F;
+      --done: #86C594; --done-wash: #16251A;
       --shadow: 0 1px 2px rgba(0,0,0,.45), 0 10px 28px rgba(0,0,0,.35);
     }
   }
@@ -47,6 +50,7 @@
     --block: #EE9298; --block-wash: #2B1719;
     --high: #E3B65A; --high-wash: #271F10;
     --open: #8FC0B8; --open-wash: #16221F;
+    --done: #86C594; --done-wash: #16251A;
     --shadow: 0 1px 2px rgba(0,0,0,.45), 0 10px 28px rgba(0,0,0,.35);
   }
 
@@ -92,6 +96,7 @@
   }
   .stat.is-block b { color: var(--block); }
   .stat.is-high  b { color: var(--high); }
+  .stat.is-answered b { color: var(--done); }
 
   .callout {
     margin-top: 1.6rem; padding: 1.1rem 1.3rem;
@@ -129,6 +134,16 @@
   .flag-block { background: var(--block-wash); color: var(--block); }
   .flag-high  { background: var(--high-wash);  color: var(--high); }
   .flag-open  { background: var(--open-wash);  color: var(--open); }
+  .flag-done  { background: var(--done-wash);  color: var(--done); }
+  .ruling {
+    margin: .9rem 0 0; padding: .85rem 1rem;
+    background: var(--done-wash); border-left: 3px solid var(--done);
+    border-radius: 0 6px 6px 0; font-size: .95rem; color: var(--ink-soft);
+  }
+  .ruling b { display: block; font-size: .7rem; letter-spacing: .09em; text-transform: uppercase;
+              color: var(--done); margin-bottom: .3rem; font-family: "IBM Plex Mono", monospace; }
+  .consequence { margin-top: .8rem; font-size: .92rem; }
+  .consequence b { color: var(--ink); }
   .screens {
     margin-left: auto; font-family: "IBM Plex Mono", monospace;
     font-size: .72rem; color: var(--muted);
@@ -176,26 +191,26 @@
 
 <main>
 
-  <p class="eyebrow">Split identities · #17516 · for PM / DM · 09-01-2026</p>
-  <h1>Eight answers stand between Split and a build</h1>
-  <p class="standfirst">The design is finished — nineteen screens at Nimbus fidelity, fully flowed.
-    What is not settled is what the system underneath is allowed to do. These are every open
-    question on the board, in one list.</p>
+  <p class="eyebrow">Split identities · #17516 · PM answered 09-01-2026</p>
+  <h1>Four answered, two open, one new</h1>
+  <p class="standfirst">The PM has answered. Four questions are settled — including the blocking
+    one — one needs restating before it can be answered, one is unchanged, and the answers raised a
+    new question of their own. Each card below carries its status and the ruling verbatim.</p>
 
   <div class="strip">
-    <div class="stat is-block"><b>1</b><span>blocking</span></div>
-    <div class="stat is-high"><b>5</b><span>marked high</span></div>
-    <div class="stat"><b>3</b><span>yours to decide</span></div>
-    <div class="stat"><b>4</b><span>engineering facts</span></div>
-    <div class="stat"><b>1</b><span>has a deadline</span></div>
+    <div class="stat is-answered"><b>4</b><span>answered</span></div>
+    <div class="stat is-high"><b>2</b><span>still open</span></div>
+    <div class="stat is-block"><b>1</b><span>new, raised by the answers</span></div>
+    <div class="stat"><b>1</b><span>needs restating</span></div>
+    <div class="stat"><b>1</b><span>new design task</span></div>
+  </div>
   </div>
 
   <div class="callout">
-    <p><strong>Only three of these are product decisions.</strong> Four are questions about what the
-      ledger and the projection builder can already do — they need routing to engineering, not
-      deciding. The eighth is contingent: its answer falls out of one of the four. Splitting them
-      that way is the fastest route to a build, because the engineering four can be answered in
-      parallel with your three.</p>
+    <p><strong>The blocking question is answered, and Split's screens were already right.</strong>
+      Holds inherit to the new person — which is what B, B1, B2, C and D already draw. What was
+      missing is the other half of the ruling: the surviving original must <em>never</em> be removed
+      from a hold automatically. That is a new constraint, and nothing on the board says it yet.</p>
   </div>
 
   <!-- ══════════════════════════════════════════════════════════════ -->
@@ -206,68 +221,134 @@
     <article class="q">
       <div class="q-top">
         <span class="ref">S-1</span>
-        <span class="flag flag-block">Blocking</span>
+        <span class="flag flag-done">Answered</span>
         <span class="screens">B · B2 · C · D</span>
       </div>
       <h3>Can a legal hold be inherited by the person a split creates?</h3>
-      <p>The screens currently <em>assert</em> that it can. B, B3, B4 and B5 show
-        <span class="mono">On Legal Hold · 2 matters</span> on <strong>both</strong> people, and
-        B1, B2, C and D show <span class="mono">Acme v. Byrne — inherited</span> on the new person.
-        The per-badge “Inherited” label was dropped on 08-19, so the claim is now carried by the
-        matching counts rather than by a word — which makes it easy to ship without anyone noticing
-        it was never ruled on.</p>
-      <p>The split concept (§6) asserts inheritance but defers to <strong>merge §2</strong>, which is
-        itself blocking and owned by whoever owns spoliation risk. Merge §2 offers three options:</p>
-      <ul class="branches">
-        <li><span class="k">A</span><span>Rewrite the hold’s custodian list.</span></li>
-        <li><span class="k">B</span><span>Leave the hold where it is and give the identity a redirect.</span></li>
-        <li><span class="k">C</span><span>Refuse the operation entirely while a hold is in force.</span></li>
-      </ul>
-      <p class="cost"><b>Why it blocks:</b> C removes four screens rather than restyling them. And
-        the workflow-attribution panel (B3/B4) deliberately does <em>not</em> offer legal holds as an
-        attributable workflow — that choice was made pending this ruling and has to be revisited
-        either way.</p>
-      <p class="cost"><b>Needs legal in the room</b>, not just product. It is a spoliation-risk
-        question wearing a UI costume.</p>
+
+      <div class="ruling"><b>PM ruling · 09-01-2026</b>
+        “Yes, because the new person might be the right person. The original person put on legal hold
+        could have been wrong because the correct person was part of an errant merge. But, the
+        original person (if they survive) should not ever be automatically removed from the legal
+        hold. That could only happen in either the workflow attribution process or by actually
+        releasing the person from the hold.”</div>
+
+      <p class="consequence"><b>Split's screens were already correct.</b> B, B3, B4 and B5 show the
+        hold on both people, and B1, B2, C and D show it inherited onto the new person. Nothing needs
+        redrawing.</p>
+
+      <p class="consequence"><b>And this does not contradict merge.</b> PRD D-3 refuses a merge under
+        an active hold; split inherits. That reads as a contradiction until you see what each does to
+        custodian identity — a merge <em>removes</em> a custodian, a split only <em>adds</em> one.
+        Refusing the destructive case and inheriting on the additive one is one consistent policy,
+        not two. The Merge board's sticky has been corrected to say so.</p>
+
+      <p class="cost"><b>New constraint, not yet drawn:</b> “should not ever be automatically removed”
+        needs to be visible somewhere. Today no screen claims the original loses its hold — but none
+        states that it keeps it either, and the two named exits (workflow attribution, explicit
+        release) appear nowhere in the split flow. This is the follow-up work S-1 creates.</p>
     </article>
 
     <article class="q">
       <div class="q-top">
         <span class="ref">S-2</span>
-        <span class="flag flag-open">Open</span>
+        <span class="flag flag-done">Answered</span>
         <span class="screens">B3 · B4</span>
       </div>
       <h3>Must every case be attributed before the split can be applied?</h3>
-      <p>The attribution panel lets workflows be assigned for all cases at once or case by case.
-        What it does not say is whether <span class="mono">APPLY ATTRIBUTIONS</span> is available
-        before every case has been decided.</p>
-      <ul class="branches">
-        <li><span class="k">A</span><span>A default exists — unattributed workflows stay with the original person — so <span class="mono">APPLY</span> is always live and the panel is optional. <em>This is what the screens currently imply.</em></span></li>
-        <li><span class="k">B</span><span>Attribution is required, so <span class="mono">APPLY</span> stays disabled until every case is set — matching the house rule that a primary CTA is disabled until the form validates.</span></li>
-      </ul>
-      <p class="cost"><b>The trade:</b> B is safer for a split that divides preservation-relevant
-        work, but it makes the panel mandatory on a flow where most splits are clean.</p>
-      <p class="cost"><b>Bundled with it:</b> the panel has no empty state. A person on no cases has
+
+      <div class="ruling"><b>PM ruling · 09-01-2026</b>
+        “Yes, every case should be attributed. Follow house rule. It might cause delays for the
+        operator, but that is much better than having a decision be automated that goes unnoticed.”</div>
+
+      <p class="consequence"><b>Option B.</b> <span class="mono">APPLY ATTRIBUTIONS</span> stays
+        disabled until every case is set, matching the house rule that a primary is disabled until the
+        form validates. The screens currently draw it enabled, so B3 and B4 both need the disabled
+        state adding.</p>
+
+      <p class="cost"><b>Still to confirm:</b> the panel has no empty state. A person on no cases has
         nothing to attribute, so <span class="mono">CHOOSE WORKFLOW ATTRIBUTIONS</span> should
-        probably not be offered at all in that case — worth confirming while you are here.</p>
+        probably not be offered at all — otherwise the house rule produces a dialog that can never be
+        satisfied.</p>
     </article>
 
     <article class="q">
       <div class="q-top">
         <span class="ref">S-3</span>
-        <span class="flag flag-open">Open</span>
+        <span class="flag flag-high">Needs restating</span>
         <span class="screens">Edge §7</span>
       </div>
       <h3>In shadow mode, is Split hidden or shown-disabled?</h3>
-      <p>With no projection authority the action cannot run. Hiding it leaves no explanation for why
-        a control someone expects is missing; disabling it needs copy stating why.</p>
-      <p class="cost"><b>Currently drawn as shown-disabled with an explanatory state</b>, which is
-        the more informative of the two and consistent with how the rest of this feature set treats
-        unavailable actions. Confirm or overturn.</p>
+
+      <div class="ruling" style="background:var(--high-wash);border-left-color:var(--high)">
+        <b style="color:var(--high)">PM reply · 09-01-2026</b>
+        “I don't know what this means. What is shadow mode?”</div>
+
+      <p class="consequence"><b>Fair — the term is ours, not the product's.</b> It appears exactly
+        twice in the whole file, both times as a layer name, and never in any interface copy. On the
+        edge-states board it is case 9, and the screen says:
+        <span class="mono">“9 · Ledger in shadow mode / No projection authority / UNAVAILABLE”</span>
+        with the note <em>“The whole action is unavailable with an explanatory state — not a button
+        that fails when pressed.”</em></p>
+
+      <p>In plain terms: a deployment where CaseFusion is <strong>reading</strong> the identity ledger
+        but has <strong>no authority to write the projection</strong> — running alongside an existing
+        system rather than owning the data. Nothing can be split, because the split cannot be applied.</p>
+
+      <p class="cost"><b>The real question, restated:</b> does that deployment mode actually exist, and
+        is it a state this tenant can be in? If yes, the design question stands — hide the action, or
+        show it disabled with the reason. If nobody can say what puts a tenant into it, this edge case
+        may be describing a mode that was never built, and it should be struck rather than designed
+        around. <b>That is an engineering question first, not a product one.</b></p>
+
+      <p class="cost"><b>Either way the term does not survive.</b> “Shadow mode” is not in the
+        controlled lexicon and would not pass a conformance scan. If the state is real it needs a
+        user-facing name; the screen already avoids it, saying only that the action is unavailable.</p>
     </article>
   </section>
 
   <!-- ══════════════════════════════════════════════════════════════ -->
+  <section class="group">
+    <div class="group-head"><h2>New design work, from the answers</h2></div>
+    <p class="intro">Not a question — a change the PM asked for while answering.</p>
+
+    <article class="q">
+      <div class="q-top">
+        <span class="ref">S-10</span>
+        <span class="flag flag-high">To draw</span>
+        <span class="screens">B3 · B4</span>
+      </div>
+      <h3>Show who to ask about a case</h3>
+
+      <div class="ruling" style="background:var(--high-wash);border-left-color:var(--high)">
+        <b style="color:var(--high)">PM request · 09-01-2026</b>
+        “We need to either make the case name have a hover state with more info or show more on the
+        single case workflow attribution screen. At a minimum, I think we should show case owner and
+        primary counsel (if populated). That will give the operator the correct contact person if they
+        need to ask a question about attribution.”</div>
+
+      <p class="consequence"><b>Two options, and they are not equivalent.</b></p>
+      <ul class="branches">
+        <li><span class="k">A</span><span><strong>Hover on the case name</strong> — works on the
+          all-cases screen (B3) where rows are dense, but hover is not available on touch and is not
+          keyboard-reachable without extra work. It also hides the very thing that unblocks the
+          operator behind a gesture they have to discover.</span></li>
+        <li><span class="k">B</span><span><strong>Show it inline on B4</strong>, the per-case screen —
+          there is room, the operator is already looking at one case, and it needs no gesture.</span></li>
+      </ul>
+
+      <p class="cost"><b>Recommendation: B, and A only if B3 also needs it.</b> The PM's reason is that
+        the operator may need to <em>ask someone a question</em> — that is a moment where they have
+        stopped and are deciding, which is B4's situation, not a scan down B3. If B3 needs it too, a
+        row-expand is more robust than hover.</p>
+
+      <p class="cost"><b>“if populated” matters.</b> Both fields can be empty, and an empty contact is
+        worse than none — it reads as though nobody owns the case. Absent fields should be omitted, and
+        if both are missing the panel should say plainly that no contact is recorded rather than
+        showing two blank labels.</p>
+    </article>
+  </section>
+
   <section class="group">
     <div class="group-head"><h2>Questions for engineering</h2></div>
     <p class="intro">Not decisions — facts about what already exists. Each one changes what the
@@ -345,21 +426,60 @@
     <article class="q">
       <div class="q-top">
         <span class="ref">S-8</span>
-        <span class="flag flag-high">High</span>
+        <span class="flag flag-done">Answered</span>
         <span class="screens">B2</span>
       </div>
-      <h3>Can an identity re-home onto an existing person, or does retraction always mint a new one?</h3>
-      <p>The preview copy differs materially between the two: B2 names the destination person and
-        its identity count, which only makes sense if re-homing is possible.</p>
-      <p class="cost"><b>The outcome is binary, and one branch deletes a screen.</b> If retraction
-        always mints, <strong>B2 should be deleted rather than shipped as a state that cannot
-        occur</strong> — so this is worth resolving before the build starts rather than during it.</p>
+      <h3>Can an identity re-home onto an existing person?</h3>
+
+      <div class="ruling"><b>PM ruling · 09-01-2026</b>
+        “Yes, an identity can re-home onto an existing person.”</div>
+
+      <p class="consequence"><b>B2 stays.</b> It was the screen at risk of deletion; it now has a
+        confirmed reason to exist, and its copy — naming the destination person and its identity
+        count — is the right shape.</p>
+    </article>
+
+    <article class="q">
+      <div class="q-top">
+        <span class="ref">S-9</span>
+        <span class="flag flag-block">New · raised by S-8</span>
+        <span class="screens">A · B2 · #17515</span>
+      </div>
+      <h3>When the system chooses the destination, does the operator ever see it?</h3>
+
+      <div class="ruling" style="background:var(--block-wash);border-left-color:var(--block)">
+        <b style="color:var(--block)">PM question · 09-01-2026</b>
+        “If that is done via the ‘let the system decide’ option, though, is that shown to the operator
+        or would that proposed merge go back into the queue for adjudication? It can have consequences,
+        and while it may be the correct outcome, a human needs to know about it.”</div>
+
+      <p class="consequence">Two candidate answers, and they are materially different builds:</p>
+      <ul class="branches">
+        <li><span class="k">A</span><span><strong>Shown in the preview.</strong> B2 already names the
+          destination person, so the operator sees and accepts it before confirming. Nothing new is
+          queued. Simplest — but it makes a re-home a decision the operator takes on the spot, with
+          whatever context that one screen carries.</span></li>
+        <li><span class="k">B</span><span><strong>Raised as a pending match.</strong> The split
+          proceeds and the proposed convergence goes to the Pending Match Queue (#17515) for
+          adjudication, exactly like any other refused-but-plausible pair. Slower, but the decision
+          lands where every other identity decision is recorded, with the same evidence and the same
+          audit trail.</span></li>
+      </ul>
+
+      <p class="cost"><b>Why this is worth answering carefully:</b> B is the only option where the
+        re-home is <em>recorded as a decision by a named person</em>. Under A it is recorded as part of
+        a split, and a later reader cannot easily tell that a convergence happened at all. The PM's own
+        framing — “a human needs to know about it” — points at B, but B means Split can produce queue
+        work, which nothing on either board currently shows.</p>
+
+      <p class="cost"><b>Not drawn either way.</b> If B, Split needs a state saying the re-home was
+        queued rather than applied, and #17515 needs to show where such a pair came from.</p>
     </article>
   </section>
 
   <footer>
-    <div>Split identities · #17516 · gathered from the eight stickies on Figma section <span class="mono">12994:24015</span></div>
-    <div>Identity Records #17475 shipped 08-28 — the dependency that blocked Split is clear</div>
+    <div>Split identities · #17516 · questions gathered from Figma section <span class="mono">12994:24015</span> · PM answered 09-01-2026</div>
+    <div>S-1, S-2, S-8 answered · S-3 needs restating · S-9 new · S-10 to draw · S-4 to S-7 with engineering</div>
   </footer>
 
 </main>

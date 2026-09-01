@@ -254,7 +254,7 @@
       evidence += evidenceLine("Matched on", g.matchedOn.map(esc).join(" &nbsp;·&nbsp; "));
     }
     if (g.reason) {
-      evidence += evidenceLine("Reason", "&ldquo;" + esc(g.reason) + "&rdquo;");
+      evidence += evidenceLine("Reason", esc(g.reason));
     }
     evidence += '<p class="np-row-note' +
                 (g.noteIsWarning ? " np-row-note-caution" : "") + '">' +
@@ -592,7 +592,7 @@
       evidence += evidenceLine("Matched on", p.matchedOn.map(esc).join(" &nbsp;·&nbsp; "));
     }
     if (p.reason) {
-      evidence += evidenceLine("Reason", "&ldquo;" + esc(p.reason) + "&rdquo;");
+      evidence += evidenceLine("Reason", esc(p.reason));
     }
     evidence += '<p class="np-row-note">' + esc(p.note) + "</p>";
 
@@ -1387,7 +1387,7 @@
     var title = byId("npqPairReviewTitle");
     if (title) {
       title.textContent = pair.established + " \u00b7 " + pair.candidate +
-                          (pair.reason ? " \u2014 \u201c" + pair.reason + "\u201d" : "");
+                          (pair.reason ? " \u2014 " + pair.reason : "");
     }
     renderStep();
     renderReturn();
@@ -1454,7 +1454,9 @@
     var on = byId("npqRefusedOn");
     if (on) on.textContent = pair.refusedOn ? "Refused " + pair.refusedOn : "";
     var why = byId("npqRefusedReason");
-    if (why) why.textContent = pair.reason ? "\u201c" + pair.reason + "\u201d" : "Not recorded";
+    /* Unquoted, PM 09-01-2026 — a reason code is system vocabulary, not a
+       quotation. `.np-why-quote` keeps its name so the CSS stays stable. */
+    if (why) why.textContent = pair.reason || "Not recorded";
 
     var keys = byId("npqRefusedKeys");
     if (keys) {

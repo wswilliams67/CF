@@ -965,10 +965,14 @@
               "Full name + date of birth", "Last name + mobile phone",
               "Employee ID", "UPN", "Not recorded"],
     /* The MATCHER's reason, not the decision reason captured in Pair Review. */
-    reason: ["“cohort match, no corroboration”",
-             "“shared address, single key”",
-             "“2 corroborating keys”",
-             "“name + date of birth”", "Not recorded"],
+    /* Unquoted, PM 09-01-2026 — a reason code is governed vocabulary, so the
+       facet value IS the code. The WHERE clause below compares against the same
+       unquoted string; the two must move together or the filter silently
+       matches nothing. */
+    reason: ["cohort match, no corroboration",
+             "shared address, single key",
+             "2 corroborating keys",
+             "name + date of birth", "Not recorded"],
     /* The two same-person states stay SEPARATELY selectable: conflating them
        hides an unshipped merge backlog. */
     /* The two closed-without-a-decision states are filterable like any other:
@@ -1043,7 +1047,7 @@
 
     if (filters.reason.length) {
       /* Absent reason is the selectable value "Not recorded" — see MOCK_FACETS. */
-      var reason = row.reason ? "“" + row.reason + "”" : "Not recorded";
+      var reason = row.reason || "Not recorded";
       if (filters.reason.indexOf(reason) === -1) return false;
     }
 

@@ -505,6 +505,64 @@
   line-height: 1.43;
 }
 
+/* ---- Skeleton geometry -----------------------------------------------------
+   Nimbus owns the shimmer itself — .skeleton, .skeleton-text, .skeleton-circle
+   and the .skeleton-w-* widths all live in css/components/loading.css, and the
+   colours are its tokens. NOTHING is redeclared here.
+
+   This block is only the delta that makes a placeholder card the same shape as
+   a real one, so the list does not jump when the rows land. The placeholder
+   reuses .np-card / .np-card-body / .np-col-* directly, which is why the
+   padding, the column widths and the two blurry rules are absent below: they
+   come from the real card and so cannot drift away from it. */
+.np-page .np-skeleton-card {
+  /* A placeholder is not a target — nothing in it hovers or clicks. */
+  pointer-events: none;
+}
+
+/* .skeleton-circle is square by aspect-ratio, so a width is the whole disc. */
+.np-page .np-skeleton-avatar {
+  flex-shrink: 0;
+  width: 52px;                        /* = .np-avatar */
+}
+
+/* Column 1's text fills what the avatar leaves, the way .np-identity-text
+   does. Without it the group hugs its content and the two lines run short. */
+.np-page .np-skeleton-card .np-skeleton-identity {
+  flex: 1 1 0;
+  min-width: 0;
+  gap: 8px;
+}
+
+/* Line rhythm per column, matched to the text each stands in for: metadata is
+   four 14px/1.43 lines on a 4px gap, contact is two labelled groups on 8px.
+
+   The gap is restated at (0,3,0) ON PURPOSE. Both .np-col-meta and
+   .skeleton-group set gap at (0,1,0), so which one wins is decided by file
+   order — true today, and silently reversible by a change to the load order
+   that has nothing to do with this screen. */
+.np-page .np-skeleton-card .np-col-meta,
+.np-page .np-skeleton-card .np-col-contact {
+  --cnds-skeleton-text-height: 20px;
+}
+
+.np-page .np-skeleton-card .np-col-meta    { gap: 4px; }
+.np-page .np-skeleton-card .np-col-contact { gap: 8px; }
+
+/* The actions column stands in for the card's four .btn-sm tertiary buttons,
+   which carry minHeight 36 from the Figma frame and stack with NO gap. This
+   column is the tallest in the card, so these four blocks are what hold the
+   placeholder at the real height — 4 × 36 = 144, the content box the other
+   three columns are stretched to. */
+.np-page .np-skeleton-card .np-skeleton-actions {
+  gap: 0;
+}
+
+.np-page .np-skeleton-btn {
+  width: 100%;
+  height: 36px;
+}
+
 .np-contact-group {
   display: flex;
   flex-direction: column;
