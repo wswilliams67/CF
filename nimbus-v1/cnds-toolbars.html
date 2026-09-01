@@ -527,7 +527,9 @@
                       <section id="section-list-toolbar">
                           <!--Section title-->
                           <h3 class="mb-2">List toolbar</h3>
-                          <p class="mb-4">The list toolbar combines search, filtering, sort order, a live record count, and the primary create action in a single surface. The search field grows to fill available space; the controls cluster and CTA stay fixed on the right. Apply <code>debounceTime(300)</code> to the search input to avoid excessive requests, and lock the total label's <code>min-width</code> after the first render to prevent flex reflow as the digit count changes. Use <code>type="search"</code> on the filter input when no separate Search button is present — the CNDS reset layer automatically gives the browser's native clear (×) button a pointer cursor. An optional <code>.toolbar-list-action</code> button may close the controls cluster after the total count, separated by a divider; it is off by default and should only appear when the list has an action that operates on the data shown.</p>
+                          <p class="mb-4">The list toolbar combines search, filtering, sort order, a live record count, and the primary create action in a single surface. The search field grows to fill available space; the controls cluster and CTA stay fixed on the right. Apply <code>debounceTime(300)</code> to the search input to avoid excessive requests, and lock the total label's <code>min-width</code> after the first render to prevent flex reflow as the digit count changes. Use <code>type="search"</code> on the filter input when no separate Search button is present — the CNDS reset layer automatically gives the browser's native clear (×) button a pointer cursor. Up to <strong>two</strong> <code>.toolbar-list-action</code> buttons may close the controls cluster after the total count — matching the Figma component's <code>Show Action 1</code> and <code>Show Action 2</code> slots, both off by default. A <code>.toolbar-list-divider</code> precedes the <strong>first</strong> only: a second button follows its sibling directly, so the pair reads as one cluster rather than two separated groups. Use them only for actions that operate on the data shown — an export and its job list, for example. From the <strong>third</strong> action onward, use the overflow menu: <code>.toolbar-list-action-menu</code>, a tertiary icon-only button carrying <code>mdi-dots-vertical</code>, matching the component's <code>Show Action Menu</code> slot.
+
+                            <strong>Use the three slots in order.</strong> A second action without a first renders with the spacing of a two-action cluster and reads as though something is missing; a menu without both visible actions hides what would have fitted in a button. Give the menu button an <code>aria-label</code> and <code>aria-haspopup="menu"</code> — an icon-only control announces nothing otherwise.</p>
 
                           <!--Section: Demo-->
                           <section class="pb-4">
@@ -565,6 +567,10 @@
                                                   <span class="toolbar-list-total">Total: 1,231</span>
                                                   <span class="toolbar-list-divider"></span>
                                                   <button type="button" class="btn btn-secondary btn-sm toolbar-list-action">Action</button>
+                                                  <button type="button" class="btn btn-secondary btn-sm toolbar-list-action">Second action</button>
+                                                  <button type="button" class="btn btn-tertiary btn-sm toolbar-list-action-menu" aria-label="More actions" aria-haspopup="menu">
+                                                      <i class="mdi mdi-dots-vertical" aria-hidden="true"></i>
+                                                  </button>
                                               </div>
                                           </div>
                                           <button type="button" class="btn btn-primary btn-lg flex-shrink-0">New</button>
@@ -614,6 +620,13 @@
             &lt;span class="toolbar-list-total"&gt;Total: 1,231&lt;/span&gt;
             &lt;span class="toolbar-list-divider"&gt;&lt;/span&gt;
             &lt;button type="button" class="btn btn-secondary btn-sm toolbar-list-action"&gt;Action&lt;/button&gt;
+            &lt;!-- optional second action — NO extra divider before it --&gt;
+            &lt;button type="button" class="btn btn-secondary btn-sm toolbar-list-action"&gt;Second action&lt;/button&gt;
+            &lt;!-- overflow menu — third slot, icon-only, always last --&gt;
+            &lt;button type="button" class="btn btn-tertiary btn-sm toolbar-list-action-menu"
+                    aria-label="More actions" aria-haspopup="menu"&gt;
+              &lt;i class="mdi mdi-dots-vertical" aria-hidden="true"&gt;&lt;/i&gt;
+            &lt;/button&gt;
         &lt;/div&gt;
     &lt;/div&gt;
     &lt;button type="button" class="btn btn-primary btn-lg flex-shrink-0"&gt;New&lt;/button&gt;
@@ -753,7 +766,11 @@
                             <tr>
                               <td><code>.toolbar-list-action</code></td>
                               <td><code>&lt;button&gt;</code></td>
-                              <td>Optional action button closing the controls cluster, after the total count. Use <code>.btn.btn-secondary.btn-sm</code> and always precede it with a <code>.toolbar-list-divider</code>. Omit both when there is no action &mdash; it is off by default in the Figma component.</td>
+                              <td>Optional action button closing the controls cluster, after the total count. Use <code>.btn.btn-secondary.btn-sm</code> and always precede it with a <code>.toolbar-list-divider</code>. Omit both when there is no action &mdash; it is off by default in the Figma component. Up to two may be used, matching <code>Show Action 1</code> and <code>Show Action 2</code>; only the first is preceded by a divider.</td>
+                            </tr>
+                            <tr>
+                              <td><code>.toolbar-list-action-menu</code></td>
+                              <td>Overflow menu button — the third slot. Tertiary, icon-only (<code>mdi-dots-vertical</code>), always last, never preceded by a divider. Only used when both visible action slots are in use.</td>
                             </tr>
                           </tbody>
                         </table>

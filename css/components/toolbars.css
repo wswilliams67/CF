@@ -173,12 +173,37 @@
   padding-right: 4px;
 }
 
-/* Optional action button at the end of the controls cluster.
-   Matches Figma Nimbus/Toolbars State=List "Show Action" (off by default).
-   Always preceded by a .toolbar-list-divider. */
+/* Optional action button(s) at the end of the controls cluster.
+   Matches Figma Nimbus/Toolbars State=List, which carries THREE slots —
+   "Show Action 1", "Show Action 2" and "Show Action Menu" (2026-09-01).
+
+   USE THEM IN ORDER. Slot 2 is not used without slot 1, and the menu is not
+   used without both — a toolbar whose only action sits in slot 2 renders with
+   the spacing of a two-action cluster and reads as though something is
+   missing, and a menu holding what would fit in a visible button hides it for
+   no reason. The rule is recorded on the Figma component's description too.
+
+   The menu is the overflow: tertiary, icon-only, mdi-dots-vertical, and it is
+   always last.
+
+   ONE DIVIDER, NOT TWO. A .toolbar-list-divider precedes the FIRST action
+   only; a second button follows its sibling directly, so the pair reads as one
+   cluster rather than two separated groups. The Figma component does the same
+   thing by hiding the divider inside slot 2.
+
+   No per-slot class is needed: the toolbar is a flex row with a gap, so a
+   second .toolbar-list-action simply sits beside the first. */
 .toolbar-list-action {
   flex-shrink: 0;
   white-space: nowrap;
+}
+
+/* The overflow menu — the third and last slot. Icon-only, so it is sized to
+   the icon rather than to a label, and it never carries the divider. */
+.toolbar-list-action-menu {
+  flex-shrink: 0;
+  padding-left: 8px;
+  padding-right: 8px;
 }
 
 /* Nimbus Select (.select-wrapper) — structural constraints only; placeholder color scoped per theme below */
