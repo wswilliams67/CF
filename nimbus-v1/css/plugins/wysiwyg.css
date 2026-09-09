@@ -5,6 +5,10 @@
 
 /* --- Container --- */
 .cnds-wysiwyg {
+  /* Toolbar glyph size. Mirrors the Nimbus/TextEditor Figma master, whose 32px
+     buttons nest a 16px MDI icon instance. Declared here (not on the button) so
+     the .cnds-wysiwyg-sm / -lg size modifiers can step it in one place. */
+  --cnds-wysiwyg-icon-size: 16px;
   border: 1px solid var(--cnds-border-color, #dee2e6);
   border-radius: var(--cnds-border-radius, 0.375rem);
   overflow: hidden;
@@ -81,10 +85,13 @@
   pointer-events: none;
 }
 
-.cnds-wysiwyg-btn svg {
-  width: 16px;
-  height: 16px;
-  fill: currentColor;
+/* Toolbar glyphs are MDI webfont icons (<i class="mdi mdi-*">) written by
+   wysiwyg.js ICONS, matching the MDI components on the Nimbus/TextEditor Figma
+   master. The glyph inherits currentColor from .cnds-wysiwyg-btn, so the active
+   and disabled button states need no icon-specific rules. */
+.cnds-wysiwyg-btn .mdi {
+  font-size: var(--cnds-wysiwyg-icon-size, 16px);
+  line-height: 1;
 }
 
 /* --- Toolbar Select (heading, font size) --- */
@@ -387,6 +394,10 @@
   max-height: 300px;
   font-size: 0.8125rem;
   padding: 0.75rem;
+}
+
+.cnds-wysiwyg-sm {
+  --cnds-wysiwyg-icon-size: 14px;
 }
 
 .cnds-wysiwyg-sm .cnds-wysiwyg-btn {
