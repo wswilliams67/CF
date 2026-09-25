@@ -1,0 +1,971 @@
+<title>Schedule Interview Test Pass</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;450;500;600&display=swap">
+
+<style>
+  /* ── Tokens ───────────────────────────────────────────────────────────
+     Matches the house test-pass shell used by the other QA scripts in
+     1.6/scripts/qa/. Light is the complete palette on bare :root; dark
+     redefines only the tokens, twice, so the OS default and an explicit
+     toggle both resolve. */
+  :root {
+    --paper:      #F3F6F3;
+    --card:       #FFFFFF;
+    --card-sunk:  #ECF0EC;
+    --ink:        #14181C;
+    --ink-soft:   #3B453F;
+    --muted:      #5C665F;
+    --rule:       #D8DFD9;
+    --rule-soft:  #E7ECE7;
+
+    --accent:     #1F5F5B;
+    --accent-ink: #133D3A;
+    --pass:       #2E892A;
+    --fail:       #B3261E;
+    --hold:       #8A6100;
+    --pass-wash:  #E8F3E7;
+    --fail-wash:  #FBEAE9;
+    --hold-wash:  #FAF1DF;
+
+    --shadow:     0 1px 2px rgba(20, 24, 28, .06), 0 8px 24px rgba(20, 24, 28, .05);
+
+    --step: 1.5rem;
+    --measure: 68ch;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:      #0E1114;
+      --card:       #171B1F;
+      --card-sunk:  #12161A;
+      --ink:        #E6EBE7;
+      --ink-soft:   #BAC4BD;
+      --muted:      #8A948D;
+      --rule:       #2A3138;
+      --rule-soft:  #21272C;
+
+      --accent:     #6FBFB8;
+      --accent-ink: #A8DAD5;
+      --pass:       #7EC97A;
+      --fail:       #F09891;
+      --hold:       #E0B65C;
+      --pass-wash:  #17251A;
+      --fail-wash:  #2A1817;
+      --hold-wash:  #261F12;
+
+      --shadow:     0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper:      #0E1114;
+    --card:       #171B1F;
+    --card-sunk:  #12161A;
+    --ink:        #E6EBE7;
+    --ink-soft:   #BAC4BD;
+    --muted:      #8A948D;
+    --rule:       #2A3138;
+    --rule-soft:  #21272C;
+
+    --accent:     #6FBFB8;
+    --accent-ink: #A8DAD5;
+    --pass:       #7EC97A;
+    --fail:       #F09891;
+    --hold:       #E0B65C;
+    --pass-wash:  #17251A;
+    --fail-wash:  #2A1817;
+    --hold-wash:  #261F12;
+
+    --shadow:     0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  code, .mono, .id, kbd {
+    font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-variant-ligatures: none;
+  }
+
+  a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
+
+  /* ── Running header ─────────────────────────────────────────────────── */
+  .bar {
+    position: sticky; top: 0; z-index: 10;
+    background: color-mix(in srgb, var(--paper) 88%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--rule);
+  }
+  .bar-in {
+    max-width: 60rem; margin: 0 auto; padding: .7rem 1.5rem;
+    display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+  }
+  .bar-title {
+    font-family: Newsreader, Georgia, serif;
+    font-size: 1.05rem; font-weight: 600; letter-spacing: -.01em;
+    margin-right: auto;
+  }
+  .bar-title span { color: var(--muted); font-weight: 400; }
+  .count {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: .8rem; font-variant-numeric: tabular-nums;
+    color: var(--ink-soft);
+  }
+  .count b { color: var(--ink); font-weight: 600; }
+  .meter {
+    flex: 1 1 12rem; min-width: 8rem; height: 4px;
+    background: var(--rule); border-radius: 2px; overflow: hidden;
+  }
+  .meter i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .25s ease; }
+
+  .btn {
+    font: inherit; font-size: .8rem;
+    padding: .28rem .7rem; border-radius: 5px;
+    border: 1px solid var(--rule); background: var(--card); color: var(--ink-soft);
+    cursor: pointer;
+  }
+  .btn:hover { border-color: var(--muted); color: var(--ink); }
+
+  /* ── Page frame ─────────────────────────────────────────────────────── */
+  main { max-width: 60rem; margin: 0 auto; padding-block: 2.5rem 4rem; padding-inline: 1.5rem; }
+
+  .lede { max-width: var(--measure); }
+  .lede .story {
+    font-family: "IBM Plex Mono", monospace; font-size: .74rem;
+    letter-spacing: .09em; text-transform: uppercase; color: var(--muted);
+    margin: 0 0 .5rem;
+  }
+  .lede h1 {
+    font-family: Newsreader, Georgia, serif;
+    font-size: clamp(1.9rem, 4vw, 2.6rem); font-weight: 600;
+    letter-spacing: -.02em; line-height: 1.15;
+    margin: 0 0 .9rem; text-wrap: balance;
+  }
+  .lede p { margin: 0 0 .7rem; color: var(--ink-soft); }
+
+  /* ── Setup block ────────────────────────────────────────────────────── */
+  .setup {
+    margin-top: 2rem; padding: 1.2rem 1.4rem;
+    background: var(--card); border: 1px solid var(--rule);
+    border-radius: 10px; box-shadow: var(--shadow);
+  }
+  .setup h2 {
+    font-family: "IBM Plex Mono", monospace; font-size: .74rem;
+    letter-spacing: .09em; text-transform: uppercase; color: var(--muted);
+    margin: 0 0 .8rem; font-weight: 500;
+  }
+  .setup dl { margin: 0; display: grid; grid-template-columns: max-content 1fr; gap: .45rem 1.2rem; }
+  .setup dt { color: var(--muted); font-size: .85rem; }
+  .setup dd { margin: 0; font-size: .9rem; }
+  .setup dd.mono { font-size: .82rem; word-break: break-all; }
+
+  .note {
+    margin-top: 1rem; padding: .8rem 1rem;
+    background: var(--hold-wash); border-left: 3px solid var(--hold);
+    border-radius: 0 5px 5px 0; font-size: .88rem; color: var(--ink-soft);
+  }
+  .note strong { color: var(--ink); }
+  .note + .note { margin-top: .6rem; }
+
+  /* ── Sections ───────────────────────────────────────────────────────── */
+  section { margin-top: 3.25rem; }
+  .sec-head { display: flex; align-items: baseline; gap: .8rem; margin-bottom: .3rem; flex-wrap: wrap; }
+  .sec-letter {
+    font-family: "IBM Plex Mono", monospace; font-size: .75rem; font-weight: 600;
+    letter-spacing: .06em; color: var(--card);
+    background: var(--accent); padding: .18rem .45rem; border-radius: 4px;
+  }
+  h2.sec {
+    font-family: Newsreader, Georgia, serif;
+    font-size: 1.45rem; font-weight: 600; letter-spacing: -.015em;
+    margin: 0; text-wrap: balance;
+  }
+  .sec-count { font-family: "IBM Plex Mono", monospace; font-size: .78rem; color: var(--muted); margin-left: auto; font-variant-numeric: tabular-nums; }
+  .sec-note { color: var(--muted); font-size: .9rem; margin: 0 0 1.1rem; max-width: var(--measure); }
+
+  /* ── Checks ─────────────────────────────────────────────────────────── */
+  .checks { display: flex; flex-direction: column; gap: .5rem; }
+
+  .check {
+    display: grid;
+    grid-template-columns: auto 4.6rem 1fr;
+    gap: 0 .85rem;
+    padding: .9rem 1.1rem;
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    transition: border-color .15s, background .15s;
+  }
+  .check:has(input:checked) { background: var(--card-sunk); border-color: var(--rule-soft); }
+  .check:has(input:checked) .body { opacity: .55; }
+
+  .check input[type=checkbox] {
+    appearance: none; width: 1.05rem; height: 1.05rem; margin: .28rem 0 0;
+    border: 1.5px solid var(--muted); border-radius: 4px;
+    background: transparent; cursor: pointer; display: grid; place-content: center;
+  }
+  .check input[type=checkbox]::after {
+    content: ""; width: .55rem; height: .3rem; margin-top: -.12rem;
+    border-left: 2px solid var(--card); border-bottom: 2px solid var(--card);
+    transform: rotate(-45deg) scale(0); transition: transform .12s ease;
+  }
+  .check input[type=checkbox]:checked { background: var(--pass); border-color: var(--pass); }
+  .check input[type=checkbox]:checked::after { transform: rotate(-45deg) scale(1); }
+
+  .id {
+    font-size: .74rem; font-weight: 600; letter-spacing: .04em;
+    color: var(--accent-ink); background: var(--pass-wash);
+    padding: .2rem .3rem; border-radius: 4px; height: fit-content; margin-top: .2rem;
+    text-align: center;
+  }
+  :root[data-theme="dark"] .id,
+  :root:not([data-theme="light"]) .id { color: var(--accent); }
+  @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .id { color: var(--accent-ink); } }
+
+  .body > * { margin: 0; }
+  .body { display: flex; flex-direction: column; gap: .3rem; }
+  .do { font-weight: 500; }
+  .expect { color: var(--ink-soft); }
+  .expect::before {
+    content: "Expect";
+    font-family: "IBM Plex Mono", monospace; font-size: .68rem; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--pass);
+    margin-right: .5rem;
+  }
+  .why {
+    font-size: .86rem; color: var(--muted);
+    border-left: 2px solid var(--rule); padding-left: .7rem; margin-top: .15rem;
+  }
+  .why::before { content: "Why "; font-weight: 600; color: var(--ink-soft); }
+
+  .val {
+    font-family: "IBM Plex Mono", monospace; font-size: .84em;
+    background: var(--card-sunk); padding: .08rem .3rem; border-radius: 3px;
+    color: var(--ink);
+  }
+  .tag {
+    font-family: "IBM Plex Mono", monospace; font-size: .66rem;
+    letter-spacing: .07em; text-transform: uppercase;
+    padding: .12rem .4rem; border-radius: 3px; white-space: nowrap;
+    align-self: flex-start;
+  }
+  .tag-dev { background: var(--hold-wash); color: var(--hold); }
+  .tag-settled { background: var(--pass-wash); color: var(--accent-ink); }
+  :root[data-theme="dark"] .tag-settled,
+  :root:not([data-theme="light"]) .tag-settled { color: var(--accent); }
+  @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .tag-settled { color: var(--accent-ink); } }
+
+  footer {
+    margin-top: 4rem; padding-top: 1.5rem;
+    border-top: 1px solid var(--rule);
+    font-size: .85rem; color: var(--muted);
+    display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; animation: none !important; }
+  }
+
+  @media (max-width: 620px) {
+    .check { grid-template-columns: auto 1fr; }
+    .check .id { grid-column: 2; margin-bottom: .3rem; text-align: left; width: fit-content; }
+    .check .body { grid-column: 2; }
+    .setup dl { grid-template-columns: 1fr; gap: .1rem .6rem; }
+    .setup dt { margin-top: .5rem; }
+  }
+</style>
+
+<div class="bar">
+  <div class="bar-in">
+    <div class="bar-title">Schedule Interview <span>· Create Custodian Interview</span></div>
+    <div class="meter" aria-hidden="true"><i id="meter"></i></div>
+    <div class="count"><b id="done">0</b> / <span id="total">0</span> checked</div>
+    <button class="btn" id="reset" type="button">Reset</button>
+  </div>
+</div>
+
+<main>
+
+  <div class="lede">
+    <p class="story">Test pass · written 09-15-2026</p>
+    <h1>Schedule a Custodian Interview</h1>
+    <p>This walks the Schedule Interview form the way an operator meets it — date, duration and
+      the availability planner, then interview type, then attendees, then the message — and out
+      through validation, cancel and success.</p>
+    <p>Every expected value below was read off the Figma board <em>Schedule Interview | Dark</em>,
+      not from memory, so a wrong-but-plausible result gets caught rather than waved through.
+      Three checks guard values the design only settled on 09-15-2026 — they name the old value as
+      well as the right one, because a build started earlier may still carry it.</p>
+    <p>Tick as you go. Ticks are saved in this browser, so you can stop and come back.</p>
+  </div>
+
+  <div class="setup">
+    <h2>Before you start</h2>
+    <dl>
+      <dt>Build URL</dt>
+      <dd class="mono"><strong>Not yet built — fill in at handoff.</strong> Use the published review
+        site address, never <span class="val">localhost</span>.</dd>
+      <dt>Spec</dt>
+      <dd class="mono"><a href="https://www.figma.com/design/SFANLgY6y2oGYOMClLywSq/CaseFusion-v1.5---Case-Administrator?node-id=1569-136825">Figma · Schedule Interview | Dark</a> — 41 screens, 42 Dev&nbsp;Mode annotations</dd>
+      <dt>Attendee flows</dt>
+      <dd>Three separate sections, one per field — <span class="val">Invite Interviewee</span>, <span class="val">Invite People</span> (internal), <span class="val">Invite External Attendee</span>. Section F walks all three.</dd>
+      <dt>Reached from</dt>
+      <dd>Case Details → <span class="val">Interviews</span> tab → schedule a new interview</dd>
+      <dt>Test case</dt>
+      <dd><span class="val">ACME Products Litigation</span>, organizer <span class="val">Scott Williams</span>,
+        attendees <span class="val">Jacob Jones</span>, <span class="val">Leslie Alexander</span>,
+        <span class="val">Devon Lane</span>, <span class="val">Albert Flores</span></dd>
+      <dt>Viewport</dt>
+      <dd>1440 wide or more. The availability planner needs the width; below that the attendee
+        section reflows and these checks will not match.</dd>
+      <dt>Theme</dt>
+      <dd>The board is drawn dark. Run the pass in dark, then repeat sections <span class="val">B</span>–<span class="val">E</span> in light.</dd>
+    </dl>
+    <div class="note">
+      <strong>Outlook is a live dependency.</strong> Duration, the Top 3 list and the whole
+      availability planner read the attendees' free/busy schedules from Outlook. If that feed is
+      down, sections <span class="val">C</span> and <span class="val">D</span> cannot be judged —
+      record them as blocked rather than failed.
+    </div>
+    <div class="note">
+      <strong>Three checks guard decisions the design settled late.</strong> They are marked
+      <span class="tag tag-settled">settled 09-15-2026</span>. The design used to disagree with
+      itself on each; it no longer does, so these are ordinary checks — but a build started before
+      that date may still carry the old value.
+    </div>
+  </div>
+
+  <!-- ══ A ═══════════════════════════════════════════════════════════ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-letter">A</span>
+      <h2 class="sec">Getting in</h2>
+      <span class="sec-count" data-count></span>
+    </div>
+    <p class="sec-note">The case hands its name to the form. If the wrong case arrives, nothing
+      after this section means anything.</p>
+    <div class="checks">
+
+      <label class="check"><input type="checkbox"><span class="id">A1</span><div class="body">
+        <p class="do">Open a case, go to the <span class="val">Interviews</span> tab and start a new interview.</p>
+        <p class="expect">The page header reads <span class="val">ACME Products Litigation</span> then a divider then <span class="val">Schedule Interview</span>, with a back chevron to the left of both.</p>
+        <p class="why">The case name is passed in the address. Landing on a default, or on a blank title, means the handoff dropped it.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">A2</span><div class="body">
+        <p class="do">Read down the form without touching anything.</p>
+        <p class="expect">Nine fields in this order: <span class="val">Interview Date</span>, <span class="val">Duration</span>, <span class="val">Time</span>, <span class="val">Interview Type</span>, <span class="val">Share video call link</span>, <span class="val">Interview With</span>, <span class="val">Internal Attendees</span>, <span class="val">External Attendees</span>, <span class="val">Subject</span>, <span class="val">Message</span>. Every one carries a red <span class="val">*</span> except <span class="val">Duration</span> and <span class="val">External Attendees</span>.</p>
+        <p class="why">The asterisks decide which fields gate the CTA in section I. A field marked required that does not gate, or the reverse, is the bug this catches.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">A3</span><div class="body">
+        <p class="do">Click the back chevron beside the case name.</p>
+        <p class="expect">You leave the form. Nothing is saved.</p>
+        <p class="why">Back and Cancel are different doors. Cancel is confirmed (check I4); back is not annotated as confirmed, so if it raises a dialog, that is a difference worth recording.</p>
+      </div></label>
+
+    </div>
+  </section>
+
+  <!-- ══ B ═══════════════════════════════════════════════════════════ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-letter">B</span>
+      <h2 class="sec">Interview Date</h2>
+      <span class="sec-count" data-count></span>
+    </div>
+    <p class="sec-note">The picker is permanently on screen — it is not a dropdown. Everything in
+      section C recalculates from whatever date is selected here.</p>
+    <div class="checks">
+
+      <label class="check"><input type="checkbox"><span class="id">B1</span><div class="body">
+        <p class="do">Look at the Interview Date field and the calendar beneath it.</p>
+        <p class="expect">The calendar is already open and stays open. The field holds today's date, and today is the highlighted day in the grid. Below the grid sit <span class="val">Today</span> and <span class="val">Clear</span>.</p>
+        <p class="why">It is drawn as an always-on picker, not a field that opens one. A calendar that only appears on focus is a different control.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">B2</span><div class="body">
+        <span class="tag tag-settled">settled 09-15-2026</span>
+        <p class="do">Read the date format in the Interview Date field.</p>
+        <p class="expect"><span class="val">mm-dd-yyyy</span> — for 20 September 2025, <span class="val">09-20-2025</span>. Never ISO, and never <span class="val">2025-09-20</span>.</p>
+        <p class="why">CaseFusion never shows ISO dates in the UI. One design screen carried <span class="val">2025-09-20</span> until 09-15-2026, so a build started before then may have copied it.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">B3</span><div class="body">
+        <p class="do">Try to click a date in the past.</p>
+        <p class="expect">Past dates are disabled and do not respond. The field does not change.</p>
+        <p class="why">An interview cannot be scheduled backwards. A past date that selects silently corrupts the availability scan in section C.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">B4</span><div class="body">
+        <p class="do">Click a future date — say three days out.</p>
+        <p class="expect">The Interview Date field takes that date, and the <span class="val">Soonest availability for all attendees</span> list refreshes for the new day. Nothing else on the form changes — attendees, type, subject and message all stay as they were.</p>
+        <p class="why">Changing the date must not reset the form. Losing a typed message when the date changes is the failure this catches.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">B5</span><div class="body">
+        <p class="do">Step the calendar forward a month, then back, then use the month and year controls in the header.</p>
+        <p class="expect">Year, month and day selection all work. Moving months does not change the selected date on its own.</p>
+        <p class="why">The picker is specified as supporting all three levels. Browsing is not selecting.</p>
+      </div></label>
+
+    </div>
+  </section>
+
+  <!-- ══ C ═══════════════════════════════════════════════════════════ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-letter">C</span>
+      <h2 class="sec">Duration and soonest availability</h2>
+      <span class="sec-count" data-count></span>
+    </div>
+    <p class="sec-note">Two radios drive an Outlook scan. The result is three slots every attendee
+      has free in common — the "Top 3".</p>
+    <div class="checks">
+
+      <label class="check"><input type="checkbox"><span class="id">C1</span><div class="body">
+        <p class="do">Read the Duration radios on arrival.</p>
+        <p class="expect"><span class="val">30 min</span> and <span class="val">60 min</span>, with <span class="val">30 min</span> already selected.</p>
+        <p class="why">30 is the documented default. Arriving with neither selected leaves the Top 3 list with nothing to compute from.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">C2</span><div class="body">
+        <p class="do">Read the list under <span class="val">Soonest availability for all attendees</span>.</p>
+        <p class="expect">Exactly three slots, each 30 minutes long, each a clickable item. With the demo attendees they read <span class="val">10:00 AM - 10:30 AM</span>, <span class="val">10:30 AM - 11:00 AM</span>, <span class="val">11:00 AM - 11:30 AM</span>.</p>
+        <p class="why">Three is the spec, not "up to three". A fourth slot, or a slot of the wrong length, means the scan is not filtering on the duration radio.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">C3</span><div class="body">
+        <p class="do">Hover each of the three slots, then tab to them.</p>
+        <p class="expect">Each shows a hover state and a visible keyboard focus ring.</p>
+        <p class="why">They are list items doing a button's job, so they need a button's states. Flat text that happens to be clickable reads as decoration.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">C4</span><div class="body">
+        <p class="do">Click the second slot.</p>
+        <p class="expect">The Time field takes <span class="val">10:30 AM - 11:00 AM</span> and that list item shows as selected.</p>
+        <p class="why">The list writes into the field — it is not a separate value. A selected slot with an empty Time field will fail validation in section I for no visible reason.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">C5</span><div class="body">
+        <span class="tag tag-settled">settled 09-15-2026</span>
+        <p class="do">Read the label on the field that just took the time.</p>
+        <p class="expect"><span class="val">Time</span>, on every screen. Not <span class="val">Available Times</span> — that is the heading style of the list above it, not this field.</p>
+        <p class="why">One screen carried <span class="val">Available Times</span> until 09-15-2026. Two names for one field splits the vocabulary, and would split the Angular property name with it.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">C6</span><div class="body">
+        <p class="do">Click the <span class="val">60 min</span> radio.</p>
+        <p class="expect">The scan reruns and the Top 3 list is replaced with three 60-minute slots. Switching back to <span class="val">30 min</span> restores 30-minute slots.</p>
+        <p class="why">The radios are freely reversible by design. A one-way switch, or a stale list that keeps 30-minute slots under a 60-minute radio, is the failure here.</p>
+      </div></label>
+
+    </div>
+  </section>
+
+  <!-- ══ D ═══════════════════════════════════════════════════════════ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-letter">D</span>
+      <h2 class="sec">The availability planner</h2>
+      <span class="sec-count" data-count></span>
+    </div>
+    <p class="sec-note">A panel that slides in beside the attendee list showing every attendee's
+      calendar as coloured blocks. The heaviest part of the screen and the most specified.</p>
+    <div class="checks">
+
+      <label class="check"><input type="checkbox"><span class="id">D1</span><div class="body">
+        <p class="do">Click <span class="val">Show More Available Times</span>.</p>
+        <p class="expect">The planner slides in from the right over roughly <span class="val">350ms</span>, and the attendee cards and search field shrink to make room rather than being pushed off or overlapped.</p>
+        <p class="why">350ms is the house panel timing. A panel that appears instantly, or one that covers the attendee cards instead of resizing them, is a different interaction.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">D2</span><div class="body">
+        <p class="do">Read the date columns across the top of the planner.</p>
+        <p class="expect">Today leads, written out in full — <span class="val">Wednesday, September 20, 2025</span> — with the next day beside it. Only today is green; every other date uses the default text colour.</p>
+        <p class="why">One green date is the "you are here" marker. Two green dates, or none, removes the only cue that fixes the panel in time.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">D3</span><div class="body">
+        <p class="do">Go back to section B, select a date next week, then reopen the planner.</p>
+        <p class="expect">The selected date now leads the panel. Today is no longer first, and is no longer the leftmost column.</p>
+        <p class="why">The panel follows the Interview Date field. A planner permanently pinned to today is useless for scheduling ahead.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">D4</span><div class="body">
+        <p class="do">Read the time blocks against the legend.</p>
+        <p class="expect">Free is empty, busy is red, unavailable is grey, and available is outlined blue. Under <span class="val">30 min</span> a block is half a square; under <span class="val">60 min</span> it is a full square.</p>
+        <p class="why">Four states, four treatments. Busy and unavailable mean different things — a merged grey for both hides real conflicts.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">D5</span><div class="body">
+        <p class="do">Find the current time in today's column.</p>
+        <p class="expect">A small green marker sits in the matching time header and moves on its own as time passes. Blocks earlier than now are disabled.</p>
+        <p class="why">A marker that only paints on load will be wrong within the hour, and a past block that still accepts a click schedules an interview into the past.</p>
+        <span class="tag tag-dev">leave the page open to verify</span>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">D6</span><div class="body">
+        <p class="do">Scroll the planner backwards, before today.</p>
+        <p class="expect">It stops. Older dates are disabled and the panel will not scroll past today.</p>
+        <p class="why">Nothing behind today can be scheduled, so scrolling there is dead travel and invites a click that cannot work.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">D7</span><div class="body">
+        <p class="do">Scroll the planner forwards, several weeks out.</p>
+        <p class="expect">It scrolls as far as you like on its own horizontal scrollbar, and the visible panel stays inside the page — the form does not grow sideways and the body never scrolls horizontally.</p>
+        <p class="why">The panel is a window onto a long timeline. If it widens the page instead, the action bar and the rest of the form go off-screen.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">D8</span><div class="body">
+        <p class="do">Click a blue outlined block in any attendee's row.</p>
+        <p class="expect">The same block highlights in <em>every</em> attendee's row, and that block's time is written into the Time field. Any slot selected in the Top 3 list is deselected.</p>
+        <p class="why">Selection is a time, not a person — a block that only lights up in the row you clicked implies you are booking one attendee. And two selections showing at once (a Top 3 item plus a block) means two candidate times with nothing saying which wins.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">D9</span><div class="body">
+        <p class="do">With the planner open, invite another employee (see section F).</p>
+        <p class="expect">The Top 3 list recalculates for the larger group, and a new row appears in the planner carrying that person's calendar.</p>
+        <p class="why">Adding an attendee narrows what everyone has free. A Top 3 that does not move after a fifth person joins is stale, and will propose a time someone cannot make.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">D10</span><div class="body">
+        <p class="do">Click <span class="val">Show Less Available Times</span>.</p>
+        <p class="expect">The planner slides out to the right over roughly <span class="val">350ms</span> and the attendee cards and search field grow back to full width.</p>
+        <p class="why">Out and back must be symmetrical. Cards that stay narrow after the panel closes leave a dead strip down the right of the section.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">D11</span><div class="body">
+        <span class="tag tag-settled">settled 09-15-2026</span>
+        <p class="do">Read the hour labels across the planner header, then inspect their source strings.</p>
+        <p class="expect">Ten columns, <span class="val">8am</span> through <span class="val">5pm</span> — numeral then lowercase <span class="val">am</span>/<span class="val">pm</span>, no space. They render uppercase; the underlying strings must still be consistent.</p>
+        <p class="why">The Figma source mixed <span class="val">8AM</span> and <span class="val">11Am</span> into eight lowercase siblings until 09-15-2026. The uppercase text style hid it, so a build that copied the strings inherits the mess the moment that style is overridden.</p>
+      </div></label>
+
+    </div>
+  </section>
+
+  <!-- ══ E ═══════════════════════════════════════════════════════════ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-letter">E</span>
+      <h2 class="sec">Interview type</h2>
+      <span class="sec-count" data-count></span>
+    </div>
+    <p class="sec-note">Three mutually exclusive buttons, each swapping the field beneath them for
+      a different one.</p>
+    <div class="checks">
+
+      <label class="check"><input type="checkbox"><span class="id">E1</span><div class="body">
+        <p class="do">Read the Interview Type control.</p>
+        <p class="expect">A button group of three — <span class="val">Video Call</span>, <span class="val">Phone</span>, <span class="val">In-office</span> — with exactly one selected.</p>
+        <p class="why">A button group, not checkboxes. Two selected at once, or none, means the interview has no location.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">E2</span><div class="body">
+        <p class="do">With <span class="val">Video Call</span> selected, read the field beneath.</p>
+        <p class="expect">Label <span class="val">Share video call link</span> with a red <span class="val">*</span>, and helper text <span class="val">e.g. https://meet.google.com/abc-defg-hij</span>.</p>
+        <p class="why">The helper is the only thing telling an operator what shape of value is wanted. Dropping it during the build is an easy and silent loss.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">E3</span><div class="body">
+        <p class="do">Paste a long Teams meeting URL — the full one with the <span class="val">%3a</span> escapes, not a short link.</p>
+        <p class="expect">The textarea grows to fit and shows the URL in full. It does not truncate, ellipsise or scroll to hide the end.</p>
+        <p class="why">Operators verify a meeting link by reading it. A clipped link cannot be checked, and a wrong one is only discovered when the interview fails to start.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">E4</span><div class="body">
+        <p class="do">Click <span class="val">Phone</span>.</p>
+        <p class="expect">The video field is replaced by <span class="val">Meeting Phone Number</span>, required, and <span class="val">Video Call</span> is no longer selected.</p>
+        <p class="why">Swapping the field is the whole point of the group. A form left holding both a link and a number sends two contradictory joining instructions.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">E5</span><div class="body">
+        <p class="do">Click <span class="val">In-office</span> and paste a long multi-line address.</p>
+        <p class="expect">The field becomes <span class="val">Office Address</span>, required, and grows to show the whole address.</p>
+        <p class="why">Same growth rule as the video link. An address clipped at the street line sends attendees to the wrong place.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">E6</span><div class="body">
+        <p class="do">Type a link under <span class="val">Video Call</span>, switch to <span class="val">Phone</span>, then switch back.</p>
+        <p class="expect">Record what happens to the link you typed. The design does not state whether the value is kept or discarded.</p>
+        <p class="why">This is an unspecified case, and both answers are defensible. Recording the build's behaviour is how it gets specified rather than discovered later by a user.</p>
+      </div></label>
+
+    </div>
+  </section>
+
+  <!-- ══ F ═══════════════════════════════════════════════════════════ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-letter">F</span>
+      <h2 class="sec">Inviting attendees</h2>
+      <span class="sec-count" data-count></span>
+    </div>
+    <p class="sec-note">Three separate invite fields — the interviewee, internal staff, and outside
+      email addresses — each with its own search and its own Invite button.</p>
+    <div class="checks">
+
+      <label class="check"><input type="checkbox"><span class="id">F1</span><div class="body">
+        <p class="do">Read the three attendee sections and their placeholders.</p>
+        <p class="expect"><span class="val">Interview With</span> · <span class="val">Search natural persons ...</span> · required. <span class="val">Internal Attendees</span> · <span class="val">Search employees ...</span> · required. <span class="val">External Attendees</span> · <span class="val">Enter the email of the external attendee ...</span> · not required. Each has its own <span class="val">Invite</span> button.</p>
+        <p class="why">They search different sources — custodians, staff, and a free-typed address. One shared picker across all three would return the wrong people.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">F2</span><div class="body">
+        <p class="do">Look at the first row of Internal Attendees before inviting anyone.</p>
+        <p class="expect"><span class="val">Scott Williams</span> — the signed-in user — labelled <span class="val">Organizer</span>, carrying the green required-attendance marker, and with <em>no</em> Remove button.</p>
+        <p class="why">The organizer cannot be removed from their own invitation. A Remove button on that row is a way to create a meeting nobody is running.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">F3</span><div class="body">
+        <p class="do">Type a partial name into <span class="val">Search employees ...</span>.</p>
+        <p class="expect">A list of matching employees opens directly beneath the field.</p>
+        <p class="why">The results are a dropdown under the field, not a modal or a separate panel — it has to stay next to what you typed.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">F4</span><div class="body">
+        <p class="do">Try to select two people from the results list.</p>
+        <p class="expect">Only one can be selected at a time. Picking a second replaces the first.</p>
+        <p class="why">Single-select is explicitly the current scope. Multi-select silently changes what Invite is expected to do.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">F5</span><div class="body">
+        <p class="do">Click an employee in the results list.</p>
+        <p class="expect">The list closes and the search field is replaced by that employee's name. They are not on the attendee list yet.</p>
+        <p class="why">Picking and inviting are two steps. If the click alone adds them, F6 has nothing to test and a mis-click adds the wrong person.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">F6</span><div class="body">
+        <p class="do">Click <span class="val">Invite</span>.</p>
+        <p class="expect">A new card appears in the attendee list carrying that employee's name, avatar and a <span class="val">Remove</span> button.</p>
+        <p class="why">This is the step that commits. Every invited row is removable; only the organizer's is not.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">F7</span><div class="body">
+        <p class="do">Hover the new card, then tab to it.</p>
+        <p class="expect">It shows a hover state and a keyboard focus ring — the whole card is interactive, not just the Remove button.</p>
+        <p class="why">The card body is itself a control; section G is what it does. A card with no hover state gives no hint that clicking it means anything.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">F8</span><div class="body">
+        <p class="do">Invite until there are five rows, with the planner open.</p>
+        <p class="expect">The attendee list grows in place and pushes the rest of the form down. The planner beside it keeps its own horizontal scrollbar.</p>
+        <p class="why">Five rows is the documented reference state. A fixed-height list that scrolls internally hides attendees behind a second scrollbar nobody looks for.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">F9</span><div class="body">
+        <p class="do">In <span class="val">Interview With</span>, type part of a custodian's name — <span class="val">Vic</span>.</p>
+        <p class="expect">A picker opens under the field listing <em>only</em> matching natural persons. On the demo data that is one row: <span class="val">Victoria Viceroy · Victory, VA (USA)</span>. Names that do not match must not appear.</p>
+        <p class="why">This field searches natural persons (custodians), not employees — a different source from Internal Attendees directly above it. A list that ignores the typed criteria is the giveaway that it is querying the wrong one.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">F10</span><div class="body">
+        <p class="do">Click the result, then click <span class="val">Invite</span>.</p>
+        <p class="expect">Picking replaces the search criteria with her name; Invite then adds one tile — asterisk, avatar, <span class="val">Victoria Viceroy</span>, <span class="val">Remove</span> — and the <span class="val">Invite</span> button for this field goes <strong>disabled</strong>.</p>
+        <p class="why">Interview With holds exactly one person. Once the interviewee is in there is no second invite to make, so the button has nothing left to do.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">F11</span><div class="body">
+        <p class="do">Compare the avatar on the picker row with the avatar on the tile it produced.</p>
+        <p class="expect">The same photo. Both come from that person's record.</p>
+        <p class="why">The tile is built from a component that ships a placeholder avatar. If the build reveals the tile without setting the image, you get the right name over a stranger's face — and it looks plausible enough to ship.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">F12</span><div class="body">
+        <p class="do">Click <span class="val">Remove</span> on the interviewee tile.</p>
+        <p class="expect">The tile goes and <span class="val">Invite</span> becomes enabled again, so a different interviewee can be chosen. The form is now invalid — Interview With is required.</p>
+        <p class="why">A disable that never lifts traps the operator with the wrong interviewee and no way back short of abandoning the form.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">F13</span><div class="body">
+        <p class="do">In <span class="val">External Attendees</span>, type one email address and click <span class="val">Invite</span>. Repeat with a second address.</p>
+        <p class="expect">Each click adds one row and clears the field ready for the next. The <span class="val">Invite</span> button stays enabled throughout — there is no cap.</p>
+        <p class="why">External attendees go in one at a time by address. This is the opposite rule to F10, on a control that looks identical, so it is the easy one to build wrong.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">F14</span><div class="body">
+        <p class="do">Read an external attendee's tile.</p>
+        <p class="expect">The <strong>email address</strong> sits where a name would — <span class="val">i.m.shyster@badlegal.com</span> — alongside the required-attendance marker and <span class="val">Remove</span>. There is no job title and no directory detail.</p>
+        <p class="why">There is no record behind an external attendee, only what was typed. A tile that shows a blank name with the address underneath means the build is expecting a person object that will never arrive.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">F15</span><div class="body">
+        <p class="do">Paste two addresses separated by a comma or semicolon and click <span class="val">Invite</span>. Then clear the field and complete the rest of the form.</p>
+        <p class="expect">Record what the multi-address paste does — the spec is one at a time, so it should not quietly create two rows. With the field empty the form still validates: External Attendees is the one optional attendee field.</p>
+        <p class="why">Operators paste lists out of habit. And an empty External Attendees must not block the CTA — it is the only attendee field without a red <span class="val">*</span>.</p>
+      </div></label>
+
+    </div>
+  </section>
+
+  <!-- ══ G ═══════════════════════════════════════════════════════════ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-letter">G</span>
+      <h2 class="sec">Required attendance and removal</h2>
+      <span class="sec-count" data-count></span>
+    </div>
+    <p class="sec-note">One card, two controls: the body toggles required attendance, the button
+      removes the person. They must not be reachable by the same click.</p>
+    <div class="checks">
+
+      <label class="check"><input type="checkbox"><span class="id">G1</span><div class="body">
+        <p class="do">Read the hint under the attendee list.</p>
+        <p class="expect"><span class="val">Click to toggle required attendance</span>, as static helper text — not a tooltip, not a button.</p>
+        <p class="why">Without it the card click is undiscoverable. If it only appears on hover, an operator who never hovers never learns the feature exists.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">G2</span><div class="body">
+        <p class="do">Click the body of an invited attendee's card — anywhere except Remove.</p>
+        <p class="expect">A green <span class="val">*</span> appears to the left of that person's avatar. Nobody is removed and no dialog opens.</p>
+        <p class="why">The two controls share a card. A body click that removes the person instead is the worst failure on this screen.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">G3</span><div class="body">
+        <p class="do">Click the same card body again.</p>
+        <p class="expect">The green <span class="val">*</span> disappears. The control toggles both ways.</p>
+        <p class="why">It is specified as a toggle, not a one-way mark. A latch leaves an operator unable to undo a mis-click without removing and re-inviting.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">G4</span><div class="body">
+        <p class="do">Click the organizer's card body.</p>
+        <p class="expect">It stays marked required. The organizer is required by default and that cannot be turned off.</p>
+        <p class="why">A meeting whose organizer is optional is not a meeting. This is the one row where the toggle does not apply.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">G5</span><div class="body">
+        <p class="do">Click <span class="val">Remove</span> on an invited attendee.</p>
+        <p class="expect">A dialog headed <span class="val">Please Confirm</span> reading <span class="val">Are you sure you want to remove this attendee? This action cannot be undone.</span> with <span class="val">Cancel</span> and <span class="val">Yes</span>.</p>
+        <p class="why">Removal is confirmed, not immediate. Check the wording verbatim — "this attendee" rather than the person's name is what the design specifies.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">G6</span><div class="body">
+        <p class="do">Click <span class="val">Cancel</span> in that dialog.</p>
+        <p class="expect">The dialog closes and the attendee is still in the list, still carrying whatever required marker they had.</p>
+        <p class="why">Cancel must be inert. An attendee who disappears anyway makes the dialog a lie.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">G7</span><div class="body">
+        <p class="do">Click <span class="val">Remove</span> again, then <span class="val">Yes</span>.</p>
+        <p class="expect">The card goes, and a success toast reads <span class="val">The attendee was removed successfully.</span> If the planner is open, that person's row leaves it too and the Top 3 list recalculates.</p>
+        <p class="why">Removing an attendee widens what the rest have free. A Top 3 that does not move is the same staleness as D9, in the other direction.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">G8</span><div class="body">
+        <p class="do">Force the error path on removal.</p>
+        <p class="expect">An error toast in place of the success one, carrying the server's message. The design shows both toasts side by side for reference — only one appears at runtime.</p>
+        <p class="why">Both are drawn on the same screen so the developer builds both. A build with only the success path fails silently when the call does.</p>
+        <span class="tag tag-dev">needs devtools or a stubbed failure</span>
+      </div></label>
+
+    </div>
+  </section>
+
+  <!-- ══ H ═══════════════════════════════════════════════════════════ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-letter">H</span>
+      <h2 class="sec">Subject and message</h2>
+      <span class="sec-count" data-count></span>
+    </div>
+    <p class="sec-note">The last two fields, and the only rich text on the screen.</p>
+    <div class="checks">
+
+      <label class="check"><input type="checkbox"><span class="id">H1</span><div class="body">
+        <p class="do">Read the Subject field.</p>
+        <p class="expect">Labelled <span class="val">Subject</span>, required, single line, full form width.</p>
+        <p class="why">It becomes the calendar invitation's title, so it is required and it is one line.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">H2</span><div class="body">
+        <p class="do">Read the Message editor's toolbar left to right.</p>
+        <p class="expect">Bold, italic, underline, strikethrough, inline code, quote, numbered list, bulleted list, a <span class="val">Heading</span> menu, link, text colour, highlight, four alignments, image and attachment.</p>
+        <p class="why">Every control is a build item. A toolbar quietly shipped with half of them is easy to miss when the field otherwise works.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">H3</span><div class="body">
+        <p class="do">Type several paragraphs into the Message body.</p>
+        <p class="expect">The editor scrolls internally at its drawn height. It does not grow the page to fit.</p>
+        <p class="why">Unlike the video-link and address fields, this one is a fixed box — otherwise a long message pushes the action bar out of reach.</p>
+      </div></label>
+
+    </div>
+  </section>
+
+  <!-- ══ I ═══════════════════════════════════════════════════════════ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-letter">I</span>
+      <h2 class="sec">Validation, cancel and success</h2>
+      <span class="sec-count" data-count></span>
+    </div>
+    <p class="sec-note">The primary button is the form's only completeness indicator, so it has to
+      be right.</p>
+    <div class="checks">
+
+      <label class="check"><input type="checkbox"><span class="id">I1</span><div class="body">
+        <p class="do">Arrive on an empty form and read the action bar.</p>
+        <p class="expect"><span class="val">Cancel</span> on the left and enabled. <span class="val">Schedule interview</span> on the right and disabled.</p>
+        <p class="why">The primary gates on validation; the secondary never does. A disabled Cancel traps an operator in a form they cannot complete.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">I2</span><div class="body">
+        <p class="do">Fill every required field except one, then check the button.</p>
+        <p class="expect">Still disabled. Complete the last field and it enables immediately, without needing a blur or a second click.</p>
+        <p class="why">Validation is client-side and live. A button that only enables after a round trip reads as broken.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">I3</span><div class="body">
+        <p class="do">Clear a required field that already had a value.</p>
+        <p class="expect">An exception message appears directly beneath that field, inside the field's own block, and nothing below it jumps position. The button returns to disabled.</p>
+        <p class="why">The design fixes the placement, not the wording. A message in a summary at the top, or one that shoves the rest of the form down, is the failure this catches.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">I4</span><div class="body">
+        <p class="do">Click <span class="val">Cancel</span>.</p>
+        <p class="expect">A dialog headed <span class="val">Please Confirm</span> reading <span class="val">Are you sure you want to cancel scheduling this interview? All unsaved information will be lost. This action cannot be undone.</span> with <span class="val">Cancel</span> and <span class="val">Yes</span>.</p>
+        <p class="why">Cancel never discards directly. Note that <em>Cancel</em> appears twice with two meanings — in the action bar it opens this dialog, in the dialog it dismisses it.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">I5</span><div class="body">
+        <p class="do">Click <span class="val">Cancel</span> inside the dialog.</p>
+        <p class="expect">The dialog closes and every entry is intact — date, time, type, attendees, subject and message all exactly as they were.</p>
+        <p class="why">This is the escape hatch from the escape hatch. Losing the form here loses everything the dialog just promised to protect.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">I6</span><div class="body">
+        <p class="do">Reopen the dialog and click <span class="val">Yes</span>.</p>
+        <p class="expect">The form is abandoned and you leave the screen. Nothing is saved.</p>
+        <p class="why">Confirmed means committed. A Yes that returns you to a still-populated form makes the dialog meaningless.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">I7</span><div class="body">
+        <p class="do">Complete the form properly and click <span class="val">Schedule interview</span>.</p>
+        <p class="expect">You land on Case Details with the <span class="val">Interviews</span> tab open and the new interview showing as a card.</p>
+        <p class="why">Success returns you to where the interview now lives, not to a blank form or a standalone confirmation page.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">I8</span><div class="body">
+        <p class="do">Look at the Interviews tab you just landed on.</p>
+        <p class="expect">Record what it actually renders. <strong>This tab has not been designed.</strong> The design marks the destination as a placeholder.</p>
+        <p class="why">The handoff has a known hole here. Passing this check silently would hide that the destination is unspecified rather than built.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">I9</span><div class="body">
+        <p class="do">Force the error path on save.</p>
+        <p class="expect">An error toast carrying the server's message. You stay on the form with every entry intact.</p>
+        <p class="why">A failed save that clears the form makes the operator retype everything. Toast plus intact form is the only acceptable outcome.</p>
+        <span class="tag tag-dev">needs devtools or a stubbed failure</span>
+      </div></label>
+
+    </div>
+  </section>
+
+  <!-- ══ J ═══════════════════════════════════════════════════════════ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-letter">J</span>
+      <h2 class="sec">The action bar</h2>
+      <span class="sec-count" data-count></span>
+    </div>
+    <p class="sec-note">The form is taller than the viewport at every realistic size, so the bar
+      has a specification of its own.</p>
+    <div class="checks">
+
+      <label class="check"><input type="checkbox"><span class="id">J1</span><div class="body">
+        <p class="do">Scroll the form from top to bottom.</p>
+        <p class="expect">The action bar stays fixed to the bottom of the viewport the whole way. It never scrolls away and is never unreachable.</p>
+        <p class="why">Both exits from the screen live in that bar. A bar that scrolls off strands an operator mid-form.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">J2</span><div class="body">
+        <p class="do">Scroll so that body text sits underneath the bar.</p>
+        <p class="expect">The content passes behind the bar and stays partly visible through it — the bar floats above the content rather than sitting on an opaque strip.</p>
+        <p class="why">It is drawn as a floating bar over live content. An opaque footer changes the depth of the whole screen.</p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">J3</span><div class="body">
+        <p class="do">Scroll to the very bottom of the form.</p>
+        <p class="expect">The last field clears the bar completely — nothing is permanently trapped beneath it.</p>
+        <p class="why">A floating bar needs bottom padding equal to its height. Without it the Message field's last line is unreachable forever.</p>
+      </div></label>
+
+    </div>
+  </section>
+
+  <footer>
+    <span>Schedule Interview · test pass</span>
+    <span>Spec: Figma <span class="mono">1569:136825</span> · 35 annotations</span>
+  </footer>
+
+</main>
+
+<script>
+  (function () {
+    "use strict";
+    var KEY = "cf-schedule-interview-test-pass-v1";
+    var boxes = Array.prototype.slice.call(document.querySelectorAll(".check input[type=checkbox]"));
+    var doneEl = document.getElementById("done");
+    var totalEl = document.getElementById("total");
+    var meter = document.getElementById("meter");
+
+    boxes.forEach(function (b, i) { b.dataset.idx = i; });
+    totalEl.textContent = boxes.length;
+
+    function load() {
+      try {
+        var raw = window.localStorage.getItem(KEY);
+        if (!raw) return;
+        JSON.parse(raw).forEach(function (i) { if (boxes[i]) boxes[i].checked = true; });
+      } catch (e) { /* private window, cleared storage — start unticked */ }
+    }
+
+    function save() {
+      try {
+        var on = boxes.reduce(function (acc, b, i) { if (b.checked) acc.push(i); return acc; }, []);
+        window.localStorage.setItem(KEY, JSON.stringify(on));
+      } catch (e) { /* nothing to do — the pass still works, it just won't resume */ }
+    }
+
+    function paint() {
+      var n = boxes.filter(function (b) { return b.checked; }).length;
+      doneEl.textContent = n;
+      meter.style.width = boxes.length ? (n / boxes.length * 100) + "%" : "0";
+      document.querySelectorAll("section").forEach(function (sec) {
+        var out = sec.querySelector("[data-count]");
+        if (!out) return;
+        var local = sec.querySelectorAll(".check input[type=checkbox]");
+        var hit = sec.querySelectorAll(".check input[type=checkbox]:checked");
+        out.textContent = hit.length + " / " + local.length;
+      });
+    }
+
+    boxes.forEach(function (b) {
+      b.addEventListener("change", function () { save(); paint(); });
+    });
+
+    document.getElementById("reset").addEventListener("click", function () {
+      boxes.forEach(function (b) { b.checked = false; });
+      save(); paint();
+    });
+
+    load();
+    paint();
+  }());
+</script>
