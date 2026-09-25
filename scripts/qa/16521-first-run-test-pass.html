@@ -1,0 +1,1103 @@
+<meta charset="utf-8">
+<title>First Run Test Pass</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;450;500;600&display=swap">
+
+<style>
+  /* ── Tokens ───────────────────────────────────────────────────────────
+     Matches the house test-pass shell used by the other QA scripts in
+     1.6/scripts/qa/. Light is the complete palette on bare :root; dark
+     redefines only the tokens, twice, so the OS default and an explicit
+     toggle both resolve. */
+  :root {
+    --paper:      #F3F6F3;
+    --card:       #FFFFFF;
+    --card-sunk:  #ECF0EC;
+    --ink:        #14181C;
+    --ink-soft:   #3B453F;
+    --muted:      #5C665F;
+    --rule:       #D8DFD9;
+    --rule-soft:  #E7ECE7;
+
+    --accent:     #1F5F5B;
+    --accent-ink: #133D3A;
+    --pass:       #2E892A;
+    --fail:       #B3261E;
+    --hold:       #8A6100;
+    --pass-wash:  #E8F3E7;
+    --fail-wash:  #FBEAE9;
+    --hold-wash:  #FAF1DF;
+
+    --shadow:     0 1px 2px rgba(20, 24, 28, .06), 0 8px 24px rgba(20, 24, 28, .05);
+
+    --step: 1.5rem;
+    --measure: 68ch;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:      #0E1114;
+      --card:       #171B1F;
+      --card-sunk:  #12161A;
+      --ink:        #E6EBE7;
+      --ink-soft:   #BAC4BD;
+      --muted:      #8A948D;
+      --rule:       #2A3138;
+      --rule-soft:  #21272C;
+
+      --accent:     #6FBFB8;
+      --accent-ink: #A8DAD5;
+      --pass:       #7EC97A;
+      --fail:       #F09891;
+      --hold:       #E0B65C;
+      --pass-wash:  #17251A;
+      --fail-wash:  #2A1817;
+      --hold-wash:  #261F12;
+
+      --shadow:     0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper:      #0E1114;
+    --card:       #171B1F;
+    --card-sunk:  #12161A;
+    --ink:        #E6EBE7;
+    --ink-soft:   #BAC4BD;
+    --muted:      #8A948D;
+    --rule:       #2A3138;
+    --rule-soft:  #21272C;
+
+    --accent:     #6FBFB8;
+    --accent-ink: #A8DAD5;
+    --pass:       #7EC97A;
+    --fail:       #F09891;
+    --hold:       #E0B65C;
+    --pass-wash:  #17251A;
+    --fail-wash:  #2A1817;
+    --hold-wash:  #261F12;
+
+    --shadow:     0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  code, .mono, .id, kbd {
+    font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-variant-ligatures: none;
+  }
+
+  a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
+
+  /* ── Running header ─────────────────────────────────────────────────── */
+  .bar {
+    position: sticky; top: 0; z-index: 10;
+    background: color-mix(in srgb, var(--paper) 88%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--rule);
+  }
+  .bar-in {
+    max-width: 60rem; margin: 0 auto; padding: .7rem 1.5rem;
+    display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+  }
+  .bar-title {
+    font-family: Newsreader, Georgia, serif;
+    font-size: 1.05rem; font-weight: 600; letter-spacing: -.01em;
+    margin-right: auto;
+  }
+  .bar-title span { color: var(--muted); font-weight: 400; }
+  .count {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: .8rem; font-variant-numeric: tabular-nums;
+    color: var(--ink-soft);
+  }
+  .count b { color: var(--ink); font-weight: 600; }
+  .meter {
+    flex: 1 1 12rem; min-width: 8rem; height: 4px;
+    background: var(--rule); border-radius: 2px; overflow: hidden;
+  }
+  .meter i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .25s ease; }
+
+  .btn {
+    font: inherit; font-size: .8rem;
+    padding: .28rem .7rem; border-radius: 5px;
+    border: 1px solid var(--rule); background: var(--card); color: var(--ink-soft);
+    cursor: pointer;
+  }
+  .btn:hover { border-color: var(--muted); color: var(--ink); }
+
+  /* ── Page frame ─────────────────────────────────────────────────────── */
+  main { max-width: 60rem; margin: 0 auto; padding-block: 2.5rem 4rem; padding-inline: 1.5rem; }
+
+  .lede { max-width: var(--measure); }
+  .lede .story {
+    font-family: "IBM Plex Mono", monospace; font-size: .74rem;
+    letter-spacing: .09em; text-transform: uppercase; color: var(--muted);
+    margin: 0 0 .5rem;
+  }
+  .lede h1 {
+    font-family: Newsreader, Georgia, serif;
+    font-size: clamp(1.9rem, 4vw, 2.6rem); font-weight: 600;
+    letter-spacing: -.02em; line-height: 1.15;
+    margin: 0 0 .9rem; text-wrap: balance;
+  }
+  .lede p { margin: 0 0 .7rem; color: var(--ink-soft); }
+
+  /* ── Setup block ────────────────────────────────────────────────────── */
+  .setup {
+    margin-top: 2rem; padding: 1.2rem 1.4rem;
+    background: var(--card); border: 1px solid var(--rule);
+    border-radius: 10px; box-shadow: var(--shadow);
+  }
+  .setup h2 {
+    font-family: "IBM Plex Mono", monospace; font-size: .74rem;
+    letter-spacing: .09em; text-transform: uppercase; color: var(--muted);
+    margin: 0 0 .8rem; font-weight: 500;
+  }
+  .setup dl { margin: 0; display: grid; grid-template-columns: max-content 1fr; gap: .45rem 1.2rem; }
+  .setup dt { color: var(--muted); font-size: .85rem; }
+  .setup dd { margin: 0; font-size: .9rem; }
+  .setup dd.mono { font-size: .82rem; word-break: break-all; }
+
+  .note {
+    margin-top: 1rem; padding: .8rem 1rem;
+    background: var(--hold-wash); border-left: 3px solid var(--hold);
+    border-radius: 0 5px 5px 0; font-size: .88rem; color: var(--ink-soft);
+  }
+  .note strong { color: var(--ink); }
+  .note + .note { margin-top: .6rem; }
+
+  /* ── Sections ───────────────────────────────────────────────────────── */
+  section { margin-top: 3.25rem; }
+  .sec-head { display: flex; align-items: baseline; gap: .8rem; margin-bottom: .3rem; flex-wrap: wrap; }
+  .sec-letter {
+    font-family: "IBM Plex Mono", monospace; font-size: .75rem; font-weight: 600;
+    letter-spacing: .06em; color: var(--card);
+    background: var(--accent); padding: .18rem .45rem; border-radius: 4px;
+  }
+  h2.sec {
+    font-family: Newsreader, Georgia, serif;
+    font-size: 1.45rem; font-weight: 600; letter-spacing: -.015em;
+    margin: 0; text-wrap: balance;
+  }
+  .sec-count { font-family: "IBM Plex Mono", monospace; font-size: .78rem; color: var(--muted); margin-left: auto; font-variant-numeric: tabular-nums; }
+  .sec-note { color: var(--muted); font-size: .9rem; margin: 0 0 1.1rem; max-width: var(--measure); }
+
+  /* ── Checks ─────────────────────────────────────────────────────────── */
+  .checks { display: flex; flex-direction: column; gap: .5rem; }
+
+  .check {
+    display: grid;
+    grid-template-columns: auto 4.6rem 1fr;
+    gap: 0 .85rem;
+    padding: .9rem 1.1rem;
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    transition: border-color .15s, background .15s;
+  }
+  .check:has(input:checked) { background: var(--card-sunk); border-color: var(--rule-soft); }
+  .check:has(input:checked) .body { opacity: .55; }
+
+  .check input[type=checkbox] {
+    appearance: none; width: 1.05rem; height: 1.05rem; margin: .28rem 0 0;
+    border: 1.5px solid var(--muted); border-radius: 4px;
+    background: transparent; cursor: pointer; display: grid; place-content: center;
+  }
+  .check input[type=checkbox]::after {
+    content: ""; width: .55rem; height: .3rem; margin-top: -.12rem;
+    border-left: 2px solid var(--card); border-bottom: 2px solid var(--card);
+    transform: rotate(-45deg) scale(0); transition: transform .12s ease;
+  }
+  .check input[type=checkbox]:checked { background: var(--pass); border-color: var(--pass); }
+  .check input[type=checkbox]:checked::after { transform: rotate(-45deg) scale(1); }
+
+  .id {
+    font-size: .74rem; font-weight: 600; letter-spacing: .04em;
+    color: var(--accent-ink); background: var(--pass-wash);
+    padding: .2rem .3rem; border-radius: 4px; height: fit-content; margin-top: .2rem;
+    text-align: center;
+  }
+  :root[data-theme="dark"] .id,
+  :root:not([data-theme="light"]) .id { color: var(--accent); }
+  @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .id { color: var(--accent-ink); } }
+
+  .body > * { margin: 0; }
+  .body { display: flex; flex-direction: column; gap: .3rem; }
+  .do { font-weight: 500; }
+  .expect { color: var(--ink-soft); }
+  .expect::before {
+    content: "Expect";
+    font-family: "IBM Plex Mono", monospace; font-size: .68rem; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--pass);
+    margin-right: .5rem;
+  }
+  .why {
+    font-size: .86rem; color: var(--muted);
+    border-left: 2px solid var(--rule); padding-left: .7rem; margin-top: .15rem;
+  }
+  .why::before { content: "Why "; font-weight: 600; color: var(--ink-soft); }
+
+  .val {
+    font-family: "IBM Plex Mono", monospace; font-size: .84em;
+    background: var(--card-sunk); padding: .08rem .3rem; border-radius: 3px;
+    color: var(--ink);
+  }
+  .tag {
+    font-family: "IBM Plex Mono", monospace; font-size: .66rem;
+    letter-spacing: .07em; text-transform: uppercase;
+    padding: .12rem .4rem; border-radius: 3px; white-space: nowrap;
+    align-self: flex-start;
+  }
+  .tag-dev { background: var(--hold-wash); color: var(--hold); }
+  .tag-settled { background: var(--pass-wash); color: var(--accent-ink); }
+  :root[data-theme="dark"] .tag-settled,
+  :root:not([data-theme="light"]) .tag-settled { color: var(--accent); }
+  @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .tag-settled { color: var(--accent-ink); } }
+
+  footer {
+    margin-top: 4rem; padding-top: 1.5rem;
+    border-top: 1px solid var(--rule);
+    font-size: .85rem; color: var(--muted);
+    display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; animation: none !important; }
+  }
+
+  @media (max-width: 620px) {
+    .check { grid-template-columns: auto 1fr; }
+    .check .id { grid-column: 2; margin-bottom: .3rem; text-align: left; width: fit-content; }
+    .check .body { grid-column: 2; }
+    .setup dl { grid-template-columns: 1fr; gap: .1rem .6rem; }
+    .setup dt { margin-top: .5rem; }
+  }
+</style>
+
+<div class="bar">
+  <div class="bar-in">
+    <div class="bar-title">First Run <span>· Tenant Onboarding · ADO #16521</span></div>
+    <div class="meter" aria-hidden="true"><i id="meter"></i></div>
+    <div class="count"><b id="done">0</b> / <span id="total">0</span> checked</div>
+    <button class="btn" id="reset" type="button">Reset</button>
+  </div>
+</div>
+
+<main>
+
+  <div class="lede">
+    <p class="story">Test pass · written 09-25-2026 · ADO #16521</p>
+    <h1>First Run — tenant onboarding</h1>
+    <p>First Run is one journey across <strong>three sign-ins by the same person</strong>. Stage&nbsp;1
+      hands the tenant from the provisioning account to a named Tenant Administrator. Stage&nbsp;2
+      connects the integrations. Stage&nbsp;3 configures the tenant and lets the user into the
+      application. This pass walks all three in order, then the cross-cutting rules that apply on
+      every screen.</p>
+    <p>Every expected value below was read off the Figma board <em>First Run [Claude v2]</em> on
+      09-25-2026, not from memory. Counts, copy, hex values and toast wording are quoted exactly so a
+      wrong-but-plausible result gets caught rather than waved through.</p>
+    <p>Tick as you go. Ticks are saved in this browser, so you can stop and come back.</p>
+  </div>
+
+  <div class="setup">
+    <h2>Before you start</h2>
+    <dl>
+      <dt>Build URL</dt>
+      <dd class="mono"><strong>Not yet built — fill in at handoff.</strong> Use the published review
+        site address, never <span class="val">localhost</span>.</dd>
+      <dt>Spec</dt>
+      <dd class="mono"><a href="https://www.figma.com/design/ro4fm5dyMTrX3Uj1tuj2Oe/CaseFusion-v1.5---Miscellaneous?node-id=11877-75640">Figma · First Run [Claude v2]</a>
+        — 207 screens, 235 Dev&nbsp;Mode annotations. Screen letters below (<span class="val">2F16</span>,
+        <span class="val">3D5</span>) are the frame names on that board.</dd>
+      <dt>Three sign-ins</dt>
+      <dd>Stage&nbsp;1 as the <span class="val">Provisioned Administrator</span>; Stages&nbsp;2 and&nbsp;3 as the
+        <span class="val">Tenant Administrator</span> they invite. You will need both sets of credentials
+        and a mail box that receives the invitations.</dd>
+      <dt>Tenant state</dt>
+      <dd>A <strong>fresh tenant that has never completed First Run</strong>. Completing or skipping
+        sets a tenant-level flag and the journey never appears again, so a used tenant cannot be
+        retested without a reset.</dd>
+      <dt>Viewport</dt>
+      <dd>1440 wide or more. The Email Templates dialog is sized to the viewport and the Microsoft&nbsp;365
+        service rows need the width.</dd>
+      <dt>Theme</dt>
+      <dd>The board is drawn dark. Run the pass in dark, then repeat check <span class="val">J8</span> in light.</dd>
+    </dl>
+    <div class="note">
+      <strong>Several integrations are live third-party dependencies.</strong> Microsoft&nbsp;365 consent,
+      Expireon, Active Directory agent installation and Truto all reach systems outside CaseFusion. If
+      one is unavailable, record its section as <em>blocked</em> rather than failed — a rejection
+      path (<span class="val">2F16</span>) is a legitimate test, an unreachable service is not.
+    </div>
+    <div class="note">
+      <strong>Microsoft 365 admin approval cannot be faked.</strong> Check <span class="val">D10</span> needs a real Microsoft
+      administrator to approve a consent request. If none is available, stop after E6 and mark the
+      rest blocked.
+    </div>
+  </div>
+
+  <!-- ══ A ═══════════════════════════════════════════════════════════ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-letter">A</span>
+      <h2 class="sec">Stage 1 — handing over the tenant</h2>
+      <span class="sec-count" data-count></span>
+    </div>
+    <p class="sec-note">Stage 1 exists only to replace the shared provisioning credential with a named
+      person. One Required task and nothing else.</p>
+    <div class="checks">
+
+      <label class="check"><input type="checkbox"><span class="id">A1</span><div class="body">
+        <p class="do">Sign in as the Provisioned Administrator on a fresh tenant.</p>
+        <p class="expect">Three stage pills across the top reading <span class="val">Stage 1 · Tenant Administrator</span>, <span class="val">Stage 2 · Integrations &amp; IT Admin</span>, <span class="val">Stage 3 · Tenant Configuration</span>, with the first active. One card under a <span class="val">Required</span> heading. The action bar reads <span class="val">INVITE USER</span>, <span class="val">SKIP ONBOARDING</span>, <span class="val">CONTINUE</span>, with Continue disabled.</p>
+        <p class="why">Continue is gated by Required tasks only. If it is live before the task is done, the gating is wired to the wrong thing. <span class="mono">1A</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">A2</span><div class="body">
+        <p class="do">Click <span class="val">INVITE</span> on the card. Then click the card header row itself on a second attempt.</p>
+        <p class="expect">Both open the task as a drawer <em>beneath the card header</em> — not a modal. The stage list stays visible above and below.</p>
+        <p class="why">The drawer replaces the modal the original design used, so the user never loses their place in the stage. <span class="mono">1B</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">A3</span><div class="body">
+        <p class="do">With the form empty, look at the card's own buttons.</p>
+        <p class="expect"><span class="val">CANCEL</span> is live; <span class="val">SEND INVITATION</span> is disabled. The page action bar's <span class="val">CONTINUE</span> is still disabled.</p>
+        <p class="why">Two CTAs are on screen but only one is ever live — the card owns the work while it is open. <span class="mono">1B</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">A4</span><div class="body">
+        <p class="do">Fill every required field with valid values. Do not touch anything else.</p>
+        <p class="expect"><span class="val">SEND INVITATION</span> goes live the moment the last required field validates.</p>
+        <p class="why">Validity is the <em>only</em> gate. There is no dirty-tracking — a valid form that was pre-filled must still commit. <span class="mono">1B1</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">A5</span><div class="body">
+        <p class="do">Clear one required field and enter an invalid value in another.</p>
+        <p class="expect">Each field shows its own error naming what is wrong with <em>the value shown</em>. <span class="val">SEND INVITATION</span> is disabled. Errors clear per field as each is corrected, not all at once on submit.</p>
+        <p class="why">A generic "please check your entries" cannot be acted on. <span class="mono">1B2</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">A6</span><div class="body">
+        <p class="do">With the form dirty, click <span class="val">CANCEL</span>. Then repeat with a clean, untouched form.</p>
+        <p class="expect">Dirty raises a confirm dialog. Clean closes the drawer immediately with no dialog.</p>
+        <p class="why">A confirm on a clean form trains people to dismiss confirms without reading. <span class="mono">1B3</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">A7</span><div class="body">
+        <p class="do">Complete the task and send the invitation.</p>
+        <p class="expect">Toast reads exactly <span class="val">Invitation sent to the Tenant Administrator.</span> The card icon turns green, status reads Complete, the drawer collapses, and the card action becomes <span class="val">EDIT</span>.</p>
+        <p class="why">The toast confirms the user's own action. <span class="mono">1B4</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">A8</span><div class="body">
+        <p class="do">Click <span class="val">EDIT</span> on the completed card.</p>
+        <p class="expect">The drawer reopens with the saved values in place. Edit is never disabled.</p>
+        <p class="why">A completed task must stay correctable. <span class="mono">1B4</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">A9</span><div class="body">
+        <p class="do">With the Required task complete, click <span class="val">CONTINUE</span>.</p>
+        <p class="expect">A sign-out confirm appears. Confirming signs the Provisioned Administrator out.</p>
+        <p class="why">Stage 1 ends with a sign-out because Stage 2 is performed by a different account — the same human, a different identity. <span class="mono">1B5</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">A10</span><div class="body">
+        <p class="do">Sign back in as the Provisioned Administrator <em>before</em> completing the task, on a tenant where Stage 1 was started but not finished.</p>
+        <p class="expect">You land on the first incomplete task with its drawer already open.</p>
+        <p class="why">Resume puts the user back where they were rather than making them find their place. <span class="mono">1D</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">A11</span><div class="body">
+        <p class="do">Click <span class="val">SKIP ONBOARDING</span> in the action bar.</p>
+        <p class="expect">A confirm appears that <em>names the unfinished task</em>. Confirming goes straight into the application.</p>
+        <p class="why">Skipping is a tenant-level decision with consequences, so the confirm must say what is being given up. <span class="mono">1C</span></p>
+      </div></label>
+
+    </div>
+  </section>
+
+  <!-- ══ B ═══════════════════════════════════════════════════════════ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-letter">B</span>
+      <h2 class="sec">Stage 2 — administrators</h2>
+      <span class="sec-count" data-count></span>
+    </div>
+    <p class="sec-note">Signed in now as the Tenant Administrator invited in Stage 1. Stage 2 has three
+      categories — Required, Integrations, Optional — and only one Required task.</p>
+    <div class="checks">
+
+      <label class="check"><input type="checkbox"><span class="id">B1</span><div class="body">
+        <p class="do">Sign in as the Tenant Administrator and read the stage.</p>
+        <p class="expect">Three category headings in this order: <span class="val">Required</span>, <span class="val">Integrations</span>, <span class="val">Optional</span>. Create Tenant Admin is the only card under Required.</p>
+        <p class="why">The integrations were moved out of Required into their own category late in design — if they are still Required, the build predates that. <span class="mono">2A</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">B2</span><div class="body">
+        <p class="do">Complete Create Tenant Admin.</p>
+        <p class="expect">Toast reads exactly <span class="val">Invitation sent to the IT Administrator.</span></p>
+        <p class="why">Different toast from Stage 1's — the two invite different roles and must not share copy. <span class="mono">2B4</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">B3</span><div class="body">
+        <p class="do">Open the <span class="val">Disable Administrator</span> card under Recommended.</p>
+        <p class="expect">It is Recommended, <em>not</em> Required — it does not gate Continue.</p>
+        <p class="why">Retiring the shared provisioning credential is strongly advised but must not block a tenant that is not ready. <span class="mono">2C</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">B4</span><div class="body">
+        <p class="do">Click <span class="val">DISABLE</span> and read the confirm.</p>
+        <p class="expect">The confirm says the account is <em>disabled</em>, not deleted. Confirming shows the toast <span class="val">Provisioning account disabled.</span></p>
+        <p class="why">Deleting would break the audit trail. If the copy says deleted, either the copy or the behaviour is wrong — find out which. <span class="mono">2C1 · 2C2</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">B5</span><div class="body">
+        <p class="do">Click <span class="val">SKIP ONBOARDING</span> from Stage 2.</p>
+        <p class="expect">The confirm names <em>every</em> unfinished task in the stage, not just the Required one.</p>
+        <p class="why">The user is giving up the optional work too and should see the full cost. <span class="mono">2K</span></p>
+      </div></label>
+
+    </div>
+  </section>
+
+  <!-- ══ C ═══════════════════════════════════════════════════════════ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-letter">C</span>
+      <h2 class="sec">Active Directory and Expireon</h2>
+      <span class="sec-count" data-count></span>
+    </div>
+    <p class="sec-note">Both integrations happen entirely inside their own card — no dialogs. Active
+      Directory runs four numbered steps; Expireon separates testing from connecting.</p>
+    <div class="checks">
+
+      <label class="check"><input type="checkbox"><span class="id">C1</span><div class="body">
+        <p class="do">Open the Active Directory card without entering anything.</p>
+        <p class="expect">All four numbered steps are visible with their headings, even the ones not yet actionable. Later steps are not hidden.</p>
+        <p class="why">The numbering plus dimming shows progress; hiding steps would leave the user unable to see what is coming. <span class="mono">2D</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">C2</span><div class="body">
+        <p class="do">Click <span class="val">CREATE AGENT</span> and watch the button.</p>
+        <p class="expect">The button itself reports the work — it changes to a progress label and disables. No separate spinner chip appears beside it.</p>
+        <p class="why">In-flight work is reported by the control that started it. A separate chip duplicates what the button already says. <span class="mono">2D2</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">C3</span><div class="body">
+        <p class="do">Let the agent finish being created.</p>
+        <p class="expect">Toast <span class="val">Agent created.</span> The card does <em>not</em> go to Complete — the agent exists but is not yet installed.</p>
+        <p class="why">Marking the card complete here would tell the user they are finished when collection has not started. <span class="mono">2D3</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">C4</span><div class="body">
+        <p class="do">Complete installation and let the domain scan run. Navigate away mid-scan and come back.</p>
+        <p class="expect">The scan is still running. Final toast <span class="val">Active Directory connected successfully.</span></p>
+        <p class="why">The scan belongs to the agent, not the browser tab. <span class="mono">2D5 · 2D6</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">C5</span><div class="body">
+        <p class="do">Open the Expireon card and paste a long activation key.</p>
+        <p class="expect">The field is a textarea that <em>grows</em> to fit the key. It does not scroll internally.</p>
+        <p class="why">A key that scrolls inside a two-line box cannot be visually checked against the source. <span class="mono">2E</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">C6</span><div class="body">
+        <p class="do">Click <span class="val">TEST CONNECTION</span> with a valid key.</p>
+        <p class="expect">Toast <span class="val">Expireon connection test successful.</span> Nothing is connected yet — the card is not Complete and a separate <span class="val">CONNECT</span> action remains.</p>
+        <p class="why">Testing and connecting are deliberately separate so a bad key is caught before anything is provisioned. <span class="mono">2E3</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">C7</span><div class="body">
+        <p class="do">Click <span class="val">CONNECT</span> and watch the button while it works.</p>
+        <p class="expect">The CTA itself reads <span class="val">Connecting …</span> and is disabled. No status chip appears. On success: toast <span class="val">Expireon connected successfully.</span> and <em>still no chip</em> — the toast is the success indicator.</p>
+        <p class="why">This was changed deliberately during design; a build carrying a "Connected" chip beside the button predates it. <span class="mono">2E4 · 2E5</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">C8</span><div class="body">
+        <p class="do">Disconnect Expireon, then reopen the card.</p>
+        <p class="expect">Confirm first. Toast <span class="val">Integration disconnected successfully.</span> The activation key is <em>still in the field</em>.</p>
+        <p class="why">Reconnecting must not mean hunting for the key again. <span class="mono">2E6 · 2E7</span></p>
+      </div></label>
+
+    </div>
+  </section>
+
+  <!-- ══ D ═══════════════════════════════════════════════════════════ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-letter">D</span>
+      <h2 class="sec">Microsoft 365</h2>
+      <span class="sec-count" data-count></span>
+    </div>
+    <p class="sec-note">One card holding seven service rows. Contacts are captured once at the top and
+      gate every row. Each service is independent — connecting one must not touch the others.</p>
+    <div class="checks">
+
+      <label class="check"><input type="checkbox"><span class="id">D1</span><div class="body">
+        <p class="do">Open the Microsoft 365 card and read the service list top to bottom.</p>
+        <p class="expect">Seven rows in this exact order: <span class="val">Audit Logs</span>, <span class="val">EntraID</span>, <span class="val">Outlook</span>, <span class="val">Purview</span>, <span class="val">SharePoint</span>, <span class="val">SSO</span>, <span class="val">Teams</span>.</p>
+        <p class="why">Audit Logs is deliberately first; the remaining six are alphabetical. <span class="mono">2F</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">D2</span><div class="body">
+        <p class="do">Leave the four contact fields empty and try to act on any service row.</p>
+        <p class="expect">Every service row's buttons are disabled. The four fields are <span class="val">Primary Administrator Name</span>, <span class="val">Primary Administrator Email</span>, <span class="val">Technical Point of Contact Name</span>, <span class="val">Technical Point of Contact Email</span>.</p>
+        <p class="why">A consent request has to be addressed to someone, so contacts gate the rows. <span class="mono">2F</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">D3</span><div class="body">
+        <p class="do">Fill all four contact fields with valid values. Look for a save action for the contacts.</p>
+        <p class="expect">Every service row becomes actionable. There is <em>no</em> Save button for the contacts themselves.</p>
+        <p class="why">The contacts are not a record — they exist only to address the consent requests. A Save bar here is a leftover. <span class="mono">2F1</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">D4</span><div class="body">
+        <p class="do">Compare the buttons on the <span class="val">Purview</span> row with those on <span class="val">EntraID</span>.</p>
+        <p class="expect">EntraID offers both <span class="val">USE CASEFUSION</span> and <span class="val">USE CREDENTIALS</span>. Purview offers <strong>Credentials only</strong>.</p>
+        <p class="why">Purview has no CaseFusion consent path. If it shows both, the per-service path configuration is not wired. <span class="mono">2F35</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">D5</span><div class="body">
+        <p class="do">On EntraID, choose <span class="val">USE CREDENTIALS</span> and submit values Microsoft will reject.</p>
+        <p class="expect">Field-level errors quoting Microsoft, e.g. <span class="val">Microsoft did not recognize this tenant ID.</span>, <span class="val">Microsoft did not recognize this application ID.</span>, <span class="val">This secret was rejected. Check that it has not expired.</span> The entered values are <em>kept</em>.</p>
+        <p class="why">The rejection is third-party, so the copy attributes it rather than blaming the user — and clearing the fields would make correction impossible. <span class="mono">2F16</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">D6</span><div class="body">
+        <p class="do">Connect EntraID with valid credentials.</p>
+        <p class="expect">Toast <span class="val">Entra ID connected successfully.</span> The row reads <span class="val">Connected — Credentials</span>, naming which path is in force. The other six rows are unchanged.</p>
+        <p class="why">Two tenants can reach the same state by different routes; support needs to know which. <span class="mono">2F17</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">D7</span><div class="body">
+        <p class="do">On a different service, choose <span class="val">USE CASEFUSION</span>.</p>
+        <p class="expect">Toast <span class="val">Connection request sent successfully.</span> appears <em>here</em>, on the screen where you acted. The row goes to a pending state; it does <strong>not</strong> go to connected.</p>
+        <p class="why">Nothing connects until a Microsoft administrator approves. A toast on the later approval screen would be confirming an event the user did not trigger. <span class="mono">2F8 · 2F19</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">D8</span><div class="body">
+        <p class="do">With a request outstanding and nothing yet connected, look at the parent Microsoft 365 card's status icon.</p>
+        <p class="expect">A <strong>solid clock</strong> glyph in the Working colour.</p>
+        <p class="why">The card is neither untouched nor complete. If it still shows Not started, the parent is not reading its children. <span class="mono">2F20</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">D9</span><div class="body">
+        <p class="do">While a request is pending, look at the buttons on that row.</p>
+        <p class="expect">Both connect buttons are still offered.</p>
+        <p class="why">The tenant may give up waiting and switch to credentials. Locking them out of the other path strands them. <span class="mono">2F20</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">D10</span><div class="body">
+        <p class="do">Have a Microsoft administrator approve the request. <span class="tag tag-dev">needs a real M365 admin</span></p>
+        <p class="expect">The row reads <span class="val">Connected — CaseFusion</span>.</p>
+        <p class="why">The state names the path, exactly as the credentials route does. <span class="mono">2F21</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">D11</span><div class="body">
+        <p class="do">Disconnect one connected service and check the other six.</p>
+        <p class="expect">Confirm first, then e.g. <span class="val">Audit Logs disconnected successfully.</span> That row returns to Not Connected with both paths offered again. <strong>No other row changes.</strong></p>
+        <p class="why">Services are independent. A shared disconnect would silently break collection the tenant still expects. <span class="mono">2F11 · 2F12</span></p>
+      </div></label>
+
+    </div>
+  </section>
+
+  <!-- ══ E ═══════════════════════════════════════════════════════════ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-letter">E</span>
+      <h2 class="sec">Truto</h2>
+      <span class="sec-count" data-count></span>
+    </div>
+    <p class="sec-note">Truto is a broker — CaseFusion connects once to Truto and Truto reaches the HR
+      and messaging systems beyond it, Slack included. Connecting a system and scheduling its sync are
+      separate steps.</p>
+    <div class="checks">
+
+      <label class="check"><input type="checkbox"><span class="id">E1</span><div class="body">
+        <p class="do">Read the Truto card's introductory copy.</p>
+        <p class="expect">It does not claim Truto is only for HR systems.</p>
+        <p class="why">Slack is reachable through Truto too; the copy was corrected during design. <span class="mono">2G</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">E2</span><div class="body">
+        <p class="do">Start a connection and reach the integration picker.</p>
+        <p class="expect">Truto's own hosted picker appears. It will <em>not</em> match Nimbus styling.</p>
+        <p class="why">That surface is owned by Truto. Raise a mismatch against Truto, not against this build. <span class="mono">2G1</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">E3</span><div class="body">
+        <p class="do">Connect a system, then look at the row before setting any schedule.</p>
+        <p class="expect">Toast <span class="val">BambooHR connected successfully.</span> The row is connected but shows no schedule, and offers an action to set one.</p>
+        <p class="why">A connected system collects nothing until a schedule exists — the two must be visibly separate. <span class="mono">2G3</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">E4</span><div class="body">
+        <p class="do">Open the schedule dialog and compare its title to the button that opened it.</p>
+        <p class="expect">They agree.</p>
+        <p class="why">A button saying one thing and a dialog title saying another was a real defect in design. <span class="mono">2G4</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">E5</span><div class="body">
+        <p class="do">Work through all five schedule types: <span class="val">Minutes</span>, <span class="val">Hours</span>, <span class="val">Days of the Week</span>, <span class="val">Days of the Month</span>, <span class="val">Month</span>.</p>
+        <p class="expect">Choosing a type swaps the fields beneath it. Days of the Week is <strong>multi-select with checkboxes</strong>. Days of the Month and Month each need <em>two</em> values, and the second is required in its own right.</p>
+        <p class="why">A frequency without a day cannot be scheduled, so the commit must stay disabled until both are set. <span class="mono">2G6–2G22</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">E6</span><div class="body">
+        <p class="do">Save a schedule and read the system row.</p>
+        <p class="expect">Toast <span class="val">BambooHR sync schedule saved.</span> The row states the schedule in plain language, not cron syntax.</p>
+        <p class="why">The audience is an administrator, not an engineer. <span class="mono">2G23</span></p>
+      </div></label>
+
+    </div>
+  </section>
+
+  <!-- ══ F ═══════════════════════════════════════════════════════════ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-letter">F</span>
+      <h2 class="sec">Stage 3 — the two Required contacts</h2>
+      <span class="sec-count" data-count></span>
+    </div>
+    <p class="sec-note">Legal Team Contact and Support Contact are a fixed set of field values, not
+      lists, so they are inline forms in the card with their own Cancel and Save.</p>
+    <div class="checks">
+
+      <label class="check"><input type="checkbox"><span class="id">F1</span><div class="body">
+        <p class="do">Read the Stage 3 landing.</p>
+        <p class="expect">Two cards under <span class="val">Required</span>, six under <span class="val">Optional</span>. The intro paragraph states the optional steps can be done now or from the Admin menu after login.</p>
+        <p class="why">That promise is load-bearing — it is why the Optional six do not gate Continue. <span class="mono">3A</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">F2</span><div class="body">
+        <p class="do">Open Legal Team Contact.</p>
+        <p class="expect">An inline form <em>in the card</em> with <span class="val">CANCEL</span> and <span class="val">SAVE</span> — not a dialog.</p>
+        <p class="why">Dialogs are for records that get added to a list. This holds one fixed set of values. <span class="mono">3B</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">F3</span><div class="body">
+        <p class="do">Save a valid contact, then look at the form.</p>
+        <p class="expect">Toast <span class="val">Legal Team Contact saved.</span> and <strong>the fields remain populated</strong>.</p>
+        <p class="why"><span class="tag tag-dev">deliberate deviation</span> Staging clears these fields. Keeping them is a design decision so the user can see what was stored — it needs a dev change, and a build that clears them is matching staging, not the spec. <span class="mono">3B2</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">F4</span><div class="body">
+        <p class="do">Complete Support Contact as well.</p>
+        <p class="expect">Toast <span class="val">Support Contact saved.</span> With both Required cards complete, the action bar's <span class="val">CONTINUE</span> goes live.</p>
+        <p class="why">The Required pair is the whole gate. If Continue is still disabled, check it is not also counting the Optional six. <span class="mono">3C2 · 3J</span></p>
+      </div></label>
+
+    </div>
+  </section>
+
+  <!-- ══ G ═══════════════════════════════════════════════════════════ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-letter">G</span>
+      <h2 class="sec">Stage 3 — the list tasks</h2>
+      <span class="sec-count" data-count></span>
+    </div>
+    <p class="sec-note">Case Categories, Users, Properties and Tags share one pattern: a card list, a
+      dialog that stages entries as removable chips, then one commit. Run G1–G8 against
+      <strong>each</strong> of the four and record a result per task.</p>
+    <div class="checks">
+
+      <label class="check"><input type="checkbox"><span class="id">G1</span><div class="body">
+        <p class="do">Open each of the four cards before adding anything.</p>
+        <p class="expect">A category heading, a count badge reading <span class="val">0</span>, a centred empty state, and one tertiary add action at the foot on the <strong>left</strong>.</p>
+        <p class="why">The badge is derived from the rendered list. A badge showing a non-zero count beside an empty list was a real defect across 40 screens in design. <span class="mono">3D · 3E · 3F · 3G</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">G2</span><div class="body">
+        <p class="do">Click the add action and read the dialog footer.</p>
+        <p class="expect">Three buttons: <span class="val">CANCEL</span> (tertiary), <span class="val">ADD</span> (secondary), <span class="val">SAVE</span> (primary). Add and Save are disabled.</p>
+        <p class="why">Add stages, Save commits — they must never share a verb. <span class="mono">3D1</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">G3</span><div class="body">
+        <p class="do">Fill the dialog with one valid entry.</p>
+        <p class="expect"><span class="val">ADD</span> goes live. <span class="val">SAVE</span> stays disabled.</p>
+        <p class="why">Nothing is staged yet, so there is nothing to commit. <span class="mono">3D2</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">G4</span><div class="body">
+        <p class="do">Click <span class="val">ADD</span>.</p>
+        <p class="expect">The dialog <em>stays open</em>, the form clears, and the entry appears as a chip below under a heading with its own count badge reading <span class="val">1</span>. <span class="val">SAVE</span> is now live and <span class="val">ADD</span> is disabled again.</p>
+        <p class="why">The whole point of the pattern is adding several without reopening the dialog. <span class="mono">3D3</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">G5</span><div class="body">
+        <p class="do">Add several more until the chips wrap to a second row. Then remove one with its close icon.</p>
+        <p class="expect">Chips wrap, the dialog grows to fit, the count badge follows every add <em>and</em> every removal.</p>
+        <p class="why">Chips are removable before commit so a mistake costs nothing. <span class="mono">3D4</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">G6</span><div class="body">
+        <p class="do">Enter a name that duplicates one already <em>staged</em> (not yet saved).</p>
+        <p class="expect">Error <span class="val">This name is already in use.</span> Both <span class="val">ADD</span> and <span class="val">SAVE</span> are disabled while it stands.</p>
+        <p class="why">Uniqueness is checked against the staged set as well as the saved one. A build that only checks the database will let a duplicate through in a single sitting. <span class="mono">3D5</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">G7</span><div class="body">
+        <p class="do">With entries staged, click <span class="val">CANCEL</span>.</p>
+        <p class="expect">A discard confirm appears <em>stacked over the dialog</em>, with the staged chips still visible behind it.</p>
+        <p class="why">The user should see what they are about to lose. A confirm that replaces the dialog hides the evidence. <span class="mono">3D6</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">G8</span><div class="body">
+        <p class="do">Save the staged set and check the card, then remove one row.</p>
+        <p class="expect">Counts and toasts per task — Case Categories <span class="val">6 case categories added.</span> then <span class="val">Category removed.</span>; Users <span class="val">6 users added.</span> then <span class="val">k.sato removed.</span>; Properties <span class="val">9 properties added.</span> then <span class="val">Alumni removed.</span>; Tags <span class="val">6 tags added.</span> then <span class="val">Key Custodian removed.</span> Removal confirms first and the badge drops by one.</p>
+        <p class="why">The removal toast names the record, so a mis-click is obvious immediately. <span class="mono">3D7–3G10</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">G9</span><div class="body">
+        <p class="do">Look at the action buttons on the saved rows of all four lists.</p>
+        <p class="expect"><span class="val">REMOVE</span> only. No Edit.</p>
+        <p class="why">A one-line entry is faster to retype than to edit. Only Email Templates carries Edit. <span class="mono">3D7 · 3E7 · 3F12 · 3G8</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">G10</span><div class="body">
+        <p class="do">In Users, read a saved row.</p>
+        <p class="expect">The row leads with the <strong>username</strong> (e.g. <span class="val">d.okafor</span>), with name, email and <span class="val">Role: Case Administrator</span> beside it — not stacked underneath.</p>
+        <p class="why">The list is keyed on username, not email, and the row width is there to be used. <span class="mono">3E7</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">G11</span><div class="body">
+        <p class="do">In Properties, read the <span class="val">Contractor</span> row.</p>
+        <p class="expect">Two separate lines in aligned columns: <span class="val">HRIS · employment.type · CONTRACT</span> and <span class="val">HRIS · worker.class · AGENCY</span>.</p>
+        <p class="why">Two sources naming the same system must stay distinguishable. A comma-joined "HRIS, HRIS" reads as a bug. <span class="mono">3F12</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">G12</span><div class="body">
+        <p class="do">In Properties and Tags, click the <span class="val">Color</span> field itself.</p>
+        <p class="expect">The colour picker opens from the field. Before a colour is chosen the swatch beside it is the <em>same colour as the dialog background</em> — not a grey placeholder. Once chosen, the swatch is exactly the hex in the field.</p>
+        <p class="why">A grey swatch reads as a chosen colour. And a swatch that disagrees with its field means the two are being set independently. <span class="mono">3F2 · 3F3</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">G13</span><div class="body">
+        <p class="do">In Properties, click <span class="val">ADD SOURCE</span> inside the dialog.</p>
+        <p class="expect">A second dialog stacks over the property dialog. It captures Source, Payload Path and Payload Value. The added source becomes a removable chip carrying all three.</p>
+        <p class="why">The path is what distinguishes two sources from the same system, so it has to be visible on the chip. <span class="mono">3F4–3F7</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">G14</span><div class="body">
+        <p class="do">In Tags, read the staged chips and the saved rows.</p>
+        <p class="expect">Chips carry the name, a colour dot and the hex — e.g. <span class="val">Key Custodian · #3ffd4e</span>. Saved rows show a swatch and the hex beneath it.</p>
+        <p class="why">The dot shows the colour, the hex gives the exact value. <span class="mono">3G5 · 3G8</span></p>
+      </div></label>
+
+    </div>
+  </section>
+
+  <!-- ══ H ═══════════════════════════════════════════════════════════ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-letter">H</span>
+      <h2 class="sec">Email Templates</h2>
+      <span class="sec-count" data-count></span>
+    </div>
+    <p class="sec-note">The one list task that breaks the shared pattern. A template holds a written
+      message, so there is <strong>one template per dialog</strong> — no chips, no bulk save — and rows
+      keep an Edit action.</p>
+    <div class="checks">
+
+      <label class="check"><input type="checkbox"><span class="id">H1</span><div class="body">
+        <p class="do">Click <span class="val">ADD TEMPLATE</span> and measure the dialog against the window.</p>
+        <p class="expect">It fills the viewport height with a <strong>24px gap top and bottom</strong>. All the extra height goes to the editor; the Name, Description and Subject fields keep their normal height.</p>
+        <p class="why">The job is writing, so the writing area gets the space. <span class="mono">3H1</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">H2</span><div class="body">
+        <p class="do">Type a long message, then close and reopen the dialog empty.</p>
+        <p class="expect">The dialog is the <em>same height</em> both times. It does not grow or shrink with content.</p>
+        <p class="why">A dialog that resizes as you type moves the buttons under your cursor. <span class="mono">3H1 · 3H2</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">H3</span><div class="body">
+        <p class="do">Read the dialog footer.</p>
+        <p class="expect"><span class="val">IMPORT MESSAGE TEXT</span> pinned to the <strong>left</strong> edge, <span class="val">CANCEL</span> then <span class="val">SAVE</span> grouped at the right. There is no <span class="val">ADD</span>.</p>
+        <p class="why">Import acts on the whole template, not a field, so position separates it from the commits. No Add because nothing is staged. <span class="mono">3H2</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">H4</span><div class="body">
+        <p class="do">Fill Name and Description but leave Subject empty.</p>
+        <p class="expect"><span class="val">SAVE</span> is disabled with an error on Subject.</p>
+        <p class="why">All three fields are required; the message alone is not a template. <span class="mono">3H3</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">H5</span><div class="body">
+        <p class="do">Save a complete template.</p>
+        <p class="expect">Toast <span class="val">Template saved.</span> The template goes <em>straight into the card list</em> — there is no staging step. The row reads <span class="val">Legal Hold Notice</span> with <span class="val">Sent when a custodian is placed on hold</span> beneath it, and carries <strong>both</strong> <span class="val">EDIT</span> and <span class="val">REMOVE</span>.</p>
+        <p class="why">Edit exists here and nowhere else because a written message is edited, not retyped. <span class="mono">3H5</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">H6</span><div class="body">
+        <p class="do">Click <span class="val">EDIT</span> on the saved row.</p>
+        <p class="expect">The same dialog reopens with every field and the full message body loaded, retitled <span class="val">Edit Template</span>. Saving gives <span class="val">Template updated.</span> — not "Template saved." — and does not create a second row.</p>
+        <p class="why">Different toast for a different outcome; the same toast would hide a duplicate-row bug. <span class="mono">3H6 · 3H7</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">H7</span><div class="body">
+        <p class="do">Type merge fields such as <span class="val">%custodianname%</span> into the message.</p>
+        <p class="expect">They are stored literally in the template. Substitution happens when the mail is sent, not in this editor.</p>
+        <p class="why">An editor that resolves them would make the template untestable. <span class="mono">3H2</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">H8</span><div class="body">
+        <p class="do">Look at the editor toolbar.</p>
+        <p class="expect">Whatever button set the build ships. <strong>Do not raise a defect for a missing, extra or reordered toolbar button.</strong></p>
+        <p class="why"><span class="tag tag-settled">design display only</span> The toolbar in the Figma board is the Nimbus default set, drawn so the editor reads as an editor. It is <em>not</em> a specification — the button set is whatever the developers and product owners decide. Nothing in this design depends on any particular button. <span class="mono">3H2</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">H9</span><div class="body">
+        <p class="do">Remove the template.</p>
+        <p class="expect">Confirm naming it, then toast <span class="val">Legal Hold Notice removed.</span> The list returns to its empty state and the badge reads <span class="val">0</span>.</p>
+        <p class="why">Removing the last row must restore the empty state, not leave an empty bordered list. <span class="mono">3H8 · 3H9</span></p>
+      </div></label>
+
+    </div>
+  </section>
+
+  <!-- ══ I ═══════════════════════════════════════════════════════════ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-letter">I</span>
+      <h2 class="sec">Escalation Settings, and finishing</h2>
+      <span class="sec-count" data-count></span>
+    </div>
+    <p class="sec-note">Four interval values, then the end of the journey.</p>
+    <div class="checks">
+
+      <label class="check"><input type="checkbox"><span class="id">I1</span><div class="body">
+        <p class="do">Open Escalation Settings.</p>
+        <p class="expect">An inline card form — not a dialog — with four full-width fields, each followed by the unit <span class="val">Days</span>: <span class="val">Time To Respond</span>, <span class="val">Time to Respond to Survey</span>, <span class="val">Time to Resolve Once Escalated</span>, <span class="val">Reminder Interval</span>.</p>
+        <p class="why">It holds a fixed set of values, not records, so it follows the contacts pattern. <span class="mono">3I</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">I2</span><div class="body">
+        <p class="do">Enter <span class="val">7</span>, <span class="val">7</span>, <span class="val">2</span>, <span class="val">90</span> and save.</p>
+        <p class="expect">Toast <span class="val">Escalation settings saved.</span> and the values remain in the fields.</p>
+        <p class="why">Same retention rule as the contacts. <span class="mono">3I2</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">I3</span><div class="body">
+        <p class="do">Set Reminder Interval to <span class="val">0</span>.</p>
+        <p class="expect">An error saying it must be at least 1 day, and <span class="val">SAVE</span> disabled.</p>
+        <p class="why">The value shown has to justify the error — an error on a plausible value is the hardest kind of bug to spot. <span class="mono">3I3</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">I4</span><div class="body">
+        <p class="do">With both Required cards complete but the Optional six untouched, look at <span class="val">CONTINUE</span>.</p>
+        <p class="expect">Live.</p>
+        <p class="why">Only the Required pair gates it. If the Optional tasks also gate it, the intro copy promising they can be done later is a lie. <span class="mono">3J</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">I5</span><div class="body">
+        <p class="do">Click <span class="val">CONTINUE</span>.</p>
+        <p class="expect">Straight into the application. No completion screen, no interstitial, no confirmation.</p>
+        <p class="why">Finishing is the reward; an "all set" screen between the user and the app is friction. <span class="mono">3J</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">I6</span><div class="body">
+        <p class="do">Sign out and sign back in as the same Tenant Administrator.</p>
+        <p class="expect">Straight into the application. First Run does <strong>not</strong> appear again.</p>
+        <p class="why">Completion sets a tenant-level flag. Re-running onboarding on a configured tenant risks overwriting real settings. <span class="mono">3J</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">I7</span><div class="body">
+        <p class="do">On a second fresh tenant, use <span class="val">SKIP ONBOARDING</span> instead. Then sign out and back in.</p>
+        <p class="expect">Same result — straight into the application, First Run not offered again. The unfinished tasks are reachable from the Admin menu.</p>
+        <p class="why">Skipped and complete are the same terminal state. A skipped tenant that keeps being asked has not had the flag set. <span class="mono">2K · 3J</span></p>
+      </div></label>
+
+    </div>
+  </section>
+
+  <!-- ══ J ═══════════════════════════════════════════════════════════ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-letter">J</span>
+      <h2 class="sec">Rules that apply on every screen</h2>
+      <span class="sec-count" data-count></span>
+    </div>
+    <p class="sec-note">These hold across all 207 screens. Spot-check each on three or four screens
+      drawn from different stages rather than walking them all.</p>
+    <div class="checks">
+
+      <label class="check"><input type="checkbox"><span class="id">J1</span><div class="body">
+        <p class="do">On any screen, count the primary buttons <em>per container</em> — page action bar, card, dialog.</p>
+        <p class="expect">At most one primary in each container. Two primaries on screen at once is fine when one is in an open card and the page CTA is disabled.</p>
+        <p class="why">The single-CTA rule is per container, not per screen. A per-screen audit reports most screens as violations and all of them are false. <span class="mono">all</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">J2</span><div class="body">
+        <p class="do">Open any dialog with three footer buttons, then one with two.</p>
+        <p class="expect">Three buttons: <span class="val">CANCEL</span> is tertiary. Two buttons: <span class="val">CANCEL</span> is secondary.</p>
+        <p class="why">With three, the dismissal has to take the third rung or it ties with Add. With two there is nothing to tie with. <span class="mono">3D1 · 3D8</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">J3</span><div class="body">
+        <p class="do">Trigger any success toast and watch where it appears and how it leaves.</p>
+        <p class="expect">Fixed <strong>24px from the right edge and 24px above the action bar</strong>. It auto-dismisses and can also be dismissed by hand.</p>
+        <p class="why">A toast that covers the action bar blocks the next step. <span class="mono">all result screens</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">J4</span><div class="body">
+        <p class="do">Force a server error on any save. <span class="tag tag-dev">may need DevTools</span></p>
+        <p class="expect">A danger toast appears carrying the server's message. It does not replace the form or lose the entered values.</p>
+        <p class="why">Every result screen in the board carries both a success and an error toast — the error path is designed, not an afterthought. <span class="mono">all result screens</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">J5</span><div class="body">
+        <p class="do">Look at any completed or disabled task card, and at any list showing a count.</p>
+        <p class="expect">State is shown by the status label, the icon and which actions are present. <strong>No greyed-out records and no dimmed counts.</strong></p>
+        <p class="why">Dimming data makes it look unavailable when it is simply in a different state. <span class="mono">all</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">J6</span><div class="body">
+        <p class="do">Find any user-facing date in the journey.</p>
+        <p class="expect"><span class="val">mm-dd-yyyy</span>. Never ISO.</p>
+        <p class="why">e.g. the Microsoft 365 pending rows read <span class="val">Requested 09-24-2026</span>. <span class="mono">2F20</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">J7</span><div class="body">
+        <p class="do">Read the button and field labels across a few screens.</p>
+        <p class="expect">Title Case with every word capitalised, prepositions included — <span class="val">Time to Respond to Survey</span> renders as <span class="val">Time To Respond To Survey</span>. Section headings are the UPPER-styled exception.</p>
+        <p class="why">The Title Case transform is applied by the component, so a label that is sentence case has bypassed it. <span class="mono">3I</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">J8</span><div class="body">
+        <p class="do">Switch the application to light theme and walk sections F–I again.</p>
+        <p class="expect">Everything remains legible. Specifically: the colour picker chrome, the swatches, the chip colour dots and the editor all follow the theme. Only the picker's colour <em>spectrums</em> stay fixed.</p>
+        <p class="why">The board is drawn dark; light is where hardcoded colours show up. The spectrums are data, not chrome, and correctly do not theme. <span class="mono">3F2 · 3G2</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">J9</span><div class="body">
+        <p class="do">Resize the window down to 1440 and back up while a dialog is open.</p>
+        <p class="expect">Dialogs stay centred. The Email Templates dialog keeps its 24px gap top and bottom at every height.</p>
+        <p class="why">That dialog is sized from the viewport, so it is the one that will break first. <span class="mono">3H2</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">J10</span><div class="body">
+        <p class="do">Tab through a card form and a dialog without touching the mouse.</p>
+        <p class="expect">Focus order follows reading order, every control is reachable, focus is visible on each, and Escape closes a dialog — raising the discard confirm if anything is staged.</p>
+        <p class="why">Not drawn on the board, so it is worth checking explicitly rather than assuming. <span class="mono">—</span></p>
+      </div></label>
+
+    </div>
+  </section>
+
+  <!-- ══ K ═══════════════════════════════════════════════════════════ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-letter">K</span>
+      <h2 class="sec">Known deviations and open items</h2>
+      <span class="sec-count" data-count></span>
+    </div>
+    <p class="sec-note">Read these before filing anything in them as a defect.</p>
+    <div class="checks">
+
+      <label class="check"><input type="checkbox"><span class="id">K1</span><div class="body">
+        <p class="do">Confirm the reviewer has read the deviation in <span class="val">F3</span>.</p>
+        <p class="expect">Contact fields staying populated after save is <strong>intended</strong> and differs from staging.</p>
+        <p class="why">It needs a dev change. A build matching staging here is matching the wrong thing. <span class="mono">3B2 · 3C2</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">K2</span><div class="body">
+        <p class="do">Confirm the reviewer has read <span class="val">H8</span>.</p>
+        <p class="expect">The editor toolbar button set is <strong>not specified</strong> by this design.</p>
+        <p class="why">Raising toolbar-button defects against the board wastes everyone's time. <span class="mono">3H2</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">K3</span><div class="body">
+        <p class="do">Check whether the PM's UI copy glossary has landed.</p>
+        <p class="expect">If it has, terminology across all 207 screens needs re-checking against it and this pass re-run for wording.</p>
+        <p class="why"><span class="tag tag-dev">open</span> The glossary was still pending when this was written, so labels here are the design's own terms. <span class="mono">—</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">K4</span><div class="body">
+        <p class="do">Confirm per-role behaviour is out of scope for this pass.</p>
+        <p class="expect">No screen states in the board are derived from role permissions.</p>
+        <p class="why">Permissions are a dev-side concern and were deliberately not designed as screen states. <span class="mono">—</span></p>
+      </div></label>
+
+    </div>
+  </section>
+
+  <footer>
+    <span>First Run · ADO #16521 · test pass written 09-25-2026 from Figma <span class="mono">First Run [Claude v2]</span></span>
+    <span>207 screens · 235 annotations</span>
+  </footer>
+</main>
+
+<script>
+  (function () {
+    "use strict";
+    var KEY = "cf-first-run-test-pass-v1";
+    var boxes = Array.prototype.slice.call(document.querySelectorAll(".check input[type=checkbox]"));
+    var doneEl = document.getElementById("done");
+    var totalEl = document.getElementById("total");
+    var meter = document.getElementById("meter");
+
+    boxes.forEach(function (b, i) { b.dataset.idx = i; });
+    totalEl.textContent = boxes.length;
+
+    function load() {
+      try {
+        var raw = window.localStorage.getItem(KEY);
+        if (!raw) return;
+        JSON.parse(raw).forEach(function (i) { if (boxes[i]) boxes[i].checked = true; });
+      } catch (e) { /* private window, cleared storage — start unticked */ }
+    }
+
+    function save() {
+      try {
+        var on = boxes.reduce(function (acc, b, i) { if (b.checked) acc.push(i); return acc; }, []);
+        window.localStorage.setItem(KEY, JSON.stringify(on));
+      } catch (e) { /* nothing to do — the pass still works, it just won't resume */ }
+    }
+
+    function paint() {
+      var n = boxes.filter(function (b) { return b.checked; }).length;
+      doneEl.textContent = n;
+      meter.style.width = boxes.length ? (n / boxes.length * 100) + "%" : "0";
+      document.querySelectorAll("section").forEach(function (sec) {
+        var out = sec.querySelector("[data-count]");
+        if (!out) return;
+        var local = sec.querySelectorAll(".check input[type=checkbox]");
+        var hit = sec.querySelectorAll(".check input[type=checkbox]:checked");
+        out.textContent = hit.length + " / " + local.length;
+      });
+    }
+
+    boxes.forEach(function (b) {
+      b.addEventListener("change", function () { save(); paint(); });
+    });
+
+    document.getElementById("reset").addEventListener("click", function () {
+      boxes.forEach(function (b) { b.checked = false; });
+      save(); paint();
+    });
+
+    load();
+    paint();
+  }());
+</script>
