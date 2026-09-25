@@ -303,16 +303,20 @@
 <main>
 
   <div class="lede">
-    <p class="story">Test pass · written 09-25-2026 · ADO #16521</p>
+    <p class="story">UI functionality test pass · run against the build · written 09-25-2026 · ADO #16521</p>
     <h1>First Run — tenant onboarding</h1>
     <p>First Run is one journey across <strong>three sign-ins by the same person</strong>. Stage&nbsp;1
       hands the tenant from the provisioning account to a named Tenant Administrator. Stage&nbsp;2
       connects the integrations. Stage&nbsp;3 configures the tenant and lets the user into the
       application. This pass walks all three in order, then the cross-cutting rules that apply on
       every screen.</p>
+    <p><strong>This is a UI functionality pass, to be run once the code is built.</strong> The design
+      was handed off as specification only — no prototype and no reference implementation — so every
+      check here is written against the built screens, not against a mock. Section&nbsp;K covers
+      <strong>motion</strong>, which is the part most likely to be approximated rather than matched.</p>
     <p>Every expected value below was read off the Figma board <em>First Run [Claude v2]</em> on
-      09-25-2026, not from memory. Counts, copy, hex values and toast wording are quoted exactly so a
-      wrong-but-plausible result gets caught rather than waved through.</p>
+      09-25-2026, not from memory. Counts, copy, hex values, toast wording and animation timings are
+      quoted exactly so a wrong-but-plausible result gets caught rather than waved through.</p>
     <p>Tick as you go. Ticks are saved in this browser, so you can stop and come back.</p>
   </div>
 
@@ -324,7 +328,8 @@
         site address, never <span class="val">localhost</span>.</dd>
       <dt>Spec</dt>
       <dd class="mono"><a href="https://www.figma.com/design/ro4fm5dyMTrX3Uj1tuj2Oe/CaseFusion-v1.5---Miscellaneous?node-id=11877-75640">Figma · First Run [Claude v2]</a>
-        — 207 screens, 235 Dev&nbsp;Mode annotations. Screen letters below (<span class="val">2F16</span>,
+        — 207 screens, 241 Dev&nbsp;Mode annotations (209 Development, 27 Interaction, 5 Animation).
+        Screen letters below (<span class="val">2F16</span>,
         <span class="val">3D5</span>) are the frame names on that board.</dd>
       <dt>Three sign-ins</dt>
       <dd>Stage&nbsp;1 as the <span class="val">Provisioned Administrator</span>; Stages&nbsp;2 and&nbsp;3 as the
@@ -339,6 +344,11 @@
         service rows need the width.</dd>
       <dt>Theme</dt>
       <dd>The board is drawn dark. Run the pass in dark, then repeat check <span class="val">J8</span> in light.</dd>
+      <dt>Motion</dt>
+      <dd>Section&nbsp;K needs browser DevTools — the computed <span class="val">transition</span> on the
+        animating element, and the <span class="val">prefers-reduced-motion</span> emulation. Values are
+        the Nimbus styleguide's; the file each comes from is named in the check, so a disagreement is
+        settled by reading the styleguide rather than by eye.</dd>
     </dl>
     <div class="note">
       <strong>Several integrations are live third-party dependencies.</strong> Microsoft&nbsp;365 consent,
@@ -1009,31 +1019,108 @@
   <section>
     <div class="sec-head">
       <span class="sec-letter">K</span>
+      <h2 class="sec">Motion</h2>
+      <span class="sec-count" data-count></span>
+    </div>
+    <p class="sec-note">Every value below is the Nimbus styleguide's, not a design invention &mdash;
+      the source file is named in each check so a disagreement can be settled by reading it. Nothing
+      here needs a stopwatch: read the computed style in DevTools, or watch for the described
+      behaviour.</p>
+    <div class="checks">
+
+      <label class="check"><input type="checkbox"><span class="id">K1</span><div class="body">
+        <p class="do">Expand and collapse a task card. Inspect the animating element. <span class="tag tag-dev">DevTools</span></p>
+        <p class="expect">The drawer animates its <span class="val">height</span> over <span class="val">0.35s ease</span> &mdash; the Nimbus <code>.collapsing</code> rule, <code>--cnds-transition-collapse</code>. Not a fade, not a slide, not a bespoke duration.</p>
+        <p class="why">A card drawer is a Nimbus collapse. A hand-rolled animation will drift from every other collapse in the product. <span class="mono">css/core/transitions.css</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">K2</span><div class="body">
+        <p class="do">Watch the chevron as a card expands.</p>
+        <p class="expect">It <strong>swaps glyph</strong> &mdash; <span class="val">mdi-chevron-down</span> to <span class="val">mdi-chevron-up</span>. It does <em>not</em> rotate.</p>
+        <p class="why">A rotating chevron is the obvious assumption and Nimbus does not do it. <span class="mono">css/components/accordion.css</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">K3</span><div class="body">
+        <p class="do">Open any dialog and watch how it arrives.</p>
+        <p class="expect">It <strong>drops in from above</strong>: <span class="val">transform 0.3s ease-out</span>, starting at <span class="val">translate(0, -50px)</span>. It does not scale, and the dialog itself does not fade.</p>
+        <p class="why">Scale-and-fade is the common default and is not what this system does. <span class="mono">css/components/modal.css</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">K4</span><div class="body">
+        <p class="do">Watch the backdrop as the same dialog opens.</p>
+        <p class="expect"><span class="val">opacity 0.15s linear</span> to <span class="val">0.65</span>. The ground darkens <em>before</em> the dialog lands, because the backdrop is twice as fast.</p>
+        <p class="why">If they run at the same speed the dialog appears to drag the backdrop with it. <span class="mono">--cnds-backdrop-opacity</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">K5</span><div class="body">
+        <p class="do">With entries staged in a dialog, hit <span class="val">CANCEL</span> to raise the discard confirm.</p>
+        <p class="expect">The confirm animates in over the dialog, which <strong>stays put</strong>. A second backdrop is added &mdash; the first is not reused or re-animated.</p>
+        <p class="why">One backdrop per boundary. Reusing it makes the stack ambiguous and dismissing one closes both. <span class="mono">3D6 · 3E6 · 3F11</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">K6</span><div class="body">
+        <p class="do">Trigger a success toast and leave the page alone. Time it roughly.</p>
+        <p class="expect">It auto-dismisses after <span class="val">5000ms</span> &mdash; the <code>Nimbus.Toast</code> config default.</p>
+        <p class="why"><strong>Not 3000.</strong> The JSDoc example in <code>toast.js</code> shows <span class="val">data-cnds-delay="3000"</span>; the default in <code>_config</code> is 5000. A build copied from the example will be 2 seconds fast. <span class="mono">js/components/toast.js</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">K7</span><div class="body">
+        <p class="do">Raise two toasts, then dismiss the upper one by hand.</p>
+        <p class="expect">The remaining toast slides into the gap &mdash; <span class="val">top 0.3s ease, bottom 0.3s ease</span> &mdash; and fades at <span class="val">opacity 0.15s linear</span>. It does not jump.</p>
+        <p class="why">Stacking and repositioning are part of the component, not something the page does. <span class="mono">js/components/toast.js</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">K8</span><div class="body">
+        <p class="do">Click the backdrop of a dialog that should not close on an outside click.</p>
+        <p class="expect">The dialog plays <span class="val">cnds-modal-nudge 0.25s ease-in-out</span> and stays open.</p>
+        <p class="why">The nudge tells the user the dismissal was heard and refused. Silence reads as a broken click. <span class="mono">css/components/modal.css</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">K9</span><div class="body">
+        <p class="do">Click into the <span class="val">Color</span> field on Properties or Tags.</p>
+        <p class="expect">The picker opens from the field, 4px below the input, on the base transition <span class="val">all 0.2s ease-in-out</span>. Dismissing on an outside click is immediate, with no exit animation.</p>
+        <p class="why">Nimbus has no popover-specific timing, so the base transition is the fallback &mdash; this is the one motion on the board without a component precedent. <span class="mono">--cnds-transition-base</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">K10</span><div class="body">
+        <p class="do">Turn on <span class="val">prefers-reduced-motion: reduce</span> at OS level, reload, and repeat L1 and L3. <span class="tag tag-dev">DevTools can emulate this</span></p>
+        <p class="expect">The transitions are <strong>removed</strong>, not shortened &mdash; the drawer and dialog change state instantly. Nimbus sets <code>transition: none</code> on <code>.fade</code> and <code>.collapsing</code>.</p>
+        <p class="why">A build that merely speeds the animation up has not matched the system, and still moves for someone who asked it not to. <span class="mono">css/core/transitions.css</span></p>
+      </div></label>
+
+      <label class="check"><input type="checkbox"><span class="id">K11</span><div class="body">
+        <p class="do">Watch the page action bar while scrolling a long screen, such as Email Templates with the list populated.</p>
+        <p class="expect">The bar keeps its elevation and does not animate in or out. The shadow is the Figma <span class="val">Floating Bar</span> toggle, <span class="val">Elevation/z-depth-4</span> &mdash; a static state, not a scroll effect.</p>
+        <p class="why">A shadow that appears on scroll is a common flourish and is not specified here. <span class="mono">.btn-toolbar-floating</span></p>
+      </div></label>
+
+    </div>
+  </section>
+
+<!-- ══ L ═══════════════════════════════════════════════════════════ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-letter">L</span>
       <h2 class="sec">Known deviations and open items</h2>
       <span class="sec-count" data-count></span>
     </div>
     <p class="sec-note">Read these before filing anything in them as a defect.</p>
     <div class="checks">
 
-      <label class="check"><input type="checkbox"><span class="id">K1</span><div class="body">
+      <label class="check"><input type="checkbox"><span class="id">L1</span><div class="body">
         <p class="do">Confirm the reviewer has read the deviation in <span class="val">F3</span>.</p>
         <p class="expect">Contact fields staying populated after save is <strong>intended</strong> and differs from staging.</p>
         <p class="why">It needs a dev change. A build matching staging here is matching the wrong thing. <span class="mono">3B2 · 3C2</span></p>
       </div></label>
 
-      <label class="check"><input type="checkbox"><span class="id">K2</span><div class="body">
+      <label class="check"><input type="checkbox"><span class="id">L2</span><div class="body">
         <p class="do">Confirm the reviewer has read <span class="val">H8</span>.</p>
         <p class="expect">The editor toolbar button set is <strong>not specified</strong> by this design.</p>
         <p class="why">Raising toolbar-button defects against the board wastes everyone's time. <span class="mono">3H2</span></p>
       </div></label>
 
-      <label class="check"><input type="checkbox"><span class="id">K3</span><div class="body">
-        <p class="do">Check whether the PM's UI copy glossary has landed.</p>
-        <p class="expect">If it has, terminology across all 207 screens needs re-checking against it and this pass re-run for wording.</p>
-        <p class="why"><span class="tag tag-dev">open</span> The glossary was still pending when this was written, so labels here are the design's own terms. <span class="mono">—</span></p>
-      </div></label>
 
-      <label class="check"><input type="checkbox"><span class="id">K4</span><div class="body">
+      <label class="check"><input type="checkbox"><span class="id">L3</span><div class="body">
         <p class="do">Confirm per-role behaviour is out of scope for this pass.</p>
         <p class="expect">No screen states in the board are derived from role permissions.</p>
         <p class="why">Permissions are a dev-side concern and were deliberately not designed as screen states. <span class="mono">—</span></p>
@@ -1042,9 +1129,10 @@
     </div>
   </section>
 
-  <footer>
+
+    <footer>
     <span>First Run · ADO #16521 · test pass written 09-25-2026 from Figma <span class="mono">First Run [Claude v2]</span></span>
-    <span>207 screens · 235 annotations</span>
+    <span>207 screens · 241 annotations · sections A–L</span>
   </footer>
 </main>
 
