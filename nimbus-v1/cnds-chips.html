@@ -300,7 +300,7 @@
 .chip {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--cnds-gap-gap-2, 0.5rem); /* Gap/gap-2 */
   height: 32px;
   padding: 0 12px;
   font-size: 13px;
@@ -874,6 +874,85 @@ document.addEventListener('click', (event) =&gt; {
 
                   <hr class="my-5" />
 
+                  <!--Section: With flag-->
+                  <section id="section-flag">
+                    <h3 class="mb-4">With flag</h3>
+                    <p>
+                      Put a country flag from <a href="cnds-flags.html">Flags</a>
+                      in the leading position with
+                      <code>&lt;i class="flag flag-{code}"&gt;&lt;/i&gt;</code>,
+                      for example to show a region or a country. The flag keeps
+                      its 16&times;11 size and the chip's gap spaces it from the
+                      label. Use an MDI icon such as <code>mdi-earth</code> when
+                      no single flag fits, such as a region of several countries.
+                      In Figma, turn on <strong>Show Flag</strong> on
+                      Nimbus/Chips and pick the country on the nested
+                      Nimbus/Flag.
+                    </p>
+                    <!--Section: Demo-->
+                    <div class="border rounded-5">
+                    <section class="w-100 p-4 d-flex flex-wrap gap-1">
+                      <span class="chip chip-outline-secondary"
+                        ><i class="flag flag-us" aria-hidden="true"></i> United States</span
+                      >
+                      <span class="chip chip-outline-secondary"
+                        ><i class="flag flag-eu" aria-hidden="true"></i> EEA</span
+                      >
+                      <span class="chip chip-outline-secondary"
+                        ><i class="mdi mdi-earth" aria-hidden="true"></i> Rest of World</span
+                      >
+                      <span class="chip"
+                        ><i class="flag flag-de" aria-hidden="true"></i> Germany</span
+                      >
+                    </section>
+                    </div>
+                    <!--/Section: Demo-->
+<!-- Angular: Bind the flag modifier from a country code via [ngClass]="'flag-' + chip.countryCode" on an <i class="flag"> rendered with *ngIf="chip.countryCode";
+     fall back to <i class="mdi mdi-earth"> when the chip has no single country (@Input() countryCode: string | null).
+     Example: <span class="chip chip-outline-secondary"><i *ngIf="region.countryCode; else earth" class="flag" [ngClass]="'flag-' + region.countryCode" aria-hidden="true"></i><ng-template #earth><i class="mdi mdi-earth" aria-hidden="true"></i></ng-template> {{region.name}}</span> -->
+                    <!--Section: Code-->
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre
+                          class="line-numbers m-0"
+                        ><code class="language-html">&lt;span class="chip chip-outline-secondary"&gt;
+  &lt;i class="flag flag-us"&gt;&lt;/i&gt; United States
+&lt;/span&gt;
+
+&lt;span class="chip chip-outline-secondary"&gt;
+  &lt;i class="flag flag-eu"&gt;&lt;/i&gt; EEA
+&lt;/span&gt;
+
+&lt;!-- No single flag: use an icon --&gt;
+&lt;span class="chip chip-outline-secondary"&gt;
+  &lt;i class="mdi mdi-earth"&gt;&lt;/i&gt; Rest of World
+&lt;/span&gt;
+
+&lt;span class="chip"&gt;
+  &lt;i class="flag flag-de"&gt;&lt;/i&gt; Germany
+&lt;/span&gt;</code></pre>
+                      </div>
+                    </section>
+                    <section class="mb-4">
+                      <h4>
+                        <span class="badge badge-code-css">CSS</span>
+                      </h4>
+                      <div class="p-0">
+                        <pre
+                          class="line-numbers m-0"
+                        ><code class="language-css">/* Flag inside chips: keep the 16x11 sprite, let the chip's gap space it */
+.chip i.flag:not(.icon) {
+  margin: 0;
+}</code></pre>
+                      </div>
+                    </section>
+                    <!--/Section: Code-->
+                  </section>
+                  <!--/Section: With flag-->
+
+                  <hr class="my-5" />
+
                   <!--Section: Disabled-->
                   <section id="section-disabled">
                     <h3 class="mb-4">Disabled</h3>
@@ -997,7 +1076,7 @@ document.addEventListener('click', (event) =&gt; {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.375rem;
+  gap: var(--cnds-gap-gap-2, 0.5rem); /* Gap/gap-2 */
   padding: 0.375rem 0.5rem;
   min-height: calc(2.5rem + 2px);
   background-color: var(--cnds-input-bg, #fff);
@@ -1754,6 +1833,16 @@ myChips.addEventListener('select.cnds.chips', (e) =&gt; {
                             </td>
                           </tr>
                           <tr>
+                            <td><code>.flag</code> in a chip</td>
+                            <td>
+                              A country flag (<code>&lt;i class="flag flag-{code}"&gt;</code>)
+                              in the leading position. Keeps its
+                              <code>16px</code> &times; <code>11px</code> size;
+                              its own right margin is removed so the chip's
+                              <code>8px</code> gap (<code>--cnds-gap-gap-2</code>) spaces it from the label.
+                            </td>
+                          </tr>
+                          <tr>
                             <td><code>.chip-img</code></td>
                             <td>
                               Avatar image inside a chip. Inherits the chip's
@@ -2103,6 +2192,9 @@ myChips.addEventListener('select.cnds.chips', (e) =&gt; {
                     </li>
                     <li class="nav-item">
                       <a class="nav-link" href="#section-icon">Icon</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#section-flag">Flag</a>
                     </li>
                     <li class="nav-item">
                       <a class="nav-link" href="#section-disabled">Disabled</a>

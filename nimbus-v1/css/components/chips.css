@@ -7,7 +7,9 @@
 .chip {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  /* Nimbus spacing scale: Gap/gap-2 (8px). Mirrors Figma Nimbus/Chips
+     fr_chip itemSpacing, bound to Gap/gap-2. */
+  gap: var(--cnds-gap-gap-2, 0.5rem);
   height: 32px;
   padding: 0 12px;
   font-size: 13px;
@@ -69,6 +71,22 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+
+/* --- Chip with flag ---
+   A country flag (components/flags.css) in the leading position, e.g. a
+   region or country chip. Mirrors Figma Nimbus/Chips › Show Flag, whose
+   nested Nimbus/Flag instance picks the country.
+   The flag keeps its own 16x11 sprite size: `i.flag` out-ranks `.chip i`
+   on specificity, so it is not squared up to 20x20 like the icon fonts.
+   Its own `margin-right: 0.5em` is removed because inside a chip that em
+   resolves against `.chip i`'s 20px and adds 10px to the chip's gap;
+   the chip's gap (Gap/gap-2, 8px) alone spaces the flag from the label,
+   as for icons.
+   The extra :not(.icon) matches flags.css's selector so this rule wins
+   whichever file loads first. */
+.chip i.flag:not(.icon) {
+  margin: 0;
 }
 
 /* --- Close button / close icon --- */
@@ -258,7 +276,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.375rem;
+  gap: var(--cnds-gap-gap-2, 0.5rem); /* Gap/gap-2, as between chips elsewhere */
   padding: 0.375rem 0.5rem;
   min-height: calc(2.5rem + 2px);
   background-color: var(--cnds-input-bg, #fff);
