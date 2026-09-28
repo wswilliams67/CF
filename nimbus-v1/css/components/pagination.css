@@ -131,7 +131,10 @@
      bar sitting on the page, but this toolbar is commonly floated over
      scrolling content, where it read as a heavy slab. Match --cnds-shadow-1 on
      the Figma component so the two stay in step.
-     A screen that genuinely needs more can override this property alone. */
+     A screen that genuinely needs more can override this property alone.
+     Applied ONLY by .pagination-toolbar-floating (below): a pager inline with
+     page content has no shadow; only one floating or stuck over scrolling
+     content does. Mirrors Figma Nimbus/Pagination › Floating Bar. */
   --cnds-pagination-toolbar-shadow:        var(--cnds-shadow-1);
   /* Figma cmp_table-pagination: the bar is 3px top/bottom and flush to its
      own edges left/right — the label and the arrow group sit on the container
@@ -153,9 +156,20 @@
   background-color: var(--cnds-pagination-toolbar-bg);
   border: 1px solid var(--cnds-pagination-toolbar-border-color);
   border-radius: 0.5rem;
-  box-shadow: var(--cnds-pagination-toolbar-shadow);
+  box-shadow: none; /* inline by default — see .pagination-toolbar-floating */
   color: var(--cnds-pagination-toolbar-color);
   font-size: 0.875rem;
+}
+
+/* --- Floating pager ------------------------------------------
+   Mirrors the `Floating Bar` BOOLEAN on Figma Nimbus/Pagination (default
+   off), the same pattern as the toolbar's .btn-toolbar-floating. In Figma the
+   shadow is an `fr_shadow` layer behind the bar carrying Elevation/shadow-1,
+   because a boolean cannot bind to an effect.
+   Add it only when the pager floats or sticks over scrolling content. A pager
+   inline with page content has no elevation (CaseFusion rule, 09-28-2026). */
+.pagination-toolbar.pagination-toolbar-floating {
+  box-shadow: var(--cnds-pagination-toolbar-shadow);
 }
 
 .pagination-toolbar-label,

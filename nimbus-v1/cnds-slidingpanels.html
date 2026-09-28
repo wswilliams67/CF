@@ -636,7 +636,7 @@
 
                                 <!--Description-->
                                 <p>
-                                    The default width for offcanvas components is <code>400px</code>. To make a panel narrower or wider, apply a width utility class directly on the <code>.offcanvas</code> element using the <a href="cnds-sizing.html">Sizing Utilities</a>. Width utilities (<code>w-25</code>, <code>w-50</code>, <code>w-75</code>, <code>w-100</code>) are expressed as a percentage of the viewport, so panels respond to the user's screen size automatically. The default <code>400px</code> is recommended for task panels; use wider breakpoints only when the content genuinely requires it.
+                                    The default width for left and right panels is <code>400px</code>, and every panel is held between <strong>25%</strong> and <strong>95%</strong> of the viewport by <code>min-width: var(--cnds-offcanvas-min-width)</code> and <code>max-width: var(--cnds-offcanvas-max-width)</code> (<code>25vw</code> / <code>95vw</code>). Use <code>w-25</code> for panels that show a record's details and <code>w-50</code> for panels that contain a form. Wider panels are allowed when the content needs them, up to the 95% maximum; <code>w-100</code> therefore resolves to 95%, so part of the page always stays visible behind the panel. Width utilities come from <a href="cnds-sizing.html">Sizing Utilities</a> and are a percentage of the viewport, so panels follow the screen size.
                                 </p>
 
                                 <p>Try the width examples below:</p>
@@ -650,7 +650,7 @@
                                             <button class="btn btn-primary" type="button" data-cnds-offcanvas-init data-cnds-toggle="offcanvas" data-cnds-target="#offcanvasWidth25" aria-controls="offcanvasWidth25">25% width</button>
                                             <button class="btn btn-primary" type="button" data-cnds-offcanvas-init data-cnds-toggle="offcanvas" data-cnds-target="#offcanvasWidth50" aria-controls="offcanvasWidth50">50% width</button>
                                             <button class="btn btn-primary" type="button" data-cnds-offcanvas-init data-cnds-toggle="offcanvas" data-cnds-target="#offcanvasWidth75" aria-controls="offcanvasWidth75">75% width</button>
-                                            <button class="btn btn-primary" type="button" data-cnds-offcanvas-init data-cnds-toggle="offcanvas" data-cnds-target="#offcanvasWidth100" aria-controls="offcanvasWidth100">100% width</button>
+                                            <button class="btn btn-primary" type="button" data-cnds-offcanvas-init data-cnds-toggle="offcanvas" data-cnds-target="#offcanvasWidth100" aria-controls="offcanvasWidth100">Maximum width (95%)</button>
 
                                             <div class="offcanvas offcanvas-end" tabindex="-1" aria-modal="true" id="offcanvasWidthDefault" aria-labelledby="offcanvasWidthDefaultLabel">
                                                 <div class="offcanvas-header">
@@ -676,7 +676,7 @@
 
                                             <div class="offcanvas offcanvas-end w-25" tabindex="-1" aria-modal="true" id="offcanvasWidth25" aria-labelledby="offcanvasWidth25Label">
                                                 <div class="offcanvas-header">
-                                                    <h3 class="offcanvas-title" id="offcanvasWidth25Label">25% width</h3>
+                                                    <h3 class="offcanvas-title" id="offcanvasWidth25Label">25% width (details)</h3>
                                                     <button type="button" class="btn-close" data-cnds-dismiss="offcanvas" aria-label="Close"></button>
                                                 </div>
                                                 <div class="offcanvas-body">
@@ -698,7 +698,7 @@
 
                                             <div class="offcanvas offcanvas-end w-50" tabindex="-1" aria-modal="true" id="offcanvasWidth50" aria-labelledby="offcanvasWidth50Label">
                                                 <div class="offcanvas-header">
-                                                    <h3 class="offcanvas-title" id="offcanvasWidth50Label">50% width</h3>
+                                                    <h3 class="offcanvas-title" id="offcanvasWidth50Label">50% width (forms)</h3>
                                                     <button type="button" class="btn-close" data-cnds-dismiss="offcanvas" aria-label="Close"></button>
                                                 </div>
                                                 <div class="offcanvas-body">
@@ -742,7 +742,7 @@
 
                                             <div class="offcanvas offcanvas-end w-100" tabindex="-1" aria-modal="true" id="offcanvasWidth100" aria-labelledby="offcanvasWidth100Label">
                                                 <div class="offcanvas-header">
-                                                    <h3 class="offcanvas-title" id="offcanvasWidth100Label">100% width</h3>
+                                                    <h3 class="offcanvas-title" id="offcanvasWidth100Label">Maximum width (95%)</h3>
                                                     <button type="button" class="btn-close" data-cnds-dismiss="offcanvas" aria-label="Close"></button>
                                                 </div>
                                                 <div class="offcanvas-body">
@@ -766,9 +766,9 @@
                                     </div>
                                 </section>
                                 <!--/Section: Demo-->
-<!-- Angular: Control panel width via a dynamic style binding: [style.width]="panelWidth".
-     Example: <div class="offcanvas offcanvas-end" [style.width]="selectedWidth"></div>
-     Pass the desired width value from a parent component @Input() for reusable panel components. -->
+<!-- Angular: Choose the width with a class, not a pixel value: [ngClass]="panelKind === 'form' ? 'w-50' : 'w-25'" (forms 50%, details 25%).
+     Example: <div class="offcanvas offcanvas-end" [ngClass]="widthClass"></div>, with @Input() widthClass: 'w-25' | 'w-50' | 'w-75' = 'w-25'.
+     A [style.width] binding still works for a one-off width, but min-/max-width (--cnds-offcanvas-min-width 25vw, --cnds-offcanvas-max-width 95vw) always clamp it. -->
                                 <!--Section: Code-->
                                 <section class="mb-4">
                                     <h4><span class="badge badge-code-html">HTML</span></h4>
@@ -850,7 +850,7 @@ Default width
 
 &lt;div class="offcanvas offcanvas-end w-25" tabindex="-1" aria-modal="true" id="offcanvasWidth25" aria-labelledby="offcanvasWidth25Label"&gt;
     &lt;div class="offcanvas-header"&gt;
-        &lt;h3 class="offcanvas-title" id="offcanvasWidth25Label"&gt;25% width&lt;/h3&gt;
+        &lt;h3 class="offcanvas-title" id="offcanvasWidth25Label"&gt;25% width (details)&lt;/h3&gt;
         &lt;button type="button" class="btn-close" data-cnds-dismiss="offcanvas" aria-label="Close"&gt;&lt;/button&gt;
     &lt;/div&gt;
     &lt;div class="offcanvas-body"&gt;
@@ -872,7 +872,7 @@ Default width
 
 &lt;div class="offcanvas offcanvas-end w-50" tabindex="-1" aria-modal="true" id="offcanvasWidth50" aria-labelledby="offcanvasWidth50Label"&gt;
     &lt;div class="offcanvas-header"&gt;
-        &lt;h3 class="offcanvas-title" id="offcanvasWidth50Label"&gt;50% width&lt;/h3&gt;
+        &lt;h3 class="offcanvas-title" id="offcanvasWidth50Label"&gt;50% width (forms)&lt;/h3&gt;
         &lt;button type="button" class="btn-close" data-cnds-dismiss="offcanvas" aria-label="Close"&gt;&lt;/button&gt;
     &lt;/div&gt;
     &lt;div class="offcanvas-body"&gt;
@@ -916,7 +916,7 @@ Default width
 
 &lt;div class="offcanvas offcanvas-end w-100" tabindex="-1" aria-modal="true" id="offcanvasWidth100" aria-labelledby="offcanvasWidth100Label"&gt;
     &lt;div class="offcanvas-header"&gt;
-        &lt;h3 class="offcanvas-title" id="offcanvasWidth100Label"&gt;100% width&lt;/h3&gt;
+        &lt;h3 class="offcanvas-title" id="offcanvasWidth100Label"&gt;Maximum width (95%)&lt;/h3&gt;
         &lt;button type="button" class="btn-close" data-cnds-dismiss="offcanvas" aria-label="Close"&gt;&lt;/button&gt;
     &lt;/div&gt;
     &lt;div class="offcanvas-body"&gt;
@@ -1416,6 +1416,16 @@ Default width
                                                 <td><code>--cnds-offcanvas-width</code></td>
                                                 <td><code>400px</code></td>
                                                 <td>Width of left/right panels</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>--cnds-offcanvas-min-width</code></td>
+                                                <td><code>25vw</code></td>
+                                                <td>Narrowest a left/right panel can be (details panels sit here)</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>--cnds-offcanvas-max-width</code></td>
+                                                <td><code>95vw</code></td>
+                                                <td>Widest a left/right panel can be; clamps <code>w-100</code> too</td>
                                             </tr>
                                             <tr>
                                                 <td><code>--cnds-offcanvas-height</code></td>
