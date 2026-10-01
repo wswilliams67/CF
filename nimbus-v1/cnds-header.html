@@ -262,6 +262,18 @@
         .nav-labels-collapsing .portal-switcher-label, .nav-labels-collapsing .user-name-label { transition: none; }
       }
 
+      /* --- Language Switcher ---
+         Mirrors Figma Nimbus/LanguageSwitcher (gated by Nimbus/Header "Show Language"):
+         mdi-translate + the current ISO 639-1 code, 4px gap — the same gap and type as
+         .portal-switcher. Deliberately no chevron: the portal switcher beside it already
+         owns that affordance, and two chevron dropdowns side by side read as a pair.
+         It sits in the theme toggle's group, so no .utility-divider separates the two.
+         The 2-letter code never collapses with .portal-switcher-label — it is the state. */
+      .language-switcher-wrapper { position: relative; display: flex; align-items: center; height: 32px; flex-shrink: 0; }
+      .language-switcher { display: inline-flex; align-items: center; gap: 4px; padding: 4px; background: none; border: none; border-radius: 4px; font-size: 0.875rem; line-height: normal; color: var(--demo-nav-fg, #4f4f4f); cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+      .language-switcher .mdi { font-size: 24px; color: var(--demo-nav-fg, #4f4f4f); }
+      .language-switcher-code { color: var(--demo-nav-fg, #4f4f4f); }
+
       /* --- User Info --- */
       .user-info-wrapper { position: relative; display: flex; align-items: center; height: 32px; flex-shrink: 0; white-space: nowrap; }
       .user-info { display: inline-flex; align-items: center; gap: 8px; font-size: 0.875rem; color: var(--demo-nav-fg, #4f4f4f); white-space: nowrap; cursor: pointer; flex-shrink: 0; }
@@ -557,7 +569,7 @@
                 <section>
                   <h3 class="mb-4">Utility Navigation Bar</h3>
                   <p class="description">
-                    The logged-out state renders the product logo and name on the left. On the right, the tools strip contains a global search toggle, a notifications bell with an unread-count badge, a theme toggle, a portal switcher, and a Sign In affordance. Vertical dividers (<code>.utility-divider</code>) separate each tool group. The demos below show the minimal structure; the HTML example shows a complete logged-out implementation.
+                    The logged-out state renders the product logo and name on the left. On the right, the tools strip contains a global search toggle, a notifications bell with an unread-count badge, a theme toggle, a language switcher, a portal switcher, and a Sign In affordance. Vertical dividers (<code>.utility-divider</code>) separate each tool group; the theme toggle and language switcher share one group because both are display preferences, and both work before sign-in. The demos below show the minimal structure; the HTML example shows a complete logged-out implementation.
                   </p>
                   <p class="description">
                     The search toggle (<code>.nav-search-toggle</code>) opens an animated panel that expands horizontally into the tools strip. The panel contains a text input (<code>.nav-search-input</code>), an inline clear button (<code>.nav-search-clear-btn</code>), a Submit button (<code>.nav-search-submit</code>), and an Advanced Search filter button (<code>.nav-search-filter-btn</code>). When the panel expands beyond the available space, the portal name and user name labels collapse automatically via the <code>.nav-labels-collapsed</code> modifier.
@@ -749,6 +761,19 @@
             data-tooltip="Switch to dark theme"&gt;
       &lt;span class="mdi mdi-weather-night" aria-hidden="true"&gt;&lt;/span&gt;
     &lt;/button&gt;
+    &lt;!-- Language switcher — same group as the theme toggle, so no divider between them --&gt;
+    &lt;div class="language-switcher-wrapper" id="languageSwitcherWrapper"&gt;
+      &lt;button type="button" class="language-switcher" id="languageSwitcherToggle" aria-haspopup="menu" aria-expanded="false" aria-controls="languageMenu" aria-label="Language: English" data-tooltip="Language"&gt;
+        &lt;span class="mdi mdi-translate" aria-hidden="true"&gt;&lt;/span&gt;
+        &lt;span class="language-switcher-code"&gt;EN&lt;/span&gt;
+      &lt;/button&gt;
+      &lt;div class="account-menu" id="languageMenu" role="menu" aria-hidden="true"&gt;
+        &lt;div class="account-menu-header"&gt;Language&lt;/div&gt;
+        &lt;a class="account-menu-item active" href="#!" role="menuitemradio" aria-checked="true" lang="en" data-lang-code="EN"&gt;English&lt;/a&gt;
+        &lt;a class="account-menu-item" href="#!" role="menuitemradio" aria-checked="false" lang="de" data-lang-code="DE"&gt;Deutsch&lt;/a&gt;
+        &lt;a class="account-menu-item" href="#!" role="menuitemradio" aria-checked="false" lang="fr" data-lang-code="FR"&gt;Français&lt;/a&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
 
     &lt;span class="utility-divider" aria-hidden="true"&gt;&lt;/span&gt;
 
@@ -978,6 +1003,30 @@
                         }
                       }
 
+                    LANGUAGE SWITCHER (language-switcher-wrapper / account-menu)
+                    Remove the demo script's [data-lang-code] wiring and inject a LocaleService:
+                      languages$ = this.localeService.languages$;   // [{ code: 'en', label: 'English' }, …]
+                      current$   = this.localeService.current$;
+                      isLanguageMenuOpen = false;
+                    Bind the trigger to the current language; label is the code, aria-label the full name:
+                      <button class="language-switcher" (click)="isLanguageMenuOpen = !isLanguageMenuOpen"
+                              [attr.aria-expanded]="isLanguageMenuOpen"
+                              [attr.aria-label]="'Language: ' + (current$ | async)?.label">
+                        <span class="mdi mdi-translate" aria-hidden="true"></span>
+                        <span class="language-switcher-code">{{ (current$ | async)?.code | uppercase }}</span>
+                      </button>
+                    Render items with @for; each label is in its own language, with a matching lang:
+                      @for (l of languages$ | async; track l.code) {
+                        <a class="account-menu-item" role="menuitemradio" [attr.lang]="l.code"
+                           [class.active]="l.code === (current$ | async)?.code"
+                           [attr.aria-checked]="l.code === (current$ | async)?.code"
+                           (click)="localeService.use(l.code); isLanguageMenuOpen = false">{{ l.label }}</a>
+                      }
+                    Gate the whole wrapper with @if (showLanguage) — an @Input() mirroring the
+                    Figma "Show Language" header property. It must render signed out, so do not
+                    put it behind the AuthService check. Keyboard, Escape and outside-click
+                    handling follow the portal menu above.
+
                     USER ACCOUNT MENU (user-info-wrapper / account-menu)
                     Follows the same open/close, ARIA, and keyboard pattern as the portal
                     menu. Source user data from AuthService:
@@ -1066,6 +1115,19 @@
                         <button class="nav-icon-btn" id="d2-themeToggle" data-cnds-toggle="theme" aria-label="Toggle theme" data-tooltip="Switch to dark theme">
                           <span class="mdi mdi-weather-night"></span>
                         </button>
+                        <!-- Language switcher — same group as the theme toggle, so no divider between them -->
+                        <div class="language-switcher-wrapper" id="d2-languageSwitcherWrapper">
+                          <button type="button" class="language-switcher" id="d2-languageSwitcherToggle" aria-haspopup="menu" aria-expanded="false" aria-controls="d2-languageMenu" aria-label="Language: English" data-tooltip="Language">
+                            <span class="mdi mdi-translate" aria-hidden="true"></span>
+                            <span class="language-switcher-code">EN</span>
+                          </button>
+                          <div class="account-menu" id="d2-languageMenu" role="menu" aria-hidden="true">
+                            <div class="account-menu-header">Language</div>
+                            <a class="account-menu-item active" href="#!" role="menuitemradio" aria-checked="true" lang="en" data-lang-code="EN">English</a>
+                            <a class="account-menu-item" href="#!" role="menuitemradio" aria-checked="false" lang="de" data-lang-code="DE">Deutsch</a>
+                            <a class="account-menu-item" href="#!" role="menuitemradio" aria-checked="false" lang="fr" data-lang-code="FR">Français</a>
+                          </div>
+                        </div>
                         <span class="utility-divider" aria-hidden="true"></span>
                         <div class="portal-switcher-wrapper" id="d2-portalSwitcherWrapper">
                           <span class="portal-switcher" id="d2-portalSwitcherToggle" role="button" tabindex="0" aria-haspopup="menu" aria-expanded="false" aria-controls="d2-portalMenu">
@@ -2156,6 +2218,19 @@
                           <button class="nav-icon-btn" id="fh-cf-themeToggle" data-cnds-toggle="theme" aria-label="Toggle theme" data-tooltip="Switch to dark theme">
                             <span class="mdi mdi-weather-night"></span>
                           </button>
+                          <!-- Language switcher — same group as the theme toggle, so no divider between them -->
+                          <div class="language-switcher-wrapper" id="fh-cf-languageSwitcherWrapper">
+                            <button type="button" class="language-switcher" id="fh-cf-languageSwitcherToggle" aria-haspopup="menu" aria-expanded="false" aria-controls="fh-cf-languageMenu" aria-label="Language: English" data-tooltip="Language">
+                              <span class="mdi mdi-translate" aria-hidden="true"></span>
+                              <span class="language-switcher-code">EN</span>
+                            </button>
+                            <div class="account-menu" id="fh-cf-languageMenu" role="menu" aria-hidden="true">
+                              <div class="account-menu-header">Language</div>
+                              <a class="account-menu-item active" href="#!" role="menuitemradio" aria-checked="true" lang="en" data-lang-code="EN">English</a>
+                              <a class="account-menu-item" href="#!" role="menuitemradio" aria-checked="false" lang="de" data-lang-code="DE">Deutsch</a>
+                              <a class="account-menu-item" href="#!" role="menuitemradio" aria-checked="false" lang="fr" data-lang-code="FR">Français</a>
+                            </div>
+                          </div>
                           <span class="utility-divider" aria-hidden="true"></span>
                           <div class="portal-switcher-wrapper" id="fh-cf-portalSwitcherWrapper">
                             <span class="portal-switcher" id="fh-cf-portalSwitcherToggle" role="button" tabindex="0" aria-haspopup="menu" aria-expanded="false" aria-controls="fh-cf-portalMenu">
@@ -2292,6 +2367,19 @@
       &lt;button class="nav-icon-btn" id="themeToggle" data-cnds-toggle="theme" aria-label="Toggle theme" data-tooltip="Switch to dark theme"&gt;
         &lt;span class="mdi mdi-weather-night"&gt;&lt;/span&gt;
       &lt;/button&gt;
+      &lt;!-- Language switcher — same group as the theme toggle, so no divider between them --&gt;
+      &lt;div class="language-switcher-wrapper" id="languageSwitcherWrapper"&gt;
+        &lt;button type="button" class="language-switcher" id="languageSwitcherToggle" aria-haspopup="menu" aria-expanded="false" aria-controls="languageMenu" aria-label="Language: English" data-tooltip="Language"&gt;
+          &lt;span class="mdi mdi-translate" aria-hidden="true"&gt;&lt;/span&gt;
+          &lt;span class="language-switcher-code"&gt;EN&lt;/span&gt;
+        &lt;/button&gt;
+        &lt;div class="account-menu" id="languageMenu" role="menu" aria-hidden="true"&gt;
+          &lt;div class="account-menu-header"&gt;Language&lt;/div&gt;
+          &lt;a class="account-menu-item active" href="#!" role="menuitemradio" aria-checked="true" lang="en" data-lang-code="EN"&gt;English&lt;/a&gt;
+          &lt;a class="account-menu-item" href="#!" role="menuitemradio" aria-checked="false" lang="de" data-lang-code="DE"&gt;Deutsch&lt;/a&gt;
+          &lt;a class="account-menu-item" href="#!" role="menuitemradio" aria-checked="false" lang="fr" data-lang-code="FR"&gt;Français&lt;/a&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
       &lt;span class="utility-divider" aria-hidden="true"&gt;&lt;/span&gt;
       &lt;!-- Portal switcher --&gt;
       &lt;div class="portal-switcher-wrapper" id="portalSwitcherWrapper"&gt;
@@ -2413,6 +2501,19 @@
                           <button class="nav-icon-btn" id="fh-eo-themeToggle" data-cnds-toggle="theme" aria-label="Toggle theme" data-tooltip="Switch to dark theme">
                             <span class="mdi mdi-weather-night"></span>
                           </button>
+                          <!-- Language switcher — same group as the theme toggle, so no divider between them -->
+                          <div class="language-switcher-wrapper" id="fh-eo-languageSwitcherWrapper">
+                            <button type="button" class="language-switcher" id="fh-eo-languageSwitcherToggle" aria-haspopup="menu" aria-expanded="false" aria-controls="fh-eo-languageMenu" aria-label="Language: English" data-tooltip="Language">
+                              <span class="mdi mdi-translate" aria-hidden="true"></span>
+                              <span class="language-switcher-code">EN</span>
+                            </button>
+                            <div class="account-menu" id="fh-eo-languageMenu" role="menu" aria-hidden="true">
+                              <div class="account-menu-header">Language</div>
+                              <a class="account-menu-item active" href="#!" role="menuitemradio" aria-checked="true" lang="en" data-lang-code="EN">English</a>
+                              <a class="account-menu-item" href="#!" role="menuitemradio" aria-checked="false" lang="de" data-lang-code="DE">Deutsch</a>
+                              <a class="account-menu-item" href="#!" role="menuitemradio" aria-checked="false" lang="fr" data-lang-code="FR">Français</a>
+                            </div>
+                          </div>
                           <span class="utility-divider" aria-hidden="true"></span>
                           <div class="user-info-wrapper" id="fh-eo-userAccountWrapper">
                             <span class="user-info" id="fh-eo-userAccountToggle" role="button" tabindex="0" aria-haspopup="menu" aria-expanded="false" aria-controls="fh-eo-accountMenu">
@@ -2510,6 +2611,19 @@
       &lt;button class="nav-icon-btn" id="themeToggle" data-cnds-toggle="theme" aria-label="Toggle theme" data-tooltip="Switch to dark theme"&gt;
         &lt;span class="mdi mdi-weather-night"&gt;&lt;/span&gt;
       &lt;/button&gt;
+      &lt;!-- Language switcher — same group as the theme toggle, so no divider between them --&gt;
+      &lt;div class="language-switcher-wrapper" id="languageSwitcherWrapper"&gt;
+        &lt;button type="button" class="language-switcher" id="languageSwitcherToggle" aria-haspopup="menu" aria-expanded="false" aria-controls="languageMenu" aria-label="Language: English" data-tooltip="Language"&gt;
+          &lt;span class="mdi mdi-translate" aria-hidden="true"&gt;&lt;/span&gt;
+          &lt;span class="language-switcher-code"&gt;EN&lt;/span&gt;
+        &lt;/button&gt;
+        &lt;div class="account-menu" id="languageMenu" role="menu" aria-hidden="true"&gt;
+          &lt;div class="account-menu-header"&gt;Language&lt;/div&gt;
+          &lt;a class="account-menu-item active" href="#!" role="menuitemradio" aria-checked="true" lang="en" data-lang-code="EN"&gt;English&lt;/a&gt;
+          &lt;a class="account-menu-item" href="#!" role="menuitemradio" aria-checked="false" lang="de" data-lang-code="DE"&gt;Deutsch&lt;/a&gt;
+          &lt;a class="account-menu-item" href="#!" role="menuitemradio" aria-checked="false" lang="fr" data-lang-code="FR"&gt;Français&lt;/a&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
       &lt;span class="utility-divider" aria-hidden="true"&gt;&lt;/span&gt;
       &lt;!-- User account --&gt;
       &lt;div class="user-info-wrapper" id="userAccountWrapper"&gt;
@@ -2644,6 +2758,19 @@
                           <button class="nav-icon-btn" id="fh-hl-themeToggle" data-cnds-toggle="theme" aria-label="Toggle theme" data-tooltip="Switch to dark theme">
                             <span class="mdi mdi-weather-night"></span>
                           </button>
+                          <!-- Language switcher — same group as the theme toggle, so no divider between them -->
+                          <div class="language-switcher-wrapper" id="fh-hl-languageSwitcherWrapper">
+                            <button type="button" class="language-switcher" id="fh-hl-languageSwitcherToggle" aria-haspopup="menu" aria-expanded="false" aria-controls="fh-hl-languageMenu" aria-label="Language: English" data-tooltip="Language">
+                              <span class="mdi mdi-translate" aria-hidden="true"></span>
+                              <span class="language-switcher-code">EN</span>
+                            </button>
+                            <div class="account-menu" id="fh-hl-languageMenu" role="menu" aria-hidden="true">
+                              <div class="account-menu-header">Language</div>
+                              <a class="account-menu-item active" href="#!" role="menuitemradio" aria-checked="true" lang="en" data-lang-code="EN">English</a>
+                              <a class="account-menu-item" href="#!" role="menuitemradio" aria-checked="false" lang="de" data-lang-code="DE">Deutsch</a>
+                              <a class="account-menu-item" href="#!" role="menuitemradio" aria-checked="false" lang="fr" data-lang-code="FR">Français</a>
+                            </div>
+                          </div>
                           <span class="utility-divider" aria-hidden="true"></span>
                           <div class="user-info-wrapper" id="fh-hl-userAccountWrapper">
                             <span class="user-info" id="fh-hl-userAccountToggle" role="button" tabindex="0" aria-haspopup="menu" aria-expanded="false" aria-controls="fh-hl-accountMenu">
@@ -2721,6 +2848,19 @@
       &lt;button class="nav-icon-btn" id="themeToggle" data-cnds-toggle="theme" aria-label="Toggle theme" data-tooltip="Switch to dark theme"&gt;
         &lt;span class="mdi mdi-weather-night"&gt;&lt;/span&gt;
       &lt;/button&gt;
+      &lt;!-- Language switcher — same group as the theme toggle, so no divider between them --&gt;
+      &lt;div class="language-switcher-wrapper" id="languageSwitcherWrapper"&gt;
+        &lt;button type="button" class="language-switcher" id="languageSwitcherToggle" aria-haspopup="menu" aria-expanded="false" aria-controls="languageMenu" aria-label="Language: English" data-tooltip="Language"&gt;
+          &lt;span class="mdi mdi-translate" aria-hidden="true"&gt;&lt;/span&gt;
+          &lt;span class="language-switcher-code"&gt;EN&lt;/span&gt;
+        &lt;/button&gt;
+        &lt;div class="account-menu" id="languageMenu" role="menu" aria-hidden="true"&gt;
+          &lt;div class="account-menu-header"&gt;Language&lt;/div&gt;
+          &lt;a class="account-menu-item active" href="#!" role="menuitemradio" aria-checked="true" lang="en" data-lang-code="EN"&gt;English&lt;/a&gt;
+          &lt;a class="account-menu-item" href="#!" role="menuitemradio" aria-checked="false" lang="de" data-lang-code="DE"&gt;Deutsch&lt;/a&gt;
+          &lt;a class="account-menu-item" href="#!" role="menuitemradio" aria-checked="false" lang="fr" data-lang-code="FR"&gt;Français&lt;/a&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
       &lt;span class="utility-divider" aria-hidden="true"&gt;&lt;/span&gt;
       &lt;!-- User account --&gt;
       &lt;div class="user-info-wrapper" id="userAccountWrapper"&gt;
@@ -3021,6 +3161,21 @@
                             <td><code>.portal-switcher-label</code></td>
                             <td><code>&lt;span&gt;</code></td>
                             <td>Portal name text. Collapses to zero width when the search panel needs the space.</td>
+                          </tr>
+                          <tr>
+                            <td><code>.language-switcher-wrapper</code></td>
+                            <td><code>&lt;div&gt;</code></td>
+                            <td>Positioning context for the language dropdown. Sits directly after the theme toggle with no <code>.utility-divider</code> between them. Mirrors Figma <code>Nimbus/LanguageSwitcher</code>, shown by the <code>Show Language</code> header property.</td>
+                          </tr>
+                          <tr>
+                            <td><code>.language-switcher</code></td>
+                            <td><code>&lt;button&gt;</code></td>
+                            <td>Trigger: <code>mdi-translate</code> plus the current language code. No chevron. Its <code>aria-label</code> names the language in full (<code>Language: English</code>) because the code alone is not a screen-reader label.</td>
+                          </tr>
+                          <tr>
+                            <td><code>.language-switcher-code</code></td>
+                            <td><code>&lt;span&gt;</code></td>
+                            <td>Current ISO 639-1 code (<code>EN</code>, <code>DE</code>, <code>FR</code>). Never collapses with the search panel — it is the control's state. Menu items use <code>role="menuitemradio"</code>, name each language in its own language with a matching <code>lang</code> attribute, and mark the current one with <code>.active</code> and <code>aria-checked="true"</code>.</td>
                           </tr>
                           <tr>
                             <td><code>.user-info-wrapper</code></td>
@@ -4432,6 +4587,64 @@ attachTooltipBelow(bellBtn, sharedTip, function () {
 
       document.addEventListener('cnds.ready', function () {
         fitSelectToLongestOption('d2-navSearchCategory');
+      });
+    })();
+    </script>
+    <script type="text/javascript">
+    /* Language switcher — wires every .language-switcher-wrapper on the page.
+       Same open/close, arrow-key and Escape behaviour as the portal menu in initDemoNav(),
+       reusing the .account-menu dropdown and its centred arrow. The outside-click listener
+       runs in the capture phase because the portal and account toggles stop propagation. */
+    (function () {
+      'use strict';
+      document.querySelectorAll('.language-switcher-wrapper').forEach(function (wrapper) {
+        var toggle = wrapper.querySelector('.language-switcher');
+        var menu   = wrapper.querySelector('.account-menu');
+        var code   = wrapper.querySelector('.language-switcher-code');
+        if (!toggle || !menu) return;
+        var items = [].slice.call(menu.querySelectorAll('[role="menuitemradio"]'));
+
+        function open() {
+          var tw = toggle.offsetWidth;
+          menu.style.setProperty('--menu-arrow-outer', Math.round(tw / 2 - 8) + 'px');
+          menu.style.setProperty('--menu-arrow-inner', Math.round(tw / 2 - 7) + 'px');
+          menu.classList.add('open');
+          menu.removeAttribute('aria-hidden');
+          toggle.setAttribute('aria-expanded', 'true');
+          (menu.querySelector('.active') || items[0]).focus();
+        }
+        function close(refocus) {
+          menu.classList.remove('open');
+          menu.setAttribute('aria-hidden', 'true');
+          toggle.setAttribute('aria-expanded', 'false');
+          if (refocus) toggle.focus();
+        }
+        function select(item) {
+          items.forEach(function (i) { var on = i === item; i.classList.toggle('active', on); i.setAttribute('aria-checked', on ? 'true' : 'false'); });
+          if (code) code.textContent = item.getAttribute('data-lang-code');
+          toggle.setAttribute('aria-label', 'Language: ' + item.textContent.trim());
+          close(true);
+        }
+
+        toggle.addEventListener('click', function () { menu.classList.contains('open') ? close(true) : open(); });
+        menu.addEventListener('click', function (e) {
+          var item = e.target.closest('[role="menuitemradio"]');
+          if (item) { e.preventDefault(); select(item); }
+        });
+        menu.addEventListener('keydown', function (e) {
+          if (e.key === 'Escape') { close(true); return; }
+          if (e.key === 'Enter' || e.key === ' ') { var a = document.activeElement; if (items.indexOf(a) > -1) { e.preventDefault(); select(a); } return; }
+          if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+            e.preventDefault();
+            var idx = items.indexOf(document.activeElement);
+            var next = e.key === 'ArrowDown' ? (idx + 1) % items.length : (idx - 1 + items.length) % items.length;
+            items[next].focus();
+          }
+        });
+        toggle.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(true); });
+        document.addEventListener('click', function (e) {
+          if (menu.classList.contains('open') && !wrapper.contains(e.target)) close(false);
+        }, true);
       });
     })();
     </script>
