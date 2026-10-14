@@ -248,20 +248,42 @@
     document.getElementById("mwAllCases").textContent = "SHOW ALL " + access.open + " CASES";
   }
   ["change", "valueChanged.cnds.select"].forEach(function (t) { document.getElementById("mwCasesSort").addEventListener(t, renderCases); });
-  function renderWeek(all) {
-    var wk = M.thisWeek.filter(function (w) { return access.cases.indexOf(w.caseId) !== -1; });
-    var shown = all ? wk : wk.slice(0, 5);
-    /* PRD 11 §7.5: THIS WEEK · {n} dates (the PM's canvas has no "due" count). */
-    document.getElementById("mwWeekCount").textContent = wk.length + " date" + (wk.length === 1 ? "" : "s");
+  /* This Week (PRD 11 §7.5, MW73). Beside Cases Needing Attention, the card shows as many dates as fit within that card's
+     height, then states the remainder with SHOW ALL; stacked, or with Cases shut, there is no height to match, so every
+     date shows. SHOW ALL lists them all (Scott, 10-14). */
+  var weekAll = false;
+  function weekDates() { return M.thisWeek.filter(function (w) { return access.cases.indexOf(w.caseId) !== -1; }); }
+  function drawWeek(n) {
+    var wk = weekDates(), shown = wk.slice(0, n);
+    document.getElementById("mwWeekCount").textContent = wk.length + " date" + (wk.length === 1 ? "" : "s");  /* THIS WEEK · {n} dates */
     document.getElementById("mwWeek").innerHTML = shown.map(function (w) {
       return '<li class="list-group-item"><div class="mw-row-week"><span class="fw-bold">' + esc(w.day) + "</span><div>" + esc(w.what) + '<div class="small text-muted">' + esc(M.caseById(w.caseId).name) + "</div></div>" +
         (w.warn ? '<i class="mdi mdi-alert-outline text-danger" title="Due today or at risk" aria-hidden="true"></i>' : "<i></i>") + "</div></li>";
     }).join("");
-    /* Card footer (Scott, Sally 10-14): the remaining count and SHOW ALL, below the card's blurry footer divider. */
+    /* Card footer below a blurry divider: the remainder and SHOW ALL, only when dates are left out (MW73). */
     var more = wk.length - shown.length;
     document.getElementById("mwWeekFoot").innerHTML = more ? '<hr class="hr hr-blurry demo-card-foot-rule"><div class="d-flex justify-content-between align-items-center"><span class="small text-muted">' +
       more + " more date" + (more === 1 ? "" : "s") + ' later this week</span><button type="button" class="btn btn-tertiary btn-sm" data-mw="week-all">SHOW ALL</button></div>' : "";
   }
+  function renderWeek(all) {
+    if (all) weekAll = true;
+    var wk = weekDates(), two = document.querySelector(".mw-two"), cases = document.querySelector('[aria-labelledby="mwCasesH"]'), week = document.querySelector('[aria-labelledby="mwWeekH"]');
+    var sideBySide = getComputedStyle(two).gridTemplateColumns.split(" ").length > 1;
+    var casesOpen = document.getElementById("mwCasesBody").classList.contains("show"), weekOpen = document.getElementById("mwWeekBody").classList.contains("show");
+    if (weekAll || !sideBySide || !casesOpen || !weekOpen) { drawWeek(wk.length); return; }
+    /* Measure at natural heights (the row normally stretches both cards to the taller one), then drop dates until the
+       card, footer included, fits within the Cases card. */
+    two.classList.add("mw-measuring");
+    var limit = cases.getBoundingClientRect().height, n = wk.length;
+    drawWeek(n);
+    while (n > 1 && week.getBoundingClientRect().height > limit) { n--; drawWeek(n); }
+    two.classList.remove("mw-measuring");
+  }
+  /* Refit when the space changes: a resize, or either card opening or closing. */
+  var refit; window.addEventListener("resize", function () { clearTimeout(refit); refit = setTimeout(function () { renderWeek(false); }, 150); });
+  ["mwCasesBody", "mwWeekBody"].forEach(function (id) {
+    ["shown.cnds.collapse", "hidden.cnds.collapse"].forEach(function (t) { document.getElementById(id).addEventListener(t, function (e) { if (e.target.id === id) renderWeek(false); }); });
+  });
   function renderDid() {
     var did = M.whatCaseFusionDid.filter(function (d) { return access.cases.indexOf(d.caseId) !== -1; });
     document.getElementById("mwDidSince").textContent = "Since you signed off, " + M.signedOff;
@@ -344,6 +366,6 @@
     }
   });
 
-  if (!fontsReady) document.fonts.ready.then(function () { fontsReady = true; renderQueue(); });
+  if (!fontsReady) document.fonts.ready.then(function () { fontsReady = true; renderQueue(); renderWeek(false); });
   render(); renderCases(); renderWeek(false); renderDid();
 }());
