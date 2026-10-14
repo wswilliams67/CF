@@ -204,8 +204,7 @@
   });
 
   /* ── Unsaved-changes guard (Scott, 10-14). Cancelling a modal, panel or form that has input in it asks first,
-        with the CaseFusion discard dialog: "Discard Changes?", KEEP EDITING (secondary) and DISCARD CHANGES
-        (danger). A control counts as changed when its value differs from what it held on first focus; a control
+        with the CaseFusion cancel confirmation: "Please Confirm", NO (secondary) and YES (primary). A control counts as changed when its value differs from what it held on first focus; a control
         changed without focus (a Nimbus Select widget) counts as changed. Search boxes never count.             */
   var initial = new WeakMap();
   function fieldValue(f) { return f.type === "checkbox" || f.type === "radio" ? String(f.checked) : f.value; }
@@ -223,16 +222,15 @@
   function forgetChanges(scope) {
     [].forEach.call(scope.querySelectorAll("input, textarea, select"), function (f) { initial.delete(f); f.removeAttribute("data-demo-changed"); });
   }
-  /* Resolves true when the user chooses to discard. The lede says what will happen if they confirm. */
+  /* Resolves true when the user chooses to discard. The CaseFusion cancel confirmation (Case file 22565:112650):
+     "Please Confirm", a question, NO / YES. Scott chose it over the 09-30 "Discard Changes?" pattern (10-14). */
   function confirmDiscard() {
     return new Promise(function (resolve) {
       var discard = false;
-      var m = modal({ title: "Discard Changes?", noGuard: true,
-        /* One plain paragraph, as in the CaseFusion cancel confirmation (Case file 22565:112650); title and
-           buttons follow the 09-30 discard pattern rather than that sample's "Please Confirm" / Cancel / Yes. */
-        body: '<p class="mb-0">All unsaved information will be lost. This action cannot be undone.</p>',
-        footer: '<button type="button" class="btn btn-secondary" data-cnds-dismiss="modal">KEEP EDITING</button>' +
-                '<button type="button" class="btn btn-danger" data-demo-discard>DISCARD CHANGES</button>',
+      var m = modal({ title: "Please Confirm", noGuard: true,
+        body: '<p class="mb-0">Are you sure you want to cancel? All unsaved information will be lost. This action cannot be undone.</p>',
+        footer: '<button type="button" class="btn btn-secondary" data-cnds-dismiss="modal">NO</button>' +
+                '<button type="button" class="btn btn-primary" data-demo-discard>YES</button>',
         onHidden: function () { resolve(discard); } });
       m.el.querySelector("[data-demo-discard]").addEventListener("click", function () { discard = true; m.hide(); });
     });
