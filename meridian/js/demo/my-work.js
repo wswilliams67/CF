@@ -257,7 +257,7 @@
     var wk = weekDates(), shown = wk.slice(0, n);
     /* THIS WEEK · {n} dates (PRD 11 §7.5), shown as a secondary count badge in the drawer header, as Hold Status's segment counts. */
     var cnt = document.getElementById("mwWeekCount");
-    cnt.textContent = wk.length; cnt.setAttribute("aria-label", wk.length + " date" + (wk.length === 1 ? "" : "s"));
+    cnt.textContent = wk.length + " date" + (wk.length === 1 ? "" : "s");  /* Nimbus badge capitalisation shows "6 Dates" */
     document.getElementById("mwWeek").innerHTML = shown.map(function (w) {
       /* Urgency is said in words, 12px bold danger text under the case, as Preservation at Risk in the queue; no icon-only
          signal (Scott, 10-14). */
