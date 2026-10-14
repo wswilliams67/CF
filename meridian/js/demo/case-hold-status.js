@@ -139,10 +139,11 @@
      on the bottom edge and line up across the row; all card buttons are small tertiary, right-aligned (Scott, 10-14). */
   function block(title, body, count) {
     /* count → a secondary badge across from the card title (the Events card's total, Scott 10-14). */
-    /* Title: the Nimbus category heading with its highlight bar (cf-cat-6, the smallest step), as the Source Types
-       editor's cards use. The column-label style lost the titles among the card content (Scott, 10-14). A div with heading semantics: Nimbus
-       card h4 rules would override the category type. Every card gets the same head row, so the first line of content lines up across the three cards, badge or not. */
-    var head = '<div class="hs-dcard-head"><div class="cf-category cf-cat-6 highlight-casefusion flex-grow-1 mb-0" role="heading" aria-level="4">' + title + "</div>" +
+    /* Title: the Nimbus category type (cf-cat-6: 14px bold, tracked capitals, body colour) without the highlight bar.
+       The bar marks page sections such as SOURCES; nested cards must not match it, and a muted label got lost
+       (Sally, Scott 10-14). A div with heading semantics: Nimbus card h4 rules would override the category type.
+       Every card gets the same head row, so the first line of content lines up across the cards, badge or not. */
+    var head = '<div class="hs-dcard-head"><div class="cf-category cf-cat-6 flex-grow-1 mb-0" role="heading" aria-level="4">' + title + "</div>" +
       (count ? '<span class="badge badge-secondary" aria-label="' + count + ' events">' + count + "</span>" : "") + "</div>";
     return '<div class="col-md-4"><div class="card card-outline h-100 hs-dcard"><div class="card-body">' + head + body + "</div></div></div>";
   }
