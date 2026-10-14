@@ -121,7 +121,7 @@
     var a = primaryAction(s);
     var open = !!expanded[s.id];
     var live = s.exception && openExc(s);
-    return '<li class="list-group-item" id="row-' + s.id + '"><div class="hs-row">' +
+    return '<li class="list-group-item' + (open ? " hs-open" : "") + '" id="row-' + s.id + '"><div class="hs-row">' +
         '<div class="hs-id"><span class="d-block fw-bold">' + esc(TYPE_LABEL[s.type] || s.type) + '</span><span class="d-block small text-muted">' + subject(s) + "</span></div>" +
         '<div class="hs-status"><span class="hs-col-label">Status</span><div class="d-flex flex-wrap align-items-center gap-1">' + pill(s) + excBadge(s) +
             (live ? '<span class="small fw-bold text-danger ms-1">' + esc(s.exception.type) + "</span>" : "") + "</div>" +
@@ -286,6 +286,14 @@
       b.setAttribute("aria-label", b.getAttribute("aria-label").replace(/^(View|Hide)/, open ? "Hide" : "View"));
     }
   }
+  /* The open fill goes on as the row starts opening and comes off as it starts closing, so it never trails the slide. */
+  function markOpen(e, open) {
+    if (!e.target.id || e.target.id.indexOf("det-") !== 0) return;
+    var li = e.target.closest(".list-group-item");
+    if (li) li.classList.toggle("hs-open", open);
+  }
+  document.addEventListener("show.cnds.collapse", function (e) { markOpen(e, true); });
+  document.addEventListener("hide.cnds.collapse", function (e) { markOpen(e, false); });
   document.addEventListener("shown.cnds.collapse", function (e) { syncDetails(e, true); });
   document.addEventListener("hidden.cnds.collapse", function (e) { syncDetails(e, false); });
 
