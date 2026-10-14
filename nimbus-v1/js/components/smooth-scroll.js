@@ -19,6 +19,20 @@
   // navigation links (sidenav, right-rail scrollspy) also animate.
   const SELECTOR = 'a[href^="#"]:not([href="#"])';
 
+  // Placeholder hrefs ("#!", "#0") and anything else that is not a valid CSS
+  // selector must never reach document.querySelector, which throws a SyntaxError
+  // on them ("'#!' is not a valid selector") and breaks every placeholder link
+  // in menus and the sidenav. Resolve through this guard instead: no element, no
+  // scroll, and the link's own handler (or its default) runs untouched.
+  function findTarget(href) {
+    if (!href || href === "#" || href === "#!") return null;
+    try {
+      return document.querySelector(href);
+    } catch (err) {
+      return null;
+    }
+  }
+
   const Default = {
     container: "body",
     duration: 500,
@@ -88,7 +102,7 @@
       const href = this._element.getAttribute("href");
       if (!href || href === "#") return;
 
-      const target = document.querySelector(href);
+      const target = findTarget(href);
       if (!target) return;
 
       event.preventDefault();
@@ -213,7 +227,7 @@
     const href = this.getAttribute("href") || this.dataset.cndsTarget;
     if (!href || href === "#") return;
 
-    const target = document.querySelector(href);
+    const target = findTarget(href);
     if (!target) return;
 
     event.preventDefault();
