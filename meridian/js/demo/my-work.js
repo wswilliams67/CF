@@ -256,8 +256,11 @@
     document.getElementById("mwWeek").innerHTML = shown.map(function (w) {
       return '<li class="list-group-item"><div class="mw-row-week"><span class="fw-bold">' + esc(w.day) + "</span><div>" + esc(w.what) + '<div class="small text-muted">' + esc(M.caseById(w.caseId).name) + "</div></div>" +
         (w.warn ? '<i class="mdi mdi-alert-outline text-danger" title="Due today or at risk" aria-hidden="true"></i>' : "<i></i>") + "</div></li>";
-    }).join("") + (wk.length > shown.length ? '<li class="list-group-item small text-muted">' + (wk.length - shown.length) + " more date" + (wk.length - shown.length === 1 ? "" : "s") +
-      ' later this week · <button type="button" class="btn btn-tertiary btn-sm" data-mw="week-all">SHOW ALL</button></li>' : "");
+    }).join("");
+    /* Card footer (Scott, Sally 10-14): the remaining count and SHOW ALL, below the card's blurry footer divider. */
+    var more = wk.length - shown.length;
+    document.getElementById("mwWeekFoot").innerHTML = more ? '<hr class="hr hr-blurry demo-card-foot-rule"><div class="d-flex justify-content-between align-items-center"><span class="small text-muted">' +
+      more + " more date" + (more === 1 ? "" : "s") + ' later this week</span><button type="button" class="btn btn-tertiary btn-sm" data-mw="week-all">SHOW ALL</button></div>' : "";
   }
   function renderDid() {
     var did = M.whatCaseFusionDid.filter(function (d) { return access.cases.indexOf(d.caseId) !== -1; });
