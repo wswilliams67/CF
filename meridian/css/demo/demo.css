@@ -157,15 +157,18 @@ button.demo-tile:disabled { cursor: default; opacity: .5; }
    chevron), and the body is a Nimbus .collapse, so it slides to its real height instead of a fixed max-height.
    Markup: section.card.card-basic.card-drawer.demo-drawer > .card-body > .card-top.demo-drawer-top
            (h2.cf-category + optional count + button.card-drawer-toggle[data-cnds-toggle=collapse]) + .collapse.card-drawer-body */
-.demo-drawer > .card-body { padding: var(--cnds-spacer-3); }  /* 16 all round, so a collapsed card sits even (Scott, 10-14) */
-.demo-drawer-top { display: flex; align-items: center; gap: var(--cnds-spacer-3); padding-bottom: var(--cnds-spacer-2); transition: padding-bottom .3s ease; }
-.demo-drawer-top:has(+ .card-drawer-body:not(.show):not(.collapsing)) { padding-bottom: 0; }
+/* Even padding open or shut, with no :has() (Scott, 10-14): the card pads 16 top / 8 bottom, the top row always has 8 under
+   it, and the body adds 8 at its own foot. Collapsed, the body is gone, so the card reads 16 above and 8 + 8 below; open,
+   the content still ends 16 from the edge. */
+.demo-drawer > .card-body { padding: var(--cnds-spacer-3) var(--cnds-spacer-3) var(--cnds-spacer-2); }
+.demo-drawer-top { display: flex; align-items: center; gap: var(--cnds-spacer-3); padding-bottom: var(--cnds-spacer-2); }
+.demo-drawer > .card-body > .card-drawer-body > :last-child { margin-bottom: var(--cnds-spacer-2); }
 .demo-drawer-top .cf-category.cf-cat-6 { --cnds-category-padding-bottom: 4px; }
 .card-drawer-toggle { flex: 0 0 auto; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
   padding: 0; border: 0; background: none; cursor: pointer; color: var(--cnds-link-color); }
 .card-drawer-toggle .mdi { transition: transform .25s ease; }
 .card-drawer-toggle[aria-expanded="false"] .mdi { transform: rotate(180deg); }
-@media (prefers-reduced-motion: reduce) { .card-drawer-toggle .mdi, .demo-drawer-top { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .card-drawer-toggle .mdi { transition: none; } }
 /* Lists and tables inside a drawer take the card's surface. */
 .demo-drawer .list-group { --cnds-list-group-bg: transparent; }
 .demo-drawer .list-group > .list-group-item { background-color: transparent; }
@@ -174,9 +177,6 @@ button.demo-tile:disabled { cursor: default; opacity: .5; }
 .card-drawer-body.collapsed { display: none; }
 .card-drawer .card-top:not(.demo-drawer-top) { display: flex; align-items: center; gap: var(--cnds-spacer-3); }
 .card-drawer .card-top:not(.demo-drawer-top) > .card-titles { flex: 1; }
-/* Collapsed: the category heading carries padding under its text, so the card's bottom padding drops by 8px to put the
-   heading's letters the same distance from both edges (18px each). */
-.demo-drawer:has(> .card-body > .card-drawer-body:not(.show):not(.collapsing)) > .card-body { padding-bottom: var(--cnds-spacer-2); }
 
 /* Toolbar dividers are blurry (Scott, 10-14): the house rule for dividers between parts of one bar. The Nimbus
    .toolbar-list-divider is a solid 1px fill, so it takes the .vr-blurry gradient here (same colour token), keeping its
