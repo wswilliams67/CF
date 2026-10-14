@@ -309,6 +309,22 @@
     expanded[s.id] = true;
     render();
   }
+  /* Who and what a dialog acts on, at the top of its body (PM, 10-14: the dialog covers the row, and the action
+     matters enough to restate it). The custodian follows the viewer's region rule: a limited profile shows the
+     lock and "Profile details limited", as in the row. An orphan hold's person is not a custodian of this case. */
+  function dialogContext(s) {
+    var src = TYPE_LABEL[s.type] || s.type;
+    if (s.type === "Laptop" || s.type === "Mobile device") src += " · " + s.name.replace(/^(Laptop|Mobile) /, "");
+    else if (!s.owner) src += " · " + s.name;
+    var rows = [["Source", esc(src)]];
+    if (s.owner) {
+      var p = M.person(s.owner);
+      rows.push([s.exception && s.exception.type === "Orphan hold" ? "Person" : "Custodian",
+        D.canSee(p) ? esc(p.name) : '<span class="demo-masked"><i class="mdi mdi-lock-outline" aria-hidden="true"></i>Profile details limited</span>']);
+    }
+    if (s.exception) rows.push(["Exception", esc(s.exception.type)]);
+    return kv(rows);
+  }
   function lifecycle(s, to) {
     var effect = {
       Acknowledged: "The exception is set to Acknowledged. The source stays in Needs Attention until the exception is resolved.",
@@ -316,7 +332,7 @@
       Muted: "The exception is set to Muted. A new exception of the same type on this source reopens it."
     }[to];
     var verb = { Acknowledged: "ACKNOWLEDGE", Resolved: "RESOLVE", Muted: "MUTE" }[to];
-    D.reasonDialog({ title: verb.charAt(0) + verb.slice(1).toLowerCase() + " exception", intro: s.exception.type + " · " + (TYPE_LABEL[s.type] || s.type),
+    D.reasonDialog({ title: verb.charAt(0) + verb.slice(1).toLowerCase() + " Exception", extra: dialogContext(s),
       effect: effect, confirm: verb }).then(function (r) {
       if (!r) return;
       var before = M.segmentOf(s);
@@ -334,8 +350,8 @@
     var options = M.cases.filter(function (c) { return (c.status === "Open" && c.region === v.region) || c.id === D.caseId; })
       .map(function (c) { return [c.id, c.id + " · " + c.name]; });
     D.reasonDialog({
-      title: "Link hold to a case", intro: "The hold is recorded against the selected case as a non-custodial held source.",
-      extra: D.select("hsLinkCase", options, D.caseId, "Case", { container: "{{modal}}", cls: "mb-3" }),
+      title: "Link Hold to a Case",
+      extra: dialogContext(s) + '<p class="mb-3">The hold is recorded against the selected case as a non-custodial held source.</p>' + D.select("hsLinkCase", options, D.caseId, "Case", { container: "{{modal}}", cls: "mb-3" }),
       effect: "The orphan hold exception is set to Resolved. The hold itself does not change.", confirm: "LINK TO CASE"
     }).then(function (r) {
       if (!r) return;
