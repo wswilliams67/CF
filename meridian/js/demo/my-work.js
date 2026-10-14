@@ -61,17 +61,24 @@
       tile("week", req + ack, "Due This Week", req + " requests · " + ack + " acknowledgment" + (ack === 1 ? "" : "s"), false, !(req + ack));
   }
 
-  /* ── Queue (Nimbus: nav-pills filters, list-group rows, dropdown snooze) ─ */
+  /* ── Queue (Nimbus: toggle button group filters, list-group rows, dropdown snooze) ─ */
   var KIND_BADGE = { GAP: "warning", ANSWER: "info", DECIDE: "danger", APPROVE: "caution", CONFIRM: "success", REVIEW: "secondary" };
   function renderChips() {
     var o = open();
     var defs = [["open", "Open", o.length], ["found", "Found by CaseFusion", o.filter(function (r) { return r.found; }).length], ["snoozed", "Snoozed", snoozed().length]];
     ["GAP", "ANSWER", "DECIDE", "APPROVE", "CONFIRM", "REVIEW"].forEach(function (k) { defs.push([k, KIND[k], o.filter(function (r) { return r.chip === k; }).length]); });
     if (chip === "risk") defs.splice(1, 0, ["risk", "Preservation at risk", o.filter(function (r) { return r.locked; }).length]);
-    document.getElementById("mwChips").innerHTML = defs.map(function (d) {
-      return '<li class="nav-item"><button type="button" class="nav-link' + (chip === d[0] ? " active" : "") + '" data-chip="' + d[0] + '" aria-pressed="' + (chip === d[0]) + '">' +
-        esc(d[1]) + ' <span class="nav-pill-badge">' + d[2] + "</span></button></li>";
-    }).join("");
+    /* Two Nimbus toggle button groups (radio btn-check + button labels, single select, pill ends): status
+       filters, then kinds, split by a toolbar divider. A filter with nothing in it is disabled, never hidden. */
+    var status = defs.filter(function (d) { return !KIND[d[0]]; }), kinds = defs.filter(function (d) { return KIND[d[0]]; });
+    var group = function (list, label) {
+      return '<div class="btn-group btn-group-sm" role="group" aria-label="' + label + '">' + list.map(function (d) {
+        var id = "mwF-" + d[0], on = chip === d[0];
+        return '<input type="radio" class="btn-check" name="mwFilter" id="' + id + '" value="' + d[0] + '" autocomplete="off"' + (on ? " checked" : "") + (d[2] || on ? "" : " disabled") + ">" +
+          '<label class="btn btn-secondary btn-rounded" for="' + id + '">' + esc(d[1]) + " (" + d[2] + ")</label>";
+      }).join("") + "</div>";
+    };
+    document.getElementById("mwChips").innerHTML = group(status, "Queue status") + '<span class="toolbar-list-divider" aria-hidden="true"></span>' + group(kinds, "Kind of work");
   }
   function sortValue() { var el = document.getElementById("mwSort"); return el ? el.value : "urgent"; }
   function filtered() {
@@ -206,10 +213,14 @@
   function onSort() { renderQueue(); }
   document.getElementById("mwSort").addEventListener("change", onSort);
   document.getElementById("mwSort").addEventListener("valueChanged.cnds.select", onSort);
+  /* Queue filters are radios: one change event per selection. */
+  document.getElementById("mwChips").addEventListener("change", function (e) { if (e.target.name === "mwFilter") { chip = e.target.value; render(); } });
+  /* The section chevron: Nimbus collapse drives the slide; keep its label in step. */
+  document.getElementById("mwQueueBody").addEventListener("shown.cnds.collapse", function (e) { if (e.target.id === "mwQueueBody") document.querySelector(".mw-collapse").setAttribute("aria-label", "Collapse Action Queue"); });
+  document.getElementById("mwQueueBody").addEventListener("hidden.cnds.collapse", function (e) { if (e.target.id === "mwQueueBody") document.querySelector(".mw-collapse").setAttribute("aria-label", "Expand Action Queue"); });
   document.addEventListener("click", function (e) {
     var t = e.target.closest("button, a");
     if (!t) return;
-    if (t.hasAttribute("data-chip")) { e.preventDefault(); chip = t.getAttribute("data-chip"); render(); return; }
     if (t.hasAttribute("data-tile")) {
       var k = t.getAttribute("data-tile");
       if (k === "week") { renderWeek(true); document.getElementById("mwWeekH").scrollIntoView({ behavior: "smooth", block: "center" }); return; }
