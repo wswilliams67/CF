@@ -48,15 +48,17 @@
     var wk = M.thisWeek.filter(function (w) { return access.cases.indexOf(w.caseId) !== -1; });
     var req = wk.filter(function (w) { return w.kind === "request"; }).reduce(function (n, w) { return n + w.n; }, 0);
     var ack = wk.filter(function (w) { return w.kind === "ack"; }).reduce(function (n, w) { return n + w.n; }, 0);
-    function tile(key, value, name, sub, pressed) {
-      return '<button type="button" class="card card-basic demo-tile" data-tile="' + key + '" aria-pressed="' + !!pressed + '"><span class="card-subtitle demo-tile-name">' + esc(name) +
+    /* Shared summary-card style (demo.css). Names in Title Case (CSS uppercases them); a tile with nothing behind it is
+       disabled, never hidden (Scott, 10-14). */
+    function tile(key, value, name, sub, pressed, disabled) {
+      return '<button type="button" class="card card-basic demo-tile" data-tile="' + key + '" aria-pressed="' + !!pressed + '"' + (disabled ? " disabled" : "") + '><span class="card-subtitle demo-tile-name">' + esc(name) +
         '</span><span class="card-title demo-tile-value">' + value + '</span><span class="card-text demo-tile-label">' + esc(sub) + "</span></button>";
     }
     document.getElementById("mwTiles").innerHTML =
-      tile("needs", rows.length, "NEEDS YOU", "Across " + cases + " of " + access.open + " cases", chip === "open") +
-      tile("risk", uTotal, "PRESERVATION AT RISK", uParts.join(" · ") || "Nothing at risk", chip === "risk") +
-      tile("overdue", od.length, "OVERDUE WITH RESPONSE TEAMS", od.length ? "Oldest " + od[0].days + " days · " + od[0].team : "None") +
-      tile("week", req + ack, "DUE THIS WEEK", req + " requests · " + ack + " acknowledgment" + (ack === 1 ? "" : "s"));
+      tile("needs", rows.length, "Needs You", "Across " + cases + " of " + access.open + " cases", chip === "open", !rows.length) +
+      tile("risk", uTotal, "Preservation at Risk", uParts.join(" · ") || "Nothing at risk", chip === "risk", !uTotal) +
+      tile("overdue", od.length, "Overdue with Response Teams", od.length ? "Oldest " + od[0].days + " days · " + od[0].team : "None") +
+      tile("week", req + ack, "Due This Week", req + " requests · " + ack + " acknowledgment" + (ack === 1 ? "" : "s"), false, !(req + ack));
   }
 
   /* ── Queue (Nimbus: nav-pills filters, list-group rows, dropdown snooze) ─ */
@@ -97,7 +99,7 @@
   }
   function snoozeHtml(r) {
     if (r.snoozedUntil) return '<div class="small text-muted">Snoozed until ' + esc(M.fmtDate(r.snoozedUntil)) + '</div><button type="button" class="btn btn-tertiary btn-sm" data-unsnooze="' + r.id + '">UNSNOOZE</button>';
-    if (r.locked) return '<div class="small fw-bold text-muted">CANNOT SNOOZE</div><span class="badge badge-pill badge-danger">Preservation at risk</span>';
+    if (r.locked) return '<span class="demo-label">Cannot Snooze</span><span class="badge badge-pill badge-danger">Preservation at risk</span>';
     return '<div class="dropdown d-inline-block"><button type="button" class="btn btn-tertiary btn-sm" data-cnds-toggle="dropdown" aria-expanded="false" aria-haspopup="menu">SNOOZE…</button>' +
       '<ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion dropdown-menu-end">' +
       [["1", "Tomorrow"], ["3", "3 days"], ["7", "7 days"], ["30", "30 days (the longest)"]].map(function (o) {
@@ -109,8 +111,9 @@
     var old = age(r) >= 5 && r.chip === "GAP";
     return '<li class="list-group-item" id="mw-' + r.id + '"><div class="mw-item">' +
       '<div><span class="badge badge-' + KIND_BADGE[r.chip] + '">' + r.chip + "</span></div>" +
-      '<div><div class="mw-item-what">' + esc(m && r.whatMasked ? r.whatMasked : r.what) + '</div><div class="small text-muted">' + esc(m && r.whyMasked ? r.whyMasked : r.why) + "</div>" +
-        (r.found ? '<div class="small fw-bold text-warning mt-1">FOUND BY CASEFUSION</div>' : "") + "</div>" +
+      '<div><div class="mw-item-what">' + esc(m && r.whatMasked ? r.whatMasked : r.what) + '</div><div class="text-muted">' + esc(m && r.whyMasked ? r.whyMasked : r.why) + "</div>" +
+        /* Why-now is read before acting: 14px. The found flag is a scanned label: demo-label, 12px muted (Scott, 10-14). */
+        (r.found ? '<span class="demo-label mt-1 mb-0">Found by CaseFusion</span>' : "") + "</div>" +
       '<div><a href="' + caseHref + '">' + esc(caseName(r.caseId)) + "</a></div>" +
       '<div class="' + (old ? "text-danger fw-bold" : "") + '">' + esc(waiting(r)) + "</div>" +
       '<div class="mw-item-actions">' + actionHtml(r.action, r.id, true) + actionHtml(r.second, r.id + "-2", false) + "</div>" +
@@ -120,8 +123,15 @@
     var list = filtered(), o = open();
     document.getElementById("mwQueueSummary").textContent = o.length + " items · " + o.filter(function (r) { return r.found; }).length + " found by CaseFusion · " + snoozed().length + " snoozed";
     document.getElementById("mwQueue").innerHTML = list.map(rowHtml).join("") ||
-      '<li class="list-group-item text-center text-muted">' + (chip === "snoozed" ? "Nothing is snoozed." : "Nothing needs you") + "</li>";
+      '<li class="list-group-item">' + emptyState(chip === "snoozed" ? "Nothing is snoozed" : "Nothing needs you",
+        chip === "snoozed" ? "Snoozed items return to the action queue on their date." : "New items appear here as soon as a case needs action.") + "</li>";
     document.getElementById("mwQueueFoot").innerHTML = "<span>1–" + list.length + " of " + list.length + " · " + snoozed().length + " snoozed</span><span>Results per page: 25</span>";
+  }
+
+  /* Shared empty state (demo.css .demo-empty): icon, bold title, muted note, centred (Scott, 10-14). */
+  function emptyState(title, note) {
+    return '<div class="demo-empty"><i class="mdi mdi-cancel cnds-icon-2xl" aria-hidden="true"></i><span class="demo-empty-title">' + esc(title) +
+      '</span><span class="demo-empty-note">' + esc(note) + "</span></div>";
   }
 
   /* ── Lower sections (table, list groups) ────────────────────────────── */
@@ -161,7 +171,7 @@
     document.getElementById("mwDid").innerHTML = did.map(function (d) {
       return '<li class="list-group-item"><div class="mw-row-did"><i class="mdi mdi-check text-success" aria-hidden="true"></i><span class="fw-bold">' + d.n + " " + esc(d.what) +
         '</span><span class="text-muted">' + esc(d.context) + '</span><span class="text-muted text-end">' + esc(d.when) + "</span></div></li>";
-    }).join("") || '<li class="list-group-item text-muted">CaseFusion did not need to do anything since you signed off.</li>';
+    }).join("") || '<li class="list-group-item">' + emptyState("Nothing to report", "CaseFusion did not need to do anything since you signed off.") + "</li>";
   }
   function render() { renderTop(); renderChips(); renderQueue(); }
 
@@ -175,13 +185,13 @@
     var me = M.person(v.personId);
     var did = M.whatCaseFusionDid.filter(function (x) { return access.cases.indexOf(x.caseId) !== -1; });
     var tbl = function (head, body) { return '<div class="table-responsive mb-3"><table class="table table-sm align-middle mb-0"><thead><tr>' + head.map(function (h) { return '<th scope="col">' + h + "</th>"; }).join("") + "</tr></thead><tbody>" + body + "</tbody></table></div>"; };
-    var m = D.modal({ title: "Weekly status report", size: "lg",
+    var m = D.modal({ title: "Weekly Status Report", size: "lg",
       body: '<p class="text-muted">' + esc(me.name) + " · every case you can open · 10-02-2026 – 10-08-2026. Generated from My Work; snoozed items are included and marked.</p>" +
         '<div class="cf-category cf-cat-4">Outstanding</div>' + tbl(["Kind", "What", "Case", "Waiting"], rows.map(function (r) {
           return "<tr><td>" + esc(r.chip) + "</td><td>" + esc(masked(r) && r.whatMasked ? r.whatMasked : r.what) + "</td><td>" + esc(M.caseById(r.caseId).name) + "</td><td>" + esc(waiting(r)) +
-            (r.snoozedUntil ? ' <span class="badge badge-pill badge-warning">snoozed until ' + esc(M.fmtDate(r.snoozedUntil)) + "</span>" : "") + "</td></tr>"; }).join("")) +
-        '<div class="cf-category cf-cat-4">What CaseFusion did</div>' + tbl(["Count", "Context"], did.map(function (x) { return "<tr><td>" + x.n + " " + esc(x.what) + "</td><td>" + esc(x.context) + "</td></tr>"; }).join("")) +
-        '<div class="cf-category cf-cat-4">Due next</div>' + tbl(["Day", "What", "Case"], M.thisWeek.filter(function (w) { return access.cases.indexOf(w.caseId) !== -1; }).map(function (w) {
+            (r.snoozedUntil ? ' <span class="badge badge-pill badge-warning">Snoozed until ' + esc(M.fmtDate(r.snoozedUntil)) + "</span>" : "") + "</td></tr>"; }).join("")) +
+        '<div class="cf-category cf-cat-4">What CaseFusion Did</div>' + tbl(["Count", "Context"], did.map(function (x) { return "<tr><td>" + x.n + " " + esc(x.what) + "</td><td>" + esc(x.context) + "</td></tr>"; }).join("")) +
+        '<div class="cf-category cf-cat-4">Due Next</div>' + tbl(["Day", "What", "Case"], M.thisWeek.filter(function (w) { return access.cases.indexOf(w.caseId) !== -1; }).map(function (w) {
           return "<tr><td>" + esc(w.day) + "</td><td>" + esc(w.what) + "</td><td>" + esc(M.caseById(w.caseId).name) + "</td></tr>"; }).join("")),
       footer: '<button type="button" class="btn btn-secondary" data-cnds-dismiss="modal">CLOSE</button><button type="button" class="btn btn-primary" data-report-dl>DOWNLOAD</button>' });
     m.el.querySelector("[data-report-dl]").addEventListener("click", function () {

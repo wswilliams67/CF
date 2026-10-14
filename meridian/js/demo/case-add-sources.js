@@ -20,14 +20,16 @@
     document.getElementById("asWindow").textContent = M.fmtDate(M.window.start) + " – " + M.fmtDate(M.window.end);
     var list = rows.slice();
     if (st.showSkype) list.push(skype);
-    var html = '<thead><tr><th scope="col"></th><th scope="col">Source</th><th scope="col">Content coverage</th><th scope="col">Reason</th><th scope="col">Status</th><th scope="col"></th></tr></thead><tbody>';
+    /* Type rule (Scott, 10-14): the scope line under a source name and the recorded-decision line are meta, 12px
+       (.as-meta, defined in the page); names, coverage and reasons stay 14px. Coverage does not wrap mid-range. */
+    var html = '<thead><tr><th scope="col"></th><th scope="col">Source</th><th scope="col">Content Coverage</th><th scope="col">Reason</th><th scope="col">Status</th><th scope="col"></th></tr></thead><tbody>';
     list.forEach(function (r) {
       var decom = r.status === "Decommissioned";
       html += '<tr><td><div class="form-check mb-0"><input type="checkbox" class="form-check-input" data-tick="' + r.id + '"' + (st.ticked[r.id] ? " checked" : "") + (r.id === "yammer" ? " disabled" : "") +
-        ' aria-label="Add ' + esc(r.name) + '" /></div></td><td><span class="fw-bold">' + esc(r.name) + "</span>" + (r.successor ? ' <span class="badge badge-pill badge-info">Successor</span>' : "") +
-        '<span class="d-block small text-muted">' + esc(r.scope) + "</span></td><td>" + esc(r.cov) + "</td><td>" + esc(r.reason) + "</td>" +
+        ' aria-label="Add ' + esc(r.name) + '" /></div></td><td class="as-source"><span class="fw-bold">' + esc(r.name) + "</span>" + (r.successor ? ' <span class="badge badge-pill badge-info">Successor</span>' : "") +
+        '<span class="d-block as-meta text-muted">' + esc(r.scope) + '</span></td><td class="text-nowrap">' + esc(r.cov) + "</td><td>" + esc(r.reason) + "</td>" +
         '<td><span class="badge badge-pill badge-' + (decom ? "secondary" : "success") + '">' + esc(r.status) + "</span></td>" +
-        '<td class="text-end">' + (r.id === "yammer" ? '<a class="btn btn-tertiary btn-sm" href="admin-source-types.html?edit=Yammer">VIEW SOURCE TYPE</a>' : "") + "</td></tr>";
+        '<td class="text-end">' + (r.id === "yammer" ? '<a class="btn btn-tertiary btn-sm text-nowrap" href="admin-source-types.html?edit=Yammer">VIEW SOURCE TYPE</a>' : "") + "</td></tr>";
       if (r.id === "yammer") {
         if (st.redirect === "open") {
           /* GAP #5: alert with actions. */
@@ -36,7 +38,7 @@
             ", which is inside this case window. Viva Engage carries that content forward. Yammer itself can no longer be preserved or collected.</p>" +
             '<button type="button" class="btn btn-primary btn-sm" data-as="scope-viva">SCOPE VIVA ENGAGE INSTEAD</button> <button type="button" class="btn btn-secondary btn-sm" data-as="leave-out">LEAVE OUT</button></div></div></td></tr>';
         } else {
-          html += '<tr><td></td><td colspan="5"><span class="small text-muted"><i class="mdi mdi-check" aria-hidden="true"></i> ' +
+          html += '<tr><td></td><td colspan="5"><span class="as-meta text-muted"><i class="mdi mdi-check" aria-hidden="true"></i> ' +
             (st.redirect === "viva" ? "Viva Engage scoped instead of Yammer · recorded by " + esc(M.person(D.viewer().personId).name) + " · " + esc(M.fmtDate(M.DEMO_TODAY)) :
               "Yammer's period left out · recorded with this case · Viva Engage not added") + '</span> <button type="button" class="btn btn-tertiary btn-sm" data-as="undo">UNDO</button></td></tr>';
         }

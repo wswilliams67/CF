@@ -197,9 +197,10 @@
     });
     ex.forEach(function (e) { chips.push('<span class="chip chip-outline-light">' + e[0] + ' <i class="close mdi mdi-close-circle" role="button" tabindex="0" aria-label="Remove exclusion" data-clear="' + esc(e[1]) + '"></i></span>'); });
     document.getElementById("dmRefined").innerHTML = chips.length ?
-      '<div class="card card-basic mt-3 mb-0 dm-refined"><div class="card-body"><div class="d-flex align-items-center gap-3 mb-2"><h3 class="cf-category cf-cat-6 mb-0 me-auto">Refined results - applied to the filters above</h3>' +
-        (hasDate ? '<button type="button" class="btn btn-tertiary btn-sm" data-clear="dates">CLEAR ALL DATES</button>' : "") +
-        (ex.length ? '<button type="button" class="btn btn-tertiary btn-sm" data-clear="exclusions">CLEAR ALL EXCLUSIONS</button>' : "") +
+      '<div class="card card-basic mt-3 mb-0 dm-refined"><div class="card-body"><div class="d-flex align-items-center gap-3 mb-2"><h3 class="cf-category cf-cat-6 mb-0 me-auto">Refined Results - Applied to the Filters Above</h3>' +
+        /* Disable, never hide: both clear actions are always present; one with nothing to clear is disabled (Scott, 10-14). */
+        '<button type="button" class="btn btn-tertiary btn-sm" data-clear="dates"' + (hasDate ? "" : " disabled") + ">CLEAR ALL DATES</button>" +
+        '<button type="button" class="btn btn-tertiary btn-sm" data-clear="exclusions"' + (ex.length ? "" : " disabled") + ">CLEAR ALL EXCLUSIONS</button>" +
         '</div><div class="d-flex flex-wrap gap-2">' + chips.join("") + "</div></div></div>" : "";
   }
   function dateMenu(err) {
@@ -211,7 +212,7 @@
     var us = function (iso) { var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso); return m ? m[2] + "-" + m[3] + "-" + m[1] : ""; };
     var el = document.getElementById("dmDateMenu");
     el.querySelectorAll("[data-cnds-datepicker-init]").forEach(function (x) { var i = Nimbus.Datepicker && Nimbus.Datepicker.getInstance(x); if (i) i.dispose(); });
-    el.innerHTML = '<div class="px-3 py-2"><h3 class="cf-category cf-cat-6">Date range</h3>' + f("dmFrom", "From", us(M.window.start)) + f("dmTo", "To", us(M.window.end)) +
+    el.innerHTML = '<div class="px-3 py-2"><h3 class="cf-category cf-cat-6">Date Range</h3>' + f("dmFrom", "From", us(M.window.start)) + f("dmTo", "To", us(M.window.end)) +
       '<div class="d-flex justify-content-end gap-2 mt-2"><button type="button" class="btn btn-secondary btn-sm" data-dm="date-cancel">CANCEL</button><button type="button" class="btn btn-primary btn-sm" data-dm="date-add">ADD</button></div></div>';
     if (window.Nimbus && Nimbus.Datepicker) el.querySelectorAll("[data-cnds-datepicker-init]").forEach(function (x) { new Nimbus.Datepicker(x, { format: "mm-dd-yyyy" }); });
   }
@@ -229,25 +230,29 @@
       var c = custIds.filter(custInView);
       var ev = function (id) { return activityOf(id).events; };
       var meaningful = c.filter(function (id) { return ev(id) >= 500; }).length;
-      var t = function (n, v) { return '<div class="card dm-card dm-card-static"><div class="card-body"><span class="dm-card-label">' + n + '</span><span class="dm-card-value">' + v + "</span></div></div>"; };
-      el.className = "dm-cards dm-cards-4";
-      el.innerHTML = t("Custodians in the case", c.length) + t("On hold - this case", c.filter(function (id) { return holdOf(id) === "Active"; }).length) +
-        t("Meaningful UAL activity", meaningful) + t("Minimal / no activity", c.length - meaningful);
+      /* Shared summary-card markup (demo.css SHARED SCREEN PATTERNS): names in Title Case, the CSS uppercases them
+         (Scott, 10-14). These four are read-only, so they stay divs. */
+      var t = function (n, v) { return '<div class="card card-basic demo-tile"><span class="card-subtitle demo-tile-name">' + n + '</span><span class="card-title demo-tile-value">' + v + "</span></div>"; };
+      el.className = "demo-tiles dm-tiles dm-tiles-4";
+      el.innerHTML = t("Custodians in the Case", c.length) + t("On Hold - This Case", c.filter(function (id) { return holdOf(id) === "Active"; }).length) +
+        t("Meaningful UAL Activity", meaningful) + t("Minimal / No Activity", c.length - meaningful);
       note.hidden = false;
       return;
     }
     note.hidden = true;
-    el.className = "dm-cards";
+    el.className = "demo-tiles dm-tiles";
     var vis = visible();
+    /* Source-type cards are filters: shared summary-card markup and states (selected = green outline, set by
+       shell.js); a type with no sources is disabled, never hidden (Scott, 10-14). */
     el.innerHTML = CARDS.map(function (k) {
       var list = all.filter(function (s) { return kindOf(s) === k[0] && (!st.kinds[k[0]] || vis.indexOf(s) !== -1) && !st.exSrc[s.id]; });
       var off = !st.kinds[k[0]];
-      return '<button type="button" class="card dm-card" data-card="' + k[0] + '" aria-pressed="' + (st.card === k[0]) + '"><div class="card-body">' +
-        '<span class="dm-card-name">' + icon(k[0]) + esc(k[1]) + "</span>" +
-        '<span class="dm-card-value">' + nf(list.reduce(function (n, s) { return n + items(s); }, 0)) + '</span><span class="dm-card-unit">ITEMS</span>' +
-        '<span class="dm-card-sub"><span>' + list.length + " source" + (list.length === 1 ? "" : "s") + '</span><span class="dm-card-div" aria-hidden="true"></span><span>' +
+      return '<button type="button" class="card card-basic demo-tile" data-card="' + k[0] + '" aria-pressed="' + (st.card === k[0]) + '"' + (list.length ? "" : " disabled") + ">" +
+        '<span class="card-subtitle demo-tile-name dm-tile-name">' + icon(k[0]) + esc(k[1]) + "</span>" +
+        '<span class="card-title demo-tile-value">' + nf(list.reduce(function (n, s) { return n + items(s); }, 0)) + '</span><span class="card-text demo-tile-label">Items</span>' +
+        '<span class="card-text demo-tile-label dm-tile-sub"><span>' + list.length + " source" + (list.length === 1 ? "" : "s") + '</span><span class="dm-tile-div" aria-hidden="true"></span><span>' +
           nf(list.reduce(function (n, s) { return n + (events(s) || 0); }, 0)) + " UAL events</span></span>" +
-        (off ? '<span class="badge badge-warning dm-card-badge">NOT IN FILTER</span>' : "") + "</div></button>";
+        (off ? '<span class="badge badge-warning dm-tile-badge">NOT IN FILTER</span>' : "") + "</button>";
     }).join("");
   }
 
@@ -259,11 +264,12 @@
     if (st.list === "top") list = list.slice(0, 6);
     var shown = st.list === "top" ? list : list.slice((st.page - 1) * st.size, st.page * st.size);
     var max = Math.max.apply(null, list.map(function (s) { return items(s); }).concat([1]));
-    var title = (st.list === "top" ? "Top sources" : "All sources") + (st.card ? " &gt; " + esc(kindName(st.card)) : "");
+    var title = (st.list === "top" ? "Top Sources" : "All Sources") + (st.card ? " &gt; " + esc(kindName(st.card)) : "");
+    /* Source name bold 14px (read before acting), location line 12px (scanned) (Scott, 10-14). */
     var rows = shown.map(function (s) {
       var n = srcName(s), ex = !!st.exSrc[s.id], acc = accessedOf(s).length;
       return '<tr class="' + (ex ? "dm-excluded" : "") + '"><td><div class="d-flex align-items-center gap-2">' + icon(kindOf(s)) + "<div>" +
-          '<a href="#" class="' + (n.masked ? "demo-masked" : "") + '" data-details="' + s.id + '">' + (n.masked ? '<i class="mdi mdi-lock-outline" aria-hidden="true"></i>' : "") + esc(n.title) + "</a>" +
+          '<a href="#" class="fw-bold' + (n.masked ? " demo-masked" : "") + '" data-details="' + s.id + '">' + (n.masked ? '<i class="mdi mdi-lock-outline" aria-hidden="true"></i>' : "") + esc(n.title) + "</a>" +
           '<span class="d-block small">' + esc(n.loc) + "</span></div></div></td>" +
         '<td class="dm-col-bar">' + bar(items(s), max) + '</td><td class="text-end">' + nf(items(s)) + "</td>" +
         "<td>" + (s.events == null ? '<span class="small">No activity data</span>' : acc + (acc === 1 ? " person" : " people")) + "</td>" +
@@ -275,7 +281,7 @@
         '<div class="btn-group btn-group-sm ms-auto" role="group" aria-label="Sources shown">' +
           '<input type="radio" class="btn-check" name="dmList" id="dmListTop" value="top" autocomplete="off"' + (st.list === "top" ? " checked" : "") + '><label class="btn btn-secondary" for="dmListTop">TOP SOURCES</label>' +
           '<input type="radio" class="btn-check" name="dmList" id="dmListAll" value="all" autocomplete="off"' + (st.list === "all" ? " checked" : "") + '><label class="btn btn-secondary" for="dmListAll">ALL SOURCES</label></div></div>' +
-      '<div class="table-responsive"><table class="table align-middle mb-0 dm-table"><thead><tr><th scope="col">Source</th><th scope="col" colspan="2">Items</th><th scope="col">People accessed</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead><tbody>' +
+      '<div class="table-responsive"><table class="table align-middle mb-0 dm-table"><thead><tr><th scope="col">Source</th><th scope="col" colspan="2">Items</th><th scope="col">People Accessed</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead><tbody>' +
         (rows || '<tr><td colspan="5" class="text-center py-4">No sources match the filters above.</td></tr>') + "</tbody></table></div>" +
       (st.list === "top" ? pager("src", shown.length, 1, 10) : pager("src", total, st.page, st.size)));
   }
@@ -299,14 +305,14 @@
     var tools = P.tools ? '<div class="btn-toolbar-gray btn-toolbar-list flex-grow-1" role="toolbar" aria-label="Custodian table tools">' +
         '<div class="toolbar-list-search"><div class="cf-input-field cf-input-field-casefusion"><div class="cf-input-wrapper"><input type="text" id="dmPplQ" class="cf-input-control" placeholder="Search …" aria-label="Search custodians" value="' + esc(P.q) + '" /></div></div></div>' +
         '<span class="toolbar-list-divider" aria-hidden="true"></span><div class="toolbar-list-controls"><span class="toolbar-list-label">Filter By</span>' +
-        D.select("dmPplHold", [["all", "All hold states"], ["held", "On hold"], ["not", "Not on hold"]], P.hold, null, { size: "sm", attrs: 'data-ppl="hold"' }) +
+        D.select("dmPplHold", [["all", "All Hold States"], ["held", "On Hold"], ["not", "Not on Hold"]], P.hold, null, { size: "sm", attrs: 'data-ppl="hold"' }) +
         '<span class="toolbar-list-label">Show</span>' + D.select("dmPplShow", [["unreleased", "Unreleased"], ["all", "All"]], P.show, null, { size: "sm", attrs: 'data-ppl="show"' }) +
         '<span class="toolbar-list-label">Sort By</span>' + D.select("dmPplSort", [["events", "Events"], ["sources", "Sources"], ["name", "Name"]], P.sort, null, { size: "sm", attrs: 'data-ppl="sort"' }) +
         '<button type="button" class="btn btn-tertiary btn-sm" data-dm="ppl-dir"><i class="mdi mdi-arrow-' + (P.asc ? "up" : "down") + '-circle mdi-18px me-2" aria-hidden="true"></i>' + (P.asc ? "ASC" : "DSC") + "</button></div></div>" : '<span class="flex-grow-1"></span>';
     swap(document.getElementById("dmList"),
       '<div class="d-flex align-items-center gap-3 mb-2"><h2 class="cf-category cf-cat-6 mb-0">Custodians</h2>' + tools +
         '<button type="button" class="btn btn-secondary btn-sm' + (P.tools ? " active" : "") + '" data-dm="ppl-tools" aria-pressed="' + P.tools + '" aria-label="Table tools" title="Table tools"><i class="mdi mdi-tools mdi-18px" aria-hidden="true"></i></button></div>' +
-      '<div class="table-responsive"><table class="table align-middle mb-0 dm-table"><thead><tr><th scope="col">#</th><th scope="col">Custodian</th><th scope="col">Role</th><th scope="col" class="text-end">Sources</th><th scope="col" class="text-end">Events</th><th scope="col">On hold</th><th scope="col" colspan="2">Relevance signal</th></tr></thead><tbody>' +
+      '<div class="table-responsive"><table class="table align-middle mb-0 dm-table"><thead><tr><th scope="col">#</th><th scope="col">Custodian</th><th scope="col">Role</th><th scope="col" class="text-end">Sources</th><th scope="col" class="text-end">Events</th><th scope="col">On Hold</th><th scope="col" colspan="2">Relevance Signal</th></tr></thead><tbody>' +
       shown.map(function (r, i) {
         var rel = r.events >= 3000 ? "High" : r.events >= 1000 ? "Medium" : "Low";
         var tone = r.hold === "Active" ? "text-success" : r.hold === "Pending" ? "text-warning" : "";
@@ -323,8 +329,9 @@
         n.workload + " overlap · " + srcName(s).title + " · " + n.events + " events" + (n.note ? " · " + n.note : "");
       var act = isCustodian(n.personId) ? '<span class="badge badge-pill badge-success">Custodian</span>' :
         '<button type="button" class="btn btn-tertiary btn-sm" data-add-cust="' + n.personId + '"' + (!ok || n.guest ? " disabled" : "") + (n.guest ? ' title="A guest is not a natural person in CaseFusion"' : !ok ? ' title="Outside your regions"' : "") + ">MARK AS CUSTODIAN</button>";
-      return '<li class="list-group-item d-flex align-items-center gap-3"><div class="me-auto"><a href="not-in-demo.html?what=' + encodeURIComponent("Persona profile") + '">' + personLabel(p) + "</a>" +
-        (ok ? ' <span class="small fw-bold">— ' + esc(p.title) + "</span>" : "") + (n.guest && ok ? ' <span class="badge badge-pill badge-secondary">Guest</span>' : "") +
+      /* Person name bold 14px, title and reason 12px (Scott, 10-14). */
+      return '<li class="list-group-item d-flex align-items-center gap-3"><div class="me-auto"><a class="fw-bold" href="not-in-demo.html?what=' + encodeURIComponent("Persona profile") + '">' + personLabel(p) + "</a>" +
+        (ok ? ' <span class="small">— ' + esc(p.title) + "</span>" : "") + (n.guest && ok ? ' <span class="badge badge-pill badge-secondary">Guest</span>' : "") +
         '<span class="d-block small">' + (ok ? esc(why) : "Outside your regions") + "</span></div>" + act + "</li>";
     }).join("");
   }
@@ -344,14 +351,17 @@
   function renderScopesMenu() {
     var me = D.viewer().personId;
     var list = st.scopes;
-    document.getElementById("dmScopesMenu").innerHTML = '<div class="d-flex align-items-center px-3 pt-2 pb-1"><h3 class="cf-category cf-cat-6 mb-0 me-auto">Saved scopes</h3><span class="badge badge-pill badge-secondary">' + list.length + "</span></div>" +
-      (list.length ? '<ul class="list-group list-group-light list-group-flush">' + list.map(function (sc, i) {
-        var mine = sc.by === me, who = M.person(sc.by);
-        return '<li class="list-group-item d-flex align-items-center gap-2"><div class="me-auto"><span class="fw-bold d-block">' + esc(sc.name) + '</span><span class="small d-block">' + esc(sc.detail) + " · Saved " + esc(M.fmtDate(sc.saved)) + " at " + esc(sc.time) + "</span>" +
-          (mine ? "" : '<span class="small text-muted d-block">Shared by ' + esc(D.nameFor(who)) + "</span>") + "</div>" +
-          (mine ? '<button type="button" class="btn btn-tertiary btn-sm" data-scope-del="' + i + '">DELETE</button><button type="button" class="btn btn-tertiary btn-sm" data-scope-ren="' + i + '">RENAME</button>' : "") +
+    /* Shared patterns (Scott, 10-14): the menu is nested in the page, so its head is the bar-less category type with
+       the count badge across from it (demo-card-head); scope name 14px bold, detail lines 12px; DELETE and RENAME
+       are disabled, never hidden, on a scope someone else saved; the empty list uses the shared empty state. */
+    document.getElementById("dmScopesMenu").innerHTML = '<div class="demo-card-head px-3 pt-2 pb-1"><div class="cf-category cf-cat-6 flex-grow-1 mb-0" role="heading" aria-level="3">Saved Scopes</div><span class="badge badge-pill badge-secondary">' + list.length + "</span></div>" +
+      (list.length ? '<ul class="list-group list-group-light list-group-flush dm-scope-list">' + list.map(function (sc, i) {
+        var mine = sc.by === me, who = M.person(sc.by), notMine = mine ? "" : ' disabled title="Only the person who saved this scope can change it"';
+        return '<li class="list-group-item d-flex align-items-center gap-2 px-3"><div class="me-auto"><span class="fw-bold d-block">' + esc(sc.name) + '</span><span class="small d-block">' + esc(sc.detail) + " · Saved " + esc(M.fmtDate(sc.saved)) + " at " + esc(sc.time) + "</span>" +
+          (mine ? "" : '<span class="small d-block">Shared by ' + esc(D.nameFor(who)) + "</span>") + "</div>" +
+          '<button type="button" class="btn btn-tertiary btn-sm" data-scope-del="' + i + '"' + notMine + '>DELETE</button><button type="button" class="btn btn-tertiary btn-sm" data-scope-ren="' + i + '"' + notMine + ">RENAME</button>" +
           '<button type="button" class="btn btn-tertiary btn-sm" data-scope-load="' + i + '">LOAD</button></li>';
-      }).join("") + "</ul>" : '<p class="px-3 py-3 mb-0 text-center">No saved scopes yet. FINALIZE SCOPE AND SAVE creates one.</p>');
+      }).join("") + "</ul>" : '<div class="demo-empty px-3 pb-3"><i class="mdi mdi-cancel cnds-icon-2xl" aria-hidden="true"></i><span class="demo-empty-title">No Saved Scopes</span><span class="demo-empty-note">FINALIZE SCOPE AND SAVE creates one.</span></div>');
   }
 
   function render() {
@@ -384,9 +394,9 @@
   }
   function finalize() {
     var s = inScope(), it = s.reduce(function (n, x) { return n + items(x); }, 0);
-    var m = D.modal({ title: "Finalize Scope And Save",
+    var m = D.modal({ title: "Finalize Scope and Save",
       body: '<p>Saved scopes are named, reusable data map definitions — retrievable later from Preserve in Place, Data Collections, and other workflows across the system.</p>' +
-        nameField("dmScopeName", "Scope name", "", "e.g. Regulatory Submissions Review — Case Window") +
+        nameField("dmScopeName", "Scope Name", "", "e.g. Regulatory Submissions Review — Case Window") +
         '<p class="note note-info mt-3 mb-0">' + nf(it) + " items across " + s.length + " sources will be saved with this scope: " + esc(dateLabel()) + (exclusionCount() ? ", " + exclusionCount() + " exclusion" + (exclusionCount() === 1 ? "" : "s") : "") + ".</p>",
       footer: '<button type="button" class="btn btn-secondary" data-cnds-dismiss="modal">CANCEL</button><button type="button" class="btn btn-primary" data-ok disabled>FINALIZE AND SAVE</button>' });
     var inp = m.el.querySelector("#dmScopeName"), ok = m.el.querySelector("[data-ok]");
@@ -400,10 +410,15 @@
       D.toast("Scope saved: " + name + ". A preservation request can start from it.");
     });
   }
+  /* A dialog that acts on one saved scope opens by naming it (shared demo-kv pattern, Scott, 10-14). */
+  function scopeContext(sc) {
+    return '<dl class="row mb-3 demo-kv"><dt class="col-4 fw-bold">Saved Scope</dt><dd class="col-8 mb-1">' + esc(sc.name) + "</dd>" +
+      '<dt class="col-4 fw-bold">Saved</dt><dd class="col-8 mb-1">' + esc(M.fmtDate(sc.saved)) + " at " + esc(sc.time) + "</dd></dl>";
+  }
   function renameScope(i) {
     closeMenu("dmLoadBtn");
     var sc = st.scopes[i];
-    var m = D.modal({ title: "Rename Saved Scope", body: nameField("dmRename", "Scope name", sc.name),
+    var m = D.modal({ title: "Rename Saved Scope", body: scopeContext(sc) + nameField("dmRename", "Scope Name", sc.name),
       footer: '<button type="button" class="btn btn-secondary" data-cnds-dismiss="modal">CANCEL</button><button type="button" class="btn btn-primary" data-ok disabled>RENAME</button>' });
     var inp = m.el.querySelector("#dmRename"), ok = m.el.querySelector("[data-ok]");
     inp.addEventListener("input", function () { ok.disabled = !inp.value.trim() || inp.value.trim() === sc.name; });
@@ -415,7 +430,7 @@
   function deleteScope(i) {
     closeMenu("dmLoadBtn");
     var sc = st.scopes[i];
-    var m = D.modal({ title: "Please Confirm", body: "<p class=\"mb-0\">Are you sure you want to delete the saved scope " + esc(sc.name) + "? This action cannot be undone.</p>",
+    var m = D.modal({ title: "Please Confirm", body: scopeContext(sc) + "<p class=\"mb-0\">Delete this saved scope? This action cannot be undone.</p>",
       footer: '<button type="button" class="btn btn-secondary" data-cnds-dismiss="modal">CANCEL</button><button type="button" class="btn btn-danger" data-ok>DELETE</button>' });
     m.el.querySelector("[data-ok]").addEventListener("click", function () {
       st.scopes.splice(i, 1); if (st.scope === sc.name) st.scope = null;
@@ -452,10 +467,10 @@
     var panel = D.offcanvas({ title: "Source Details", width: "75vw", body: "", footer: " ",
       onHidden: function () { openPanel = null; } });
     var cont = "#" + panel.id;
-    var SORTS = { location: [["name", "Location"], ["items", "Items"], ["last", "Last activity"]], item: [["name", "Name"], ["modified", "Modified"], ["type", "Type"]],
-      accessed: [["events", "Events"], ["name", "Name"]], participants: [["name", "Name"], ["since", "Member since"]] };
-    var FILTERS = { location: [["all", "All locations"], ["in", "Included"], ["out", "Excluded"]], item: [["all", "All types"], ["Document", "Documents"], ["Spreadsheet", "Spreadsheets"], ["PDF", "PDFs"]],
-      accessed: [["all", "Everyone"], ["cust", "Custodians"], ["not", "Not custodians"]], participants: [["all", "Everyone"], ["cust", "Custodians"], ["not", "Not custodians"]] };
+    var SORTS = { location: [["name", "Location"], ["items", "Items"], ["last", "Last Activity"]], item: [["name", "Name"], ["modified", "Modified"], ["type", "Type"]],
+      accessed: [["events", "Events"], ["name", "Name"]], participants: [["name", "Name"], ["since", "Member Since"]] };
+    var FILTERS = { location: [["all", "All Locations"], ["in", "Included"], ["out", "Excluded"]], item: [["all", "All Types"], ["Document", "Documents"], ["Spreadsheet", "Spreadsheets"], ["PDF", "PDFs"]],
+      accessed: [["all", "Everyone"], ["cust", "Custodians"], ["not", "Not Custodians"]], participants: [["all", "Everyone"], ["cust", "Custodians"], ["not", "Not Custodians"]] };
     function custStatus(pid, ev) {
       var p = M.person(pid);
       if (p.guest) return "Guest · not a natural person";
@@ -487,7 +502,7 @@
       return '<p class="mb-2">' + (DM.locations[sid] ? "Click a location name to see its items." : "This source is not integrated, so CaseFusion reads no audit-log activity for it. It is listed as one location.") + "</p>" +
         (nEx.length ? '<div class="alert alert-warning" role="status"><span class="alert-icon" aria-hidden="true"><i class="mdi mdi-alert"></i></span><span><b>' + nEx.length + "</b> location" + (nEx.length === 1 ? "" : "s") +
           " excluded · <b>" + nf(exItems * factor()) + "</b> items removed from scope</span></div>" : "") +
-        toolbar() + table([["Location"], ["Items", "text-end"], ["Last activity"], ['<span class="visually-hidden">Actions</span>']], page(list).map(function (l) {
+        toolbar() + table([["Location"], ["Items", "text-end"], ["Last Activity"], ['<span class="visually-hidden">Actions</span>']], page(list).map(function (l) {
           var ex = !!v.exLoc[l[0]];
           return '<tr class="' + (ex ? "dm-excluded" : "") + '"><td>' + (DM.locations[sid] ? '<a href="#" data-sd-loc="' + esc(l[0]) + '">\\' + esc(l[0]) + "\\</a>" : esc(l[0])) + '</td><td class="text-end">' + nf(l[1] * factor()) + "</td><td>" +
             (l[2] ? esc(M.fmtDate(l[2])) : "—") + '</td><td class="text-end"><button type="button" class="btn btn-tertiary btn-sm' + (ex ? " text-danger" : "") + '" data-sd-ex="' + esc(l[0]) + '" aria-pressed="' + ex + '">' + (ex ? "EXCLUDED" : "EXCLUDE") + "</button></td></tr>";
@@ -508,7 +523,7 @@
       return '<p class="mb-2">Item-level detail for forensic review, one location at a time. Full paths shown here are never used in the standard views.</p>' +
         '<ul class="nav nav-pills nav-pills-nimbus nav-pills-casefusion flex-wrap mb-2" role="group" aria-label="Location">' + locs.map(function (l) {
           return '<li class="nav-item"><button type="button" class="nav-link' + (l[0] === v.loc ? " active" : "") + '" data-sd-pill="' + esc(l[0]) + '" aria-pressed="' + (l[0] === v.loc) + '">\\' + esc(l[0]) + "\\</button></li>"; }).join("") + "</ul>" +
-        toolbar() + table([["Name"], ["Type"], ["Modified"], ["UAL activity"], ["Owner"]], page(list).map(function (it, i) {
+        toolbar() + table([["Name"], ["Type"], ["Modified"], ["UAL Activity"], ["Owner"]], page(list).map(function (it, i) {
           return '<tr><td><a href="#" data-sd-item="' + i + '">' + esc(it.name) + "</a></td><td>" + esc(it.type) + "</td><td>" + esc(M.fmtDate(it.modified)) + "</td><td>" +
             (it.modified >= M.window.start && it.modified <= M.window.end ? "Accessed in window" : "No activity in window") + "</td><td>" + personLabel(it.owner) + "</td></tr>";
         }).join(""), "No items match.") +
@@ -523,7 +538,7 @@
       var nEx = Object.keys(v.exPer).filter(function (x) { return v.exPer[x]; });
       return '<p class="mb-2">Everyone with recorded UAL activity against this source in the case window — this reflects observed access, not granted permissions. Custodian status flagged from the case roster.</p>' +
         (nEx.length ? '<div class="alert alert-warning" role="status"><span class="alert-icon" aria-hidden="true"><i class="mdi mdi-alert"></i></span><span><b>' + nEx.length + "</b> " + (nEx.length === 1 ? "person's" : "people's") + " Copilot sessions excluded from scope</span></div>" : "") +
-        toolbar() + table([["Name"], ["Role"], ["Events", "text-end"], ["Custodian status", "text-center"]].concat(copilot ? [['<span class="visually-hidden">Actions</span>']] : []), page(list).map(function (r) {
+        toolbar() + table([["Name"], ["Role"], ["Events", "text-end"], ["Custodian Status", "text-center"]].concat(copilot ? [['<span class="visually-hidden">Actions</span>']] : []), page(list).map(function (r) {
           var ex = !!v.exPer[r.pid];
           return '<tr class="' + (ex ? "dm-excluded" : "") + '"><td>' + personLabel(r.p) + (r.p.guest && D.canSee(r.p) ? ' <span class="badge badge-pill badge-secondary">Guest</span>' : "") + "</td><td>" + (D.canSee(r.p) ? esc(r.p.title) : "—") +
             '</td><td class="text-end">' + nf(r.events * factor()) + '</td><td class="text-center">' + custStatus(r.pid, r.events) + "</td>" +
@@ -535,7 +550,7 @@
         .filter(function (r) { return q(D.nameFor(r.p)) && (v.filter === "all" || (v.filter === "cust") === isCustodian(r.pid)); });
       sortBy(list, function (r) { return v.sort === "since" ? r.since : D.nameFor(r.p); });
       return '<p class="mb-2">Channel membership roster — who belongs to this team, independent of who has actually posted or read.</p>' +
-        toolbar() + table([["Name"], ["Role"], ["Member since"], ["Custodian status", "text-center"]], page(list).map(function (r) {
+        toolbar() + table([["Name"], ["Role"], ["Member Since"], ["Custodian Status", "text-center"]], page(list).map(function (r) {
           return "<tr><td>" + personLabel(r.p) + (r.p.guest && D.canSee(r.p) ? ' <span class="badge badge-pill badge-secondary">Guest</span>' : "") + "</td><td>" + (D.canSee(r.p) ? esc(r.p.title) : "—") + "</td><td>" + esc(M.fmtDate(r.since)) +
             '</td><td class="text-center">' + (r.p.guest ? "Guest · not a natural person" : isCustodian(r.pid) ? "Custodian" : "Not a Custodian") + "</td></tr>";
         }).join("")) + pager("sd", list.length, v.page, v.size, "Items per page:", cont);

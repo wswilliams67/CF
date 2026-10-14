@@ -26,8 +26,8 @@
   }
   function renderTable() {
     document.getElementById("stTotal").textContent = "Total: " + types.length;
-    var head = '<thead><tr><th rowspan="2" scope="col">Source type</th><th rowspan="2" scope="col">Kind</th><th rowspan="2" scope="col">Status and coverage</th><th rowspan="2" scope="col">Discovery method</th><th rowspan="2" scope="col">Location format</th>' +
-      '<th rowspan="2">Date range filter</th><th rowspan="2">Search terms</th><th rowspan="2">Collection unit</th><th rowspan="2">Sources</th>' +
+    var head = '<thead><tr><th rowspan="2" scope="col">Source Type</th><th rowspan="2" scope="col">Kind</th><th rowspan="2" scope="col">Status And Coverage</th><th rowspan="2" scope="col">Discovery Method</th><th rowspan="2" scope="col">Location Format</th>' +
+      '<th rowspan="2">Date Range Filter</th><th rowspan="2">Search Terms</th><th rowspan="2">Collection Unit</th><th rowspan="2">Sources</th>' +
       PT.map(function (p) { return '<th class="st-pt" colspan="2">' + p + "</th>"; }).join("") + '<th rowspan="2"></th></tr><tr>' +
       PT.map(function () { return '<th class="st-pt">Active</th><th>Departed</th>'; }).join("") + "</tr></thead>";
     var body = "<tbody>" + ordered().map(function (t) {
@@ -55,11 +55,14 @@
         text: closed ? "The preservation report records that the content was not retained." : "Raises an exception on this case: the Yammer content it held " + (ed.outcome === "unknown" ? "may be" : "is") + " gone." };
     });
   }
-  /* Editor on the Nimbus offcanvas (50vw: a form). Sections are cards with cf-category headings. */
+  /* Editor on the Nimbus offcanvas (50vw: a form). Sections are cards with cf-category headings.
+     The bar stays (Scott, 10-14, rule 5): each card is a top-level section of the panel, a peer of the page's own
+     Standard Source Rules card, not a card nested in a record. The summary beside the heading is a 12px note,
+     baseline-aligned in demo-section-head (rule 7). */
   var panel = null;
   function sec(title, summary, body) {
-    return '<section class="card card-basic mb-2"><div class="card-body"><div class="d-flex align-items-baseline gap-3 mb-2"><h4 class="cf-category cf-cat-6 highlight-casefusion flex-grow-1 mb-0">' + title +
-      '</h4><span class="small text-muted">' + summary + "</span></div>" + body + "</div></section>";
+    return '<section class="card card-basic mb-2"><div class="card-body"><div class="demo-section-head st-sec-head"><h4 class="cf-category cf-cat-6 highlight-casefusion flex-grow-1 mb-0">' + title +
+      '</h4><span class="st-sec-note text-muted">' + summary + "</span></div>" + body + "</div></section>";
   }
   function field(id, label, value, req, helpText, attrs) {
     return '<div class="cf-input-field cf-input-field-casefusion cf-input-field-sm"><label class="cf-input-label" for="' + id + '">' + label + (req ? ' <span class="cf-input-required">*</span>' : "") + "</label>" +
@@ -76,21 +79,21 @@
     return sec("Lifecycle", ed.status === "Decommissioned" ? "Decommissioned" + (mig ? " · succeeded by " + esc(ed.successor) : "") : "Active",
         '<div class="row g-3">' +
         '<div class="col-6">' + D.select("stStatus", [["Decommissioned", "Decommissioned"], ["Active", "Active"]], ed.status, "Status *", Object.assign({ attrs: 'data-ed="status"' }, cont)) + "</div>" +
-        '<div class="col-6">' + field("stOn", "Decommissioned on", M.fmtDate(Y.decommissioned), true) + "</div>" +
+        '<div class="col-6">' + field("stOn", "Decommissioned On", M.fmtDate(Y.decommissioned), true) + "</div>" +
         '<div class="col-6"><div class="form-check form-switch mt-4"><input class="form-check-input" type="checkbox" role="switch" id="stTrack" checked disabled /><label class="form-check-label" for="stTrack">Track content coverage</label>' +
           '<div class="form-text">Required once a type is decommissioned: the overlap rule reads it.</div></div></div>' +
-        '<div class="col-6">' + field("stCs", "Content coverage starts", Y.covStart, true, "When this type first held content.") + "</div>" +
-        '<div class="col-6">' + field("stCe", "Content coverage ends", Y.covEnd, true) + "</div>" +
-        '<div class="col-6">' + D.select("stOut", [["migrated", "Migrated to another source"], ["archived", "Archived"], ["notretained", "Not retained"], ["unknown", "Unknown"]], ed.outcome, "Data outcome *", Object.assign({ attrs: 'data-ed="outcome"' }, cont)) + "</div>" +
-        (mig ? '<div class="col-6">' + D.select("stSucc", successors.map(function (n) { return [n, n]; }), ed.successor, "Succeeded by *", Object.assign({ attrs: 'data-ed="successor"' }, cont)) + "</div>" +
-          '<div class="col-12">' + field("stCarry", "Content it carries forward", Y.covStart + " – " + Y.covEnd, false, "Added to " + esc(ed.successor) + "'s own coverage, which starts Mar 2025.") + "</div>" : "") +
-        (arch ? '<div class="col-12">' + field("stArch", "Archived in", ed.archivedIn || "", true, "A pointer lets the double-count check run by itself.", ' data-ed-input="archivedIn" placeholder="A source, a source type, or a place outside the catalog"') + "</div>" : "") +
+        '<div class="col-6">' + field("stCs", "Content Coverage Starts", Y.covStart, true, "When this type first held content.") + "</div>" +
+        '<div class="col-6">' + field("stCe", "Content Coverage Ends", Y.covEnd, true) + "</div>" +
+        '<div class="col-6">' + D.select("stOut", [["migrated", "Migrated to another source"], ["archived", "Archived"], ["notretained", "Not retained"], ["unknown", "Unknown"]], ed.outcome, "Data Outcome *", Object.assign({ attrs: 'data-ed="outcome"' }, cont)) + "</div>" +
+        (mig ? '<div class="col-6">' + D.select("stSucc", successors.map(function (n) { return [n, n]; }), ed.successor, "Succeeded By *", Object.assign({ attrs: 'data-ed="successor"' }, cont)) + "</div>" +
+          '<div class="col-12">' + field("stCarry", "Content It Carries Forward", Y.covStart + " – " + Y.covEnd, false, "Added to " + esc(ed.successor) + "'s own coverage, which starts Mar 2025.") + "</div>" : "") +
+        (arch ? '<div class="col-12">' + field("stArch", "Archived In", ed.archivedIn || "", true, "A pointer lets the double-count check run by itself.", ' data-ed-input="archivedIn" placeholder="A source, a source type, or a place outside the catalog"') + "</div>" : "") +
         "</div>" +
         (adverse ? '<div class="alert alert-danger mt-3 mb-0" role="alert"><span class="alert-icon" aria-hidden="true"><i class="mdi mdi-alert-octagon"></i></span><span><b>' + (ed.outcome === "unknown" ? "No one can say where the content went." : "The content is gone.") +
           "</b> Saving raises an exception on every open case that held Yammer sources. CaseFusion records the outcome; it does not refuse it.</span></div>" : "")) +
-      sec("Standard source for", "Decommissioned" + (mig ? " · moving to " + esc(ed.successor) : ""),
+      sec("Standard Source For", "Decommissioned" + (mig ? " · moving to " + esc(ed.successor) : ""),
         '<div class="row g-3"><div class="col-12">' + hint("Not added to new cases. A case whose window reaches before Mar 2025 still gets it, read-only.") +
-        '<table class="table table-sm table-bordered text-center mt-2 mb-0" aria-label="Standard source matrix (read-only)"><thead><tr><th scope="col"></th><th scope="col">Active</th><th scope="col">Departed</th></tr></thead><tbody>' +
+        '<table class="table table-sm table-bordered text-center mt-2 mb-0 st-matrix" aria-label="Standard source matrix (read-only)"><thead><tr><th scope="col"></th><th scope="col">Active</th><th scope="col">Departed</th></tr></thead><tbody>' +
           PT.map(function (p, i) { return '<tr><th scope="row">' + p + "</th><td>" + (yt.std[i * 2] ? '<i class="mdi mdi-check" aria-label="Yes"></i>' : "—") + "</td><td>" + (yt.std[i * 2 + 1] ? '<i class="mdi mdi-check" aria-label="Yes"></i>' : "—") + "</td></tr>"; }).join("") + "</tbody></table></div>" +
         (mig ? '<div class="col-12"><div class="card card-basic mb-0"><div class="card-body"><div class="form-check"><input class="form-check-input" type="checkbox" id="stProp"' + (ed.propose ? " checked" : "") + " />" +
           '<label class="form-check-label fw-bold" for="stProp">Make ' + esc(ed.successor) + " a standard source for the same people</label></div>" +
@@ -98,15 +101,16 @@
           (ed.successor === "Viva Engage" ? '<p class="small text-success mt-2 mb-0"><i class="mdi mdi-check-circle" aria-hidden="true"></i> Viva Engage is not a standard source today, so no custodian gets a second source.</p>' :
             '<p class="small text-warning mt-2 mb-0">' + esc(ed.successor) + " is already a standard source for these people. Inheriting would give every custodian a second source for the same content.</p>") + "</div></div></div>" : "") +
         "</div>") +
-      sec("Effect of decommissioning", eff.length + " cases hold or held Yammer sources",
-        '<div class="table-responsive"><table class="table table-sm align-middle mb-0"><tbody>' +
+      sec("Effect Of Decommissioning", eff.length + " cases hold or held Yammer sources",
+        '<div class="table-responsive"><table class="table table-sm align-middle mb-0 st-effects"><tbody>' +
         eff.map(function (e) {
           return '<tr><td><span class="fw-bold">' + esc(e.c.name + " · " + e.c.id) + '</span><span class="d-block small text-muted">' + esc(e.c.status) + "</span></td><td>" + esc(e.text) +
             '</td><td class="text-end"><span class="badge badge-pill badge-' + window.MeridianDemo.badgeColor[e.cls] + '">' + esc(e.pill) + "</span></td></tr>";
         }).join("") + "</tbody></table></div>") +
       sec("Routing", "Read-only while decommissioned",
-        '<dl class="row small mb-0"><dt class="col-sm-3 fw-normal text-muted">Preserve</dt><dd class="col-sm-9 mb-1">No longer available' + (mig ? ". Requests go to " + esc(ed.successor) + "." : "") + "</dd>" +
-        '<dt class="col-sm-3 fw-normal text-muted">Collect</dt><dd class="col-sm-9 mb-0">No longer available' + (mig ? ". Requests go to " + esc(ed.successor) + "." : "") + "</dd></dl>");
+        /* Shared name/value pairs (Scott, 10-14, rule 2): 12px bold labels, 14px values. */
+        '<dl class="row demo-kv mb-0"><dt class="col-4 fw-bold">Preserve</dt><dd class="col-8 mb-1">No longer available' + (mig ? ". Requests go to " + esc(ed.successor) + "." : "") + "</dd>" +
+        '<dt class="col-4 fw-bold">Collect</dt><dd class="col-8 mb-0">No longer available' + (mig ? ". Requests go to " + esc(ed.successor) + "." : "") + "</dd></dl>");
   }
   function drawer() {
     panel.el.querySelectorAll("select[data-cnds-select-init]").forEach(function (el) { var x = Nimbus.Select.getInstance(el); if (x) x.dispose(); });
@@ -114,8 +118,8 @@
   }
   function openEditor() {
     ed = { status: "Decommissioned", outcome: "migrated", successor: Y.successor, propose: true, archivedIn: "" };
-    panel = D.offcanvas({ title: "Source type · Yammer", width: "50vw", body: "",
-      footer: '<span class="small text-muted me-auto">' + Y.sources + " sources use this type across " + Y.effects.length + " cases. They stay on the data map.</span>" +
+    panel = D.offcanvas({ title: "Source Type · Yammer", width: "50vw", body: "",
+      footer: '<span class="st-foot-note text-muted me-auto">' + Y.sources + " sources use this type across " + Y.effects.length + " cases. They stay on the data map.</span>" +
         '<button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas">CANCEL</button><button type="button" class="btn btn-primary text-nowrap" data-st="save">SAVE SOURCE TYPE</button>',
       onHidden: function () { if (panel) panel.el.querySelectorAll("select[data-cnds-select-init]").forEach(function (el) { var x = Nimbus.Select.getInstance(el); if (x) x.dispose(); }); ed = null; panel = null; } });
     drawer();

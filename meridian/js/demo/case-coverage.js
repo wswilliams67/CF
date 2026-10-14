@@ -57,17 +57,18 @@
     var b = { fully: [], progress: [], action: [] };
     custodians.forEach(function (c) { b[cov(c).bucket].push(c); });
     var gaps = gapSources().length;
+    /* A filter tile with nothing in it is disabled, never hidden; names are Title Case, the CSS uppercases them (Scott, 10-14). */
     function tile(key, value, label, sub, unit) {
-      return '<button type="button" class="card card-basic demo-tile" data-tile="' + key + '" aria-pressed="' + (tileFilter === key) + '">' +
+      return '<button type="button" class="card card-basic demo-tile" data-tile="' + key + '" aria-pressed="' + (tileFilter === key) + '"' + (value ? "" : " disabled") + ">" +
         '<span class="card-subtitle demo-tile-name">' + esc(label) + (unit ? " · " + unit : "") + '</span><span class="card-title demo-tile-value">' + value + '</span><span class="card-text demo-tile-label">' + esc(sub) + "</span></button>";
     }
     document.getElementById("cvTiles").innerHTML =
-      tile("all", custodians.length, "Custodians on the case", "All custodians") +
-      tile("fully", b.fully.length, "Fully covered", "Every workflow complete") +
-      tile("progress", b.progress.length, "In progress", "Something outstanding, nothing late") +
-      tile("action", b.action.length, "Action needed", actionSubline(b.action)) +
+      tile("all", custodians.length, "Custodians on the Case", "All custodians") +
+      tile("fully", b.fully.length, "Fully Covered", "Every workflow complete") +
+      tile("progress", b.progress.length, "In Progress", "Something outstanding, nothing late") +
+      tile("action", b.action.length, "Action Needed", actionSubline(b.action)) +
       '<span class="cv-gap-sep" aria-hidden="true"></span>' +
-      tile("gaps", gaps, "Data gaps", "Sources not preserved or collected", "sources");
+      tile("gaps", gaps, "Data Gaps", "Sources not preserved or collected", "Sources");
   }
   /* Data gaps follow the in-memory custodians (a source marked not required leaves the count). */
   function gapSources() {
@@ -127,7 +128,7 @@
         "<td>" + cell(v.preservation, v.preservation.state === "action" || v.preservation.state === "progress" ? "case-hold-status.html" : null) + "</td>" +
         "<td>" + cell(v.collection) + "</td>" +
         '<td><button type="button" class="btn btn-tertiary btn-sm" data-open="' + c.personId + '">OPEN</button></td></tr>';
-    }).join("") || '<tr><td colspan="8" class="text-center text-muted">No custodians match this filter.</td></tr>';
+    }).join("") || '<tr><td colspan="8">' + empty("No custodians match this filter", "Change the search or the filters to see more custodians.") + "</td></tr>";
     document.getElementById("cvTotal").textContent = "Total Custodians: " + custodians.length;
     var all = document.getElementById("cvAll");
     all.checked = rows.length > 0 && rows.every(function (c) { return selected[c.personId]; });
@@ -150,7 +151,7 @@
     host.innerHTML = '<div class="btn-toolbar-gray btn-toolbar-shared mb-2" role="toolbar" aria-label="Actions for selected custodians">' +
       '<div class="toolbar-shared-count"><i class="mdi mdi-close pointer" role="button" tabindex="0" aria-label="Clear selection" data-cv="clear"></i><span>' + n + (n === 1 ? " custodian selected" : " custodians selected") + "</span></div><div>" +
       dropdown("SEND LEGAL HOLD NOTIFICATION",
-        item("", "New legal hold notification…", "Opens the notification form with the " + n + " selected custodians as recipients", "not-in-demo.html?what=New+legal+hold+notification&amp;ships=1") +
+        item("", "New Legal Hold Notification…", "Opens the notification form with the " + n + " selected custodians as recipients", "not-in-demo.html?what=New+legal+hold+notification&amp;ships=1") +
         '<li><h6 class="dropdown-header">Settings from a notification in this case</h6></li>' +
         regular.map(function (h) { return item('data-send-lhn="' + h.id + '"', h.id + " · " + h.title.split(" · ")[0], h.settings); }).join("") +
         '<li><h6 class="dropdown-header">Silent legal hold · nothing is sent</h6></li>' +
@@ -158,15 +159,15 @@
           var tracked = custodians.filter(function (c) { return (c.lhn || []).some(function (x) { return x.id === h.id; }); }).length;
           return item('data-send-silent="' + h.id + '"', h.id + " · " + h.title, "Add " + n + " selected · " + tracked + " custodian" + (tracked === 1 ? "" : "s") + " tracked");
         }).join("") +
-        item("", "New silent legal hold…", "Nothing is sent. The custodians are tracked and their data is held", "not-in-demo.html?what=New+silent+legal+hold&amp;ships=1")) +
+        item("", "New Silent Legal Hold…", "Nothing is sent. The custodians are tracked and their data is held", "not-in-demo.html?what=New+silent+legal+hold&amp;ships=1")) +
       dropdown("SEND SURVEY",
-        item("", "New survey…", "Opens the survey form with the " + n + " selected custodians", "not-in-demo.html?what=New+survey&amp;ships=1") +
+        item("", "New Survey…", "Opens the survey form with the " + n + " selected custodians", "not-in-demo.html?what=New+survey&amp;ships=1") +
         '<li><h6 class="dropdown-header">Questions and reminders from a survey in this case</h6></li>' +
         M.surveys.map(function (sv) { return item('data-send-survey="' + sv.id + '"', sv.id + " · " + sv.title, sv.questions + " questions"); }).join("")) +
       '<div class="btn-group" role="group"><a class="btn btn-tools" href="not-in-demo.html?what=Schedule+interview&amp;ships=1">SCHEDULE INTERVIEW</a></div>' +
       dropdown("CREATE REQUEST FOR GAPS",
-        item("", "Preservation request", "Opens New request with the selected custodians and only their gap sources", "case-new-preservation.html?custodians=" + ids) +
-        item("", "Collection request", "Collection is not part of this demo", "not-in-demo.html?what=Collection+request") +
+        item("", "Preservation Request", "Opens New request with the selected custodians and only their gap sources", "case-new-preservation.html?custodians=" + ids) +
+        item("", "Collection Request", "Collection is not part of this demo", "not-in-demo.html?what=Collection+request") +
         item("", "Both", "Collection is not part of this demo", "not-in-demo.html?what=Preservation+and+collection+request")) +
       '<div class="btn-group" role="group"><button type="button" class="btn btn-tools" data-cv="not-required">MARK NOT REQUIRED…</button></div>' +
       '<div class="btn-group" role="group"><button type="button" class="btn btn-tools" data-cv="release">RELEASE FROM LEGAL HOLD…</button></div>' +
@@ -182,9 +183,9 @@
     };
     document.getElementById("cvNcBody").innerHTML = rows.map(function (s) {
       var col = M.nonCustodialCollection[s.id];
-      return "<tr><td>" + esc(M.typeLabel(s.type) + " · " + s.name) + "</td><td>" + (M.usedBy[s.id] || 0) + " custodians</td><td>" + pres(s) + "</td>" +
+      return "<tr><td>" + esc(M.typeLabel(s.type) + " · " + s.name) + '</td><td class="text-nowrap">' + (M.usedBy[s.id] || 0) + " custodians</td><td>" + pres(s) + "</td>" +
         "<td>" + (col ? '<span class="badge badge-pill badge-info">' + esc(col.text) + "</span>" : '<span class="text-muted">—</span>') + "</td>" +
-        "<td>" + (col ? '<a href="case-requests.html">' + esc(col.request) + "</a>" : esc(s.request || "—")) + "</td></tr>";
+        '<td class="text-nowrap">' + (col ? '<a href="case-requests.html">' + esc(col.request) + "</a>" : esc(s.request || "—")) + "</td></tr>";
     }).join("");
   }
   function render() {
@@ -234,9 +235,11 @@
   function markNotRequired() {
     var list = selectedList();
     D.reasonDialog({
-      title: "Mark not required",
+      title: "Mark Not Required",
       intro: list.length + " custodian" + (list.length === 1 ? "" : "s") + " selected.",
-      extra: D.select("cvNrWf", [["survey", "Survey"], ["interview", "Interview"], ["preservation", "Preservation"]], "survey", "Workflow", { container: "{{modal}}", cls: "mb-3" }),
+      /* One custodian: name the record the dialog acts on (demo-kv; Scott, 10-14). Several: the count above says it. */
+      extra: (list.length === 1 ? '<dl class="row demo-kv mb-3"><dt class="col-4 fw-bold">Custodian</dt><dd class="col-8 mb-0' + (seen(list[0]) ? "" : " demo-masked") + '">' +
+        (seen(list[0]) ? "" : '<i class="mdi mdi-lock-outline" aria-hidden="true"></i>') + esc(visibleName(list[0])) + "</dd></dl>" : "") + D.select("cvNrWf", [["survey", "Survey"], ["interview", "Interview"], ["preservation", "Preservation"]], "survey", "Workflow", { container: "{{modal}}", cls: "mb-3" }),
       effect: "The workflow reads n/a, leaves the gap count, and shows in the coverage report with this reason.",
       confirm: "MARK NOT REQUIRED"
     }).then(function (r) {
@@ -273,6 +276,7 @@
     var tickDefault = function () { ticked = {}; candidates().forEach(function (c) { if (!M.heldElsewhere[c.personId] && !c.released) ticked[c.personId] = true; }); };
     tickDefault();
     var m = D.modal({ title: "Release from legal hold", size: "xl", body: "", footer: " " });
+    m.el.classList.add("cv-scope");  /* page type rules (12px .small) reach this modal (Scott, 10-14) */
     var tbl = function (head, body) { return '<div class="table-responsive mb-3"><table class="table align-middle mb-0"><thead><tr>' + head.map(function (h) { return '<th scope="col">' + h + "</th>"; }).join("") + "</tr></thead><tbody>" + body + "</tbody></table></div>"; };
     function draw() {
       var list = candidates();
@@ -284,10 +288,10 @@
       m.el.querySelector(".modal-title").textContent = "Release from legal hold · " + on.length + " custodian" + (on.length === 1 ? "" : "s");
       m.el.querySelector(".modal-body").innerHTML =
         '<div class="d-flex align-items-center flex-wrap gap-2 mb-2"><ul class="nav nav-pills nav-pills-nimbus nav-pills-casefusion" role="group" aria-label="Who to show">' +
-          [["all", "All on this case", custodians.length], ["selected", "Selected on Coverage", startIds.length], ["departed", "Departed", custodians.filter(function (c) { return person(c).departed; }).length]].map(function (x) {
+          [["all", "All on This Case", custodians.length], ["selected", "Selected on Coverage", startIds.length], ["departed", "Departed", custodians.filter(function (c) { return person(c).departed; }).length]].map(function (x) {
             return '<li class="nav-item"><button type="button" class="nav-link' + (chip === x[0] ? " active" : "") + '" data-chip="' + x[0] + '" aria-pressed="' + (chip === x[0]) + '">' + x[1] + ' <span class="nav-pill-badge">' + x[2] + "</span></button></li>"; }).join("") +
           '</ul><span class="ms-auto"><button type="button" class="btn btn-tertiary btn-sm" data-rel="all">SELECT ALL</button><button type="button" class="btn btn-tertiary btn-sm" data-rel="none">CLEAR</button></span></div>' +
-        tbl(["", "Custodian", "Legal holds", "After release"], list.map(function (c) {
+        tbl(["", "Custodian", "Legal Holds", "After Release"], list.map(function (c) {
           var p = person(c), held = M.heldElsewhere[c.personId], st = sourcesStill(c);
           var holdsText = (c.lhn || []).map(function (n) { return n.id + (n.status === "Silent" ? " · silent legal hold" : n.status === "Acknowledged" ? " · acknowledged " + short(n.on) : " · " + n.status.toLowerCase()); }).join(", ") || "None sent";
           var warn = function (t) { return '<span class="d-block small text-warning">' + t + "</span>"; };
@@ -299,19 +303,19 @@
             (D.canSee(p) ? esc(p.title) + (p.departed ? " · departed" : "") : "Outside your regions") + "</span></td><td>" + esc(holdsText) + "</td><td>" + after + "</td></tr>";
         }).join("")) +
         '<p class="small text-muted">' + on.length + " selected · " + holds + " legal hold" + (holds === 1 ? "" : "s") + (left.length ? " · " + left.length + " custodian" + (left.length === 1 ? " is" : "s are") + " held on another case and " + (left.length === 1 ? "is" : "are") + " left out." : ".") + "</p>" +
-        '<div class="cf-category cf-cat-6 highlight-casefusion">Release notice</div>' +
-        '<div class="row g-3 mb-3"><div class="col-md-6">' + D.select("cvRelNotice", [["standard", "Standard release notice"], ["retention", "Release notice with retention reminder"], ["none", "No notice"]], notice, "Notice", { container: "#" + m.id }) +
-          '</div><div class="col-md-6 small text-muted">Send to the ' + notified.length + " custodian" + (notified.length === 1 ? "" : "s") + " who were notified." +
+        '<div class="cf-category cf-cat-6 highlight-casefusion">Release Notice</div>' +
+        '<div class="row g-3 mb-3"><div class="col-md-6">' + D.select("cvRelNotice", [["standard", "Standard Release Notice"], ["retention", "Release Notice with Retention Reminder"], ["none", "No Notice"]], notice, "Notice", { container: "#" + m.id }) +
+          '</div><div class="col-md-6 small text-muted">Send to the ' + notified.length + " custodian" + (notified.length === 1 ? " who was" : "s who were") + " notified." +
           (silentOnly.length ? "<br>" + esc(silentOnly.map(function (c) { return D.nameFor(person(c)); }).join(", ")) + " " + (silentOnly.length === 1 ? "is" : "are") + " on a silent legal hold and receive" + (silentOnly.length === 1 ? "s" : "") + " nothing." : "") + "</div></div>" +
         '<div class="cf-input-field cf-input-field-casefusion mb-3"><label class="cf-input-label" for="cvRelReason">Reason <span class="cf-input-required">*</span></label>' +
           '<div class="cf-input-wrapper"><input type="text" id="cvRelReason" class="cf-input-control" value="' + esc(reason) + '" /></div>' +
           '<div class="cf-input-helper"><span class="cf-input-helper-text">Say why. The reason is kept with the case.</span></div></div>' +
-        '<div class="cf-category cf-cat-6 highlight-casefusion">What stays preserved</div>' +
-        '<p class="small">Releasing a custodian from the legal hold does not release their sources or delete collected data.</p>' +
-        tbl(["Custodian", "Sources still preserved", "From"], on.map(function (c) { var st = sourcesStill(c); return "<tr><td>" + esc(D.nameFor(person(c))) + "</td><td>" + st.n + " · " + esc(st.kinds.join(", ")) + "</td><td>" + esc(st.from) + "</td></tr>"; }).join("")) +
-        '<p class="small mb-0">Non-custodial sources they use (Box folder, Webex space, Teams teams) belong to the case and stay. 1 collection request is still open: COL-0142.</p>';
+        '<div class="cf-category cf-cat-6 highlight-casefusion">What Stays Preserved</div>' +
+        '<p>Releasing a custodian from the legal hold does not release their sources or delete collected data.</p>' +
+        tbl(["Custodian", "Sources Still Preserved", "From"], on.map(function (c) { var st = sourcesStill(c); return "<tr><td>" + esc(D.nameFor(person(c))) + "</td><td>" + st.n + " · " + esc(st.kinds.join(", ")) + "</td><td>" + esc(st.from) + "</td></tr>"; }).join("")) +
+        '<p class="mb-0">Non-custodial sources they use (Box folder, Webex space, Teams teams) belong to the case and stay. 1 collection request is still open: COL-0142.</p>';
       var ok = on.length && reason.trim();
-      m.el.querySelector(".modal-footer").innerHTML = '<span class="small text-muted modal-footer-start">The cleanup request opens with these custodians\' sources selected and the reason Custodian released from legal hold.</span>' +
+      m.el.querySelector(".modal-footer").innerHTML = '<span class="small text-muted modal-footer-start cv-meta">The cleanup request opens with these custodians\' sources selected and the reason Custodian released from legal hold.</span>' +
         '<button type="button" class="btn btn-secondary" data-cnds-dismiss="modal">CANCEL</button>' +
         '<button type="button" class="btn btn-secondary" data-rel="release"' + (ok ? "" : " disabled") + ">RELEASE ONLY</button>" +
         '<button type="button" class="btn btn-primary" data-rel="cleanup"' + (ok ? "" : " disabled") + ">RELEASE AND CREATE CLEANUP REQUEST</button>";
@@ -352,44 +356,63 @@
 
   /* ── Custodian coverage (PRD 08 §7.2) in a Nimbus offcanvas at 90% (a list). ── */
   var panel = null, panelId = null;
+  /* ── Shared pieces, in the Hold Status grammar (demo.css SHARED SCREEN PATTERNS; Scott, 10-14) ── */
+  var LOCK = '<i class="mdi mdi-lock-outline" aria-hidden="true"></i>';
+  var BLUR = '<li class="cv-ev-divider" aria-hidden="true"><hr class="hr hr-blurry"></li>';
+  function empty(title, note) {
+    return '<div class="demo-empty"><i class="mdi mdi-cancel cnds-icon-2xl" aria-hidden="true"></i><span class="demo-empty-title">' + esc(title) +
+      '</span><span class="demo-empty-note">' + esc(note) + "</span></div>";
+  }
+  /* Card nested in the panel: bar-less category title with its status badge across from it, a 12px meta line,
+     then the body; buttons small tertiary, right-aligned on the bottom edge. */
+  function dcard(title, badge, meta, body, acts) {
+    return '<div class="card card-basic mb-2"><div class="card-body d-flex flex-column">' +
+      '<div class="demo-card-head"><div class="cf-category cf-cat-6 flex-grow-1 mb-0" role="heading" aria-level="4">' + esc(title) + "</div>" + badge + "</div>" +
+      (meta ? '<div class="cv-meta text-muted mb-2">' + meta + "</div>" : "") + body +
+      (acts ? '<div class="card-actions mt-auto justify-content-end">' + acts + "</div>" : "") + "</div></div>";
+  }
+  /* Events as in Hold Status: what happened (14px bold) with its status at the right, then "date at time · by"
+     (12px). Blurry dividers between rows. Dates mm-dd-yyyy, 12-hour times joined by "at" (Scott, 10-14). */
   function evList(events) {
     var tone = { Sent: "success", Acknowledged: "success", Answered: "success", Tracked: "secondary", Escalated: "danger", "Not answered": "warning" };
-    return '<ul class="list-group list-group-light list-group-small mb-2">' + (events || []).map(function (e) {
-      return '<li class="list-group-item d-flex align-items-center gap-3"><span class="text-muted cv-ev-date">' + esc(short(e[0]) + (e[1] ? ", " + e[1] : "")) + '</span><span class="flex-grow-1">' + esc(e[2]) +
-        '<span class="d-block small text-muted">' + esc(e[3]) + '</span></span><span class="badge badge-pill badge-' + (tone[e[4]] || "light") + '">' + esc(e[4]) + "</span></li>";
-    }).join("") + "</ul>";
+    return '<ul class="list-group list-group-flush cv-events mb-2">' + (events || []).map(function (e) {
+      return '<li class="list-group-item"><div class="cv-ev-head"><span class="cv-ev-what">' + esc(e[2]) + '</span><span class="badge badge-pill badge-' + (tone[e[4]] || "light") + '">' + esc(e[4]) + "</span></div>" +
+        '<div class="cv-meta text-muted">' + esc(M.fmtDateTime(e[0], e[1]) + " · " + e[3]) + "</div></li>";
+    }).join(BLUR) + "</ul>";
   }
+  /* Section heading with its count at the right, on the baseline (demo-section-head). */
   function section(title, summary, body) {
-    return '<section class="mb-4"><div class="d-flex align-items-baseline"><h3 class="cf-category cf-cat-6 highlight-casefusion flex-grow-1">' + esc(title) + '</h3><span class="small text-muted">' + esc(summary) + "</span></div>" + body + "</section>";
+    return '<section class="mb-4"><div class="demo-section-head"><h3 class="cf-category cf-cat-6 highlight-casefusion mb-0 flex-grow-1">' + esc(title) + '</h3><span class="cv-meta text-muted">' + esc(summary) + "</span></div>" + body + "</section>";
   }
   function renderPanel() {
     var c = byPid(panelId), p = person(c), v = cov(c), ok = seen(c);
-    var strip = '<div class="row g-2 mb-4">' + [["Legal hold notification", v.lhn], ["Survey", v.survey], ["Interview", v.interview], ["Preservation", v.preservation], ["Collection", v.collection]].map(function (x) {
-      return '<div class="col"><div class="card card-basic demo-tile"><span class="card-subtitle demo-tile-name">' + x[0] + '</span><span class="card-text demo-tile-label">' + esc(x[1].text) + "</span></div></div>"; }).join("") + "</div>";
+    /* Workflow strip: each card is a label naming a value (demo-label above a 14px value), not a stat tile. */
+    var strip = '<div class="row g-2 mb-4">' + [["Legal Hold Notification", v.lhn], ["Survey", v.survey], ["Interview", v.interview], ["Preservation", v.preservation], ["Collection", v.collection]].map(function (x) {
+      return '<div class="col"><div class="card card-basic demo-tile h-100"><span class="demo-label mb-0">' + x[0] + '</span><span class="cv-value">' + esc(x[1].text) + "</span></div></div>"; }).join("") + "</div>";
     if (!ok) {
-      panel.setBody('<div class="d-flex align-items-center gap-3 mb-3"><span class="monogram"><i class="mdi mdi-lock-outline" aria-hidden="true"></i></span><div><div class="h5 mb-0 demo-masked">Profile details limited</div>' +
-        '<div class="small text-muted">This custodian is outside your regions. Their coverage counts on this case; their details are visible to the case team in their region.</div></div></div>' + strip);
+      /* The monogram carries the lock, so the name line does not repeat it; normal style, no italics (Scott, 10-14). */
+      panel.setBody('<div class="cv-scope"><div class="d-flex align-items-center gap-3 mb-3"><span class="monogram">' + LOCK + '</span><div><div class="h5 mb-0 demo-masked">Profile details limited</div>' +
+        '<div class="cv-meta text-muted">This custodian is outside your regions. Their coverage counts on this case; their details are visible to the case team in their region.</div></div></div>' + strip + "</div>");
       return;
     }
     var src = M.sourcesOf(c.personId);
     var lhnBlocks = (c.lhn || []).map(function (n) {
       var h = M.legalHolds.filter(function (x) { return x.id === n.id; })[0];
       var badge = n.status === "Silent" ? '<span class="badge badge-pill badge-secondary">Silent legal hold</span>' : '<span class="' + PILL[n.status === "Acknowledged" ? "done" : n.status === "Sent" ? "progress" : "action"] + '">' + esc(n.status) + "</span>";
-      var acts = n.status === "Silent" ? '<a class="btn btn-secondary btn-sm" href="not-in-demo.html?what=Legal+hold+' + n.id + '&amp;ships=1">VIEW LEGAL HOLD</a> <a class="btn btn-tertiary btn-sm" href="not-in-demo.html?what=Remove+from+legal+hold&amp;ships=1">REMOVE FROM LEGAL HOLD</a>' :
-        n.status === "Acknowledged" ? '<a class="btn btn-secondary btn-sm" href="not-in-demo.html?what=Legal+hold+notification+' + n.id + '&amp;ships=1">VIEW NOTIFICATION</a>' :
-        '<button type="button" class="btn btn-secondary btn-sm" data-cv-toast="Reminder sent for ' + n.id + '.">SEND REMINDER</button> <a class="btn btn-tertiary btn-sm" href="not-in-demo.html?what=Record+acknowledgment&amp;ships=1">RECORD ACKNOWLEDGMENT</a>';
-      return '<div class="card card-basic mb-2"><div class="card-body"><div class="d-flex align-items-center gap-2 mb-2"><span class="fw-bold">' + esc(n.id) + "</span> " + esc(h ? h.title : "") + " " + badge +
-        (n.status === "Silent" ? '<span class="small text-muted ms-auto">Nothing sent to the custodian</span>' : "") + "</div>" + evList(n.events) + '<div class="card-actions">' + acts + "</div></div></div>";
-    }).join("") || '<p class="text-muted">No legal hold notification has been sent to this custodian.</p>';
+      var acts = n.status === "Silent" ? '<a class="btn btn-tertiary btn-sm" href="not-in-demo.html?what=Legal+hold+' + n.id + '&amp;ships=1">VIEW LEGAL HOLD</a><a class="btn btn-tertiary btn-sm" href="not-in-demo.html?what=Remove+from+legal+hold&amp;ships=1">REMOVE FROM LEGAL HOLD</a>' :
+        n.status === "Acknowledged" ? '<a class="btn btn-tertiary btn-sm" href="not-in-demo.html?what=Legal+hold+notification+' + n.id + '&amp;ships=1">VIEW NOTIFICATION</a>' :
+        '<button type="button" class="btn btn-tertiary btn-sm" data-cv-toast="Reminder sent for ' + n.id + '.">SEND REMINDER</button><a class="btn btn-tertiary btn-sm" href="not-in-demo.html?what=Record+acknowledgment&amp;ships=1">RECORD ACKNOWLEDGMENT</a>';
+      return dcard(n.id + " · " + (h ? h.title : ""), badge, n.status === "Silent" ? "Nothing sent to the custodian" : "", evList(n.events), acts);
+    }).join("") || empty("No legal hold notification", "No legal hold notification has been sent to this custodian.");
     var surveyBlocks = (c.surveys || []).map(function (sv) {
       var def = M.surveys.filter(function (x) { return x.id === sv.id; })[0];
       var st = sv.status === "Answered" ? "done" : sv.status === "Sent" ? "progress" : "action";
-      return '<div class="card card-basic mb-2"><div class="card-body"><div class="d-flex align-items-center gap-2 mb-2"><span class="fw-bold">' + esc(sv.id) + "</span> " + esc(def.title + " · " + def.questions + " questions") +
-        ' <span class="' + PILL[st] + '">' + esc(sv.status) + '</span><span class="small text-muted ms-auto">' + (sv.status === "Answered" ? "Answered " + esc(short(sv.on)) : "Due " + esc(short(sv.due || def.due))) + "</span></div>" +
-        evList(sv.events) + '<div class="card-actions">' + (sv.status === "Answered" ? '<a class="btn btn-secondary btn-sm" href="not-in-demo.html?what=Survey+answers&amp;ships=1">VIEW ANSWERS</a>' :
-          '<button type="button" class="btn btn-secondary btn-sm" data-cv-toast="Reminder sent for ' + sv.id + '.">SEND REMINDER</button>') + "</div></div></div>";
-    }).join("") || '<p class="text-muted">' + (v.survey.state === "dash" ? "— Not expected on this case." : "No survey sent.") + "</p>";
-    var presRows = c.notRequired && c.notRequired.preservation ? "<p>Not required: " + esc(c.notRequired.preservation) + "</p>" :
+      return dcard(sv.id + " · " + def.title, '<span class="' + PILL[st] + '">' + esc(sv.status) + "</span>",
+        esc(def.questions + " questions · " + (sv.status === "Answered" ? "Answered " + short(sv.on) : "Due " + short(sv.due || def.due))),
+        evList(sv.events), sv.status === "Answered" ? '<a class="btn btn-tertiary btn-sm" href="not-in-demo.html?what=Survey+answers&amp;ships=1">VIEW ANSWERS</a>' :
+          '<button type="button" class="btn btn-tertiary btn-sm" data-cv-toast="Reminder sent for ' + sv.id + '.">SEND REMINDER</button>');
+    }).join("") || (v.survey.state === "dash" ? empty("Not expected on this case", "Surveys are expected only where the case says so.") : empty("No survey sent", "No survey has been sent to this custodian."));
+    var presRows = c.notRequired && c.notRequired.preservation ? '<dl class="row demo-kv mb-2"><dt class="col-4 col-md-2 fw-bold">Not Required</dt><dd class="col-8 col-md-10 mb-0">' + esc(c.notRequired.preservation) + "</dd></dl>" :
       '<div class="table-responsive mb-2"><table class="table align-middle mb-0"><thead><tr><th scope="col">Source</th><th scope="col">Status</th><th scope="col">From</th></tr></thead><tbody>' + src.map(function (s) {
         var status = s.pending ? '<span class="badge badge-pill badge-warning">Not requested</span>' + (s.priorWork ? '<span class="d-block small text-info">' + esc(s.priorWork.what + " on " + s.priorWork.caseId + " · " + s.priorWork.request) + "</span>" : "") :
           '<span class="badge badge-pill badge-' + (s.hold === "Applied" ? "success" : s.hold === "Attested" ? "info" : s.hold === "Applying" ? "warning" : "danger") + '">' + esc(s.hold) + "</span>" +
@@ -402,19 +425,21 @@
     var chips = ['<span class="badge badge-pill badge-info">Custodian</span>', '<span class="' + PILL[v.preservation.state] + '">' + esc(v.preservation.text) + "</span>"];
     if (c.silent) chips.push('<span class="badge badge-pill badge-secondary">In 1 silent legal hold</span>');
     if (c.released) chips.push('<span class="badge badge-pill badge-success">Released ' + esc(short(c.released)) + "</span>");
-    panel.setBody(
+    var notExpected = function (what) { return empty("Not expected on this case", what + " are expected only where the case says so."); };
+    panel.setBody('<div class="cv-scope">' +
       '<div class="d-flex align-items-start gap-3 mb-3"><span class="monogram">' + esc(D.initials(p.name)) + '</span><div class="flex-grow-1"><div class="h5 mb-0">' + esc(p.name) + "</div>" +
-        '<div class="small text-muted">' + esc(p.title + " · " + p.upn + "@" + M.tenant.domain + " · added to the case " + short(c.added)) + (p.departed ? " · departed " + esc(M.fmtDate(p.departed)) : "") + "</div>" +
+        '<div class="cv-meta text-muted">' + esc(p.title + " · " + p.upn + "@" + M.tenant.domain + " · added to the case " + short(c.added)) + (p.departed ? " · departed " + esc(M.fmtDate(p.departed)) : "") + "</div>" +
         '<div class="d-flex flex-wrap gap-2 mt-2">' + chips.join("") + '</div></div><a class="btn btn-secondary btn-sm" href="not-in-demo.html?what=Persona+Case+Profile&amp;ships=1">VIEW PROFILE</a></div>' + strip +
-      section("Legal hold notification", (c.lhn || []).length + " notification" + ((c.lhn || []).length === 1 ? "" : "s"), lhnBlocks +
+      section("Legal Hold Notification", (c.lhn || []).length + " notification" + ((c.lhn || []).length === 1 ? "" : "s"), lhnBlocks +
         (c.released ? "" : '<button type="button" class="btn btn-secondary btn-sm" data-cv="panel-release">RELEASE FROM LEGAL HOLD…</button>')) +
       section("Survey", (c.surveys || []).length + " survey" + ((c.surveys || []).length === 1 ? "" : "s"), surveyBlocks) +
-      section("Interview", "Not expected on this case", '<p class="text-muted">— Not expected on this case.</p><a class="btn btn-secondary btn-sm" href="not-in-demo.html?what=Schedule+interview&amp;ships=1">SCHEDULE</a>') +
+      section("Interview", "Not expected on this case", notExpected("Interviews") + '<a class="btn btn-secondary btn-sm mt-3" href="not-in-demo.html?what=Schedule+interview&amp;ships=1">SCHEDULE</a>') +
       section("Preservation", v.preservation.text, presRows + '<a class="btn btn-secondary btn-sm" href="case-new-preservation.html?custodians=' + c.personId + '">ADD TO PRESERVATION REQUEST</a> <a class="btn btn-tertiary btn-sm" href="case-hold-status.html">OPEN HOLD STATUS</a>') +
-      section("Collection", v.collection.state === "dash" ? "Not expected on this case" : v.collection.text, v.collection.state === "dash" ? '<p class="text-muted">— Not expected on this case.</p>' :
+      section("Collection", v.collection.state === "dash" ? "Not expected on this case" : v.collection.text, v.collection.state === "dash" ? notExpected("Collections") :
         '<div class="table-responsive"><table class="table align-middle mb-0"><thead><tr><th scope="col">Source</th><th scope="col">Status</th><th scope="col">From</th></tr></thead><tbody>' +
         '<tr><td class="fw-bold">Exchange mailbox</td><td><span class="badge badge-pill badge-success">Collected</span></td><td>' + esc(c.collection.request) + " · to Mar 2026</td></tr>" +
-        '<tr><td class="fw-bold">OneDrive</td><td><span class="badge badge-pill badge-success">Collected</span></td><td>' + esc(c.collection.request) + " · to Mar 2026</td></tr></tbody></table></div>"));
+        '<tr><td class="fw-bold">OneDrive</td><td><span class="badge badge-pill badge-success">Collected</span></td><td>' + esc(c.collection.request) + " · to Mar 2026</td></tr></tbody></table></div>") +
+      "</div>");
   }
   function openPanel(pid) {
     panelId = pid;

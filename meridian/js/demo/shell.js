@@ -384,6 +384,16 @@
     inst.show();
   }
 
+  /* Open-row fill for record lists (.demo-rows, demo.css): an item gets .demo-open as its details start to slide
+     open and loses it as they start to close, so the fill fades with the slide. Any Nimbus collapse that is a
+     direct child of a .demo-rows item counts. */
+  ["show", "hide"].forEach(function (phase) {
+    document.addEventListener(phase + ".cnds.collapse", function (e) {
+      var li = e.target.parentElement;
+      if (li && li.classList.contains("list-group-item") && li.parentElement && li.parentElement.classList.contains("demo-rows")) li.classList.toggle("demo-open", phase === "show");
+    });
+  });
+
   /* Selected tile → the library's outline card (no custom selected style). Gap #1 in tools/nimbus-gaps.md. */
   new MutationObserver(function (list) {
     list.forEach(function (m) {

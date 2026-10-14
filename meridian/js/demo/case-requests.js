@@ -65,15 +65,17 @@
     var reqWith = ra.filter(function (x) { return x.n; }).length;
     var failedReqs = ra.filter(function (x) { return x.failed; }).length;
     var defs = [
-      ["open", "OPEN", list.filter(isOpen).length, "requests"],
-      ["action", "REQUIRES ACTION", ra.reduce(function (n, x) { return n + x.n; }, 0), "work items in " + reqWith + " requests"],
-      ["failed", "FAILED OR RETURNED", ra.reduce(function (n, x) { return n + x.failed; }, 0), "work items in " + failedReqs + " requests"],
-      ["due", "DUE IN 7 DAYS", list.filter(dueSoon).length, "requests"],
-      ["ready", "READY TO CLOSE", list.filter(function (r) { return r.readyToClose; }).length, "request"],
-      ["closed", "CLOSED OR CANCELED", list.filter(function (r) { return /Closed|Canceled/.test(r.status); }).length, "requests"]
+      ["open", "Open", list.filter(isOpen).length, "requests"],
+      ["action", "Requires Action", ra.reduce(function (n, x) { return n + x.n; }, 0), "work items in " + reqWith + " requests"],
+      ["failed", "Failed or Returned", ra.reduce(function (n, x) { return n + x.failed; }, 0), "work items in " + failedReqs + " requests"],
+      ["due", "Due in 7 Days", list.filter(dueSoon).length, "requests"],
+      ["ready", "Ready to Close", list.filter(function (r) { return r.readyToClose; }).length, "request"],
+      ["closed", "Closed or Canceled", list.filter(function (r) { return /Closed|Canceled/.test(r.status); }).length, "requests"]
     ];
+    /* Names are Title Case in the source (demo.css uppercases them); a filter with nothing in it is disabled,
+       never hidden (Scott, 10-14). */
     document.getElementById("rqTiles").innerHTML = defs.map(function (d) {
-      return '<button type="button" class="card card-basic demo-tile" data-tile="' + d[0] + '" aria-pressed="' + (tile === d[0]) + '"><span class="card-subtitle demo-tile-name">' + d[1].charAt(0) + d[1].slice(1).toLowerCase() +
+      return '<button type="button" class="card card-basic demo-tile" data-tile="' + d[0] + '" aria-pressed="' + (tile === d[0]) + '"' + (d[2] ? "" : " disabled") + '><span class="card-subtitle demo-tile-name">' + esc(d[1]) +
         '</span><span class="card-title demo-tile-value">' + d[2] + '</span><span class="card-text demo-tile-label">' + esc(d[3]) + "</span></button>";
     }).join("");
   }
@@ -99,44 +101,54 @@
       (r.linked ? '<span class="badge badge-pill badge-secondary">Linked to ' + esc(r.linked) + "</span>" : "") + statusPill(r) +
       (r.isNew ? '<span class="badge badge-pill badge-success">New</span>' : "") + "</div>" +
       '<p class="card-text small text-muted mb-2">Created by ' + esc(D.canSee(by) ? by.name : "a case administrator") + " on " + esc(M.fmtDate(r.sent)) + " · Updated " + esc(r.updated || "") +
-      (r.backup ? " · you are the backup" : "") + "</p>";
+      (r.backup ? " · Backup: " + esc(M.person(D.viewer().personId).name) : "") + "</p>";
     var alert = function (kind, icon, text) { return '<div class="alert alert-' + kind + ' mb-2" role="status"><span class="alert-icon" aria-hidden="true"><i class="mdi mdi-' + icon + '"></i></span><span>' + text + "</span></div>"; };
     var req = ra.text ? alert("warning", "alert", "<b>Requires action:</b> " + esc(ra.text)) :
       r.readyToClose ? alert("success", "check-circle", "All " + pr[1] + " work item" + (pr[1] === 1 ? " is" : "s are") + " complete. Ready to close.") :
       r.isNew ? alert("success", "check-circle", "Sent just now. Purview holds are placed right away; response teams were notified.") : "";
-    var fact = function (label, value) { return '<div class="col"><div class="small text-muted">' + label + "</div><div>" + value + "</div></div>"; };
+    /* Each value carries a demo-label (12px muted capitals) above a 14px value (Scott, 10-14). */
+    var fact = function (label, value) { return '<div class="col"><span class="demo-label">' + label + "</span><div>" + value + "</div></div>"; };
     var pct = pr[1] ? Math.round(pr[0] / pr[1] * 100) : 0;
-    var facts = '<div class="row row-cols-2 row-cols-xl-5 g-2 mb-2 small">' +
+    var facts = '<div class="row row-cols-2 row-cols-xl-5 g-2 mb-2 rq-facts">' +
       fact("Custodians", collection ? "—" : custodianCount(r)) +
-      fact(collection ? "Dates" : "Hold scope", esc(collection ? r.dates : (r.scope || "All content, no date limit"))) +
+      fact(collection ? "Dates" : "Hold Scope", esc(collection ? r.dates : (r.scope || "All content, no date limit"))) +
       fact("Assignments", esc(collection ? r.handlers : asg.length + " handler" + (asg.length === 1 ? "" : "s") + " (" + asg.filter(function (a) { return a.kind === "Automatic"; }).length + " automatic)")) +
       fact("Due", esc(r.due ? M.fmtDate(r.due) : "—")) +
       fact("Progress", pr[0] + " of " + pr[1] + ' work items<div class="progress mt-1" style="height: 6px;"><div class="progress-bar bg-success" role="progressbar" style="width: ' + pct + '%;" aria-valuenow="' + pct + '" aria-valuemin="0" aria-valuemax="100" aria-label="' + pr[0] + " of " + pr[1] + ' work items complete"></div></div>') + "</div>";
     var actions = '<div class="card-actions">' +
-      (collection ? '<span class="me-auto"></span>' : '<button type="button" class="btn btn-tertiary btn-sm me-auto" data-expand="' + r.id + '">' + (expanded[r.id] ? "HIDE ASSIGNMENTS" : "SHOW ASSIGNMENTS (" + asg.length + ")") + "</button>") +
+      (collection ? '<span class="me-auto"></span>' : '<button type="button" class="btn btn-tertiary btn-sm me-auto" data-expand="' + r.id + '" aria-expanded="' + !!expanded[r.id] + '">' + (expanded[r.id] ? "HIDE ASSIGNMENTS" : "SHOW ASSIGNMENTS (" + asg.length + ")") + "</button>") +
       '<a class="btn btn-tertiary btn-sm" href="not-in-demo.html?what=' + encodeURIComponent((collection ? "Collection request " : "Request detail ") + r.id) + '">VIEW</a>' +
       '<a class="btn btn-tertiary btn-sm" href="not-in-demo.html?what=Export+' + r.id + '&amp;ships=1">EXPORT</a>' +
       (isOpen(r) ? '<a class="btn btn-tertiary btn-sm" href="not-in-demo.html?what=Modify+' + r.id + '">MODIFY</a>' : "") + "</div>";
     var asgHtml = "";
     if (!collection && expanded[r.id]) {
-      asgHtml = '<ul class="list-group list-group-light list-group-flush mt-2 rq-assign"><li class="list-group-item small text-muted"><div class="rq-arow"><span></span><span>Handler</span><span>Covers</span><span>Progress</span><span>Status</span><span>Attention</span></div></li>' +
-        asg.map(function (a) {
-          var key = r.id + "|" + a.handler;
+      /* Assignment rows follow the Hold Status record rows (Scott, 10-14): a .demo-rows list (14px rows, 16px
+         padding, open-row fill from shell.js), each value labelled in the row (no header row), a VIEW / HIDE
+         button, and the work items in a Nimbus .collapse that is a direct child of the li. */
+      asgHtml = '<ul class="list-group list-group-light list-group-flush mt-2 rq-assign demo-rows">' +
+        asg.map(function (a, i) {
+          var key = r.id + "|" + a.handler, open = !!openAssign[key], cid = "rqw-" + r.id + "-" + i;
           var done = a.items.filter(function (s) { return workItem(s).status === "Complete"; }).length;
           var attn = a.items.map(function (s) { return workItem(s); }).filter(function (w) { return w.status !== "Complete" || /removed|overdue/.test(w.note); });
           var types = {}; a.items.forEach(function (s) { types[s.type] = (types[s.type] || 0) + 1; });
           var covers = Object.keys(types).map(function (t) { return types[t] + " " + M.typeLabel(t); }).join(", ");
           var st = done === a.items.length ? "Complete" : a.items.some(function (s) { return workItem(s).status === "Returned"; }) ? "Returned" : "In progress";
-          var row = '<li class="list-group-item list-group-item-action small"><div class="rq-arow" data-assign="' + esc(key) + '" role="button" tabindex="0" aria-expanded="' + !!openAssign[key] + '"><i class="mdi mdi-chevron-' + (openAssign[key] ? "down" : "right") + ' mdi-18px" aria-hidden="true"></i>' +
-            "<span><b>" + esc(a.handler) + '</b> <span class="badge badge-pill badge-secondary">' + esc(a.kind) + "</span></span><span>" + esc(covers) + "</span>" +
-            "<span>" + done + " of " + a.items.length + " complete</span><span>" + esc(st) + "</span><span>" + (attn.length ? '<span class="badge badge-pill badge-warning">' + attn.length + " need" + (attn.length === 1 ? "s" : "") + " attention</span>" : "") + "</span></div>";
-          var items = openAssign[key] ? '<div class="rq-witems"><p class="small text-muted mt-2 mb-1">Destination: ' + esc(a.dest) + " · " + esc(a.rule) + "</p>" +
+          var row = '<li class="list-group-item' + (open ? " demo-open" : "") + '"><div class="rq-arow">' +
+            '<div><span class="demo-label">Handler</span><span class="fw-bold me-1">' + esc(a.handler) + '</span><span class="badge badge-pill badge-secondary">' + esc(a.kind) + "</span></div>" +
+            '<div><span class="demo-label">Covers</span>' + esc(covers) + "</div>" +
+            '<div><span class="demo-label">Progress</span>' + done + " of " + a.items.length + " complete</div>" +
+            '<div><span class="demo-label">Status</span>' + esc(st) + "</div>" +
+            '<div><span class="demo-label">Attention</span>' + (attn.length ? '<span class="badge badge-pill badge-warning">' + attn.length + " need" + (attn.length === 1 ? "s" : "") + " attention</span>" : "—") + "</div>" +
+            '<div class="vr vr-blurry" aria-hidden="true"></div>' +
+            '<div class="rq-arow-actions"><button type="button" class="btn btn-tertiary btn-sm" data-assign="' + esc(key) + '" aria-expanded="' + open + '" aria-controls="' + cid +
+              '" aria-label="' + (open ? "Hide" : "View") + " work items for " + esc(a.handler) + '">' + (open ? "HIDE" : "VIEW") + "</button></div></div>";
+          var items = '<div class="collapse' + (open ? " show" : "") + '" id="' + cid + '"><div class="rq-witems"><span class="demo-label">Destination</span><p class="mb-2">' + esc(a.dest) + " · " + esc(a.rule) + "</p>" +
             '<table class="table table-sm align-middle mb-0"><thead><tr><th scope="col">Source</th><th scope="col">Custodian</th><th scope="col">Location</th><th scope="col">Status</th></tr></thead><tbody>' +
             a.items.map(function (s) {
               var w = workItem(s);
               var loc = s.owner && !D.canSee(M.person(s.owner)) ? "Outside your regions" : s.name;
-              return "<tr><td>" + esc(M.typeLabel(s.type)) + "</td><td>" + subjectFor(s) + "</td><td>" + esc(loc) + "</td><td>" + esc(w.status) + (w.note ? '<span class="d-block small text-muted">' + (/Hold status/.test(w.note) ? esc(w.note.replace(" · see Hold status", "")) + ' · see <a href="case-hold-status.html">Hold status</a>' : esc(w.note)) + "</span>" : "") + "</td></tr>";
-            }).join("") + "</tbody></table></div>" : "";
+              return "<tr><td>" + esc(M.typeLabel(s.type)) + "</td><td>" + subjectFor(s) + "</td><td>" + esc(loc) + "</td><td>" + esc(w.status) + (w.note ? '<span class="d-block small text-muted">' + (/Hold status/.test(w.note) ? esc(w.note.replace(" · see Hold status", "")) + ' · see <a href="case-hold-status.html">Hold Status</a>' : esc(w.note)) + "</span>" : "") + "</td></tr>";
+            }).join("") + "</tbody></table></div></div>";
           return row + items + "</li>";
         }).join("") + "</ul>";
     }
@@ -166,10 +178,11 @@
     renderTiles();
     var list = filtered();
     document.getElementById("rqShowing").textContent = "Showing " + list.length + " of " + requests.filter(inSub).length;
+    /* Shared empty state (demo.css .demo-empty, Scott, 10-14). */
     document.getElementById("rqCards").innerHTML = list.map(cardHtml).join("") ||
-      '<div class="card card-basic demo-stub text-center"><div class="card-body"><div class="card-top justify-content-center"><div class="card-icon"><i class="mdi mdi-tray mdi-48px" aria-hidden="true"></i></div></div><h5 class="card-title">' +
-      (sub === "Cleanup" ? "No cleanup requests on this case" : "No requests match") + '</h5><p class="card-text">' +
-      (sub === "Cleanup" ? "A data cleanup request releases holds, deletes copies or destroys media. It starts from + NEW REQUEST." : "Clear the filter to see every request.") + "</p></div></div>";
+      '<div class="card card-basic"><div class="card-body"><div class="demo-empty"><i class="mdi mdi-cancel cnds-icon-2xl" aria-hidden="true"></i><span class="demo-empty-title">' +
+      (sub === "Cleanup" ? "No cleanup requests on this case" : "No requests match") + '</span><span class="demo-empty-note">' +
+      (sub === "Cleanup" ? "A data cleanup request releases holds, deletes copies or destroys media. It starts from + NEW REQUEST." : "Clear the filter to see every request.") + "</span></div></div></div>";
     document.getElementById("rqMenuNote").textContent = "Every request starts from all custodians on the case. Narrow it in the form, or start from a scope saved on the data map — latest: " +
       M.dataMapScope.name + ", " + M.dataMapScope.saved + ".";
   }
@@ -188,11 +201,26 @@
     }
     if (t.hasAttribute("data-tile")) { var k = t.getAttribute("data-tile"); tile = tile === k ? null : k; render(); return; }
     if (t.hasAttribute("data-expand")) { var id = t.getAttribute("data-expand"); expanded[id] = !expanded[id]; render(); return; }
-    if (t.hasAttribute("data-assign")) { var a = t.getAttribute("data-assign"); openAssign[a] = !openAssign[a]; render(); }
+    if (t.hasAttribute("data-assign")) {
+      /* Slide with the Nimbus collapse instead of re-rendering, so shell.js fades the open-row fill (Scott, 10-14). */
+      var el = document.getElementById(t.getAttribute("aria-controls"));
+      if (el && window.Nimbus && Nimbus.Collapse) Nimbus.Collapse.getOrCreateInstance(el, { toggle: false }).toggle();
+      else { var a = t.getAttribute("data-assign"); openAssign[a] = !openAssign[a]; render(); }
+    }
   });
-  document.addEventListener("keydown", function (e) {
-    if ((e.key === "Enter" || e.key === " ") && e.target.hasAttribute && e.target.hasAttribute("data-assign")) { e.preventDefault(); e.target.click(); }
-  });
+  /* When the slide ends: remember the state, and flip VIEW / HIDE and its aria. */
+  function syncAssign(e, open) {
+    var id = e.target.id || "";
+    if (id.indexOf("rqw-") !== 0) return;
+    var b = document.querySelector('[aria-controls="' + id + '"]');
+    if (!b) return;
+    openAssign[b.getAttribute("data-assign")] = open;
+    b.textContent = open ? "HIDE" : "VIEW";
+    b.setAttribute("aria-expanded", String(open));
+    b.setAttribute("aria-label", b.getAttribute("aria-label").replace(/^(View|Hide)/, open ? "Hide" : "View"));
+  }
+  document.addEventListener("shown.cnds.collapse", function (e) { syncAssign(e, true); });
+  document.addEventListener("hidden.cnds.collapse", function (e) { syncAssign(e, false); });
 
   if (sent) { expanded[sent.id] = true; setTimeout(function () { D.toast(sent.id + " sent. " + sent.items.length + " holds requested; Purview holds are placed right away."); }, 300); }
   render();
