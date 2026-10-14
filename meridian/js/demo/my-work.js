@@ -210,7 +210,7 @@
 
   /* ── Lower sections (table, list groups) ────────────────────────────── */
   /* Cases Needing Attention (Scott, Sally 10-14): standard record rows under a list toolbar.
-       case (no label): name · ID as a 14px bold link, its stage as the 12px line under it
+       case (no label): name · ID as a 14px bold link, then "STAGE: Preservation" as the 12px line under it
        NEEDS ATTENTION: the worst problem as a verbatim badge coloured by severity, then the snooze note when snoozed
        ON HOLD:  "3 of 9 custodians" (the old Custodians column folded in)
        OPEN REQUESTS: the count */
@@ -230,7 +230,7 @@
     }
     var href = id === "MBP-0926" ? "case-coverage.html" : "not-in-demo.html?what=" + encodeURIComponent(caseName(id));
     return { id: id, a: a, html: '<li class="list-group-item"><div class="mw-case">' +
-      '<div><a class="d-block fw-bold" href="' + href + '">' + esc(caseName(id)) + '</a><span class="d-block small text-muted">' + esc(a.stage) + "</span></div>" +
+      '<div><a class="d-block fw-bold" href="' + href + '">' + esc(caseName(id)) + '</a><span class="d-block small text-muted"><span class="demo-label d-inline me-1">Stage:</span>' + esc(a.stage) + "</span></div>" +
       '<div><span class="demo-label">Needs Attention</span><span class="badge badge-pill badge-verbatim badge-' + severity(a.worst, a.stage) + '">' + esc(a.worst.charAt(0).toUpperCase() + a.worst.slice(1)) + "</span>" +
         (onlySnoozed ? '<span class="d-block small text-muted mt-1">Snoozed in your queue until ' + esc(M.fmtDate(mine[0].snoozedUntil)) + "</span>" : "") + "</div>" +
       '<div><span class="demo-label">On Hold</span>' + esc(a.onHold) + " custodians</div>" +
