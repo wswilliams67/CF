@@ -466,10 +466,12 @@
     { team: "IT Messaging", days: 2, caseId: "MBP-0931", what: "Shared mailbox preservation" }
   ];
   /* Only dates the product owns (MW72). kind: request | ack */
+  /* This Week rows. flag: a short danger-text flag under the row ("Due Today", "At Risk"), replacing an icon-only warning
+     whose meaning lived in a tooltip (Scott, 10-14: user clarity first). */
   M.thisWeek = [
-    { day: "Today", kind: "request", n: 1, caseId: "MBP-0931", what: "PRS-0118 due · archive preservation", warn: true },
+    { day: "Today", kind: "request", n: 1, caseId: "MBP-0931", what: "PRS-0118 due · archive preservation", flag: "Due Today" },
     { day: "Fri",   kind: "ack",     n: 4, caseId: "MBP-0931", what: "4 acknowledgments due" },
-    { day: "Fri",   kind: "request", n: 1, caseId: "MBP-0926", what: "PRS-0101 due · 2 work items open", warn: true },
+    { day: "Fri",   kind: "request", n: 1, caseId: "MBP-0926", what: "PRS-0101 due · 2 work items open", flag: "At Risk" },
     { day: "Mon",   kind: "request", n: 1, caseId: "MBP-0842", what: "PRS-0120 due · Box folder preservation" },
     { day: "Tue",   kind: "ack",     n: 1, caseId: "MBP-0774", what: "1 acknowledgment due" },
     { day: "Wed",   kind: "request", n: 1, caseId: "MBP-0774", what: "PRS-0122 due · shared mailbox preservation" }

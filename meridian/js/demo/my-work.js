@@ -257,8 +257,10 @@
     var wk = weekDates(), shown = wk.slice(0, n);
     document.getElementById("mwWeekCount").textContent = wk.length + " date" + (wk.length === 1 ? "" : "s");  /* THIS WEEK · {n} dates */
     document.getElementById("mwWeek").innerHTML = shown.map(function (w) {
-      return '<li class="list-group-item"><div class="mw-row-week"><span class="fw-bold">' + esc(w.day) + "</span><div>" + esc(w.what) + '<div class="small text-muted">' + esc(M.caseById(w.caseId).name) + "</div></div>" +
-        (w.warn ? '<i class="mdi mdi-alert-outline text-danger" title="Due today or at risk" aria-hidden="true"></i>' : "<i></i>") + "</div></li>";
+      /* Urgency is said in words, 12px bold danger text under the case, as Preservation at Risk in the queue; no icon-only
+         signal (Scott, 10-14). */
+      return '<li class="list-group-item"><div class="mw-row-week"><span class="fw-bold">' + esc(w.day) + "</span><div>" + esc(w.what) + '<div class="small text-muted">' + esc(M.caseById(w.caseId).name) + "</div>" +
+        (w.flag ? '<div class="small fw-bold text-danger">' + esc(w.flag) + "</div>" : "") + "</div></div></li>";
     }).join("");
     /* Card footer below a blurry divider: the remainder and SHOW ALL, only when dates are left out (MW73). */
     var more = wk.length - shown.length;
