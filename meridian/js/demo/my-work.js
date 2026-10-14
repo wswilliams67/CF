@@ -12,6 +12,7 @@
   var access = M.viewerCases[v.id];
   var rows = JSON.parse(JSON.stringify(M.myWork.filter(function (r) { return access.cases.indexOf(r.caseId) !== -1; })));
   var chip = "open";
+  var actionsFitted = false, fontRefit = false;
   var page = 1, pageSize = 25;  /* queue pager: 25 rows by default on My Work (Scott, 10-14; the house default elsewhere is 10) */
 
   var KIND = { GAP: "Gaps", ANSWER: "Questions", DECIDE: "Decisions", APPROVE: "Approvals", CONFIRM: "Receipts", REVIEW: "Reviews" };
@@ -158,7 +159,17 @@
     document.getElementById("mwQueue").innerHTML = shown.map(rowHtml).join("") ||
       '<li class="list-group-item">' + emptyState(chip === "snoozed" ? "Nothing is snoozed" : "Nothing needs you",
         chip === "snoozed" ? "Snoozed items return to the action queue on their date." : "New items appear here as soon as a case needs action.") + "</li>";
-    D.fitActions(document.getElementById("mwQueue"), ".mw-item-actions");
+    /* Column widths never shift between filters (Scott, 10-14): the action column is measured once, across every item in
+       the queue (open and snoozed), so the longest button anywhere sets the width for every filter. */
+    if (!actionsFitted) {
+      var q = document.getElementById("mwQueue"), html = q.innerHTML;
+      q.innerHTML = rows.map(rowHtml).join("");
+      D.fitActions(q, ".mw-item-actions");
+      q.innerHTML = html;
+      actionsFitted = true;
+      /* Measure again once the web font has loaded (a fallback font measures narrower). */
+      if (document.fonts && document.fonts.ready && !fontRefit) { fontRefit = true; document.fonts.ready.then(function () { actionsFitted = false; renderQueue(); }); }
+    }
     /* Pager under the list (PM, Scott 10-14): the shared Nimbus pagination toolbar; hidden when the list is empty. */
     var foot = document.getElementById("mwQueueFoot");
     if (window.Nimbus && Nimbus.Select) foot.querySelectorAll("select[data-cnds-select-init]").forEach(function (x) { var i = Nimbus.Select.getInstance(x); if (i) i.dispose(); });
