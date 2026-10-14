@@ -126,11 +126,12 @@
     var caseHref = r.caseId === "MBP-0926" ? "case-coverage.html" : "not-in-demo.html?what=" + encodeURIComponent(caseName(r.caseId));
     var old = age(r) >= 5 && r.chip === "GAP";
     return '<li class="list-group-item" id="mw-' + r.id + '"><div class="mw-item">' +
-      '<div><span class="d-block mw-item-what">' + esc(m && r.whatMasked ? r.whatMasked : r.what) + "</span>" +
+      '<div class="mw-item-id"><span class="d-block mw-item-what">' + esc(m && r.whatMasked ? r.whatMasked : r.what) + "</span>" +
         /* The case is read before acting (My Work spans every case), so its link is 14px regular (Sally, Scott 10-14). */
         '<a class="d-block" href="' + caseHref + '">' + esc(caseName(r.caseId)) + "</a>" +
-        /* Who raised it closes the item column (Scott, 10-14): a 12px bold flag in the theme's warning text colour. */
-        (r.found ? '<span class="d-block small fw-bold text-warning-emphasis mt-1">Found by CaseFusion</span>' : "") + "</div>" +
+        /* An informational flag, not part of the name/case block: pinned to the foot of the column (Scott, Sally 10-14).
+           12px bold in the theme's warning text colour. */
+        (r.found ? '<span class="d-block small fw-bold text-warning-emphasis mw-item-flag">Found by CaseFusion</span>' : "") + "</div>" +
       /* WHY NOW (PRD 11's term), not STATUS: the column says why the item is here and how serious it is (Sally, Scott 10-14). */
       '<div><span class="demo-label">Why Now</span><div class="d-flex flex-wrap align-items-center gap-1">' +
           '<span class="badge badge-' + KIND_BADGE[r.chip] + '">' + r.chip + "</span>" +
