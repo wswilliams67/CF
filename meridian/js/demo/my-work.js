@@ -12,7 +12,7 @@
   var access = M.viewerCases[v.id];
   var rows = JSON.parse(JSON.stringify(M.myWork.filter(function (r) { return access.cases.indexOf(r.caseId) !== -1; })));
   var chip = "open";
-  var page = 1, pageSize = 10;  /* queue pager: 10 per page by default (house rule) */
+  var page = 1, pageSize = 20;  /* queue pager: 20 rows by default on My Work (Scott, 10-14; the house default elsewhere is 10) */
 
   var KIND = { GAP: "Gaps", ANSWER: "Questions", DECIDE: "Decisions", APPROVE: "Approvals", CONFIRM: "Receipts", REVIEW: "Reviews" };
   var SEVERITY = ["GAP", "DECIDE", "ANSWER", "APPROVE", "CONFIRM", "REVIEW"];
