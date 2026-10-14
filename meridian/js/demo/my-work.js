@@ -12,6 +12,7 @@
   var access = M.viewerCases[v.id];
   var rows = JSON.parse(JSON.stringify(M.myWork.filter(function (r) { return access.cases.indexOf(r.caseId) !== -1; })));
   var chip = "open";
+  var page = 1, pageSize = 10;  /* queue pager: 10 per page by default (house rule) */
 
   var KIND = { GAP: "Gaps", ANSWER: "Questions", DECIDE: "Decisions", APPROVE: "Approvals", CONFIRM: "Receipts", REVIEW: "Reviews" };
   var SEVERITY = ["GAP", "DECIDE", "ANSWER", "APPROVE", "CONFIRM", "REVIEW"];
@@ -143,13 +144,21 @@
   }
   function renderQueue() {
     var list = filtered(), o = open();
+    var pages = Math.max(1, Math.ceil(list.length / pageSize));
+    if (page > pages) page = pages;
+    var shown = list.slice((page - 1) * pageSize, page * pageSize);
     document.getElementById("mwQueueSummary").textContent = o.length + " items · " + o.filter(function (r) { return r.found; }).length + " found by CaseFusion · " + snoozed().length + " snoozed";
-    document.getElementById("mwQueue").innerHTML = list.map(rowHtml).join("") ||
+    document.getElementById("mwQueue").innerHTML = shown.map(rowHtml).join("") ||
       '<li class="list-group-item">' + emptyState(chip === "snoozed" ? "Nothing is snoozed" : "Nothing needs you",
         chip === "snoozed" ? "Snoozed items return to the action queue on their date." : "New items appear here as soon as a case needs action.") + "</li>";
     D.fitActions(document.getElementById("mwQueue"), ".mw-item-actions");
-    document.getElementById("mwQueueFoot").innerHTML = "<span>1–" + list.length + " of " + list.length + " · " + snoozed().length + " snoozed</span><span>Results per page: 25</span>";
+    /* Pager under the list (PM, Scott 10-14): the shared Nimbus pagination toolbar; hidden when the list is empty. */
+    var foot = document.getElementById("mwQueueFoot");
+    if (window.Nimbus && Nimbus.Select) foot.querySelectorAll("select[data-cnds-select-init]").forEach(function (x) { var i = Nimbus.Select.getInstance(x); if (i) i.dispose(); });
+    foot.innerHTML = list.length ? D.pager("mw", list.length, page, pageSize, "Items per page:") : "";
+    if (window.Nimbus && Nimbus.Select) Nimbus.Select.initAll(foot);
   }
+
 
   /* Shared empty state (demo.css .demo-empty): icon, bold title, muted note, centred (Scott, 10-14). */
   function emptyState(title, note) {
@@ -225,17 +234,22 @@
   }
 
   /* ── Events ─────────────────────────────────────────────────────────── */
-  function onSort() { renderQueue(); }
+  function onSort() { page = 1; renderQueue(); }
   document.getElementById("mwSort").addEventListener("change", onSort);
   document.getElementById("mwSort").addEventListener("valueChanged.cnds.select", onSort);
   /* Queue filters are radios: one change event per selection. */
-  document.getElementById("mwChips").addEventListener("change", function (e) { if (e.target.name === "mwFilter") { chip = e.target.value; render(); } });
+  document.getElementById("mwChips").addEventListener("change", function (e) { if (e.target.name === "mwFilter") { chip = e.target.value; page = 1; render(); } });
   /* The section chevron: Nimbus collapse drives the slide; keep its label in step. */
   document.getElementById("mwQueueBody").addEventListener("shown.cnds.collapse", function (e) { if (e.target.id === "mwQueueBody") document.querySelector(".mw-collapse").setAttribute("aria-label", "Collapse Action Queue"); });
   document.getElementById("mwQueueBody").addEventListener("hidden.cnds.collapse", function (e) { if (e.target.id === "mwQueueBody") document.querySelector(".mw-collapse").setAttribute("aria-label", "Expand Action Queue"); });
+  /* Pager: arrows turn the page; the size select resets to page 1. */
+  function onPageSize(e) { if (e.target.getAttribute("data-pg-size") === "mw") { pageSize = +e.target.value; page = 1; renderQueue(); } }
+  document.getElementById("mwQueueFoot").addEventListener("change", onPageSize);
+  document.getElementById("mwQueueFoot").addEventListener("valueChanged.cnds.select", onPageSize);
   document.addEventListener("click", function (e) {
     var t = e.target.closest("button, a");
     if (!t) return;
+    if (t.getAttribute("data-pg-for") === "mw") { page = D.turnPage(page, t.getAttribute("data-pg"), filtered().length, pageSize); renderQueue(); document.getElementById("mwQueueH").scrollIntoView({ block: "start" }); return; }
     if (t.hasAttribute("data-tile")) {
       var k = t.getAttribute("data-tile");
       if (k === "week") { renderWeek(true); document.getElementById("mwWeekH").scrollIntoView({ behavior: "smooth", block: "center" }); return; }

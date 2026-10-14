@@ -394,6 +394,24 @@
     });
   });
 
+  /* Pager under a list (Nimbus pagination-toolbar, as on Data Map): per-page select (10 by default, never more),
+     "a-b of n", and First / Previous / Next / Last. All four arrows disable on a single page. Hide it when n is 0.
+     Buttons carry data-pg="first|prev|next|last" + data-pg-for="<key>"; the select carries data-pg-size="<key>".
+     Initialise the select (Nimbus.Select.initAll) after inserting the markup. */
+  function pager(key, total, page, size, label, container) {
+    var pages = Math.max(1, Math.ceil(total / size)), a = total ? (page - 1) * size + 1 : 0, b = Math.min(total, page * size);
+    var btn = function (act, ic, lbl, dis) { return '<button type="button" class="pagination-toolbar-btn" data-pg="' + act + '" data-pg-for="' + key + '" aria-label="' + lbl + '"' + (dis ? " disabled" : "") + '><i class="mdi ' + ic + '" aria-hidden="true"></i></button>'; };
+    return '<div class="pagination-toolbar mt-2"><span class="pagination-toolbar-label">' + (label || "Results per page:") + "</span>" +
+      select("pg-" + key, [["10", "10"], ["25", "25"], ["50", "50"]], String(size), null, { size: "sm", container: container, attrs: 'data-pg-size="' + key + '" aria-label="Results per page"' }) +
+      '<span class="pagination-toolbar-range">' + a + "-" + b + " of " + total + '</span><nav class="pagination-toolbar-nav" aria-label="Page navigation">' +
+      btn("first", "mdi-skip-previous", "First page", page <= 1) + btn("prev", "mdi-chevron-left", "Previous page", page <= 1) +
+      btn("next", "mdi-chevron-right", "Next page", page >= pages) + btn("last", "mdi-skip-next", "Last page", page >= pages) + "</nav></div>";
+  }
+  function turnPage(page, act, total, size) {
+    var pages = Math.max(1, Math.ceil(total / size));
+    return act === "first" ? 1 : act === "prev" ? Math.max(1, page - 1) : act === "next" ? Math.min(pages, page + 1) : pages;
+  }
+
   /* Action columns share the longest button's width (Scott, 10-14): measure the widest button in a list's action
      cells and publish it as --demo-actions-w on the list, so every row's grid gives that column the same width.
      Call after rendering a list. Buttons never wrap, so this is the width the column needs. */
@@ -444,6 +462,8 @@
     select: select,
     modal: modal,
     fitActions: fitActions,
+    pager: pager,
+    turnPage: turnPage,
     offcanvas: offcanvas
   };
 }());
