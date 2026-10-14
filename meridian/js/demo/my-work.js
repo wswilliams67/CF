@@ -232,7 +232,7 @@
     return { id: id, a: a, html: '<li class="list-group-item"><div class="mw-case">' +
       '<div><a class="d-block fw-bold" href="' + href + '">' + esc(caseName(id)) + '</a><span class="d-block small text-muted"><span class="demo-label d-inline me-1">Stage:</span>' + esc(a.stage) + "</span></div>" +
       '<div><span class="demo-label">Needs Attention</span><span class="badge badge-pill badge-verbatim badge-' + severity(a.worst, a.stage) + '">' + esc(a.worst.charAt(0).toUpperCase() + a.worst.slice(1)) + "</span>" +
-        (onlySnoozed ? '<span class="d-block small text-muted mt-1">Snoozed in your queue until ' + esc(M.fmtDate(mine[0].snoozedUntil)) + "</span>" : "") + "</div>" +
+        (onlySnoozed ? '<span class="d-block small text-muted mt-1">Snoozed in the queue until ' + esc(M.fmtDate(mine[0].snoozedUntil)) + "</span>" : "") + "</div>" +
       '<div><span class="demo-label">On Hold</span>' + esc(a.onHold) + " custodians</div>" +
       '<div><span class="demo-label">Open Requests</span>' + a.openRequests + "</div>" +
       "</div></li>" };
