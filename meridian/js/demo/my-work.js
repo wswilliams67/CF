@@ -134,7 +134,8 @@
       /* WHY NOW (PRD 11's term), not STATUS: the column says why the item is here and how serious it is (Sally, Scott 10-14). */
       '<div><span class="demo-label">Why Now</span><div class="d-flex flex-wrap align-items-center gap-1">' +
           '<span class="badge badge-' + KIND_BADGE[r.chip] + '">' + r.chip + "</span>" +
-          (r.locked ? '<span class="badge badge-pill badge-danger">Preservation at Risk</span>' : "") +
+          /* Danger text beside the kind badge, as Hold Status shows the exception type (PM design, Sally, Scott 10-14). */
+          (r.locked ? '<span class="small fw-bold text-danger ms-1">Preservation at Risk</span>' : "") +
 "</div>" +
         '<div class="mt-1">' + esc(m && r.whyMasked ? r.whyMasked : r.why) + "</div></div>" +
       '<div><span class="demo-label">Waiting</span><div class="' + (old ? "text-danger fw-bold" : "") + '">' + esc(waiting(r)) + "</div>" +
