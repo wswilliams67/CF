@@ -143,6 +143,7 @@
     document.getElementById("mwQueue").innerHTML = list.map(rowHtml).join("") ||
       '<li class="list-group-item">' + emptyState(chip === "snoozed" ? "Nothing is snoozed" : "Nothing needs you",
         chip === "snoozed" ? "Snoozed items return to the action queue on their date." : "New items appear here as soon as a case needs action.") + "</li>";
+    D.fitActions(document.getElementById("mwQueue"), ".mw-item-actions");
     document.getElementById("mwQueueFoot").innerHTML = "<span>1–" + list.length + " of " + list.length + " · " + snoozed().length + " snoozed</span><span>Results per page: 25</span>";
   }
 

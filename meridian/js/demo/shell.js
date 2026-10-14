@@ -394,6 +394,16 @@
     });
   });
 
+  /* Action columns share the longest button's width (Scott, 10-14): measure the widest button in a list's action
+     cells and publish it as --demo-actions-w on the list, so every row's grid gives that column the same width.
+     Call after rendering a list. Buttons never wrap, so this is the width the column needs. */
+  function fitActions(list, cellSelector) {
+    if (!list) return;
+    var w = 0;
+    list.querySelectorAll(cellSelector + " .btn").forEach(function (b) { w = Math.max(w, Math.ceil(b.getBoundingClientRect().width)); });
+    if (w) list.style.setProperty("--demo-actions-w", w + "px");
+  }
+
   /* Selected tile → the library's outline card (no custom selected style). Gap #1 in tools/nimbus-gaps.md. */
   new MutationObserver(function (list) {
     list.forEach(function (m) {
@@ -433,6 +443,7 @@
     toast: toast,
     select: select,
     modal: modal,
+    fitActions: fitActions,
     offcanvas: offcanvas
   };
 }());
