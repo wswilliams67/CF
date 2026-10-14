@@ -150,9 +150,11 @@
     var pages = Math.max(1, Math.ceil(list.length / pageSize));
     if (page > pages) page = pages;
     var shown = list.slice((page - 1) * pageSize, page * pageSize);
-    /* Toolbar count: how many of the open queue this filter shows (as the Requests toolbar's "Showing 4 of 4"). */
-    document.getElementById("mwShowing").textContent = "Showing " + list.length + " of " + (chip === "snoozed" ? snoozed().length : o.length);
-    document.getElementById("mwQueueSummary").textContent = o.length + " items · " + o.filter(function (r) { return r.found; }).length + " found by CaseFusion · " + snoozed().length + " snoozed";
+    /* The queue's one count line, in the toolbar, following the filter (Scott, Sally 10-14): how many of the open queue
+       are shown, how many of those CaseFusion found, and how many are snoozed. On Snoozed it counts the snoozed list. */
+    document.getElementById("mwShowing").textContent = chip === "snoozed"
+      ? "Showing " + list.length + " of " + snoozed().length + " snoozed"
+      : "Showing " + list.length + " of " + o.length + " · " + list.filter(function (r) { return r.found; }).length + " found by CaseFusion · " + snoozed().length + " snoozed";
     document.getElementById("mwQueue").innerHTML = shown.map(rowHtml).join("") ||
       '<li class="list-group-item">' + emptyState(chip === "snoozed" ? "Nothing is snoozed" : "Nothing needs you",
         chip === "snoozed" ? "Snoozed items return to the action queue on their date." : "New items appear here as soon as a case needs action.") + "</li>";
