@@ -209,25 +209,43 @@
   }
 
   /* ── Lower sections (table, list groups) ────────────────────────────── */
-  function renderCases() {
-    var ids = caseIds(rows);
-    document.getElementById("mwCases").innerHTML = ids.map(function (id) {
-      var a = M.caseAttention[id];
-      var mine = rows.filter(function (r) { return r.caseId === id; });
-      var onlySnoozed = mine.every(function (r) { return r.snoozedUntil; });
-      if (id === "MBP-0926") {
-        var fully = M.custodians.filter(function (x) { var st = M.coverageOf(x).preservation.state; return st === "done" || st === "na"; }).length;
-        a = { stage: "Preservation", custodians: M.custodians.length, onHold: fully + " of " + M.custodians.length,
-          openRequests: M.requests.filter(function (q) { return q.caseId === id && q.status !== "Complete"; }).length, worst: "1 hold removed · 3 not on hold" };
-      }
-      return '<tr><td><a class="fw-bold" href="' + (id === "MBP-0926" ? "case-coverage.html" : "not-in-demo.html?what=" + encodeURIComponent(caseName(id))) + '">' + esc(caseName(id)) + "</a></td>" +
-        "<td>" + esc(a.stage) + "</td><td>" + a.custodians + "</td><td>" + esc(a.onHold) + "</td><td>" + a.openRequests + "</td>" +
-        '<td><span class="badge badge-pill ' + (a.stage === "Closed" ? "badge-warning" : "badge-danger") + '">' + esc(a.worst) + "</span>" +
-        (onlySnoozed ? '<div class="small text-muted">Snoozed in your queue until ' + esc(M.fmtDate(mine[0].snoozedUntil)) + "</div>" : "") + "</td></tr>";
-    }).join("");
-    document.getElementById("mwCasesCount").textContent = ids.length + " of " + access.open;
-    document.getElementById("mwMoreCases").textContent = (access.open - ids.length) + " more cases · nothing needs you";
+  /* Cases Needing Attention (Scott, Sally 10-14): standard record rows under a list toolbar.
+       case (no label): name · ID as a 14px bold link, its stage as the 12px line under it
+       NEEDS ATTENTION: the worst problem as a verbatim badge coloured by severity, then the snooze note when snoozed
+       ON HOLD:  "3 of 9 custodians" (the old Custodians column folded in)
+       OPEN REQUESTS: the count */
+  function severity(worst, stage) {
+    if (/hold removed|not on hold/i.test(worst)) return "danger";
+    if (stage === "Closed" || /not acknowledged/i.test(worst)) return "warning";
+    return "info";  /* questions, locations to review */
   }
+  function caseRow(id) {
+    var a = M.caseAttention[id];
+    var mine = rows.filter(function (r) { return r.caseId === id; });
+    var onlySnoozed = mine.every(function (r) { return r.snoozedUntil; });
+    if (id === "MBP-0926") {
+      var fully = M.custodians.filter(function (x) { var st = M.coverageOf(x).preservation.state; return st === "done" || st === "na"; }).length;
+      a = { stage: "Preservation", custodians: M.custodians.length, onHold: fully + " of " + M.custodians.length,
+        openRequests: M.requests.filter(function (q) { return q.caseId === id && q.status !== "Complete"; }).length, worst: "1 hold removed · 3 not on hold" };
+    }
+    var href = id === "MBP-0926" ? "case-coverage.html" : "not-in-demo.html?what=" + encodeURIComponent(caseName(id));
+    return { id: id, a: a, html: '<li class="list-group-item"><div class="mw-case">' +
+      '<div><a class="d-block fw-bold" href="' + href + '">' + esc(caseName(id)) + '</a><span class="d-block small text-muted">' + esc(a.stage) + "</span></div>" +
+      '<div><span class="demo-label">Needs Attention</span><span class="badge badge-pill badge-verbatim badge-' + severity(a.worst, a.stage) + '">' + esc(a.worst.charAt(0).toUpperCase() + a.worst.slice(1)) + "</span>" +
+        (onlySnoozed ? '<span class="d-block small text-muted mt-1">Snoozed in your queue until ' + esc(M.fmtDate(mine[0].snoozedUntil)) + "</span>" : "") + "</div>" +
+      '<div><span class="demo-label">On Hold</span>' + esc(a.onHold) + " custodians</div>" +
+      '<div><span class="demo-label">Open Requests</span>' + a.openRequests + "</div>" +
+      "</div></li>" };
+  }
+  function renderCases() {
+    var list = caseIds(rows).map(caseRow), sort = (document.getElementById("mwCasesSort") || {}).value || "attention";
+    if (sort === "name") list.sort(function (x, y) { return caseName(x.id).localeCompare(caseName(y.id)); });
+    if (sort === "requests") list.sort(function (x, y) { return y.a.openRequests - x.a.openRequests; });
+    document.getElementById("mwCases").innerHTML = list.map(function (x) { return x.html; }).join("");
+    document.getElementById("mwCasesShowing").textContent = "Showing " + list.length + " of " + access.open + " cases";
+    document.getElementById("mwMoreCases").textContent = (access.open - list.length) + " more cases · nothing needs you";
+  }
+  ["change", "valueChanged.cnds.select"].forEach(function (t) { document.getElementById("mwCasesSort").addEventListener(t, renderCases); });
   function renderWeek(all) {
     var wk = M.thisWeek.filter(function (w) { return access.cases.indexOf(w.caseId) !== -1; });
     var total = wk.reduce(function (n, w) { return n + w.n; }, 0);
