@@ -14,6 +14,9 @@
   var chip = "open";
   var actionsFitted = false;
   /* The queue's columns are measured with the web font, so until it has loaded the list shows skeleton rows. */
+  /* API seam (Scott, 10-14): these screens will read their data from APIs. Then the skeleton shows while that request is
+     pending (render skeletonRows(), await the call, then render rows), and the font-ready trigger below is only the
+     demo's stand-in. Keep the data behind its one call so the API can replace it without touching rendering. */
   var fontsReady = !(document.fonts && document.fonts.status !== "loaded");
   var page = 1, pageSize = 25;  /* queue pager: 25 rows by default on My Work (Scott, 10-14; the house default elsewhere is 10) */
 

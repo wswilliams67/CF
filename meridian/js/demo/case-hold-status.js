@@ -80,6 +80,9 @@
   var integrityText = "Integrity verified " + M.freshness.integrityAgo;
   /* Until the web font has loaded, the open segment shows skeleton rows, so the list never paints in the fallback font
      and then jumps (Scott, 10-14). */
+  /* API seam (Scott, 10-14): these screens will read their data from APIs. Then the skeleton shows while that request is
+     pending (render skeletonRows(), await the call, then render rows), and the font-ready trigger below is only the
+     demo's stand-in. Keep the data behind its one call so the API can replace it without touching rendering. */
   var fontsReady = !(document.fonts && document.fonts.status !== "loaded");
 
   /* ── Small helpers ──────────────────────────────────────────────────── */
