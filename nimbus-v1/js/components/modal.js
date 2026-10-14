@@ -20,6 +20,7 @@
   const EVENT_HIDDEN = `hidden${EVENT_KEY}`;
 
   const CLASS_SHOW = "show";
+  const STACK_STEP = 20; // z-index added per modal already open (stacked modals)
   const CLASS_FADE = "fade";
   const CLASS_STATIC = "modal-static";
   const CLASS_MODAL_OPEN = "modal-open";
@@ -105,9 +106,22 @@
           document.body.style.paddingRight = `${this._scrollbarWidth}px`;
         }
 
+        // Stacking: a modal opened over another (a confirmation over a form) sits one layer up, with its own
+        // backdrop between the two, so the modal underneath is dimmed. Every modal otherwise shares one z-index
+        // and the second backdrop lands under the first modal.
+        const depth = SelectorEngine.find(`.modal.${CLASS_SHOW}`).filter((el) => el !== this._element).length;
+
         // Show backdrop
         if (this._config.backdrop) {
           this._showBackdrop();
+        }
+
+        if (depth) {
+          const lift = depth * STACK_STEP;
+          this._element.style.setProperty("--cnds-modal-zindex", `calc(var(--cnds-zindex-modal, 1055) + ${lift})`);
+          if (this._backdrop) {
+            this._backdrop.style.setProperty("--cnds-backdrop-zindex", `calc(var(--cnds-zindex-modal-backdrop, 1050) + ${lift})`);
+          }
         }
 
         document.body.classList.add(CLASS_MODAL_OPEN);
@@ -178,10 +192,14 @@
           // Remove backdrop
           this._hideBackdrop();
 
-          // Restore scrollbar
-          document.body.classList.remove(CLASS_MODAL_OPEN);
-          document.body.style.overflow = "";
-          document.body.style.paddingRight = "";
+          this._element.style.removeProperty("--cnds-modal-zindex");
+
+          // Restore scrollbar, unless a modal is still open underneath this one
+          if (!SelectorEngine.find(`.modal.${CLASS_SHOW}`).length) {
+            document.body.classList.remove(CLASS_MODAL_OPEN);
+            document.body.style.overflow = "";
+            document.body.style.paddingRight = "";
+          }
         }
 
         this._isTransitioning = false;
