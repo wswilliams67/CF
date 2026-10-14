@@ -1,0 +1,458 @@
+/* ============================================================
+   CNDS Timepicker Plugin
+   Cloudficient Nimbus Design System v1.0.0
+
+   Time selection widget: spinner-based inline picker with
+   AM/PM toggle and optional chevron arrows.
+
+   Figma reference: node 785-10402
+   ============================================================ */
+
+/* ============================================================
+   Component tokens
+   The widget always renders on a dark surface (--cnds-surface-dark-500)
+   regardless of page theme, so widget-level tokens use the dark
+   surface palette unconditionally. Input-field tokens remain
+   theme-aware.
+   ============================================================ */
+.timepicker {
+  /* --- Input field (theme-aware) --- */
+  --cnds-tp-bg:           var(--cnds-body-bg, #fff);
+  --cnds-tp-color:        var(--cnds-body-color, #4f4f4f);
+  --cnds-tp-border:       var(--cnds-border-color, #dee2e6);
+  --cnds-tp-radius:       var(--cnds-border-radius, 0.375rem);
+  --cnds-tp-primary:      var(--cnds-input-focus-border-color, var(--cnds-product-casefusion-green-700, #2e892a));
+  --cnds-input-focus-border-color: var(--cnds-product-casefusion-green-700, #2e892a); /* cascades into form-control:focus */
+  --cnds-tp-primary-text: #fff;
+  --cnds-tp-hover-bg:     rgba(0, 0, 0, 0.04);
+  --cnds-tp-muted:        var(--cnds-body-color, #6c757d);  /* tracks body color; opacity applied at usage site */
+  --cnds-tp-shadow:       0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+
+  /* --- Widget surface (light by default, dark override below) --- */
+  --cnds-tp-widget-bg:         #fafafa;
+  --cnds-tp-widget-border:     #e0e0e0;
+  --cnds-tp-widget-radius:     var(--cnds-radius-m, 8px);
+  --cnds-tp-widget-shadow:     0px 2px 4px 0px rgba(0, 0, 0, 0.20),
+                               0px 1px 10px 0px rgba(0, 0, 0, 0.12),
+                               0px 4px 5px 0px rgba(0, 0, 0, 0.14);
+  --cnds-tp-widget-gap:        var(--cnds-gap-gap-1, 4px);
+  --cnds-tp-widget-pt:         8px;
+  --cnds-tp-widget-pb:         4px;
+  --cnds-tp-widget-px:         8px;
+  --cnds-tp-widget-hover-bg:   rgba(0, 0, 0, 0.04);
+
+  /* --- Digit display --- */
+  --cnds-tp-digits-size:           var(--cnds-font-size-form-timepicker-digits, 2.5rem);   /* 40px → rem for 1.4.4 */
+  --cnds-tp-digits-color:          var(--cnds-body-color, #141414);
+  --cnds-tp-digits-letter-spacing: -2px;
+  --cnds-tp-digits-weight:         var(--cnds-font-weight-base, 400);
+
+  /* --- AM/PM --- */
+  --cnds-tp-ampm-size:           var(--cnds-font-size-form-timepicker-ampm, 1.125rem);     /* 18px → rem for 1.4.4 */
+  --cnds-tp-ampm-color:          var(--cnds-surface-blue-600, #215aab);
+  --cnds-tp-ampm-letter-spacing: -0.9px;
+  --cnds-tp-ampm-weight:         var(--cnds-font-weight-medium, 500);
+  --cnds-tp-ampm-inactive-opacity: 0.50;
+  --cnds-tp-ampm-gap:            12px;
+  --cnds-tp-ampm-pl:             24px;
+
+  /* --- Chevron arrows --- */
+  --cnds-tp-arrow-size:  30px;
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
+/* Label inside the timepicker wrapper — gap provides the 4px spacing (cf-input-field standard).
+   Reset margin-bottom so it doesn't double-stack with flex gap. */
+.timepicker .cf-input-label,
+.timepicker .form-label {
+  margin-bottom: 0;
+}
+
+/* ============================================================
+   Input field
+   ============================================================ */
+.timepicker-input {
+  position: relative;
+}
+
+/* Standalone usage (no form-control / cf-input-control):
+   provide baseline input styling matching cf-input-control (Forms/Input/Default) */
+.timepicker-input input:not(.form-control):not(.cf-input-control) {
+  width: 100%;
+  padding: 0.75rem 2.25rem 0.75rem 1.25rem;
+  border: 1px solid var(--cnds-tp-border);
+  border-radius: var(--cnds-radius-m, 8px);
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.2;
+  color: var(--cnds-tp-color);
+  background-color: var(--cnds-tp-bg);
+  appearance: none;
+  background-clip: padding-box;
+  outline: none;
+  transition:
+    border-color 0.15s ease-in-out,
+    box-shadow 0.15s ease-in-out;
+}
+
+.timepicker-input input:not(.form-control):not(.cf-input-control):focus {
+  border-color: var(--cnds-tp-primary);
+  box-shadow: inset 0 0 0 1px var(--cnds-tp-primary);
+  outline: 0;
+}
+
+/* form-control: align appearance to cf-input-control (Forms/Input/Default)
+   so the trigger field matches the design system's standard input style.
+   Specificity 0-3-0. The [readonly] selector below is 0-4-0 — needed to
+   beat [data-cnds-theme="dark"] .form-control[readonly] (also 0-3-0, but
+   loaded later via dark.css so it wins on order; the extra class here
+   restores priority). */
+.timepicker .timepicker-input .form-control {
+  padding: 0.75rem 2.25rem 0.75rem 1.25rem; /* right clears the 2.25rem toggle btn */
+  font-size: 0.875rem;                       /* Forms/Input/Default — 14px */
+  line-height: 1.2;
+  border-radius: var(--cnds-radius-m, 8px);
+  background-color: var(--cnds-input-bg, #fff);
+}
+
+/* The timepicker sets readonly on the trigger input to prevent keyboard entry.
+   Override the disabled-bg that dark.css applies to [readonly] inputs — the
+   trigger should look like a normal interactive input, not a disabled one. */
+.timepicker .timepicker-input .form-control[readonly] {
+  background-color: var(--cnds-input-bg, #fff);
+  opacity: 1;
+}
+
+/* ---- Sizing — scale the form-control trigger with cf-input-field-sm/lg on the wrapper ---
+   Labels already scale via forms.css .cf-input-field-sm/lg .cf-input-label rules.
+   Right padding must stay ≥ 2.25rem (toggle button width) on all sizes. */
+
+/* Small: 13px font, 8px v-padding, 12px h-padding */
+.cf-input-field-sm .timepicker-input .form-control {
+  padding: 0.5rem 2.25rem 0.5rem 0.75rem;
+  font-size: 0.8125rem; /* 13px */
+}
+
+/* Large: 16px font, 14px v-padding, 24px h-padding */
+.cf-input-field-lg .timepicker-input .form-control {
+  padding: 0.875rem 2.25rem 0.875rem 1.5rem;
+  font-size: 1rem; /* 16px */
+}
+
+/* cf-input-control: forms.css owns appearance; just add right-pad for the toggle.
+   Must beat .cf-input-wrapper:not(:has(.cf-input-icon)) .cf-input-control (0,3,0). */
+.timepicker .timepicker-input .cf-input-control {
+  padding-right: 2.875rem; /* h-pad/20 + icon/18 + gap/8 = 46px */
+}
+
+/* The timepicker sets readonly on the trigger input. Override the grey disabled-bg
+   that forms.css applies to cf-input-control[readonly] — the trigger should look
+   like a normal interactive input, not a readonly/disabled one. */
+.timepicker .timepicker-input .cf-input-control[readonly] {
+  background-color: var(--cnds-input-bg, #fff);
+  opacity: 1;
+}
+
+.timepicker-toggle,
+.timepicker-toggle-button {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 1;
+  width: 2.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--cnds-tp-muted);   /* tracks --cnds-body-color like cf-input-icon */
+  opacity: 0.6;                   /* matches cf-input-icon opacity */
+  border: none;
+  background: transparent;
+  padding: 0;
+  transition: opacity 0.15s, color 0.15s;
+}
+
+.timepicker-toggle:hover,
+.timepicker-toggle-button:hover {
+  color: var(--cnds-tp-muted);   /* keep same color, only opacity changes on hover */
+  opacity: 1;
+}
+
+.timepicker-toggle .mdi,
+.timepicker-toggle-button svg,
+.timepicker-icon {
+  font-size: 1rem;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.timepicker-toggle-button svg {
+  width: 1rem;
+  height: 1rem;
+  fill: currentColor;
+}
+
+/* ============================================================
+   Dropdown wrapper
+   ============================================================ */
+.timepicker-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1050;
+  margin-top: 0.25rem;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease,
+    visibility 0.2s;
+}
+
+.timepicker-dropdown.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.timepicker-dropdown.drop-up {
+  top: auto;
+  bottom: 100%;
+  margin-top: 0;
+  margin-bottom: 0.25rem;
+}
+
+/* Inline mode — static, always visible */
+.timepicker-inline .timepicker-dropdown,
+.timepicker-inline-12 .timepicker-dropdown,
+.timepicker-inline-24 .timepicker-dropdown {
+  position: static;
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  margin-top: 0;
+}
+
+/* ============================================================
+   Widget container  (Figma: cmp_time-picker, node 785-10403)
+   Always dark. Column: spinners row on top, footer row on bottom.
+   ============================================================ */
+.timepicker-ui {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 218px;
+  gap: var(--cnds-tp-widget-gap);
+  padding-top:    var(--cnds-tp-widget-pt);
+  padding-bottom: var(--cnds-tp-widget-pb);
+  padding-left:   var(--cnds-tp-widget-px);
+  padding-right:  var(--cnds-tp-widget-px);
+  background-color: var(--cnds-tp-widget-bg);
+  border: 1px solid var(--cnds-tp-widget-border);
+  border-radius: var(--cnds-tp-widget-radius);
+  box-shadow: var(--cnds-tp-widget-shadow);
+}
+
+/* ============================================================
+   Hour / Minute spinners   (Figma: fr_hours, fr_minutes)
+   ============================================================ */
+.timepicker-spinners {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: var(--cnds-tp-widget-gap);
+}
+
+.timepicker-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--cnds-tp-widget-gap);
+}
+
+/* Chevron up/down arrow buttons (Figma: chevron-up, chevron-down) */
+.timepicker-spinner-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width:  var(--cnds-tp-arrow-size);
+  height: var(--cnds-tp-arrow-size);
+  border: none;
+  background: transparent;
+  color: var(--cnds-tp-ampm-color);
+  cursor: pointer;
+  padding: 0;
+  border-radius: var(--cnds-radius-s, 4px);
+}
+
+.timepicker-spinner-btn .mdi {
+  font-size: 2rem;
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* Digit display (Figma: hours, minutes — node 785-10196) */
+.timepicker-spinner-value {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: var(--cnds-radius-s, 4px);
+  font-size:      var(--cnds-tp-digits-size);
+  font-weight:    var(--cnds-tp-digits-weight);
+  letter-spacing: var(--cnds-tp-digits-letter-spacing);
+  color:          var(--cnds-tp-digits-color);
+  line-height: 0;   /* outer wrapper: leading-[0] per Figma */
+  user-select: none;
+  white-space: nowrap;
+}
+
+.timepicker-spinner-value span {
+  line-height: 1;   /* inner content: leading-none per Figma */
+}
+
+/* ============================================================
+   Separator colon   (Figma: 12px wide, 32px tall, colon at bottom)
+   ============================================================ */
+.timepicker-separator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  width: 12px;
+  height: 32px;
+  font-size:   var(--cnds-tp-digits-size);
+  font-weight: var(--cnds-tp-digits-weight);
+  color:       var(--cnds-tp-digits-color);
+  line-height: 1;
+  opacity: 0.5;
+  text-align: center;
+  user-select: none;
+}
+
+/* ============================================================
+   AM/PM toggle   (Figma: fr_ampm — node 785-10413)
+   Vertical column; inactive state at reduced opacity.
+   ============================================================ */
+.timepicker-ampm {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;   /* Figma: items-start */
+  gap:         var(--cnds-tp-ampm-gap);
+  padding-left: var(--cnds-tp-ampm-pl);
+}
+
+.timepicker-ampm-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: var(--cnds-radius-s, 4px);
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size:      var(--cnds-tp-ampm-size);
+  font-weight:    var(--cnds-tp-ampm-weight);
+  letter-spacing: var(--cnds-tp-ampm-letter-spacing);
+  color:          var(--cnds-tp-ampm-color);
+  text-transform: uppercase;
+  line-height: 1;
+  white-space: nowrap;
+  opacity: var(--cnds-tp-ampm-inactive-opacity);   /* inactive by default */
+  transition: opacity 0.15s;
+}
+
+.timepicker-ampm-btn.active,
+.timepicker-ampm-btn:hover {
+  opacity: 1;
+}
+
+/* ============================================================
+   Footer buttons — Clear / Now / OK
+   btn btn-tertiary owns all appearance and states.
+   ============================================================ */
+.timepicker-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+/* ============================================================
+   Dark theme — input field + widget surface overrides
+   ============================================================ */
+[data-cnds-theme="dark"] .timepicker {
+  /* Input field */
+  --cnds-tp-bg:       var(--cnds-body-bg, #1e1e1e);
+  --cnds-tp-color:    var(--cnds-body-color, #e0e0e0);
+  --cnds-tp-border:   var(--cnds-border-color, #4a4a4a);
+  --cnds-tp-hover-bg: rgba(255, 255, 255, 0.06);
+  --cnds-tp-shadow:   0 0.5rem 1rem rgba(0, 0, 0, 0.4);
+  --cnds-tp-primary:  var(--cnds-input-focus-border-color, var(--cnds-product-casefusion-green-400, #7dd67a));
+  --cnds-input-focus-border-color: var(--cnds-product-casefusion-green-400, #7dd67a);
+
+  /* Widget surface */
+  --cnds-tp-widget-bg:           var(--cnds-surface-dark-500, #1e1e1e);
+  --cnds-tp-widget-border:       var(--cnds-surface-dark-300, #4a4a4a);
+  --cnds-tp-widget-hover-bg:     rgba(255, 255, 255, 0.08);
+
+  /* Digit + AM/PM */
+  --cnds-tp-digits-color:          var(--cnds-body-color, #e8e8e8);
+  --cnds-tp-ampm-color:            var(--cnds-surface-blue-400, #6790ca);
+  --cnds-tp-ampm-inactive-opacity: 0.70;
+}
+
+/* ============================================================
+   2.4.7 Focus visible — all interactive controls
+   Uses focus-visible so mouse users are unaffected.
+   ============================================================ */
+
+/* Toggle button (input field surface) — CasFusion green focus */
+.timepicker-toggle-button:focus-visible,
+.timepicker-toggle:focus-visible {
+  outline: 2px solid var(--cnds-tp-primary, #2e892a);
+  outline-offset: 2px;
+  border-radius: var(--cnds-radius-s, 4px);
+}
+
+/* Widget controls — blue accent focus (tracks --cnds-tp-ampm-color, theme-aware) */
+.timepicker-spinner-btn:focus-visible,
+.timepicker-ampm-btn:focus-visible,
+.timepicker-footer-btn:focus-visible {
+  outline: 2px solid var(--cnds-tp-ampm-color, #6790ca);
+  outline-offset: 2px;
+  border-radius: var(--cnds-radius-s, 4px);
+}
+
+/* ============================================================
+   Product theme overrides — focus ring color
+   CasFusion is the default (tokens already set above).
+   Expireon and Hyperlize override those defaults here.
+   Add the product class directly on the .timepicker element:
+     <div class="timepicker cf-input-field-expireon" …>
+   ============================================================ */
+.cf-input-field-expireon.timepicker {
+  --cnds-input-focus-border-color: var(--cnds-product-expireon-blue-500, #4e45d6);
+  --cnds-tp-primary:               var(--cnds-product-expireon-blue-500, #4e45d6);
+}
+[data-cnds-theme="dark"] .cf-input-field-expireon.timepicker {
+  --cnds-input-focus-border-color: var(--cnds-product-expireon-blue-200, #b6b4ee);
+  --cnds-tp-primary:               var(--cnds-product-expireon-blue-200, #b6b4ee);
+}
+
+.cf-input-field-hyperlize.timepicker {
+  --cnds-input-focus-border-color: var(--cnds-product-hyperlize-orange-700, #926a08);
+  --cnds-tp-primary:               var(--cnds-product-hyperlize-orange-700, #926a08);
+}
+[data-cnds-theme="dark"] .cf-input-field-hyperlize.timepicker {
+  --cnds-input-focus-border-color: var(--cnds-product-hyperlize-orange-400, #f6bf37);
+  --cnds-tp-primary:               var(--cnds-product-hyperlize-orange-400, #f6bf37);
+}

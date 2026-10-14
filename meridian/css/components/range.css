@@ -1,0 +1,364 @@
+/* ============================================================
+   CNDS Range Slider
+   Cloudficient Nimbus Design System v1.0.0
+
+   Figma reference:
+     Component — node 801:10909 (cmp_range)
+     Tooltip   — node 801:10857 (_range/_rng-handle)
+     Track   — Surface/Form/Input/Background  (#4a4a4a), 2 px
+     Thumb   — Surface/Button/Background/Primary/Default (#355d97), 16 px solid fill
+     Tooltip — #355d97 bg · #edf1f9 text · 10 px font · teardrop/pin shape (30×30 px)
+
+   WCAG AA contrast (text 4.5:1 / non-text 3:1):
+     Light — tooltip text #edf1f9 on #355d97 → 5.88:1 ✓
+             thumb/fill #355d97 on #fff      → 6.63:1 ✓
+             track #4a4a4a on #fff           → 8.84:1 ✓
+     Dark  — tooltip text #edf1f9 on #355d97 → 5.88:1 ✓
+             thumb/fill #6790ca on #1e1e1e   → 5.09:1 ✓
+             track #7a7a7a on #1e1e1e        → 3.88:1 ✓
+   ============================================================ */
+
+/* --- Base Range (standalone .form-range, no wrapper) --- */
+.form-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 1.5rem;
+  padding: 0;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+.form-range:focus {
+  outline: 0;
+}
+
+/* --- Track --- */
+.form-range::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 0.5rem;
+  color: transparent;
+  cursor: pointer;
+  background-color: var(--cnds-gray-300);
+  border-color: transparent;
+  border-radius: 1rem;
+}
+
+.form-range::-moz-range-track {
+  width: 100%;
+  height: 0.5rem;
+  color: transparent;
+  cursor: pointer;
+  background-color: var(--cnds-gray-300);
+  border-color: transparent;
+  border-radius: 1rem;
+}
+
+/* --- Thumb --- */
+.form-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 1rem;
+  height: 1rem;
+  margin-top: -0.25rem;
+  background-color: var(--cnds-primary);
+  border: 0;
+  border-radius: 1rem;
+  transition:
+    background-color 0.15s ease-in-out,
+    border-color 0.15s ease-in-out,
+    box-shadow 0.15s ease-in-out;
+}
+
+.form-range::-moz-range-thumb {
+  width: 1rem;
+  height: 1rem;
+  background-color: var(--cnds-primary);
+  border: 0;
+  border-radius: 1rem;
+  transition:
+    background-color 0.15s ease-in-out,
+    border-color 0.15s ease-in-out,
+    box-shadow 0.15s ease-in-out;
+}
+
+.form-range::-webkit-slider-thumb:active {
+  background-color: var(--cnds-brand-blue-200);
+}
+
+.form-range::-moz-range-thumb:active {
+  background-color: var(--cnds-brand-blue-200);
+}
+
+.form-range:focus::-webkit-slider-thumb {
+  box-shadow: 0 0 0 0.25rem rgba(var(--cnds-primary-rgb), 0.25);
+}
+
+.form-range:focus::-moz-range-thumb {
+  box-shadow: 0 0 0 0.25rem rgba(var(--cnds-primary-rgb), 0.25);
+}
+
+/* --- Disabled --- */
+.form-range:disabled {
+  pointer-events: none;
+}
+
+.form-range:disabled::-webkit-slider-thumb {
+  background-color: var(--cnds-gray-500);
+}
+
+.form-range:disabled::-moz-range-thumb {
+  background-color: var(--cnds-gray-500);
+}
+
+/* --- Range input alias (legacy) --- */
+.range-input {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 1.5rem;
+  padding: 0;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+.range-input:focus {
+  outline: 0;
+}
+
+.range-input::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 0.5rem;
+  color: transparent;
+  cursor: pointer;
+  background-color: var(--cnds-gray-300);
+  border-color: transparent;
+  border-radius: 1rem;
+}
+
+.range-input::-moz-range-track {
+  width: 100%;
+  height: 0.5rem;
+  color: transparent;
+  cursor: pointer;
+  background-color: var(--cnds-gray-300);
+  border-color: transparent;
+  border-radius: 1rem;
+}
+
+.range-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 1rem;
+  height: 1rem;
+  margin-top: -0.25rem;
+  background-color: var(--cnds-primary);
+  border: 0;
+  border-radius: 1rem;
+  transition:
+    background-color 0.15s ease-in-out,
+    border-color 0.15s ease-in-out,
+    box-shadow 0.15s ease-in-out;
+}
+
+.range-input::-moz-range-thumb {
+  width: 1rem;
+  height: 1rem;
+  background-color: var(--cnds-primary);
+  border: 0;
+  border-radius: 1rem;
+  transition:
+    background-color 0.15s ease-in-out,
+    border-color 0.15s ease-in-out,
+    box-shadow 0.15s ease-in-out;
+}
+
+.range-input:focus::-webkit-slider-thumb {
+  box-shadow: 0 0 0 0.25rem rgba(var(--cnds-primary-rgb), 0.25);
+}
+
+.range-input:focus::-moz-range-thumb {
+  box-shadow: 0 0 0 0.25rem rgba(var(--cnds-primary-rgb), 0.25);
+}
+
+/* ============================================================
+   .range / .range-wrapper — Figma-aligned component wrapper
+   (Figma node 801:10909 · tooltip node 801:10857)
+   ============================================================ */
+
+.range,
+.range-wrapper {
+  /* Light theme defaults — wired to CNDS primitive tokens */
+  --cnds-range-track-height:      2px;
+  --cnds-range-track-bg:          var(--cnds-surface-dark-300, #4a4a4a);
+  --cnds-range-thumb-size:        16px;
+  --cnds-range-thumb-bg:          var(--cnds-surface-blue-500, #355d97);
+  --cnds-range-thumb-shadow:      0 1px 4px rgba(0, 0, 0, 0.2);
+  --cnds-range-thumb-ring:        rgba(53, 93, 151, 0.15);
+  --cnds-range-thumb-ring-active: rgba(53, 93, 151, 0.2);
+  --cnds-range-label-bg:          var(--cnds-surface-blue-500, #355d97);
+  --cnds-range-label-color:       var(--cnds-surface-blue-50, #edf1f9);
+  --cnds-range-label-font-size:   10px;
+
+  position: relative;
+  /* Space above the input for the 30 px teardrop tooltip + 4 px gap above thumb top.
+     Derivation: paddingTop = tooltipHeight(30) + gap(4) - thumbTopWithinInput(4) = 30px */
+  padding-top: 1.875rem;
+}
+
+/* --- Track (scoped — overrides base .form-range track inside wrapper) --- */
+.range .form-range::-webkit-slider-runnable-track,
+.range-wrapper .form-range::-webkit-slider-runnable-track {
+  height: var(--cnds-range-track-height);
+  background-color: var(--cnds-range-track-bg);
+  border-radius: 999px;
+}
+
+.range .form-range::-moz-range-track,
+.range-wrapper .form-range::-moz-range-track {
+  height: var(--cnds-range-track-height);
+  background-color: var(--cnds-range-track-bg);
+  border-radius: 999px;
+}
+
+/* --- Thumb (scoped) ---
+   margin-top centres 16 px thumb on 2 px track:
+   (track_height / 2) - (thumb_size / 2) = 1 - 8 = -7 px */
+.range .form-range::-webkit-slider-thumb,
+.range-wrapper .form-range::-webkit-slider-thumb {
+  width: var(--cnds-range-thumb-size);
+  height: var(--cnds-range-thumb-size);
+  margin-top: -7px;
+  background-color: var(--cnds-range-thumb-bg);
+  box-shadow: var(--cnds-range-thumb-shadow);
+  transition: box-shadow 0.15s;
+}
+
+.range .form-range::-moz-range-thumb,
+.range-wrapper .form-range::-moz-range-thumb {
+  width: var(--cnds-range-thumb-size);
+  height: var(--cnds-range-thumb-size);
+  background-color: var(--cnds-range-thumb-bg);
+  box-shadow: var(--cnds-range-thumb-shadow);
+  transition: box-shadow 0.15s;
+}
+
+.range .form-range::-webkit-slider-thumb:hover,
+.range-wrapper .form-range::-webkit-slider-thumb:hover {
+  box-shadow: 0 0 0 6px var(--cnds-range-thumb-ring);
+}
+
+.range .form-range::-webkit-slider-thumb:active,
+.range-wrapper .form-range::-webkit-slider-thumb:active {
+  box-shadow: 0 0 0 8px var(--cnds-range-thumb-ring-active);
+}
+
+.range .form-range:focus::-webkit-slider-thumb,
+.range-wrapper .form-range:focus::-webkit-slider-thumb {
+  box-shadow: 0 0 0 0.25rem rgba(53, 93, 151, 0.25);
+}
+
+.range .form-range:focus::-moz-range-thumb,
+.range-wrapper .form-range:focus::-moz-range-thumb {
+  box-shadow: 0 0 0 0.25rem rgba(53, 93, 151, 0.25);
+}
+
+/* --- Disabled (scoped) --- */
+.range .form-range:disabled::-webkit-slider-thumb,
+.range-wrapper .form-range:disabled::-webkit-slider-thumb {
+  background-color: var(--cnds-gray-500);
+  box-shadow: none;
+}
+
+.range .form-range:disabled::-moz-range-thumb,
+.range-wrapper .form-range:disabled::-moz-range-thumb {
+  background-color: var(--cnds-gray-500);
+  box-shadow: none;
+}
+
+/* --- Tooltip label — teardrop/pin shape (Figma node 801:10857)
+   Matches the multi-range tooltip exactly.
+   Shape: circular head (r≈10.5 px) tapering to a downward point at y=30.
+   Total bounding box: 30×30 px; text centre sits at (15, 11).
+   The clip-path uses the exact SVG path exported from the Figma asset. --- */
+.range .range-value,
+.range-wrapper .range-value {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30px;
+  height: 30px;
+  background: var(--cnds-range-label-bg);
+  clip-path: path("M15 0C11.0218 0 7.20644 1.10625 4.3934 3.07538C1.58035 5.04451 0 7.71523 0 10.5C0 18.375 12.3333 27 14.9167 30C17.4167 27 30 18.375 30 10.5C30 7.71523 28.4196 5.04451 25.6066 3.07538C22.7936 1.10625 18.9782 0 15 0Z");
+  color: var(--cnds-range-label-color);
+  font-size: var(--cnds-range-label-font-size);
+  font-weight: 500;
+  line-height: 1;
+  text-align: center;
+  padding-top: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  /* Hidden by default; shown on hover or while the input is focused/active */
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+/* No ::after needed — teardrop path already provides the downward point */
+
+/* Show on hover over the wrapper or while the input has focus (keyboard / drag) */
+.range:hover .range-value,
+.range:focus-within .range-value,
+.range.is-active .range-value,
+.range-wrapper:hover .range-value,
+.range-wrapper:focus-within .range-value,
+.range-wrapper.is-active .range-value {
+  opacity: 1;
+}
+
+/* --- Multi-range (layout only — colors live in plugins/multi-range.css) --- */
+.multi-range {
+  position: relative;
+  height: 1.5rem;
+}
+
+.multi-range .form-range {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+.multi-range .form-range::-webkit-slider-thumb {
+  pointer-events: all;
+}
+
+.multi-range .form-range::-moz-range-thumb {
+  pointer-events: all;
+}
+
+/* --- Dark theme ---
+   Thumb steps up to surface-blue-400 (#6790ca) — 5.09:1 on dark body (#1e1e1e).
+   Track steps up to surface-light-700 (#7a7a7a) — 3.88:1 non-text contrast.
+   Tooltip bg/text unchanged — still 5.88:1. */
+[data-cnds-theme="dark"] .range,
+[data-cnds-theme="dark"] .range-wrapper {
+  --cnds-range-track-bg:          var(--cnds-surface-light-700, #7a7a7a);
+  --cnds-range-thumb-bg:          var(--cnds-surface-blue-400, #6790ca);
+  --cnds-range-thumb-shadow:      0 1px 4px rgba(0, 0, 0, 0.4);
+  --cnds-range-thumb-ring:        rgba(103, 144, 202, 0.2);
+  --cnds-range-thumb-ring-active: rgba(103, 144, 202, 0.3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .form-range::-webkit-slider-thumb {
+    transition: none;
+  }
+
+  .form-range::-moz-range-thumb {
+    transition: none;
+  }
+
+  .range .range-value,
+  .range-wrapper .range-value {
+    transition: none;
+  }
+}

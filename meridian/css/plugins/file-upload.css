@@ -1,0 +1,271 @@
+/* ============================================================
+   CNDS File Upload Plugin
+   Cloudficient Nimbus Design System v1.0.0
+
+   Drag & drop file upload with preview, progress bars,
+   file list, and validation feedback.
+   ============================================================ */
+
+.file-upload {
+  --cnds-fu-bg: var(--cnds-body-bg, #fff);
+  --cnds-fu-color: var(--cnds-body-color, #4f4f4f);
+  --cnds-fu-border: var(--cnds-border-color, #dee2e6);
+  --cnds-fu-radius: var(--cnds-border-radius, 0.375rem);
+  --cnds-fu-primary: var(--cnds-fu-color);
+  --cnds-fu-primary-text: #fff;
+  --cnds-fu-hover-bg: rgba(0, 0, 0, 0.04);
+  --cnds-fu-muted: #6c757d;
+  --cnds-fu-success: var(--cnds-success, #00b74a);
+  --cnds-fu-danger: var(--cnds-danger, #f93154);
+
+  position: relative;
+  width: 100%;
+}
+
+/* --- Drop Zone --- */
+.file-upload-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+  border: 2px dashed var(--cnds-fu-border);
+  border-radius: var(--cnds-fu-radius);
+  background: var(--cnds-fu-bg);
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    background-color 0.2s;
+  text-align: center;
+  min-height: 150px;
+}
+
+.file-upload-dropzone:hover {
+  border-color: var(--cnds-fu-primary);
+  background-color: var(--cnds-fu-hover-bg);
+}
+
+.file-upload-dropzone.dragover {
+  border-color: var(--cnds-fu-primary);
+  background-color: var(--cnds-fu-hover-bg);
+  border-style: solid;
+}
+
+.file-upload-dropzone.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Hidden file input */
+.file-upload-dropzone input[type="file"] {
+  display: none;
+}
+
+/* Icon */
+.file-upload-icon {
+  font-size: 2.5rem;
+  color: var(--cnds-fu-muted);
+  margin-bottom: 0.75rem;
+  line-height: 1;
+}
+
+.file-upload-icon svg {
+  width: 2.5rem;
+  height: 2.5rem;
+  fill: currentColor;
+}
+
+/* Text */
+.file-upload-text {
+  font-size: 0.9375rem;
+  color: var(--cnds-fu-color);
+  margin-bottom: 0.25rem;
+}
+
+.file-upload-text strong {
+  color: var(--cnds-fu-color);
+  text-decoration: underline;
+}
+
+.file-upload-hint {
+  font-size: 0.8125rem;
+  color: var(--cnds-fu-muted);
+}
+
+/* --- File List --- */
+.file-upload-list {
+  list-style: none;
+  margin: 0.75rem 0 0;
+  padding: 0;
+}
+
+.file-upload-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--cnds-fu-border);
+  border-radius: var(--cnds-fu-radius);
+  margin-bottom: 0.5rem;
+  background: var(--cnds-fu-bg);
+  font-size: 0.875rem;
+  transition: background-color 0.15s;
+}
+
+.file-upload-item:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.file-upload-item.error {
+  border-color: var(--cnds-fu-muted);
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.file-upload-item.success {
+  border-color: var(--cnds-fu-success);
+}
+
+/* Preview thumbnail */
+.file-upload-preview {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 4px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.file-upload-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.file-upload-preview-icon {
+  font-size: 1.25rem;
+  color: var(--cnds-fu-muted);
+}
+
+/* File info */
+.file-upload-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.file-upload-name {
+  font-weight: 500;
+  color: var(--cnds-fu-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.file-upload-size {
+  font-size: 0.75rem;
+  color: var(--cnds-fu-muted);
+}
+
+.file-upload-error-msg {
+  font-size: 0.75rem;
+  color: var(--cnds-fu-muted);
+}
+
+/* Progress bar */
+.file-upload-progress {
+  width: 100%;
+  height: 4px;
+  background: var(--cnds-fu-border);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 0.25rem;
+}
+
+.file-upload-progress-bar {
+  height: 100%;
+  background: var(--cnds-fu-primary);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+  width: 0%;
+}
+
+.file-upload-progress-bar.complete {
+  background: var(--cnds-fu-success);
+}
+
+/* Remove button — uses MDI mdi-close icon via ::before, max 16px */
+.file-upload-remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: none;
+  background: transparent;
+  color: var(--cnds-fu-muted);
+  cursor: pointer;
+  border-radius: 50%;
+  font-size: 0;
+  line-height: 1;
+  flex-shrink: 0;
+  transition:
+    background-color 0.15s,
+    color 0.15s;
+  padding: 0;
+}
+
+.file-upload-remove::before {
+  font-family: "Material Design Icons";
+  content: "\F0156"; /* mdi-close */
+  font-size: 1rem; /* 16px */
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.file-upload-remove:hover {
+  background-color: rgba(0, 0, 0, 0.08);
+  color: var(--cnds-fu-color);
+}
+
+/* --- Compact / Button-only variant --- */
+.file-upload-compact .file-upload-dropzone {
+  flex-direction: row;
+  padding: 0.75rem 1rem;
+  min-height: auto;
+  gap: 0.75rem;
+}
+
+.file-upload-compact .file-upload-icon {
+  font-size: 1.5rem;
+  margin-bottom: 0;
+}
+
+/* --- Dark Theme --- */
+[data-cnds-theme="dark"] .file-upload {
+  --cnds-fu-bg: var(--cnds-body-bg, #1e1e1e);
+  --cnds-fu-color: var(--cnds-body-color, #ebebeb);
+  --cnds-fu-border: var(--cnds-border-color, #6b6b6b);
+  --cnds-fu-hover-bg: rgba(255, 255, 255, 0.05);
+  --cnds-fu-muted: var(--cnds-text-muted, #d1d1d1);
+}
+
+[data-cnds-theme="dark"] .file-upload-preview {
+  background: var(--cnds-secondary-bg, #252525);
+}
+
+[data-cnds-theme="dark"] .file-upload-item:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+[data-cnds-theme="dark"] .file-upload-item.error {
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+[data-cnds-theme="dark"] .file-upload-remove:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}

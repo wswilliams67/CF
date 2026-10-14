@@ -1,0 +1,110 @@
+/* Hold status (PRD 07 §7.1–7.2). Layout only; every component is Nimbus. */
+.hs-fresh { width: 100%; justify-content: flex-start; }
+.hs-fresh > .small { flex: 1; font-size: var(--cnds-paragraph-font-size-sm); }
+.hs-tiles { grid-template-columns: repeat(5, 1fr); margin-bottom: 24px; }
+/* Source rows: Source · Status · Last read, then a blurry divider and the actions (Scott, 10-14). */
+.hs-row { display: grid; grid-template-columns: 240px minmax(0, 1fr) 200px auto 170px; column-gap: var(--cnds-spacer-3); align-items: center; }
+.hs-row > .vr { align-self: stretch; }
+.hs-actions { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--cnds-spacer-1); }  /* 4px (gap-1) so one button's hover fill and focus ring never butt into the other (Scott, 10-14) */
+/* In-row column label above the Status and Last read values (no header row, Scott 10-14). Type matches the
+   Nimbus table header (12px, 700, uppercase, 0.03em), whose tokens are scoped to .table. */
+.hs-col-label { display: block; margin-bottom: var(--cnds-spacer-1); font-size: var(--cnds-paragraph-font-size-sm); font-weight: 700;
+  text-transform: uppercase; letter-spacing: .03em; }  /* body colour, like the Nimbus table header */
+.accordion-button .badge { text-transform: none; }
+
+
+@media (max-width: 1200px) { .hs-tiles { grid-template-columns: repeat(3, 1fr); } }
+/* Segment tiles: content centred (Scott, 10-13). */
+.hs-tiles .demo-tile { align-items: center; text-align: center; }
+.hs-tiles .demo-tile > * { text-align: center; }
+/* Sizes from the v1.5 Case Administrator summary cards (Figma 17255:1393092). */
+.hs-tiles .demo-tile-name { font-size: var(--cnds-paragraph-font-size); line-height: var(--cnds-paragraph-line-height); font-weight: 700; text-transform: uppercase; }  /* caps as in the PM mockup, matching the category headings; source text stays Title Case for screen readers (Scott, 10-14) */
+.hs-tiles .demo-tile-value { font-size: 24.5px; line-height: 1.375; }  /* Figma Font Size/fs-3: no Nimbus CSS token yet (gap #11) */
+.hs-tiles .demo-tile-label { font-size: var(--cnds-paragraph-font-size-sm); line-height: var(--cnds-paragraph-line-height); }
+.hs-sources-note { font-size: var(--cnds-paragraph-font-size-sm); }
+/* Action bar: Nimbus floating toolbar, held 16px above the bottom of the viewport while the page scrolls. */
+.hs-actionbar { position: sticky; bottom: 16px; z-index: 10; margin-bottom: calc(16px - 24px); }  /* main carries 24px bottom padding (1.6 frame) */
+.hs-actionbar .btn { white-space: nowrap; }
+/* How hold status works: a text link with its icon (no Nimbus link-with-icon component). */
+.hs-help-link { display: inline-flex; align-items: center; white-space: nowrap; font-size: var(--cnds-paragraph-font-size); }
+.hs-bar-fresh { font-size: var(--cnds-paragraph-font-size-sm); margin-right: auto; padding-left: 8px; }  /* 8px more than the bar's own 8px padding, so the text clears the edge */
+.accordion-button .hs-seg-title { white-space: nowrap; }  /* segment names stay on one line beside a long summary */
+/* Needs attention shows it is not the focus by fading only its red border when it is not the selected filter
+   (Scott, 10-14). The text stays at full contrast: 5.46:1, passing WCAG 2.0 AA / Section 508. An opacity dim
+   dropped it to 3.30:1. Full border when selected or keyboard-focused. */
+.hs-tiles .demo-tile[data-tone="danger"] { transition: border-color .15s ease-in-out; }
+.hs-tiles .demo-tile[data-tone="danger"][aria-pressed="false"] { --cnds-card-border-color: color-mix(in srgb, var(--cnds-danger-300) 35%, transparent); }
+.hs-tiles .demo-tile[data-tone="danger"][aria-pressed="false"]:focus-visible { --cnds-card-border-color: var(--cnds-danger-300); }
+.hs-seg-stack { display: flex; flex-direction: column; gap: var(--cnds-spacer-2); }  /* standalone category accordions */
+.hs-seg-text { flex: 1; min-width: 0; text-align: left; }
+.hs-seg-count { margin-left: auto; margin-right: var(--cnds-spacer-3); }
+.hs-seg-text [data-seg-summary] { font-size: var(--cnds-paragraph-font-size-sm); line-height: var(--cnds-paragraph-line-height); margin-top: var(--cnds-spacer-1); }
+.hs-sources-head { display: flex; align-items: center; gap: var(--cnds-spacer-3); margin-bottom: var(--cnds-spacer-4); }
+/* cf-cat-6 pads 4px above and 16px below, which lifts its text off the row's centre line; even it out in this row. */
+.hs-sources-head .cf-category.cf-cat-6 { --cnds-category-padding-bottom: 4px; }
+.hs-sources-count { font-size: var(--cnds-paragraph-font-size-sm); }
+/* Counts and note at the right, split by a blurry divider. When the row is too narrow (container query on the
+   row's own width), the note wraps under the counts, right-aligned, and the divider hides (Scott, 10-14). */
+.hs-sources-head { container-type: inline-size; }
+.hs-sources-meta { display: flex; align-items: center; gap: var(--cnds-spacer-3); }
+.hs-sources-meta .vr { align-self: stretch; }
+@container (max-width: 1080px) {
+  .hs-sources-meta { flex-direction: column; align-items: flex-end; gap: var(--cnds-spacer-1); }
+  .hs-sources-meta .vr { display: none; }
+}
+.hs-row .small { font-size: var(--cnds-paragraph-font-size-sm); line-height: var(--cnds-paragraph-line-height); }  /* .small would otherwise scale from the 16px row text */
+/* Detail cards: one text size across Event, Exception and Hold — the Nimbus 12px small paragraph token (Scott, 10-14). */
+.hs-dcard p, .hs-kv, .hs-kv dt, .hs-kv dd { font-size: var(--cnds-paragraph-font-size-sm); line-height: var(--cnds-paragraph-line-height); }
+/* More room under each source row, separating it from the next (Scott, 10-14). Nimbus pads list items 8px top and bottom. */
+.hs-list > .list-group-item { padding-bottom: var(--cnds-spacer-3); }
+.hs-row > :nth-child(-n+3) { align-self: start; }  /* data columns top-aligned so the in-row STATUS / LAST READ labels line up; actions stay centred (Scott, 10-14) */
+/* A category with no sources: its accordion is disabled (Scott, 10-14), styled like a disabled Nimbus button —
+   no pointer events, the library's 0.5 disabled opacity. Disabled controls are exempt from WCAG contrast.
+   Its summary card is disabled and dimmed to match (Scott chose this over keeping the 0 at full contrast). */
+.hs-seg-stack .accordion-button:disabled { pointer-events: none; opacity: .5; }  /* = Nimbus --cnds-btn-disabled-opacity (scoped to .btn) */
+.hs-tiles .demo-tile:disabled { cursor: default; opacity: .5; }  /* dimmed with its empty category (Scott, 10-14); a disabled control, so WCAG's inactive-component exemption applies */
+/* Empty state inside a detail card: the CaseFusion pattern (Tenant Manager fr_empty-state, persona profile).
+   Icon on the Nimbus 2XL step (36px), H6 bold title, muted reassurance; centred in the card, no box. */
+.hs-empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--cnds-spacer-2); text-align: center; padding-top: var(--cnds-spacer-3); }
+.hs-empty .mdi { color: var(--cnds-text-muted); line-height: 1; }
+.hs-empty-title { font-size: var(--cnds-h6-font-size); font-weight: 700; }
+.hs-empty-note { font-size: var(--cnds-paragraph-font-size-sm); color: var(--cnds-text-muted); }
+/* Clickable summary cards carry the Nimbus link colour as their border, CaseFusion's affordance for clickable
+   things (Scott, 10-14). Not Needs Attention (danger outline), not a disabled card, not the selected one (green). */
+.hs-tiles .demo-tile:not(:disabled):not([data-tone]):not([aria-pressed="true"]) { --cnds-card-border-color: var(--cnds-link-color); }
+
+/* Event card lists (Activity, Locations): a labelled, flush Nimbus list-group on the card's own surface.
+   Rows: what happened (bold) with the time right-aligned, then who, then their note. 12px throughout. */
+.hs-activity { margin-top: var(--cnds-spacer-3); }
+.hs-activity .list-group { --cnds-list-group-bg: transparent; margin-top: var(--cnds-spacer-1); }
+.hs-activity .list-group-item { padding: var(--cnds-spacer-2) 0; font-size: var(--cnds-paragraph-font-size-sm); line-height: var(--cnds-paragraph-line-height); color: inherit; }
+.hs-act-head { display: flex; align-items: baseline; gap: var(--cnds-spacer-2); }
+.hs-act-what { font-weight: 700; flex: 1 1 auto; min-width: 0; }
+.hs-act-when { flex: 0 0 auto; text-align: right; white-space: nowrap; }
+.hs-act-meta { color: var(--cnds-secondary-color); }
+.hs-act-note { margin-top: 2px; }
+/* Event list sits directly under the card title (no label, no rule); rows share the Activity row styles. */
+.hs-dcard .hs-events.list-group { --cnds-list-group-bg: transparent; }
+.hs-dcard .hs-events > .list-group-item { background-color: transparent; }
+.hs-events .list-group-item { padding: var(--cnds-spacer-2) 0; font-size: var(--cnds-paragraph-font-size-sm); line-height: var(--cnds-paragraph-line-height); color: inherit; }
+.hs-events .list-group-item:first-child { padding-top: 0; }
+/* All-events side panel: the same event rows, on the panel surface. */
+.hs-events-panel.list-group { --cnds-list-group-bg: transparent; }
+.hs-events-panel > .list-group-item { background-color: transparent; padding: var(--cnds-spacer-2) 0; font-size: var(--cnds-paragraph-font-size-sm); line-height: var(--cnds-paragraph-line-height); color: inherit; }
+.hs-events-panel > .list-group-item:first-child { padding-top: 0; }
+/* Blurry row dividers inside the Events card, the all-events panel and Locations (Nimbus hr.hr-blurry). */
+.hs-events > .list-group-item, .hs-activity .list-group > .list-group-item { border: 0; }
+.hs-row-divider { list-style: none; padding: 0; }
+.hs-row-divider .hr { margin: 0; }
+/* Card title with a count badge across from it (Events card). */
+.hs-dcard-head { display: flex; align-items: center; justify-content: space-between; gap: var(--cnds-spacer-2); }
+/* All-events panel header: sticky, so the total stays in view while the list scrolls. The panel body
+   still scrolls as one (no nested scroll area); the header just pins to its top edge on the panel's
+   own background, covering the rows that pass under it. */
+.hs-panel-head {
+  position: sticky; z-index: 1;
+  top: calc(-1 * var(--cnds-offcanvas-body-padding-y));
+  margin-top: calc(-1 * var(--cnds-offcanvas-body-padding-y));
+  padding: var(--cnds-offcanvas-body-padding-y) 0 var(--cnds-spacer-3);
+  background-color: var(--cnds-offcanvas-bg);
+}

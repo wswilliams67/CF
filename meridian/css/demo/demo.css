@@ -1,0 +1,59 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   DEMO SHARED LAYOUT — loaded after frame-ca-sidenav.css on every page.
+   Layout only. Every visual component on the demo pages is a Nimbus
+   component from the styleguide (nimbus-v1/). Anything the library does not
+   have is listed in tools/nimbus-gaps.md with the stopgap used here.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── Header additions (frame) ─────────────────────────────────────────── */
+.demo-region-badge { margin-left: 8px; text-transform: none; }
+
+/* ── Case header: from the 1.6 page (pge_case_datamap.html inline style; Nimbus has no case title, gap #12) ── */
+.case-title-bar { display: flex; align-items: center; gap: 12px; padding: 0 0 12px; }
+.case-back { display: flex; color: var(--cnds-link-color); text-decoration: none; }
+.case-title { margin: 0; font-size: 15px; font-weight: 800; letter-spacing: 4px; text-transform: uppercase; color: var(--cnds-body-color); flex-shrink: 0; }
+.case-toolbar { display: flex; align-items: center; gap: 8px; padding: 0 0 16px; }
+.case-search-bar { flex: 1 0 0; min-width: 0; }
+.case-search-field { position: relative; flex: 1 0 0; min-width: 0; }
+.case-search-field .form-control { padding-right: 30px; }
+.case-search-chevron { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; font-size: var(--cnds-paragraph-font-size); line-height: 1; opacity: .85; }
+.case-adv { flex-shrink: 0; margin: 0; padding-top: 0; }
+.case-new { white-space: nowrap; }
+.case-subnav { margin-bottom: 16px; }
+
+/* ── Page title spacing (component: .cf-page-title) ───────────────────── */
+.ca-content > .cf-page-title { margin-bottom: 12px; }
+
+/* ── Stat / segment tiles. GAP #1: no stat-tile component; Nimbus .card is used.
+      Layout only: grid, inner stacking, button reset. Selected = .card-outline.card-brand-green. */
+.demo-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; margin-bottom: 16px; }
+.demo-tile { display: flex; flex-direction: column; gap: 4px; padding: 16px; margin: 0; width: 100%; font: inherit; text-align: left; }  /* no color override: .card supplies --cnds-card-color per theme */
+.demo-tile { align-items: stretch; }
+.demo-tile > * { text-align: left; }
+/* card-subtitle has a fixed 24px height for one-line card titles; a tile label can wrap (gap #1). */
+.demo-tile .card-subtitle { height: auto; }
+/* .card-title is a fixed 24px box (overflow hidden) for 20px titles; a tile's count can be larger (24.5px in the v1.5 design), so free it too (gap #1). */
+.demo-tile .card-title { height: auto; overflow: visible; }
+button.demo-tile { cursor: pointer; }
+
+/* ── Masked person. GAP #2: no "limited profile" component. ───────────── */
+.demo-masked { font-style: italic; }
+.demo-masked .mdi { margin-right: 4px; }
+
+/* ── Not in this demo (layout of a Nimbus card) ───────────────────────── */
+.demo-stub { max-width: 640px; margin: 48px auto; }
+
+/* ── Dropdown item with a description line. GAP #4: .dropdown-item is a flex row,
+      so the description is stacked under the label here. ─────────────────── */
+.dropdown-item:has(> .d-block) { flex-direction: column; align-items: flex-start; gap: 2px; white-space: normal; height: auto; min-height: 0; padding-top: 6px; padding-bottom: 6px; }
+
+/* ── Verbatim badge. GAP #10: Nimbus .badge forces text-transform: capitalize. This keeps every other Nimbus
+      badge text style (12px, 700, 0.24px tracking) and shows the words as written. ───────────────────── */
+.badge.badge-verbatim { text-transform: none; }
+
+/* Summary tiles keep the default card ground in every state (Scott, 10-14-2026). A selected tile and the
+   Needs Attention tile switch to Nimbus .card-outline for their coloured border and text, and an outline
+   card is transparent by design, so restore the default card background here: the same tokens Nimbus
+   gives .card in each theme (cards.css and themes/dark.css). */
+.demo-tile.card-outline { --cnds-card-bg: var(--cnds-surface-light-100, #f5f5f5); }
+[data-cnds-theme="dark"] .demo-tile.card-outline { --cnds-card-bg: var(--cnds-surface-dark-500, #1e1e1e); }
