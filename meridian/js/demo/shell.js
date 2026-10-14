@@ -294,7 +294,16 @@
       inst.dispose(); el.remove();
     });
     var hide = opts.noGuard ? function () { inst.hide(); } : guardDismiss(el, inst, "modal");
+    /* Stacked modals (the cancel confirmation over a form): every Nimbus modal shares one z-index, so the second
+       backdrop would sit under the first modal and leave it undimmed. Lift this modal and its own backdrop
+       20 per open modal, so the backdrop always covers the modal beneath (Scott, 10-14). */
+    var depth = document.querySelectorAll(".modal.show").length;
     inst.show();
+    if (depth) {
+      el.style.setProperty("--cnds-modal-zindex", "calc(var(--cnds-zindex-modal, 1055) + " + depth * 20 + ")");
+      var bds = document.querySelectorAll(".modal-backdrop"), bd = bds[bds.length - 1];
+      if (bd) bd.style.setProperty("--cnds-backdrop-zindex", "calc(var(--cnds-zindex-modal-backdrop, 1050) + " + depth * 20 + ")");
+    }
     return { el: el, id: id, hide: hide };
   }
 
