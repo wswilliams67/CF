@@ -113,8 +113,8 @@
       '<div><span class="badge badge-' + KIND_BADGE[r.chip] + '">' + r.chip + "</span></div>" +
       '<div><div class="mw-item-what">' + esc(m && r.whatMasked ? r.whatMasked : r.what) + '</div><div class="text-muted">' + esc(m && r.whyMasked ? r.whyMasked : r.why) + "</div>" +
         /* Why-now is read before acting: 14px. The found flag is a scanned label: demo-label, 12px muted (Scott, 10-14). */
-        /* Label type, warning colour: CaseFusion found it, so it is flagged, not muted (PM, Scott 10-14). Nimbus .text-warning, as on Provisional. */
-        (r.found ? '<span class="demo-label text-warning mt-1 mb-0">Found by CaseFusion</span>' : "") + "</div>" +
+        /* Label type, warning colour: CaseFusion found it, so it is flagged, not muted (PM, Scott 10-14). Nimbus .text-warning-emphasis, as on Provisional. */
+        (r.found ? '<span class="demo-label text-warning-emphasis mt-1 mb-0">Found by CaseFusion</span>' : "") + "</div>" +
       '<div><a href="' + caseHref + '">' + esc(caseName(r.caseId)) + "</a></div>" +
       '<div class="' + (old ? "text-danger fw-bold" : "") + '">' + esc(waiting(r)) + "</div>" +
       '<div class="mw-item-actions">' + actionHtml(r.action, r.id, true) + actionHtml(r.second, r.id + "-2", false) + "</div>" +

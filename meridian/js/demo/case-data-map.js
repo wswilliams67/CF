@@ -315,7 +315,7 @@
       '<div class="table-responsive"><table class="table align-middle mb-0 dm-table"><thead><tr><th scope="col">#</th><th scope="col">Custodian</th><th scope="col">Role</th><th scope="col" class="text-end">Sources</th><th scope="col" class="text-end">Events</th><th scope="col">On Hold</th><th scope="col" colspan="2">Relevance Signal</th></tr></thead><tbody>' +
       shown.map(function (r, i) {
         var rel = r.events >= 3000 ? "High" : r.events >= 1000 ? "Medium" : "Low";
-        var tone = r.hold === "Active" ? "text-success" : r.hold === "Pending" ? "text-warning" : "";
+        var tone = r.hold === "Active" ? "text-success" : r.hold === "Pending" ? "text-warning-emphasis" : "";
         return "<tr><td>" + ((P.page - 1) * P.size + i + 1) + '</td><td><a href="not-in-demo.html?what=' + encodeURIComponent("Persona case profile") + '">' + personLabel(r.p) + "</a></td><td>" + (D.canSee(r.p) ? esc(r.p.title) : "—") +
           '</td><td class="text-end">' + r.sources + '</td><td class="text-end">' + nf(r.events) + '</td><td class="' + tone + '">' + r.hold + '</td><td class="dm-col-bar">' + bar(r.events, max) + '</td><td class="text-end">' + rel + "</td></tr>";
       }).join("") + "</tbody></table></div>" + pager("ppl", rows.length, P.page, P.size));

@@ -123,7 +123,7 @@
       return '<tr class="' + (selected[c.personId] ? "table-active" : "") + '">' +
         '<td><div class="form-check mb-0"><input type="checkbox" class="form-check-input" data-sel="' + c.personId + '"' + (selected[c.personId] ? " checked" : "") + ' aria-label="Select ' + esc(visibleName(c)) + '" /></div></td>' +
         '<td><a href="#" class="fw-bold' + (ok ? "" : " demo-masked") + '" data-open="' + c.personId + '">' + (ok ? "" : '<i class="mdi mdi-lock-outline" aria-hidden="true"></i>') + esc(visibleName(c)) + "</a>" +
-          '<span class="d-block small text-muted">' + sub + "</span>" + (c.addedNote ? '<span class="d-block small text-warning">' + esc(c.addedNote) + "</span>" : "") + "</td>" +
+          '<span class="d-block small text-muted">' + sub + "</span>" + (c.addedNote ? '<span class="d-block small text-warning-emphasis">' + esc(c.addedNote) + "</span>" : "") + "</td>" +
         "<td>" + cell(v.lhn) + "</td><td>" + cell(v.survey) + "</td><td>" + cell(v.interview) + "</td>" +
         "<td>" + cell(v.preservation, v.preservation.state === "action" || v.preservation.state === "progress" ? "case-hold-status.html" : null) + "</td>" +
         "<td>" + cell(v.collection) + "</td>" +
@@ -294,7 +294,7 @@
         tbl(["", "Custodian", "Legal Holds", "After Release"], list.map(function (c) {
           var p = person(c), held = M.heldElsewhere[c.personId], st = sourcesStill(c);
           var holdsText = (c.lhn || []).map(function (n) { return n.id + (n.status === "Silent" ? " · silent legal hold" : n.status === "Acknowledged" ? " · acknowledged " + short(n.on) : " · " + n.status.toLowerCase()); }).join(", ") || "None sent";
-          var warn = function (t) { return '<span class="d-block small text-warning">' + t + "</span>"; };
+          var warn = function (t) { return '<span class="d-block small text-warning-emphasis">' + t + "</span>"; };
           var after = held ? "Still on hold for " + esc(held.caseName) + warn("Held on another case you can open") : c.released ? "Already released" :
             st.n + " source" + (st.n === 1 ? " stays" : "s stay") + " preserved" + (p.departed && !c.notRequired ? warn("Mailbox stays inactive and preserved while any hold remains") : "") +
             (c.silent ? warn("Nothing was sent, so no release notice is sent") : "");
@@ -416,9 +416,9 @@
       '<div class="table-responsive mb-2"><table class="table align-middle mb-0"><thead><tr><th scope="col">Source</th><th scope="col">Status</th><th scope="col">From</th></tr></thead><tbody>' + src.map(function (s) {
         var status = s.pending ? '<span class="badge badge-pill badge-warning">Not requested</span>' + (s.priorWork ? '<span class="d-block small text-info">' + esc(s.priorWork.what + " on " + s.priorWork.caseId + " · " + s.priorWork.request) + "</span>" : "") :
           '<span class="badge badge-pill badge-' + (s.hold === "Applied" ? "success" : s.hold === "Attested" ? "info" : s.hold === "Applying" ? "warning" : "danger") + '">' + esc(s.hold) + "</span>" +
-          (s.hold === "Not applied" ? '<span class="d-block small text-warning">Removed from the Purview hold ' + esc(short(s.exception.since)) + ' · see <a href="case-hold-status.html">Hold status</a></span>' : "") +
-          (s.hold === "Overdue" ? '<span class="d-block small text-warning">Attestation overdue · see <a href="case-hold-status.html">Hold status</a></span>' : "") +
-          (s.hold === "Applying" ? '<span class="d-block small text-warning">Applying since ' + esc(short(s.exception.since)) + ' · see <a href="case-hold-status.html">Hold status</a></span>' : "");
+          (s.hold === "Not applied" ? '<span class="d-block small text-warning-emphasis">Removed from the Purview hold ' + esc(short(s.exception.since)) + ' · see <a href="case-hold-status.html">Hold status</a></span>' : "") +
+          (s.hold === "Overdue" ? '<span class="d-block small text-warning-emphasis">Attestation overdue · see <a href="case-hold-status.html">Hold status</a></span>' : "") +
+          (s.hold === "Applying" ? '<span class="d-block small text-warning-emphasis">Applying since ' + esc(short(s.exception.since)) + ' · see <a href="case-hold-status.html">Hold status</a></span>' : "");
         return '<tr><td><span class="fw-bold">' + esc(M.typeLabel(s.type)) + '</span><span class="d-block small text-muted">' + esc(s.name) + "</span></td><td>" + status + "</td><td>" +
           (s.pending ? "—" : esc(s.request || "—") + " · " + (s.evidence === "attested" ? "attested" : "Purview")) + "</td></tr>";
       }).join("") + "</tbody></table></div>";

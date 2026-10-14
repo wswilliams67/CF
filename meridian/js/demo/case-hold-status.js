@@ -139,7 +139,7 @@
     return openExc(s) ? '<span class="badge badge-default ms-1">EXCEPTION · ' + esc(s.exception.status.toUpperCase()) + "</span>" : "";
   }
   function lastRead(s) {
-    var extra = s.provisional ? '<span class="d-block small fw-bold text-warning">Provisional</span>' : "";
+    var extra = s.provisional ? '<span class="d-block small fw-bold text-warning-emphasis">Provisional</span>' : "";
     if (s.dueText) extra += '<span class="d-block small ' + (s.hold === "Overdue" ? "text-danger" : "text-muted") + '">' + esc(s.dueText) + "</span>";
     return "<div>" + esc(lastReadMain(s)) + "</div>" + extra;
   }

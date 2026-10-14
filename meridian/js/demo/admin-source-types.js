@@ -99,7 +99,7 @@
           '<label class="form-check-label fw-bold" for="stProp">Make ' + esc(ed.successor) + " a standard source for the same people</label></div>" +
           hint("Employee · active and departed. " + Y.people.toLocaleString("en-US") + " people on new cases.") +
           (ed.successor === "Viva Engage" ? '<p class="small text-success mt-2 mb-0"><i class="mdi mdi-check-circle" aria-hidden="true"></i> Viva Engage is not a standard source today, so no custodian gets a second source.</p>' :
-            '<p class="small text-warning mt-2 mb-0">' + esc(ed.successor) + " is already a standard source for these people. Inheriting would give every custodian a second source for the same content.</p>") + "</div></div></div>" : "") +
+            '<p class="small text-warning-emphasis mt-2 mb-0">' + esc(ed.successor) + " is already a standard source for these people. Inheriting would give every custodian a second source for the same content.</p>") + "</div></div></div>" : "") +
         "</div>") +
       sec("Effect Of Decommissioning", eff.length + " cases hold or held Yammer sources",
         '<div class="table-responsive"><table class="table table-sm align-middle mb-0 st-effects"><tbody>' +
