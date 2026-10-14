@@ -435,6 +435,17 @@
       onClose: function () { setChevron(false); }
     });
 
+    /* Language switcher (Nimbus): same menu behaviour as the portal switcher, no chevron by design. */
+    var langToggle = byId("languageSwitcherToggle");
+    var langMenu   = byId("languageMenu");
+    if (langToggle && langMenu) registerOverlay({
+      panel: langMenu,
+      trigger: langToggle,
+      root: byId("languageSwitcherWrapper"),
+      roving: true,
+      onOpen: function () { setMenuArrow(langMenu, langToggle); }
+    });
+
     registerOverlay({
       panel: accountMenu,
       trigger: accountToggle,

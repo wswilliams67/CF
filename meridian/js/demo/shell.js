@@ -123,6 +123,15 @@
               '<div class="notif-list" id="notifList"></div></div></div>' +
           '<span class="nav-cf-utility-divider" aria-hidden="true"></span>' +
           '<button type="button" class="nav-icon-btn" id="themeToggle" data-cnds-toggle="theme" aria-label="Toggle theme" title="Switch theme"><span class="mdi mdi-weather-night" aria-hidden="true"></span></button>' +
+          /* Nimbus language switcher (styleguide cnds-header.html; Figma Nimbus/LanguageSwitcher). Same group as the
+             theme toggle, so no divider between them. Languages are listed alphabetically by their own name. */
+          '<div class="language-switcher-wrapper" id="languageSwitcherWrapper">' +
+            '<button type="button" class="language-switcher" id="languageSwitcherToggle" aria-haspopup="menu" aria-expanded="false" aria-controls="languageMenu" aria-label="Language: English" title="Language">' +
+            '<span class="mdi mdi-translate" aria-hidden="true"></span><span class="language-switcher-code">EN</span></button>' +
+            '<div class="account-menu" id="languageMenu" role="menu" aria-hidden="true"><div class="account-menu-header">Language</div>' +
+            '<a class="account-menu-item" href="#" role="menuitemradio" aria-checked="false" lang="de" data-lang-code="DE" data-lang-name="German">Deutsch</a>' +
+            '<a class="account-menu-item active" href="#" role="menuitemradio" aria-checked="true" lang="en" data-lang-code="EN" data-lang-name="English">English</a>' +
+            '<a class="account-menu-item" href="#" role="menuitemradio" aria-checked="false" lang="fr" data-lang-code="FR" data-lang-name="French">Français</a></div></div>' +
           '<span class="nav-cf-utility-divider" aria-hidden="true"></span>' +
           '<div class="portal-switcher-wrapper" id="portalSwitcherWrapper">' +
             '<span class="portal-switcher" id="portalSwitcherToggle" role="button" tabindex="0" aria-haspopup="menu" aria-expanded="false" aria-controls="portalMenu">' +
@@ -318,6 +327,15 @@
         });
     });
   }).observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ["aria-pressed"] });
+
+  /* Language menu: the demo ships in English only, so another language explains that and keeps EN selected. */
+  document.addEventListener("click", function (e) {
+    var item = e.target.closest && e.target.closest("#languageMenu [data-lang-code]");
+    if (!item) return;
+    e.preventDefault();
+    if (item.getAttribute("data-lang-code") !== "EN") toast(item.getAttribute("data-lang-name") + " is not part of this demo. The interface stays in English.");
+    var t = document.getElementById("languageSwitcherToggle"); if (t) t.click();  /* close the menu, focus returns to the trigger */
+  });
 
   /* Shared helpers for page scripts. */
   window.MeridianDemo = {
