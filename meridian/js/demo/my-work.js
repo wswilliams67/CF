@@ -68,14 +68,14 @@
     var defs = [["open", "Open", o.length], ["found", "Found by CaseFusion", o.filter(function (r) { return r.found; }).length], ["snoozed", "Snoozed", snoozed().length]];
     ["GAP", "ANSWER", "DECIDE", "APPROVE", "CONFIRM", "REVIEW"].forEach(function (k) { defs.push([k, KIND[k], o.filter(function (r) { return r.chip === k; }).length]); });
     if (chip === "risk") defs.splice(1, 0, ["risk", "Preservation at risk", o.filter(function (r) { return r.locked; }).length]);
-    /* Two Nimbus toggle button groups (radio btn-check + button labels, single select, pill ends): status
+    /* Two Nimbus toggle button groups (radio btn-check + button labels, single select, square: Scott 10-14): status
        filters, then kinds, split by a toolbar divider. A filter with nothing in it is disabled, never hidden. */
     var status = defs.filter(function (d) { return !KIND[d[0]]; }), kinds = defs.filter(function (d) { return KIND[d[0]]; });
     var group = function (list, label) {
       return '<div class="btn-group btn-group-sm" role="group" aria-label="' + label + '">' + list.map(function (d) {
         var id = "mwF-" + d[0], on = chip === d[0];
         return '<input type="radio" class="btn-check" name="mwFilter" id="' + id + '" value="' + d[0] + '" autocomplete="off"' + (on ? " checked" : "") + (d[2] || on ? "" : " disabled") + ">" +
-          '<label class="btn btn-secondary btn-rounded" for="' + id + '">' + esc(d[1]) + " (" + d[2] + ")</label>";
+          '<label class="btn btn-secondary" for="' + id + '">' + esc(d[1]) + " (" + d[2] + ")</label>";
       }).join("") + "</div>";
     };
     document.getElementById("mwChips").innerHTML = group(status, "Queue status") + '<span class="toolbar-list-divider" aria-hidden="true"></span>' + group(kinds, "Kind of work");
@@ -98,34 +98,44 @@
       return age(b) - age(a);
     });
   }
-  function actionHtml(a, id, primary) {
+  /* Row actions are small tertiary buttons, stacked, as in every record row (Hold Status model, Scott 10-14). */
+  function actionHtml(a, id) {
     if (!a) return "";
-    var cls = primary ? "btn btn-secondary btn-sm" : "btn btn-tertiary btn-sm";
+    var cls = "btn btn-tertiary btn-sm";
     if (a.href) return '<a class="' + cls + '" href="' + a.href + '">' + esc(a.label) + "</a>";
     return '<button type="button" class="' + cls + '" data-toast-row="' + id + '">' + esc(a.label) + "</button>";
   }
+  /* Snooze is the last action. A preservation-at-risk item cannot be snoozed: the button is disabled, not hidden,
+     and says why. A snoozed item offers UNSNOOZE. */
   function snoozeHtml(r) {
-    if (r.snoozedUntil) return '<div class="small text-muted">Snoozed until ' + esc(M.fmtDate(r.snoozedUntil)) + '</div><button type="button" class="btn btn-tertiary btn-sm" data-unsnooze="' + r.id + '">UNSNOOZE</button>';
-    if (r.locked) return '<span class="demo-label">Cannot Snooze</span><span class="badge badge-pill badge-danger">Preservation at risk</span>';
-    return '<div class="dropdown d-inline-block"><button type="button" class="btn btn-tertiary btn-sm" data-cnds-toggle="dropdown" aria-expanded="false" aria-haspopup="menu">SNOOZE…</button>' +
+    if (r.snoozedUntil) return '<button type="button" class="btn btn-tertiary btn-sm" data-unsnooze="' + r.id + '">UNSNOOZE</button>';
+    if (r.locked) return '<button type="button" class="btn btn-tertiary btn-sm" disabled title="An item with preservation at risk cannot be snoozed." aria-label="Snooze is not available: preservation at risk">SNOOZE…</button>';
+    return '<div class="dropdown"><button type="button" class="btn btn-tertiary btn-sm" data-cnds-toggle="dropdown" aria-expanded="false" aria-haspopup="menu">SNOOZE…</button>' +
       '<ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion dropdown-menu-end">' +
       [["1", "Tomorrow"], ["3", "3 days"], ["7", "7 days"], ["30", "30 days (the longest)"]].map(function (o) {
         return '<li><button type="button" class="dropdown-item" data-snooze-days="' + o[0] + '" data-row="' + r.id + '">' + o[1] + "</button></li>"; }).join("") + "</ul></div>";
   }
+  /* Queue row in the standard record format (Hold Status source row, Scott 10-14):
+       item (no label): what needs doing, bold 14px, with its case as the 12px line under it
+       STATUS:  kind badge · Preservation at Risk · Found by CaseFusion on one line, then why now (14px)
+       WAITING: days waiting (danger once a gap is 5+ days old), then the snooze date when snoozed
+       then a blurry divider and the stacked actions. */
   function rowHtml(r) {
     var m = masked(r);
     var caseHref = r.caseId === "MBP-0926" ? "case-coverage.html" : "not-in-demo.html?what=" + encodeURIComponent(caseName(r.caseId));
     var old = age(r) >= 5 && r.chip === "GAP";
     return '<li class="list-group-item" id="mw-' + r.id + '"><div class="mw-item">' +
-      '<div><span class="badge badge-' + KIND_BADGE[r.chip] + '">' + r.chip + "</span></div>" +
-      '<div><div class="mw-item-what">' + esc(m && r.whatMasked ? r.whatMasked : r.what) + '</div><div class="text-muted">' + esc(m && r.whyMasked ? r.whyMasked : r.why) + "</div>" +
-        /* Why-now is read before acting: 14px. The found flag is a scanned label: demo-label, 12px muted (Scott, 10-14). */
-        /* Label type, warning colour: CaseFusion found it, so it is flagged, not muted (PM, Scott 10-14). Nimbus .text-warning-emphasis, as on Provisional. */
-        (r.found ? '<span class="demo-label text-warning-emphasis mt-1 mb-0">Found by CaseFusion</span>' : "") + "</div>" +
-      '<div><a href="' + caseHref + '">' + esc(caseName(r.caseId)) + "</a></div>" +
-      '<div class="' + (old ? "text-danger fw-bold" : "") + '">' + esc(waiting(r)) + "</div>" +
-      '<div class="mw-item-actions">' + actionHtml(r.action, r.id, true) + actionHtml(r.second, r.id + "-2", false) + "</div>" +
-      '<div class="mw-item-snooze">' + snoozeHtml(r) + "</div></div></li>";
+      '<div><span class="d-block mw-item-what">' + esc(m && r.whatMasked ? r.whatMasked : r.what) + "</span>" +
+        '<a class="d-block small" href="' + caseHref + '">' + esc(caseName(r.caseId)) + "</a></div>" +
+      '<div><span class="demo-label">Status</span><div class="d-flex flex-wrap align-items-center gap-1">' +
+          '<span class="badge badge-' + KIND_BADGE[r.chip] + '">' + r.chip + "</span>" +
+          (r.locked ? '<span class="badge badge-pill badge-danger">Preservation at Risk</span>' : "") +
+          (r.found ? '<span class="small fw-bold text-warning-emphasis ms-1">Found by CaseFusion</span>' : "") + "</div>" +
+        '<div class="mt-1">' + esc(m && r.whyMasked ? r.whyMasked : r.why) + "</div></div>" +
+      '<div><span class="demo-label">Waiting</span><div class="' + (old ? "text-danger fw-bold" : "") + '">' + esc(waiting(r)) + "</div>" +
+        (r.snoozedUntil ? '<span class="d-block small text-muted">Snoozed until ' + esc(M.fmtDate(r.snoozedUntil)) + "</span>" : "") + "</div>" +
+      '<div class="vr vr-blurry" aria-hidden="true"></div>' +
+      '<div class="mw-item-actions">' + actionHtml(r.action, r.id) + actionHtml(r.second, r.id + "-2") + snoozeHtml(r) + "</div></div></li>";
   }
   function renderQueue() {
     var list = filtered(), o = open();
