@@ -407,7 +407,7 @@
       btn("first", "mdi-skip-previous", "First page", page <= 1) + btn("prev", "mdi-chevron-left", "Previous page", page <= 1) +
       btn("next", "mdi-chevron-right", "Next page", page >= pages) + btn("last", "mdi-skip-next", "Last page", page >= pages) + "</nav></div>";
   }
-  /* Page-size options: 10, 25, 50, plus the list's own default if it differs (My Work shows 20, Scott 10-14). */
+  /* Page-size options: 10, 25, 50, plus the list's own default if it differs (e.g. a screen whose default is not on the list). */
   function sizes(size) { var l = [10, 25, 50]; if (l.indexOf(size) === -1) l.push(size); return l.sort(function (a, b) { return a - b; }); }
   function turnPage(page, act, total, size) {
     var pages = Math.max(1, Math.ceil(total / size));
