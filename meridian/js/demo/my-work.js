@@ -116,7 +116,7 @@
         return '<li><button type="button" class="dropdown-item" data-snooze-days="' + o[0] + '" data-row="' + r.id + '">' + o[1] + "</button></li>"; }).join("") + "</ul></div>";
   }
   /* Queue row in the standard record format (Hold Status source row, Scott 10-14):
-       item (no label): what needs doing, bold 14px, its case as the 12px line under it, then Found by CaseFusion
+       item (no label): what needs doing, bold 14px, its case as a 14px link under it, then Found by CaseFusion
        STATUS:  kind badge · Preservation at Risk on one line, then why now (14px)
        WAITING: days waiting (danger once a gap is 5+ days old), then the snooze date when snoozed
        then a blurry divider and the stacked actions. */
@@ -126,7 +126,8 @@
     var old = age(r) >= 5 && r.chip === "GAP";
     return '<li class="list-group-item" id="mw-' + r.id + '"><div class="mw-item">' +
       '<div><span class="d-block mw-item-what">' + esc(m && r.whatMasked ? r.whatMasked : r.what) + "</span>" +
-        '<a class="d-block small" href="' + caseHref + '">' + esc(caseName(r.caseId)) + "</a>" +
+        /* The case is read before acting (My Work spans every case), so its link is 14px regular (Sally, Scott 10-14). */
+        '<a class="d-block" href="' + caseHref + '">' + esc(caseName(r.caseId)) + "</a>" +
         /* Who raised it closes the item column (Scott, 10-14): a 12px bold flag in the theme's warning text colour. */
         (r.found ? '<span class="d-block small fw-bold text-warning-emphasis mt-1">Found by CaseFusion</span>' : "") + "</div>" +
       '<div><span class="demo-label">Status</span><div class="d-flex flex-wrap align-items-center gap-1">' +
