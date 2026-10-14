@@ -12,7 +12,9 @@
   var access = M.viewerCases[v.id];
   var rows = JSON.parse(JSON.stringify(M.myWork.filter(function (r) { return access.cases.indexOf(r.caseId) !== -1; })));
   var chip = "open";
-  var actionsFitted = false, fontRefit = false;
+  var actionsFitted = false;
+  /* The queue's columns are measured with the web font, so until it has loaded the list shows skeleton rows. */
+  var fontsReady = !(document.fonts && document.fonts.status !== "loaded");
   var page = 1, pageSize = 25;  /* queue pager: 25 rows by default on My Work (Scott, 10-14; the house default elsewhere is 10) */
 
   var KIND = { GAP: "Gaps", ANSWER: "Questions", DECIDE: "Decisions", APPROVE: "Approvals", CONFIRM: "Receipts", REVIEW: "Reviews" };
@@ -156,7 +158,16 @@
     document.getElementById("mwShowing").textContent = chip === "snoozed"
       ? "Showing " + list.length + " of " + snoozed().length + " snoozed"
       : "Showing " + list.length + " of " + o.length + " · " + list.filter(function (r) { return r.found; }).length + " found by CaseFusion · " + snoozed().length + " snoozed";
-    document.getElementById("mwQueue").innerHTML = shown.map(rowHtml).join("") ||
+    var q = document.getElementById("mwQueue");
+    if (!fontsReady) {
+      /* Nimbus skeleton (loading.css) in the real row geometry, one per row about to appear; aria-busy on the list,
+         the placeholders hidden from assistive tech (Scott, 10-14). */
+      q.setAttribute("aria-busy", "true");
+      q.innerHTML = skeletonRows(Math.max(1, shown.length));
+      return;
+    }
+    q.removeAttribute("aria-busy");
+    q.innerHTML = shown.map(rowHtml).join("") ||
       '<li class="list-group-item">' + emptyState(chip === "snoozed" ? "Nothing is snoozed" : "Nothing needs you",
         chip === "snoozed" ? "Snoozed items return to the action queue on their date." : "New items appear here as soon as a case needs action.") + "</li>";
     /* Column widths never shift between filters (Scott, 10-14): the action column is measured once, across every item in
@@ -167,8 +178,6 @@
       D.fitActions(q, ".mw-item-actions");
       q.innerHTML = html;
       actionsFitted = true;
-      /* Measure again once the web font has loaded (a fallback font measures narrower). */
-      if (document.fonts && document.fonts.ready && !fontRefit) { fontRefit = true; document.fonts.ready.then(function () { actionsFitted = false; renderQueue(); }); }
     }
     /* Pager under the list (PM, Scott 10-14): the shared Nimbus pagination toolbar; hidden when the list is empty. */
     var foot = document.getElementById("mwQueueFoot");
@@ -177,6 +186,18 @@
     if (window.Nimbus && Nimbus.Select) Nimbus.Select.initAll(foot);
   }
 
+
+  function skeletonRows(n) {
+    var line = function (w, cls) { return '<span class="skeleton skeleton-text skeleton-w-' + w + (cls ? " " + cls : "") + '"></span>'; };
+    var row = '<li class="list-group-item" aria-hidden="true"><div class="mw-item">' +
+      '<div class="skeleton-group">' + line(75) + line(50) + "</div>" +
+      '<div class="skeleton-group">' + line(25) + line(33) + line(100) + line(66) + "</div>" +
+      '<div class="skeleton-group">' + line(50) + line(33) + "</div>" +
+      '<div class="vr vr-blurry" aria-hidden="true"></div>' +
+      '<div class="mw-item-actions"><span class="skeleton skeleton-rect" style="width: 140px; height: 28px;"></span><span class="skeleton skeleton-rect" style="width: 90px; height: 28px;"></span></div>' +
+      "</div></li>";
+    return new Array(n + 1).join(row);
+  }
 
   /* Shared empty state (demo.css .demo-empty): icon, bold title, muted note, centred (Scott, 10-14). */
   function emptyState(title, note) {
@@ -297,5 +318,6 @@
     }
   });
 
+  if (!fontsReady) document.fonts.ready.then(function () { fontsReady = true; renderQueue(); });
   render(); renderCases(); renderWeek(false); renderDid();
 }());
