@@ -117,7 +117,7 @@
   }
   /* Queue row in the standard record format (Hold Status source row, Scott 10-14):
        item (no label): what needs doing, bold 14px, its case as a 14px link under it, then Found by CaseFusion
-       STATUS:  kind badge · Preservation at Risk on one line, then why now (14px)
+       WHY NOW: kind badge · Preservation at Risk on one line, then the why-now sentence (14px)
        WAITING: days waiting (danger once a gap is 5+ days old), then the snooze date when snoozed
        then a blurry divider and the stacked actions. */
   function rowHtml(r) {
@@ -130,7 +130,8 @@
         '<a class="d-block" href="' + caseHref + '">' + esc(caseName(r.caseId)) + "</a>" +
         /* Who raised it closes the item column (Scott, 10-14): a 12px bold flag in the theme's warning text colour. */
         (r.found ? '<span class="d-block small fw-bold text-warning-emphasis mt-1">Found by CaseFusion</span>' : "") + "</div>" +
-      '<div><span class="demo-label">Status</span><div class="d-flex flex-wrap align-items-center gap-1">' +
+      /* WHY NOW (PRD 11's term), not STATUS: the column says why the item is here and how serious it is (Sally, Scott 10-14). */
+      '<div><span class="demo-label">Why Now</span><div class="d-flex flex-wrap align-items-center gap-1">' +
           '<span class="badge badge-' + KIND_BADGE[r.chip] + '">' + r.chip + "</span>" +
           (r.locked ? '<span class="badge badge-pill badge-danger">Preservation at Risk</span>' : "") +
 "</div>" +
