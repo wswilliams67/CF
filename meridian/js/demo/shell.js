@@ -223,12 +223,13 @@
     [].forEach.call(scope.querySelectorAll("input, textarea, select"), function (f) { initial.delete(f); f.removeAttribute("data-demo-changed"); });
   }
   /* Resolves true when the user chooses to discard. The CaseFusion cancel confirmation (Case file 22565:112650):
-     "Please Confirm", a question, NO / YES. Scott chose it over the 09-30 "Discard Changes?" pattern (10-14). */
+     "Please Confirm", a yes/no question, NO / YES. Scott chose it over the 09-30 "Discard Changes?" pattern (10-14);
+     the question is reworded to the formal tone (no "you"). */
   function confirmDiscard() {
     return new Promise(function (resolve) {
       var discard = false;
       var m = modal({ title: "Please Confirm", noGuard: true,
-        body: '<p class="mb-0">Are you sure you want to cancel? All unsaved information will be lost. This action cannot be undone.</p>',
+        body: '<p class="mb-0">Cancel without saving? The information entered will be lost. This action cannot be undone.</p>',
         footer: '<button type="button" class="btn btn-secondary" data-cnds-dismiss="modal">NO</button>' +
                 '<button type="button" class="btn btn-primary" data-demo-discard>YES</button>',
         onHidden: function () { resolve(discard); } });
