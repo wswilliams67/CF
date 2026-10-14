@@ -203,8 +203,74 @@
     setViewer(a.getAttribute("data-demo-viewer"));
   });
 
+  /* ── Unsaved-changes guard (Scott, 10-14). Cancelling a modal, panel or form that has input in it asks first,
+        with the CaseFusion discard dialog: "Discard Changes?", KEEP EDITING (secondary) and DISCARD CHANGES
+        (danger). A control counts as changed when its value differs from what it held on first focus; a control
+        changed without focus (a Nimbus Select widget) counts as changed. Search boxes never count.             */
+  var initial = new WeakMap();
+  function fieldValue(f) { return f.type === "checkbox" || f.type === "radio" ? String(f.checked) : f.value; }
+  function isField(f) { return f && f.matches && f.matches("input, textarea, select") && f.type !== "search" && f.type !== "hidden" && !f.closest("[data-demo-noguard]"); }
+  document.addEventListener("focusin", function (e) { if (isField(e.target) && !initial.has(e.target)) initial.set(e.target, fieldValue(e.target)); }, true);
+  ["input", "change"].forEach(function (type) {
+    document.addEventListener(type, function (e) { var f = e.target; if (isField(f) && !initial.has(f)) f.setAttribute("data-demo-changed", ""); }, true);
+  });
+  function hasChanges(scope) {
+    return [].some.call(scope.querySelectorAll("input, textarea, select"), function (f) {
+      if (!isField(f)) return false;
+      return f.hasAttribute("data-demo-changed") || (initial.has(f) && initial.get(f) !== fieldValue(f));
+    });
+  }
+  function forgetChanges(scope) {
+    [].forEach.call(scope.querySelectorAll("input, textarea, select"), function (f) { initial.delete(f); f.removeAttribute("data-demo-changed"); });
+  }
+  /* Resolves true when the user chooses to discard. The lede says what will happen if they confirm. */
+  function confirmDiscard() {
+    return new Promise(function (resolve) {
+      var discard = false;
+      var m = modal({ title: "Discard Changes?", noGuard: true,
+        body: '<p class="mb-3">The information entered will be lost.</p>' +
+              '<p class="note note-warning note-sm mb-0">Discarded information cannot be recovered.</p>',
+        footer: '<button type="button" class="btn btn-secondary" data-cnds-dismiss="modal">KEEP EDITING</button>' +
+                '<button type="button" class="btn btn-danger" data-demo-discard>DISCARD CHANGES</button>',
+        onHidden: function () { resolve(discard); } });
+      m.el.querySelector("[data-demo-discard]").addEventListener("click", function () { discard = true; m.hide(); });
+    });
+  }
+  /* Modals and panels: CANCEL, the close button, Escape and the backdrop all arrive as a Nimbus hide event, which
+     is cancelable. The helpers' own hide() (called after a successful save) is let through. */
+  function guardDismiss(el, inst, kind) {
+    var allow = false;
+    el.addEventListener("hide.cnds." + kind, function (e) {
+      if (e.target !== el || allow || !hasChanges(el)) return;
+      e.preventDefault();
+      confirmDiscard().then(function (discard) { if (discard) { allow = true; inst.hide(); } });
+    });
+    return function () { allow = true; inst.hide(); };
+  }
+  /* Page forms: a CANCEL button or link outside a modal or panel. The scope is the nearest dropdown menu, card or
+     form, else the page. On discard the click is replayed, so a link still navigates and a reset still resets. */
+  var replaying = false;
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest && e.target.closest("a.btn, button.btn");
+    if (!t || replaying || t.textContent.trim() !== "CANCEL" || t.closest(".modal, .offcanvas")) return;
+    var scope = t.closest(".dropdown-menu, .card, form, [data-demo-form]") || document.querySelector("main") || document.body;
+    if (!hasChanges(scope)) return;
+    e.preventDefault(); e.stopImmediatePropagation();
+    confirmDiscard().then(function (discard) {
+      if (!discard) return;
+      forgetChanges(scope); replaying = true; t.click(); replaying = false;
+    });
+  }, true);
+  /* A save (SAVE DRAFT, SAVE AS SCOPE, SAVE …) keeps what was entered, so CANCEL afterwards has nothing to discard. */
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest && e.target.closest("a.btn, button.btn");
+    if (!t || !/^SAVE\b/.test(t.textContent.trim()) || t.closest(".modal, .offcanvas")) return;
+    forgetChanges(t.closest(".dropdown-menu, .card, form, [data-demo-form]") || document.querySelector("main") || document.body);
+  });
+
   /* ── Nimbus modal, built on demand (cnds-modal). Removed from the DOM when hidden.
-        opts: { title, size: "sm"|""|"lg"|"xl", body: html, footer: html, onHidden() }       */
+        opts: { title, size: "sm"|""|"lg"|"xl", body: html, footer: html, onHidden(), noGuard }
+        Cancelling with unsaved input asks first (guardDismiss); the returned hide() is the save path.  */
   var modalSeq = 0;
   function modal(opts) {
     var id = "demoModal" + (++modalSeq);
@@ -227,8 +293,9 @@
       if (opts.onHidden) opts.onHidden();
       inst.dispose(); el.remove();
     });
+    var hide = opts.noGuard ? function () { inst.hide(); } : guardDismiss(el, inst, "modal");
     inst.show();
-    return { el: el, id: id, hide: function () { inst.hide(); } };
+    return { el: el, id: id, hide: hide };
   }
 
   /* ── Nimbus offcanvas (cnds-slidingpanels), built on demand.
@@ -255,8 +322,9 @@
       if (opts.onHidden) opts.onHidden();
       inst.dispose(); el.remove();
     });
+    var hide = guardDismiss(el, inst, "offcanvas");
     inst.show();
-    return { el: el, id: id, hide: function () { inst.hide(); },
+    return { el: el, id: id, hide: hide,
       setBody: function (html) { el.querySelector(".offcanvas-body").innerHTML = html; if (Nimbus.Select) Nimbus.Select.initAll(el); },
       setFooter: function (html) { var f = el.querySelector(".offcanvas-footer"); if (f) f.innerHTML = html; } };
   }
