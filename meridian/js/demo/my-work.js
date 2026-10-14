@@ -116,8 +116,8 @@
         return '<li><button type="button" class="dropdown-item" data-snooze-days="' + o[0] + '" data-row="' + r.id + '">' + o[1] + "</button></li>"; }).join("") + "</ul></div>";
   }
   /* Queue row in the standard record format (Hold Status source row, Scott 10-14):
-       item (no label): what needs doing, bold 14px, with its case as the 12px line under it
-       STATUS:  kind badge · Preservation at Risk · Found by CaseFusion on one line, then why now (14px)
+       item (no label): what needs doing, bold 14px, its case as the 12px line under it, then Found by CaseFusion
+       STATUS:  kind badge · Preservation at Risk on one line, then why now (14px)
        WAITING: days waiting (danger once a gap is 5+ days old), then the snooze date when snoozed
        then a blurry divider and the stacked actions. */
   function rowHtml(r) {
@@ -126,11 +126,13 @@
     var old = age(r) >= 5 && r.chip === "GAP";
     return '<li class="list-group-item" id="mw-' + r.id + '"><div class="mw-item">' +
       '<div><span class="d-block mw-item-what">' + esc(m && r.whatMasked ? r.whatMasked : r.what) + "</span>" +
-        '<a class="d-block small" href="' + caseHref + '">' + esc(caseName(r.caseId)) + "</a></div>" +
+        '<a class="d-block small" href="' + caseHref + '">' + esc(caseName(r.caseId)) + "</a>" +
+        /* Who raised it closes the item column (Scott, 10-14): a 12px bold flag in the theme's warning text colour. */
+        (r.found ? '<span class="d-block small fw-bold text-warning-emphasis mt-1">Found by CaseFusion</span>' : "") + "</div>" +
       '<div><span class="demo-label">Status</span><div class="d-flex flex-wrap align-items-center gap-1">' +
           '<span class="badge badge-' + KIND_BADGE[r.chip] + '">' + r.chip + "</span>" +
           (r.locked ? '<span class="badge badge-pill badge-danger">Preservation at Risk</span>' : "") +
-          (r.found ? '<span class="small fw-bold text-warning-emphasis ms-1">Found by CaseFusion</span>' : "") + "</div>" +
+"</div>" +
         '<div class="mt-1">' + esc(m && r.whyMasked ? r.whyMasked : r.why) + "</div></div>" +
       '<div><span class="demo-label">Waiting</span><div class="' + (old ? "text-danger fw-bold" : "") + '">' + esc(waiting(r)) + "</div>" +
         (r.snoozedUntil ? '<span class="d-block small text-muted">Snoozed until ' + esc(M.fmtDate(r.snoozedUntil)) + "</span>" : "") + "</div>" +
