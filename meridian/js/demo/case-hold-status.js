@@ -125,15 +125,15 @@
         '<div class="hs-id"><span class="d-block fw-bold">' + esc(TYPE_LABEL[s.type] || s.type) + '</span><span class="d-block small text-muted">' + subject(s) + "</span></div>" +
         '<div class="hs-status"><span class="hs-col-label">Status</span><div class="d-flex flex-wrap align-items-center gap-1">' + pill(s) + excBadge(s) +
             (live ? '<span class="small fw-bold text-danger ms-1">' + esc(s.exception.type) + "</span>" : "") + "</div>" +
-          (needsReason(s) ? '<div class="small mt-1">' + esc(s.reason) + (s.attestRequested ? " Attestation requested " + esc(M.fmtDate(M.DEMO_TODAY)) + "." : "") + "</div>" : "") + "</div>" +
-        '<div class="small"><span class="hs-col-label">Last read</span>' + lastRead(s) + "</div>" +
+          (needsReason(s) ? '<div class="mt-1">' + esc(s.reason) + (s.attestRequested ? " Attestation requested " + esc(M.fmtDate(M.DEMO_TODAY)) + "." : "") + "</div>" : "") + "</div>" +
+        '<div><span class="hs-col-label">Last read</span>' + lastRead(s) + "</div>" +
         '<div class="vr vr-blurry" aria-hidden="true"></div>' +
         '<div class="hs-actions">' + (a.label === "REQUESTED" ? '<button type="button" class="btn btn-tertiary btn-sm" disabled>REQUESTED</button>' :
           '<button type="button" class="btn btn-tertiary btn-sm" data-act="' + a.act + '" data-id="' + s.id + '">' + a.label + "</button>") +
           '<button type="button" class="btn btn-tertiary btn-sm" data-expand="' + s.id + '" aria-expanded="' + open + '" aria-controls="det-' + s.id + '" aria-label="' + (open ? "Hide" : "View") + " details for " + esc(TYPE_LABEL[s.type] || s.type) + '">' + (open ? "HIDE" : "VIEW") + "</button></div>" +
       "</div>" + '<div class="collapse' + (open ? " show" : "") + '" id="det-' + s.id + '">' + detailHtml(s) + "</div></li>";
   }
-  /* Card metadata: bold labels; all detail-card text is 12px (Scott, 10-14). */
+  /* Card metadata: 12px bold labels, 14px values (type scale, Scott 10-14). */
   function kv(pairs) { return '<dl class="row mb-2 hs-kv">' + pairs.map(function (p) { return '<dt class="col-4 fw-bold">' + p[0] + '</dt><dd class="col-8 mb-1">' + p[1] + "</dd>"; }).join("") + "</dl>"; }
   /* Detail cards: Nimbus card title, no category heading; card-actions take mt-auto so every card's buttons sit
      on the bottom edge and line up across the row; all card buttons are small tertiary, right-aligned (Scott, 10-14). */
@@ -143,7 +143,7 @@
     if (count) head = '<div class="hs-dcard-head">' + head + '<span class="badge badge-secondary" aria-label="' + count + ' events">' + count + "</span></div>";
     return '<div class="col-md-4"><div class="card card-outline h-100 hs-dcard"><div class="card-body">' + head + body + "</div></div></div>";
   }
-  /* A labelled list inside a detail card: solid rule above, flush rows with solid dividers, 12px throughout. */
+  /* A labelled list inside a detail card: solid rule above, flush rows with blurry dividers; 14px rows, 12px meta. */
   function activity(label, items) {
     return '<div class="hs-activity"><hr class="hr hr-blurry mb-3"><div class="hs-col-label">' + label + '</div><ul class="list-group list-group-flush">' + items.join(BLUR) + "</ul></div>";
   }
@@ -163,7 +163,7 @@
     return s.owner && !/Laptop|Mobile/.test(s.type) ? M.person(s.owner).name : s.name;
   }
   function openEvents(s) {
-    D.offcanvas({ title: (TYPE_LABEL[s.type] || s.type) + " · " + subjectOf(s), width: "25vw",
+    D.offcanvas({ title: (TYPE_LABEL[s.type] || s.type) + " · " + subjectOf(s), width: "30vw",
       /* Total across from a small EVENTS label, the same badge as the card title (Scott 10-14). */
       body: '<div class="hs-dcard-head hs-panel-head"><span class="hs-col-label">Events</span><span class="badge badge-secondary" aria-label="' + s.history.length + ' events">' + s.history.length + "</span></div>" +
         '<ul class="list-group list-group-flush hs-events hs-events-panel">' + eventItems(s).join(BLUR) + "</ul>",
