@@ -150,3 +150,27 @@ button.demo-tile:disabled { cursor: default; opacity: .5; }
 
 /* Action buttons never wrap (Scott, 10-14): a label stays on one line, and its column or bar makes room. */
 .ca-content .btn, .modal .btn, .offcanvas .btn, .dropdown-menu .btn { white-space: nowrap; }
+
+/* ── Drawer card (section card whose body collapses) ─────────────────── */
+/* Nimbus documents .card-drawer on the styleguide's Cards page, but its CSS lives only in that page's inline <style>,
+   not in the library (gap #14). This is that styling, adapted: the top row is a flex line (heading, optional count,
+   chevron), and the body is a Nimbus .collapse, so it slides to its real height instead of a fixed max-height.
+   Markup: section.card.card-basic.card-drawer.demo-drawer > .card-body > .card-top.demo-drawer-top
+           (h2.cf-category + optional count + button.card-drawer-toggle[data-cnds-toggle=collapse]) + .collapse.card-drawer-body */
+.demo-drawer > .card-body { padding: var(--cnds-spacer-2) var(--cnds-spacer-3) var(--cnds-spacer-3); }
+.demo-drawer-top { display: flex; align-items: center; gap: var(--cnds-spacer-3); padding-bottom: var(--cnds-spacer-2); transition: padding-bottom .3s ease; }
+.demo-drawer-top:has(+ .card-drawer-body:not(.show):not(.collapsing)) { padding-bottom: 0; }
+.demo-drawer-top .cf-category.cf-cat-6 { --cnds-category-padding-bottom: 4px; }
+.card-drawer-toggle { flex: 0 0 auto; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
+  padding: 0; border: 0; background: none; cursor: pointer; color: var(--cnds-link-color); }
+.card-drawer-toggle .mdi { transition: transform .25s ease; }
+.card-drawer-toggle[aria-expanded="false"] .mdi { transform: rotate(180deg); }
+@media (prefers-reduced-motion: reduce) { .card-drawer-toggle .mdi, .demo-drawer-top { transition: none; } }
+/* Lists and tables inside a drawer take the card's surface. */
+.demo-drawer .list-group { --cnds-list-group-bg: transparent; }
+.demo-drawer .list-group > .list-group-item { background-color: transparent; }
+.demo-drawer .table { --cnds-table-bg: transparent; }
+/* Data Map's Notable Non-Custodians drawer toggles a .collapsed class (the styleguide's JS-free variant). */
+.card-drawer-body.collapsed { display: none; }
+.card-drawer .card-top:not(.demo-drawer-top) { display: flex; align-items: center; gap: var(--cnds-spacer-3); }
+.card-drawer .card-top:not(.demo-drawer-top) > .card-titles { flex: 1; }

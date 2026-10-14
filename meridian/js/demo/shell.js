@@ -414,6 +414,16 @@
     return act === "first" ? 1 : act === "prev" ? Math.max(1, page - 1) : act === "next" ? Math.min(pages, page + 1) : pages;
   }
 
+  /* Drawer cards (demo.css): keep each chevron's label in step with its body ("Collapse X" / "Expand X"). Nimbus
+     Collapse updates aria-expanded itself. */
+  ["shown", "hidden"].forEach(function (phase) {
+    document.addEventListener(phase + ".cnds.collapse", function (e) {
+      if (!e.target.classList || !e.target.classList.contains("card-drawer-body")) return;
+      var b = document.querySelector('.card-drawer-toggle[aria-controls="' + e.target.id + '"]');
+      if (b) b.setAttribute("aria-label", b.getAttribute("aria-label").replace(/^(Collapse|Expand)/, phase === "shown" ? "Collapse" : "Expand"));
+    });
+  });
+
   /* Action columns share the longest button's width (Scott, 10-14): measure the widest button in a list's action
      cells and publish it as --demo-actions-w on the list, so every row's grid gives that column the same width.
      Call after rendering a list. Buttons never wrap, so this is the width the column needs. */

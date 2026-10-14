@@ -246,9 +246,6 @@
   document.getElementById("mwSort").addEventListener("valueChanged.cnds.select", onSort);
   /* Queue filters are radios: one change event per selection. */
   document.getElementById("mwChips").addEventListener("change", function (e) { if (e.target.name === "mwFilter") { chip = e.target.value; page = 1; render(); } });
-  /* The section chevron: Nimbus collapse drives the slide; keep its label in step. */
-  document.getElementById("mwQueueBody").addEventListener("shown.cnds.collapse", function (e) { if (e.target.id === "mwQueueBody") document.querySelector(".mw-collapse").setAttribute("aria-label", "Collapse Action Queue"); });
-  document.getElementById("mwQueueBody").addEventListener("hidden.cnds.collapse", function (e) { if (e.target.id === "mwQueueBody") document.querySelector(".mw-collapse").setAttribute("aria-label", "Expand Action Queue"); });
   /* Pager: arrows turn the page; the size select resets to page 1. */
   function onPageSize(e) { if (e.target.getAttribute("data-pg-size") === "mw") { pageSize = +e.target.value; page = 1; renderQueue(); } }
   document.getElementById("mwQueueFoot").addEventListener("change", onPageSize);

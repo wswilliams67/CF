@@ -18,10 +18,11 @@
 .mw-item > .mw-item-id { align-self: stretch; display: flex; flex-direction: column; }
 .mw-item-flag { margin-top: auto; padding-top: var(--cnds-spacer-2); }
 .mw-item-actions { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--cnds-spacer-1); }
-.mw-two { display: grid; grid-template-columns: 2.3fr 1fr; gap: 16px; align-items: start; margin-bottom: 16px; }
+.mw-two { display: grid; grid-template-columns: minmax(0, 2.3fr) minmax(280px, 1fr); gap: 16px; align-items: start; margin-bottom: 16px; }  /* minmax(0): the table yields (and scrolls) rather than pushing This Week off the page */
 .mw-row-week { display: grid; grid-template-columns: 56px 1fr 20px; gap: 8px; }
 .mw-row-did { display: grid; grid-template-columns: 24px 1.2fr 1.6fr 120px; gap: 8px; }
-@media (max-width: 1280px) { .mw-two { grid-template-columns: 1fr; } }
+/* Side by side only on wide screens: boxed, the cases table needs the full width at 1440 (it clipped its Needs Attention badges). */
+@media (max-width: 1600px) { .mw-two { grid-template-columns: 1fr; } }
 
 /* Count beside a section heading. The heading row is the shared .demo-section-head (baseline aligned), so the count
    is a sibling of the h2 now, not inside it: 12px scanned meta (Scott, 10-14). */
@@ -36,13 +37,6 @@
    does not size .small; scanned text is 12px under the type rule (Scott, 10-14). */
 #caContent .small { font-size: var(--cnds-paragraph-font-size-sm); }
 
-/* Action Queue header: totals and the collapse chevron on the heading line (Scott, 10-14). The chevron turns
-   down when the section is shut. */
-.mw-queue-head { margin-bottom: var(--cnds-spacer-2); }
-.mw-collapse { align-self: center; padding: 0 4px; }
-.mw-collapse .mdi { display: inline-block; transition: transform .35s ease; }
-.mw-collapse[aria-expanded="false"] .mdi { transform: rotate(180deg); }
-@media (prefers-reduced-motion: reduce) { .mw-collapse .mdi { transition: none; } }
 /* Filter row above the toolbar: two groups with room between them (Sally, Scott 10-14). The toolbar below carries the
    count on the left and Sort By + EXPORT LIST on the right. */
 .mw-filters { display: flex; flex-wrap: wrap; align-items: center; gap: var(--cnds-spacer-2) var(--cnds-spacer-3); }
@@ -55,3 +49,12 @@
 .mw-filters .btn-group > .btn { text-transform: none; }
 /* "Showing n of n" clears the toolbar's left edge: 8px on top of the bar's own padding, as Hold Status's pinned bar text. */
 #mwShowing { padding-left: var(--cnds-spacer-2); }
+
+/* Filter buttons: 2px less side padding than the Nimbus default, so both sets keep one line inside the box (Scott 10-14). */
+.mw-filters .btn-group > .btn { --cnds-btn-padding-x: 14px; }
+/* Cases Needing Attention inside its box: the case name gets room (it was squeezed to four lines) and counts stay whole. */
+#mwCases td:first-child { min-width: 13rem; }
+#mwCases td:nth-child(n+2):nth-child(-n+5) { white-space: nowrap; }
+
+/* Side-by-side drawers (wide screens only) keep equal heights. */
+.mw-two > .demo-drawer { margin: 0; }
