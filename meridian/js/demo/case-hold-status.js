@@ -139,8 +139,12 @@
      on the bottom edge and line up across the row; all card buttons are small tertiary, right-aligned (Scott, 10-14). */
   function block(title, body, count) {
     /* count → a secondary badge across from the card title (the Events card's total, Scott 10-14). */
-    var head = '<h4 class="card-title fw-bold' + (count ? " mb-0" : "") + '">' + title + "</h4>";
-    if (count) head = '<div class="hs-dcard-head">' + head + '<span class="badge badge-secondary" aria-label="' + count + ' events">' + count + "</span></div>";
+    /* Title in the column-label style (12px, bold, uppercase, muted), not Card/Title: the cards are detail of
+       the source row, so they rank below its 14px name (Sally, Scott 10-14). Every card gets the same head row,
+       so the first line of content lines up across the three cards whether or not a badge is present.
+       A div with heading semantics, not an h4: Nimbus card heading rules would override the label type. */
+    var head = '<div class="hs-dcard-head"><div class="hs-col-label" role="heading" aria-level="4">' + title + "</div>" +
+      (count ? '<span class="badge badge-secondary" aria-label="' + count + ' events">' + count + "</span>" : "") + "</div>";
     return '<div class="col-md-4"><div class="card card-outline h-100 hs-dcard"><div class="card-body">' + head + body + "</div></div></div>";
   }
   /* A labelled list inside a detail card: solid rule above, flush rows with blurry dividers; 14px rows, 12px meta. */
