@@ -34,7 +34,8 @@
      render() rebuilds the tiles, freshness lines, accordions and counts from
      `sources`. Row details and accordions animate with Nimbus Collapse; the
      handlers at "Collapse events" keep `expanded` and the VIEW/HIDE toggle in
-     step with the animation instead of re-rendering mid-slide.
+     step with the animation instead of re-rendering mid-slide. On first load,
+     until the web font is ready, the rows are Nimbus skeletons (skeletonRows).
 
    DEMO-ONLY
      Fixed clock (stamp(): DEMO_TODAY at 09:42), canned refresh results
@@ -77,6 +78,9 @@
   var openSeg = "attention";
   var expanded = {};
   var integrityText = "Integrity verified " + M.freshness.integrityAgo;
+  /* Until the web font has loaded, the open segment shows skeleton rows, so the list never paints in the fallback font
+     and then jumps (Scott, 10-14). */
+  var fontsReady = !(document.fonts && document.fonts.status !== "loaded");
 
   /* ── Small helpers ──────────────────────────────────────────────────── */
   function byId(id) { for (var i = 0; i < sources.length; i++) if (sources[i].id === id) return sources[i]; return null; }
@@ -286,6 +290,19 @@
     if (id === "unknown") return names.join(" and ") + " · never attested";
     return names.join(", ");
   }
+  /* Nimbus skeleton (loading.css) in the source-row geometry: Source · Status · Last read, blurry divider, two stacked
+     actions. One per row about to appear; hidden from assistive tech while the list is aria-busy. */
+  function skeletonRows(n) {
+    var line = function (w) { return '<span class="skeleton skeleton-text skeleton-w-' + w + '"></span>'; };
+    var row = '<li class="list-group-item" aria-hidden="true"><div class="hs-row">' +
+      '<div class="skeleton-group">' + line(75) + line(50) + "</div>" +
+      '<div class="skeleton-group">' + line(25) + line(66) + line(100) + "</div>" +
+      '<div class="skeleton-group">' + line(50) + line(75) + "</div>" +
+      '<div class="vr vr-blurry" aria-hidden="true"></div>' +
+      '<div class="hs-actions"><span class="skeleton skeleton-rect" style="width: 130px; height: 28px;"></span><span class="skeleton skeleton-rect" style="width: 60px; height: 28px;"></span></div>' +
+      "</div></li>";
+    return new Array(Math.max(1, n) + 1).join(row);
+  }
   /* One standalone Nimbus accordion per segment, stacked with a gap; one open at a time (Scott, 10-14).
      Every segment's rows are rendered, so Nimbus Collapse can slide them open and shut. */
   function segmentHtml(g, rows) {
@@ -296,7 +313,7 @@
         '<span class="d-block small text-muted" data-seg-summary data-open="' + OPEN_SUMMARY + '" data-closed="' + esc(summary(g.id, rows)) + '">' + esc(isOpen ? OPEN_SUMMARY : summary(g.id, rows)) + "</span></span>" +
         '<span class="badge badge-secondary hs-seg-count">' + rows.length + "</span></button></h3>" +
       '<div class="accordion-collapse collapse' + (isOpen ? " show" : "") + '" id="hsSeg-' + g.id + '"><div class="accordion-body p-0">' +
-        '<ul class="list-group list-group-flush hs-list">' + rows.map(rowHtml).join("") + "</ul></div></div></div></div>";
+        '<ul class="list-group list-group-flush hs-list"' + (fontsReady ? "" : ' aria-busy="true"') + ">" + (fontsReady ? rows.map(rowHtml).join("") : skeletonRows(rows.length)) + "</ul></div></div></div></div>";
   }
   function render() {
     /* Group once, then sort each group least protected first. */
@@ -508,5 +525,6 @@
 
   /* Demo start: Needs Attention open, with the OneDrive row's details showing (the story's first stop). */
   expanded["s-od-torres"] = true;
+  if (!fontsReady) document.fonts.ready.then(function () { fontsReady = true; render(); });
   render();
 }());
