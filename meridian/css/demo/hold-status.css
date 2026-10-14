@@ -1,130 +1,134 @@
-/* Hold status (PRD 07 §7.1–7.2). Layout only; every component is Nimbus. */
+/* ═══════════════════════════════════════════════════════════════════════
+   Hold Status tab (PRD 07 §7.1–7.2) — page-scoped layout.
+   Every component is Nimbus; this file only arranges them and records the
+   few places the screen departs from a component default, with the reason.
+   Markup comes from pages/case-hold-status.html and js/demo/case-hold-status.js.
+
+   Type scale (Sally, Scott 10-14): 14px for what is read before acting
+   (source name, reason, last-read value, card values, event titles and
+   notes); 12px for what is scanned (labels, badges, meta lines, counts).
+   Never below 12px.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── Freshness toolbar ─────────────────────────────────────────────────── */
 .hs-fresh { width: 100%; justify-content: flex-start; }
 .hs-fresh > .small { flex: 1; font-size: var(--cnds-paragraph-font-size-sm); }
+/* "How hold status works": a text link with its icon (no Nimbus link-with-icon component). */
+.hs-help-link { display: inline-flex; align-items: center; white-space: nowrap; font-size: var(--cnds-paragraph-font-size); }
+
+/* ── Summary cards (one per segment; each is a filter) ─────────────────── */
 .hs-tiles { grid-template-columns: repeat(5, 1fr); margin-bottom: 24px; }
-/* Source rows: Source · Status · Last read, then a blurry divider and the actions (Scott, 10-14). */
-.hs-row { display: grid; grid-template-columns: 240px minmax(0, 1fr) 200px auto 170px; column-gap: var(--cnds-spacer-3); align-items: center; }
-.hs-row > .vr { align-self: stretch; }
-.hs-actions { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--cnds-spacer-1); }  /* 4px (gap-1) so one button's hover fill and focus ring never butt into the other (Scott, 10-14) */
-/* In-row column label above the Status and Last read values (no header row, Scott 10-14). Type matches the
-   Nimbus table header (12px, 700, uppercase, 0.03em), whose tokens are scoped to .table. */
-.hs-col-label { display: block; margin-bottom: var(--cnds-spacer-1); font-size: var(--cnds-paragraph-font-size-sm); font-weight: 700;
-  text-transform: uppercase; letter-spacing: .03em; color: var(--cnds-text-muted); }  /* muted: a label, not data (Scott, 10-14) */
-.accordion-button .badge { text-transform: none; }
-
-
 @media (max-width: 1200px) { .hs-tiles { grid-template-columns: repeat(3, 1fr); } }
-/* Segment tiles: content centred (Scott, 10-13). */
 .hs-tiles .demo-tile { align-items: center; text-align: center; }
 .hs-tiles .demo-tile > * { text-align: center; }
-/* Sizes from the v1.5 Case Administrator summary cards (Figma 17255:1393092). */
-.hs-tiles .demo-tile-name { font-size: var(--cnds-paragraph-font-size); line-height: var(--cnds-paragraph-line-height); font-weight: 700; text-transform: uppercase; }  /* caps as in the PM mockup, matching the category headings; source text stays Title Case for screen readers (Scott, 10-14) */
-.hs-tiles .demo-tile-value { font-size: 24.5px; line-height: 1.375; }  /* Figma Font Size/fs-3: no Nimbus CSS token yet (gap #11) */
+/* Sizes from the v1.5 Case Administrator summary cards (Figma 17255:1393092). Names are uppercase as in the PM
+   mockup; the source text stays Title Case for screen readers. */
+.hs-tiles .demo-tile-name { font-size: var(--cnds-paragraph-font-size); line-height: var(--cnds-paragraph-line-height); font-weight: 700; text-transform: uppercase; }
+.hs-tiles .demo-tile-value { font-size: 24.5px; line-height: 1.375; }  /* Figma fs-3: no Nimbus CSS token yet (gap #11) */
 .hs-tiles .demo-tile-label { font-size: var(--cnds-paragraph-font-size-sm); line-height: var(--cnds-paragraph-line-height); }
-.hs-sources-note { font-size: var(--cnds-paragraph-font-size-sm); }
-/* Action bar: Nimbus floating toolbar, held 16px above the bottom of the viewport while the page scrolls. */
-.hs-actionbar { position: sticky; bottom: 16px; z-index: 10; margin-bottom: calc(16px - 24px); }  /* main carries 24px bottom padding (1.6 frame) */
-.hs-actionbar .btn { white-space: nowrap; }
-/* How hold status works: a text link with its icon (no Nimbus link-with-icon component). */
-.hs-help-link { display: inline-flex; align-items: center; white-space: nowrap; font-size: var(--cnds-paragraph-font-size); }
-.hs-bar-fresh { font-size: var(--cnds-paragraph-font-size-sm); margin-right: auto; padding-left: 8px; }  /* 8px more than the bar's own 8px padding, so the text clears the edge */
-.accordion-button .hs-seg-title { white-space: nowrap; }  /* segment names stay on one line beside a long summary */
-/* Needs attention shows it is not the focus by fading only its red border when it is not the selected filter
-   (Scott, 10-14). The text stays at full contrast: 5.46:1, passing WCAG 2.0 AA / Section 508. An opacity dim
-   dropped it to 3.30:1. Full border when selected or keyboard-focused. */
+/* Clickable cards carry the Nimbus link colour as their border, CaseFusion's affordance for clickable things.
+   Not Needs Attention (danger outline), not a disabled card, not the selected one (green). */
+.hs-tiles .demo-tile:not(:disabled):not([data-tone]):not([aria-pressed="true"]) { --cnds-card-border-color: var(--cnds-link-color); }
+/* Needs Attention fades only its red border when it is not the selected filter. The text stays at full contrast
+   (5.46:1, WCAG AA); an opacity dim dropped it to 3.30:1. Full border when selected or keyboard-focused. */
 .hs-tiles .demo-tile[data-tone="danger"] { transition: border-color .15s ease-in-out; }
 .hs-tiles .demo-tile[data-tone="danger"][aria-pressed="false"] { --cnds-card-border-color: color-mix(in srgb, var(--cnds-danger-300) 35%, transparent); }
 .hs-tiles .demo-tile[data-tone="danger"][aria-pressed="false"]:focus-visible { --cnds-card-border-color: var(--cnds-danger-300); }
-.hs-seg-stack { display: flex; flex-direction: column; gap: var(--cnds-spacer-2); }  /* standalone category accordions */
-/* Each accordion clips to its own rounded corners: the last source row (and the open fill) is square and otherwise
-   paints over the bottom radius (Scott, 10-14). No row content reaches the edge, so nothing is cut. */
-.hs-seg-stack .accordion-item { overflow: hidden; }
-.hs-seg-text { flex: 1; min-width: 0; text-align: left; }
-.hs-seg-count { margin-left: auto; margin-right: var(--cnds-spacer-3); }
-.hs-seg-text [data-seg-summary] { font-size: var(--cnds-paragraph-font-size-sm); line-height: var(--cnds-paragraph-line-height); margin-top: var(--cnds-spacer-1); }
-/* Baseline, not centre: the all-caps title has no descenders, so centring left the 12px counts looking low (Scott, 10-14). */
-.hs-sources-head { display: flex; align-items: baseline; gap: var(--cnds-spacer-3); margin-bottom: var(--cnds-spacer-4); }
-/* cf-cat-6 pads 4px above and 16px below, which lifts its text off the row's centre line; even it out in this row. */
-.hs-sources-head .cf-category.cf-cat-6 { --cnds-category-padding-bottom: 4px; }
-.hs-sources-count { font-size: var(--cnds-paragraph-font-size-sm); }
-/* Counts and note at the right, split by a blurry divider. When the row is too narrow (container query on the
-   row's own width), the note wraps under the counts, right-aligned, and the divider hides (Scott, 10-14). */
-.hs-sources-head { container-type: inline-size; }
+/* An empty segment's card is disabled and dimmed with its accordion (WCAG exempts inactive controls). */
+.hs-tiles .demo-tile:disabled { cursor: default; opacity: .5; }
+
+/* ── Sources heading row ───────────────────────────────────────────────── */
+/* Heading fills the line; counts and note sit at the right, split by a blurry divider. Baseline alignment, not
+   centre: the all-caps title has no descenders, so centring left the 12px counts looking low. */
+.hs-sources-head { display: flex; align-items: baseline; gap: var(--cnds-spacer-3); margin-bottom: var(--cnds-spacer-4); container-type: inline-size; }
+.hs-sources-head .cf-category.cf-cat-6 { --cnds-category-padding-bottom: 4px; }  /* cf-cat-6 pads 4 above, 16 below: even it out in this row */
 .hs-sources-meta { display: flex; align-items: baseline; gap: var(--cnds-spacer-3); }
 .hs-sources-meta .vr { align-self: center; height: 1rem; }
+.hs-sources-count, .hs-sources-note { font-size: var(--cnds-paragraph-font-size-sm); }
+/* Too narrow (container query on the row's own width): the note wraps under the counts, right-aligned. */
 @container (max-width: 1080px) {
   .hs-sources-meta { flex-direction: column; align-items: flex-end; gap: var(--cnds-spacer-1); }
   .hs-sources-meta .vr { display: none; }
 }
-/* Type scale (Sally, Scott 10-14): 14px for what is read before acting (source name, reason, last-read value,
-   card values, event titles and notes); 12px for what is scanned (labels, badges, meta lines, counts).
-   The row sets 14px itself; the list item would otherwise hand it 16px. */
-.hs-row { font-size: var(--cnds-paragraph-font-size); line-height: var(--cnds-paragraph-line-height); }
+
+/* ── Segment accordions ────────────────────────────────────────────────── */
+/* One standalone Nimbus accordion per segment, stacked with a gap. Each clips to its own rounded corners:
+   the last source row (and the open-row fill) is square and would otherwise paint over the bottom radius. */
+.hs-seg-stack { display: flex; flex-direction: column; gap: var(--cnds-spacer-2); }
+.hs-seg-stack .accordion-item { overflow: hidden; }
+.hs-seg-text { flex: 1; min-width: 0; text-align: left; }
+.accordion-button .hs-seg-title { white-space: nowrap; }  /* names stay on one line beside a long summary */
+.hs-seg-text [data-seg-summary] { font-size: var(--cnds-paragraph-font-size-sm); line-height: var(--cnds-paragraph-line-height); margin-top: var(--cnds-spacer-1); }
+.hs-seg-count { margin-left: auto; margin-right: var(--cnds-spacer-3); }
+.accordion-button .badge { text-transform: none; }
+/* A segment with no sources: disabled like a Nimbus button (no pointer events, the library's 0.5 opacity). */
+.hs-seg-stack .accordion-button:disabled { pointer-events: none; opacity: .5; }  /* = --cnds-btn-disabled-opacity, scoped to .btn */
+
+/* ── Source rows ───────────────────────────────────────────────────────── */
+/* Grid: Source · Status · Last read · blurry divider · stacked actions. The row sets 14px itself; the list item
+   would otherwise hand it 16px. Data columns top-align so the in-row STATUS / LAST READ labels line up; the
+   divider stretches and the actions stay centred. */
+.hs-row { display: grid; grid-template-columns: 240px minmax(0, 1fr) 200px auto 170px; column-gap: var(--cnds-spacer-3); align-items: center;
+  font-size: var(--cnds-paragraph-font-size); line-height: var(--cnds-paragraph-line-height); }
+.hs-row > :nth-child(-n+3) { align-self: start; }
+.hs-row > .vr { align-self: stretch; }
 .hs-row .small { font-size: var(--cnds-paragraph-font-size-sm); line-height: var(--cnds-paragraph-line-height); }
-.hs-dcard p, .hs-kv, .hs-kv dd { font-size: var(--cnds-paragraph-font-size); line-height: var(--cnds-paragraph-line-height); }
-.hs-kv dt { font-size: var(--cnds-paragraph-font-size-sm); line-height: var(--cnds-paragraph-line-height); padding-top: 2px; }  /* 2px drops the 12px label onto the 14px value's baseline */
-/* More room under each source row, separating it from the next (Scott, 10-14). Nimbus pads list items 8px top and bottom. */
-.hs-list > .list-group-item { padding-top: var(--cnds-spacer-3); padding-bottom: var(--cnds-spacer-3); }  /* 16 top (Nimbus 8 + 8, Scott 10-14) and bottom */
-/* The open fill fades in and out with the detail slide: same 0.35s ease as the Nimbus collapse
-   (--cnds-transition-collapse), so both finish together. The extra padding eases with it. */
-.hs-list > .list-group-item { transition: background-color .35s ease, padding-bottom .35s ease; }
+/* 4px between the two buttons, so one's hover fill and focus ring never butt into the other. */
+.hs-actions { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--cnds-spacer-1); }
+/* In-row column label (no header row). Type matches the Nimbus table header (12px, 700, uppercase, 0.03em), whose
+   tokens are scoped to .table. Muted: a label, not data. Also used for EVENTS and LOCATIONS labels. */
+.hs-col-label { display: block; margin-bottom: var(--cnds-spacer-1); font-size: var(--cnds-paragraph-font-size-sm); font-weight: 700;
+  text-transform: uppercase; letter-spacing: .03em; color: var(--cnds-text-muted); }
+/* 16px above and below each row (Nimbus pads list items 8px). */
+.hs-list > .list-group-item { padding-top: var(--cnds-spacer-3); padding-bottom: var(--cnds-spacer-3);
+  transition: background-color .35s ease, padding-bottom .35s ease; }  /* = --cnds-transition-collapse timing */
 @media (prefers-reduced-motion: reduce) { .hs-list > .list-group-item { transition: none; } }
-/* An open source (row + its detail cards) reads as one unit: a flat Nimbus surface fill on the whole item, and
-   16px more space inside it before the next row's divider. Only the open item is filled; closed rows are never striped (Sally, Scott 10-14).
-   .hs-open is set when the row starts opening (case-hold-status.js). Dark: one step darker than the #252525 rows,
-   a recessed panel (muted text 7.1:1); light: #f5f5f5 on white rows (muted text 7.2:1). Both WCAG AA. */
-.hs-list > .list-group-item.hs-open { background-color: var(--cnds-surface-light-100, #f5f5f5); padding-bottom: calc(var(--cnds-spacer-3) * 2); }  /* the 16px goes inside the fill: as a margin it showed the accordion surface as a band */
+/* Open row: the row and its detail cards read as one unit — a flat surface fill on the whole item and 16px more
+   room inside it. Only the open item is filled; closed rows are never striped. .hs-open is set when the slide
+   starts (JS), and the fill fades with the slide. The 16px is padding, not margin: a margin showed the accordion
+   surface as a band. Muted text on the fill: 7.2:1 light, 7.1:1 dark (WCAG AA). */
+.hs-list > .list-group-item.hs-open { background-color: var(--cnds-surface-light-100, #f5f5f5); padding-bottom: calc(var(--cnds-spacer-3) * 2); }
 [data-cnds-theme="dark"] .hs-list > .list-group-item.hs-open { background-color: var(--cnds-surface-dark-600, #171717); }
-.hs-row > :nth-child(-n+3) { align-self: start; }  /* data columns top-aligned so the in-row STATUS / LAST READ labels line up; actions stay centred (Scott, 10-14) */
-/* A category with no sources: its accordion is disabled (Scott, 10-14), styled like a disabled Nimbus button —
-   no pointer events, the library's 0.5 disabled opacity. Disabled controls are exempt from WCAG contrast.
-   Its summary card is disabled and dimmed to match (Scott chose this over keeping the 0 at full contrast). */
-.hs-seg-stack .accordion-button:disabled { pointer-events: none; opacity: .5; }  /* = Nimbus --cnds-btn-disabled-opacity (scoped to .btn) */
-.hs-tiles .demo-tile:disabled { cursor: default; opacity: .5; }  /* dimmed with its empty category (Scott, 10-14); a disabled control, so WCAG's inactive-component exemption applies */
-/* Empty state inside a detail card: the CaseFusion pattern (Tenant Manager fr_empty-state, persona profile).
-   Icon on the Nimbus 2XL step (36px), H6 bold title, muted reassurance; centred in the card, no box. */
+
+/* ── Detail cards (Events · Exception · Hold) ──────────────────────────── */
+/* Card head: category-type title, with the Events total as a badge across from it. 24px minimum (the badge),
+   so badge-less heads match and first lines align across the three cards. */
+.hs-dcard-head { display: flex; align-items: center; justify-content: space-between; gap: var(--cnds-spacer-2); }
+.hs-dcard .hs-dcard-head { min-height: 24px; margin-bottom: var(--cnds-spacer-2); }
+.hs-dcard-head .hs-col-label { margin-bottom: 0; }
+/* The title takes the category type (cf-cat-6) but not its bar or the 24px indent that clears it: the bar marks
+   page sections (SOURCES) and these cards are nested in one. Nimbus has no bar-less variant (gap #13). */
+.hs-dcard-head .cf-category.cf-cat-6 { --cnds-category-padding-bottom: 4px; text-indent: 0; }
+.hs-dcard-head .cf-category::before { display: none; }
+/* Name/value pairs: 14px values, 12px labels nudged 2px down onto the value's baseline. */
+.hs-dcard p, .hs-kv, .hs-kv dd { font-size: var(--cnds-paragraph-font-size); line-height: var(--cnds-paragraph-line-height); }
+.hs-kv dt { font-size: var(--cnds-paragraph-font-size-sm); line-height: var(--cnds-paragraph-line-height); padding-top: 2px; }
+/* Empty state inside a card (CaseFusion pattern): 2XL icon, H6 bold title, muted note, centred, no box. */
 .hs-empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--cnds-spacer-2); text-align: center; padding-top: var(--cnds-spacer-3); }
 .hs-empty .mdi { color: var(--cnds-text-muted); line-height: 1; }
 .hs-empty-title { font-size: var(--cnds-h6-font-size); font-weight: 700; }
 .hs-empty-note { font-size: var(--cnds-paragraph-font-size-sm); color: var(--cnds-text-muted); }
-/* Clickable summary cards carry the Nimbus link colour as their border, CaseFusion's affordance for clickable
-   things (Scott, 10-14). Not Needs Attention (danger outline), not a disabled card, not the selected one (green). */
-.hs-tiles .demo-tile:not(:disabled):not([data-tone]):not([aria-pressed="true"]) { --cnds-card-border-color: var(--cnds-link-color); }
 
-/* Event card lists (Activity, Locations): a labelled, flush Nimbus list-group on the card's own surface.
-   Rows: what happened (bold, 14px) with the time right-aligned, then who (12px), then their note (14px). */
+/* ── Event and location lists (card, all-events panel, Locations) ──────── */
+/* Flush Nimbus list-groups on the surface they sit on. Rows: title (bold, 14px) — the location status sits at
+   the right of its title — then "date · by person" (12px), then the note (14px). Blurry dividers between rows
+   (BLUR in the JS), so list borders are off. */
 .hs-activity { margin-top: var(--cnds-spacer-3); }
-.hs-activity .list-group { --cnds-list-group-bg: transparent; margin-top: var(--cnds-spacer-1); }
-.hs-activity .list-group-item { padding: var(--cnds-spacer-2) 0; font-size: var(--cnds-paragraph-font-size); line-height: var(--cnds-paragraph-line-height); color: inherit; }
+.hs-activity .list-group { margin-top: var(--cnds-spacer-1); }
+.hs-activity .list-group, .hs-events.list-group { --cnds-list-group-bg: transparent; }
+.hs-activity .list-group-item, .hs-events > .list-group-item {
+  background-color: transparent; border: 0; padding: var(--cnds-spacer-2) 0; color: inherit;
+  font-size: var(--cnds-paragraph-font-size); line-height: var(--cnds-paragraph-line-height); }
+.hs-events > .list-group-item:first-child { padding-top: 0; }
 .hs-act-head { display: flex; align-items: baseline; gap: var(--cnds-spacer-2); }
 .hs-act-what { font-weight: 700; flex: 1 1 auto; min-width: 0; }
 .hs-act-when { flex: 0 0 auto; text-align: right; white-space: nowrap; }
 .hs-act-meta { color: var(--cnds-secondary-color); font-size: var(--cnds-paragraph-font-size-sm); }
 .hs-act-note { margin-top: 2px; }
-/* Event list sits directly under the card title (no label, no rule); rows share the Activity row styles. */
-.hs-dcard .hs-events.list-group { --cnds-list-group-bg: transparent; }
-.hs-dcard .hs-events > .list-group-item { background-color: transparent; }
-.hs-events .list-group-item { padding: var(--cnds-spacer-2) 0; font-size: var(--cnds-paragraph-font-size); line-height: var(--cnds-paragraph-line-height); color: inherit; }
-.hs-events .list-group-item:first-child { padding-top: 0; }
-/* All-events side panel: the same event rows, on the panel surface. */
-.hs-events-panel.list-group { --cnds-list-group-bg: transparent; }
-.hs-events-panel > .list-group-item { background-color: transparent; padding: var(--cnds-spacer-2) 0; font-size: var(--cnds-paragraph-font-size); line-height: var(--cnds-paragraph-line-height); color: inherit; }
-.hs-events-panel > .list-group-item:first-child { padding-top: 0; }
-/* Blurry row dividers inside the Events card, the all-events panel and Locations (Nimbus hr.hr-blurry). */
-.hs-events > .list-group-item, .hs-activity .list-group > .list-group-item { border: 0; }
 .hs-row-divider { list-style: none; padding: 0; }
 .hs-row-divider .hr { margin: 0; }
-/* Card title with a count badge across from it (Events card). */
-.hs-dcard-head { display: flex; align-items: center; justify-content: space-between; gap: var(--cnds-spacer-2); }
-.hs-dcard-head .hs-col-label { margin-bottom: 0; }
-.hs-dcard-head .cf-category.cf-cat-6 { --cnds-category-padding-bottom: 4px; text-indent: 0; }  /* even padding, so the title centres on the badge */
-/* Detail card titles take the category type but not its bar: the bar marks page sections (SOURCES), and these cards
-   are nested inside one (Sally, Scott 10-14). Nimbus has no bar-less category variant (gap). */
-.hs-dcard-head .cf-category::before { display: none; }
-.hs-dcard .hs-dcard-head { min-height: 24px; margin-bottom: var(--cnds-spacer-2); }  /* 24 = the count badge, so badge-less heads match */
-/* All-events panel header: sticky, so the total stays in view while the list scrolls. The panel body
-   still scrolls as one (no nested scroll area); the header just pins to its top edge on the panel's
-   own background, covering the rows that pass under it. */
+/* All-events panel header: sticky, so the total stays in view while the list scrolls. The panel body still
+   scrolls as one; the header pins to its top edge on the panel's own background. */
 .hs-panel-head {
   position: sticky; z-index: 1;
   top: calc(-1 * var(--cnds-offcanvas-body-padding-y));
@@ -132,3 +136,10 @@
   padding: var(--cnds-offcanvas-body-padding-y) 0 var(--cnds-spacer-3);
   background-color: var(--cnds-offcanvas-bg);
 }
+
+/* ── Pinned action bar ─────────────────────────────────────────────────── */
+/* Nimbus floating toolbar, held 16px above the viewport bottom while the page scrolls. main carries 24px bottom
+   padding (1.6 frame), hence the negative margin. The freshness text gets 8px on top of the bar's own 8px. */
+.hs-actionbar { position: sticky; bottom: 16px; z-index: 10; margin-bottom: calc(16px - 24px); }
+.hs-actionbar .btn { white-space: nowrap; }
+.hs-bar-fresh { font-size: var(--cnds-paragraph-font-size-sm); margin-right: auto; padding-left: 8px; }
