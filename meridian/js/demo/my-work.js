@@ -242,8 +242,10 @@
     if (sort === "name") list.sort(function (x, y) { return caseName(x.id).localeCompare(caseName(y.id)); });
     if (sort === "requests") list.sort(function (x, y) { return y.a.openRequests - x.a.openRequests; });
     document.getElementById("mwCases").innerHTML = list.map(function (x) { return x.html; }).join("");
-    document.getElementById("mwCasesShowing").textContent = "Showing " + list.length + " of " + access.open + " cases";
-    document.getElementById("mwMoreCases").textContent = (access.open - list.length) + " more cases · nothing needs you";
+    /* One statement of the count (Sally, Scott 10-14): this list is complete, so it is not "Showing n of m"; the way to the
+       rest says how many there are. */
+    document.getElementById("mwCasesShowing").textContent = list.length + " of " + access.open + " open cases need attention";
+    document.getElementById("mwAllCases").textContent = "SHOW ALL " + access.open + " CASES";
   }
   ["change", "valueChanged.cnds.select"].forEach(function (t) { document.getElementById("mwCasesSort").addEventListener(t, renderCases); });
   function renderWeek(all) {
