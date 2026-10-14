@@ -79,7 +79,8 @@
           '<label class="btn btn-secondary" for="' + id + '">' + esc(d[1]) + " (" + d[2] + ")</label>";
       }).join("") + "</div>";
     };
-    document.getElementById("mwChips").innerHTML = group(status, "Queue status") + group(kinds, "Kind of work");
+    /* A blurry divider between the two sets: parts of one control row (house rule). */
+    document.getElementById("mwChips").innerHTML = group(status, "Queue status") + '<div class="vr vr-blurry" aria-hidden="true"></div>' + group(kinds, "Kind of work");
   }
   function sortValue() { var el = document.getElementById("mwSort"); return el ? el.value : "urgent"; }
   function filtered() {
