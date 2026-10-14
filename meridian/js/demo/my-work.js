@@ -79,7 +79,7 @@
           '<label class="btn btn-secondary" for="' + id + '">' + esc(d[1]) + " (" + d[2] + ")</label>";
       }).join("") + "</div>";
     };
-    document.getElementById("mwChips").innerHTML = group(status, "Queue status") + '<span class="toolbar-list-divider" aria-hidden="true"></span>' + group(kinds, "Kind of work");
+    document.getElementById("mwChips").innerHTML = group(status, "Queue status") + group(kinds, "Kind of work");
   }
   function sortValue() { var el = document.getElementById("mwSort"); return el ? el.value : "urgent"; }
   function filtered() {
@@ -149,6 +149,8 @@
     var pages = Math.max(1, Math.ceil(list.length / pageSize));
     if (page > pages) page = pages;
     var shown = list.slice((page - 1) * pageSize, page * pageSize);
+    /* Toolbar count: how many of the open queue this filter shows (as the Requests toolbar's "Showing 4 of 4"). */
+    document.getElementById("mwShowing").textContent = "Showing " + list.length + " of " + (chip === "snoozed" ? snoozed().length : o.length);
     document.getElementById("mwQueueSummary").textContent = o.length + " items · " + o.filter(function (r) { return r.found; }).length + " found by CaseFusion · " + snoozed().length + " snoozed";
     document.getElementById("mwQueue").innerHTML = shown.map(rowHtml).join("") ||
       '<li class="list-group-item">' + emptyState(chip === "snoozed" ? "Nothing is snoozed" : "Nothing needs you",
