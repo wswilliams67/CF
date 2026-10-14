@@ -69,11 +69,11 @@
     var defs = [["open", "Open", o.length], ["found", "Found by CaseFusion", o.filter(function (r) { return r.found; }).length], ["snoozed", "Snoozed", snoozed().length]];
     ["GAP", "ANSWER", "DECIDE", "APPROVE", "CONFIRM", "REVIEW"].forEach(function (k) { defs.push([k, KIND[k], o.filter(function (r) { return r.chip === k; }).length]); });
     if (chip === "risk") defs.splice(1, 0, ["risk", "Preservation at risk", o.filter(function (r) { return r.locked; }).length]);
-    /* Two Nimbus toggle button groups (radio btn-check + button labels, single select, square: Scott 10-14): status
+    /* Two Nimbus toggle button groups (radio btn-check + button labels, single select, square, default size: Scott 10-14): status
        filters, then kinds, split by a toolbar divider. A filter with nothing in it is disabled, never hidden. */
     var status = defs.filter(function (d) { return !KIND[d[0]]; }), kinds = defs.filter(function (d) { return KIND[d[0]]; });
     var group = function (list, label) {
-      return '<div class="btn-group btn-group-sm" role="group" aria-label="' + label + '">' + list.map(function (d) {
+      return '<div class="btn-group" role="group" aria-label="' + label + '">' + list.map(function (d) {
         var id = "mwF-" + d[0], on = chip === d[0];
         return '<input type="radio" class="btn-check" name="mwFilter" id="' + id + '" value="' + d[0] + '" autocomplete="off"' + (on ? " checked" : "") + (d[2] || on ? "" : " disabled") + ">" +
           '<label class="btn btn-secondary" for="' + id + '">' + esc(d[1]) + " (" + d[2] + ")</label>";
