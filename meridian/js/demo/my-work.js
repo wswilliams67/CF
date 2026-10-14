@@ -250,9 +250,9 @@
   ["change", "valueChanged.cnds.select"].forEach(function (t) { document.getElementById("mwCasesSort").addEventListener(t, renderCases); });
   function renderWeek(all) {
     var wk = M.thisWeek.filter(function (w) { return access.cases.indexOf(w.caseId) !== -1; });
-    var total = wk.reduce(function (n, w) { return n + w.n; }, 0);
     var shown = all ? wk : wk.slice(0, 5);
-    document.getElementById("mwWeekCount").textContent = wk.length + " dates · " + total + " due";
+    /* PRD 11 §7.5: THIS WEEK · {n} dates (the PM's canvas has no "due" count). */
+    document.getElementById("mwWeekCount").textContent = wk.length + " date" + (wk.length === 1 ? "" : "s");
     document.getElementById("mwWeek").innerHTML = shown.map(function (w) {
       return '<li class="list-group-item"><div class="mw-row-week"><span class="fw-bold">' + esc(w.day) + "</span><div>" + esc(w.what) + '<div class="small text-muted">' + esc(M.caseById(w.caseId).name) + "</div></div>" +
         (w.warn ? '<i class="mdi mdi-alert-outline text-danger" title="Due today or at risk" aria-hidden="true"></i>' : "<i></i>") + "</div></li>";
