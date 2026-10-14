@@ -228,8 +228,9 @@
     return new Promise(function (resolve) {
       var discard = false;
       var m = modal({ title: "Discard Changes?", noGuard: true,
-        body: '<p class="mb-3">The information entered will be lost.</p>' +
-              '<p class="note note-warning note-sm mb-0">Discarded information cannot be recovered.</p>',
+        /* One plain paragraph, as in the CaseFusion cancel confirmation (Case file 22565:112650); title and
+           buttons follow the 09-30 discard pattern rather than that sample's "Please Confirm" / Cancel / Yes. */
+        body: '<p class="mb-0">All unsaved information will be lost. This action cannot be undone.</p>',
         footer: '<button type="button" class="btn btn-secondary" data-cnds-dismiss="modal">KEEP EDITING</button>' +
                 '<button type="button" class="btn btn-danger" data-demo-discard>DISCARD CHANGES</button>',
         onHidden: function () { resolve(discard); } });
