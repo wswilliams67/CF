@@ -146,11 +146,15 @@
             { id: "LH-0044", status: "Acknowledged", on: "2026-09-13",
               events: [["2026-09-12", "14:00", "Notification", "Claire Donovan", "Sent"], ["2026-09-13", "08:15", "Acknowledged", "Michael Torres", "Acknowledged"]] },
             { id: "LH-0052", status: "Silent", events: [["2026-08-20", "10:15", "Added to the silent legal hold", "Claire Donovan", "Tracked"]] }],
-      surveys: [{ id: "SUR-0012", status: "Answered", on: "2026-09-05",
-              events: [["2026-08-28", "09:00", "Survey", "Claire Donovan", "Sent"], ["2026-09-05", "10:30", "Answered · 1 personal device reported", "Michael Torres", "Answered"]] }],
+      /* Two surveys, as the canvas draws them: SUR-0012 overdue and reminded, SUR-0019 answered with a personal
+         device reported (the phone below). */
+      surveys: [{ id: "SUR-0012", status: "Not answered",
+              events: [["2026-08-28", "09:00", "Survey", "Claire Donovan", "Sent"], ["2026-09-08", "", "Due date passed", "CaseFusion", "Overdue"], ["2026-09-09", "09:00", "Reminder 1", "CaseFusion", "Sent"]] },
+                { id: "SUR-0019", status: "Answered", on: "2026-09-13",
+              events: [["2026-09-12", "14:00", "Survey", "Claire Donovan", "Sent"], ["2026-09-13", "08:20", "Answered · 1 personal device reported", "Michael Torres", "Answered"]] }],
       /* A location named in a survey answer that is not a source yet (PRD 08 CV44, PRD 02 L43): shown on custodian
          coverage as reported, counted in neither denominator. */
-      reported: [{ what: "Personal phone", from: "SUR-0012", kind: "Personal device", status: "Awaiting decision" }] },
+      reported: [{ what: "Personal phone", from: "SUR-0019", kind: "Personal device", status: "Awaiting decision" }] },
     { personId: "p-wong", added: "2026-08-20", addedFrom: "Search",
       lhn: [{ id: "LH-0031", status: "Acknowledged", on: "2026-08-28",
               events: [["2026-08-28", "09:00", "Notification", "CaseFusion · email and Teams", "Sent"], ["2026-08-28", "13:20", "Acknowledged", "Lisa Wong", "Acknowledged"]] },
@@ -694,10 +698,13 @@
     if (c.notRequiredWf && c.notRequiredWf.survey) out.survey = { state: "na", text: "N/A" };
     else if (!sv.length) out.survey = { state: "dash", text: "—" };
     else {
-      var s = sv[sv.length - 1];
+      /* As the notification cell: the worst open survey, not the latest (one answered survey does not cover an
+         overdue one). */
+      var s = sv.filter(function (x) { return x.status !== "Answered" && x.status !== "Sent"; })[0] || sv.filter(function (x) { return x.status === "Sent"; })[0] || sv[sv.length - 1];
       var answered = sv.filter(function (x) { return x.status === "Answered"; }).length;
       var sState = s.status === "Answered" ? "done" : s.status === "Sent" ? "progress" : "action";
       var sDetail = s.status === "Escalated" ? (s.reminders || 0) + " reminders · escalated" :
+        s.status === "Not answered" ? answered + " of " + sv.length + " answered · overdue" :
         s.status === "Sent" ? "due " + M.fmtDate(s.due).replace(/ \d{4}$/, "") : answered + " of " + sv.length;
       out.survey = { state: sState, text: s.status, detail: sDetail };
     }
