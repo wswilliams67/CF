@@ -387,7 +387,7 @@
     return { n: src.length, kinds: kinds, from: Object.keys(reqs).join(", ") || "—" };
   }
   function openRelease(startIds) {
-    var chip = "selected", ticked = {}, reason = "", notice = "standard";
+    var chip = "selected", ticked = {}, reason = "", notice = "standard", sendTo = true;
     var candidates = function () {
       if (chip === "all") return custodians;
       if (chip === "departed") return custodians.filter(function (c) { return person(c).departed; });
@@ -430,8 +430,11 @@
         '<p class="small text-muted">' + on.length + " selected · " + holds + " legal hold" + (holds === 1 ? "" : "s") + (left.length ? " · " + left.length + " custodian" + (left.length === 1 ? " is" : "s are") + " held on another case and " + (left.length === 1 ? "is" : "are") + " left out." : ".") + "</p>" +
         '<div class="cf-category cf-cat-6 highlight-casefusion">Release Notice</div>' +
         '<div class="row g-3 mb-3"><div class="col-md-6">' + D.select("cvRelNotice", [["standard", "Standard Release Notice"], ["retention", "Release Notice with Retention Reminder"], ["none", "No Notice"]], notice, "Notice", { container: "#" + m.id }) +
-          '</div><div class="col-md-6 small text-muted">Send to the ' + notified.length + " custodian" + (notified.length === 1 ? " who was" : "s who were") + " notified." +
-          (silentOnly.length ? "<br>" + esc(silentOnly.map(function (c) { return D.nameFor(person(c)); }).join(", ")) + " " + (silentOnly.length === 1 ? "is" : "are") + " on a silent legal hold and receive" + (silentOnly.length === 1 ? "s" : "") + " nothing." : "") + "</div></div>" +
+          /* Who gets the notice is a choice, as in the canvas (ReleaseLegalHold.dc.html): checked by default, unchecked and
+             disabled under No Notice. A silent-hold custodian is named as receiving nothing. */
+          '</div><div class="col-md-6"><div class="form-check mt-md-4"><input type="checkbox" class="form-check-input" id="cvRelSend"' + (sendTo && notice !== "none" ? " checked" : "") +
+            (notice === "none" || !notified.length || readOnly ? " disabled" : "") + ' /><label class="form-check-label" for="cvRelSend">Send to the ' + notified.length + " custodian" + (notified.length === 1 ? " who was" : "s who were") + " notified</label>" +
+          (silentOnly.length ? '<span class="d-block small text-muted">' + esc(silentOnly.map(function (c) { return D.nameFor(person(c)); }).join(", ")) + " " + (silentOnly.length === 1 ? "is" : "are") + " on a silent legal hold and receive" + (silentOnly.length === 1 ? "s" : "") + " nothing.</span>" : "") + "</div></div></div>" +
         '<div class="cf-input-field cf-input-field-casefusion mb-3"><label class="cf-input-label" for="cvRelReason">Reason <span class="cf-input-required">*</span></label>' +
           '<div class="cf-input-wrapper"><input type="text" id="cvRelReason" class="cf-input-control" value="' + esc(reason) + '"' + (readOnly ? " disabled" : "") + " /></div>" +
           '<div class="cf-input-helper"><span class="cf-input-helper-text">Say why. The reason is kept with the case.</span></div></div>' +
@@ -458,7 +461,8 @@
     function onChange(e) {
       var pid = e.target.getAttribute && e.target.getAttribute("data-tick");
       if (pid) { ticked[pid] = e.target.checked; draw(); }
-      if (e.target.id === "cvRelNotice") notice = e.target.value;
+      if (e.target.id === "cvRelNotice" && notice !== e.target.value) { notice = e.target.value; draw(); }
+      if (e.target.id === "cvRelSend") sendTo = e.target.checked;
     }
     m.el.addEventListener("change", onChange);
     m.el.addEventListener("valueChanged.cnds.select", onChange);
@@ -471,11 +475,13 @@
       if (a === "none") { ticked = {}; draw(); }
       if (a === "release" || a === "cleanup") {
         var on = candidates().filter(function (c) { return ticked[c.personId]; });
+        var told = sendTo && notice !== "none" ? on.filter(function (c) { return (c.lhn || []).some(function (n) { return n.status !== "Silent"; }); }).length : 0;
         on.forEach(function (c) { c.released = TODAY; });
         selected = {};
         m.hide();
         if (a === "cleanup") { window.location.href = "not-in-demo.html?what=Data+cleanup+request"; return; }
-        D.toast(on.length + " custodian" + (on.length === 1 ? "" : "s") + " released from legal hold. Their sources stay preserved.");
+        D.toast(on.length + " custodian" + (on.length === 1 ? "" : "s") + " released from legal hold. Their sources stay preserved." +
+          (told ? " Release notice sent to " + told + "." : " No release notice was sent."));
         render();
       }
     });
