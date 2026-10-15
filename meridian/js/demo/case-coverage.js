@@ -715,15 +715,17 @@
     var c = byPid(panelId), p = person(c), v = cov(c), ok = seen(c);
     var keep = panel.el.querySelector(".offcanvas-body"), top = keep ? keep.scrollTop : 0;
     /* Summary strip: one card, the five workflows divided by blurry rules, each a label over its state. */
-    /* Each column is the contents entry for its drawer: it opens the drawer and scrolls to it. A workflow that needs
-       action takes the danger emphasis, as the NEEDS ATTENTION tiles do. A limited profile has no drawers, so its
-       strip is plain text. */
-    var strip = '<div class="card card-basic cv-strip mb-3"><div class="card-body">' + [["lhn", "Legal Hold Notification", v.lhn], ["survey", "Survey", v.survey], ["interview", "Interview", v.interview], ["preservation", "Preservation", v.preservation], ["collection", "Collection", v.collection]].map(function (x) {
-      var attn = x[2].state === "action" ? " cv-strip-attn" : "", inner = '<span class="demo-label mb-0">' + x[1] + '</span><span class="cv-value">' + esc(x[2].text) + "</span>" +
-        '<span class="cv-meta text-muted">' + esc(x[2].state === "dash" ? "Not expected" : x[2].detail || "") + "</span>";
-      return ok ? '<button type="button" class="cv-strip-item' + attn + '" data-cv-jump="' + x[0] + '" aria-label="' + esc(x[1] + ": " + x[2].text + ". Open its section") + '">' + inner + "</button>" :
-        '<div class="cv-strip-item' + attn + '">' + inner + "</div>";
-    }).join('<div class="vr vr-blurry" aria-hidden="true"></div>') + "</div></div>";
+    /* Summary cards, the Hold Status pattern (Scott, 10-15): one card per workflow, each opening its drawer. A
+       workflow that needs action is the danger outline card. A limited profile has no drawers, so its cards are
+       plain, not buttons. Values are words (Not acknowledged), so they take 16px, not the 24.5px of a count. */
+    var strip = '<div class="demo-tiles cv-ptiles" role="group" aria-label="Workflows">' + [["lhn", "Legal Hold Notification", v.lhn], ["survey", "Survey", v.survey], ["interview", "Interview", v.interview], ["preservation", "Preservation", v.preservation], ["collection", "Collection", v.collection]].map(function (x) {
+      var danger = x[2].state === "action";
+      var inner = '<span class="card-subtitle demo-tile-name">' + x[1] + '</span><span class="card-title demo-tile-value">' + esc(x[2].text) + "</span>" +
+        '<span class="card-text demo-tile-label">' + esc(x[2].state === "dash" ? "Not expected" : x[2].detail || "") + "</span>";
+      var cls = "card " + (danger ? "card-outline card-danger" : "card-basic") + " demo-tile";
+      return ok ? '<button type="button" class="' + cls + '" data-cv-jump="' + x[0] + '"' + (danger ? ' data-tone="danger" aria-pressed="false"' : "") + ">" + inner + "</button>" :
+        '<div class="' + cls + '">' + inner + "</div>";
+    }).join("") + "</div>";
     if (!ok) {
       /* The monogram carries the lock (no photo: a photo is a profile detail), sized as the 42px photo avatar, so the name line does not repeat it; normal style, no italics (Scott, 10-14). */
       panel.setBody('<div class="cv-scope"><div class="d-flex align-items-center gap-3 mb-3"><span class="monogram demo-avatar">' + LOCK + '</span><div><div class="h5 mb-0 demo-masked">Profile details limited</div>' +
