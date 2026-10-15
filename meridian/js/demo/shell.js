@@ -463,6 +463,12 @@
     reasonDialog: reasonDialog,
     esc: esc,
     initials: initials,
+    /** A person's profile photo as a 52px Nimbus avatar (Nimbus/Avatar Mode=Avatar, Size=52px, Border=Yes);
+        the initials monogram when the person has no photo. Callers show a limited profile's lock monogram instead. */
+    avatar: function (p) {
+      return M.avatars[p.id] ? '<img class="demo-avatar" src="../img/avatars/' + p.id + '.jpg" alt="' + esc(p.name) + ' profile photo" width="52" height="52" />' :
+        '<span class="monogram demo-avatar">' + esc(initials(p.name)) + "</span>";
+    },
     viewer: viewer,
     /** True when the demo viewer holds this role ("Case Administrator", "Case User", …). */
     hasRole: function (r) { return viewer().roles.indexOf(r) !== -1; },

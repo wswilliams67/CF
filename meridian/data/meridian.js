@@ -75,6 +75,20 @@
     { id: "p-lindqvist", name: "Tessa Lindqvist", title: "Clinical Project Manager (guest)", dept: "Lakeshore CRO",      region: null,  location: "Guest",             upn: "tessa.lindqvist", guest: "lakeshore-cro.example" }
   ];
 
+  /* Profile photos: one Nimbus v1 avatar per person (Figma jThQfXbV5iVOpE6cGmASCj, frame 4759:166 "Avatars"),
+     exported 256px to img/avatars/<person id>.jpg. No two people share one; gender follows the name.
+     Lena Hoffmann keeps Avatar57, her persona photo in the Regional Access file. Limited profiles never show these. */
+  M.avatars = {
+    "p-donovan": "Avatar7-F-WHT-Y",   "p-brooks": "Avatar101-M-BLK-Y",  "p-hoffmann": "Avatar57-F-WHT-A",
+    "p-reyes": "Avatar72-F-LAT-A",    "p-okonkwo": "Avatar82-F-BLK-E",  "p-kruger": "Avatar161-M-WHT-A",
+    "p-fitzgerald": "Avatar162-M-WHT-A", "p-marsh": "Avatar84-F-WHT-E", "p-whitaker": "Avatar107-M-WHT-Y",
+    "p-vasquez": "Avatar71-F-LAT-A",  "p-torres": "Avatar175-M-LAT-A",  "p-wong": "Avatar16-F-EAS-Y",
+    "p-bauer": "Avatar83-F-WHT-E",    "p-park": "Avatar122-M-EAS-Y",    "p-ellis": "Avatar189-M-WHT-E",
+    "p-chen": "Avatar62-F-EAS-A",     "p-webb": "Avatar159-M-BLK-A",    "p-kohler": "Avatar188-M-WHT-E",
+    "p-nair": "Avatar52-F-IND-Y",     "p-okafor": "Avatar160-M-BLK-A",  "p-weber": "Avatar13-F-WHT-Y",
+    "p-vogt": "Avatar9-F-WHT-Y",      "p-lindqvist": "Avatar10-F-WHT-Y"
+  };
+
   /* ── Cases. One case per request (the case barrier). ──────────────── */
   M.cases = [
     { id: "MBP-0926", name: "Veltrazine Product Liability", region: "US", category: "Legal", status: "Open",
