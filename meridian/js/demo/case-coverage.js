@@ -1140,7 +1140,7 @@
   /* RECORD ACKNOWLEDGMENT: an acknowledgment made outside CaseFusion, recorded as the custodian's, entered by the viewer. */
   function recordAck(c, id) {
     var n = instance(c, id);
-    formDrawer("Record acknowledgment · " + id, esc(person(c).name) + " acknowledged outside CaseFusion. It is recorded as acknowledged by " + esc(person(c).name) + " and entered by " + esc(me()) + ".",
+    formDrawer("Record acknowledgment · " + id, "For an acknowledgment given outside CaseFusion, by email, phone or in person. When saved, " + esc(id) + " is recorded as acknowledged by " + esc(person(c).name) + " and entered by " + esc(me()) + ".",
       dateField("cvAckDate", "Date", M.fmtDate(TODAY)) + timeField("cvAckTime", "Time", "09:30") +
       D.select("cvAckHow", [["Email reply", "Email reply"], ["Signed form", "Signed form"], ["Verbal, in a meeting", "Verbal, in a meeting"]], "Email reply", "How", { cls: "mb-3" }) + noteField("cvAckNote"),
       function (val) {
