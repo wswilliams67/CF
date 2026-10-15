@@ -544,6 +544,7 @@
     /* Only a Case Administrator may release (PRD 08 CV72). A Case User sees the same dialog read-only: the selection,
        the holds, what stays preserved and the exclusions, with every control disabled and the reason stated. */
     var readOnly = !D.hasRole("Case Administrator");
+    var stacked = !!document.querySelector(".offcanvas.show");  /* opened from the custodian panel: BACK, not CANCEL */
     var m = D.offcanvas({ title: "Release from legal hold", width: "70vw", body: "", footer: " " });
     m.el.classList.add("cv-scope");  /* page type rules (12px .small) reach this flyout (Scott, 10-14) */
     var tbl = function (head, body) { return '<div class="table-responsive mb-3"><table class="table align-middle mb-0"><thead><tr>' + head.map(function (h) { return '<th scope="col">' + h + "</th>"; }).join("") + "</tr></thead><tbody>" + body + "</tbody></table></div>"; };
@@ -557,7 +558,7 @@
       m.el.querySelector(".offcanvas-title").textContent = "Release from legal hold · " + plural(on.length, "custodian");
       m.el.querySelector(".offcanvas-body").innerHTML =
         '<div class="d-flex align-items-center flex-wrap gap-2 mb-2"><ul class="nav nav-pills nav-pills-nimbus nav-pills-casefusion" role="group" aria-label="Who to show">' +
-          [["all", "All on This Case", custodians.length], ["selected", "Selected on Coverage", startIds.length], ["departed", "Departed", custodians.filter(function (c) { return person(c).departed; }).length]].map(function (x) {
+          [["all", "All on This Case", custodians.length], ["selected", stacked ? "This Custodian" : "Selected on Coverage", startIds.length], ["departed", "Departed", custodians.filter(function (c) { return person(c).departed; }).length]].map(function (x) {
             return '<li class="nav-item"><button type="button" class="nav-link' + (chip === x[0] ? " active" : "") + '" data-chip="' + x[0] + '" aria-pressed="' + (chip === x[0]) + '">' + x[1] + ' <span class="nav-pill-badge">' + x[2] + "</span></button></li>"; }).join("") +
           '</ul><span class="ms-auto"><button type="button" class="btn btn-tertiary btn-sm" data-rel="all"' + (readOnly ? " disabled" : "") + '>SELECT ALL</button><button type="button" class="btn btn-tertiary btn-sm" data-rel="none"' + (readOnly ? " disabled" : "") + ">CLEAR</button></span></div>" +
         tbl(["", "Custodian", "Legal Holds", "After Release"], list.map(function (c) {
@@ -595,7 +596,7 @@
       m.el.querySelector(".offcanvas-footer").innerHTML = (readOnly ?
           '<span class="small cv-meta cv-footer-note text-warning-emphasis fw-bold">Read only: only a Case Administrator can release custodians from a legal hold.</span>' :
           '<span class="small text-muted cv-meta cv-footer-note">The cleanup request opens with these custodians\' sources selected and the reason Custodian released from legal hold.</span>') +
-        '<button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas">' + (readOnly ? "CLOSE" : "CANCEL") + "</button>" +
+        '<button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas">' + (stacked ? "BACK" : readOnly ? "CLOSE" : "CANCEL") + "</button>" +
         '<button type="button" class="btn btn-secondary" data-rel="release"' + (ok ? "" : " disabled") + ">RELEASE ONLY</button>" +
         '<button type="button" class="btn btn-primary" data-rel="cleanup"' + (ok ? "" : " disabled") + ">RELEASE AND CREATE CLEANUP REQUEST</button>";
       if (window.Nimbus && Nimbus.Select) Nimbus.Select.initAll(m.el);
@@ -1324,7 +1325,8 @@
     if (a === "panel-top" && panel) panel.el.querySelector(".offcanvas-body").scrollTo({ top: 0, behavior: REDUCE ? "auto" : "smooth" });
     if (a === "panel-prev") stepPanel(-1);
     if (a === "panel-next") stepPanel(1);
-    if (a === "panel-release") { var pid = panelId; panel.hide(); openRelease([pid]); }
+    /* Stacked over the custodian panel, which stays open: BACK returns to it (Scott, 10-15). */
+    if (a === "panel-release") { openRelease([panelId]); }
   });
   /* The clear (X) is an icon with role="button": Enter and Space work as a click. */
   document.addEventListener("keydown", function (e) {
