@@ -77,7 +77,8 @@
       tile("fully", b.fully.length, "Fully Covered", "Every workflow complete") +
       tile("progress", b.progress.length, "In Progress", "Something outstanding, nothing late") +
       tile("action", b.action.length, "Action Needed", actionSubline(b.action)) +
-      '<span class="cv-gap-sep" aria-hidden="true"></span>' +
+      /* DATA GAPS counts sources, not custodians: a Nimbus blurry divider sets it apart (PRD 08 §7.1; design decision 18). */
+      '<div class="vr vr-blurry cv-gap-sep" aria-hidden="true"></div>' +
       tile("gaps", gaps, "Data Gaps", "Sources not preserved or collected", "Sources");
   }
   /* Data gaps follow the in-memory custodians (a source marked not required leaves the count). */
