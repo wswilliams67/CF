@@ -148,6 +148,7 @@
     if (NS) foot.querySelectorAll("select[data-cnds-select-init]").forEach(function (x) { var i = NS.getInstance(x); if (i) i.dispose(); });
     foot.innerHTML = rows.length ? D.pager("cv", rows.length, page, pageSize, "Custodians per page:") : "";
     if (NS) NS.initAll(foot);
+    renderNonCustodial();
     var all = document.getElementById("cvAll");
     all.checked = rows.length > 0 && rows.every(function (c) { return selected[c.personId]; });
     all.indeterminate = !all.checked && rows.some(function (c) { return selected[c.personId]; });
@@ -199,8 +200,21 @@
   /* ── Non-custodial held sources (Nimbus table) ──────────────────────── */
   /* A request ID is a link to the Requests tab whenever the request exists, so one column never mixes links and text. */
   function reqLink(id) { return !id ? '<span class="text-muted">—</span>' : M.requests.some(function (r) { return r.id === id; }) ? '<a href="case-requests.html">' + esc(id) + "</a>" : esc(id); }
+  /* DATA GAPS counts sources, so it filters both tables (design decision 12): the custodian grid to the custodians
+     with a gap source, and this table to its own gap sources; a note above the grid adds the two up. */
+  function gapsOn() { return tileFilter === "gaps" || val("cvFilter") === "gaps"; }
   function renderNonCustodial() {
-    var rows = M.sources.filter(function (s) { return !s.owner && !s.pending; });
+    var all = M.sources.filter(function (s) { return !s.owner && !s.pending; });
+    var gapIds = {}; gapSources().forEach(function (s) { gapIds[s.id] = true; });
+    var rows = gapsOn() ? all.filter(function (s) { return gapIds[s.id]; }) : all;
+    document.getElementById("cvNcNote").textContent = gapsOn() ? rows.length + " of " + all.length + " sources are data gaps." : "No single custodian, so they are counted once for the case.";
+    var note = document.getElementById("cvGapNote");
+    note.hidden = !gapsOn();
+    if (gapsOn()) {
+      var g = gapSources(), onC = g.filter(function (s) { return s.owner; }), owners = {};
+      onC.forEach(function (s) { owners[s.owner] = true; });
+      note.textContent = g.length + " gap sources: " + onC.length + " on the " + Object.keys(owners).length + " custodians below · " + (g.length - onC.length) + " non-custodial, in Non-Custodial Held Sources.";
+    }
     var pres = function (s) {
       var m = { "Applied": ["On hold", "success"], "Attested": ["Attested", "info"], "Partial": ["Partial", "warning"], "Unknown": ["Not confirmed", "danger"] }[s.hold] || [s.hold, "light"];
       return '<span class="badge badge-pill badge-verbatim badge-' + m[1] + '">' + m[0] + "</span>";
