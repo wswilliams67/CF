@@ -1130,8 +1130,8 @@
       "<h4>CONFIDENTIALITY</h4><p>This Legal Hold is <strong>CONFIDENTIAL</strong>. Discuss it only with:</p>" + li(["Legal Department personnel", "Your manager (for time or resource concerns)", "IT personnel assisting with preservation"]) +
       "<h4>ASSISTANCE AND QUESTIONS</h4><p><strong>Legal Department Contact:</strong> Meridian Biopharma Legal</p><p><strong>IT Support Contact:</strong> Meridian IT Service Desk</p>" +
       "<h4>DURATION OF HOLD</h4><p>This hold remains in effect until written notice of release is provided. You will receive periodic reminders.</p>" +
-      '<h4>ACKNOWLEDGMENT REQUIRED</h4><p>You must acknowledge receipt and understanding of this notice by opening the Acknowledge link below.</p><p><a href="not-in-demo.html?what=Legal+hold+acknowledgment+portal">Acknowledge</a></p>' +
-      "<p>By opening “Acknowledge,” you confirm:</p>" + li(["You have read and understand this Legal Hold Notice.", "You will comply with preservation requirements.",
+      '<h4>ACKNOWLEDGMENT REQUIRED</h4><p>You must acknowledge receipt and understanding of this notice by clicking the Acknowledge link below.</p><p><a href="not-in-demo.html?what=Legal+hold+acknowledgment+portal">Acknowledge</a></p>' +
+      "<p>By clicking “Acknowledge,” you confirm:</p>" + li(["You have read and understand this Legal Hold Notice.", "You will comply with preservation requirements.",
         "You will contact the Legal Department if you have questions.", "You understand your legal obligation to preserve relevant information."]) + "</div>";
   }
   function viewHold(id) {
