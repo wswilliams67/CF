@@ -141,7 +141,8 @@
         "<td>" + cell(v.lhn) + "</td><td>" + cell(v.survey) + "</td><td>" + cell(v.interview) + "</td>" +
         "<td>" + cell(v.preservation, v.preservation.state === "action" || v.preservation.state === "progress" ? "case-hold-status.html" : null) + "</td>" +
         "<td>" + cell(v.collection) + "</td>" +
-        '<td><button type="button" class="btn btn-tertiary btn-sm" data-open="' + c.personId + '">OPEN</button></td></tr>';
+        /* A blurry divider sets the row action apart from the data, as in every record row (design decision 16). */
+        '<td class="cv-row-action"><div class="vr vr-blurry" aria-hidden="true"></div><button type="button" class="btn btn-tertiary btn-sm" data-open="' + c.personId + '">OPEN</button></td></tr>';
     }).join("") || '<tr><td colspan="8">' + empty("No custodians match this filter", "Change the search or the filters to see more custodians.") + "</td></tr>";
     /* Pager under the grid: its range is the grid's count, so the toolbar carries none (design decision 10). Nimbus
        selects are disposed before their markup is replaced. */
