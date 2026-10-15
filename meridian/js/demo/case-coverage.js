@@ -516,8 +516,14 @@
   var TONE = { Sent: "success", Acknowledged: "success", Answered: "success", Tracked: "secondary", Escalated: "danger", "Not answered": "warning",
     Overdue: "warning", Scheduled: "info", Rescheduled: "info", Complete: "success" };
   /* A timeline (CV41): date · event · actor · outcome, one list row each. Solid row dividers, none under the last. */
-  function timeline(events) {
-    return '<ul class="list-group list-group-flush cv-tl">' + (events || []).map(function (e) {
+  /* A long timeline shows its last three events; SHOW N EARLIER reveals the rest, and the choice holds while the
+     panel is open (CV41: the history stays one click away). */
+  var tlOpen = {};
+  function timeline(events, key) {
+    var list = events || [], hide = list.length > 3 && !tlOpen[key] ? list.length - 3 : 0;
+    var more = list.length > 3 ? '<li class="list-group-item cv-tl-more"><button type="button" class="btn btn-tertiary btn-sm" data-cv-tl="' + key + '" aria-expanded="' + !hide + '">' +
+      (hide ? "SHOW " + hide + " EARLIER" : "HIDE EARLIER") + "</button></li>" : "";
+    return '<ul class="list-group list-group-flush cv-tl">' + more + list.slice(hide).map(function (e) {
       return '<li class="list-group-item"><span class="cv-tl-when">' + esc(M.fmtDateTime(e[0], e[1])) + '</span><span class="cv-tl-what">' + esc(e[2]) +
         '</span><span class="cv-tl-who text-muted">' + esc(e[3]) + "</span>" + badgeHtml(e[4], TONE[e[4]] || "light") + "</li>";
     }).join("") + "</ul>";
@@ -533,10 +539,11 @@
      instance, stacked 8px apart. Header band: reference link, name, status badge, and the aside at the right
      (recipients, due date); then its timeline (CV41); its actions small tertiary at the bottom right. */
   function tile(o) {
-    return '<div class="card card-basic cv-tile"><div class="cv-tile-head"><a href="' + o.href + '" class="fw-bold">' + esc(o.id) + "</a>" +
+    /* The reference opens what the tile's own VIEW action opens, so one object opens one way (o.view). */
+    return '<div class="card card-basic cv-tile"><div class="cv-tile-head">' + (o.view ? '<a href="#" class="fw-bold" ' + o.view + ">" + esc(o.id) + "</a>" : '<a href="' + o.href + '" class="fw-bold">' + esc(o.id) + "</a>") +
       '<span class="cv-tile-name">' + esc(o.title) + "</span>" + o.badge + '<span class="cv-meta text-muted ms-auto">' + esc(o.aside || "") + "</span></div>" +
       /* A blurry rule sets the tile's actions apart from its timeline rows (Scott, 10-15). */
-      '<div class="cv-tile-body">' + timeline(o.events) + (o.acts ? '<hr class="hr hr-blurry cv-tile-rule" aria-hidden="true" /><div class="card-actions justify-content-end">' + o.acts + "</div>" : "") + "</div></div>";
+      '<div class="cv-tile-body">' + timeline(o.events, panelId + ":" + o.id) + (o.acts ? '<hr class="hr hr-blurry cv-tile-rule" aria-hidden="true" /><div class="card-actions justify-content-end">' + o.acts + "</div>" : "") + "</div></div>";
   }
   function tiles(list) { return '<div class="cv-tile-stack">' + list.join("") + "</div>"; }
   /* Identity: the record's name (14px bold), then a 12px line; `sub` is HTML (a reference link, inline so only its
@@ -552,7 +559,7 @@
   function drawer(key, title, summary, body, acts, quiet) {
     var open = key in secOpen ? secOpen[key] : !quiet;
     return '<section class="card card-basic card-drawer demo-drawer cv-drawer" aria-labelledby="cvSecH-' + key + '"><div class="card-body">' +
-      '<div class="card-top demo-drawer-top"><h3 class="cf-category cf-cat-6 highlight-casefusion mb-0 flex-grow-1" id="cvSecH-' + key + '">' + esc(title) + "</h3>" +
+      '<div class="card-top demo-drawer-top"><h4 class="cf-category cf-cat-6 highlight-casefusion mb-0 flex-grow-1" id="cvSecH-' + key + '">' + esc(title) + "</h4>" +
         '<span class="cv-meta text-muted cv-sec-sum">' + esc(summary) + "</span>" +
         '<button type="button" class="card-drawer-toggle" data-cv-sec="' + key + '" aria-expanded="' + open + '" aria-controls="cvSec-' + key + '" aria-label="' + (open ? "Collapse " : "Expand ") + esc(title) + '">' +
         '<i class="mdi mdi-chevron-up mdi-24px" aria-hidden="true"></i></button></div>' +
@@ -601,7 +608,7 @@
       var acts = silent ? btn("VIEW LEGAL HOLD", 'data-cv-view-lh="' + n.id + '"') + link("REMOVE FROM LEGAL HOLD", "not-in-demo.html?what=Remove+from+legal+hold&amp;ships=1") :
         n.status === "Acknowledged" ? btn("VIEW NOTIFICATION", 'data-cv-view-lh="' + n.id + '"') :
         btn("SEND REMINDER", 'data-cv-remind="' + n.id + '"') + btn("RESEND NOTIFICATION", 'data-cv-resend="' + n.id + '"') + btn("RECORD ACKNOWLEDGMENT", 'data-cv-ack="' + n.id + '"');
-      return tile({ id: n.id, href: "not-in-demo.html?what=Legal+hold+" + n.id + "&amp;ships=1", title: h.title, badge: badge,
+      return tile({ id: n.id, view: 'data-cv-view-lh="' + n.id + '"', title: h.title, badge: badge,
         aside: silent ? "Nothing sent to the custodian" : "Sent to " + plural(to, "custodian"), events: n.events, acts: acts });
     });
     var body = rows.length ? tiles(rows) : empty("No legal hold notification", "No legal hold notification has been sent to this custodian.");
@@ -633,7 +640,9 @@
       var reported = (x.events || []).some(function (e) { return /reported/.test(e[2]); });
       var badge = done ? badgeHtml("Answered", "success") : x.status === "Sent" ? badgeHtml("Sent", "info") : badgeHtml("Not answered", "danger");
       var acts = done ? link("VIEW ANSWERS", "not-in-demo.html?what=Survey+answers&amp;ships=1") + (reported ? link("ADD REPORTED LOCATION", "case-add-sources.html") : "") :
-        btn("SEND REMINDER", 'data-cv-remind="' + x.id + '"') + link("VIEW SURVEY", "not-in-demo.html?what=Survey+" + x.id + "&amp;ships=1") + btn("MARK NOT REQUIRED", 'data-cv-nr="survey"');
+        /* No MARK NOT REQUIRED here: not required covers the survey workflow for this custodian (CV14), which is the
+           footer's action; a second copy on each survey read as a per-survey choice that doesn't exist. */
+        btn("SEND REMINDER", 'data-cv-remind="' + x.id + '"') + link("VIEW SURVEY", "not-in-demo.html?what=Survey+" + x.id + "&amp;ships=1");
       return tile({ id: x.id, href: "not-in-demo.html?what=Survey+" + x.id + "&amp;ships=1", title: def.title + " · " + def.questions + " questions", badge: badge,
         aside: done ? "Answered " + short(x.on) : "Due " + short(x.due || def.due), events: x.events, acts: acts });
     });
@@ -706,9 +715,14 @@
     var c = byPid(panelId), p = person(c), v = cov(c), ok = seen(c);
     var keep = panel.el.querySelector(".offcanvas-body"), top = keep ? keep.scrollTop : 0;
     /* Summary strip: one card, the five workflows divided by blurry rules, each a label over its state. */
-    var strip = '<div class="card card-basic cv-strip mb-3"><div class="card-body">' + [["Legal Hold Notification", v.lhn], ["Survey", v.survey], ["Interview", v.interview], ["Preservation", v.preservation], ["Collection", v.collection]].map(function (x) {
-      return '<div class="cv-strip-item"><span class="demo-label mb-0">' + x[0] + '</span><span class="cv-value">' + esc(x[1].text) + "</span>" +
-        '<span class="cv-meta text-muted">' + esc(x[1].state === "dash" ? "Not expected" : x[1].detail || "") + "</span></div>";
+    /* Each column is the contents entry for its drawer: it opens the drawer and scrolls to it. A workflow that needs
+       action takes the danger emphasis, as the NEEDS ATTENTION tiles do. A limited profile has no drawers, so its
+       strip is plain text. */
+    var strip = '<div class="card card-basic cv-strip mb-3"><div class="card-body">' + [["lhn", "Legal Hold Notification", v.lhn], ["survey", "Survey", v.survey], ["interview", "Interview", v.interview], ["preservation", "Preservation", v.preservation], ["collection", "Collection", v.collection]].map(function (x) {
+      var attn = x[2].state === "action" ? " cv-strip-attn" : "", inner = '<span class="demo-label mb-0">' + x[1] + '</span><span class="cv-value">' + esc(x[2].text) + "</span>" +
+        '<span class="cv-meta text-muted">' + esc(x[2].state === "dash" ? "Not expected" : x[2].detail || "") + "</span>";
+      return ok ? '<button type="button" class="cv-strip-item' + attn + '" data-cv-jump="' + x[0] + '" aria-label="' + esc(x[1] + ": " + x[2].text + ". Open its section") + '">' + inner + "</button>" :
+        '<div class="cv-strip-item' + attn + '">' + inner + "</div>";
     }).join('<div class="vr vr-blurry" aria-hidden="true"></div>') + "</div></div>";
     if (!ok) {
       /* The monogram carries the lock (no photo: a photo is a profile detail), sized as the 42px photo avatar, so the name line does not repeat it; normal style, no italics (Scott, 10-14). */
@@ -743,17 +757,34 @@
     if (!panel) {
       panel = D.offcanvas({ title: "Custodian coverage", width: "90vw", body: "",
         /* Previous and next are equal actions, so both are secondary: no primary in this footer (Scott, 10-14). */
-        footer: '<button type="button" class="btn btn-secondary" data-cv="panel-prev">PREVIOUS CUSTODIAN</button><button type="button" class="btn btn-secondary" data-cv="panel-next">NEXT CUSTODIAN</button>',
+        footer: '<span class="cv-meta text-muted me-auto" id="cvPanelPos" aria-live="polite"></span><button type="button" class="btn btn-secondary" data-cv="panel-prev">PREVIOUS CUSTODIAN</button><button type="button" class="btn btn-secondary" data-cv="panel-next">NEXT CUSTODIAN</button>',
         onHidden: function () { panel = null; panelId = null; } });
     }
-    renderPanel();
+    renderPanel(); panelPos();
     var b = panel.el.querySelector(".offcanvas-body"); if (b) b.scrollTop = 0;
   }
+  /* PREVIOUS / NEXT walk the grid's current filter. The panel crossfades between custodians, as the grid does
+     between views (0.15s out, then in); no motion under reduced motion. */
   function stepPanel(dir) {
     var list = custodians.filter(matches);
     if (!list.length) return;
     var i = list.map(function (c) { return c.personId; }).indexOf(panelId);
-    openPanel(list[(i + dir + list.length) % list.length].personId);
+    var next = list[(i + dir + list.length) % list.length].personId, body = panel.el.querySelector(".offcanvas-body");
+    if (REDUCE || !body) { openPanel(next); return; }
+    body.classList.add("cv-step-out");
+    setTimeout(function () { openPanel(next); body.classList.remove("cv-step-out"); }, 150);
+  }
+  /* "3 of 9 custodians": where this custodian sits in the grid's current filter. */
+  function panelPos() {
+    var el = document.getElementById("cvPanelPos"), list = custodians.filter(matches), i = list.map(function (c) { return c.personId; }).indexOf(panelId);
+    if (el) el.textContent = i === -1 ? "Not in the current filter" : (i + 1) + " of " + list.length + " custodian" + (list.length === 1 ? "" : "s");
+  }
+  /* From the summary strip: open the workflow's drawer (if shut) and bring it to the top of the panel. */
+  function jumpTo(k) {
+    var btnEl = panel.el.querySelector('[data-cv-sec="' + k + '"]');
+    if (btnEl && btnEl.getAttribute("aria-expanded") !== "true") toggleSection(btnEl);
+    var h = document.getElementById("cvSecH-" + k);
+    if (h) h.closest("section").scrollIntoView({ block: "start", behavior: REDUCE ? "auto" : "smooth" });
   }
   /* A drawer opens or shuts with Nimbus Collapse (the shell keeps the chevron's label in step); the choice holds for
      the next custodian. */
@@ -936,9 +967,11 @@
     if (t.hasAttribute("data-send-survey")) { sendSurvey(t.getAttribute("data-send-survey"), one); return; }
     /* Custodian coverage: drawers, instance actions and the stacked drawers they open. */
     if (t.hasAttribute("data-cv-sec")) { toggleSection(t); return; }
+    if (t.hasAttribute("data-cv-tl")) { var tk = t.getAttribute("data-cv-tl"); tlOpen[tk] = !tlOpen[tk]; renderPanel(); return; }
+    if (t.hasAttribute("data-cv-jump")) { jumpTo(t.getAttribute("data-cv-jump")); return; }
     var pc = panelId && byPid(panelId);
     if (pc) {
-      if (t.hasAttribute("data-cv-view-lh")) { viewHold(t.getAttribute("data-cv-view-lh")); return; }
+      if (t.hasAttribute("data-cv-view-lh")) { e.preventDefault(); viewHold(t.getAttribute("data-cv-view-lh")); return; }
       if (t.hasAttribute("data-cv-remind")) { remind(pc, t.getAttribute("data-cv-remind")); return; }
       if (t.hasAttribute("data-cv-resend")) { resend(pc, t.getAttribute("data-cv-resend")); return; }
       if (t.hasAttribute("data-cv-ack")) { recordAck(pc, t.getAttribute("data-cv-ack")); return; }
