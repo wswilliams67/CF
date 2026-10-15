@@ -1,22 +1,70 @@
 /* ═══════════════════════════════════════════════════════════════════════
    Coverage controller (PRD 08 §7.1–7.3).
+
    One copy of the case's custodians in memory. Tiles, banner, grid, panel
    and release dialog are all recomputed from it with MERIDIAN.coverageOf,
    so Fully covered + In progress + Action needed always equals the
    custodian count. Coverage decides what to do; Hold status says what is
    true, so preservation cells link there.
+
+   DATA (data/meridian.js, read once; the API seam replaces these reads)
+     M.custodians          the case's custodians: personId, lhn[], surveys[],
+                           interview, collection, reported[], added,
+                           afterNotice/addedFrom/addedNote, released,
+                           notRequired.preservation, notRequiredWf{wf}
+     M.coverageOf(c)       per-workflow cell {state, text, detail} + bucket
+     M.expectation(c, wf)  is the workflow expected of this custodian (CV14b)
+     M.legalHolds          notifications and silent holds (sends push here)
+     M.surveys             survey definitions
+     M.sources / sourcesOf / dataGaps / usedBy / nonCustodialCollection
+                           held sources, gap sources, non-custodial rows
+     M.heldElsewhere[pid]  held on another case: release leaves them out
+     M.cases[].expects     the case's counting rules; .team interviewers
+     M.requests            request ids that exist (reqLink)
+
+   STATE (this page only; nothing persists across a reload)
+     custodians    a deep copy of M.custodians; every action edits it
+     selected      { personId: true } for the selection toolbar
+     tileFilter    the summary card filtering the grid (null = none)
+     page/pageSize the grid pager (10, the house default)
+     panel*        the custodian coverage drawer: which custodian, which
+                   drawers are shut, timelines expanded, nested pager pages
+
+   RENDER CYCLE
+     render()          banner, tiles, grid (+ non-custodial), counting rules,
+                       and the open panel; after any action
+     view(renderGrid)  a view change (filter, card, search, sort, page):
+                       the tables crossfade
+     renderGrid()      selection changes redraw in place, no fade
+     renderPanel()     panel-only changes (drawer pager, SHOW EARLIER)
+
+   SECTIONS
+     Data and helpers · Cells · Tiles and banner · Grid and sort ·
+     Selection toolbar · Non-custodial table · Crossfade · Render cycle ·
+     Actions · Release dialog · Custodian panel (timelines, record tiles,
+     sorting, pagers, source tables, drawers, panel, contents bar,
+     navigation) · Stacked drawers · Exports · Events · Deep links
+
+   DEMO-ONLY
+     · Every action happens at 10:05 on M.DEMO_TODAY (nowTime).
+     · Links to screens outside the demo open not-in-demo.html.
+     · The ?open= / &drawer= deep links exist for the review guides.
    ═══════════════════════════════════════════════════════════════════════ */
 (function () {
   "use strict";
+
+  /* ── Data and helpers ─────────────────────────────────────────────── */
   var M = window.MERIDIAN, D = window.MeridianDemo, esc = D.esc;
   var TODAY = M.DEMO_TODAY;
   var short = function (iso) { return M.fmtDate(iso).replace(/ \d{4}$/, ""); };
 
   var custodians = JSON.parse(JSON.stringify(M.custodians));
   var selected = {};
-  var flash = {};
   var tileFilter = null;
   var page = 1, pageSize = 10;   /* grid pager: the house default, 10 per page (design decision 10) */
+  var REDUCE = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var WORKFLOWS = ["lhn", "survey", "interview", "preservation", "collection"];
+  var LOCK = '<i class="mdi mdi-lock-outline" aria-hidden="true"></i>';
 
   function person(c) { return M.person(c.personId); }
   function cov(c) { return M.coverageOf(c); }
@@ -24,21 +72,46 @@
   function seen(c) { return D.canSee(person(c)); }
   function byPid(pid) { return custodians.filter(function (c) { return c.personId === pid; })[0]; }
   function selectedList() { return custodians.filter(function (c) { return selected[c.personId]; }); }
+  function thisCase() { return M.cases.filter(function (x) { return x.id === D.caseId; })[0]; }
+  function holdById(id) { return M.legalHolds.filter(function (x) { return x.id === id; })[0]; }
+  /* Silent holds (nothing is sent) and notifications are offered separately in every send menu. */
+  function holdsOf(silent) { return M.legalHolds.filter(function (h) { return !!h.silent === silent; }); }
+  /* Sent at least one real notification (a silent hold sends nothing). */
+  function wasNotified(c) { return (c.lhn || []).some(function (n) { return n.status !== "Silent"; }); }
   /* Release applies to a custodian on a legal hold (notified or silent) who is not released yet and not held on
      another accessible case. Everyone else has nothing to release. */
   function releasable(c) { return (c.lhn || []).length > 0 && !c.released && !M.heldElsewhere[c.personId]; }
-  function afterNoticeUnsent() {
-    return custodians.filter(function (c) { return c.afterNotice && !(c.lhn || []).some(function (n) { return n.status !== "Silent"; }); });
-  }
+  /* Added after the first notification went out and never notified: the banner's custodians (PRD 08 §7.1). */
+  function afterNoticeUnsent() { return custodians.filter(function (c) { return c.afterNotice && !wasNotified(c); }); }
   function me() { return M.person(D.viewer().personId).name; }
+  function nowTime() { return "10:05"; }  /* the demo's clock: every action happens at 10:05 on M.DEMO_TODAY */
+  function plural(n, one, many) { return n + " " + (n === 1 ? one : (many || one + "s")); }
+  function badgeHtml(text, tone) { return '<span class="badge badge-verbatim badge-' + tone + '">' + esc(text) + "</span>"; }
+  /* A select's value, "all" before Nimbus has mounted it. */
+  function val(id) { var el = document.getElementById(id); return el ? el.value : "all"; }
+  function empty(title, note) {
+    return '<div class="demo-empty"><i class="mdi mdi-cancel cnds-icon-2xl" aria-hidden="true"></i><span class="demo-empty-title">' + esc(title) +
+      '</span><span class="demo-empty-note">' + esc(note) + "</span></div>";
+  }
+  /* A request ID is a link to the Requests tab whenever the request exists, so one column never mixes links and text. */
+  function reqLink(id) { return !id ? '<span class="text-muted">—</span>' : M.requests.some(function (r) { return r.id === id; }) ? '<a href="case-requests.html">' + esc(id) + "</a>" : esc(id); }
+  /* Replace a page-level pager. Nimbus selects are disposed before their markup is replaced, and markup injected
+     after boot is not auto-initialised. */
+  function setPager(foot, html) {
+    var NS = window.Nimbus && Nimbus.Select;
+    if (NS) foot.querySelectorAll("select[data-cnds-select-init]").forEach(function (x) { var i = NS.getInstance(x); if (i) i.dispose(); });
+    foot.innerHTML = html;
+    if (NS) NS.initAll(foot);
+  }
 
-  /* ── Cells ──────────────────────────────────────────────────────────── */
+  /* ── Cells ────────────────────────────────────────────────────────── */
   /* Nimbus badges, coloured by the coverage-grid semantics in the glossary. */
   /* badge-verbatim: the status words keep their own case ("3 of 3 on hold", not "3 Of 3 On Hold"), as Hold Status's Purview
      words do (Nimbus gap #10; design decision, 14 Oct). */
   var BADGE = { done: "badge badge-verbatim badge-success", progress: "badge badge-verbatim badge-info", todo: "badge badge-verbatim badge-warning", action: "badge badge-verbatim badge-danger", silent: "badge badge-verbatim badge-secondary", na: "badge badge-verbatim badge-light" };
   /* A date never breaks across lines: "latest 08-29-" / "2026" read as two things. */
   function keepDates(html) { return html.replace(/(\d{2}-\d{2}-\d{4})/g, '<span class="text-nowrap">$1</span>'); }
+  /* One workflow cell: the badge (a link to Hold status when given), the detail line under it. */
   function cell(x, link) {
     if (x.state === "dash") return '<span class="text-muted" title="Not expected on this case">—</span>';
     var pill = '<span class="' + BADGE[x.state] + '">' + esc(x.text) + "</span>";
@@ -46,7 +119,8 @@
     return pill + (x.detail ? '<span class="d-block small text-muted mt-1" title="' + esc(x.detail) + '">' + keepDates(esc(x.detail)) + "</span>" : "");
   }
 
-  /* ── Tiles ──────────────────────────────────────────────────────────── */
+  /* ── Tiles and banner (PRD 08 §7.1) ───────────────────────────────── */
+  /* ACTION NEEDED's subline: why each custodian needs action, counted by the first reason only. */
   function actionSubline(list) {
     var notify = 0, unack = 0, escal = 0, pres = 0;
     list.forEach(function (c) {
@@ -62,6 +136,12 @@
     if (pres) parts.push(pres + " with preservation gaps");
     if (escal) parts.push(escal + " escalated after reminders");
     return parts.join(" · ") || "None";
+  }
+  /* Data gaps follow the in-memory custodians (a source marked not required leaves the count). */
+  function gapSources() {
+    var exempt = {};
+    custodians.forEach(function (c) { if (c.notRequired && c.notRequired.preservation) exempt[c.personId] = true; });
+    return M.dataGaps().filter(function (s) { return !(s.owner && exempt[s.owner]); });
   }
   function renderTiles() {
     var b = { fully: [], progress: [], action: [] };
@@ -83,14 +163,7 @@
       '<div class="vr vr-blurry cv-gap-sep" aria-hidden="true"></div>' +
       tile("gaps", gaps, "Data Gaps", "Sources not preserved or collected", "Sources");
   }
-  /* Data gaps follow the in-memory custodians (a source marked not required leaves the count). */
-  function gapSources() {
-    var exempt = {};
-    custodians.forEach(function (c) { if (c.notRequired && c.notRequired.preservation) exempt[c.personId] = true; });
-    return M.dataGaps().filter(function (s) { return !(s.owner && exempt[s.owner]); });
-  }
-
-  /* ── Banner ─────────────────────────────────────────────────────────── */
+  /* The added-after-notice banner: shown only while such custodians exist. */
   function renderBanner() {
     var list = afterNoticeUnsent();
     var el = document.getElementById("cvBanner");
@@ -107,8 +180,8 @@
     el.querySelector('[data-cv="select-after"]').textContent = "SELECT " + list.length + " CUSTODIANS";
   }
 
-  /* ── Grid (Nimbus table) and selection toolbar (btn-toolbar-shared) ──── */
-  function val(id) { var el = document.getElementById(id); return el ? el.value : "all"; }
+  /* ── Grid and sort (Nimbus table) ─────────────────────────────────── */
+  /* Search, Filter By, Workflow and the card filter, all applied together. */
   function matches(c) {
     var v = cov(c), p = person(c);
     var q = (document.getElementById("cvSearch").value || "").trim().toLowerCase();
@@ -134,7 +207,7 @@
   function ordered() {
     var by = val("cvSort") || "urgent", B = { action: 0, progress: 1, fully: 2 };
     var nm = function (c) { return visibleName(c).toLowerCase(); };
-    var acts = function (v) { return ["lhn", "survey", "interview", "preservation", "collection"].filter(function (k) { return v[k].state === "action"; }).length; };
+    var acts = function (v) { return WORKFLOWS.filter(function (k) { return v[k].state === "action"; }).length; };
     return custodians.filter(matches).slice().sort(function (a, b) {
       if (by === "name") return nm(a) < nm(b) ? -1 : nm(a) > nm(b) ? 1 : 0;
       if (by === "added") return a.added < b.added ? 1 : a.added > b.added ? -1 : nm(a) < nm(b) ? -1 : 1;
@@ -142,6 +215,7 @@
       return B[va.bucket] - B[vb.bucket] || acts(vb) - acts(va) || (nm(a) < nm(b) ? -1 : nm(a) > nm(b) ? 1 : 0);
     });
   }
+  /* The grid's page, its pager, the non-custodial table (DATA GAPS filters both), select-all and the toolbar. */
   function renderGrid() {
     var rows = ordered();
     var pages = Math.max(1, Math.ceil(rows.length / pageSize));
@@ -153,7 +227,7 @@
       return '<tr class="' + (selected[c.personId] ? "table-active" : "") + '">' +
         '<td><div class="form-check mb-0"><input type="checkbox" class="form-check-input" data-sel="' + c.personId + '"' + (selected[c.personId] ? " checked" : "") + ' aria-label="Select ' + esc(visibleName(c)) + '" /></div></td>' +
         /* The name is the row's identity, not a link: OPEN is the one way into custodian coverage (design decision 15). */
-        '<td><span class="d-block fw-bold' + (ok ? "" : " demo-masked") + '">' + (ok ? "" : '<i class="mdi mdi-lock-outline" aria-hidden="true"></i>') + esc(visibleName(c)) + "</span>" +
+        '<td><span class="d-block fw-bold' + (ok ? "" : " demo-masked") + '">' + (ok ? "" : LOCK) + esc(visibleName(c)) + "</span>" +
           '<span class="d-block small text-muted">' + sub + "</span>" + (c.addedNote ? '<span class="d-block small text-warning-emphasis">' + esc(c.addedNote) + "</span>" : "") + "</td>" +
         "<td>" + cell(v.lhn) + "</td><td>" + cell(v.survey) + "</td><td>" + cell(v.interview) + "</td>" +
         "<td>" + cell(v.preservation, v.preservation.state === "action" || v.preservation.state === "progress" ? "case-hold-status.html" : null) + "</td>" +
@@ -161,22 +235,21 @@
         /* A blurry divider sets the row action apart from the data, as in every record row (design decision 16). */
         '<td class="cv-row-action"><div class="vr vr-blurry" aria-hidden="true"></div><button type="button" class="btn btn-tertiary btn-sm" data-open="' + c.personId + '">OPEN</button></td></tr>';
     }).join("") || '<tr><td colspan="8">' + empty("No custodians match this filter", "Change the search or the filters to see more custodians.") + "</td></tr>";
-    /* Pager under the grid: its range is the grid's count, so the toolbar carries none (design decision 10). Nimbus
-       selects are disposed before their markup is replaced. */
-    var foot = document.getElementById("cvGridFoot"), NS = window.Nimbus && Nimbus.Select;
-    if (NS) foot.querySelectorAll("select[data-cnds-select-init]").forEach(function (x) { var i = NS.getInstance(x); if (i) i.dispose(); });
-    foot.innerHTML = rows.length ? D.pager("cv", rows.length, page, pageSize, "Custodians per page:") : "";
-    if (NS) NS.initAll(foot);
+    /* Pager under the grid: its range is the grid's count, so the toolbar carries none (design decision 10). */
+    setPager(document.getElementById("cvGridFoot"), rows.length ? D.pager("cv", rows.length, page, pageSize, "Custodians per page:") : "");
     renderNonCustodial();
     var all = document.getElementById("cvAll");
     all.checked = rows.length > 0 && rows.every(function (c) { return selected[c.personId]; });
     all.indeterminate = !all.checked && rows.some(function (c) { return selected[c.personId]; });
     renderSelTool();
   }
+
+  /* ── Selection toolbar (btn-toolbar-shared) ───────────────────────── */
   function dropdown(label, items) {
     return '<div class="btn-group dropdown" role="group"><button type="button" class="btn btn-tertiary btn-sm dropdown-toggle" data-cnds-toggle="dropdown" aria-expanded="false">' + label +
       ' <i class="mdi mdi-chevron-down" aria-hidden="true"></i></button><ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion">' + items + "</ul></div>";
   }
+  /* A menu item: a link when it leaves the page (href), a button carrying data attributes otherwise. */
   function item(attrs, title, sub, href) {
     var inner = esc(title) + (sub ? '<span class="d-block small text-muted">' + esc(sub) + "</span>" : "");
     return "<li>" + (href ? '<a class="dropdown-item" href="' + href + '">' + inner + "</a>" : '<button type="button" class="dropdown-item" ' + attrs + ">" + inner + "</button>") + "</li>";
@@ -185,8 +258,8 @@
      10-14): Nimbus cnds-scale-in / cnds-scale-out (scale 0.95 ↔ 1 with a fade, from its centre). The two steps run in
      sequence so it reads as a zoom, not a slide: in, the slot opens (0.15s) and then the bar zooms in (0.2s); out, the
      bar zooms out in place (0.2s) and then the empty slot closes (0.15s). No motion under reduced motion. */
-  var REDUCE = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var selShown = false, selTimer = null;
+  /* Animate the toolbar slot's height from → to, then clear the inline styles. */
   function slide(host, from, to, done) {
     clearTimeout(selTimer);
     host.style.overflow = "hidden"; host.style.height = from + "px";
@@ -208,7 +281,6 @@
       return;
     }
     var entering = !selShown; selShown = true;
-    var regular = M.legalHolds.filter(function (h) { return !h.silent; }), silent = M.legalHolds.filter(function (h) { return h.silent; });
     var ids = list.map(function (c) { return c.personId; }).join(",");
     /* Selection toolbar in the default toolbar colour, not the green shared state (design decision 11). The clear (X)
        and the count use the list toolbar's text colour so they read on the default bar in both themes. */
@@ -217,11 +289,11 @@
       dropdown("SEND LEGAL HOLD NOTIFICATION",
         item("", "New Legal Hold Notification …", "Opens the notification form with the " + n + " selected custodians as recipients", "not-in-demo.html?what=New+legal+hold+notification&amp;ships=1") +
         '<li><h6 class="dropdown-header">Settings from a notification in this case</h6></li>' +
-        regular.map(function (h) { return item('data-send-lhn="' + h.id + '"', h.id + " · " + h.title.split(" · ")[0], h.settings); }).join("") +
+        holdsOf(false).map(function (h) { return item('data-send-lhn="' + h.id + '"', h.id + " · " + h.title.split(" · ")[0], h.settings); }).join("") +
         '<li><h6 class="dropdown-header">Silent legal hold · nothing is sent</h6></li>' +
-        silent.map(function (h) {
+        holdsOf(true).map(function (h) {
           var tracked = custodians.filter(function (c) { return (c.lhn || []).some(function (x) { return x.id === h.id; }); }).length;
-          return item('data-send-silent="' + h.id + '"', h.id + " · " + h.title, "Add " + n + " selected · " + tracked + " custodian" + (tracked === 1 ? "" : "s") + " tracked");
+          return item('data-send-silent="' + h.id + '"', h.id + " · " + h.title, "Add " + n + " selected · " + plural(tracked, "custodian") + " tracked");
         }).join("") +
         item("", "New Silent Legal Hold …", "Nothing is sent. The custodians are tracked and their data is held", "not-in-demo.html?what=New+silent+legal+hold&amp;ships=1")) +
       dropdown("SEND SURVEY",
@@ -247,17 +319,52 @@
       });
     }
   }
+  function clearSelection() { selected = {}; renderGrid(); }
 
-  /* ── Non-custodial held sources (Nimbus table) ──────────────────────── */
-  /* A request ID is a link to the Requests tab whenever the request exists, so one column never mixes links and text. */
-  function reqLink(id) { return !id ? '<span class="text-muted">—</span>' : M.requests.some(function (r) { return r.id === id; }) ? '<a href="case-requests.html">' + esc(id) + "</a>" : esc(id); }
+  /* ── Non-custodial held sources (Nimbus table) ────────────────────── */
   /* DATA GAPS counts sources, so it filters both tables (design decision 12): the custodian grid to the custodians
      with a gap source, and this table to its own gap sources; a note above the grid adds the two up. */
+  function gapsOn() { return tileFilter === "gaps" || val("cvFilter") === "gaps"; }
+  /* Preservation reads Hold status's own words (PRD 08 CV19: Coverage reads, it does not relabel): Applied → On hold,
+     Attested, Partial, Unknown (decision 20). */
+  function renderNonCustodial() {
+    var all = M.sources.filter(function (s) { return !s.owner && !s.pending; });
+    var gapIds = {}; gapSources().forEach(function (s) { gapIds[s.id] = true; });
+    var ncAll = (gapsOn() ? all.filter(function (s) { return gapIds[s.id]; }) : all).slice().sort(function (a, b) { return protectionRank(a) - protectionRank(b); });
+    document.getElementById("cvNcSort").innerHTML = ncAll.length > 1 ? '<span class="demo-label d-inline me-1">Sorted By:</span>Least protected first' : "";
+    /* The conditional pager (more than 10 rows), as in the custodian panel; a secondary list, so no toolbar. */
+    var ncSize = pgSize.cvnc || 10, ncPages = Math.max(1, Math.ceil(ncAll.length / ncSize));
+    pgPage.cvnc = Math.min(pgPage.cvnc || 1, ncPages);
+    var rows = ncAll.slice((pgPage.cvnc - 1) * ncSize, pgPage.cvnc * ncSize);
+    pgTotal.cvnc = ncAll.length;
+    setPager(document.getElementById("cvNcFoot"), ncAll.length > 10 ? D.pager("cvnc", ncAll.length, pgPage.cvnc, ncSize, "Sources per page:") : "");
+    document.getElementById("cvNcNote").textContent = gapsOn() ? rows.length + " of " + all.length + " sources are data gaps." : "No single custodian, so they are counted once for the case.";
+    var note = document.getElementById("cvGapNote");
+    note.hidden = !gapsOn();
+    if (gapsOn()) {
+      var g = gapSources(), onC = g.filter(function (s) { return s.owner; }), owners = {};
+      onC.forEach(function (s) { owners[s.owner] = true; });
+      note.textContent = g.length + " gap sources: " + onC.length + " on the " + Object.keys(owners).length + " custodians below · " + (g.length - onC.length) + " non-custodial, in Non-Custodial Held Sources.";
+    }
+    var pres = function (s) {
+      var m = { "Applied": ["On hold", "success"], "Attested": ["Attested", "info"], "Partial": ["Partial", "warning"], "Unknown": ["Unknown", "danger"] }[s.hold] || [s.hold, "light"];
+      return '<span class="badge badge-verbatim badge-' + m[1] + '">' + m[0] + "</span>";
+    };
+    document.getElementById("cvNcBody").innerHTML = rows.map(function (s) {
+      var col = M.nonCustodialCollection[s.id];
+      return "<tr><td>" + esc(M.typeLabel(s.type) + " · " + s.name) + '</td><td class="text-nowrap">' + (M.usedBy[s.id] || 0) + " custodians</td><td>" + pres(s) + "</td>" +
+        "<td>" + (col ? '<span class="badge badge-verbatim badge-info">' + esc(col.text) + "</span>" : '<span class="text-muted">—</span>') + "</td>" +
+        '<td class="text-nowrap">' + reqLink(col ? col.request : s.request) + "</td></tr>";
+    }).join("");
+  }
+
+  /* ── Crossfade ────────────────────────────────────────────────────── */
   /* View changes crossfade (Scott, 10-14): the old table is copied into a ghost layer over its .cv-xfade host, the new
      rows render underneath at opacity 0, then the ghost fades out as the new rows fade in (0.2s, as the selection
      toolbar's zoom) while the host eases from the old height to the new so the page below does not jump. Selection
      changes are not view changes and redraw in place. A change mid-fade finishes the running one first. */
   var xfTimer = null;
+  /* Finish any running crossfade: drop the ghosts and the inline height. */
   function xfEnd() {
     clearTimeout(xfTimer);
     document.querySelectorAll(".cv-xfade").forEach(function (h) {
@@ -265,6 +372,7 @@
       h.classList.remove("cv-xf-start"); h.style.height = ""; h.style.overflow = ""; h.style.transition = "";
     });
   }
+  /* Run `update` (a render) as a view change over both tables. */
   function view(update) {
     xfEnd();
     var hosts = ["cvGridView", "cvNcView"].map(function (id) { return document.getElementById(id); });
@@ -289,54 +397,20 @@
     });
     xfTimer = setTimeout(xfEnd, 220);
   }
-  function gapsOn() { return tileFilter === "gaps" || val("cvFilter") === "gaps"; }
-  /* Preservation reads Hold status's own words (PRD 08 CV19: Coverage reads, it does not relabel): Applied → On hold,
-     Attested, Partial, Unknown (decision 20). */
-  function renderNonCustodial() {
-    var all = M.sources.filter(function (s) { return !s.owner && !s.pending; });
-    var gapIds = {}; gapSources().forEach(function (s) { gapIds[s.id] = true; });
-    var rows = (gapsOn() ? all.filter(function (s) { return gapIds[s.id]; }) : all).slice().sort(function (a, b) { return protectionRank(a) - protectionRank(b); });
-    document.getElementById("cvNcSort").innerHTML = rows.length > 1 ? '<span class="demo-label d-inline me-1">Sorted By:</span>Least protected first' : "";
-    /* The conditional pager (more than 10 rows), as in the custodian panel; a secondary list, so no toolbar. */
-    var ncAll = rows, ncSize = pgSize.cvnc || 10, ncPages = Math.max(1, Math.ceil(ncAll.length / ncSize));
-    pgPage.cvnc = Math.min(pgPage.cvnc || 1, ncPages);
-    rows = ncAll.slice((pgPage.cvnc - 1) * ncSize, pgPage.cvnc * ncSize);
-    pgTotal.cvnc = ncAll.length;
-    var ncFoot = document.getElementById("cvNcFoot"), NSn = window.Nimbus && Nimbus.Select;
-    if (NSn) ncFoot.querySelectorAll("select[data-cnds-select-init]").forEach(function (x) { var i = NSn.getInstance(x); if (i) i.dispose(); });
-    ncFoot.innerHTML = ncAll.length > 10 ? D.pager("cvnc", ncAll.length, pgPage.cvnc, ncSize, "Sources per page:") : "";
-    if (NSn) NSn.initAll(ncFoot);
-    document.getElementById("cvNcNote").textContent = gapsOn() ? rows.length + " of " + all.length + " sources are data gaps." : "No single custodian, so they are counted once for the case.";
-    var note = document.getElementById("cvGapNote");
-    note.hidden = !gapsOn();
-    if (gapsOn()) {
-      var g = gapSources(), onC = g.filter(function (s) { return s.owner; }), owners = {};
-      onC.forEach(function (s) { owners[s.owner] = true; });
-      note.textContent = g.length + " gap sources: " + onC.length + " on the " + Object.keys(owners).length + " custodians below · " + (g.length - onC.length) + " non-custodial, in Non-Custodial Held Sources.";
-    }
-    var pres = function (s) {
-      var m = { "Applied": ["On hold", "success"], "Attested": ["Attested", "info"], "Partial": ["Partial", "warning"], "Unknown": ["Unknown", "danger"] }[s.hold] || [s.hold, "light"];
-      return '<span class="badge badge-verbatim badge-' + m[1] + '">' + m[0] + "</span>";
-    };
-    document.getElementById("cvNcBody").innerHTML = rows.map(function (s) {
-      var col = M.nonCustodialCollection[s.id];
-      return "<tr><td>" + esc(M.typeLabel(s.type) + " · " + s.name) + '</td><td class="text-nowrap">' + (M.usedBy[s.id] || 0) + " custodians</td><td>" + pres(s) + "</td>" +
-        "<td>" + (col ? '<span class="badge badge-verbatim badge-info">' + esc(col.text) + "</span>" : '<span class="text-muted">—</span>') + "</td>" +
-        '<td class="text-nowrap">' + reqLink(col ? col.request : s.request) + "</td></tr>";
-    }).join("");
-  }
+
+  /* ── Counting rules and the render cycle ──────────────────────────── */
   /* Counting rules name what this case expects (CV14b), from the case setting the cells read. */
   function renderExpects() {
-    var e = M.cases.filter(function (x) { return x.id === D.caseId; })[0].expects;
+    var e = thisCase().expects;
     document.getElementById("cvExpects").textContent = "On this case: " + [e.survey.rule || e.survey.text, e.interview.rule || e.interview.text, e.collection.rule || e.collection.text].join(" · ") + ".";
   }
+  /* Everything, after any change to the custodians (renderGrid also draws the non-custodial table). */
   function render() {
-    renderBanner(); renderTiles(); renderGrid(); renderNonCustodial(); renderExpects();
+    renderBanner(); renderTiles(); renderGrid(); renderExpects();
     if (panel) renderPanel();
-    flash = {};
   }
 
-  /* ── Actions ────────────────────────────────────────────────────────── */
+  /* ── Actions ──────────────────────────────────────────────────────── */
   /* Sending from Coverage always creates a NEW notification (PRD 08 CV21): a published notification cannot take new
      recipients, so "settings from LH-0031" copies LH-0031's body, attachments, reminders, escalation and survey into a
      new notification sent to every selected custodian. Nobody is skipped for already being on LH-0031. */
@@ -347,7 +421,7 @@
   /* The send actions act on the selection, or on `only` (one custodian, from custodian coverage's section menus,
      decision 80g: the same menus for one person as for a selection). Only a toolbar send clears the selection. */
   function sendNotice(lhId, only) {
-    var h = M.legalHolds.filter(function (x) { return x.id === lhId; })[0];
+    var h = holdById(lhId);
     var newId = nextHoldId();
     M.legalHolds.push({ id: newId, title: "Legal hold notification · settings from " + lhId, sent: TODAY, time: "10:05", settings: h.settings, survey: h.survey });
     var sent = 0;
@@ -360,7 +434,7 @@
       sent++;
     });
     if (!only) selected = {};
-    D.toast("New legal hold notification " + newId + " sent to " + sent + " custodian" + (sent === 1 ? "" : "s") + " with " + lhId + "'s settings.");
+    D.toast("New legal hold notification " + newId + " sent to " + plural(sent, "custodian") + " with " + lhId + "'s settings.");
     render();
   }
   function addSilent(lhId, only) {
@@ -382,19 +456,19 @@
       n++;
     });
     if (!only) selected = {};
-    D.toast("Survey " + sId + " sent to " + n + " custodian" + (n === 1 ? "" : "s") + ".");
+    D.toast("Survey " + sId + " sent to " + plural(n, "custodian") + ".");
     render();
   }
   /* From the toolbar: the selection, workflow chosen in the dialog. From custodian coverage: `only` that custodian,
-     with the section's workflow preselected (wf). */
+     with the section's workflow preselected (wf0). */
   function markNotRequired(only, wf0) {
     var list = only || selectedList();
     D.reasonDialog({
       title: "Mark Not Required",
-      intro: list.length + " custodian" + (list.length === 1 ? "" : "s") + " selected.",
+      intro: plural(list.length, "custodian") + " selected.",
       /* One custodian: name the record the dialog acts on (demo-kv; Scott, 10-14). Several: the count above says it. */
       extra: (list.length === 1 ? '<dl class="row demo-kv mb-3"><dt class="col-4 fw-bold">Custodian</dt><dd class="col-8 mb-0' + (seen(list[0]) ? "" : " demo-masked") + '">' +
-        (seen(list[0]) ? "" : '<i class="mdi mdi-lock-outline" aria-hidden="true"></i>') + esc(visibleName(list[0])) + "</dd></dl>" : "") + D.select("cvNrWf", [["survey", "Survey"], ["interview", "Interview"], ["preservation", "Preservation"]], wf0 || "survey", "Workflow", { container: "{{modal}}", cls: "mb-3" }),
+        (seen(list[0]) ? "" : LOCK) + esc(visibleName(list[0])) + "</dd></dl>" : "") + D.select("cvNrWf", [["survey", "Survey"], ["interview", "Interview"], ["preservation", "Preservation"]], wf0 || "survey", "Workflow", { container: "{{modal}}", cls: "mb-3" }),
       effect: "The workflow reads N/A, leaves the gap count, and shows in the coverage report with this reason.",
       confirm: "MARK NOT REQUIRED"
     }).then(function (r) {
@@ -409,8 +483,31 @@
       render();
     });
   }
+  /* A custodian's notification or survey by its ID (the target of a tile's actions). */
+  function instance(c, id) {
+    return (c.lhn || []).filter(function (n) { return n.id === id; })[0] || (c.surveys || []).filter(function (s) { return s.id === id; })[0];
+  }
+  function remind(c, id) {
+    var x = instance(c, id), n = (x.events || []).filter(function (e) { return /^Reminder/.test(e[2]); }).length + 1;
+    x.events.push([TODAY, nowTime(), "Reminder " + n, me(), "Sent", "sent manually"]);
+    D.toast("Reminder " + n + " sent for " + id + ".");
+    render();
+  }
+  function resend(c, id) {
+    instance(c, id).events.push([TODAY, nowTime(), "Notification resent", me(), "Sent", "email and Teams"]);
+    D.toast("Legal hold notification " + id + " sent again to " + person(c).name + ".");
+    render();
+  }
+  /* MARK COMPLETE (CV42a, new): writes the completion as an event; it is not marking the interview not required (CV42c). */
+  function completeInterview(c) {
+    c.interview.status = "Complete"; c.interview.completed = TODAY;
+    c.interview.events.push([TODAY, nowTime(), "Marked complete", me(), "Complete"]);
+    D.toast("Interview marked complete.");
+    render();
+  }
 
-  /* ── Release from legal hold (PRD 08 §7.3) in a Nimbus modal ───────── */
+  /* ── Release from legal hold (PRD 08 §7.3) in a Nimbus modal ──────── */
+  /* What stays preserved after release: the held sources, their kinds and the requests that hold them. */
   function sourcesStill(c) {
     var src = M.sourcesOf(c.personId).filter(function (s) { return s.hold === "Applied" || s.hold === "Attested" || s.hold === "Applying" || s.hold === "Overdue"; });
     var kinds = src.map(function (s) {
@@ -421,6 +518,7 @@
     if (c.notRequired && c.notRequired.preservation) return { n: 1, kinds: ["mailbox (on MBP-0811)"], from: "PRS-0088" };
     return { n: src.length, kinds: kinds, from: Object.keys(reqs).join(", ") || "—" };
   }
+  /* The release dialog, starting from `startIds` (the selection, or the panel's custodian). */
   function openRelease(startIds) {
     var chip = "selected", ticked = {}, reason = "", notice = "standard", sendTo = true;
     var candidates = function () {
@@ -439,11 +537,11 @@
     function draw() {
       var list = candidates();
       var on = list.filter(function (c) { return ticked[c.personId]; });
-      var notified = on.filter(function (c) { return (c.lhn || []).some(function (n) { return n.status !== "Silent"; }); });
-      var silentOnly = on.filter(function (c) { return !(c.lhn || []).some(function (n) { return n.status !== "Silent"; }) && (c.lhn || []).length; });
+      var notified = on.filter(wasNotified);
+      var silentOnly = on.filter(function (c) { return !wasNotified(c) && (c.lhn || []).length; });
       var left = list.filter(function (c) { return M.heldElsewhere[c.personId]; });
       var holds = on.reduce(function (n, c) { return n + (c.lhn || []).length; }, 0);
-      m.el.querySelector(".modal-title").textContent = "Release from legal hold · " + on.length + " custodian" + (on.length === 1 ? "" : "s");
+      m.el.querySelector(".modal-title").textContent = "Release from legal hold · " + plural(on.length, "custodian");
       m.el.querySelector(".modal-body").innerHTML =
         '<div class="d-flex align-items-center flex-wrap gap-2 mb-2"><ul class="nav nav-pills nav-pills-nimbus nav-pills-casefusion" role="group" aria-label="Who to show">' +
           [["all", "All on This Case", custodians.length], ["selected", "Selected on Coverage", startIds.length], ["departed", "Departed", custodians.filter(function (c) { return person(c).departed; }).length]].map(function (x) {
@@ -457,12 +555,12 @@
           var after = held ? (D.canOpenCase(held.caseId) ? "Still on hold for " + esc(held.caseName) + warn("Held on another accessible case") : "Still on hold on another case" + warn("Held on another case")) : c.released ? "Already released" :
             !(c.lhn || []).length ? "Not on a legal hold" + '<span class="d-block small text-muted">Nothing to release</span>' :
             st.n + " source" + (st.n === 1 ? " stays" : "s stay") + " preserved" + (p.departed && !c.notRequired ? warn("Mailbox stays inactive and preserved while any hold remains") : "") +
-            (c.silent && !(c.lhn || []).some(function (n) { return n.status !== "Silent"; }) ? warn("Nothing was sent, so no release notice is sent") : "");
+            (c.silent && !wasNotified(c) ? warn("Nothing was sent, so no release notice is sent") : "");
           return '<tr><td><div class="form-check mb-0"><input type="checkbox" class="form-check-input" data-tick="' + c.personId + '"' + (ticked[c.personId] ? " checked" : "") + (releasable(c) && !readOnly ? "" : " disabled") +
             ' aria-label="Release ' + esc(D.nameFor(p)) + '" /></div></td><td><span class="fw-bold' + (D.canSee(p) ? "" : " demo-masked") + '">' + esc(D.nameFor(p)) + '</span><span class="d-block small text-muted">' +
             (D.canSee(p) ? esc(p.title) + (p.departed ? " · departed" : "") : "Outside your regions") + "</span></td><td>" + esc(holdsText) + "</td><td>" + after + "</td></tr>";
         }).join("")) +
-        '<p class="small text-muted">' + on.length + " selected · " + holds + " legal hold" + (holds === 1 ? "" : "s") + (left.length ? " · " + left.length + " custodian" + (left.length === 1 ? " is" : "s are") + " held on another case and " + (left.length === 1 ? "is" : "are") + " left out." : ".") + "</p>" +
+        '<p class="small text-muted">' + on.length + " selected · " + plural(holds, "legal hold") + (left.length ? " · " + left.length + " custodian" + (left.length === 1 ? " is" : "s are") + " held on another case and " + (left.length === 1 ? "is" : "are") + " left out." : ".") + "</p>" +
         '<div class="cf-category cf-cat-6 highlight-casefusion">Release Notice</div>' +
         '<div class="row g-3 mb-3"><div class="col-md-6">' + D.select("cvRelNotice", [["standard", "Standard Release Notice"], ["retention", "Release Notice with Retention Reminder"], ["none", "No Notice"]], notice, "Notice", { container: "#" + m.id }) +
           /* Who gets the notice is a choice, as in the canvas (ReleaseLegalHold.dc.html): checked by default, unchecked and
@@ -487,6 +585,7 @@
       if (window.Nimbus && Nimbus.Select) Nimbus.Select.initAll(m.el);
       if (readOnly) { var ns = m.el.querySelector("#cvRelNotice"); var inst = ns && window.Nimbus && Nimbus.Select && Nimbus.Select.getInstance(ns); if (inst && inst.disable) inst.disable(); else if (ns) ns.disabled = true; }
     }
+    /* Typing the reason only toggles the commit buttons, so the field keeps focus (no redraw). */
     m.el.addEventListener("input", function (e) {
       if (e.target.id !== "cvRelReason") return;
       reason = e.target.value;
@@ -510,12 +609,12 @@
       if (a === "none") { ticked = {}; draw(); }
       if (a === "release" || a === "cleanup") {
         var on = candidates().filter(function (c) { return ticked[c.personId]; });
-        var told = sendTo && notice !== "none" ? on.filter(function (c) { return (c.lhn || []).some(function (n) { return n.status !== "Silent"; }); }).length : 0;
+        var told = sendTo && notice !== "none" ? on.filter(wasNotified).length : 0;
         on.forEach(function (c) { c.released = TODAY; });
         selected = {};
         m.hide();
         if (a === "cleanup") { window.location.href = "not-in-demo.html?what=Data+cleanup+request"; return; }
-        D.toast(on.length + " custodian" + (on.length === 1 ? "" : "s") + " released from legal hold. Their sources stay preserved." +
+        D.toast(plural(on.length, "custodian") + " released from legal hold. Their sources stay preserved." +
           (told ? " Release notice sent to " + told + "." : " No release notice was sent."));
         render();
       }
@@ -525,25 +624,19 @@
 
   /* ── Custodian coverage (PRD 08 §7.2, CustodianCoverage.dc.html) in a Nimbus offcanvas at 90% (a list). ──
      Header: photo, name, the standing summary as chips (CV40), VIEW PROFILE and EXPORT AS for this custodian (CV47).
-     Summary strip: the grid row restated, the sections' contents page. Then the five workflows as drawer cards (the
-     house .card-drawer, as My Work), open by default; a drawer the reader shuts
-     stays shut from custodian to custodian. Inside: the custodian's notifications, surveys and
-     interview as nested tiles with their timelines (CV41), and sources as SOURCE · STATUS · FROM tables with
-     their provenance (CV43); then the section's own next steps on a footer row (CV45). A workflow the case does not expect starts shut.
+     Summary cards: the grid row restated, one per workflow, each jumping to its drawer. Then the five workflows as
+     drawer cards (the house .card-drawer, as My Work), open by default; a drawer the reader shuts stays shut from
+     custodian to custodian. Inside: the custodian's notifications, surveys and interview as nested tiles with their
+     timelines (CV41), and sources as SOURCE · STATUS · FROM tables with their provenance (CV43); then the section's
+     own next steps on a footer row (CV45). A workflow the case does not expect starts shut.
      Follow-on steps (view a notification, record an acknowledgment, schedule an interview) open as stacked
      drawers over the panel (casefusion stacked-offcanvas pattern: BACK closes only the stacked drawer). */
   var panel = null, panelId = null, secOpen = {};
-  var LOCK = '<i class="mdi mdi-lock-outline" aria-hidden="true"></i>';
-  function empty(title, note) {
-    return '<div class="demo-empty"><i class="mdi mdi-cancel cnds-icon-2xl" aria-hidden="true"></i><span class="demo-empty-title">' + esc(title) +
-      '</span><span class="demo-empty-note">' + esc(note) + "</span></div>";
-  }
-  function badgeHtml(text, tone) { return '<span class="badge badge-verbatim badge-' + tone + '">' + esc(text) + "</span>"; }
-  function plural(n, one, many) { return n + " " + (n === 1 ? one : (many || one + "s")); }
+
+  /* ── Panel: timelines (CV41) ── */
   /* Timeline outcome words → badge colour (status colour semantics). */
   var TONE = { Sent: "success", Acknowledged: "success", Answered: "success", Tracked: "secondary", Escalated: "danger", "Not answered": "warning",
     Overdue: "warning", Scheduled: "info", Rescheduled: "info", Complete: "success" };
-  /* A timeline (CV41): date · event · actor · outcome, one list row each. Solid row dividers, none under the last. */
   /* A long timeline shows its last three events; SHOW N EARLIER reveals the rest, and the choice holds while the
      panel is open (CV41: the history stays one click away). */
   var tlOpen = {};
@@ -554,6 +647,7 @@
     return (list || []).length > 3 ? '<button type="button" class="btn btn-tertiary btn-sm me-auto" data-cv-tl="' + key + '" aria-expanded="' + !hide + '">' +
       (hide ? "SHOW " + hide + " EARLIER" : "HIDE EARLIER") + "</button>" : "";
   }
+  /* A timeline (CV41): date · event · actor · outcome, one list row each. Solid row dividers, none under the last. */
   function timeline(events, key) {
     var list = events || [], hide = hiddenCount(list, key);
     return '<ul class="list-group list-group-flush cv-tl">' + list.slice(hide).map(function (e) {
@@ -563,10 +657,34 @@
         '</span><span class="cv-tl-who"><span class="demo-label d-inline me-1">By:</span>' + esc(e[3]) + "</span>" + badgeHtml(e[4], TONE[e[4]] || "light") + "</li>";
     }).join("") + "</ul>";
   }
-  /* ── Default order, stated where the list is (Scott, 10-15) ──
-     Every nested list has one deliberate order, named in a "SORTED BY:" meta line (Hold Status's wording), shown when
-     the list has two or more items. Notifications and surveys: needs action first, then newest. Timelines: oldest
-     first (the story of what was done). Sources: least protected / least collected first, Hold Status's ranking. */
+
+  /* ── Panel: record tiles ── */
+  /* A nested tile, as the PM canvas lists a custodian's notifications and surveys (Scott, 10-15): one tile per
+     instance, stacked 8px apart. Header band: reference link, name, status badge, and the aside at the right
+     (recipients, due date); then its timeline (CV41); its actions small tertiary at the bottom right. */
+  function recordTile(o) {
+    /* The reference opens what the tile's own VIEW action opens, so one object opens one way (o.view). */
+    return '<div class="card card-basic cv-tile"><div class="cv-tile-head">' + (o.view ? '<a href="#" class="fw-bold" ' + o.view + ">" + esc(o.id) + "</a>" : '<a href="' + o.href + '" class="fw-bold">' + esc(o.id) + "</a>") +
+      '<span class="cv-tile-name">' + esc(o.title) + "</span>" + o.badge + '<span class="cv-meta text-muted ms-auto">' + esc(o.aside || "") + "</span></div>" +
+      '<div class="cv-tile-body">' + timeline(o.events, panelId + ":" + o.id) + tileFooter(moreBtn(o.events, panelId + ":" + o.id), o.acts) + "</div></div>";
+  }
+  /* Tile footer: SHOW EARLIER on the left, the tile's actions on the right, under a blurry rule that sets the actions
+     apart from the timeline rows (Scott, 10-15); none when empty. */
+  function tileFooter(more, acts) {
+    return more || acts ? '<hr class="hr hr-blurry cv-tile-rule" aria-hidden="true" /><div class="card-actions justify-content-end">' + (more || "") + (acts || "") + "</div>" : "";
+  }
+  function tileStack(list) { return '<div class="cv-tile-stack">' + list.join("") + "</div>"; }
+  /* A notification's status badge; a silent hold reads "Silent legal hold" on its tile, "Tracked" in a recipient list. */
+  function lhnBadge(status, silentLabel) {
+    return status === "Silent" ? badgeHtml(silentLabel, "secondary") : status === "Acknowledged" ? badgeHtml("Acknowledged", "success") :
+      status === "Sent" ? badgeHtml("Sent", "info") : badgeHtml("Not acknowledged", "danger");
+  }
+
+  /* ── Panel: sorting ── */
+  /* Default order, stated where the list is (Scott, 10-15): every nested list has one deliberate order, named in a
+     "SORTED BY:" meta line (Hold Status's wording), shown when the list has two or more items. Notifications and
+     surveys: needs action first, then newest. Timelines: oldest first (the story of what was done). Sources: least
+     protected / least collected first, Hold Status's ranking. */
   var SEVERITY = { "Not applied": 0, "Overdue": 1, "Partial": 2, "Applying": 3, "Removing": 3, "Unknown": 4, "Applied": 5, "Attested": 6 };
   var COLLECTED = { Failed: 0, Retrying: 1, "Not started": 2, "In progress": 3, Collected: 4 };
   function sortLine(text) { return '<p class="cv-meta text-muted mb-2 cv-meta-line"><span class="demo-label d-inline me-1">Sorted By:</span>' + esc(text) + "</p>"; }
@@ -574,9 +692,13 @@
   function actionThenNewest(isAction) {
     return function (a, b) { return (isAction(a) ? 0 : 1) - (isAction(b) ? 0 : 1) || (firstDate(a) < firstDate(b) ? 1 : firstDate(a) > firstDate(b) ? -1 : 0); };
   }
+  /* Least protected first; a source not requested yet sits between Partial and Applying. */
   function protectionRank(s) { return s.pending ? 2.5 : s.hold in SEVERITY ? SEVERITY[s.hold] : 9; }
+
+  /* ── Panel: pagers and source tables ── */
   /* Conditional pager (the nested-list rule): a source table longer than 10 rows gets the standard pager, 10 per page;
-     no toolbar. Pages reset when the panel moves to another custodian. */
+     no toolbar. Pages reset when the panel moves to another custodian. Keys: cvp-preservation, cvp-collection, and
+     cvnc (the non-custodial table, outside the panel). */
   var pgPage = {}, pgSize = {}, pgTotal = {};
   function paged(key, rows, label) {
     pgTotal[key] = rows.length;
@@ -592,26 +714,12 @@
     return '<div class="table-responsive"><table class="table align-middle mb-0 cv-src"><thead><tr><th scope="col">Source</th><th scope="col">Status</th><th scope="col">From</th></tr></thead><tbody>' +
       rows.map(function (r) { return "<tr><td>" + r[0] + "</td><td>" + r[1] + "</td><td>" + r[2] + "</td></tr>"; }).join("") + "</tbody></table></div>";
   }
-  /* A nested tile, as the PM canvas lists a custodian's notifications and surveys (Scott, 10-15): one tile per
-     instance, stacked 8px apart. Header band: reference link, name, status badge, and the aside at the right
-     (recipients, due date); then its timeline (CV41); its actions small tertiary at the bottom right. */
-  function tile(o) {
-    /* The reference opens what the tile's own VIEW action opens, so one object opens one way (o.view). */
-    return '<div class="card card-basic cv-tile"><div class="cv-tile-head">' + (o.view ? '<a href="#" class="fw-bold" ' + o.view + ">" + esc(o.id) + "</a>" : '<a href="' + o.href + '" class="fw-bold">' + esc(o.id) + "</a>") +
-      '<span class="cv-tile-name">' + esc(o.title) + "</span>" + o.badge + '<span class="cv-meta text-muted ms-auto">' + esc(o.aside || "") + "</span></div>" +
-      /* A blurry rule sets the tile's actions apart from its timeline rows (Scott, 10-15). */
-      '<div class="cv-tile-body">' + timeline(o.events, panelId + ":" + o.id) + footer(moreBtn(o.events, panelId + ":" + o.id), o.acts) + "</div></div>";
-  }
-  /* Tile footer: SHOW EARLIER on the left, the tile's actions on the right, under a blurry rule; none when empty. */
-  function footer(more, acts) {
-    return more || acts ? '<hr class="hr hr-blurry cv-tile-rule" aria-hidden="true" /><div class="card-actions justify-content-end">' + (more || "") + (acts || "") + "</div>" : "";
-  }
-  function tiles(list) { return '<div class="cv-tile-stack">' + list.join("") + "</div>"; }
-  /* Identity: the record's name (14px bold), then a 12px line; `sub` is HTML (a reference link, inline so only its
-     text is clickable). */
+  /* Identity: the record's name (14px bold), then a 12px line; `sub` is HTML. */
   function ident(name, sub) { return '<span class="d-block fw-bold">' + esc(name) + "</span>" + (sub ? '<div class="small text-muted">' + sub + "</div>" : ""); }
-  function refLink(id, href) { return '<a href="' + href + '">' + esc(id) + "</a>"; }
+  /* A status qualifier under the badge (12px), toned when it needs attention. */
   function qual(text, tone) { return '<span class="d-block small mt-1' + (tone ? " text-" + tone + "-emphasis" : "") + '">' + text + "</span>"; }
+
+  /* ── Panel: workflow drawers ── */
   /* A workflow drawer: the house drawer card (Nimbus .card-drawer; demo.css "Drawer card", as My Work and Data map).
      The top row is the category heading, the workflow's one-line state and the chevron; the body is a Nimbus
      .collapse holding the records, then the section's next steps on a footer row (forward right).
@@ -652,7 +760,7 @@
     var e = M.expectation(c, wf);
     var outside = { survey: "Not on LH-0031, so the case does not expect a survey.", interview: "Not tagged Key Custodian, so the case does not expect an interview.",
       collection: "No collection is marked for this custodian." }[wf];
-    var ex = M.cases.filter(function (x) { return x.id === D.caseId; })[0].expects[wf], rule = ex.rule || ex.text;
+    var ex = thisCase().expects[wf], rule = ex.rule || ex.text;
     return '<p class="cv-meta text-muted mb-2 cv-meta-line"><span class="demo-label d-inline me-1">' + (e.yes ? "Expected:" : "Not Expected:") + "</span>" +
       esc(e.yes ? e.why : rule + ". " + outside) + "</p>";
   }
@@ -669,27 +777,24 @@
     var silentN = (c.lhn || []).length - notices.length;
     var sum = (c.lhn || []).length ? [notices.length ? plural(notices.length, "notification") : "", unack ? unack + " not acknowledged" : "", esc8 ? "escalated " + short(esc8) : "",
       silentN ? "In " + plural(silentN, "silent legal hold") : ""].filter(Boolean).join(" · ") : "None sent";
-    /* One tile per notification or silent legal hold the custodian is on, in the order they started. */
+    /* One tile per notification or silent legal hold the custodian is on: needs action first, then newest. */
     var lhn = (c.lhn || []).slice().sort(actionThenNewest(function (n) { return n.status !== "Acknowledged" && n.status !== "Sent" && n.status !== "Silent"; }));
     var rows = lhn.map(function (n) {
-      var h = M.legalHolds.filter(function (x) { return x.id === n.id; })[0] || { title: "" };
+      var h = holdById(n.id) || { title: "" };
       var to = custodians.filter(function (x) { return (x.lhn || []).some(function (y) { return y.id === n.id; }); }).length;
       var silent = n.status === "Silent";
-      var badge = silent ? badgeHtml("Silent legal hold", "secondary") : n.status === "Acknowledged" ? badgeHtml("Acknowledged", "success") :
-        n.status === "Sent" ? badgeHtml("Sent", "info") : badgeHtml("Not acknowledged", "danger");
       var acts = silent ? btn("VIEW LEGAL HOLD", 'data-cv-view-lh="' + n.id + '"') + link("REMOVE FROM LEGAL HOLD", "not-in-demo.html?what=Remove+from+legal+hold&amp;ships=1") :
         n.status === "Acknowledged" ? btn("VIEW NOTIFICATION", 'data-cv-view-lh="' + n.id + '"') :
         btn("SEND REMINDER", 'data-cv-remind="' + n.id + '"') + btn("RESEND NOTIFICATION", 'data-cv-resend="' + n.id + '"') + btn("RECORD ACKNOWLEDGMENT", 'data-cv-ack="' + n.id + '"');
-      return tile({ id: n.id, view: 'data-cv-view-lh="' + n.id + '"', title: h.title, badge: badge,
+      return recordTile({ id: n.id, view: 'data-cv-view-lh="' + n.id + '"', title: h.title, badge: lhnBadge(n.status, "Silent legal hold"),
         aside: silent ? "Nothing sent to the custodian" : "Sent to " + plural(to, "custodian"), events: n.events, acts: acts });
     });
-    var body = rows.length ? (rows.length > 1 ? sortLine("Needs action first, then newest · each timeline oldest first") : "") + tiles(rows) : empty("No legal hold notification", "No legal hold notification has been sent to this custodian.");
-    var regular = M.legalHolds.filter(function (h) { return !h.silent; }), silentHolds = M.legalHolds.filter(function (h) { return h.silent; });
+    var body = rows.length ? (rows.length > 1 ? sortLine("Needs action first, then newest · each timeline oldest first") : "") + tileStack(rows) : empty("No legal hold notification", "No legal hold notification has been sent to this custodian.");
     var menu = item("", "New Legal Hold Notification …", "Opens the notification form with this custodian as the recipient", "not-in-demo.html?what=New+legal+hold+notification&amp;ships=1") +
       '<li><h6 class="dropdown-header">Settings from a notification in this case</h6></li>' +
-      regular.map(function (h) { return item('data-send-lhn="' + h.id + '" data-one="' + pid + '"', h.id + " · " + h.title.split(" · ")[0], h.settings); }).join("") +
+      holdsOf(false).map(function (h) { return item('data-send-lhn="' + h.id + '" data-one="' + pid + '"', h.id + " · " + h.title.split(" · ")[0], h.settings); }).join("") +
       '<li><h6 class="dropdown-header">Silent legal hold · nothing is sent</h6></li>' +
-      silentHolds.map(function (h) {
+      holdsOf(true).map(function (h) {
         var on = (c.lhn || []).some(function (x) { return x.id === h.id; });
         return on ? '<li><span class="dropdown-item disabled" aria-disabled="true">' + esc(h.id + " · " + h.title) + '<span class="d-block small text-muted">Already tracked</span></span></li>' :
           item('data-send-silent="' + h.id + '" data-one="' + pid + '"', h.id + " · " + h.title, "Track this custodian; nothing is sent");
@@ -699,9 +804,9 @@
     return drawer("lhn", "Legal Hold Notification", sum, body, sendMenu("SEND LEGAL HOLD NOTIFICATION", menu) + release);
   }
 
-  function surveyDrawer(c, v) {
+  function surveyDrawer(c) {
     var pid = c.personId, sv = c.surveys || [];
-    var na = c.notRequiredWf && c.notRequiredWf.survey, dash = v.survey.state === "dash", exp = M.expectation(c, "survey").yes;
+    var na = c.notRequiredWf && c.notRequiredWf.survey, exp = M.expectation(c, "survey").yes;
     var answered = sv.filter(function (x) { return x.status === "Answered"; }).length, late = sv.filter(function (x) { return x.status === "Escalated" || x.status === "Not answered"; }).length;
     var sum = na ? "Not required" : !exp ? "Not expected on this case" + (sv.length ? " · " + plural(sv.length, "survey") + " sent" : "") : !sv.length ? "Not sent" :
       [plural(sv.length, "survey"), answered + " answered", late ? late + " overdue" : ""].filter(Boolean).join(" · ");
@@ -715,11 +820,11 @@
         /* No MARK NOT REQUIRED here: not required covers the survey workflow for this custodian (CV14), which is the
            footer's action; a second copy on each survey read as a per-survey choice that doesn't exist. */
         btn("SEND REMINDER", 'data-cv-remind="' + x.id + '"') + link("VIEW SURVEY", "not-in-demo.html?what=Survey+" + x.id + "&amp;ships=1");
-      return tile({ id: x.id, href: "not-in-demo.html?what=Survey+" + x.id + "&amp;ships=1", title: def.title + " · " + def.questions + " questions", badge: badge,
+      return recordTile({ id: x.id, href: "not-in-demo.html?what=Survey+" + x.id + "&amp;ships=1", title: def.title + " · " + def.questions + " questions", badge: badge,
         aside: done ? "Answered " + short(x.on) : "Due " + short(x.due || def.due), events: x.events, acts: acts });
     });
     var body = expectLine(c, "survey") + (na ? '<p class="cv-meta mb-0">Not required: ' + esc(na) + "</p>" : !sv.length ? (exp ? empty("No survey sent", "The case expects a survey from this custodian, and none has been sent.") : "") :
-      (rows.length > 1 ? sortLine("Needs action first, then newest · each timeline oldest first") : "") + (exp ? "" : OFF_PLAN) + tiles(rows) + '<p class="cv-meta text-muted mt-2 mb-0">Locations named in survey answers are added as reported locations for review.</p>');
+      (rows.length > 1 ? sortLine("Needs action first, then newest · each timeline oldest first") : "") + (exp ? "" : OFF_PLAN) + tileStack(rows) + '<p class="cv-meta text-muted mt-2 mb-0">Locations named in survey answers are added as reported locations for review.</p>');
     var menu = item("", "New Survey …", "Opens the survey form with this custodian", "not-in-demo.html?what=New+survey&amp;ships=1") +
       '<li><h6 class="dropdown-header">Questions and reminders from a survey in this case</h6></li>' +
       M.surveys.map(function (d) { return item('data-send-survey="' + d.id + '" data-one="' + pid + '"', d.id + " · " + d.title, d.questions + " questions"); }).join("");
@@ -729,13 +834,13 @@
 
   /* Interview (CV42–CV42c): states the fact and does not advise. SCHEDULE is open on every custodian (CV42aa);
      a booked interview offers RESCHEDULE and MARK COMPLETE, and both dates stay in its history (CV42b). */
-  function interviewDrawer(c, v) {
+  function interviewDrawer(c) {
     var iv = c.interview, na = c.notRequiredWf && c.notRequiredWf.interview, exp = M.expectation(c, "interview").yes;
     var state = !iv ? "" : iv.status === "Complete" ? "Complete " + short(iv.completed) : "Scheduled " + short(iv.date);
     var sum = na ? "Not required" : !exp ? "Not expected on this case" + (iv ? " · " + state.toLowerCase() : "") : !iv ? "Not scheduled" : state;
     var body = expectLine(c, "interview") + (na ? '<p class="cv-meta mb-0">Not required: ' + esc(na) + "</p>" :
       !iv ? (exp ? '<p class="mb-0">Not scheduled.</p>' : "") : (exp ? "" : OFF_PLAN) +
-      tiles([tile({ id: "Interview", href: "not-in-demo.html?what=Interview&amp;ships=1", title: "with " + iv.with + " · " + iv.where,
+      tileStack([recordTile({ id: "Interview", href: "not-in-demo.html?what=Interview&amp;ships=1", title: "with " + iv.with + " · " + iv.where,
         badge: iv.status === "Complete" ? badgeHtml("Complete", "success") : badgeHtml("Scheduled", "info"),
         aside: iv.status === "Complete" ? "Completed " + short(iv.completed) : M.fmtDateTime(iv.date, iv.time), events: iv.events,
         acts: iv.status === "Complete" ? "" : btn("RESCHEDULE", "data-cv-schedule") + btn("MARK COMPLETE", "data-cv-iv-done") })]));
@@ -786,19 +891,21 @@
       (failed ? link("VIEW FAILURES", "not-in-demo.html?what=Collection+failures", "btn-secondary") : off("VIEW FAILURES", "No collection from this custodian has failed.", "btn-secondary")), !exp);
   }
 
+  /* ── Panel: render ── */
+  /* Severity, as Hold Status colours its cards (Scott, 10-15): danger when something is late or failed (action),
+     warning when something expected has not started (todo: Not scheduled, Not sent, Not requested). Healthy and
+     in-flight workflows stay neutral: colouring good news is noise. */
+  function severity(x) { return x.state === "action" ? "danger" : x.state === "todo" ? "warning" : ""; }
+  /* Redraw the open panel in place, keeping its scroll position. */
   function renderPanel() {
     var c = byPid(panelId), p = person(c), v = cov(c), ok = seen(c);
     var keep = panel.el.querySelector(".offcanvas-body"), top = keep ? keep.scrollTop : 0;
-    /* Summary strip: one card, the five workflows divided by blurry rules, each a label over its state. */
     /* Summary cards, the Hold Status pattern (Scott, 10-15): one card per workflow, each opening its drawer. A
-       workflow's card is toned by severity (below). A limited profile has no drawers, so its cards are
-       plain, not buttons. Values are words (Not acknowledged), so they take 16px, not the 24.5px of a count. */
+       workflow's card is toned by severity. A limited profile has no drawers, so its cards are plain, not buttons.
+       Values are words (Not acknowledged), so they take 16px, not the 24.5px of a count. These cards jump, they
+       don't filter, so they are not toggles (no aria-pressed) and keep Nimbus's full outline border. */
     var strip = '<div class="demo-tiles cv-ptiles" role="group" aria-label="Workflows">' + [["lhn", "Legal Hold Notification", v.lhn], ["survey", "Survey", v.survey], ["interview", "Interview", v.interview], ["preservation", "Preservation", v.preservation], ["collection", "Collection", v.collection]].map(function (x) {
-      /* Severity, as Hold Status colours its cards (Scott, 10-15): danger when something is late or failed (action),
-         warning when something expected has not started (todo: Not scheduled, Not sent, Not requested). Healthy and
-         in-flight workflows stay neutral: colouring good news is noise. These cards jump, they don't filter,
-         so they are not toggles (no aria-pressed) and keep Nimbus's full outline border. */
-      var tone = x[2].state === "action" ? "danger" : x[2].state === "todo" ? "warning" : "";
+      var tone = severity(x[2]);
       var inner = '<span class="card-subtitle demo-tile-name">' + x[1] + '</span><span class="card-title demo-tile-value">' + esc(x[2].text) + "</span>" +
         '<span class="card-text demo-tile-label">' + esc(x[2].state === "dash" ? "Not expected" : x[2].detail || "") + "</span>";
       var cls = "card " + (tone ? "card-outline card-" + tone : "card-basic") + " demo-tile";
@@ -814,7 +921,7 @@
     /* The standing summary (CV40): where this person stands, as chips. */
     var notices = (c.lhn || []).filter(function (n) { return n.status !== "Silent"; });
     var unack = notices.filter(function (n) { return n.status !== "Acknowledged"; }).length, silentN = (c.lhn || []).length - notices.length;
-    var need = ["lhn", "survey", "interview", "preservation", "collection"].filter(function (k) { return v[k].state === "action"; }).length;
+    var need = WORKFLOWS.filter(function (k) { return v[k].state === "action"; }).length;
     var PT = { done: "success", progress: "info", action: "danger", na: "light", todo: "warning", silent: "secondary", dash: "light" };
     var chips = [badgeHtml("Custodian", "info"),
       v.preservation.state === "na" ? badgeHtml("Preservation not required", "light") : badgeHtml(v.preservation.text.replace(" on hold", " sources on hold"), PT[v.preservation.state]),
@@ -826,8 +933,8 @@
        jumps to its drawer; the drawer being read is marked (aria-current). Below 1200px the state words drop. */
     var bar = '<div class="cv-bar-pin" aria-hidden="true"><nav class="cv-bar nav-tabs-casefusion" aria-label="Workflows for ' + esc(p.name) + '"><span class="cv-bar-name">' + D.avatar(p, 32) + esc(p.name) + "</span>" +
       [["lhn", "Notification", v.lhn], ["survey", "Survey", v.survey], ["interview", "Interview", v.interview], ["preservation", "Preservation", v.preservation], ["collection", "Collection", v.collection]].map(function (x) {
-        var tone = x[2].state === "action" ? " text-danger-emphasis" : x[2].state === "todo" ? " text-warning-emphasis" : "";
-        return '<button type="button" class="cv-bar-item" data-cv-jump="' + x[0] + '"' + (tone ? ' data-tone="' + (x[2].state === "action" ? "danger" : "warning") + '"' : "") + ' tabindex="-1"><span class="cv-bar-wf">' + x[1] + '</span><span class="cv-bar-value' + tone + '">' +
+        var tone = severity(x[2]);
+        return '<button type="button" class="cv-bar-item" data-cv-jump="' + x[0] + '"' + (tone ? ' data-tone="' + tone + '"' : "") + ' tabindex="-1"><span class="cv-bar-wf">' + x[1] + '</span><span class="cv-bar-value' + (tone ? " text-" + tone + "-emphasis" : "") + '">' +
           esc(x[2].state === "dash" ? "Not expected" : x[2].text) + "</span></button>";
       }).join("") +
       /* Back to top, at the bar's end behind a blurry divider: the thick MDI arrow in link blue (Scott, 10-15). */
@@ -846,11 +953,13 @@
           '<div class="dropdown"><button type="button" class="btn btn-secondary btn-sm dropdown-toggle" data-cnds-toggle="dropdown" aria-expanded="false" aria-haspopup="menu">Export As <i class="mdi mdi-chevron-down" aria-hidden="true"></i></button>' +
           '<ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion dropdown-menu-end demo-menu-hug" role="menu"><li role="none"><button type="button" class="dropdown-item" role="menuitem" data-cv="export-one">CSV</button></li>' +
           '<li role="none"><a class="dropdown-item" role="menuitem" href="not-in-demo.html?what=Custodian+coverage+(PDF)">PDF</a></li></ul></div></div></div>' +
-      strip + '<div class="cv-drawers">' + lhnDrawer(c) + surveyDrawer(c, v) + interviewDrawer(c, v) + preservationDrawer(c, v) + collectionDrawer(c, v) + "</div></div>");
+      strip + '<div class="cv-drawers">' + lhnDrawer(c) + surveyDrawer(c) + interviewDrawer(c) + preservationDrawer(c, v) + collectionDrawer(c, v) + "</div></div>");
     if (keep) keep.scrollTop = top;
     if (window.Nimbus && Nimbus.DataAPI) Nimbus.DataAPI.initAll(panel.el.querySelector(".offcanvas-body"));
     syncBar();
   }
+
+  /* ── Panel: contents bar ── */
   /* Show the contents bar once the summary cards are out of view, and mark the drawer whose heading has passed
      under it. The bar is out of the tab order and hidden from assistive tech while it is not shown. */
   function syncBar() {
@@ -872,6 +981,9 @@
       if (b.getAttribute("data-cv-jump") === current) b.setAttribute("aria-current", "true"); else b.removeAttribute("aria-current");
     });
   }
+
+  /* ── Panel: open, step, jump, toggle ── */
+  /* Open (or move) the panel to a custodian, at the top of its body. */
   function openPanel(pid) {
     if (pid !== panelId) pgPage = {};
     panelId = pid;
@@ -899,9 +1011,9 @@
   /* "3 of 9 custodians": where this custodian sits in the grid's current filter. */
   function panelPos() {
     var el = document.getElementById("cvPanelPos"), list = ordered(), i = list.map(function (c) { return c.personId; }).indexOf(panelId);
-    if (el) el.textContent = i === -1 ? "Not in the current filter" : (i + 1) + " of " + list.length + " custodian" + (list.length === 1 ? "" : "s");
+    if (el) el.textContent = i === -1 ? "Not in the current filter" : (i + 1) + " of " + plural(list.length, "custodian");
   }
-  /* From the summary strip: open the workflow's drawer (if shut) and bring it to the top of the panel. */
+  /* From the summary cards or the contents bar: open the workflow's drawer (if shut) and bring it to the top. */
   function jumpTo(k) {
     var btnEl = panel.el.querySelector('[data-cv-sec="' + k + '"]');
     if (btnEl && btnEl.getAttribute("aria-expanded") !== "true") toggleSection(btnEl);
@@ -918,25 +1030,10 @@
     else el.classList.toggle("show", secOpen[k]);
   }
 
-  /* ── Panel actions ──────────────────────────────────────────────────── */
-  function nowTime() { return "10:05"; }  /* the demo's clock: every action happens at 10:05 on M.DEMO_TODAY */
-  function instance(c, id) {
-    return (c.lhn || []).filter(function (n) { return n.id === id; })[0] || (c.surveys || []).filter(function (s) { return s.id === id; })[0];
-  }
-  function remind(c, id) {
-    var x = instance(c, id), n = (x.events || []).filter(function (e) { return /^Reminder/.test(e[2]); }).length + 1;
-    x.events.push([TODAY, nowTime(), "Reminder " + n, me(), "Sent", "sent manually"]);
-    D.toast("Reminder " + n + " sent for " + id + ".");
-    render();
-  }
-  function resend(c, id) {
-    instance(c, id).events.push([TODAY, nowTime(), "Notification resent", me(), "Sent", "email and Teams"]);
-    D.toast("Legal hold notification " + id + " sent again to " + person(c).name + ".");
-    render();
-  }
-  /* Stacked drawer: the notification or legal hold, read-only. 50%: a detail with a recipient list. */
+  /* ── Stacked drawers (forms and read-only detail, 50%) ────────────── */
+  /* The notification or legal hold, read-only: a detail with a recipient list. */
   function viewHold(id) {
-    var h = M.legalHolds.filter(function (x) { return x.id === id; })[0];
+    var h = holdById(id);
     var on = custodians.filter(function (c) { return (c.lhn || []).some(function (n) { return n.id === id; }); });
     var kv = function (k, val) { return '<dt class="col-4 fw-bold">' + k + '</dt><dd class="col-8">' + val + "</dd>"; };
     D.offcanvas({ title: id + " · " + h.title, width: "50vw",
@@ -946,14 +1043,12 @@
         '<div class="cf-category cf-cat-6 highlight-casefusion">' + (h.silent ? "Custodians Tracked" : "Recipients") + "</div>" +
         '<ul class="list-group list-group-flush cv-tl">' + on.map(function (c) {
           var n = c.lhn.filter(function (x) { return x.id === id; })[0], p = person(c);
-          var st = n.status === "Silent" ? badgeHtml("Tracked", "secondary") : n.status === "Acknowledged" ? badgeHtml("Acknowledged", "success") : n.status === "Sent" ? badgeHtml("Sent", "info") : badgeHtml("Not acknowledged", "danger");
-          return '<li class="list-group-item cv-tl-2"><span class="' + (seen(c) ? "fw-bold" : "fw-bold demo-masked") + '">' + (seen(c) ? "" : LOCK) + esc(D.nameFor(p)) + "</span>" + st + "</li>";
+          return '<li class="list-group-item cv-tl-2"><span class="' + (seen(c) ? "fw-bold" : "fw-bold demo-masked") + '">' + (seen(c) ? "" : LOCK) + esc(D.nameFor(p)) + "</span>" + lhnBadge(n.status, "Tracked") + "</li>";
         }).join("") + "</ul></div>",
       footer: '<button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas">BACK</button>' });
   }
-  /* Stacked form drawers (50%): BACK closes only this drawer (with the Please Confirm guard when something was
-     entered); SAVE records it, closes this drawer and redraws the panel underneath with a toast. */
-
+  /* Form drawers: BACK closes only this drawer (with the Please Confirm guard when something was entered); SAVE
+     records it, closes this drawer and redraws the panel underneath with a toast. */
   /* Nimbus/Datepicker and Nimbus/Timepicker, separate as the PM canvas draws them (Scott, 10-15). The datepicker
      writes mm-dd-yyyy; the timepicker is 12-hour in 5-minute steps. Both start in formDrawer below. */
   function dateField(id, label, value) {
@@ -979,17 +1074,23 @@
     var h = +t[1] % 12 + (/PM/i.test(t[3] || "") ? 12 : 0);
     return String(t[3] ? h : +t[1]).padStart(2, "0") + ":" + t[2];
   }
+  /* "10-22-2026" (the datepicker's text) → "2026-10-22"; `fallback` when the field does not parse. */
+  function toIso(text, fallback) {
+    var p = text.split("-");
+    return p.length === 3 ? p[2] + "-" + p[0] + "-" + p[1] : fallback;
+  }
+  /* A stacked form drawer; SAVE is disabled until every required text field has a value. onSave gets a field reader. */
   function formDrawer(title, intro, fields, onSave) {
     var d = D.offcanvas({ title: title, width: "50vw",
       body: '<div class="cv-scope">' + (intro ? '<p class="mb-3">' + intro + "</p>" : "") + fields + "</div>",
       footer: '<button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas">BACK</button><button type="button" class="btn btn-primary" data-cv-save>SAVE</button>' });
-    /* Start the pickers (markup added after boot is not auto-initialised), then forget the values they wrote, so
-       BACK only asks to discard what the reader typed. */
+    /* Start the pickers (markup added after boot is not auto-initialised). A click anywhere on the read-only field
+       opens its picker: Nimbus 9.0.106 restored this (inputToggle; D14). */
     if (window.Nimbus && Nimbus.Datepicker) d.el.querySelectorAll("[data-cnds-datepicker-init]").forEach(function (x) { if (!Nimbus.Datepicker.getInstance(x)) new Nimbus.Datepicker(x, { format: "mm-dd-yyyy" }); });
     if (window.Nimbus && Nimbus.Timepicker) d.el.querySelectorAll("[data-cnds-timepicker-init]").forEach(function (x) {
       if (!Nimbus.Timepicker.getInstance(x)) new Nimbus.Timepicker(x, { format12: true, minuteStep: 5 });
     });
-    /* A click anywhere on the read-only field opens its picker: Nimbus 9.0.106 restored this (inputToggle; D14). */
+    /* Forget the values the pickers wrote, so BACK only asks to discard what the reader typed. */
     d.el.querySelectorAll("[data-demo-changed]").forEach(function (f) { f.removeAttribute("data-demo-changed"); });
     var save = d.el.querySelector("[data-cv-save]");
     var check = function () { save.disabled = [].some.call(d.el.querySelectorAll("input.cf-input-control"), function (f) { return !f.value.trim(); }); };
@@ -997,28 +1098,30 @@
     save.addEventListener("click", function () { var val = function (id) { var f = d.el.querySelector("#" + id); return f ? f.value.trim() : ""; }; d.hide(); onSave(val); });
     return d;
   }
+  /* RECORD ACKNOWLEDGMENT: an acknowledgment made outside CaseFusion, recorded as the custodian's, entered by the viewer. */
   function recordAck(c, id) {
     var n = instance(c, id);
     formDrawer("Record acknowledgment · " + id, "For " + esc(person(c).name) + ", who acknowledged outside CaseFusion. It is recorded as acknowledged by them, entered by you.",
       dateField("cvAckDate", "Date", M.fmtDate(TODAY)) + timeField("cvAckTime", "Time", "09:30") +
       D.select("cvAckHow", [["Email reply", "Email reply"], ["Signed form", "Signed form"], ["Verbal, in a meeting", "Verbal, in a meeting"]], "Email reply", "How", { cls: "mb-3" }) + noteField("cvAckNote"),
       function (val) {
-        var ad = val("cvAckDate").split("-"), at = toHhmm(val("cvAckTime"), "09:30"), aIso = ad.length === 3 ? ad[2] + "-" + ad[0] + "-" + ad[1] : TODAY;
+        var at = toHhmm(val("cvAckTime"), "09:30"), aIso = toIso(val("cvAckDate"), TODAY);
         n.status = "Acknowledged"; n.on = aIso;
         n.events.push([aIso, at, "Acknowledged", person(c).name, "Acknowledged", (val("cvAckHow") || "Recorded") + " · recorded by " + me()]);
         D.toast("Acknowledgment recorded for " + id + ".");
         render();
       });
   }
+  /* SCHEDULE / RESCHEDULE: a reschedule keeps the old date in the interview's history (CV42b). */
   function scheduleInterview(c) {
     var iv = c.interview, re = iv && iv.status !== "Complete";
-    var team = M.cases.filter(function (x) { return x.id === D.caseId; })[0].team.map(function (id) { var p = M.person(id); return [p.name, p.name]; });
+    var team = thisCase().team.map(function (id) { var p = M.person(id); return [p.name, p.name]; });
     formDrawer(re ? "Reschedule interview" : "Schedule interview", "With " + esc(person(c).name) + ". Scheduling does not make the interview expected on this case; the case setting does.",
       dateField("cvIvDate", "Date", re ? M.fmtDate(iv.date) : "10-22-2026") + timeField("cvIvTime", "Time", re ? iv.time : "10:00") +
       D.select("cvIvWith", team, re ? iv.with : team[0][0], "Interviewer", { cls: "mb-3" }) +
       D.select("cvIvWhere", [["Teams meeting", "Teams meeting"], ["In person", "In person"], ["Phone", "Phone"]], re ? iv.where : "Teams meeting", "Where", { cls: "mb-3" }) + noteField("cvIvNote"),
       function (val) {
-        var p = val("cvIvDate").split("-"), iso = p.length === 3 ? p[2] + "-" + p[0] + "-" + p[1] : "2026-10-22";
+        var iso = toIso(val("cvIvDate"), "2026-10-22");
         var hhmm = toHhmm(val("cvIvTime"), "10:00");
         if (re) iv.events.push([TODAY, nowTime(), "Rescheduled from " + M.fmtDateTime(iv.date, iv.time) + " to " + M.fmtDateTime(iso, hhmm), me(), "Rescheduled"]);
         else c.interview = iv = { status: "Scheduled", events: [[TODAY, nowTime(), "Scheduled for " + M.fmtDateTime(iso, hhmm), me(), "Scheduled"]] };
@@ -1027,13 +1130,29 @@
         render();
       });
   }
-  /* MARK COMPLETE (CV42a, new): writes the completion as an event; it is not marking the interview not required (CV42c). */
-  function completeInterview(c) {
-    c.interview.status = "Complete"; c.interview.completed = TODAY;
-    c.interview.events.push([TODAY, nowTime(), "Marked complete", me(), "Complete"]);
-    D.toast("Interview marked complete.");
-    render();
+
+  /* ── Exports ──────────────────────────────────────────────────────── */
+  /* Rows → a quoted CSV file download. */
+  function download(name, rows) {
+    var csv = rows.map(function (r) { return r.map(function (x) { return '"' + String(x).replace(/"/g, '""') + '"'; }).join(","); }).join("\n");
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+    a.download = name; document.body.appendChild(a); a.click(); a.remove();
   }
+  /* EXPORT COVERAGE and the report's CSV: limited profiles are counted, not named. */
+  function exportCoverage(name) {
+    var visible = custodians.filter(seen), hiddenN = custodians.length - visible.length;
+    var rows = [["Custodian", "Legal hold notification", "Survey", "Interview", "Preservation", "Collection"]];
+    visible.forEach(function (c) {
+      var v = cov(c);
+      rows.push([person(c).name].concat(WORKFLOWS.map(function (k) { return v[k].text + (v[k].detail ? " · " + v[k].detail : ""); })));
+    });
+    rows.push([]);
+    rows.push(["This export covers the " + visible.length + " custodians you can see. " + hiddenN + " are outside your regions."]);
+    download(name, rows);
+    D.toast("Exported " + visible.length + " custodians." + (hiddenN ? " " + hiddenN + " outside your regions are counted, not named." : ""));
+  }
+  /* Custodian coverage's EXPORT AS · CSV (CV47): the five workflows, then every event. */
   function exportOne(c) {
     var v = cov(c), p = person(c);
     var rows = [["Custodian", p.name], ["Title", p.title], []];
@@ -1049,76 +1168,57 @@
     D.toast("Exported coverage for " + p.name + ".");
   }
 
-  /* ── Exports ────────────────────────────────────────────────────────── */
-  function download(name, rows) {
-    var csv = rows.map(function (r) { return r.map(function (x) { return '"' + String(x).replace(/"/g, '""') + '"'; }).join(","); }).join("\n");
-    var a = document.createElement("a");
-    a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
-    a.download = name; document.body.appendChild(a); a.click(); a.remove();
-  }
-  function exportCoverage(name) {
-    var visible = custodians.filter(seen), hiddenN = custodians.length - visible.length;
-    var rows = [["Custodian", "Legal hold notification", "Survey", "Interview", "Preservation", "Collection"]];
-    visible.forEach(function (c) {
-      var v = cov(c);
-      rows.push([person(c).name].concat(["lhn", "survey", "interview", "preservation", "collection"].map(function (k) { return v[k].text + (v[k].detail ? " · " + v[k].detail : ""); })));
-    });
-    rows.push([]);
-    rows.push(["This export covers the " + visible.length + " custodians you can see. " + hiddenN + " are outside your regions."]);
-    download(name, rows);
-    D.toast("Exported " + visible.length + " custodians." + (hiddenN ? " " + hiddenN + " outside your regions are counted, not named." : ""));
-  }
-
-  /* ── Events ─────────────────────────────────────────────────────────── */
+  /* ── Events ───────────────────────────────────────────────────────── */
   /* A filter the reader picks clears any card filter. setFilter() below changes the select from code, and Nimbus
      Select fires its change event then too; `syncing` stops that echo from clearing the card the reader just chose. */
   var syncing = false;
   function onFilter() { if (syncing) return; tileFilter = null; page = 1; renderTiles(); view(renderGrid); }
-  /* A new order is a view change (crossfade); it keeps the filters and returns to page 1. */
-  function onSort() { page = 1; view(renderGrid); if (panel) panelPos(); }
-  ["change", "valueChanged.cnds.select"].forEach(function (ty) { document.getElementById("cvSort").addEventListener(ty, onSort); });
-  ["cvFilter", "cvWorkflow"].forEach(function (id) {
-    var el = document.getElementById(id);
-    el.addEventListener("change", onFilter);
-    el.addEventListener("valueChanged.cnds.select", onFilter);
-  });
-  document.getElementById("cvSearch").addEventListener("input", function () { page = 1; view(renderGrid); });
-  /* Pager: arrows turn the page; a new page size returns to page 1. */
-  function onPageSize(e) { if (e.target.getAttribute("data-pg-size") === "cv") { pageSize = +e.target.value; page = 1; view(renderGrid); } }
-  /* Nested pagers' page size: back to page 1 of that list. */
-  ["change", "valueChanged.cnds.select"].forEach(function (ty) {
-    document.addEventListener(ty, function (e) {
-      var k = e.target.getAttribute && e.target.getAttribute("data-pg-size");
-      if (!k || k === "cv" || +e.target.value === (pgSize[k] || 10)) return;
-      pgSize[k] = +e.target.value; pgPage[k] = 1;
-      if (k === "cvnc") view(renderNonCustodial); else renderPanel();
-    });
-  });
-  ["change", "valueChanged.cnds.select"].forEach(function (t) { document.getElementById("cvGridFoot").addEventListener(t, onPageSize); });
-  document.addEventListener("change", function (e) {
-    var t = e.target;
-    if (t.closest && t.closest(".modal")) return;
-    if (t.hasAttribute && t.hasAttribute("data-sel")) { selected[t.getAttribute("data-sel")] = t.checked; renderGrid(); return; }
-    if (t.id === "cvAll") { custodians.filter(matches).forEach(function (c) { selected[c.personId] = t.checked; }); renderGrid(); }
-  });
   function setFilter(v) {
     var el = document.getElementById("cvFilter");
     var inst = window.Nimbus && Nimbus.Select && Nimbus.Select.getInstance(el);
     syncing = true;
     try { if (inst && inst.setValue) inst.setValue(v); else el.value = v; } finally { syncing = false; }
   }
+  /* A new order is a view change (crossfade); it keeps the filters and returns to page 1. */
+  function onSort() { page = 1; view(renderGrid); if (panel) panelPos(); }
+  /* Grid pager: a new page size returns to page 1. */
+  function onPageSize(e) { if (e.target.getAttribute("data-pg-size") === "cv") { pageSize = +e.target.value; page = 1; view(renderGrid); } }
+  /* Nested pagers' page size (panel source tables, non-custodial sources): back to page 1 of that list. */
+  function onNestedPageSize(e) {
+    var k = e.target.getAttribute && e.target.getAttribute("data-pg-size");
+    if (!k || k === "cv" || +e.target.value === (pgSize[k] || 10)) return;
+    pgSize[k] = +e.target.value; pgPage[k] = 1;
+    if (k === "cvnc") view(renderNonCustodial); else renderPanel();
+  }
+  /* Native selects fire change; Nimbus Select fires valueChanged.cnds.select. Listen for both. */
+  ["change", "valueChanged.cnds.select"].forEach(function (ty) {
+    document.getElementById("cvSort").addEventListener(ty, onSort);
+    document.getElementById("cvFilter").addEventListener(ty, onFilter);
+    document.getElementById("cvWorkflow").addEventListener(ty, onFilter);
+    document.addEventListener(ty, onNestedPageSize);
+    document.getElementById("cvGridFoot").addEventListener(ty, onPageSize);
+  });
+  document.getElementById("cvSearch").addEventListener("input", function () { page = 1; view(renderGrid); });
+  /* Row and select-all checkboxes: a selection change redraws in place. */
+  document.addEventListener("change", function (e) {
+    var t = e.target;
+    if (t.closest && t.closest(".modal")) return;
+    if (t.hasAttribute && t.hasAttribute("data-sel")) { selected[t.getAttribute("data-sel")] = t.checked; renderGrid(); return; }
+    if (t.id === "cvAll") { custodians.filter(matches).forEach(function (c) { selected[c.personId] = t.checked; }); renderGrid(); }
+  });
+  /* Every click on the page and the panel (the release dialog handles its own). */
   document.addEventListener("click", function (e) {
     if (e.target.closest(".modal")) return;
     var t = e.target.closest("button, a, [data-cv]");
     if (!t) return;
-    /* Nested pagers (panel source tables, non-custodial sources). */
+    /* Pagers: the grid's (cv), or a nested one (panel source tables, non-custodial sources). */
     var pk = t.getAttribute("data-pg-for");
     if (pk && pk !== "cv") {
       pgPage[pk] = D.turnPage(pgPage[pk] || 1, t.getAttribute("data-pg"), pgTotal[pk] || 0, pgSize[pk] || 10);
       if (pk === "cvnc") view(renderNonCustodial); else renderPanel();
       return;
     }
-    if (t.getAttribute("data-pg-for") === "cv") { page = D.turnPage(page, t.getAttribute("data-pg"), custodians.filter(matches).length, pageSize); view(renderGrid); return; }
+    if (pk === "cv") { page = D.turnPage(page, t.getAttribute("data-pg"), custodians.filter(matches).length, pageSize); view(renderGrid); return; }
     if (t.hasAttribute("data-tile")) {
       var k = t.getAttribute("data-tile");
       tileFilter = tileFilter === k || k === "all" ? null : k; page = 1;
@@ -1144,12 +1244,11 @@
       if (t.hasAttribute("data-cv-schedule")) { scheduleInterview(pc); return; }
       if (t.hasAttribute("data-cv-iv-done")) { completeInterview(pc); return; }
     }
-    if (t.hasAttribute("data-cv-toast")) { D.toast(t.getAttribute("data-cv-toast")); return; }
     var a = t.getAttribute("data-cv");
     if (!a) return;
     if (a === "select-after") { page = 1; selected = {}; afterNoticeUnsent().forEach(function (c) { selected[c.personId] = true; }); tileFilter = null; setFilter("after"); render(); }
     if (a === "review-after") { page = 1; tileFilter = null; setFilter("after"); renderTiles(); view(renderGrid); }
-    if (a === "clear") { selected = {}; renderGrid(); }
+    if (a === "clear") clearSelection();
     if (a === "not-required") markNotRequired(null);
     if (a === "release") openRelease(selectedList().map(function (c) { return c.personId; }));
     if (a === "export") exportCoverage("coverage-" + D.caseId + ".csv");
@@ -1160,14 +1259,14 @@
     if (a === "panel-next") stepPanel(1);
     if (a === "panel-release") { var pid = panelId; panel.hide(); openRelease([pid]); }
   });
-
   /* The clear (X) is an icon with role="button": Enter and Space work as a click. */
   document.addEventListener("keydown", function (e) {
-    if ((e.key === "Enter" || e.key === " ") && e.target.getAttribute && e.target.getAttribute("data-cv") === "clear") { e.preventDefault(); selected = {}; renderGrid(); }
+    if ((e.key === "Enter" || e.key === " ") && e.target.getAttribute && e.target.getAttribute("data-cv") === "clear") { e.preventDefault(); clearSelection(); }
   });
 
   render();
 
+  /* ── Deep links ───────────────────────────────────────────────────── */
   /* DEMO ONLY: do not build. Not in PRD 08; it exists so the PM review's edge-case links open the right view.
      Deep links for the review guides: ?open=<person id> opens that custodian's coverage, and &drawer=<lhn|survey|
      interview|preservation|collection> opens that drawer and scrolls to it, so each edge case is one click away. */

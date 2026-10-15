@@ -306,7 +306,16 @@
     });
     var hide = opts.noGuard ? function () { inst.hide(); } : guardDismiss(el, inst, "modal");
     /* Stacked modals layer themselves: Nimbus modal.js lifts a modal opened over another, with its backdrop (10-14). */
+    /* A modal over an open drawer (e.g. Mark Not Required from the custodian panel) is not lifted: its backdrop took
+       the default 1040, under the drawer's 1045, so the drawer was not dimmed (Scott, 10-15). Lift the modal and its
+       backdrop above the topmost open drawer, one wash per visible boundary (Nimbus gap D13, with drawer over drawer). */
+    var drawerTop = 0;
+    document.querySelectorAll(".offcanvas.show, .offcanvas.showing").forEach(function (o) { drawerTop = Math.max(drawerTop, parseInt(getComputedStyle(o).zIndex, 10) || 0); });
     inst.show();
+    if (drawerTop) {
+      el.style.zIndex = String(drawerTop + 10);
+      var mbs = document.querySelectorAll(".modal-backdrop"); if (mbs.length) mbs[mbs.length - 1].style.zIndex = String(drawerTop + 5);
+    }
     return { el: el, id: id, hide: hide };
   }
 
@@ -371,7 +380,8 @@
         '<div class="cf-input-field cf-input-field-casefusion mt-2">' +
           '<label class="cf-input-label" for="demoReason">Reason <span class="cf-input-required">*</span></label>' +
           '<div class="cf-input-wrapper"><textarea id="demoReason" class="cf-input-control" rows="3"></textarea></div>' +
-          '<div class="cf-input-helper"><span class="cf-input-helper-text">Say why. The reason is kept with the case and appears in the preservation report.</span></div></div>' +
+          /* Declarative, no instruction (PM tone model); a dialog whose reason goes further says so in opts.help. */
+          '<div class="cf-input-helper"><span class="cf-input-helper-text">' + esc(opts.help || "The reason is kept with the case record.") + "</span></div></div>" +
         (opts.effect ? '<p class="note note-info note-sm mt-3 mb-0">' + esc(opts.effect) + "</p>" : "");
       var m = modal({ title: opts.title, body: body,
         footer: '<button type="button" class="btn btn-secondary" data-cnds-dismiss="modal">CANCEL</button>' +

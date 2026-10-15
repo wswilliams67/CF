@@ -1,37 +1,142 @@
-/* Coverage (PRD 08). Layout only; every component is Nimbus.
-   Type rule (Scott, 10-14): 14px for what is read before acting, 12px for what is scanned. Shared patterns
-   (tiles, demo-label, demo-card-head, demo-kv, demo-empty, demo-section-head) live in demo.css. */
+/* ═══════════════════════════════════════════════════════════════════════
+   Coverage (PRD 08). Layout only: every component is Nimbus, and the
+   shared demo patterns (tiles, demo-label, demo-card-head, demo-kv,
+   demo-empty, demo-section-head, drawer cards) live in demo.css.
+   Type rule (Scott, 10-14): 14px for what is read before acting, 12px for
+   what is scanned. Sections, in the order of case-coverage.js:
+     1. Page layout and type
+     2. Toolbar controls
+     3. Custodian grid
+     4. Selection toolbar
+     5. Non-custodial held sources
+     6. Crossfade
+     7. Release dialog
+     8. Custodian panel: summary cards, drawers, record tiles, timelines,
+        source tables, stepping
+     9. Contents bar
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. Page layout and type ──────────────────────────────────────────── */
 .alert .alert-message { flex: 1; }
 .cv-tiles { grid-template-columns: 1fr 1fr 1fr 1fr 16px 1fr; }
 .cv-gap-sep { justify-self: center; align-self: stretch; height: auto; min-height: 0; margin: var(--cnds-spacer-2) 0; }  /* Nimbus .vr-blurry in its 16px grid column */
-.cv-grid th:not(:nth-child(2)), .cv-grid td:not(:nth-child(2)) { text-align: center; }
 .cv-lower { display: grid; grid-template-columns: 1.6fr 1fr; gap: 16px; align-items: start; margin-bottom: 24px; }
 @media (max-width: 1200px) { .cv-lower { grid-template-columns: 1fr; } .cv-tiles { grid-template-columns: repeat(3, 1fr); } .cv-gap-sep { display: none; } }
-
 /* Meta lines (job title, cell detail, counts, dates) are scanned: 12px. Inside a table cell Nimbus .small resolves
    to 14px, so set it here for the grid, the panel and the release dialog (.cv-scope) (Scott, 10-14). */
 .cv-meta, .cv-grid td .small, .cv-scope .small { font-size: var(--cnds-paragraph-font-size-sm); line-height: var(--cnds-paragraph-line-height); }
+
+/* ── 2. Toolbar controls ──────────────────────────────────────────────── */
+/* Filter By holds its longest option, "Added After the First Notification", without truncating (design decision, 14 Oct). */
+.select-wrapper:has(> select#cvFilter) { min-width: 17rem; }
+.select-wrapper:has(> select#cvWorkflow) { min-width: 12.5rem; }
+/* Sort By holds its longest option, "Most Urgent" (Scott, 10-15). */
+.select-wrapper:has(> select#cvSort) { min-width: 8.5rem; }
+.cv-toolbar-search { flex: 1 1 9rem; min-width: 9rem; }  /* 9rem holds "Search custodians…"; the rest went to Sort By (10-15) */
+
+/* ── 3. Custodian grid ────────────────────────────────────────────────── */
+.cv-grid { table-layout: fixed; }
+.cv-grid th:not(:nth-child(2)), .cv-grid td:not(:nth-child(2)) { text-align: center; }
+/* Grid header: every label on one line and every cell centred vertically, so the select-all checkbox and the labels
+   share one line (Scott, 10-14). */
+.cv-grid thead th { vertical-align: middle; white-space: nowrap; }
+/* Rows top-align (Scott, 10-14): a lone badge (N/A, a dash) sits level with the badges that carry a summary line under
+   them, and the checkbox sits on the name's line. OPEN stays centred, as the row actions on Hold status. */
+.cv-grid tbody td:not(.cv-row-action) { vertical-align: top; }
+.cv-grid thead .form-check, .cv-grid tbody .form-check { display: flex; align-items: center; min-height: 0; padding-left: 0; }
+.cv-grid thead .form-check-input, .cv-grid tbody .form-check-input { margin: 0; float: none; }
+/* Badge columns (house rule, as Legal Holds; Scott, Sally 10-14): the five workflow columns are one fixed width and
+   every status badge fills its cell, so the colours read straight down a column. The custodian column takes the
+   rest; checkbox and OPEN stay narrow. Non-custodial held sources does the same for Preservation and Collection.
+   Column budget at 1440 (1,156px): checkbox 40 · custodian 232 · Legal Hold Notification 204 · four workflow
+   columns 150 · OPEN 80. Badges are 132px (the width of "Not acknowledged"; 120px until 10-15), so about 18px of
+   clear space separates neighbouring badges and headers (Scott, 10-14: readable at a glance). */
+.cv-grid th:nth-child(1) { width: 2.5rem; }
+.cv-grid th:nth-child(n+3):nth-child(-n+7) { width: 9.375rem; }
+/* Legal Hold Notification is the one label wider than a workflow column (CV5 keeps the full term; no wrapping, Scott
+   10-14), so its column is 204px; its badges stay 132px like every other column's. The doubled :nth-child matches
+   the rule above's specificity, so this one, coming later, wins. */
+.cv-grid th:nth-child(3):nth-child(-n+3) { width: 12.75rem; }
+.cv-grid th:nth-child(8) { width: 5rem; }
+/* Status cells and OPEN: 8px side padding. A 150px status column then holds its 132px badge; OPEN (60px) fits its
+   80px column, where 12px padding would overflow the table and add a horizontal scroll. */
+.cv-grid th:nth-child(n+3):nth-child(-n+7), .cv-grid td:nth-child(n+3):nth-child(-n+7),
+.cv-grid th:nth-child(8), .cv-grid td:nth-child(8) { padding-left: var(--cnds-spacer-2); padding-right: var(--cnds-spacer-2); }
+.cv-grid td .badge, .cv-nc td .badge { display: block; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cv-grid td .badge { width: 8.25rem; margin-left: auto; margin-right: auto; }
+.cv-grid td a:has(> .badge) { display: block; }
+/* Grid detail lines stay on one line (Scott, 10-15). They are worded to fit; the ellipsis and the cell title are a
+   safety net for a longer value, never the plan. */
+.cv-grid td .small.mt-1 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 /* The grid's empty state spans the row; keep it centred and give it room. */
 .cv-grid td .demo-empty { padding-bottom: var(--cnds-spacer-3); }
+/* Row action cell: a blurry vertical divider on its left edge, inset 12px from the row's top and bottom, separates
+   OPEN from the data (record-row grammar, as Hold Status and My Work; Scott, Sally 10-14). */
+.cv-grid td.cv-row-action { position: relative; }
+.cv-grid td.cv-row-action > .vr { position: absolute; left: 0; top: var(--cnds-spacer-3); bottom: var(--cnds-spacer-3); height: auto; min-height: 0; }
 
-/* ── Custodian panel (renderPanel; PRD 08 §7.2) ──────────────────────── */
-/* Panel summary cards: five equal columns; word values at 16px (a count takes 24.5px). */
+/* ── 4. Selection toolbar ─────────────────────────────────────────────── */
+/* The selection toolbar's menus open over the grid below. The toolbar's zoom leaves it on its own layer, which the
+   grid (later in the page) painted over, hiding the menus (Scott, 10-15); the slot sits on a raised layer. */
+#cvSelTool { position: relative; z-index: 6; }
+/* No dividers between its actions (Scott, 10-14); Nimbus draws one between neighbouring .btn-groups in a gray toolbar. */
+.btn-toolbar-gray.cv-seltool .btn-group + .btn-group,
+.btn-toolbar-gray.cv-seltool .toolbar-shared-count + .btn-group { border-left: 0; padding-left: 0; }
+/* Selection count block: 8px insets (not 12) and no extra padding after the count, so the six actions keep one line
+   at 1440 with the X in place. */
+.cv-seltool .toolbar-shared-count { padding-left: var(--cnds-spacer-2); padding-right: 0; }  /* gap stays the Nimbus 0.5rem; the first action's 12px inset separates it from the count */
+.cv-seltool .toolbar-shared-count .toolbar-list-total { padding-right: 0; }
+/* Blurry divider between the clear (X) and the count (Scott, 10-14), as tall as the toolbar's controls. */
+.cv-seltool .toolbar-shared-count > .vr { align-self: stretch; min-height: 1.5rem; }
+/* Optical gap: the X glyph is about 10.5px wide in its 18px icon box, so its box carries about 4px of empty space each
+   side. Pulling the divider in by that much makes X → divider read the same 8px as divider → count. */
+.cv-seltool .toolbar-shared-count > i { margin-right: -0.25rem; }
+/* Zoom (Nimbus keyframes cnds-scale-in / cnds-scale-out, 0.2s), its slot's height animated in JS. */
+.cv-seltool.cv-zoom-in { animation: cnds-scale-in .2s ease-out both; transform-origin: center; }
+.cv-seltool.cv-zoom-out { animation: cnds-scale-out .2s ease-in both; transform-origin: center; }
+@media (prefers-reduced-motion: reduce) { .cv-seltool.cv-zoom-in, .cv-seltool.cv-zoom-out { animation: none; } }
+
+/* ── 5. Non-custodial held sources ────────────────────────────────────── */
+.cv-nc { table-layout: fixed; }
+.cv-nc th:nth-child(2) { width: 8.5rem; }
+.cv-nc th:nth-child(3), .cv-nc th:nth-child(4) { width: 9rem; }
+.cv-nc th:nth-child(5) { width: 6.5rem; }
+/* Status columns (Preservation, Collection): 8px side padding, and header and dash centred, as the custodian grid. */
+.cv-nc th:nth-child(3), .cv-nc td:nth-child(3), .cv-nc th:nth-child(4), .cv-nc td:nth-child(4) { padding-left: var(--cnds-spacer-2); padding-right: var(--cnds-spacer-2); text-align: center; }
+.cv-nc td .badge { width: 100%; }
+
+/* ── 6. Crossfade ─────────────────────────────────────────────────────── */
+/* Table crossfade on a view change (view() in case-coverage.js): the ghost holds the old table over the new one. */
+.cv-xfade { position: relative; }
+.cv-xfade > * { transition: opacity .2s ease; }
+.cv-xfade.cv-xf-start > :not(.cv-xfade-ghost) { opacity: 0; transition: none; }
+.cv-xfade-ghost { position: absolute; top: 0; left: 0; right: 0; pointer-events: none; }
+.cv-xfade-ghost.cv-xf-out { opacity: 0; }
+
+/* ── 7. Release dialog ────────────────────────────────────────────────── */
+/* The footer note takes its own line so CANCEL · RELEASE ONLY · RELEASE AND CREATE CLEANUP REQUEST hold one line,
+   right-aligned (cancel beside commit). */
+.modal-footer .cv-footer-note { flex: 1 0 100%; margin: 0 0 var(--cnds-spacer-2); }
+
+/* ── 8. Custodian panel (renderPanel; PRD 08 §7.2) ────────────────────── */
+/* Summary cards: five equal columns; word values at 16px (a count takes 24.5px). */
 .cv-ptiles { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 .cv-ptiles .demo-tile-value { font-size: var(--cnds-paragraph-font-size-lg, 1rem); line-height: var(--cnds-paragraph-line-height); }
-.cv-value { font-size: var(--cnds-paragraph-font-size); line-height: var(--cnds-paragraph-line-height); }
 /* Workflow drawers: house drawer cards (demo.css), stacked 8px apart; the one-line state sits beside the chevron. */
 .cv-drawers { display: flex; flex-direction: column; gap: var(--cnds-spacer-2); }
 .cv-sec-sum { text-align: right; }
+/* A drawer reached from the summary cards or the contents bar stops below the bar, not under it. */
+.cv-drawer { scroll-margin-top: 64px; }
+/* EXPECTED and SORTED BY on one meta line, divided by a blurry rule (metaRow). */
+.cv-meta-row { display: flex; flex-wrap: wrap; align-items: center; column-gap: var(--cnds-spacer-3); row-gap: var(--cnds-spacer-1);
+  margin-bottom: var(--cnds-spacer-2); font-size: var(--cnds-paragraph-font-size-sm); line-height: var(--cnds-paragraph-line-height); color: var(--cnds-text-muted); }
+.cv-meta-row > .vr { align-self: stretch; height: auto; min-height: 1em; }
 /* The section's next steps: a footer row under a blurry rule, forward right. Blurry, as in the tiles: the rule parts
    a container's content from its own actions; solid rules are for row boundaries (Scott, 10-15). */
 .cv-sec-rule { margin: var(--cnds-spacer-3) 0 0; }
 .cv-sec-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: var(--cnds-spacer-2); padding-top: var(--cnds-spacer-3); }
-/* Per-source tables (Preservation, Collection), as the PM canvas draws them: SOURCE wide, STATUS with its
-   qualifier, FROM the provenance. The last row has no bottom border (list divider convention). */
-.cv-src th:nth-child(1) { width: 34%; }
-.cv-src th:nth-child(2) { width: 36%; }
-.cv-src > tbody > tr:last-child > * { border-bottom: 0; }
-/* Nested tiles (a notification, a survey, the interview), stacked 8px apart: a header band (reference, name, badge,
+
+/* Record tiles (a notification, a survey, the interview), stacked 8px apart: a header band (reference, name, badge,
    aside at the right) on a one-step-darker surface, then the timeline and the tile's actions. */
 .cv-tile-stack { display: flex; flex-direction: column; gap: var(--cnds-spacer-2); }
 .cv-tile { overflow: hidden; align-items: stretch; }  /* Nimbus .card centres its children; a tile's band and body span it */
@@ -42,6 +147,7 @@
 .cv-tile-body { padding: var(--cnds-spacer-1) var(--cnds-spacer-3) var(--cnds-spacer-2); }
 .cv-tile-body .card-actions { padding-top: var(--cnds-spacer-2); }
 .cv-tile-rule { margin: var(--cnds-spacer-1) 0 0; }
+
 /* Timeline (CV41): date · event · actor · outcome on one row; solid row dividers, none under the last row. */
 .cv-tl { --cnds-list-group-bg: transparent; }
 .cv-tl > .list-group-item { display: grid; grid-template-columns: 12rem minmax(0, 1.4fr) minmax(0, 1fr) 9rem; column-gap: var(--cnds-spacer-3); align-items: center;
@@ -49,89 +155,21 @@
 .cv-tl > .list-group-item:last-child { border-bottom: 0; }
 .cv-tl > .list-group-item > .badge { justify-self: end; }
 .cv-tl-when { color: var(--cnds-text-muted); white-space: nowrap; }
-/* Two-column variant (a recipient list): name, then status at the right. */
+/* Two-column variant (a recipient list in the stacked hold drawer): name, then status at the right. */
 .cv-tl > .list-group-item.cv-tl-2 { grid-template-columns: minmax(0, 1fr) auto; }
 
-/* Filter By holds its longest option, "Added After the First Notification", without truncating (design decision, 14 Oct). */
-.select-wrapper:has(> select#cvFilter) { min-width: 17rem; }
-.select-wrapper:has(> select#cvWorkflow) { min-width: 12.5rem; }
-.cv-toolbar-search { flex: 1 1 9rem; min-width: 9rem; }  /* 9rem holds "Search custodians…"; the rest went to Sort By (10-15) */
-/* Release dialog: the footer note takes its own line so CANCEL · RELEASE ONLY · RELEASE AND CREATE CLEANUP REQUEST
-   hold one line, right-aligned (cancel beside commit). */
-.modal-footer .cv-footer-note { flex: 1 0 100%; margin: 0 0 var(--cnds-spacer-2); }
-/* Grid header: every label on one line and every cell centred vertically, so the select-all checkbox and the labels
-   share one line (Scott, 10-14). */
-.cv-grid thead th { vertical-align: middle; white-space: nowrap; }
-
-.cv-grid thead .form-check, .cv-grid tbody .form-check { display: flex; align-items: center; min-height: 0; padding-left: 0; }
-.cv-grid thead .form-check-input, .cv-grid tbody .form-check-input { margin: 0; float: none; }
-/* Selection toolbar: no dividers between its actions (Scott, 10-14); Nimbus draws one between neighbouring
-   .btn-groups in a gray toolbar. */
-.btn-toolbar-gray.cv-seltool .btn-group + .btn-group,
-.btn-toolbar-gray.cv-seltool .toolbar-shared-count + .btn-group { border-left: 0; padding-left: 0; }
-/* Badge columns (house rule, as Legal Holds; Scott, Sally 10-14): the five workflow columns are one fixed width and
-   every status badge fills its cell, so the colours read straight down a column. The custodian column takes the
-   rest; checkbox and OPEN stay narrow. Non-custodial held sources does the same for Preservation and Collection. */
-.cv-grid { table-layout: fixed; }
-/* Column budget at 1440 (1,156px): checkbox 40 · custodian 232 · Legal Hold Notification 204 · four workflow
-   columns 150 · OPEN 80. Badges are 132px (the width of "Not acknowledged"; 120px until 10-15), so about 18px of clear space separates neighbouring badges and headers
-   (Scott, 10-14: readable at a glance). */
-.cv-grid th:nth-child(1) { width: 2.5rem; }
-.cv-grid th:nth-child(n+3):nth-child(-n+7) { width: 9.375rem; }
-/* Legal Hold Notification is the one label wider than 160px (CV5 keeps the full term; no wrapping, Scott 10-14), so its
-   column is 188px; its badges stay 144px like every other column's. */
-.cv-grid th:nth-child(3):nth-child(-n+3) { width: 12.75rem; }
-.cv-grid th:nth-child(8) { width: 5rem; }
-/* OPEN (60px) needs 8px side padding in its 80px column, or it overflows the table and adds a horizontal scroll. */
-.cv-grid th:nth-child(8), .cv-grid td:nth-child(8) { padding-left: var(--cnds-spacer-2); padding-right: var(--cnds-spacer-2); }
-.cv-grid td .badge { display: block; width: 8.25rem; margin-left: auto; margin-right: auto; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.cv-nc td .badge { display: block; width: 100%; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-/* Status cells: 8px side padding, so a 10rem column gives a 144px badge (the Legal Holds badge column). */
-.cv-grid th:nth-child(n+3):nth-child(-n+7), .cv-grid td:nth-child(n+3):nth-child(-n+7),
-.cv-nc th:nth-child(3), .cv-nc td:nth-child(3), .cv-nc th:nth-child(4), .cv-nc td:nth-child(4) { padding-left: var(--cnds-spacer-2); padding-right: var(--cnds-spacer-2); }
-.cv-grid td a:has(> .badge) { display: block; }
-.cv-nc { table-layout: fixed; }
-.cv-nc th:nth-child(2) { width: 8.5rem; }
-.cv-nc th:nth-child(3), .cv-nc th:nth-child(4) { width: 9rem; }
-.cv-nc th:nth-child(5) { width: 6.5rem; }
-/* Non-custodial status columns centre their header and dash, as the custodian grid does. */
-.cv-nc th:nth-child(3), .cv-nc td:nth-child(3), .cv-nc th:nth-child(4), .cv-nc td:nth-child(4) { text-align: center; }
-
-/* Row action cell: a blurry vertical divider on its left edge, inset 12px from the row's top and bottom, separates
-   OPEN from the data (record-row grammar, as Hold Status and My Work; Scott, Sally 10-14). */
-.cv-grid td.cv-row-action { position: relative; }
-.cv-grid td.cv-row-action > .vr { position: absolute; left: 0; top: var(--cnds-spacer-3); bottom: var(--cnds-spacer-3); height: auto; min-height: 0; }
-/* Selection count block: 8px insets (not 12) and no extra padding after the count, so the six actions keep one line
-   at 1440 with the X in place. */
-.cv-seltool .toolbar-shared-count { padding-left: var(--cnds-spacer-2); padding-right: 0; }  /* gap stays the Nimbus 0.5rem; the first action's 12px inset separates it from the count */
-.cv-seltool .toolbar-shared-count .toolbar-list-total { padding-right: 0; }
-/* Blurry divider between the clear (X) and the count (Scott, 10-14), as tall as the toolbar's controls. */
-.cv-seltool .toolbar-shared-count > .vr { align-self: stretch; min-height: 1.5rem; }
-/* Optical gap: the X glyph is about 10.5px wide in its 18px icon box, so its box carries about 4px of empty space each
-   side. Pulling the divider in by that much makes X → divider read the same 8px as divider → count. */
-.cv-seltool .toolbar-shared-count > i { margin-right: -0.25rem; }
-/* Selection toolbar zoom (Nimbus keyframes cnds-scale-in / cnds-scale-out, 0.2s), its slot's height animated in JS. */
-.cv-seltool.cv-zoom-in { animation: cnds-scale-in .2s ease-out both; transform-origin: center; }
-.cv-seltool.cv-zoom-out { animation: cnds-scale-out .2s ease-in both; transform-origin: center; }
-@media (prefers-reduced-motion: reduce) { .cv-seltool.cv-zoom-in, .cv-seltool.cv-zoom-out { animation: none; } }
-
-/* Table crossfade on a view change (view() in case-coverage.js): the ghost holds the old table over the new one. */
-.cv-xfade { position: relative; }
-.cv-xfade > * { transition: opacity .2s ease; }
-.cv-xfade.cv-xf-start > :not(.cv-xfade-ghost) { opacity: 0; transition: none; }
-.cv-xfade-ghost { position: absolute; top: 0; left: 0; right: 0; pointer-events: none; }
-.cv-xfade-ghost.cv-xf-out { opacity: 0; }
-
-/* Rows top-align (Scott, 10-14): a lone badge (N/A, a dash) sits level with the badges that carry a summary line under
-   them, and the checkbox sits on the name's line. OPEN stays centred, as the row actions on Hold status. */
-.cv-grid tbody td:not(.cv-row-action) { vertical-align: top; }
+/* Per-source tables (Preservation, Collection), as the PM canvas draws them: SOURCE wide, STATUS with its
+   qualifier, FROM the provenance. The last row has no bottom border (list divider convention). */
+.cv-src th:nth-child(1) { width: 34%; }
+.cv-src th:nth-child(2) { width: 36%; }
+.cv-src > tbody > tr:last-child > * { border-bottom: 0; }
 
 /* Stepping between custodians: the body fades out, the next custodian renders, the body fades back. */
 .offcanvas-body { transition: opacity .15s ease; }
 .offcanvas-body.cv-step-out { opacity: 0; }
 @media (prefers-reduced-motion: reduce) { .offcanvas-body { transition: none; } }
 
-/* ── Contents bar (renderPanel, syncBar) ──────────────────────────────── */
+/* ── 9. Contents bar (renderPanel, syncBar) ───────────────────────────── */
 /* A zero-height sticky pin at the top of the panel body, so the bar takes no room until it shows; the bar itself
    slides down from under the panel header when the summary cards scroll away. Pinned at the body's top padding
    edge, full body width; a bottom rule, no shadow (inline bars carry none). */
@@ -153,6 +191,7 @@
 .cv-bar-item[aria-current="true"] { border-bottom-color: var(--nimbus-tab-indicator); }
 .cv-bar-wf { font-size: var(--cnds-paragraph-font-size-sm); font-weight: 700; text-transform: uppercase; letter-spacing: .03em; color: var(--cnds-text-muted); white-space: nowrap; }
 .cv-bar-value { font-size: var(--cnds-paragraph-font-size); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+/* Below 1200px the state words drop, and the workflow name takes their severity colour. */
 @media (max-width: 1199.98px) { .cv-bar-value { display: none; } .cv-bar-wf { color: inherit; }
   .cv-bar-item[data-tone="danger"] .cv-bar-wf { color: var(--cnds-danger-text-emphasis); }
   .cv-bar-item[data-tone="warning"] .cv-bar-wf { color: var(--cnds-warning-text-emphasis); } }
@@ -162,18 +201,3 @@
 .cv-bar-top .mdi { font-size: var(--cnds-icon-xl); line-height: 1; }  /* Nimbus/Icon Size=XL, 24px */
 .cv-bar-top:hover { background-color: color-mix(in srgb, var(--cnds-link-color) 12%, transparent); }
 .cv-bar-top:focus-visible { outline: 2px solid var(--cnds-link-color); outline-offset: 2px; }
-/* A drawer reached from the bar stops below it, not under it. */
-.cv-drawer { scroll-margin-top: 64px; }
-
-/* EXPECTED and SORTED BY on one meta line, divided by a blurry rule (metaRow). */
-.cv-meta-row { display: flex; flex-wrap: wrap; align-items: center; column-gap: var(--cnds-spacer-3); row-gap: var(--cnds-spacer-1);
-  margin-bottom: var(--cnds-spacer-2); font-size: var(--cnds-paragraph-font-size-sm); line-height: var(--cnds-paragraph-line-height); color: var(--cnds-text-muted); }
-.cv-meta-row > .vr { align-self: stretch; height: auto; min-height: 1em; }
-/* Sort By holds its longest option, "Most Urgent" (Scott, 10-15). */
-.select-wrapper:has(> select#cvSort) { min-width: 8.5rem; }
-/* Grid detail lines stay on one line (Scott, 10-15). They are worded to fit; the ellipsis and the cell title are a
-   safety net for a longer value, never the plan. */
-.cv-grid td .small.mt-1 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-/* The selection toolbar's menus open over the grid below. The toolbar's zoom leaves it on its own layer, which the
-   grid (later in the page) painted over, hiding the menus (Scott, 10-15); the slot sits on a raised layer. */
-#cvSelTool { position: relative; z-index: 6; }
