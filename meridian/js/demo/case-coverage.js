@@ -519,11 +519,16 @@
   /* A long timeline shows its last three events; SHOW N EARLIER reveals the rest, and the choice holds while the
      panel is open (CV41: the history stays one click away). */
   var tlOpen = {};
+  function hiddenCount(list, key) { return list.length > 3 && !tlOpen[key] ? list.length - 3 : 0; }
+  /* The toggle sits in the tile's footer, on the left, opposite the forward actions (Scott, 10-15). */
+  function moreBtn(list, key) {
+    var hide = hiddenCount(list || [], key);
+    return (list || []).length > 3 ? '<button type="button" class="btn btn-tertiary btn-sm me-auto" data-cv-tl="' + key + '" aria-expanded="' + !hide + '">' +
+      (hide ? "SHOW " + hide + " EARLIER" : "HIDE EARLIER") + "</button>" : "";
+  }
   function timeline(events, key) {
-    var list = events || [], hide = list.length > 3 && !tlOpen[key] ? list.length - 3 : 0;
-    var more = list.length > 3 ? '<li class="list-group-item cv-tl-more"><button type="button" class="btn btn-tertiary btn-sm" data-cv-tl="' + key + '" aria-expanded="' + !hide + '">' +
-      (hide ? "SHOW " + hide + " EARLIER" : "HIDE EARLIER") + "</button></li>" : "";
-    return '<ul class="list-group list-group-flush cv-tl">' + more + list.slice(hide).map(function (e) {
+    var list = events || [], hide = hiddenCount(list, key);
+    return '<ul class="list-group list-group-flush cv-tl">' + list.slice(hide).map(function (e) {
       return '<li class="list-group-item"><span class="cv-tl-when">' + esc(M.fmtDateTime(e[0], e[1])) + '</span><span class="cv-tl-what">' + esc(e[2]) +
         '</span><span class="cv-tl-who text-muted">' + esc(e[3]) + "</span>" + badgeHtml(e[4], TONE[e[4]] || "light") + "</li>";
     }).join("") + "</ul>";
@@ -543,7 +548,11 @@
     return '<div class="card card-basic cv-tile"><div class="cv-tile-head">' + (o.view ? '<a href="#" class="fw-bold" ' + o.view + ">" + esc(o.id) + "</a>" : '<a href="' + o.href + '" class="fw-bold">' + esc(o.id) + "</a>") +
       '<span class="cv-tile-name">' + esc(o.title) + "</span>" + o.badge + '<span class="cv-meta text-muted ms-auto">' + esc(o.aside || "") + "</span></div>" +
       /* A blurry rule sets the tile's actions apart from its timeline rows (Scott, 10-15). */
-      '<div class="cv-tile-body">' + timeline(o.events, panelId + ":" + o.id) + (o.acts ? '<hr class="hr hr-blurry cv-tile-rule" aria-hidden="true" /><div class="card-actions justify-content-end">' + o.acts + "</div>" : "") + "</div></div>";
+      '<div class="cv-tile-body">' + timeline(o.events, panelId + ":" + o.id) + footer(moreBtn(o.events, panelId + ":" + o.id), o.acts) + "</div></div>";
+  }
+  /* Tile footer: SHOW EARLIER on the left, the tile's actions on the right, under a blurry rule; none when empty. */
+  function footer(more, acts) {
+    return more || acts ? '<hr class="hr hr-blurry cv-tile-rule" aria-hidden="true" /><div class="card-actions justify-content-end">' + (more || "") + (acts || "") + "</div>" : "";
   }
   function tiles(list) { return '<div class="cv-tile-stack">' + list.join("") + "</div>"; }
   /* Identity: the record's name (14px bold), then a 12px line; `sub` is HTML (a reference link, inline so only its
@@ -1059,7 +1068,8 @@
     /* Nimbus loads its components after this script (phase 2), so wait for them before opening the panel. */
     var go = function () {
       openPanel(pid);
-      if (sec) setTimeout(function () { var h = document.getElementById("cvSecH-" + sec); if (h) h.scrollIntoView({ block: "start" }); }, 450);
+      /* Scroll the drawer card, which leaves room for the contents bar (scroll-margin-top), not its heading. */
+      if (sec) setTimeout(function () { var h = document.getElementById("cvSecH-" + sec); if (h) h.closest("section").scrollIntoView({ block: "start" }); }, 450);
     };
     if (window.Nimbus && Nimbus.Offcanvas) go(); else document.addEventListener("cnds.ready", go, { once: true });
   }());
