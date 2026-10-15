@@ -417,7 +417,8 @@
         return row('<span class="d-block fw-bold">' + x.n + " " + esc(x.what) + '</span><span class="d-block small text-muted">' + esc(x.context) + "</span>",
           '<div class="text-end small text-nowrap">' + esc(M.fmtWhen(x.on, x.time)) + "</div>");
       }))) +
-      section("Due Next", due.length, list(due.map(function (w) {
+      section("Due Next", sum(due),  /* obligations, as the tile and This Week badge (design decision 23) */
+         list(due.map(function (w) {
         return row('<span class="d-block fw-bold">' + esc(w.what) + '</span><span class="d-block small text-muted">' + esc(M.caseById(w.caseId).name) + "</span>" +
             (w.flag ? '<span class="d-block small fw-bold text-danger">' + esc(w.flag) + "</span>" : ""),
           '<div class="text-end small fw-bold">' + esc(w.day) + "</div>");
