@@ -27,13 +27,15 @@
   const Default = {
     offset: [0, 2],
     autoClose: true,
-    display: "dynamic"
+    display: "dynamic",
+    flip: false
   };
 
   const DefaultType = {
     offset: "string|number|object",
     autoClose: "boolean|string",
-    display: "string"
+    display: "string",
+    flip: "boolean"
   };
 
   class Dropdown extends NimbusComponent {
@@ -170,6 +172,81 @@
         this._menu.style.right = "0";
         this._menu.style.left = "auto";
       }
+
+      // Smart placement (opt-in): data-cnds-flip="true" on the toggle
+      if (this._config.flip) this._flipIfClipped(parent);
+    }
+
+    /* Smart placement. The direction classes (.dropup, .dropend, .dropstart,
+       or down by default) say where the menu prefers to open. With flip on,
+       the menu opens there when it fits, and flips to the opposite side only
+       when it does not fit and the opposite side has more room. Without
+       flip, the class is followed exactly, so a direction can still be forced.
+
+       Room is measured inside the clipping boundary: the viewport, narrowed
+       by every ancestor that scrolls or clips (an offcanvas or modal body),
+       so a menu in a flyout stays inside the flyout.
+       The side it opened on is written to data-cnds-placement on the menu
+       (top, bottom, start, end) for styling. */
+    _flipIfClipped(parent) {
+      const menu = this._menu;
+      const vis = menu.style.visibility;
+      const disp = menu.style.display;
+      menu.style.visibility = "hidden";
+      menu.style.display = "block";
+      const m = menu.getBoundingClientRect();
+      menu.style.display = disp;
+      menu.style.visibility = vis;
+
+      const t = parent.getBoundingClientRect();
+      const b = Dropdown._clipBounds(parent);
+      let placement;
+
+      if (parent.classList.contains("dropend") || parent.classList.contains("dropstart")) {
+        const start = parent.classList.contains("dropstart");
+        const right = b.right - t.right;
+        const left = t.left - b.left;
+        const flip = m.width > (start ? left : right) && (start ? right : left) > (start ? left : right);
+        placement = start !== flip ? "start" : "end";
+        if (placement === "start") {
+          menu.style.left = "auto";
+          menu.style.right = "100%";
+        } else {
+          menu.style.right = "auto";
+          menu.style.left = "100%";
+        }
+      } else {
+        const up = parent.classList.contains("dropup");
+        const below = b.bottom - t.bottom;
+        const above = t.top - b.top;
+        const flip = m.height > (up ? above : below) && (up ? below : above) > (up ? above : below);
+        placement = up !== flip ? "top" : "bottom";
+        if (placement === "top") {
+          menu.style.top = "auto";
+          menu.style.bottom = "100%";
+        } else {
+          menu.style.bottom = "auto";
+          menu.style.top = "100%";
+        }
+      }
+      menu.setAttribute("data-cnds-placement", placement);
+    }
+
+    /* The visible area a menu inside `el` can use: the viewport, intersected
+       with each ancestor whose overflow is not visible. */
+    static _clipBounds(el) {
+      const b = { top: 0, left: 0, bottom: window.innerHeight, right: window.innerWidth };
+      for (let a = el.parentElement; a && a !== document.body; a = a.parentElement) {
+        const cs = getComputedStyle(a);
+        if (/(auto|scroll|hidden|clip)/.test(cs.overflow + cs.overflowX + cs.overflowY)) {
+          const r = a.getBoundingClientRect();
+          b.top = Math.max(b.top, r.top);
+          b.left = Math.max(b.left, r.left);
+          b.bottom = Math.min(b.bottom, r.bottom);
+          b.right = Math.min(b.right, r.right);
+        }
+      }
+      return b;
     }
 
     _addClickOutsideListener() {

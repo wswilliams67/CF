@@ -768,8 +768,9 @@
   function off(label, why, cls) { return '<span title="' + esc(why) + '">' + btn(label, "disabled", cls) + "</span>"; }
   /* A section's send menu: the same items as the selection toolbar's (decision 80g), aimed at this one custodian. */
   function sendMenu(label, items) {
-    return '<div class="dropdown dropup"><button type="button" class="btn btn-secondary btn-sm dropdown-toggle" data-cnds-toggle="dropdown" aria-expanded="false" aria-haspopup="menu">' + label +
-      ' <i class="mdi mdi-chevron-up" aria-hidden="true"></i></button><ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion dropdown-menu-end" role="menu">' + items + "</ul></div>";
+    /* Smart placement (Nimbus 9.0.108, data-cnds-flip): opens down, and up only when the panel has no room below. */
+    return '<div class="dropdown"><button type="button" class="btn btn-secondary btn-sm dropdown-toggle" data-cnds-toggle="dropdown" data-cnds-flip="true" aria-expanded="false" aria-haspopup="menu">' + label +
+      ' <i class="mdi mdi-chevron-down" aria-hidden="true"></i></button><ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion dropdown-menu-end" role="menu">' + items + "</ul></div>";
   }
   /* Why a workflow is or is not expected of this custodian (CV14b), as a meta line with an inline label. A
      not-expected workflow names the case's rule and why this custodian falls outside it. */

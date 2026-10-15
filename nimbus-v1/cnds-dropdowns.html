@@ -1259,6 +1259,40 @@
 &lt;/div&gt;</code></pre>
                       </div>
                     </section>
+
+                    <h4 class="mt-5 mb-3">Smart placement</h4>
+                    <p>
+                      Add <code>data-cnds-flip="true"</code> to the toggle to let
+                      the menu choose its side. It opens in the direction its class
+                      asks for and flips to the opposite side only when it would
+                      not fit, measured against the viewport and any scrolling
+                      container it sits in (an offcanvas or modal body). Use it for
+                      menus whose position on screen varies, such as actions at the
+                      foot of a scrolling panel. Without it, the direction class is
+                      followed exactly, so a direction can still be forced.
+                    </p>
+                    <section class="mb-4">
+                      <h4><span class="badge badge-code-html">HTML</span></h4>
+                      <div class="p-0">
+                        <pre
+                          class="line-numbers m-0"
+                        ><code class="language-html">&lt;!-- Opens down; flips up when there is no room below --&gt;
+&lt;div class="dropdown"&gt;
+  &lt;button class="btn btn-secondary dropdown-toggle" type="button"
+    data-cnds-toggle="dropdown" data-cnds-flip="true" aria-expanded="false"&gt;
+    Actions &lt;i class="mdi mdi-chevron-down" aria-hidden="true"&gt;&lt;/i&gt;
+  &lt;/button&gt;
+  &lt;ul class="dropdown-menu"&gt;...&lt;/ul&gt;
+&lt;/div&gt;
+
+&lt;!-- Prefers up; flips down when there is no room above --&gt;
+&lt;div class="dropdown dropup"&gt;
+  &lt;button class="btn btn-secondary dropdown-toggle" type="button"
+    data-cnds-toggle="dropdown" data-cnds-flip="true" aria-expanded="false"&gt;...&lt;/button&gt;
+  &lt;ul class="dropdown-menu"&gt;...&lt;/ul&gt;
+&lt;/div&gt;</code></pre>
+                      </div>
+                    </section>
                   </section>
 
                   <hr class="my-5" />
@@ -2833,7 +2867,8 @@ const dropdown = Nimbus.Dropdown.getOrCreateInstance(dropdownEl);
 const dropdown = Nimbus.Dropdown.getOrCreateInstance(dropdownEl, {
   offset: [0, 2],
   autoClose: true,
-  display: 'dynamic'
+  display: 'dynamic',
+  flip: false // true: smart placement, flips when the menu would not fit
 });</code></pre>
                         </div>
                       </section>
@@ -2891,6 +2926,24 @@ const dropdown = Nimbus.Dropdown.getOrCreateInstance(dropdownEl, {
                               <td>
                                 Set to <code>"static"</code> to disable dynamic
                                 positioning.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td><code>flip</code></td>
+                              <td>boolean</td>
+                              <td><code>false</code></td>
+                              <td>
+                                Smart placement. The menu opens in the direction
+                                its class asks for (<code>.dropup</code>,
+                                <code>.dropend</code>, <code>.dropstart</code>, or
+                                down) and flips to the opposite side only when it
+                                does not fit and the other side has more room.
+                                Room is measured inside the viewport and any
+                                scrolling or clipping container, such as an
+                                offcanvas body. The side used is written to
+                                <code>data-cnds-placement</code> on the menu.
+                                Leave it off to force a direction. Set with
+                                <code>data-cnds-flip="true"</code> on the toggle.
                               </td>
                             </tr>
                           </tbody>
