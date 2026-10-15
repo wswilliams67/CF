@@ -128,6 +128,9 @@
   ];
   M.firstNotice = "2026-08-28";
 
+  /* Timeline events: [date, time, event, actor, outcome, how?]. The actor is always who did it: a person, or
+     CaseFusion for anything automatic. "how" is optional: the channel or the rule (email and Teams, SLA rule …),
+     shown under the event (PRD 08 CV41; Scott, 10-15). */
   /* Custodians on MBP-0926 and their custodian workflows (latest first is not assumed;
      the page sorts). lhn / surveys: one entry per notification or survey received.
      events: the timeline shown on the custodian panel.                          */
@@ -137,7 +140,7 @@
       interview: { status: "Complete", date: "2026-09-09", time: "10:00", completed: "2026-09-09", with: "Angela Reyes", where: "Teams meeting",
         events: [["2026-09-02", "11:30", "Scheduled for 09-09-2026 at 10:00 AM", "Angela Reyes", "Scheduled"], ["2026-09-09", "11:05", "Marked complete", "Angela Reyes", "Complete"]] },
       lhn: [{ id: "LH-0031", status: "Acknowledged", on: "2026-08-29",
-              events: [["2026-08-28", "09:00", "Notification", "CaseFusion · email and Teams", "Sent"], ["2026-08-29", "08:41", "Acknowledged", "Elena Vasquez", "Acknowledged"]] },
+              events: [["2026-08-28", "09:00", "Notification", "CaseFusion", "Sent", "email and Teams"], ["2026-08-29", "08:41", "Acknowledged", "Elena Vasquez", "Acknowledged"]] },
             { id: "LH-0044", status: "Acknowledged", on: "2026-09-12",
               events: [["2026-09-12", "14:00", "Notification", "Claire Donovan", "Sent"], ["2026-09-12", "16:20", "Acknowledged", "Elena Vasquez", "Acknowledged"]] }],
       surveys: [{ id: "SUR-0012", status: "Answered", on: "2026-09-02",
@@ -156,16 +159,16 @@
          acknowledged (reminders every 3 days, escalated at 13 days, per its settings), the supplemental LH-0044
          acknowledged, and a silent legal hold, LH-0052. */
       lhn: [{ id: "LH-0031", status: "Not acknowledged",
-              events: [["2026-08-28", "09:00", "Notification", "CaseFusion · email and Teams", "Sent"], ["2026-08-31", "09:00", "Reminder 1", "CaseFusion", "Sent"],
-                       ["2026-09-03", "09:00", "Reminder 2", "CaseFusion", "Sent"], ["2026-09-06", "09:00", "Reminder 3", "CaseFusion", "Sent"],
-                       ["2026-09-10", "09:00", "Escalated to the manager", "SLA rule · 13 days without acknowledgment", "Escalated"]] },
+              events: [["2026-08-28", "09:00", "Notification", "CaseFusion", "Sent", "email and Teams"], ["2026-08-31", "09:00", "Reminder 1", "CaseFusion", "Sent", "automatic, on its reminder schedule"],
+                       ["2026-09-03", "09:00", "Reminder 2", "CaseFusion", "Sent", "automatic, on its reminder schedule"], ["2026-09-06", "09:00", "Reminder 3", "CaseFusion", "Sent", "automatic, on its reminder schedule"],
+                       ["2026-09-10", "09:00", "Escalated to the manager", "CaseFusion", "Escalated", "SLA rule · 13 days without acknowledgment"]] },
             { id: "LH-0044", status: "Acknowledged", on: "2026-09-13",
               events: [["2026-09-12", "14:00", "Notification", "Claire Donovan", "Sent"], ["2026-09-13", "08:15", "Acknowledged", "Michael Torres", "Acknowledged"]] },
             { id: "LH-0052", status: "Silent", events: [["2026-08-20", "10:15", "Added to the silent legal hold", "Claire Donovan", "Tracked"]] }],
       /* Two surveys, as the canvas draws them: SUR-0012 overdue and reminded, SUR-0019 answered with a personal
          device reported (the phone below). */
       surveys: [{ id: "SUR-0012", status: "Not answered",
-              events: [["2026-08-28", "09:00", "Survey", "Claire Donovan", "Sent"], ["2026-09-08", "", "Due date passed", "CaseFusion", "Overdue"], ["2026-09-09", "09:00", "Reminder 1", "CaseFusion", "Sent"]] },
+              events: [["2026-08-28", "09:00", "Survey", "Claire Donovan", "Sent"], ["2026-09-08", "", "Due date passed", "CaseFusion", "Overdue"], ["2026-09-09", "09:00", "Reminder 1", "CaseFusion", "Sent", "automatic, on its reminder schedule"]] },
                 { id: "SUR-0019", status: "Answered", on: "2026-09-13",
               events: [["2026-09-12", "14:00", "Survey", "Claire Donovan", "Sent"], ["2026-09-13", "08:20", "Answered · 1 personal device reported", "Michael Torres", "Answered"]] }],
       /* A location named in a survey answer that is not a source yet (PRD 08 CV44, PRD 02 L43): shown on custodian
@@ -173,7 +176,7 @@
       reported: [{ what: "Personal phone", from: "SUR-0019", kind: "Personal device", status: "Awaiting decision" }] },
     { personId: "p-wong", added: "2026-08-20", addedFrom: "Search",
       lhn: [{ id: "LH-0031", status: "Acknowledged", on: "2026-08-28",
-              events: [["2026-08-28", "09:00", "Notification", "CaseFusion · email and Teams", "Sent"], ["2026-08-28", "13:20", "Acknowledged", "Lisa Wong", "Acknowledged"]] },
+              events: [["2026-08-28", "09:00", "Notification", "CaseFusion", "Sent", "email and Teams"], ["2026-08-28", "13:20", "Acknowledged", "Lisa Wong", "Acknowledged"]] },
             { id: "LH-0044", status: "Acknowledged", on: "2026-09-13",
               events: [["2026-09-12", "14:00", "Notification", "Claire Donovan", "Sent"], ["2026-09-13", "09:05", "Acknowledged", "Lisa Wong", "Acknowledged"]] }],
       surveys: [{ id: "SUR-0012", status: "Answered", on: "2026-09-03",
@@ -182,12 +185,12 @@
               events: [["2026-09-30", "14:00", "Survey", "Claire Donovan", "Sent"]] }] },
     { personId: "p-bauer", added: "2026-08-20", addedFrom: "Search",
       lhn: [{ id: "LH-0031", status: "Acknowledged", on: "2026-09-03",
-              events: [["2026-08-28", "09:00", "Notification", "CaseFusion · email and Teams", "Sent"], ["2026-08-31", "09:00", "Reminder 1", "CaseFusion", "Sent"], ["2026-09-03", "08:15", "Acknowledged", "Katrin Bauer", "Acknowledged"]] }],
+              events: [["2026-08-28", "09:00", "Notification", "CaseFusion", "Sent", "email and Teams"], ["2026-08-31", "09:00", "Reminder 1", "CaseFusion", "Sent", "automatic, on its reminder schedule"], ["2026-09-03", "08:15", "Acknowledged", "Katrin Bauer", "Acknowledged"]] }],
       surveys: [{ id: "SUR-0012", status: "Escalated", reminders: 2,
-              events: [["2026-08-28", "09:00", "Survey", "Claire Donovan", "Sent"], ["2026-09-08", "", "Due date passed", "CaseFusion", "Not answered"], ["2026-09-11", "09:00", "Reminder 1", "CaseFusion", "Sent"], ["2026-09-14", "09:00", "Reminder 2", "CaseFusion", "Sent"], ["2026-09-21", "09:00", "Escalated to Angela Reyes", "SLA rule · 13 days without an answer", "Escalated"]] }] },
+              events: [["2026-08-28", "09:00", "Survey", "Claire Donovan", "Sent"], ["2026-09-08", "", "Due date passed", "CaseFusion", "Not answered"], ["2026-09-11", "09:00", "Reminder 1", "CaseFusion", "Sent", "automatic, on its reminder schedule"], ["2026-09-14", "09:00", "Reminder 2", "CaseFusion", "Sent", "automatic, on its reminder schedule"], ["2026-09-21", "09:00", "Escalated to Angela Reyes", "CaseFusion", "Escalated", "SLA rule · 13 days without an answer"]] }] },
     { personId: "p-park", added: "2026-08-20", addedFrom: "Search",
       lhn: [{ id: "LH-0031", status: "Acknowledged", on: "2026-08-31",
-              events: [["2026-08-28", "09:00", "Notification", "CaseFusion · email and Teams", "Sent"], ["2026-08-31", "07:55", "Acknowledged", "James Park", "Acknowledged"]] }],
+              events: [["2026-08-28", "09:00", "Notification", "CaseFusion", "Sent", "email and Teams"], ["2026-08-31", "07:55", "Acknowledged", "James Park", "Acknowledged"]] }],
       surveys: [{ id: "SUR-0012", status: "Answered", on: "2026-09-04",
               events: [["2026-08-28", "09:00", "Survey", "Claire Donovan", "Sent"], ["2026-09-04", "15:40", "Answered · 1 laptop reported", "James Park", "Answered"]] }] },
     { personId: "p-ellis", added: "2026-08-20", addedFrom: "Search", silent: true,

@@ -349,7 +349,7 @@
     var sent = 0;
     (only || selectedList()).forEach(function (c) {
       c.lhn = c.lhn || [];
-      c.lhn.push({ id: newId, status: "Sent", sentOn: TODAY, events: [[TODAY, "10:05", "Notification (settings from " + lhId + ")", "CaseFusion · email and Teams", "Sent"]] });
+      c.lhn.push({ id: newId, status: "Sent", sentOn: TODAY, events: [[TODAY, "10:05", "Notification (settings from " + lhId + ")", "CaseFusion", "Sent", "email and Teams"]] });
       if (h.survey && !(c.surveys || []).some(function (sv) { return sv.id === h.survey; })) {
         c.surveys.push({ id: h.survey, status: "Sent", due: "2026-10-22", events: [[TODAY, "10:05", "Survey (attached to " + lhId + ")", me(), "Sent"]] });
       }
@@ -553,8 +553,10 @@
   function timeline(events, key) {
     var list = events || [], hide = hiddenCount(list, key);
     return '<ul class="list-group list-group-flush cv-tl">' + list.slice(hide).map(function (e) {
+      /* The event, with how it happened under it (12px, muted); then BY: and the actor, always a person or CaseFusion. */
       return '<li class="list-group-item"><span class="cv-tl-when">' + esc(M.fmtDateTime(e[0], e[1])) + '</span><span class="cv-tl-what">' + esc(e[2]) +
-        '</span><span class="cv-tl-who text-muted">' + esc(e[3]) + "</span>" + badgeHtml(e[4], TONE[e[4]] || "light") + "</li>";
+        (e[5] ? '<span class="d-block small text-muted">' + esc(e[5]) + "</span>" : "") +
+        '</span><span class="cv-tl-who"><span class="demo-label d-inline me-1">By:</span>' + esc(e[3]) + "</span>" + badgeHtml(e[4], TONE[e[4]] || "light") + "</li>";
     }).join("") + "</ul>";
   }
   /* ── Default order, stated where the list is (Scott, 10-15) ──
@@ -919,12 +921,12 @@
   }
   function remind(c, id) {
     var x = instance(c, id), n = (x.events || []).filter(function (e) { return /^Reminder/.test(e[2]); }).length + 1;
-    x.events.push([TODAY, nowTime(), "Reminder " + n, me(), "Sent"]);
+    x.events.push([TODAY, nowTime(), "Reminder " + n, me(), "Sent", "sent manually"]);
     D.toast("Reminder " + n + " sent for " + id + ".");
     render();
   }
   function resend(c, id) {
-    instance(c, id).events.push([TODAY, nowTime(), "Notification resent", me(), "Sent"]);
+    instance(c, id).events.push([TODAY, nowTime(), "Notification resent", me(), "Sent", "email and Teams"]);
     D.toast("Legal hold notification " + id + " sent again to " + person(c).name + ".");
     render();
   }
@@ -974,7 +976,7 @@
       D.select("cvAckHow", [["Email reply", "Email reply"], ["Signed form", "Signed form"], ["Verbal, in a meeting", "Verbal, in a meeting"]], "Email reply", "How", { cls: "mb-3" }) + noteField("cvAckNote"),
       function (val) {
         n.status = "Acknowledged"; n.on = TODAY;
-        n.events.push([TODAY, "09:30", "Acknowledged · " + (val("cvAckHow") || "recorded") + " (recorded by " + me() + ")", person(c).name, "Acknowledged"]);
+        n.events.push([TODAY, "09:30", "Acknowledged", person(c).name, "Acknowledged", (val("cvAckHow") || "Recorded") + " · recorded by " + me()]);
         D.toast("Acknowledgment recorded for " + id + ".");
         render();
       });
