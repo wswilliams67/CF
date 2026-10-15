@@ -484,6 +484,14 @@
     img.replaceWith(m);
   }, true);
 
+  /* Every textarea autogrows (house rule, Scott 09-24): it opens at its rows and grows with its content, never
+     scrolling inside. One listener for the whole demo, so forms built later get it too. */
+  document.addEventListener("input", function (e) {
+    var t = e.target;
+    if (!t.matches || !t.matches("textarea.cf-input-control")) return;
+    t.style.height = "auto"; t.style.overflowY = "hidden"; t.style.height = t.scrollHeight + "px";
+  });
+
   /* Shared helpers for page scripts. */
   window.MeridianDemo = {
     /* Demo status tone → Nimbus badge colour. */

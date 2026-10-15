@@ -949,34 +949,68 @@
   }
   /* Stacked form drawers (50%): BACK closes only this drawer (with the Please Confirm guard when something was
      entered); SAVE records it, closes this drawer and redraws the panel underneath with a toast. */
-  function field(id, label, value, help) {
-    return '<div class="cf-input-field cf-input-field-casefusion mb-3"><label class="cf-input-label" for="' + id + '">' + label + ' <span class="cf-input-required">*</span></label>' +
-      '<div class="cf-input-wrapper"><input type="text" id="' + id + '" class="cf-input-control" value="' + esc(value) + '" /></div>' +
-      (help ? '<div class="cf-input-helper"><span class="cf-input-helper-text">' + help + "</span></div>" : "") + "</div>";
+
+  /* Nimbus/Datepicker and Nimbus/Timepicker, separate as the PM canvas draws them (Scott, 10-15). The datepicker
+     writes mm-dd-yyyy; the timepicker is 12-hour in 5-minute steps. Both start in formDrawer below. */
+  function dateField(id, label, value) {
+    return '<div class="cf-input-field cf-input-field-casefusion mb-3" data-cnds-datepicker-init><label class="cf-input-label" for="' + id + '">' + label + ' <span class="cf-input-required">*</span></label>' +
+      '<div class="cf-input-wrapper"><input type="text" id="' + id + '" class="cf-input-control" placeholder="mm-dd-yyyy" value="' + esc(value) + '" /></div></div>';
+  }
+  function timeField(id, label, hhmm) {
+    /* The field carries its starting time in the timepicker's own format ("09:30 AM"), which the picker reads when it
+       starts (the drawer starts it before this script could set it). */
+    var t = (hhmm || "09:00").split(":"), h = +t[0], text = String(h % 12 || 12).padStart(2, "0") + ":" + t[1] + " " + (h >= 12 ? "PM" : "AM");
+    return '<div class="timepicker cf-input-field-casefusion mb-3" data-cnds-timepicker-init><label for="' + id + '" class="cf-input-label">' + label +
+      ' <span class="cf-input-required">*</span></label><input type="text" class="form-control" id="' + id + '" value="' + text + '" /></div>';
   }
   function noteField(id) {
     return '<div class="cf-input-field cf-input-field-casefusion mb-3"><label class="cf-input-label" for="' + id + '">Note</label>' +
       '<div class="cf-input-wrapper"><textarea id="' + id + '" class="cf-input-control" rows="2"></textarea></div>' +
       '<div class="cf-input-helper"><span class="cf-input-helper-text">Optional. One line of context, kept on the event.</span></div></div>';
   }
+  /* "9:30 AM" (the timepicker's text) → "09:30". */
+  function toHhmm(text, fallback) {
+    var t = /(\d{1,2}):(\d{2})\s*(AM|PM)?/i.exec(text || "");
+    if (!t) return fallback;
+    var h = +t[1] % 12 + (/PM/i.test(t[3] || "") ? 12 : 0);
+    return String(t[3] ? h : +t[1]).padStart(2, "0") + ":" + t[2];
+  }
   function formDrawer(title, intro, fields, onSave) {
     var d = D.offcanvas({ title: title, width: "50vw",
       body: '<div class="cv-scope">' + (intro ? '<p class="mb-3">' + intro + "</p>" : "") + fields + "</div>",
       footer: '<button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas">BACK</button><button type="button" class="btn btn-primary" data-cv-save>SAVE</button>' });
+    /* Start the pickers (markup added after boot is not auto-initialised), then forget the values they wrote, so
+       BACK only asks to discard what the reader typed. */
+    if (window.Nimbus && Nimbus.Datepicker) d.el.querySelectorAll("[data-cnds-datepicker-init]").forEach(function (x) { if (!Nimbus.Datepicker.getInstance(x)) new Nimbus.Datepicker(x, { format: "mm-dd-yyyy" }); });
+    if (window.Nimbus && Nimbus.Timepicker) d.el.querySelectorAll("[data-cnds-timepicker-init]").forEach(function (x) {
+      if (!Nimbus.Timepicker.getInstance(x)) new Nimbus.Timepicker(x, { format12: true, minuteStep: 5 });
+    });
+    /* The fields are read-only (no typing, Scott 10-15), so a click on the field opens its picker, not only the icon.
+       Nimbus opens them from the icon alone (gap D14, logged in tools/nimbus-gaps.md). */
+    [["[data-cnds-datepicker-init]", "Datepicker"], ["[data-cnds-timepicker-init]", "Timepicker"]].forEach(function (k) {
+      d.el.querySelectorAll(k[0]).forEach(function (x) {
+        var inst = window.Nimbus && Nimbus[k[1]] && Nimbus[k[1]].getInstance(x), input = x.querySelector("input");
+        if (!inst || !input) return;
+        input.style.cursor = "pointer";
+        input.addEventListener("click", function (e) { e.stopPropagation(); inst.toggle(); });
+      });
+    });
+    d.el.querySelectorAll("[data-demo-changed]").forEach(function (f) { f.removeAttribute("data-demo-changed"); });
     var save = d.el.querySelector("[data-cv-save]");
     var check = function () { save.disabled = [].some.call(d.el.querySelectorAll("input.cf-input-control"), function (f) { return !f.value.trim(); }); };
-    d.el.addEventListener("input", check); check();
+    d.el.addEventListener("input", check); d.el.addEventListener("change", check); check();
     save.addEventListener("click", function () { var val = function (id) { var f = d.el.querySelector("#" + id); return f ? f.value.trim() : ""; }; d.hide(); onSave(val); });
     return d;
   }
   function recordAck(c, id) {
     var n = instance(c, id);
     formDrawer("Record acknowledgment · " + id, "For " + esc(person(c).name) + ", who acknowledged outside CaseFusion. It is recorded as acknowledged by them, entered by you.",
-      field("cvAckDate", "Date", M.fmtDate(TODAY), "mm-dd-yyyy") + field("cvAckTime", "Time", "9:30 AM") +
+      dateField("cvAckDate", "Date", M.fmtDate(TODAY)) + timeField("cvAckTime", "Time", "09:30") +
       D.select("cvAckHow", [["Email reply", "Email reply"], ["Signed form", "Signed form"], ["Verbal, in a meeting", "Verbal, in a meeting"]], "Email reply", "How", { cls: "mb-3" }) + noteField("cvAckNote"),
       function (val) {
-        n.status = "Acknowledged"; n.on = TODAY;
-        n.events.push([TODAY, "09:30", "Acknowledged", person(c).name, "Acknowledged", (val("cvAckHow") || "Recorded") + " · recorded by " + me()]);
+        var ad = val("cvAckDate").split("-"), at = toHhmm(val("cvAckTime"), "09:30"), aIso = ad.length === 3 ? ad[2] + "-" + ad[0] + "-" + ad[1] : TODAY;
+        n.status = "Acknowledged"; n.on = aIso;
+        n.events.push([aIso, at, "Acknowledged", person(c).name, "Acknowledged", (val("cvAckHow") || "Recorded") + " · recorded by " + me()]);
         D.toast("Acknowledgment recorded for " + id + ".");
         render();
       });
@@ -985,13 +1019,12 @@
     var iv = c.interview, re = iv && iv.status !== "Complete";
     var team = M.cases.filter(function (x) { return x.id === D.caseId; })[0].team.map(function (id) { var p = M.person(id); return [p.name, p.name]; });
     formDrawer(re ? "Reschedule interview" : "Schedule interview", "With " + esc(person(c).name) + ". Scheduling does not make the interview expected on this case; the case setting does.",
-      field("cvIvDate", "Date", re ? M.fmtDate(iv.date) : "10-22-2026", "mm-dd-yyyy") + field("cvIvTime", "Time", re ? M.fmtTime(iv.time) : "10:00 AM") +
+      dateField("cvIvDate", "Date", re ? M.fmtDate(iv.date) : "10-22-2026") + timeField("cvIvTime", "Time", re ? iv.time : "10:00") +
       D.select("cvIvWith", team, re ? iv.with : team[0][0], "Interviewer", { cls: "mb-3" }) +
       D.select("cvIvWhere", [["Teams meeting", "Teams meeting"], ["In person", "In person"], ["Phone", "Phone"]], re ? iv.where : "Teams meeting", "Where", { cls: "mb-3" }) + noteField("cvIvNote"),
       function (val) {
         var p = val("cvIvDate").split("-"), iso = p.length === 3 ? p[2] + "-" + p[0] + "-" + p[1] : "2026-10-22";
-        var t = /(\d+):(\d+)\s*(AM|PM)?/i.exec(val("cvIvTime")) || [0, 10, "00", "AM"], hh = (+t[1] % 12) + (/PM/i.test(t[3] || "") ? 12 : 0);
-        var hhmm = String(hh).padStart(2, "0") + ":" + t[2];
+        var hhmm = toHhmm(val("cvIvTime"), "10:00");
         if (re) iv.events.push([TODAY, nowTime(), "Rescheduled from " + M.fmtDateTime(iv.date, iv.time) + " to " + M.fmtDateTime(iso, hhmm), me(), "Rescheduled"]);
         else c.interview = iv = { status: "Scheduled", events: [[TODAY, nowTime(), "Scheduled for " + M.fmtDateTime(iso, hhmm), me(), "Scheduled"]] };
         iv.date = iso; iv.time = hhmm; iv.with = val("cvIvWith"); iv.where = val("cvIvWhere");
