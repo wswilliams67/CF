@@ -197,7 +197,8 @@
     var old = age(r) >= 5 && r.chip === "GAP";
     return '<li class="list-group-item" id="mw-' + r.id + '"><div class="mw-item">' +
       '<div class="mw-item-id"><span class="d-block mw-item-what">' + esc(whatOf(r)) + "</span>" +
-        '<a class="d-block" href="' + caseHref(r.caseId) + '">' + esc(caseName(r.caseId)) + "</a>" +
+        /* Case links sit on their own line, but only the text is clickable: the link stays inline inside a block (Scott, 10-14). */
+        '<div><a href="' + caseHref(r.caseId) + '">' + esc(caseName(r.caseId)) + "</a></div>" +
         (r.found ? '<span class="d-block small fw-bold text-warning-emphasis mw-item-flag">Found by CaseFusion</span>' : "") + "</div>" +
       '<div><span class="demo-label">Why Now</span><div class="d-flex flex-wrap align-items-center gap-1">' +
           '<span class="badge badge-' + KIND_BADGE[r.chip] + '">' + r.chip + "</span>" +
@@ -289,7 +290,7 @@
         openRequests: M.requests.filter(function (q) { return q.caseId === id && q.status !== "Complete"; }).length };
     }
     return { id: id, a: a, html: '<li class="list-group-item"><div class="mw-case">' +
-      '<div><a class="d-block fw-bold" href="' + caseHref(id) + '">' + esc(caseName(id)) + '</a><span class="d-block small text-muted"><span class="demo-label d-inline me-1">Stage:</span>' + esc(a.stage) + "</span></div>" +
+      '<div><div><a class="fw-bold" href="' + caseHref(id) + '">' + esc(caseName(id)) + '</a></div><span class="d-block small text-muted"><span class="demo-label d-inline me-1">Stage:</span>' + esc(a.stage) + "</span></div>" +
       '<div><span class="demo-label">Needs Attention</span><span class="badge badge-pill badge-verbatim badge-' + severity(a.worst, a.stage) + '">' + esc(a.worst.charAt(0).toUpperCase() + a.worst.slice(1)) + "</span>" +
         (onlySnoozed ? '<span class="d-block small text-muted mt-1">Snoozed in the queue until ' + esc(M.fmtDate(items[0].snoozedUntil)) + "</span>" : "") + "</div>" +
       '<div><span class="demo-label">On Hold</span>' + esc(a.onHold) + " custodians</div>" +
@@ -316,7 +317,7 @@
     /* Day · what is due, the case as a 12px link, then the urgency flag in words (danger text). */
     document.getElementById("mwWeek").innerHTML = shown.map(function (w) {
       return '<li class="list-group-item"><div class="mw-row-week"><span class="fw-bold">' + esc(w.day) + "</span><div>" + esc(w.what) +
-        '<a class="d-block small" href="' + caseHref(w.caseId) + '">' + esc(M.caseById(w.caseId).name) + "</a>" +
+        '<div class="small"><a href="' + caseHref(w.caseId) + '">' + esc(M.caseById(w.caseId).name) + "</a></div>" +
         (w.flag ? '<div class="small fw-bold text-danger">' + esc(w.flag) + "</div>" : "") + "</div></div></li>";
     }).join("") || '<li class="list-group-item">' + emptyState("Nothing is due this week", "Request due dates and acknowledgment deadlines appear here.") + "</li>";
     if (footer === "more") foot = '<span class="small text-muted">' + plural(more, "more date") + ' later this week</span><button type="button" class="btn btn-tertiary btn-sm" data-mw="week-all">SHOW ALL</button>';
