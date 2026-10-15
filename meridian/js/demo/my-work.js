@@ -335,27 +335,48 @@
   }
   function render() { renderTop(); renderChips(); renderQueue(); }
 
-  /* ── Weekly status report (MW80–84) in a Nimbus modal; snoozed included, marked. ── */
+  /* ── Weekly status report (MW80–84) in a Nimbus side panel; snoozed included, marked. ── */
   function csv(name, lines) {
     var a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob([lines.map(function (l) { return l.map(function (x) { return '"' + String(x).replace(/"/g, '""') + '"'; }).join(","); }).join("\n")], { type: "text/csv" }));
     a.download = name; document.body.appendChild(a); a.click(); a.remove();
   }
+  /* Weekly status report (PRD 11 §7.7, MW80–84): a read-only side panel at 50%, so My Work stays in view behind it
+     (Sally, Scott 10-14). It renders the screen's own data (MW82); snoozed items are included and marked (MW84).
+     Resolved items are part of §7.7 but the demo has no resolved data yet, so that section shows its empty state. */
   function report() {
     var me = M.person(v.personId);
-    var did = M.whatCaseFusionDid.filter(function (x) { return access.cases.indexOf(x.caseId) !== -1; });
-    var tbl = function (head, body) { return '<div class="table-responsive mb-3"><table class="table table-sm align-middle mb-0"><thead><tr>' + head.map(function (h) { return '<th scope="col">' + h + "</th>"; }).join("") + "</tr></thead><tbody>" + body + "</tbody></table></div>"; };
-    var m = D.modal({ title: "Weekly Status Report", size: "lg",
-      body: '<p class="text-muted">' + esc(me.name) + " · all cases · 10-02-2026 – 10-08-2026. Generated from My Work; snoozed items are included and marked.</p>" +
-        '<div class="cf-category cf-cat-4">Outstanding</div>' + tbl(["Kind", "What", "Case", "Waiting"], rows.map(function (r) {
-          return "<tr><td>" + esc(r.chip) + "</td><td>" + esc(masked(r) && r.whatMasked ? r.whatMasked : r.what) + "</td><td>" + esc(M.caseById(r.caseId).name) + "</td><td>" + esc(waiting(r)) +
-            (r.snoozedUntil ? ' <span class="badge badge-pill badge-warning">Snoozed until ' + esc(M.fmtDate(r.snoozedUntil)) + "</span>" : "") + "</td></tr>"; }).join("")) +
-        '<div class="cf-category cf-cat-4">What CaseFusion Did</div>' + tbl(["Count", "Context"], did.map(function (x) { return "<tr><td>" + x.n + " " + esc(x.what) + "</td><td>" + esc(x.context) + "</td></tr>"; }).join("")) +
-        '<div class="cf-category cf-cat-4">Due Next</div>' + tbl(["Day", "What", "Case"], M.thisWeek.filter(function (w) { return access.cases.indexOf(w.caseId) !== -1; }).map(function (w) {
-          return "<tr><td>" + esc(w.day) + "</td><td>" + esc(w.what) + "</td><td>" + esc(M.caseById(w.caseId).name) + "</td></tr>"; }).join("")),
-      footer: '<button type="button" class="btn btn-secondary" data-cnds-dismiss="modal">CLOSE</button><button type="button" class="btn btn-primary" data-report-dl>DOWNLOAD</button>' });
-    m.el.querySelector("[data-report-dl]").addEventListener("click", function () {
-      csv("weekly-status-report.csv", [["Kind", "What", "Case", "Waiting", "Snoozed until"]].concat(rows.map(function (r) {
+    var did = M.whatCaseFusionDid.filter(function (x) { return access.cases.indexOf(x.caseId) !== -1; })
+      .sort(function (a, b) { return (b.on + b.time).localeCompare(a.on + a.time); });
+    var due = M.thisWeek.filter(function (w) { return access.cases.indexOf(w.caseId) !== -1; });
+    var head = function (title, count) {
+      return '<div class="demo-section-head mw-report-head"><h3 class="cf-category cf-cat-6 highlight-casefusion mb-0 flex-grow-1">' + title + "</h3>" +
+        (count !== null ? '<span class="badge badge-secondary">' + count + "</span>" : "") + "</div>";
+    };
+    var list = function (items) { return '<ul class="list-group list-group-light demo-rows mw-report-list mb-4">' + items.join("") + "</ul>"; };
+    var body =
+      '<p class="small text-muted mb-1">' + esc(me.name) + " · All Cases · 10-02-2026 – 10-08-2026</p>" +
+      '<p class="small text-muted mb-4">Generated from My Work. Snoozed items are included and marked.</p>' +
+      head("Outstanding", rows.length) + list(rows.map(function (r) {
+        return '<li class="list-group-item"><div class="mw-report-row"><div><span class="d-block fw-bold">' + esc(masked(r) && r.whatMasked ? r.whatMasked : r.what) + "</span>" +
+          '<span class="d-block small text-muted">' + esc(caseName(r.caseId)) + "</span>" +
+          (r.snoozedUntil ? '<span class="d-block small fw-bold text-warning-emphasis">Snoozed until ' + esc(M.fmtDate(r.snoozedUntil)) + "</span>" : "") + "</div>" +
+          '<div class="text-end"><span class="badge badge-' + KIND_BADGE[r.chip] + '">' + r.chip + '</span><span class="d-block small mt-1">' + esc(waiting(r)) + "</span></div></div></li>";
+      })) +
+      head("Resolved", 0) + '<div class="demo-empty mb-4"><i class="mdi mdi-cancel cnds-icon-2xl" aria-hidden="true"></i><span class="demo-empty-title">No items were resolved this period</span>' +
+        '<span class="demo-empty-note">Items closed in the last seven days appear here.</span></div>' +
+      head("What CaseFusion Did", did.reduce(function (n, x) { return n + x.n; }, 0)) + list(did.map(function (x) {
+        return '<li class="list-group-item"><div class="mw-report-row"><div><span class="d-block fw-bold">' + x.n + " " + esc(x.what) + '</span><span class="d-block small text-muted">' + esc(x.context) + "</span></div>" +
+          '<div class="text-end small text-nowrap">' + esc(M.fmtWhen(x.on, x.time)) + "</div></div></li>";
+      })) +
+      head("Due Next", due.length) + list(due.map(function (w) {
+        return '<li class="list-group-item"><div class="mw-report-row"><div><span class="d-block fw-bold">' + esc(w.what) + '</span><span class="d-block small text-muted">' + esc(M.caseById(w.caseId).name) + "</span>" +
+          (w.flag ? '<span class="d-block small fw-bold text-danger">' + esc(w.flag) + "</span>" : "") + '</div><div class="text-end small fw-bold">' + esc(w.day) + "</div></div></li>";
+      }));
+    var panel = D.offcanvas({ title: "Weekly Status Report", width: "50vw", body: body,
+      footer: '<button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas">CLOSE</button><button type="button" class="btn btn-primary" data-report-dl>DOWNLOAD</button>' });
+    panel.el.querySelector("[data-report-dl]").addEventListener("click", function () {
+      csv("weekly-status-report.csv", [["Kind", "Item", "Case", "Waiting", "Snoozed until"]].concat(rows.map(function (r) {
         return [r.chip, masked(r) && r.whatMasked ? r.whatMasked : r.what, M.caseById(r.caseId).name, waiting(r), r.snoozedUntil ? M.fmtDate(r.snoozedUntil) : ""]; })));
       D.toast("Weekly status report downloaded.");
     });
