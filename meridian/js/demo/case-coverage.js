@@ -579,7 +579,7 @@
           var holdsCell = (c.lhn || []).map(function (n) {
             return '<div class="cv-rel-hold"><span class="cv-rel-hold-id">' + esc(n.id) + "</span>" + lhnBadge(n.status, "Silent legal hold") +
               (n.status === "Acknowledged" && n.on ? '<span class="text-muted small text-nowrap">' + esc(short(n.on)) + "</span>" : "") + "</div>";
-          }).join("") || "None sent";
+          }).join("") || '<span class="text-muted">—</span>';  /* no hold: the grid's dash, so the rows that matter stand out */
           var warn = function (t) { return '<span class="d-block small text-warning-emphasis">' + t + "</span>"; };
           /* The other case is named only when the viewer can open it; otherwise it is a hold and nothing more (CV64). */
           var after = held ? (D.canOpenCase(held.caseId) ? "Still on hold for " + esc(held.caseName) + warn("Held on another accessible case") : "Still on hold on another case" + warn("Held on another case")) : c.released ? "Already released" :
