@@ -552,6 +552,7 @@
       /* Sorted by the name the viewer sees (a limited profile sorts as shown). */
       var list = candidates().slice().sort(function (x, y) { return D.nameFor(person(x)).localeCompare(D.nameFor(person(y))); });
       var on = list.filter(function (c) { return ticked[c.personId]; });
+      var releasableHere = list.filter(releasable).length;
       var notified = on.filter(wasNotified);
       var silentOnly = on.filter(function (c) { return !wasNotified(c) && (c.lhn || []).length; });
       var left = list.filter(function (c) { return M.heldElsewhere[c.personId]; });
@@ -561,19 +562,17 @@
         (readOnly ? '<div class="alert alert-warning mb-4" role="alert"><span class="alert-icon" aria-hidden="true"><i class="mdi mdi-alert"></i></span>' +
           '<span class="alert-message">Read only. Only a Case Administrator can release custodians from a legal hold.</span></div>' : "") +
         '<div class="cf-category cf-cat-6 highlight-casefusion">Custodians</div>' +
-        /* Who to show and the selection shortcuts act on the list, so they share one list toolbar: a Nimbus toggle button
-           group (radio btn-check, single select, as on My Work), a blurry rule, then SELECT ALL and CLEAR (Scott, 10-15). */
-        '<div class="btn-toolbar-gray btn-toolbar-list mb-2" role="toolbar" aria-label="Custodians to release"><div class="toolbar-list-controls cv-rel-tools">' +
-          '<div class="btn-group" role="group" aria-label="Who to show">' +
+        /* Who to show: a Nimbus toggle button group (radio btn-check, single select, as on My Work). Each choice shows that
+           set with every releasable custodian ticked; the header checkbox selects all or none (Scott, 10-15). */
+        '<div class="btn-group mb-2" role="group" aria-label="Who to show">' +
           [["all", "All on This Case", custodians.length], ["selected", stacked ? "This Custodian" : "Selected on Coverage", startIds.length], ["departed", "Departed", custodians.filter(function (c) { return person(c).departed; }).length]].map(function (x) {
             var id = m.id + "-who-" + x[0];
             return '<input type="radio" class="btn-check" name="cvRelWho" id="' + id + '" value="' + x[0] + '" autocomplete="off"' + (chip === x[0] ? " checked" : "") + ">" +
               '<label class="btn btn-secondary btn-sm" for="' + id + '">' + x[1] + " (" + x[2] + ")</label>"; }).join("") + "</div>" +
-          '<div class="cv-rel-tools-end"><div class="vr vr-blurry" aria-hidden="true"></div>' +
-          '<button type="button" class="btn btn-tertiary btn-sm" data-rel="all"' + (readOnly ? " disabled" : "") + '>SELECT ALL</button><button type="button" class="btn btn-tertiary btn-sm" data-rel="none"' + (readOnly ? " disabled" : "") + ">CLEAR</button></div></div></div>" +
         metaRow('<p class="cv-meta text-muted mb-2 cv-meta-line"><span class="demo-label d-inline me-1">Sorted By:</span>Name</p>' +
           '<p class="cv-meta text-muted mb-2 cv-meta-line"><span class="demo-label d-inline me-1">Selected:</span>' + on.length + " · " + plural(holds, "legal hold") + (left.length ? " · " + plural(left.length, "custodian") + " held on another case, left out" : "") + "</p>") +
-        tbl(["", "Custodian", "Legal Holds", "After Release"], list.map(function (c) {
+        tbl(['<div class="form-check mb-0"><input type="checkbox" class="form-check-input" id="cvRelAll"' + (releasableHere && !readOnly ? "" : " disabled") +
+              (releasableHere && on.length === releasableHere ? " checked" : "") + ' aria-label="Select all custodians who can be released" /></div>', "Custodian", "Legal Holds", "After Release"], list.map(function (c) {
           var p = person(c), held = M.heldElsewhere[c.personId], st = sourcesStill(c);
           /* One hold per line: the reference, its status badge, and the date it was acknowledged (multi-value rows). */
           var holdsCell = (c.lhn || []).map(function (n) {
@@ -616,6 +615,7 @@
         '<button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas">' + (stacked ? "BACK" : readOnly ? "CLOSE" : "CANCEL") + "</button>" +
         '<button type="button" class="btn btn-secondary" data-rel="release"' + (ok ? "" : " disabled") + ">RELEASE ONLY</button>" +
         '<button type="button" class="btn btn-primary" data-rel="cleanup"' + (ok ? "" : " disabled") + ">RELEASE AND CREATE CLEANUP REQUEST</button>";
+      var all = m.el.querySelector("#cvRelAll"); if (all) all.indeterminate = on.length > 0 && on.length < releasableHere;
       if (window.Nimbus && Nimbus.Select) Nimbus.Select.initAll(m.el);
       if (readOnly) { var ns = m.el.querySelector("#cvRelNotice"); var inst = ns && window.Nimbus && Nimbus.Select && Nimbus.Select.getInstance(ns); if (inst && inst.disable) inst.disable(); else if (ns) ns.disabled = true; }
     }
@@ -632,6 +632,7 @@
       if (e.target.id === "cvRelNotice" && notice !== e.target.value) { notice = e.target.value; draw(); }
       if (e.target.id === "cvRelSend") sendTo = e.target.checked;
       if (e.target.name === "cvRelWho") { chip = e.target.value; tickDefault(); draw(); }
+      if (e.target.id === "cvRelAll") { if (e.target.checked) tickDefault(); else ticked = {}; draw(); }
     }
     m.el.addEventListener("change", onChange);
     m.el.addEventListener("valueChanged.cnds.select", onChange);
@@ -639,8 +640,6 @@
       var t = e.target.closest("button");
       if (!t) return;
       var a = t.getAttribute("data-rel");
-      if (a === "all") { tickDefault(); draw(); }
-      if (a === "none") { ticked = {}; draw(); }
       if (a === "release" || a === "cleanup") {
         var on = candidates().filter(function (c) { return ticked[c.personId]; });
         var told = sendTo && notice !== "none" ? on.filter(wasNotified).length : 0;
