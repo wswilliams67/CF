@@ -1051,6 +1051,20 @@
 
   /* ── Stacked drawers (forms and read-only detail, 50%) ────────────── */
   /* The notification or legal hold, read-only: a detail with a recipient list. */
+  /* Engagement (Legal Holds in production, Case Administrator v1.5 Figma 689:37056): acknowledged out of every
+     recipient of this notification, not only the custodian the panel is open on. Not shown for a silent legal hold,
+     which is never sent. The bar is Nimbus progress; the legend uses the meta-line labels. */
+  function meter(id, on) {
+    var ack = on.filter(function (c) { return c.lhn.some(function (n) { return n.id === id && n.status === "Acknowledged"; }); }).length;
+    var pct = on.length ? Math.round(ack / on.length * 100) : 0;
+    return '<div class="cf-category cf-cat-6 highlight-casefusion">Engagement</div>' +
+      '<div class="cv-meter mb-4"><div class="cv-meter-main">' +
+        '<div class="progress cv-meter-bar" role="progressbar" aria-label="Acknowledged" aria-valuenow="' + pct + '" aria-valuemin="0" aria-valuemax="100">' +
+          '<div class="progress-bar bg-success" style="width:' + pct + '%"></div></div>' +
+        '<div class="cv-meta-row cv-meta mt-2"><span><span class="demo-label d-inline me-1">Acknowledged:</span>' + ack + '</span>' +
+          '<span class="vr vr-blurry" aria-hidden="true"></span><span><span class="demo-label d-inline me-1">Not Acknowledged:</span>' + (on.length - ack) + "</span></div></div>" +
+        '<div class="vr vr-blurry" aria-hidden="true"></div><div class="cv-meter-pct">' + pct + "%</div></div>";
+  }
   function viewHold(id) {
     var h = holdById(id);
     var on = custodians.filter(function (c) { return (c.lhn || []).some(function (n) { return n.id === id; }); });
@@ -1059,6 +1073,7 @@
       body: '<div class="cv-scope"><dl class="row demo-kv mb-3">' +
         kv("Type", h.silent ? "Silent legal hold · nothing is sent" : "Legal hold notification") + kv(h.silent ? "Started" : "Sent", esc(M.fmtDateTime(h.sent, h.time))) +
         (h.settings ? kv("Settings", esc(h.settings)) : "") + (h.survey ? kv("Survey", esc(h.survey)) : "") + kv(h.silent ? "Tracked" : "Recipients", plural(on.length, "custodian")) + "</dl>" +
+        (h.silent ? "" : meter(id, on)) +
         '<div class="cf-category cf-cat-6 highlight-casefusion">' + (h.silent ? "Custodians Tracked" : "Recipients") + "</div>" +
         '<ul class="list-group list-group-flush cv-tl">' + on.map(function (c) {
           var n = c.lhn.filter(function (x) { return x.id === id; })[0], p = person(c);
