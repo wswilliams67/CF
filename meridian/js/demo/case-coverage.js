@@ -570,7 +570,7 @@
             var id = m.id + "-who-" + x[0];
             return '<input type="radio" class="btn-check" name="cvRelWho" id="' + id + '" value="' + x[0] + '" autocomplete="off"' + (chip === x[0] ? " checked" : "") + ">" +
               '<label class="btn btn-secondary btn-sm" for="' + id + '">' + x[1] + " (" + x[2] + ")</label>"; }).join("") + "</div>" +
-        metaRow('<p class="cv-meta text-muted mb-2 cv-meta-line"><span class="demo-label d-inline me-1">Sorted By:</span>Name</p>' +
+        metaRow('<p class="cv-meta text-muted mb-2 cv-meta-line"><span class="demo-label d-inline me-1">Sorted By:</span>Custodian</p>' +
           '<p class="cv-meta text-muted mb-2 cv-meta-line"><span class="demo-label d-inline me-1">Selected:</span>' + on.length + " · " + plural(holds, "legal hold") + (left.length ? " · " + plural(left.length, "custodian") + " held on another case, left out" : "") + "</p>") +
         tbl(['<div class="form-check mb-0"><input type="checkbox" class="form-check-input" id="cvRelAll"' + (releasableHere && !readOnly ? "" : " disabled") +
               (releasableHere && on.length === releasableHere ? " checked" : "") + ' aria-label="Select all custodians who can be released" /></div>', "Custodian", "Legal Holds", "After Release"], list.map(function (c) {
@@ -605,7 +605,7 @@
         '<div class="cf-category cf-cat-6 highlight-casefusion mt-5">What Stays Preserved</div>' +
         '<p>Releasing a custodian from the legal hold does not release their sources or delete collected data.</p>' +
         /* One source per line with the request that holds it (multi-value rows), for each custodian being released. */
-        (on.length ? (on.length > 1 ? '<p class="cv-meta text-muted mb-2 cv-meta-line"><span class="demo-label d-inline me-1">Sorted By:</span>Name</p>' : "") +
+        (on.length ? (on.length > 1 ? '<p class="cv-meta text-muted mb-2 cv-meta-line"><span class="demo-label d-inline me-1">Sorted By:</span>Custodian</p>' : "") +
           tbl(["Custodian", "Sources Still Preserved", "Held By"], on.map(function (c) {
             var st = sourcesStill(c);
             var lines = function (k) { return st.items.map(function (x) { return '<div class="cv-rel-src">' + esc(x[k]) + "</div>"; }).join("") || "—"; };
