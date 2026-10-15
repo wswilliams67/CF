@@ -234,6 +234,8 @@
   /* DATA GAPS counts sources, so it filters both tables (design decision 12): the custodian grid to the custodians
      with a gap source, and this table to its own gap sources; a note above the grid adds the two up. */
   function gapsOn() { return tileFilter === "gaps" || val("cvFilter") === "gaps"; }
+  /* Preservation reads Hold status's own words (PRD 08 CV19: Coverage reads, it does not relabel): Applied → On hold,
+     Attested, Partial, Unknown (decision 20). */
   function renderNonCustodial() {
     var all = M.sources.filter(function (s) { return !s.owner && !s.pending; });
     var gapIds = {}; gapSources().forEach(function (s) { gapIds[s.id] = true; });
@@ -247,7 +249,7 @@
       note.textContent = g.length + " gap sources: " + onC.length + " on the " + Object.keys(owners).length + " custodians below · " + (g.length - onC.length) + " non-custodial, in Non-Custodial Held Sources.";
     }
     var pres = function (s) {
-      var m = { "Applied": ["On hold", "success"], "Attested": ["Attested", "info"], "Partial": ["Partial", "warning"], "Unknown": ["Not confirmed", "danger"] }[s.hold] || [s.hold, "light"];
+      var m = { "Applied": ["On hold", "success"], "Attested": ["Attested", "info"], "Partial": ["Partial", "warning"], "Unknown": ["Unknown", "danger"] }[s.hold] || [s.hold, "light"];
       return '<span class="badge badge-pill badge-verbatim badge-' + m[1] + '">' + m[0] + "</span>";
     };
     document.getElementById("cvNcBody").innerHTML = rows.map(function (s) {
