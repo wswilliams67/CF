@@ -615,7 +615,7 @@
     if (a === "not-required") markNotRequired();
     if (a === "release") openRelease(selectedList().map(function (c) { return c.personId; }));
     if (a === "export") exportCoverage("coverage-" + D.caseId + ".csv");
-    if (a === "report-xlsx") exportCoverage("case-preservation-report-" + D.caseId + ".csv");
+    if (a === "report-csv") exportCoverage("case-preservation-report-" + D.caseId + ".csv");
     if (a === "panel-prev") stepPanel(-1);
     if (a === "panel-next") stepPanel(1);
     if (a === "panel-release") { var pid = panelId; panel.hide(); openRelease([pid]); }
