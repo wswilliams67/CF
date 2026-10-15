@@ -168,7 +168,7 @@
     var ids = list.map(function (c) { return c.personId; }).join(",");
     /* Selection toolbar in the default toolbar colour, not the green shared state, and with no clear (X): the grid's
        checkboxes select and clear (Scott, 10-14; design decision 11). The count uses the list toolbar's text style. */
-    host.innerHTML = '<div class="btn-toolbar-gray mb-2" role="toolbar" aria-label="Actions for selected custodians">' +
+    host.innerHTML = '<div class="btn-toolbar-gray cv-seltool mb-2" role="toolbar" aria-label="Actions for selected custodians">' +
       '<div class="toolbar-shared-count"><span class="toolbar-list-total">' + n + (n === 1 ? " custodian selected" : " custodians selected") + "</span></div><div>" +
       dropdown("SEND LEGAL HOLD NOTIFICATION",
         item("", "New Legal Hold Notification…", "Opens the notification form with the " + n + " selected custodians as recipients", "not-in-demo.html?what=New+legal+hold+notification&amp;ships=1") +
