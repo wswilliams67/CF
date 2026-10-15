@@ -754,7 +754,10 @@
         var tone = x[2].state === "action" ? " text-danger-emphasis" : x[2].state === "todo" ? " text-warning-emphasis" : "";
         return '<button type="button" class="cv-bar-item" data-cv-jump="' + x[0] + '"' + (tone ? ' data-tone="' + (x[2].state === "action" ? "danger" : "warning") + '"' : "") + ' tabindex="-1"><span class="cv-bar-wf">' + x[1] + '</span><span class="cv-bar-value' + tone + '">' +
           esc(x[2].state === "dash" ? "Not expected" : x[2].text) + "</span></button>";
-      }).join("") + "</nav></div>";
+      }).join("") +
+      /* Back to top, at the bar's end behind a blurry divider: the thick MDI arrow in link blue (Scott, 10-15). */
+      '<div class="vr vr-blurry" aria-hidden="true"></div><button type="button" class="cv-bar-top" data-cv="panel-top" tabindex="-1" aria-label="Back to top" title="Back to top">' +
+      '<i class="mdi mdi-arrow-up-bold" aria-hidden="true"></i></button>' + "</nav></div>";
     panel.setBody('<div class="cv-scope">' + bar +
       '<div class="d-flex align-items-start gap-3 mb-3">' + D.avatar(p) + '<div class="flex-grow-1"><div class="h5 mb-0">' + esc(p.name) + "</div>" +
         '<div class="cv-meta text-muted">' + esc(p.title + " · " + p.upn + "@" + M.tenant.domain + " · added to the case " + short(c.added)) + (p.departed ? " · departed " + esc(M.fmtDate(p.departed)) : "") + "</div>" +
@@ -783,6 +786,7 @@
     secs.forEach(function (sec) { if (sec.getBoundingClientRect().top - top < 96) current = sec.querySelector("[data-cv-sec]").getAttribute("data-cv-sec"); });
     /* At the bottom the last drawer can't reach the top, so it is the current one (the usual scrollspy rule). */
     if (secs.length && body.scrollTop + body.clientHeight >= body.scrollHeight - 2) current = secs[secs.length - 1].querySelector("[data-cv-sec]").getAttribute("data-cv-sec");
+    pin.querySelector(".cv-bar-top").tabIndex = on ? 0 : -1;
     pin.querySelectorAll(".cv-bar-item").forEach(function (b) {
       b.tabIndex = on ? 0 : -1;
       if (b.getAttribute("data-cv-jump") === current) b.setAttribute("aria-current", "true"); else b.removeAttribute("aria-current");
@@ -1027,6 +1031,7 @@
     if (a === "export") exportCoverage("coverage-" + D.caseId + ".csv");
     if (a === "report-csv") exportCoverage("case-preservation-report-" + D.caseId + ".csv");
     if (a === "export-one" && panelId) exportOne(byPid(panelId));
+    if (a === "panel-top" && panel) panel.el.querySelector(".offcanvas-body").scrollTo({ top: 0, behavior: REDUCE ? "auto" : "smooth" });
     if (a === "panel-prev") stepPanel(-1);
     if (a === "panel-next") stepPanel(1);
     if (a === "panel-release") { var pid = panelId; panel.hide(); openRelease([pid]); }
