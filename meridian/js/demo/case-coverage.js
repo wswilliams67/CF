@@ -797,11 +797,11 @@
         '<span class="card-text demo-tile-label">' + esc(x[2].state === "dash" ? "Not expected" : x[2].detail || "") + "</span>";
       var cls = "card " + (tone ? "card-outline card-" + tone : "card-basic") + " demo-tile";
       return ok ? '<button type="button" class="' + cls + '" data-cv-jump="' + x[0] + '"' + (tone ? ' data-tone="' + tone + '"' : "") + ">" + inner + "</button>" :
-        '<div class="' + cls + '">' + inner + "</div>";
+        '<div class="' + cls + '"' + (tone ? ' data-tone="' + tone + '"' : "") + ">" + inner + "</div>";  /* data-tone keeps the shell's tile observer off its outline */
     }).join("") + "</div>";
     if (!ok) {
       /* The monogram carries the lock (no photo: a photo is a profile detail), sized as the 42px photo avatar, so the name line does not repeat it; normal style, no italics (Scott, 10-14). */
-      panel.setBody('<div class="cv-scope"><div class="d-flex align-items-center gap-3 mb-3"><span class="monogram demo-avatar">' + LOCK + '</span><div><div class="h5 mb-0 demo-masked">Profile details limited</div>' +
+      panel.setBody('<div class="cv-scope"><div class="d-flex align-items-center gap-3 mb-3"><span class="monogram demo-avatar demo-avatar-locked">' + LOCK + '</span><div><div class="h5 mb-0 demo-masked">Profile details limited</div>' +
         '<div class="cv-meta text-muted">This custodian is outside your regions. Their coverage counts on this case; their details are visible to the case team in their region.</div></div></div>' + strip + "</div>");
       return;
     }

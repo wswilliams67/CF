@@ -252,6 +252,18 @@
        Not yet requested, so not in Hold status; Coverage counts them.    */
     { id: "s-ex-chen",   owner: "p-chen",   type: "Exchange Online", name: "sarah.chen@meridianbiopharma.com",     found: "Standard source", request: null, hold: null, evidence: "none", events: null, pending: true },
     { id: "s-od-chen",   owner: "p-chen",   type: "OneDrive",        name: "OneDrive · Sarah Chen",                found: "Standard source", request: null, hold: null, evidence: "none", events: null, pending: true },
+    /* Sarah Chen's wider footprint, found by the data map and her org-chart role (Scott, 10-15: one custodian should
+       show the source pager, which appears past 10). Not requested yet, like her mailbox and OneDrive, so none is in
+       Hold Status's 23 or a request; all count as data gaps. Her laptop is left to New request's standard-laptop rule; no file shares, as the only file-share route is for Rest of world. */
+    { id: "s-tc-chen",  owner: "p-chen", type: "Teams chats",          name: "Teams chats · Sarah Chen",                 found: "Standard source", request: null, hold: null, evidence: "none", events: null, pending: true },
+    { id: "s-cp-chen",  owner: "p-chen", type: "Copilot interactions", name: "Copilot · Sarah Chen",                     found: "Standard source", request: null, hold: null, evidence: "none", events: null, pending: true },
+    { id: "s-mb-3318",  owner: "p-chen", type: "Mobile device",        name: "Mobile MB-3318",                           found: "Data map",        request: null, hold: null, evidence: "none", events: null, pending: true },
+    { id: "s-ve-chen",  owner: "p-chen", type: "Viva Engage",          name: "Viva Engage · Sarah Chen",                 found: "Data map",        request: null, hold: null, evidence: "none", events: null, pending: true },
+    { id: "s-tb-1107",  owner: "p-chen", type: "Mobile device",        name: "Tablet TB-1107",                           found: "Data map",        request: null, hold: null, evidence: "none", events: null, pending: true },
+    { id: "s-box-l3",   owner: "p-chen", type: "Box",                  name: "Line 3 Batch Records",                     found: "Data map",        request: null, hold: null, evidence: "none", events: null, pending: true },
+    { id: "s-box-sq",   owner: "p-chen", type: "Box",                  name: "Supplier Quality",                         found: "Data map",        request: null, hold: null, evidence: "none", events: null, pending: true },
+    { id: "s-wx-chen",  owner: "p-chen", type: "Webex",                name: "Webex personal room · Sarah Chen",         found: "Data map",        request: null, hold: null, evidence: "none", events: null, pending: true },
+    { id: "s-pm-chen",  owner: "p-chen", type: "Physical media",       name: "Lab notebooks LNB-0412 to LNB-0419",       found: "Org chart",       request: null, hold: null, evidence: "none", events: null, pending: true },
     { id: "s-ex-webb",   owner: "p-webb",   type: "Exchange Online", name: "marcus.webb@meridianbiopharma.com",    found: "Standard source", request: null, hold: null, evidence: "none", events: null, pending: true },
     { id: "s-od-webb",   owner: "p-webb",   type: "OneDrive",        name: "OneDrive · Marcus Webb",               found: "Standard source", request: null, hold: null, evidence: "none", events: null, pending: true },
     { id: "s-ex-kohler", owner: "p-kohler", type: "Exchange Online", name: "juergen.koehler@meridianbiopharma.com", found: "Standard source", request: null, hold: null, evidence: "none", events: null, pending: true,
@@ -285,7 +297,12 @@
     "Webex":                { handler: "Collaboration Apps", kind: "Response team", dest: "Held in place in Webex", rule: "Chosen by the requester (no Webex rule)" },
     "File share":           { handler: "IT Infrastructure EU", kind: "Response team", dest: "Held in place on the share", rule: "File share preservation · Rest of world → IT Infrastructure EU" },
     "Laptop":               { handler: "Endpoint & Mobile", kind: "Response team", dest: "Device kept from reimaging", rule: "Laptop and mobile preservation → Endpoint & Mobile" },
-    "Mobile device":        { handler: "Endpoint & Mobile", kind: "Response team", dest: "Device kept from reimaging", rule: "Laptop and mobile preservation → Endpoint & Mobile" }
+    "Mobile device":        { handler: "Endpoint & Mobile", kind: "Response team", dest: "Device kept from reimaging", rule: "Laptop and mobile preservation → Endpoint & Mobile" },
+    /* Sarah Chen's sources (10-15). Teams chats and Viva Engage are held by Purview (their source types' integration);
+       physical media has no system hold, so Records & Content keep it in custody. */
+    "Teams chats":          { handler: "Purview hold", kind: "Automatic", dest: "Microsoft Purview", rule: "Exchange, OneDrive, Teams, SharePoint holds → Purview" },
+    "Viva Engage":          { handler: "Purview hold", kind: "Automatic", dest: "Microsoft Purview", rule: "Viva Engage holds → Purview" },
+    "Physical media":       { handler: "Enterprise Content", kind: "Response team", dest: "Kept in custody by Records & Content", rule: "Physical media preservation → Enterprise Content" }
   };
   /* Work item status from what the hold reads (glossary work item statuses). */
   M.workItemOf = function (s) {
