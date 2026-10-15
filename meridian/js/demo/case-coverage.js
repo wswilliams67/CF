@@ -223,7 +223,7 @@
     var shown = rows.slice((page - 1) * pageSize, page * pageSize);
     document.getElementById("cvBody").innerHTML = shown.map(function (c) {
       var v = cov(c), p = person(c), ok = seen(c);
-      var sub = ok ? esc(p.title) + (p.departed ? " · departed " + esc(M.fmtDate(p.departed).replace(/^\d+ /, "")) : "") : "Outside your regions";
+      var sub = ok ? esc(p.title) + (p.departed ? " · Departed " + esc(M.fmtDate(p.departed)) : "") : "Outside your regions";
       return '<tr class="' + (selected[c.personId] ? "table-active" : "") + '">' +
         '<td><div class="form-check mb-0"><input type="checkbox" class="form-check-input" data-sel="' + c.personId + '"' + (selected[c.personId] ? " checked" : "") + ' aria-label="Select ' + esc(visibleName(c)) + '" /></div></td>' +
         /* The name is the row's identity, not a link: OPEN is the one way into custodian coverage (design decision 15). */
@@ -589,7 +589,7 @@
             (c.silent && !wasNotified(c) ? warn("Nothing was sent, so no release notice is sent") : "");
           return '<tr><td><div class="form-check mb-0"><input type="checkbox" class="form-check-input" data-tick="' + c.personId + '"' + (ticked[c.personId] ? " checked" : "") + (releasable(c) && !readOnly ? "" : " disabled") +
             ' aria-label="Release ' + esc(D.nameFor(p)) + '" /></div></td><td><span class="fw-bold' + (D.canSee(p) ? "" : " demo-masked") + '">' + esc(D.nameFor(p)) + '</span><span class="d-block small text-muted">' +
-            (D.canSee(p) ? esc(p.title) + (p.departed ? " · departed" : "") : "Outside your regions") + "</span></td><td>" + holdsCell + "</td><td>" + after + "</td></tr>";
+            (D.canSee(p) ? esc(p.title) + (p.departed ? " · Departed " + esc(M.fmtDate(p.departed)) : "") : "Outside your regions") + "</span></td><td>" + holdsCell + "</td><td>" + after + "</td></tr>";
         }).join("")) +
         /* 48px (mt-5) between the flyout's sections, the house section step (Scott, 10-15). */
         '<div class="cf-category cf-cat-6 highlight-casefusion mt-5">Release Notice</div>' +
@@ -995,7 +995,7 @@
     if (NT) panel.el.querySelectorAll("[data-cnds-tooltip-init]").forEach(function (x) { var i = NT.getInstance(x); if (i) i.dispose(); });
     panel.setBody('<div class="cv-scope">' + bar +
       '<div class="d-flex align-items-start gap-3 mb-3">' + D.avatar(p) + '<div class="flex-grow-1"><div class="h5 mb-0">' + esc(p.name) + "</div>" +
-        '<div class="cv-meta text-muted">' + esc(p.title + " · " + p.upn + "@" + M.tenant.domain + " · added to the case " + short(c.added)) + (p.departed ? " · departed " + esc(M.fmtDate(p.departed)) : "") + "</div>" +
+        '<div class="cv-meta text-muted">' + esc(p.title + " · " + p.upn + "@" + M.tenant.domain + " · Added to the case " + short(c.added)) + (p.departed ? " · Departed " + esc(M.fmtDate(p.departed)) : "") + "</div>" +
         '<div class="d-flex flex-wrap gap-2 mt-2">' + chips.join("") + "</div></div>" +
         '<div class="d-flex gap-2 flex-shrink-0">' + link("VIEW PROFILE", "not-in-demo.html?what=Persona+Case+Profile&amp;ships=1", "btn-secondary") +
           /* EXPORT COVERAGE from here exports this custodian (CV47), in the CaseFusion Export As pattern. */
