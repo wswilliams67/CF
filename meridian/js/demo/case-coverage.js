@@ -16,6 +16,7 @@
   var selected = {};
   var flash = {};
   var tileFilter = null;
+  var page = 1, pageSize = 10;   /* grid pager: the house default, 10 per page (design decision 10) */
 
   function person(c) { return M.person(c.personId); }
   function cov(c) { return M.coverageOf(c); }
@@ -126,7 +127,10 @@
   }
   function renderGrid() {
     var rows = custodians.filter(matches);
-    document.getElementById("cvBody").innerHTML = rows.map(function (c) {
+    var pages = Math.max(1, Math.ceil(rows.length / pageSize));
+    if (page > pages) page = pages;
+    var shown = rows.slice((page - 1) * pageSize, page * pageSize);
+    document.getElementById("cvBody").innerHTML = shown.map(function (c) {
       var v = cov(c), p = person(c), ok = seen(c);
       var sub = ok ? esc(p.title) + (p.departed ? " · departed " + esc(M.fmtDate(p.departed).replace(/^\d+ /, "")) : "") : "Outside your regions";
       return '<tr class="' + (selected[c.personId] ? "table-active" : "") + '">' +
@@ -138,8 +142,12 @@
         "<td>" + cell(v.collection) + "</td>" +
         '<td><button type="button" class="btn btn-tertiary btn-sm" data-open="' + c.personId + '">OPEN</button></td></tr>';
     }).join("") || '<tr><td colspan="8">' + empty("No custodians match this filter", "Change the search or the filters to see more custodians.") + "</td></tr>";
-    /* The count follows the filter, as on My Work: "Showing 3 of 9 custodians" (design decision, 14 Oct). */
-    document.getElementById("cvTotal").textContent = "Showing " + rows.length + " of " + custodians.length + " custodians";
+    /* Pager under the grid: its range is the grid's count, so the toolbar carries none (design decision 10). Nimbus
+       selects are disposed before their markup is replaced. */
+    var foot = document.getElementById("cvGridFoot"), NS = window.Nimbus && Nimbus.Select;
+    if (NS) foot.querySelectorAll("select[data-cnds-select-init]").forEach(function (x) { var i = NS.getInstance(x); if (i) i.dispose(); });
+    foot.innerHTML = rows.length ? D.pager("cv", rows.length, page, pageSize, "Custodians per page:") : "";
+    if (NS) NS.initAll(foot);
     var all = document.getElementById("cvAll");
     all.checked = rows.length > 0 && rows.every(function (c) { return selected[c.personId]; });
     all.indeterminate = !all.checked && rows.some(function (c) { return selected[c.personId]; });
@@ -496,13 +504,16 @@
   }
 
   /* ── Events ─────────────────────────────────────────────────────────── */
-  function onFilter() { tileFilter = null; renderTiles(); renderGrid(); }
+  function onFilter() { tileFilter = null; page = 1; renderTiles(); renderGrid(); }
   ["cvFilter", "cvWorkflow"].forEach(function (id) {
     var el = document.getElementById(id);
     el.addEventListener("change", onFilter);
     el.addEventListener("valueChanged.cnds.select", onFilter);
   });
-  document.getElementById("cvSearch").addEventListener("input", renderGrid);
+  document.getElementById("cvSearch").addEventListener("input", function () { page = 1; renderGrid(); });
+  /* Pager: arrows turn the page; a new page size returns to page 1. */
+  function onPageSize(e) { if (e.target.getAttribute("data-pg-size") === "cv") { pageSize = +e.target.value; page = 1; renderGrid(); } }
+  ["change", "valueChanged.cnds.select"].forEach(function (t) { document.getElementById("cvGridFoot").addEventListener(t, onPageSize); });
   document.addEventListener("change", function (e) {
     var t = e.target;
     if (t.closest && t.closest(".modal")) return;
@@ -518,9 +529,10 @@
     if (e.target.closest(".modal")) return;
     var t = e.target.closest("button, a, [data-cv]");
     if (!t) return;
+    if (t.getAttribute("data-pg-for") === "cv") { page = D.turnPage(page, t.getAttribute("data-pg"), custodians.filter(matches).length, pageSize); renderGrid(); return; }
     if (t.hasAttribute("data-tile")) {
       var k = t.getAttribute("data-tile");
-      tileFilter = tileFilter === k || k === "all" ? null : k;
+      tileFilter = tileFilter === k || k === "all" ? null : k; page = 1;
       setFilter("all"); renderTiles(); renderGrid(); return;
     }
     if (t.hasAttribute("data-open")) { e.preventDefault(); openPanel(t.getAttribute("data-open")); return; }
@@ -530,8 +542,8 @@
     if (t.hasAttribute("data-cv-toast")) { D.toast(t.getAttribute("data-cv-toast")); return; }
     var a = t.getAttribute("data-cv");
     if (!a) return;
-    if (a === "select-after") { selected = {}; afterNoticeUnsent().forEach(function (c) { selected[c.personId] = true; }); tileFilter = null; setFilter("after"); render(); }
-    if (a === "review-after") { tileFilter = null; setFilter("after"); renderTiles(); renderGrid(); }
+    if (a === "select-after") { page = 1; selected = {}; afterNoticeUnsent().forEach(function (c) { selected[c.personId] = true; }); tileFilter = null; setFilter("after"); render(); }
+    if (a === "review-after") { page = 1; tileFilter = null; setFilter("after"); renderTiles(); renderGrid(); }
     if (a === "clear") { selected = {}; renderGrid(); }
     if (a === "not-required") markNotRequired();
     if (a === "release") openRelease(selectedList().map(function (c) { return c.personId; }));
