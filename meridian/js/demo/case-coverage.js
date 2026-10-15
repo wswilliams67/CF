@@ -172,7 +172,7 @@
     /* Selection toolbar in the default toolbar colour, not the green shared state (design decision 11). The clear (X)
        and the count use the list toolbar's text colour so they read on the default bar in both themes. */
     host.innerHTML = '<div class="btn-toolbar-gray cv-seltool mb-2" role="toolbar" aria-label="Actions for selected custodians">' +
-      '<div class="toolbar-shared-count"><i class="mdi mdi-close pointer toolbar-list-total" role="button" tabindex="0" aria-label="Clear selection" data-cv="clear"></i><span class="toolbar-list-total">' + n + " selected" + "</span></div><div>" +
+      '<div class="toolbar-shared-count"><i class="mdi mdi-close pointer toolbar-list-total" role="button" tabindex="0" aria-label="Clear selection" data-cv="clear"></i><div class="vr vr-blurry" aria-hidden="true"></div><span class="toolbar-list-total">' + n + " selected" + "</span></div><div>" +
       dropdown("SEND LEGAL HOLD NOTIFICATION",
         item("", "New Legal Hold Notification…", "Opens the notification form with the " + n + " selected custodians as recipients", "not-in-demo.html?what=New+legal+hold+notification&amp;ships=1") +
         '<li><h6 class="dropdown-header">Settings from a notification in this case</h6></li>' +
