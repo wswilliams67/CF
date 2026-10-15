@@ -280,7 +280,7 @@
     }).join("");
   }
   /* A shut accordion's second line names what is inside; an open one says how it is sorted. */
-  var OPEN_SUMMARY = "Sort by: least protected first";
+  var OPEN_SUMMARY = "Sorted by: least protected first";  /* a statement of the order, not a control (Scott, 10-15) */
   function summary(id, rows) {
     if (id === "confirmed") return "Read from Purview · " + integrityText.toLowerCase().replace("integrity ", "") + " · nothing outstanding";
     if (id === "imported") return "No source on this case was imported from a prior tool";

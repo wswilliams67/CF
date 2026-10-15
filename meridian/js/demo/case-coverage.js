@@ -278,7 +278,7 @@
     var all = M.sources.filter(function (s) { return !s.owner && !s.pending; });
     var gapIds = {}; gapSources().forEach(function (s) { gapIds[s.id] = true; });
     var rows = (gapsOn() ? all.filter(function (s) { return gapIds[s.id]; }) : all).slice().sort(function (a, b) { return protectionRank(a) - protectionRank(b); });
-    document.getElementById("cvNcSort").innerHTML = rows.length > 1 ? '<span class="demo-label d-inline me-1">Sort By:</span>Least protected first' : "";
+    document.getElementById("cvNcSort").innerHTML = rows.length > 1 ? '<span class="demo-label d-inline me-1">Sorted By:</span>Least protected first' : "";
     /* The conditional pager (more than 10 rows), as in the custodian panel; a secondary list, so no toolbar. */
     var ncAll = rows, ncSize = pgSize.cvnc || 10, ncPages = Math.max(1, Math.ceil(ncAll.length / ncSize));
     pgPage.cvnc = Math.min(pgPage.cvnc || 1, ncPages);
@@ -544,12 +544,12 @@
     }).join("") + "</ul>";
   }
   /* ── Default order, stated where the list is (Scott, 10-15) ──
-     Every nested list has one deliberate order, named in a "SORT BY:" meta line (Hold Status's wording), shown when
+     Every nested list has one deliberate order, named in a "SORTED BY:" meta line (Hold Status's wording), shown when
      the list has two or more items. Notifications and surveys: needs action first, then newest. Timelines: oldest
      first (the story of what was done). Sources: least protected / least collected first, Hold Status's ranking. */
   var SEVERITY = { "Not applied": 0, "Overdue": 1, "Partial": 2, "Applying": 3, "Removing": 3, "Unknown": 4, "Applied": 5, "Attested": 6 };
   var COLLECTED = { Failed: 0, Retrying: 1, "Not started": 2, "In progress": 3, Collected: 4 };
-  function sortLine(text) { return '<p class="cv-meta text-muted mb-2"><span class="demo-label d-inline me-1">Sort By:</span>' + esc(text) + "</p>"; }
+  function sortLine(text) { return '<p class="cv-meta text-muted mb-2"><span class="demo-label d-inline me-1">Sorted By:</span>' + esc(text) + "</p>"; }
   function firstDate(x) { return ((x.events || [])[0] || [""])[0]; }
   function actionThenNewest(isAction) {
     return function (a, b) { return (isAction(a) ? 0 : 1) - (isAction(b) ? 0 : 1) || (firstDate(a) < firstDate(b) ? 1 : firstDate(a) > firstDate(b) ? -1 : 0); };
