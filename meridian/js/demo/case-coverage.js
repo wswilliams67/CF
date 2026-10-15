@@ -716,14 +716,18 @@
     var keep = panel.el.querySelector(".offcanvas-body"), top = keep ? keep.scrollTop : 0;
     /* Summary strip: one card, the five workflows divided by blurry rules, each a label over its state. */
     /* Summary cards, the Hold Status pattern (Scott, 10-15): one card per workflow, each opening its drawer. A
-       workflow that needs action is the danger outline card. A limited profile has no drawers, so its cards are
+       workflow's card is toned by severity (below). A limited profile has no drawers, so its cards are
        plain, not buttons. Values are words (Not acknowledged), so they take 16px, not the 24.5px of a count. */
     var strip = '<div class="demo-tiles cv-ptiles" role="group" aria-label="Workflows">' + [["lhn", "Legal Hold Notification", v.lhn], ["survey", "Survey", v.survey], ["interview", "Interview", v.interview], ["preservation", "Preservation", v.preservation], ["collection", "Collection", v.collection]].map(function (x) {
-      var danger = x[2].state === "action";
+      /* Severity, as Hold Status colours its cards (Scott, 10-15): danger when something is late or failed (action),
+         warning when something expected has not started (todo: Not scheduled, Not sent, Not requested). Healthy and
+         in-flight workflows stay neutral: colouring good news is noise. These cards jump, they don't filter,
+         so they are not toggles (no aria-pressed) and keep Nimbus's full outline border. */
+      var tone = x[2].state === "action" ? "danger" : x[2].state === "todo" ? "warning" : "";
       var inner = '<span class="card-subtitle demo-tile-name">' + x[1] + '</span><span class="card-title demo-tile-value">' + esc(x[2].text) + "</span>" +
         '<span class="card-text demo-tile-label">' + esc(x[2].state === "dash" ? "Not expected" : x[2].detail || "") + "</span>";
-      var cls = "card " + (danger ? "card-outline card-danger" : "card-basic") + " demo-tile";
-      return ok ? '<button type="button" class="' + cls + '" data-cv-jump="' + x[0] + '"' + (danger ? ' data-tone="danger" aria-pressed="false"' : "") + ">" + inner + "</button>" :
+      var cls = "card " + (tone ? "card-outline card-" + tone : "card-basic") + " demo-tile";
+      return ok ? '<button type="button" class="' + cls + '" data-cv-jump="' + x[0] + '"' + (tone ? ' data-tone="' + tone + '"' : "") + ">" + inner + "</button>" :
         '<div class="' + cls + '">' + inner + "</div>";
     }).join("") + "</div>";
     if (!ok) {
