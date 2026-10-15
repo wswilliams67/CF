@@ -166,7 +166,7 @@
         if (p.departed) notes.push("Departed " + M.fmtDate(p.departed).replace(/^\d+ /, ""));
         if (c && c.afterNotice) notes.push("Added after the notice · not on hold");
         body += '<div class="mb-3"><div class="d-flex align-items-center flex-wrap gap-2 py-2"><span class="fw-bold">' + nameOf(pid) + '</span><span class="small text-muted">' + esc(D.canSee(p) ? p.title : "Outside your regions") + "</span>" +
-          notes.map(function (n) { return '<span class="badge badge-pill badge-warning">' + esc(n) + "</span>"; }).join("") +
+          notes.map(function (n) { return '<span class="badge badge-warning">' + esc(n) + "</span>"; }).join("") +
           '<span class="small text-muted ms-auto">' + list.length + " sources" + (skipped ? " · " + skipped + " skipped" : "") + "</span></div>" + (list.length ? table(list, false) : empty("No Sources", "No sources are on record for this custodian. Use + ADD SOURCE to add one.")) + "</div>";
       });
       var shared = sharedRows();
@@ -192,7 +192,7 @@
       body += '<div class="card card-basic mt-3 mb-0"><div class="card-body">' +
         input("npQuery", "query", "Content Query (KeyQL)", st.query, false, "Mail properties only, because every location on this request is a mailbox.", { rows: 3, mono: true }) +
         '<div class="d-flex align-items-center flex-wrap gap-3 my-2"><button type="button" class="btn btn-secondary btn-sm" data-np="validate">VALIDATE QUERY</button>' +
-          (st.validated ? '<span class="badge badge-pill badge-success">Valid syntax · checked 10-08-2026 at 2:07 PM</span>' : "") +
+          (st.validated ? '<span class="badge badge-success">Valid syntax · checked 10-08-2026 at 2:07 PM</span>' : "") +
           '<div class="form-check m-0"><input class="form-check-input" type="checkbox" id="npWin"' + (st.windowLimit ? " checked" : "") + ' /><label class="form-check-label" for="npWin">Limit the hold to the case window</label></div></div>' +
         /* Sub-headings inside this nested card: category type without the bar, which marks page sections (Scott, 10-14). */
         '<div class="demo-card-head mt-3"><div class="cf-category cf-cat-6 flex-grow-1 mb-0" role="heading" aria-level="3">What Purview Receives</div></div>' +
@@ -221,7 +221,7 @@
         var auto = h.kind === "Automatic";
         var mode = st.modes[h.name] || "queue-suggested";
         /* Nested card head: category type, no bar, badge at the right; never a 20px card title inside a card (Scott, 10-14). */
-        return '<div class="card card-basic mb-2"><div class="card-body"><div class="demo-card-head"><div class="cf-category cf-cat-6 flex-grow-1 mb-0" role="heading" aria-level="3">' + esc(h.name) + '</div><span class="badge badge-pill badge-secondary">' + esc(h.kind) + "</span></div>" +
+        return '<div class="card card-basic mb-2"><div class="card-body"><div class="demo-card-head"><div class="cf-category cf-cat-6 flex-grow-1 mb-0" role="heading" aria-level="3">' + esc(h.name) + '</div><span class="badge badge-secondary">' + esc(h.kind) + "</span></div>" +
           '<p class="card-text small text-muted mb-2">Routing rule: ' + esc(h.rule) + "</p>" +
           '<div class="row row-cols-1 row-cols-md-3 g-3">' + fact("Work", esc(work)) + fact("Destination", esc(h.dest)) +
           (auto ? fact("Timing", "Starts on send. Status shows per custodian, and each Purview hold shows as Applied once Purview reports it.") :

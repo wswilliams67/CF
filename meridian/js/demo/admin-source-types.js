@@ -21,7 +21,7 @@
     return out;
   }
   function statusCell(t) {
-    var pill = t.status === "Active" ? '<span class="badge badge-pill badge-success">Active</span>' : '<span class="badge badge-pill badge-secondary">' + esc(t.status) + "</span>";
+    var pill = t.status === "Active" ? '<span class="badge badge-success">Active</span>' : '<span class="badge badge-secondary">' + esc(t.status) + "</span>";
     return pill + (t.note ? '<span class="d-block small text-muted">' + esc(t.note) + "</span>" : "") + '<span class="d-block small text-muted">' + esc(t.cov) + "</span>";
   }
   function renderTable() {
@@ -33,7 +33,7 @@
     var body = "<tbody>" + ordered().map(function (t) {
       return '<tr class="' + (t.under ? "st-child" : "") + '"><td>' + (t.under ? '<i class="mdi mdi-subdirectory-arrow-right text-muted me-1" aria-hidden="true"></i>' : "") + '<span class="fw-bold st-name">' + esc(t.name) + "</span>" + (t.added ? '<span class="d-block small text-muted">Added by the tenant</span>' : "") +
         '<span class="d-block small text-muted">' + esc(t.integ) + "</span></td><td>" + esc(t.kind) + "</td><td>" + statusCell(t) + "</td><td>" + esc(t.disc) + "</td><td>" + esc(t.loc) + "</td>" +
-        "<td>" + esc(t.date) + '</td><td><span class="badge badge-pill badge-secondary">' + esc(t.terms) + '</span><span class="d-block small text-muted">' + esc(TERMS[t.terms]) + "</span></td><td>" + esc(t.unit) + "</td>" +
+        "<td>" + esc(t.date) + '</td><td><span class="badge badge-secondary">' + esc(t.terms) + '</span><span class="d-block small text-muted">' + esc(TERMS[t.terms]) + "</span></td><td>" + esc(t.unit) + "</td>" +
         "<td>" + t.sources.toLocaleString("en-US") + "</td>" +
         t.std.map(function (v, i) { return '<td class="st-mark' + (i % 2 === 0 ? " st-first" : "") + '">' + (v ? '<i class="mdi mdi-check" aria-label="Standard source"></i>' : '<span class="text-muted" aria-label="Not standard">—</span>') + "</td>"; }).join("") +
         "<td>" + (t.name === "Yammer" ? '<button type="button" class="btn btn-tertiary btn-sm" data-edit="Yammer">EDIT</button>' :
@@ -105,7 +105,7 @@
         '<div class="table-responsive"><table class="table table-sm align-middle mb-0 st-effects"><tbody>' +
         eff.map(function (e) {
           return '<tr><td><span class="fw-bold">' + esc(e.c.name + " · " + e.c.id) + '</span><span class="d-block small text-muted">' + esc(e.c.status) + "</span></td><td>" + esc(e.text) +
-            '</td><td class="text-end"><span class="badge badge-pill badge-' + window.MeridianDemo.badgeColor[e.cls] + '">' + esc(e.pill) + "</span></td></tr>";
+            '</td><td class="text-end"><span class="badge badge-' + window.MeridianDemo.badgeColor[e.cls] + '">' + esc(e.pill) + "</span></td></tr>";
         }).join("") + "</tbody></table></div>") +
       sec("Routing", "Read-only while decommissioned",
         /* Shared name/value pairs (Scott, 10-14, rule 2): 12px bold labels, 14px values. */

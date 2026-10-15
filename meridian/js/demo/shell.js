@@ -153,7 +153,7 @@
             '<span class="user-info" id="userAccountToggle" role="button" tabindex="0" aria-haspopup="menu" aria-expanded="false" aria-controls="accountMenu">' +
             '<span class="user-avatar" aria-hidden="true">' + esc(initials(me.name)) + '</span>' +
             '<span class="user-name-label">' + esc(me.name) + '</span>' +
-            '<span class="badge badge-pill badge-info demo-region-badge" title="Viewer region">' + esc(regionName) + '</span></span>' +
+            '<span class="badge badge-info demo-region-badge" title="Viewer region">' + esc(regionName) + '</span></span>' +
             '<div class="account-menu" id="accountMenu" role="menu" aria-hidden="true">' +
               '<div class="account-menu-header">View as</div>' + switchItems +
               '<div class="account-menu-header">Account</div>' +

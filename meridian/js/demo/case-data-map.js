@@ -157,7 +157,7 @@
     };
     var head = function (id, label, n, on) {
       return '<label class="dropdown-item dropdown-item-check dm-menu-head" for="' + id + '"><input type="checkbox" class="form-check-input" id="' + id + '"' + (on ? " checked" : "") + ' />' +
-        '<span class="flex-grow-1">' + label + '</span><span class="badge badge-pill badge-secondary">' + n + "</span></label>";
+        '<span class="flex-grow-1">' + label + '</span><span class="badge badge-secondary">' + n + "</span></label>";
     };
     var item = function (group, id, label, sub, on) {
       return '<label class="dropdown-item dropdown-item-check" for="f-' + group + "-" + id + '"><input type="checkbox" class="form-check-input" id="f-' + group + "-" + id + '" data-f="' + group + '" data-v="' + id + '"' + (on ? " checked" : "") + " />" +
@@ -327,11 +327,11 @@
       var p = M.person(n.personId), ok = D.canSee(p), s = all.filter(function (x) { return x.id === n.source; })[0];
       var why = n.kind === "Top collaborator" ? "Top collaborator · with " + D.nameFor(M.person(n.with)) + " · " + srcName(s).title + " · " + n.events + " events" :
         n.workload + " overlap · " + srcName(s).title + " · " + n.events + " events" + (n.note ? " · " + n.note : "");
-      var act = isCustodian(n.personId) ? '<span class="badge badge-pill badge-success">Custodian</span>' :
+      var act = isCustodian(n.personId) ? '<span class="badge badge-success">Custodian</span>' :
         '<button type="button" class="btn btn-tertiary btn-sm" data-add-cust="' + n.personId + '"' + (!ok || n.guest ? " disabled" : "") + (n.guest ? ' title="A guest is not a natural person in CaseFusion"' : !ok ? ' title="Outside your regions"' : "") + ">MARK AS CUSTODIAN</button>";
       /* Person name bold 14px, title and reason 12px (Scott, 10-14). */
       return '<li class="list-group-item d-flex align-items-center gap-3"><div class="me-auto"><a class="fw-bold" href="not-in-demo.html?what=' + encodeURIComponent("Persona profile") + '">' + personLabel(p) + "</a>" +
-        (ok ? ' <span class="small">— ' + esc(p.title) + "</span>" : "") + (n.guest && ok ? ' <span class="badge badge-pill badge-secondary">Guest</span>' : "") +
+        (ok ? ' <span class="small">— ' + esc(p.title) + "</span>" : "") + (n.guest && ok ? ' <span class="badge badge-secondary">Guest</span>' : "") +
         '<span class="d-block small">' + (ok ? esc(why) : "Outside your regions") + "</span></div>" + act + "</li>";
     }).join("");
   }
@@ -354,7 +354,7 @@
     /* Shared patterns (Scott, 10-14): the menu is nested in the page, so its head is the bar-less category type with
        the count badge across from it (demo-card-head); scope name 14px bold, detail lines 12px; DELETE and RENAME
        are disabled, never hidden, on a scope someone else saved; the empty list uses the shared empty state. */
-    document.getElementById("dmScopesMenu").innerHTML = '<div class="demo-card-head px-3 pt-2 pb-1"><div class="cf-category cf-cat-6 flex-grow-1 mb-0" role="heading" aria-level="3">Saved Scopes</div><span class="badge badge-pill badge-secondary">' + list.length + "</span></div>" +
+    document.getElementById("dmScopesMenu").innerHTML = '<div class="demo-card-head px-3 pt-2 pb-1"><div class="cf-category cf-cat-6 flex-grow-1 mb-0" role="heading" aria-level="3">Saved Scopes</div><span class="badge badge-secondary">' + list.length + "</span></div>" +
       (list.length ? '<ul class="list-group list-group-light list-group-flush dm-scope-list">' + list.map(function (sc, i) {
         var mine = sc.by === me, who = M.person(sc.by), notMine = mine ? "" : ' disabled title="Only the person who saved this scope can change it"';
         return '<li class="list-group-item d-flex align-items-center gap-2 px-3"><div class="me-auto"><span class="fw-bold d-block">' + esc(sc.name) + '</span><span class="small d-block">' + esc(sc.detail) + " · Saved " + esc(M.fmtDate(sc.saved)) + " at " + esc(sc.time) + "</span>" +
@@ -540,7 +540,7 @@
         (nEx.length ? '<div class="alert alert-warning" role="status"><span class="alert-icon" aria-hidden="true"><i class="mdi mdi-alert"></i></span><span><b>' + nEx.length + "</b> " + (nEx.length === 1 ? "person's" : "people's") + " Copilot sessions excluded from scope</span></div>" : "") +
         toolbar() + table([["Name"], ["Role"], ["Events", "text-end"], ["Custodian Status", "text-center"]].concat(copilot ? [['<span class="visually-hidden">Actions</span>']] : []), page(list).map(function (r) {
           var ex = !!v.exPer[r.pid];
-          return '<tr class="' + (ex ? "dm-excluded" : "") + '"><td>' + personLabel(r.p) + (r.p.guest && D.canSee(r.p) ? ' <span class="badge badge-pill badge-secondary">Guest</span>' : "") + "</td><td>" + (D.canSee(r.p) ? esc(r.p.title) : "—") +
+          return '<tr class="' + (ex ? "dm-excluded" : "") + '"><td>' + personLabel(r.p) + (r.p.guest && D.canSee(r.p) ? ' <span class="badge badge-secondary">Guest</span>' : "") + "</td><td>" + (D.canSee(r.p) ? esc(r.p.title) : "—") +
             '</td><td class="text-end">' + nf(r.events * factor()) + '</td><td class="text-center">' + custStatus(r.pid, r.events) + "</td>" +
             (copilot ? '<td class="text-end"><button type="button" class="btn btn-tertiary btn-sm' + (ex ? " text-danger" : "") + '" data-sd-exp="' + r.pid + '" aria-pressed="' + ex + '">' + (ex ? "EXCLUDED" : "EXCLUDE") + "</button></td>" : "") + "</tr>";
         }).join(""), "No recorded activity in this period.") + pager("sd", list.length, v.page, v.size, "Items per page:", cont);
@@ -551,7 +551,7 @@
       sortBy(list, function (r) { return v.sort === "since" ? r.since : D.nameFor(r.p); });
       return '<p class="mb-2">Channel membership roster — who belongs to this team, independent of who has actually posted or read.</p>' +
         toolbar() + table([["Name"], ["Role"], ["Member Since"], ["Custodian Status", "text-center"]], page(list).map(function (r) {
-          return "<tr><td>" + personLabel(r.p) + (r.p.guest && D.canSee(r.p) ? ' <span class="badge badge-pill badge-secondary">Guest</span>' : "") + "</td><td>" + (D.canSee(r.p) ? esc(r.p.title) : "—") + "</td><td>" + esc(M.fmtDate(r.since)) +
+          return "<tr><td>" + personLabel(r.p) + (r.p.guest && D.canSee(r.p) ? ' <span class="badge badge-secondary">Guest</span>' : "") + "</td><td>" + (D.canSee(r.p) ? esc(r.p.title) : "—") + "</td><td>" + esc(M.fmtDate(r.since)) +
             '</td><td class="text-center">' + (r.p.guest ? "Guest · not a natural person" : isCustodian(r.pid) ? "Custodian" : "Not a Custodian") + "</td></tr>";
         }).join("")) + pager("sd", list.length, v.page, v.size, "Items per page:", cont);
     }

@@ -26,9 +26,9 @@
     list.forEach(function (r) {
       var decom = r.status === "Decommissioned";
       html += '<tr><td><div class="form-check mb-0"><input type="checkbox" class="form-check-input" data-tick="' + r.id + '"' + (st.ticked[r.id] ? " checked" : "") + (r.id === "yammer" ? " disabled" : "") +
-        ' aria-label="Add ' + esc(r.name) + '" /></div></td><td class="as-source"><span class="fw-bold">' + esc(r.name) + "</span>" + (r.successor ? ' <span class="badge badge-pill badge-info">Successor</span>' : "") +
+        ' aria-label="Add ' + esc(r.name) + '" /></div></td><td class="as-source"><span class="fw-bold">' + esc(r.name) + "</span>" + (r.successor ? ' <span class="badge badge-info">Successor</span>' : "") +
         '<span class="d-block as-meta text-muted">' + esc(r.scope) + '</span></td><td class="text-nowrap">' + esc(r.cov) + "</td><td>" + esc(r.reason) + "</td>" +
-        '<td><span class="badge badge-pill badge-' + (decom ? "secondary" : "success") + '">' + esc(r.status) + "</span></td>" +
+        '<td><span class="badge badge-' + (decom ? "secondary" : "success") + '">' + esc(r.status) + "</span></td>" +
         '<td class="text-end">' + (r.id === "yammer" ? '<a class="btn btn-tertiary btn-sm text-nowrap" href="admin-source-types.html?edit=Yammer">VIEW SOURCE TYPE</a>' : "") + "</td></tr>";
       if (r.id === "yammer") {
         if (st.redirect === "open") {

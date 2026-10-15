@@ -83,7 +83,7 @@
   /* ── Cards ──────────────────────────────────────────────────────────── */
   function statusPill(r) {
     var cls = /^Complete/.test(r.status) ? "ok" : r.status === "Sent" ? "info" : "warn";
-    return '<span class="badge badge-pill badge-' + window.MeridianDemo.badgeColor[cls] + '">' + esc(r.status) + "</span>";
+    return '<span class="badge badge-' + window.MeridianDemo.badgeColor[cls] + '">' + esc(r.status) + "</span>";
   }
   function custodianCount(r) {
     var o = {}; sourcesOf(r).forEach(function (s) { if (s.owner) o[s.owner] = 1; }); return Object.keys(o).length;
@@ -97,9 +97,9 @@
     var ra = requiresAction(r), pr = progress(r), by = M.person(r.by);
     var collection = r.kind === "Collection";
     var asg = collection ? null : assignments(r);
-    var head = '<div class="d-flex align-items-center flex-wrap gap-2 mb-1"><h3 class="card-title mb-0 me-1">' + esc(r.id + " · " + r.title) + '</h3><span class="badge badge-pill badge-secondary">' + esc(r.kind) + "</span>" +
-      (r.linked ? '<span class="badge badge-pill badge-secondary">Linked to ' + esc(r.linked) + "</span>" : "") + statusPill(r) +
-      (r.isNew ? '<span class="badge badge-pill badge-success">New</span>' : "") + "</div>" +
+    var head = '<div class="d-flex align-items-center flex-wrap gap-2 mb-1"><h3 class="card-title mb-0 me-1">' + esc(r.id + " · " + r.title) + '</h3><span class="badge badge-secondary">' + esc(r.kind) + "</span>" +
+      (r.linked ? '<span class="badge badge-secondary">Linked to ' + esc(r.linked) + "</span>" : "") + statusPill(r) +
+      (r.isNew ? '<span class="badge badge-success">New</span>' : "") + "</div>" +
       '<p class="card-text small text-muted mb-2">Created by ' + esc(D.canSee(by) ? by.name : "a case administrator") + " on " + esc(M.fmtDate(r.sent)) + " · Updated " + esc(r.updated || "") +
       (r.backup ? " · Backup: " + esc(M.person(D.viewer().personId).name) : "") + "</p>";
     var alert = function (kind, icon, text) { return '<div class="alert alert-' + kind + ' mb-2" role="status"><span class="alert-icon" aria-hidden="true"><i class="mdi mdi-' + icon + '"></i></span><span>' + text + "</span></div>"; };
@@ -134,11 +134,11 @@
           var covers = Object.keys(types).map(function (t) { return types[t] + " " + M.typeLabel(t); }).join(", ");
           var st = done === a.items.length ? "Complete" : a.items.some(function (s) { return workItem(s).status === "Returned"; }) ? "Returned" : "In progress";
           var row = '<li class="list-group-item' + (open ? " demo-open" : "") + '"><div class="rq-arow">' +
-            '<div><span class="demo-label">Handler</span><span class="fw-bold me-1">' + esc(a.handler) + '</span><span class="badge badge-pill badge-secondary">' + esc(a.kind) + "</span></div>" +
+            '<div><span class="demo-label">Handler</span><span class="fw-bold me-1">' + esc(a.handler) + '</span><span class="badge badge-secondary">' + esc(a.kind) + "</span></div>" +
             '<div><span class="demo-label">Covers</span>' + esc(covers) + "</div>" +
             '<div><span class="demo-label">Progress</span>' + done + " of " + a.items.length + " complete</div>" +
             '<div><span class="demo-label">Status</span>' + esc(st) + "</div>" +
-            '<div><span class="demo-label">Attention</span>' + (attn.length ? '<span class="badge badge-pill badge-warning">' + attn.length + " need" + (attn.length === 1 ? "s" : "") + " attention</span>" : "—") + "</div>" +
+            '<div><span class="demo-label">Attention</span>' + (attn.length ? '<span class="badge badge-warning">' + attn.length + " need" + (attn.length === 1 ? "s" : "") + " attention</span>" : "—") + "</div>" +
             '<div class="vr vr-blurry" aria-hidden="true"></div>' +
             '<div class="rq-arow-actions"><button type="button" class="btn btn-tertiary btn-sm" data-assign="' + esc(key) + '" aria-expanded="' + open + '" aria-controls="' + cid +
               '" aria-label="' + (open ? "Hide" : "View") + " work items for " + esc(a.handler) + '">' + (open ? "HIDE" : "VIEW") + "</button></div></div>";

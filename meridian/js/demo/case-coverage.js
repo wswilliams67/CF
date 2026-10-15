@@ -36,12 +36,12 @@
   /* Nimbus badges, coloured by the coverage-grid semantics in the glossary. */
   /* badge-verbatim: the status words keep their own case ("3 of 3 on hold", not "3 Of 3 On Hold"), as Hold Status's Purview
      words do (Nimbus gap #10; design decision, 14 Oct). */
-  var PILL = { done: "badge badge-pill badge-verbatim badge-success", progress: "badge badge-pill badge-verbatim badge-info", todo: "badge badge-pill badge-verbatim badge-warning", action: "badge badge-pill badge-verbatim badge-danger", silent: "badge badge-pill badge-verbatim badge-secondary", na: "badge badge-pill badge-verbatim badge-light" };
+  var BADGE = { done: "badge badge-verbatim badge-success", progress: "badge badge-verbatim badge-info", todo: "badge badge-verbatim badge-warning", action: "badge badge-verbatim badge-danger", silent: "badge badge-verbatim badge-secondary", na: "badge badge-verbatim badge-light" };
   /* A date never breaks across lines: "latest 08-29-" / "2026" read as two things. */
   function keepDates(html) { return html.replace(/(\d{2}-\d{2}-\d{4})/g, '<span class="text-nowrap">$1</span>'); }
   function cell(x, link) {
     if (x.state === "dash") return '<span class="text-muted" title="Not expected on this case">—</span>';
-    var pill = '<span class="' + PILL[x.state] + '">' + esc(x.text) + "</span>";
+    var pill = '<span class="' + BADGE[x.state] + '">' + esc(x.text) + "</span>";
     if (link) pill = '<a href="' + link + '" title="Open Hold status">' + pill + "</a>";
     return pill + (x.detail ? '<span class="d-block small text-muted mt-1">' + keepDates(esc(x.detail)) + "</span>" : "");
   }
@@ -288,12 +288,12 @@
     }
     var pres = function (s) {
       var m = { "Applied": ["On hold", "success"], "Attested": ["Attested", "info"], "Partial": ["Partial", "warning"], "Unknown": ["Unknown", "danger"] }[s.hold] || [s.hold, "light"];
-      return '<span class="badge badge-pill badge-verbatim badge-' + m[1] + '">' + m[0] + "</span>";
+      return '<span class="badge badge-verbatim badge-' + m[1] + '">' + m[0] + "</span>";
     };
     document.getElementById("cvNcBody").innerHTML = rows.map(function (s) {
       var col = M.nonCustodialCollection[s.id];
       return "<tr><td>" + esc(M.typeLabel(s.type) + " · " + s.name) + '</td><td class="text-nowrap">' + (M.usedBy[s.id] || 0) + " custodians</td><td>" + pres(s) + "</td>" +
-        "<td>" + (col ? '<span class="badge badge-pill badge-verbatim badge-info">' + esc(col.text) + "</span>" : '<span class="text-muted">—</span>') + "</td>" +
+        "<td>" + (col ? '<span class="badge badge-verbatim badge-info">' + esc(col.text) + "</span>" : '<span class="text-muted">—</span>') + "</td>" +
         '<td class="text-nowrap">' + reqLink(col ? col.request : s.request) + "</td></tr>";
     }).join("");
   }
@@ -510,7 +510,7 @@
     return '<div class="demo-empty"><i class="mdi mdi-cancel cnds-icon-2xl" aria-hidden="true"></i><span class="demo-empty-title">' + esc(title) +
       '</span><span class="demo-empty-note">' + esc(note) + "</span></div>";
   }
-  function pill(text, tone) { return '<span class="badge badge-pill badge-verbatim badge-' + tone + '">' + esc(text) + "</span>"; }
+  function badgeHtml(text, tone) { return '<span class="badge badge-verbatim badge-' + tone + '">' + esc(text) + "</span>"; }
   function plural(n, one, many) { return n + " " + (n === 1 ? one : (many || one + "s")); }
   /* Timeline outcome words → badge colour (status colour semantics). */
   var TONE = { Sent: "success", Acknowledged: "success", Answered: "success", Tracked: "secondary", Escalated: "danger", "Not answered": "warning",
@@ -519,7 +519,7 @@
   function timeline(events) {
     return '<ul class="list-group list-group-flush cv-tl">' + (events || []).map(function (e) {
       return '<li class="list-group-item"><span class="cv-tl-when">' + esc(M.fmtDateTime(e[0], e[1])) + '</span><span class="cv-tl-what">' + esc(e[2]) +
-        '</span><span class="cv-tl-who text-muted">' + esc(e[3]) + "</span>" + pill(e[4], TONE[e[4]] || "light") + "</li>";
+        '</span><span class="cv-tl-who text-muted">' + esc(e[3]) + "</span>" + badgeHtml(e[4], TONE[e[4]] || "light") + "</li>";
     }).join("") + "</ul>";
   }
   /* Sources as the PM canvas lists them (Scott, 10-15): a table with SOURCE · STATUS · FROM, the source over its
@@ -596,8 +596,8 @@
       var h = M.legalHolds.filter(function (x) { return x.id === n.id; })[0] || { title: "" };
       var to = custodians.filter(function (x) { return (x.lhn || []).some(function (y) { return y.id === n.id; }); }).length;
       var silent = n.status === "Silent";
-      var badge = silent ? pill("Silent legal hold", "secondary") : n.status === "Acknowledged" ? pill("Acknowledged", "success") :
-        n.status === "Sent" ? pill("Sent", "info") : pill("Not acknowledged", "danger");
+      var badge = silent ? badgeHtml("Silent legal hold", "secondary") : n.status === "Acknowledged" ? badgeHtml("Acknowledged", "success") :
+        n.status === "Sent" ? badgeHtml("Sent", "info") : badgeHtml("Not acknowledged", "danger");
       var acts = silent ? btn("VIEW LEGAL HOLD", 'data-cv-view-lh="' + n.id + '"') + link("REMOVE FROM LEGAL HOLD", "not-in-demo.html?what=Remove+from+legal+hold&amp;ships=1") :
         n.status === "Acknowledged" ? btn("VIEW NOTIFICATION", 'data-cv-view-lh="' + n.id + '"') :
         btn("SEND REMINDER", 'data-cv-remind="' + n.id + '"') + btn("RESEND NOTIFICATION", 'data-cv-resend="' + n.id + '"') + btn("RECORD ACKNOWLEDGMENT", 'data-cv-ack="' + n.id + '"');
@@ -631,7 +631,7 @@
       var def = M.surveys.filter(function (d) { return d.id === x.id; })[0];
       var done = x.status === "Answered";
       var reported = (x.events || []).some(function (e) { return /reported/.test(e[2]); });
-      var badge = done ? pill("Answered", "success") : x.status === "Sent" ? pill("Sent", "info") : pill("Not answered", "danger");
+      var badge = done ? badgeHtml("Answered", "success") : x.status === "Sent" ? badgeHtml("Sent", "info") : badgeHtml("Not answered", "danger");
       var acts = done ? link("VIEW ANSWERS", "not-in-demo.html?what=Survey+answers&amp;ships=1") + (reported ? link("ADD REPORTED LOCATION", "case-add-sources.html") : "") :
         btn("SEND REMINDER", 'data-cv-remind="' + x.id + '"') + link("VIEW SURVEY", "not-in-demo.html?what=Survey+" + x.id + "&amp;ships=1") + btn("MARK NOT REQUIRED", 'data-cv-nr="survey"');
       return tile({ id: x.id, href: "not-in-demo.html?what=Survey+" + x.id + "&amp;ships=1", title: def.title + " · " + def.questions + " questions", badge: badge,
@@ -655,7 +655,7 @@
     var body = expectLine(c, "interview") + (na ? '<p class="cv-meta mb-0">Not required: ' + esc(na) + "</p>" :
       !iv ? (exp ? '<p class="mb-0">Not scheduled.</p>' : "") : (exp ? "" : OFF_PLAN) +
       tiles([tile({ id: "Interview", href: "not-in-demo.html?what=Interview&amp;ships=1", title: "with " + iv.with + " · " + iv.where,
-        badge: iv.status === "Complete" ? pill("Complete", "success") : pill("Scheduled", "info"),
+        badge: iv.status === "Complete" ? badgeHtml("Complete", "success") : badgeHtml("Scheduled", "info"),
         aside: iv.status === "Complete" ? "Completed " + short(iv.completed) : M.fmtDateTime(iv.date, iv.time), events: iv.events,
         acts: iv.status === "Complete" ? "" : btn("RESCHEDULE", "data-cv-schedule") + btn("MARK COMPLETE", "data-cv-iv-done") })]));
     var sched = iv && iv.status !== "Complete" ? off("SCHEDULE", "An interview is already scheduled: use RESCHEDULE.", "btn-secondary") : btn("SCHEDULE", "data-cv-schedule", "btn-secondary");
@@ -671,15 +671,15 @@
     var sum = v.preservation.state === "na" ? "Not required" : v.preservation.text.replace(" on hold", " sources on hold") + (rep.length ? " · " + rep.length + " reported, not added" : "");
     var hs = ' · see <a href="case-hold-status.html">Hold status</a>';
     var rows = src.map(function (s) {
-      var status = s.pending ? pill("Not requested", "warning") + (s.priorWork ? qual(esc(s.priorWork.what + " on " + s.priorWork.caseId + " · " + s.priorWork.request), "info") : "") :
-        pill(s.hold, s.hold === "Applied" ? "success" : s.hold === "Attested" ? "info" : s.hold === "Applying" ? "warning" : "danger") +
+      var status = s.pending ? badgeHtml("Not requested", "warning") + (s.priorWork ? qual(esc(s.priorWork.what + " on " + s.priorWork.caseId + " · " + s.priorWork.request), "info") : "") :
+        badgeHtml(s.hold, s.hold === "Applied" ? "success" : s.hold === "Attested" ? "info" : s.hold === "Applying" ? "warning" : "danger") +
         (s.hold === "Not applied" ? qual("Removed from the Purview hold " + esc(short(s.exception.since)) + hs, "warning") : "") +
         (s.hold === "Overdue" ? qual("Attestation overdue" + hs, "warning") : "") +
         (s.hold === "Applying" ? qual("Applying since " + esc(short(s.exception.since)) + hs, "warning") : "");
       var from = s.pending ? '<span class="text-muted">—</span>' : reqLink(s.request) + " · " + (s.evidence === "attested" ? "attested" : "Purview");
       return [ident(M.typeLabel(s.type), esc(s.name)), status, from];
     }).concat(rep.map(function (r) {
-      return [ident(r.what, "Reported in " + esc(r.from) + " · not yet added"), pill("Not held", "warning") + qual(esc(r.kind + " · " + r.status), "warning"), '<span class="text-muted">—</span>'];
+      return [ident(r.what, "Reported in " + esc(r.from) + " · not yet added"), badgeHtml("Not held", "warning") + qual(esc(r.kind + " · " + r.status), "warning"), '<span class="text-muted">—</span>'];
     }));
     var body = v.preservation.state === "na" ? '<p class="cv-meta mb-0">Not required: ' + esc(c.notRequired.preservation) + "</p>" : srcTable(rows);
     return drawer("preservation", "Preservation", sum, body,
@@ -695,7 +695,7 @@
       var s = M.sources.filter(function (y) { return y.id === x.source; })[0];
       /* FROM: the package for what was collected, the request otherwise; each a link to where it lives. */
       var ref = /^PKG-/.test(x.from) ? '<a href="not-in-demo.html?what=Collection+package+' + x.from + '">' + esc(x.from) + "</a>" : reqLink(x.from);
-      return [ident(M.typeLabel(s.type), esc(s.name)), pill(x.status, tone[x.status] || "light"), ref + " · " + esc(x.note)];
+      return [ident(M.typeLabel(s.type), esc(s.name)), badgeHtml(x.status, tone[x.status] || "light"), ref + " · " + esc(x.note)];
     })));
     return drawer("collection", "Collection", !exp ? "Not expected on this case" : v.collection.text + (v.collection.state !== "done" && v.collection.detail ? " · " + v.collection.detail : ""), body,
       link("ADD TO COLLECTION REQUEST", "not-in-demo.html?what=Collection+request", "btn-secondary") +
@@ -721,11 +721,11 @@
     var unack = notices.filter(function (n) { return n.status !== "Acknowledged"; }).length, silentN = (c.lhn || []).length - notices.length;
     var need = ["lhn", "survey", "interview", "preservation", "collection"].filter(function (k) { return v[k].state === "action"; }).length;
     var PT = { done: "success", progress: "info", action: "danger", na: "light", todo: "warning", silent: "secondary", dash: "light" };
-    var chips = [pill("Custodian", "info"),
-      v.preservation.state === "na" ? pill("Preservation not required", "light") : pill(v.preservation.text.replace(" on hold", " sources on hold"), PT[v.preservation.state]),
-      unack ? pill(plural(unack, "notification") + " not acknowledged", "danger") : "", silentN ? pill("In " + plural(silentN, "silent legal hold"), "secondary") : "",
-      need ? pill(plural(need, "workflow") + " need" + (need === 1 ? "s" : "") + " attention", "warning") : "",
-      c.released ? pill("Released " + short(c.released), "success") : ""].filter(Boolean);
+    var chips = [badgeHtml("Custodian", "info"),
+      v.preservation.state === "na" ? badgeHtml("Preservation not required", "light") : badgeHtml(v.preservation.text.replace(" on hold", " sources on hold"), PT[v.preservation.state]),
+      unack ? badgeHtml(plural(unack, "notification") + " not acknowledged", "danger") : "", silentN ? badgeHtml("In " + plural(silentN, "silent legal hold"), "secondary") : "",
+      need ? badgeHtml(plural(need, "workflow") + " need" + (need === 1 ? "s" : "") + " attention", "warning") : "",
+      c.released ? badgeHtml("Released " + short(c.released), "success") : ""].filter(Boolean);
     panel.setBody('<div class="cv-scope">' +
       '<div class="d-flex align-items-start gap-3 mb-3">' + D.avatar(p) + '<div class="flex-grow-1"><div class="h5 mb-0">' + esc(p.name) + "</div>" +
         '<div class="cv-meta text-muted">' + esc(p.title + " · " + p.upn + "@" + M.tenant.domain + " · added to the case " + short(c.added)) + (p.departed ? " · departed " + esc(M.fmtDate(p.departed)) : "") + "</div>" +
@@ -793,7 +793,7 @@
         '<div class="cf-category cf-cat-6 highlight-casefusion">' + (h.silent ? "Custodians Tracked" : "Recipients") + "</div>" +
         '<ul class="list-group list-group-flush cv-tl">' + on.map(function (c) {
           var n = c.lhn.filter(function (x) { return x.id === id; })[0], p = person(c);
-          var st = n.status === "Silent" ? pill("Tracked", "secondary") : n.status === "Acknowledged" ? pill("Acknowledged", "success") : n.status === "Sent" ? pill("Sent", "info") : pill("Not acknowledged", "danger");
+          var st = n.status === "Silent" ? badgeHtml("Tracked", "secondary") : n.status === "Acknowledged" ? badgeHtml("Acknowledged", "success") : n.status === "Sent" ? badgeHtml("Sent", "info") : badgeHtml("Not acknowledged", "danger");
           return '<li class="list-group-item cv-tl-2"><span class="' + (seen(c) ? "fw-bold" : "fw-bold demo-masked") + '">' + (seen(c) ? "" : LOCK) + esc(D.nameFor(p)) + "</span>" + st + "</li>";
         }).join("") + "</ul></div>",
       footer: '<button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas">BACK</button>' });

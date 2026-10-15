@@ -140,7 +140,7 @@
   /* Purview's status word verbatim (PRD 07 H20): badge-verbatim keeps every Nimbus badge style but the forced
      capitals (Nimbus gap #10). Pill shape for the hold status; the exception badge beside it is square. */
   function pill(s) {
-    return '<span class="badge badge-pill badge-verbatim badge-' + D.badgeColor[PILL[s.hold] || "muted"] + '">' + esc(s.hold) + "</span>";
+    return '<span class="badge badge-verbatim badge-' + D.badgeColor[PILL[s.hold] || "muted"] + '">' + esc(s.hold) + "</span>";
   }
   function excBadge(s) {
     return openExc(s) ? '<span class="badge badge-default ms-1">EXCEPTION · ' + esc(s.exception.status.toUpperCase()) + "</span>" : "";
