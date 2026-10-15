@@ -291,10 +291,37 @@
     if (fit === null || fit >= total) { weekAll = false; drawWeek(total, null); return; }  /* everything fits: no footer */
     if (weekAll) drawWeek(total, "fewer"); else drawWeek(fit, "more");
   }
+  /* Smooth height changes in the two-up row (Scott, 10-14): record each card's height, let the change happen, then animate
+     from the old height to the new one (0.35s, the Nimbus collapse timing). Skipped when the user prefers reduced motion. */
+  var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function twoUpCards() { return [].slice.call(document.querySelectorAll(".mw-two > .demo-drawer")); }
+  function animateFrom(cards, before) {
+    if (reduceMotion) return;
+    cards.forEach(function (c, i) {
+      var to = c.getBoundingClientRect().height, from = before[i];
+      if (Math.abs(to - from) < 1) return;
+      c.style.transition = "none"; c.style.height = from + "px"; c.style.overflow = "hidden";
+      void c.offsetHeight;  /* commit the start height */
+      c.style.transition = "height .35s ease"; c.style.height = to + "px";
+      var done = function (e) { if (e && e.target !== c) return; c.removeEventListener("transitionend", done); c.style.height = ""; c.style.transition = ""; c.style.overflow = ""; };
+      c.addEventListener("transitionend", done); setTimeout(done, 450);
+    });
+  }
+  function smoothly(change) {
+    var cards = twoUpCards(), before = cards.map(function (c) { return c.getBoundingClientRect().height; });
+    change(); animateFrom(cards, before);
+  }
+
   /* Refit when the space changes: a resize, or either card opening or closing. */
   var refit; window.addEventListener("resize", function () { clearTimeout(refit); refit = setTimeout(function () { renderWeek(false); }, 150); });
   ["mwCasesBody", "mwWeekBody"].forEach(function (id) {
-    ["shown.cnds.collapse", "hidden.cnds.collapse"].forEach(function (t) { document.getElementById(id).addEventListener(t, function (e) { if (e.target.id === id) renderWeek(false); }); });
+    var body = document.getElementById(id), partner = function () { return twoUpCards().filter(function (c) { return !c.contains(body); }); }, before;
+    /* Closing: the partner stops stretching as the slide starts; ease it down from where it was. */
+    body.addEventListener("hide.cnds.collapse", function (e) { if (e.target !== body) return; var p = partner(); before = p.map(function (c) { return c.getBoundingClientRect().height; }); queueMicrotask(function () { animateFrom(p, before); }); });  /* runs once Nimbus has applied the collapse classes, before paint */
+    /* Opening: the partner starts stretching when the slide ends; ease it up from its own height. */
+    body.addEventListener("show.cnds.collapse", function (e) { if (e.target === body) before = partner().map(function (c) { return c.getBoundingClientRect().height; }); });
+    body.addEventListener("shown.cnds.collapse", function (e) { if (e.target !== body) return; renderWeek(false); animateFrom(partner(), before); });
+    body.addEventListener("hidden.cnds.collapse", function (e) { if (e.target === body) renderWeek(false); });
   });
   function renderDid() {
     var did = M.whatCaseFusionDid.filter(function (d) { return access.cases.indexOf(d.caseId) !== -1; });
@@ -368,8 +395,8 @@
     }
     var a = t.getAttribute("data-mw");
     if (a === "report") report();
-    if (a === "week-all") renderWeek(true);
-    if (a === "week-fewer") renderWeek("fewer");
+    if (a === "week-all") smoothly(function () { renderWeek(true); });
+    if (a === "week-fewer") smoothly(function () { renderWeek("fewer"); });
     if (a === "export") {
       csv("my-work.csv", [["Kind", "What needs you", "Why now", "Case", "Waiting", "Found by CaseFusion", "Preservation at risk"]].concat(filtered().map(function (r) {
         var m = masked(r);
