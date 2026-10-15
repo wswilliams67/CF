@@ -313,6 +313,12 @@
     el.setAttribute("aria-modal", "true");
     el.setAttribute("aria-labelledby", id + "Title");
     if (opts.width) el.style.setProperty("--cnds-offcanvas-width", opts.width);
+    /* Stacked drawers (a follow-on step over an open drawer): Nimbus gives every offcanvas and backdrop one z-index,
+       so a second panel would share its parent's layer and its backdrop would not dim the parent. Each level up
+       lifts the panel and its backdrop 10, giving one wash per visible boundary (Nimbus gap D13, logged in
+       tools/nimbus-gaps.md; to move into offcanvas.js when Scott approves). */
+    var depth = document.querySelectorAll(".offcanvas.show, .offcanvas.showing").length;
+    if (depth) el.style.setProperty("--cnds-offcanvas-zindex", String(1045 + depth * 10));
     el.innerHTML = '<div class="offcanvas-header"><h3 class="offcanvas-title" id="' + id + 'Title">' + esc(opts.title) + '</h3>' +
       '<button type="button" class="btn-close" data-cnds-dismiss="offcanvas" aria-label="Close"></button></div>' +
       '<div class="offcanvas-body">' + (opts.body || "") + "</div>" +
@@ -327,6 +333,7 @@
     });
     var hide = guardDismiss(el, inst, "offcanvas");
     inst.show();
+    if (depth) { var bds = document.querySelectorAll(".offcanvas-backdrop"); if (bds.length) bds[bds.length - 1].style.zIndex = String(1040 + depth * 10); }
     return { el: el, id: id, hide: hide,
       setBody: function (html) { el.querySelector(".offcanvas-body").innerHTML = html; if (Nimbus.Select) Nimbus.Select.initAll(el); },
       setFooter: function (html) { var f = el.querySelector(".offcanvas-footer"); if (f) f.innerHTML = html; } };

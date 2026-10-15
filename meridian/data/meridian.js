@@ -129,12 +129,18 @@
               events: [["2026-08-28", "09:00", "Notification", "CaseFusion · email and Teams", "Sent"], ["2026-08-29", "08:41", "Acknowledged", "Elena Vasquez", "Acknowledged"]] }],
       surveys: [{ id: "SUR-0012", status: "Answered", on: "2026-09-02",
               events: [["2026-08-28", "09:00", "Survey", "Claire Donovan", "Sent"], ["2026-09-02", "16:10", "Answered · 1 location reported", "Elena Vasquez", "Answered"]] }],
-      collection: { text: "2 of 2 collected", detail: "to Mar 2026", request: "COL-0139" } },
+      collection: { text: "2 of 2 collected", detail: "to Mar 2026", request: "COL-0139",
+        /* Per source, for custodian coverage's Collection table (PRD 08 §7.2): status and where it came from. */
+        items: [{ source: "s-ex-vasquez", status: "Collected", from: "PKG-0139-01", note: "09-18-2026 · to Mar 2026" },
+                { source: "s-od-vasquez", status: "Collected", from: "PKG-0139-02", note: "09-18-2026 · to Mar 2026" }] } },
     { personId: "p-torres", added: "2026-08-20", addedFrom: "Search",
       lhn: [{ id: "LH-0031", status: "Acknowledged", on: "2026-09-01",
               events: [["2026-08-28", "09:00", "Notification", "CaseFusion · email and Teams", "Sent"], ["2026-08-31", "09:00", "Reminder 1", "CaseFusion", "Sent"], ["2026-09-01", "11:02", "Acknowledged", "Michael Torres", "Acknowledged"]] }],
       surveys: [{ id: "SUR-0012", status: "Answered", on: "2026-09-05",
-              events: [["2026-08-28", "09:00", "Survey", "Claire Donovan", "Sent"], ["2026-09-05", "10:30", "Answered", "Michael Torres", "Answered"]] }] },
+              events: [["2026-08-28", "09:00", "Survey", "Claire Donovan", "Sent"], ["2026-09-05", "10:30", "Answered · 1 personal device reported", "Michael Torres", "Answered"]] }],
+      /* A location named in a survey answer that is not a source yet (PRD 08 CV44, PRD 02 L43): shown on custodian
+         coverage as reported, counted in neither denominator. */
+      reported: [{ what: "Personal phone", from: "SUR-0012", kind: "Personal device", status: "Awaiting decision" }] },
     { personId: "p-wong", added: "2026-08-20", addedFrom: "Search",
       lhn: [{ id: "LH-0031", status: "Acknowledged", on: "2026-08-28",
               events: [["2026-08-28", "09:00", "Notification", "CaseFusion · email and Teams", "Sent"], ["2026-08-28", "13:20", "Acknowledged", "Lisa Wong", "Acknowledged"]] }],
@@ -675,8 +681,11 @@
         s.status === "Sent" ? "due " + M.fmtDate(s.due).replace(/ \d{4}$/, "") : answered + " of " + sv.length;
       out.survey = { state: sState, text: s.status, detail: sDetail };
     }
-    /* Interview: not expected on this case. */
-    out.interview = (c.notRequiredWf && c.notRequiredWf.interview) ? { state: "na", text: "N/A" } : { state: "dash", text: "—" };
+    /* Interview: not expected on this case unless one is booked (CV42aa: SCHEDULE is open on every custodian). */
+    var iv = c.interview;
+    out.interview = (c.notRequiredWf && c.notRequiredWf.interview) ? { state: "na", text: "N/A" } :
+      iv && iv.status === "Complete" ? { state: "done", text: "Complete", detail: M.fmtDate(iv.completed) } :
+      iv ? { state: "progress", text: "Scheduled", detail: M.fmtDate(iv.date) } : { state: "dash", text: "—" };
     /* Preservation */
     if (c.notRequired && c.notRequired.preservation) out.preservation = { state: "na", text: "N/A", detail: "not required · reason on record" };
     else {

@@ -14,19 +14,35 @@
 /* The grid's empty state spans the row; keep it centred and give it room. */
 .cv-grid td .demo-empty { padding-bottom: var(--cnds-spacer-3); }
 
-/* ── Custodian panel ───────────────────────────────────────────────── */
-/* Workflow strip: a demo-label above a 14px value (not a stat tile, so no 24.5px count). */
+/* ── Custodian panel (renderPanel; PRD 08 §7.2) ──────────────────────── */
+/* Summary strip: one card, five workflows divided by blurry rules; a demo-label above a 14px value and its detail. */
 .cv-value { font-size: var(--cnds-paragraph-font-size); line-height: var(--cnds-paragraph-line-height); }
-/* Events in a card, Hold Status grammar (hold-status.css .hs-act-*, which this page does not load): flush rows on
-   the card ground, title 14px bold with the status badge at the right, then the 12px "date at time · by" line;
-   blurry dividers between rows, so list borders are off. */
-.cv-events { --cnds-list-group-bg: transparent; }
-.cv-events > .list-group-item { background-color: transparent; border: 0; padding: var(--cnds-spacer-2) 0; color: inherit;
-  font-size: var(--cnds-paragraph-font-size); line-height: var(--cnds-paragraph-line-height); }
-.cv-ev-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--cnds-spacer-2); }
-.cv-ev-what { font-weight: 700; min-width: 0; }
-.cv-ev-divider { list-style: none; padding: 0; }
-.cv-ev-divider .hr { margin: 0; }
+.cv-strip .card-body { flex-direction: row; align-items: stretch; gap: var(--cnds-spacer-3); }  /* Nimbus card bodies are column flex */
+.cv-strip-item { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; }
+.cv-strip .vr { align-self: stretch; height: auto; min-height: 0; }
+/* Workflow drawers: house drawer cards (demo.css), stacked 8px apart; the one-line state sits beside the chevron. */
+.cv-drawers { display: flex; flex-direction: column; gap: var(--cnds-spacer-2); }
+.cv-sec-sum { text-align: right; }
+/* The section's next steps: a footer row under a rule, forward right. */
+.cv-sec-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: var(--cnds-spacer-2);
+  margin-top: var(--cnds-spacer-3); padding-top: var(--cnds-spacer-3); border-top: var(--cnds-border-width, 1px) solid var(--cnds-border-color); }
+/* Instance cards (a notification, a survey, the interview), 8px apart: reference link, title, badge, aside at the right. */
+.cv-icard + .cv-icard { margin-top: var(--cnds-spacer-2); }
+.cv-icard-head { display: flex; align-items: center; flex-wrap: wrap; column-gap: var(--cnds-spacer-2); row-gap: var(--cnds-spacer-1); margin-bottom: var(--cnds-spacer-2); }
+.cv-icard .card-body { gap: 0; }  /* the head, timeline and actions set their own spacing */
+.cv-icard .card-actions { padding-top: var(--cnds-spacer-2); }
+/* Timeline (CV41): date · event · actor · outcome on one row; solid row dividers, none under the last row. */
+.cv-tl { --cnds-list-group-bg: transparent; }
+.cv-tl > .list-group-item { display: grid; grid-template-columns: 12rem minmax(0, 1.4fr) minmax(0, 1fr) 9rem; column-gap: var(--cnds-spacer-3); align-items: center;
+  background-color: transparent; padding: var(--cnds-spacer-2) 0; color: inherit; font-size: var(--cnds-paragraph-font-size); line-height: var(--cnds-paragraph-line-height); }
+.cv-tl > .list-group-item:last-child { border-bottom: 0; }
+.cv-tl > .list-group-item > .badge { justify-self: end; }
+.cv-tl-when { color: var(--cnds-text-muted); white-space: nowrap; }
+/* Two-column variant (a recipient list): name, then status at the right. */
+.cv-tl > .list-group-item.cv-tl-2 { grid-template-columns: minmax(0, 1fr) auto; }
+/* Per-source tables: SOURCE wide, STATUS with its qualifier, FROM the provenance. */
+.cv-src th:nth-child(1) { width: 34%; }
+.cv-src th:nth-child(2) { width: 36%; }
 
 /* Filter By holds its longest option, "Added After the First Notification", without truncating (design decision, 14 Oct). */
 .select-wrapper:has(> select#cvFilter) { min-width: 17rem; }
@@ -101,3 +117,5 @@
 /* Rows top-align (Scott, 10-14): a lone badge (N/A, a dash) sits level with the badges that carry a summary line under
    them, and the checkbox sits on the name's line. OPEN stays centred, as the row actions on Hold status. */
 .cv-grid tbody td:not(.cv-row-action) { vertical-align: top; }
+/* The last row of a list or table in a card has no bottom border (list divider convention). */
+.cv-src > tbody > tr:last-child > * { border-bottom: 0; }
