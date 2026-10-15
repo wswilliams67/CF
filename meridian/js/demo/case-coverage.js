@@ -157,7 +157,7 @@
     renderSelTool();
   }
   function dropdown(label, items) {
-    return '<div class="btn-group dropdown" role="group"><button type="button" class="btn btn-tools btn-sm dropdown-toggle" data-cnds-toggle="dropdown" aria-expanded="false">' + label +
+    return '<div class="btn-group dropdown" role="group"><button type="button" class="btn btn-tertiary btn-sm dropdown-toggle" data-cnds-toggle="dropdown" aria-expanded="false">' + label +
       ' <i class="mdi mdi-chevron-down" aria-hidden="true"></i></button><ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion">' + items + "</ul></div>";
   }
   function item(attrs, title, sub, href) {
@@ -187,15 +187,15 @@
         item("", "New Survey…", "Opens the survey form with the " + n + " selected custodians", "not-in-demo.html?what=New+survey&amp;ships=1") +
         '<li><h6 class="dropdown-header">Questions and reminders from a survey in this case</h6></li>' +
         M.surveys.map(function (sv) { return item('data-send-survey="' + sv.id + '"', sv.id + " · " + sv.title, sv.questions + " questions"); }).join("")) +
-      '<div class="btn-group" role="group"><a class="btn btn-tools btn-sm" href="not-in-demo.html?what=Schedule+interview&amp;ships=1">SCHEDULE INTERVIEW</a></div>' +
+      '<div class="btn-group" role="group"><a class="btn btn-tertiary btn-sm" href="not-in-demo.html?what=Schedule+interview&amp;ships=1">SCHEDULE INTERVIEW</a></div>' +
       dropdown("REQUEST FOR GAPS",
         item("", "Preservation Request", "Opens New request with the selected custodians and only their gap sources", "case-new-preservation.html?custodians=" + ids) +
         item("", "Collection Request", "Collection is not part of this demo", "not-in-demo.html?what=Collection+request") +
         item("", "Both", "Collection is not part of this demo", "not-in-demo.html?what=Preservation+and+collection+request")) +
-      '<div class="btn-group" role="group"><button type="button" class="btn btn-tools btn-sm" data-cv="not-required">MARK NOT REQUIRED</button></div>' +
+      '<div class="btn-group" role="group"><button type="button" class="btn btn-tertiary btn-sm" data-cv="not-required">MARK NOT REQUIRED</button></div>' +
       /* Disabled, never hidden, when no selected custodian is on a legal hold: there is nothing to release. */
-      (list.some(releasable) ? '<div class="btn-group" role="group"><button type="button" class="btn btn-tools btn-sm" data-cv="release">RELEASE FROM HOLD</button></div>' :
-        '<div class="btn-group" role="group" title="None of the selected custodians is on a legal hold."><button type="button" class="btn btn-tools btn-sm" disabled>RELEASE FROM HOLD</button></div>') +
+      (list.some(releasable) ? '<div class="btn-group" role="group"><button type="button" class="btn btn-tertiary btn-sm" data-cv="release">RELEASE FROM HOLD</button></div>' :
+        '<div class="btn-group" role="group" title="None of the selected custodians is on a legal hold."><button type="button" class="btn btn-tertiary btn-sm" disabled>RELEASE FROM HOLD</button></div>') +
       "</div></div>";
   }
 
