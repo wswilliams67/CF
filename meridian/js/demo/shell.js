@@ -27,6 +27,8 @@
   "use strict";
 
   var M = window.MERIDIAN;
+  /* This script's cache stamp (?v=…), reused on avatar URLs so a stale or failed copy is never reused after a publish. */
+  var STAMP = ((document.currentScript && document.currentScript.src.match(/\?v=\d+/)) || [""])[0];
   var KEY = "mbp-demo-viewer";
 
   function esc(s) {
@@ -456,6 +458,16 @@
     var t = document.getElementById("languageSwitcherToggle"); if (t) t.click();  /* close the menu, focus returns to the trigger */
   });
 
+  /* A photo that fails to load becomes the person's initials monogram, never a broken image. Error events do not
+     bubble, so this listens in the capture phase. */
+  document.addEventListener("error", function (e) {
+    var img = e.target;
+    if (!img.matches || !img.matches("img.demo-avatar[data-initials]")) return;
+    var m = document.createElement("span");
+    m.className = "monogram demo-avatar"; m.textContent = img.getAttribute("data-initials");
+    img.replaceWith(m);
+  }, true);
+
   /* Shared helpers for page scripts. */
   window.MeridianDemo = {
     /* Demo status tone → Nimbus badge colour. */
@@ -466,7 +478,7 @@
     /** A person's profile photo as a 42px Nimbus avatar (Nimbus/Avatar Mode=Avatar, Size=42px, Border=Yes);
         the initials monogram when the person has no photo. Callers show a limited profile's lock monogram instead. */
     avatar: function (p) {
-      return M.avatars[p.id] ? '<img class="demo-avatar" src="../img/avatars/' + p.id + '.jpg" alt="' + esc(p.name) + ' profile photo" width="42" height="42" />' :
+      return M.avatars[p.id] ? '<img class="demo-avatar" src="../img/avatars/' + p.id + ".jpg" + STAMP + '" alt="' + esc(p.name) + ' profile photo" width="42" height="42" data-initials="' + esc(initials(p.name)) + '" />' :
         '<span class="monogram demo-avatar">' + esc(initials(p.name)) + "</span>";
     },
     viewer: viewer,
