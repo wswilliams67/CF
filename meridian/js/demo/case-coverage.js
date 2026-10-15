@@ -287,9 +287,9 @@
     host.innerHTML = '<div class="pb-2"><div class="btn-toolbar-gray cv-seltool" role="toolbar" aria-label="Actions for selected custodians">' +
       '<div class="toolbar-shared-count"><i class="mdi mdi-close pointer toolbar-list-total" role="button" tabindex="0" aria-label="Clear selection" data-cv="clear"></i><div class="vr vr-blurry" aria-hidden="true"></div><span class="toolbar-list-total">' + n + " selected" + "</span></div><div>" +
       dropdown("SEND LEGAL HOLD NOTIFICATION",
-        item("", "New Legal Hold Notification …", "Opens the notification form with the " + n + " selected custodians as recipients", "not-in-demo.html?what=New+legal+hold+notification&amp;ships=1") +
+        item("", "New Legal Hold Notification …", "Opens Create Legal Hold with the " + n + " selected custodians as recipients", createHoldPage(selectedList())) +
         '<li><h6 class="dropdown-header">Settings from a notification in this case</h6></li>' +
-        holdsOf(false).map(function (h) { return item('data-send-lhn="' + h.id + '"', h.id + " · " + h.title.split(" · ")[0], h.settings); }).join("") +
+        holdsOf(false).map(function (h) { return item("", h.id + " · " + h.title.split(" · ")[0], h.settings, createHoldPage(selectedList(), h.id)); }).join("") +
         '<li><h6 class="dropdown-header">Silent legal hold · nothing is sent</h6></li>' +
         holdsOf(true).map(function (h) {
           var tracked = custodians.filter(function (c) { return (c.lhn || []).some(function (x) { return x.id === h.id; }); }).length;
@@ -414,32 +414,9 @@
   }
 
   /* ── Actions ──────────────────────────────────────────────────────── */
-  /* Sending from Coverage always creates a NEW notification (PRD 08 CV21): a published notification cannot take new
-     recipients, so "settings from LH-0031" copies LH-0031's body, attachments, reminders, escalation and survey into a
-     new notification sent to every selected custodian. Nobody is skipped for already being on LH-0031. */
-  function nextHoldId() {
-    var n = M.legalHolds.reduce(function (m, x) { return Math.max(m, parseInt(x.id.replace(/\D/g, ""), 10)); }, 0) + 1;
-    return "LH-" + String(n).padStart(4, "0");
-  }
   /* The send actions act on the selection, or on `only` (one custodian, from custodian coverage's section menus,
-     decision 80g: the same menus for one person as for a selection). Only a toolbar send clears the selection. */
-  function sendNotice(lhId, only) {
-    var h = holdById(lhId);
-    var newId = nextHoldId();
-    M.legalHolds.push({ id: newId, title: "Legal hold notification · settings from " + lhId, sent: TODAY, time: "10:05", settings: h.settings, survey: h.survey });
-    var sent = 0;
-    (only || selectedList()).forEach(function (c) {
-      c.lhn = c.lhn || [];
-      c.lhn.push({ id: newId, status: "Sent", sentOn: TODAY, events: [[TODAY, "10:05", "Notification (settings from " + lhId + ")", "CaseFusion", "Sent", "email and Teams"]] });
-      if (h.survey && !(c.surveys || []).some(function (sv) { return sv.id === h.survey; })) {
-        c.surveys.push({ id: h.survey, status: "Sent", due: "2026-10-22", events: [[TODAY, "10:05", "Survey (attached to " + lhId + ")", me(), "Sent"]] });
-      }
-      sent++;
-    });
-    if (!only) selected = {};
-    D.toast("New legal hold notification " + newId + " sent to " + plural(sent, "custodian") + " with " + lhId + "'s settings.");
-    render();
-  }
+     decision 80g: the same menus for one person as for a selection). Only a toolbar send clears the selection.
+     A new notification is not sent from here: the menus open the existing Create Legal Hold page (createHoldPage). */
   function addSilent(lhId, only) {
     var n = 0;
     (only || selectedList()).forEach(function (c) {
@@ -823,9 +800,9 @@
         aside: silent ? "Nothing sent to the custodian" : "Sent to " + plural(to, "custodian"), events: n.events, acts: acts });
     });
     var body = rows.length ? (rows.length > 1 ? sortLine("Needs action first, then newest · each timeline oldest first") : "") + tileStack(rows) : empty("No legal hold notification", "No legal hold notification has been sent to this custodian.");
-    var menu = item("", "New Legal Hold Notification …", "Opens the notification form with this custodian as the recipient", "not-in-demo.html?what=New+legal+hold+notification&amp;ships=1") +
+    var menu = item("", "New Legal Hold Notification …", "Opens Create Legal Hold with this custodian as the recipient", createHoldPage([byPid(pid)])) +
       '<li><h6 class="dropdown-header">Settings from a notification in this case</h6></li>' +
-      holdsOf(false).map(function (h) { return item('data-send-lhn="' + h.id + '" data-one="' + pid + '"', h.id + " · " + h.title.split(" · ")[0], h.settings); }).join("") +
+      holdsOf(false).map(function (h) { return item("", h.id + " · " + h.title.split(" · ")[0], h.settings, createHoldPage([byPid(pid)], h.id)); }).join("") +
       '<li><h6 class="dropdown-header">Silent legal hold · nothing is sent</h6></li>' +
       holdsOf(true).map(function (h) {
         var on = (c.lhn || []).some(function (x) { return x.id === h.id; });
@@ -1125,17 +1102,11 @@
       footer: '<button type="button" class="btn btn-secondary" data-cnds-dismiss="modal">CANCEL</button><button type="button" class="btn btn-primary" data-cv-go>' + o.confirm + "</button>" });
     m.el.querySelector("[data-cv-go]").addEventListener("click", function () { m.hide(); o.go(); });
   }
-  /* The notification form, pre-filled with the recipients and the issued notification's settings; each row says what
-     it copies (CV21). The issued notification itself does not change; SEND NOTIFICATION creates the new one. */
-  function notifForm(lhId, only) {
-    var list = only || selectedList(), h = holdById(lhId);
-    var rows = (h.settings || "").split(" · ").map(function (x) { return "<li class=\"list-group-item\">" + esc(x.charAt(0).toUpperCase() + x.slice(1)) + "</li>"; }).join("");
-    formDrawer("New Legal Hold Notification", "",
-      peopleField(list) +
-      '<span class="cf-input-label d-block mb-1">Settings Copied from ' + esc(lhId) + "</span>" +
-      '<ul class="list-group list-group-flush cv-tl mb-3">' + rows + "</ul>" +
-      '<p class="cv-meta text-muted mb-0">' + esc(nextHoldId()) + " is created and sent by email and Teams. " + esc(lhId) + " does not change.</p>",
-      function () { sendNotice(lhId, only); }, { save: "SEND NOTIFICATION" });
+  /* The existing Create Legal Hold page, opened pre-filled (PRD decision 123d; design-change decision 49): the
+     recipients, and with `lhId` the issued notification's settings. Coverage does not respecify that page. */
+  function createHoldPage(list, lhId) {
+    var to = list.length === 1 ? visibleName(list[0]) : plural(list.length, "custodian");
+    return "not-in-demo.html?what=" + encodeURIComponent("Create Legal Hold (the existing CaseFusion page) · Recipients: " + to + (lhId ? " · Settings from " + lhId : "")) + "&amp;ships=1";
   }
   /* MARK COMPLETE (CV42a): the date completed and an optional note, written as an event with who marked it. */
   function completeForm(c) {
@@ -1284,7 +1255,6 @@
     if (t.hasAttribute("data-open")) { e.preventDefault(); openPanel(t.getAttribute("data-open")); return; }
     /* data-one: a send from custodian coverage, for that custodian only. */
     var one = t.getAttribute("data-one") ? [byPid(t.getAttribute("data-one"))] : null;
-    if (t.hasAttribute("data-send-lhn")) { notifForm(t.getAttribute("data-send-lhn"), one); return; }
     if (t.hasAttribute("data-send-silent")) {
       var sh = t.getAttribute("data-send-silent"), sl = one || selectedList();
       confirmAct({ title: "Add to silent legal hold " + sh + "?", list: sl, confirm: "ADD TO SILENT LEGAL HOLD",
