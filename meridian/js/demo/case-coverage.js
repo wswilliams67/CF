@@ -189,10 +189,10 @@
         item("", "Preservation Request", "Opens New request with the selected custodians and only their gap sources", "case-new-preservation.html?custodians=" + ids) +
         item("", "Collection Request", "Collection is not part of this demo", "not-in-demo.html?what=Collection+request") +
         item("", "Both", "Collection is not part of this demo", "not-in-demo.html?what=Preservation+and+collection+request")) +
-      '<div class="btn-group" role="group"><button type="button" class="btn btn-tools btn-sm" data-cv="not-required">MARK NOT REQUIRED…</button></div>' +
+      '<div class="btn-group" role="group"><button type="button" class="btn btn-tools btn-sm" data-cv="not-required">MARK NOT REQUIRED</button></div>' +
       /* Disabled, never hidden, when no selected custodian is on a legal hold: there is nothing to release. */
-      (list.some(releasable) ? '<div class="btn-group" role="group"><button type="button" class="btn btn-tools btn-sm" data-cv="release">RELEASE FROM LEGAL HOLD…</button></div>' :
-        '<div class="btn-group" role="group" title="None of the selected custodians is on a legal hold."><button type="button" class="btn btn-tools btn-sm" disabled>RELEASE FROM LEGAL HOLD…</button></div>') +
+      (list.some(releasable) ? '<div class="btn-group" role="group"><button type="button" class="btn btn-tools btn-sm" data-cv="release">RELEASE FROM LEGAL HOLD</button></div>' :
+        '<div class="btn-group" role="group" title="None of the selected custodians is on a legal hold."><button type="button" class="btn btn-tools btn-sm" disabled>RELEASE FROM LEGAL HOLD</button></div>') +
       "</div></div>";
   }
 
@@ -457,8 +457,8 @@
         '<div class="cv-meta text-muted">' + esc(p.title + " · " + p.upn + "@" + M.tenant.domain + " · added to the case " + short(c.added)) + (p.departed ? " · departed " + esc(M.fmtDate(p.departed)) : "") + "</div>" +
         '<div class="d-flex flex-wrap gap-2 mt-2">' + chips.join("") + '</div></div><a class="btn btn-secondary btn-sm" href="not-in-demo.html?what=Persona+Case+Profile&amp;ships=1">VIEW PROFILE</a></div>' + strip +
       section("Legal Hold Notification", (c.lhn || []).length + " notification" + ((c.lhn || []).length === 1 ? "" : "s"), lhnBlocks +
-        (releasable(c) ? '<button type="button" class="btn btn-secondary btn-sm" data-cv="panel-release">RELEASE FROM LEGAL HOLD…</button>' :
-          '<span title="' + (c.released ? "Already released." : "Not on a legal hold: nothing to release.") + '"><button type="button" class="btn btn-secondary btn-sm" disabled>RELEASE FROM LEGAL HOLD…</button></span>')) +
+        (releasable(c) ? '<button type="button" class="btn btn-secondary btn-sm" data-cv="panel-release">RELEASE FROM LEGAL HOLD</button>' :
+          '<span title="' + (c.released ? "Already released." : "Not on a legal hold: nothing to release.") + '"><button type="button" class="btn btn-secondary btn-sm" disabled>RELEASE FROM LEGAL HOLD</button></span>')) +
       section("Survey", v.survey.state === "dash" && !(c.surveys || []).length ? "Not expected on this case" : (c.surveys || []).length + " survey" + ((c.surveys || []).length === 1 ? "" : "s"), surveyBlocks) +
       section("Interview", "Not expected on this case", notExpected("Interviews") + '<a class="btn btn-secondary btn-sm" href="not-in-demo.html?what=Schedule+interview&amp;ships=1">SCHEDULE</a>') +
       section("Preservation", v.preservation.text, presRows + '<a class="btn btn-secondary btn-sm" href="case-new-preservation.html?custodians=' + c.personId + '">ADD TO PRESERVATION REQUEST</a> <a class="btn btn-tertiary btn-sm" href="case-hold-status.html">OPEN HOLD STATUS</a>') +
