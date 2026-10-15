@@ -504,7 +504,10 @@
   }
 
   /* ── Events ─────────────────────────────────────────────────────────── */
-  function onFilter() { tileFilter = null; page = 1; renderTiles(); renderGrid(); }
+  /* A filter the reader picks clears any card filter. setFilter() below changes the select from code, and Nimbus
+     Select fires its change event then too; `syncing` stops that echo from clearing the card the reader just chose. */
+  var syncing = false;
+  function onFilter() { if (syncing) return; tileFilter = null; page = 1; renderTiles(); renderGrid(); }
   ["cvFilter", "cvWorkflow"].forEach(function (id) {
     var el = document.getElementById(id);
     el.addEventListener("change", onFilter);
@@ -523,7 +526,8 @@
   function setFilter(v) {
     var el = document.getElementById("cvFilter");
     var inst = window.Nimbus && Nimbus.Select && Nimbus.Select.getInstance(el);
-    if (inst && inst.setValue) inst.setValue(v); else el.value = v;
+    syncing = true;
+    try { if (inst && inst.setValue) inst.setValue(v); else el.value = v; } finally { syncing = false; }
   }
   document.addEventListener("click", function (e) {
     if (e.target.closest(".modal")) return;
