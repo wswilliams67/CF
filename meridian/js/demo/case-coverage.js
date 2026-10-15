@@ -548,7 +548,7 @@
     var stacked = !!document.querySelector(".offcanvas.show");  /* opened from the custodian panel: BACK, not CANCEL */
     var m = D.offcanvas({ title: "Release from legal hold", width: "70vw", body: "", footer: " " });
     m.el.classList.add("cv-scope");  /* page type rules (12px .small) reach this flyout (Scott, 10-14) */
-    var tbl = function (head, body) { return '<div class="table-responsive mb-3"><table class="table align-middle mb-0"><thead><tr>' + head.map(function (h) { return '<th scope="col">' + h + "</th>"; }).join("") + "</tr></thead><tbody>" + body + "</tbody></table></div>"; };
+    var tbl = function (head, body, cls) { return '<div class="table-responsive mb-3"><table class="table align-middle mb-0' + (cls ? " " + cls : "") + '"><thead><tr>' + head.map(function (h) { return '<th scope="col">' + h + "</th>"; }).join("") + "</tr></thead><tbody>" + body + "</tbody></table></div>"; };
     function draw() {
       /* Sorted by the name the viewer sees (a limited profile sorts as shown). */
       var list = candidates().slice().sort(function (x, y) { return D.nameFor(person(x)).localeCompare(D.nameFor(person(y))); });
@@ -590,7 +590,7 @@
           return '<tr><td><div class="form-check mb-0"><input type="checkbox" class="form-check-input" data-tick="' + c.personId + '"' + (ticked[c.personId] ? " checked" : "") + (releasable(c) && !readOnly ? "" : " disabled") +
             ' aria-label="Release ' + esc(D.nameFor(p)) + '" /></div></td><td><span class="fw-bold' + (D.canSee(p) ? "" : " demo-masked") + '">' + esc(D.nameFor(p)) + '</span><span class="d-block small text-muted">' +
             (D.canSee(p) ? esc(p.title) + (p.departed ? " · Departed " + esc(M.fmtDate(p.departed)) : "") : "Outside your regions") + "</span></td><td>" + holdsCell + "</td><td>" + after + "</td></tr>";
-        }).join("")) +
+        }).join(""), "cv-rel-table") +
         /* 48px (mt-5) between the flyout's sections, the house section step (Scott, 10-15). */
         '<div class="cf-category cf-cat-6 highlight-casefusion mt-5">Release Notice</div>' +
         '<div class="row g-3 mb-3"><div class="col-md-6">' + D.select("cvRelNotice", [["standard", "Standard Release Notice"], ["retention", "Release Notice with Retention Reminder"], ["none", "No Notice"]], notice, "Notice", { container: "#" + m.id }) +
