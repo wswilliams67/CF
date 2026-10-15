@@ -746,7 +746,16 @@
       unack ? badgeHtml(plural(unack, "notification") + " not acknowledged", "danger") : "", silentN ? badgeHtml("In " + plural(silentN, "silent legal hold"), "secondary") : "",
       need ? badgeHtml(plural(need, "workflow") + " need" + (need === 1 ? "s" : "") + " attention", "warning") : "",
       c.released ? badgeHtml("Released " + short(c.released), "success") : ""].filter(Boolean);
-    panel.setBody('<div class="cv-scope">' +
+    /* Contents bar (Sally, Scott 10-15): pinned to the top of the panel body, shown only once the summary cards have
+       scrolled away. The name, then one entry per workflow (its name and state word in its severity colour) that
+       jumps to its drawer; the drawer being read is marked (aria-current). Below 1200px the state words drop. */
+    var bar = '<div class="cv-bar-pin" aria-hidden="true"><nav class="cv-bar" aria-label="Workflows for ' + esc(p.name) + '"><span class="cv-bar-name">' + esc(p.name) + "</span>" +
+      [["lhn", "Notification", v.lhn], ["survey", "Survey", v.survey], ["interview", "Interview", v.interview], ["preservation", "Preservation", v.preservation], ["collection", "Collection", v.collection]].map(function (x) {
+        var tone = x[2].state === "action" ? " text-danger-emphasis" : x[2].state === "todo" ? " text-warning-emphasis" : "";
+        return '<button type="button" class="cv-bar-item" data-cv-jump="' + x[0] + '"' + (tone ? ' data-tone="' + (x[2].state === "action" ? "danger" : "warning") + '"' : "") + ' tabindex="-1"><span class="cv-bar-wf">' + x[1] + '</span><span class="cv-bar-value' + tone + '">' +
+          esc(x[2].state === "dash" ? "Not expected" : x[2].text) + "</span></button>";
+      }).join("") + "</nav></div>";
+    panel.setBody('<div class="cv-scope">' + bar +
       '<div class="d-flex align-items-start gap-3 mb-3">' + D.avatar(p) + '<div class="flex-grow-1"><div class="h5 mb-0">' + esc(p.name) + "</div>" +
         '<div class="cv-meta text-muted">' + esc(p.title + " · " + p.upn + "@" + M.tenant.domain + " · added to the case " + short(c.added)) + (p.departed ? " · departed " + esc(M.fmtDate(p.departed)) : "") + "</div>" +
         '<div class="d-flex flex-wrap gap-2 mt-2">' + chips.join("") + "</div></div>" +
@@ -757,6 +766,27 @@
           '<li role="none"><a class="dropdown-item" role="menuitem" href="not-in-demo.html?what=Custodian+coverage+(PDF)">PDF</a></li></ul></div></div></div>' +
       strip + '<div class="cv-drawers">' + lhnDrawer(c) + surveyDrawer(c, v) + interviewDrawer(c, v) + preservationDrawer(c, v) + collectionDrawer(c, v) + "</div></div>");
     if (keep) keep.scrollTop = top;
+    syncBar();
+  }
+  /* Show the contents bar once the summary cards are out of view, and mark the drawer whose heading has passed
+     under it. The bar is out of the tab order and hidden from assistive tech while it is not shown. */
+  function syncBar() {
+    if (!panel) return;
+    var body = panel.el.querySelector(".offcanvas-body"), pin = panel.el.querySelector(".cv-bar-pin"), cards = panel.el.querySelector(".cv-ptiles");
+    if (!body || !pin || !cards) return;
+    var top = body.getBoundingClientRect().top, on = cards.getBoundingClientRect().bottom < top;
+    pin.classList.toggle("cv-bar-on", on);
+    pin.setAttribute("aria-hidden", String(!on));
+    var current = null;
+    var secs = panel.el.querySelectorAll(".cv-drawer");
+    /* "Passed under the bar": a drawer whose top is within the bar's height (58px) plus a little reading room. */
+    secs.forEach(function (sec) { if (sec.getBoundingClientRect().top - top < 96) current = sec.querySelector("[data-cv-sec]").getAttribute("data-cv-sec"); });
+    /* At the bottom the last drawer can't reach the top, so it is the current one (the usual scrollspy rule). */
+    if (secs.length && body.scrollTop + body.clientHeight >= body.scrollHeight - 2) current = secs[secs.length - 1].querySelector("[data-cv-sec]").getAttribute("data-cv-sec");
+    pin.querySelectorAll(".cv-bar-item").forEach(function (b) {
+      b.tabIndex = on ? 0 : -1;
+      if (b.getAttribute("data-cv-jump") === current) b.setAttribute("aria-current", "true"); else b.removeAttribute("aria-current");
+    });
   }
   function openPanel(pid) {
     panelId = pid;
@@ -765,6 +795,7 @@
         /* Previous and next are equal actions, so both are secondary: no primary in this footer (Scott, 10-14). */
         footer: '<span class="cv-meta text-muted me-auto" id="cvPanelPos" aria-live="polite"></span><button type="button" class="btn btn-secondary" data-cv="panel-prev">PREVIOUS CUSTODIAN</button><button type="button" class="btn btn-secondary" data-cv="panel-next">NEXT CUSTODIAN</button>',
         onHidden: function () { panel = null; panelId = null; } });
+      panel.el.querySelector(".offcanvas-body").addEventListener("scroll", syncBar, { passive: true });
     }
     renderPanel(); panelPos();
     var b = panel.el.querySelector(".offcanvas-body"); if (b) b.scrollTop = 0;

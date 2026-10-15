@@ -132,3 +132,29 @@
 .offcanvas-body { transition: opacity .15s ease; }
 .offcanvas-body.cv-step-out { opacity: 0; }
 @media (prefers-reduced-motion: reduce) { .offcanvas-body { transition: none; } }
+
+/* ── Contents bar (renderPanel, syncBar) ──────────────────────────────── */
+/* A zero-height sticky pin at the top of the panel body, so the bar takes no room until it shows; the bar itself
+   slides down from under the panel header when the summary cards scroll away. Pinned at the body's top padding
+   edge, full body width; a bottom rule, no shadow (inline bars carry none). */
+.cv-bar-pin { position: sticky; top: calc(-1 * var(--cnds-offcanvas-body-padding-y)); height: 0; z-index: 5;
+  margin: 0 calc(-1 * var(--cnds-offcanvas-body-padding-x)); }
+.cv-bar { position: absolute; left: 0; right: 0; top: 0; display: flex; align-items: stretch; gap: var(--cnds-spacer-1);
+  padding: var(--cnds-spacer-1) var(--cnds-offcanvas-body-padding-x); background-color: var(--cnds-offcanvas-bg);
+  border-bottom: var(--cnds-border-width, 1px) solid var(--cnds-border-color);
+  transform: translateY(-100%); opacity: 0; visibility: hidden; transition: transform .2s ease, opacity .2s ease, visibility 0s linear .2s; }
+.cv-bar-on .cv-bar { transform: none; opacity: 1; visibility: visible; transition: transform .2s ease, opacity .2s ease; }
+@media (prefers-reduced-motion: reduce) { .cv-bar, .cv-bar-on .cv-bar { transition: none; } }
+.cv-bar-name { align-self: center; font-weight: 700; white-space: nowrap; margin-right: var(--cnds-spacer-2); }
+/* Entries share the width; the workflow name (12px label) over its state word (14px), as a card in miniature. */
+.cv-bar-item { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: var(--cnds-spacer-1) var(--cnds-spacer-2); border: 0; border-bottom: 2px solid transparent; background: none; color: inherit; cursor: pointer; }
+.cv-bar-item:hover .cv-bar-value { text-decoration: underline; }
+.cv-bar-item[aria-current="true"] { border-bottom-color: var(--cnds-link-color); }
+.cv-bar-wf { font-size: var(--cnds-paragraph-font-size-sm); font-weight: 700; text-transform: uppercase; letter-spacing: .03em; color: var(--cnds-text-muted); white-space: nowrap; }
+.cv-bar-value { font-size: var(--cnds-paragraph-font-size); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+@media (max-width: 1199.98px) { .cv-bar-value { display: none; } .cv-bar-wf { color: inherit; }
+  .cv-bar-item[data-tone="danger"] .cv-bar-wf { color: var(--cnds-danger-text-emphasis); }
+  .cv-bar-item[data-tone="warning"] .cv-bar-wf { color: var(--cnds-warning-text-emphasis); } }
+/* A drawer reached from the bar stops below it, not under it. */
+.cv-drawer { scroll-margin-top: 64px; }
