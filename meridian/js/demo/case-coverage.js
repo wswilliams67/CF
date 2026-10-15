@@ -277,7 +277,17 @@
   function renderNonCustodial() {
     var all = M.sources.filter(function (s) { return !s.owner && !s.pending; });
     var gapIds = {}; gapSources().forEach(function (s) { gapIds[s.id] = true; });
-    var rows = gapsOn() ? all.filter(function (s) { return gapIds[s.id]; }) : all;
+    var rows = (gapsOn() ? all.filter(function (s) { return gapIds[s.id]; }) : all).slice().sort(function (a, b) { return protectionRank(a) - protectionRank(b); });
+    document.getElementById("cvNcSort").innerHTML = rows.length > 1 ? '<span class="demo-label d-inline me-1">Sort By:</span>Least protected first' : "";
+    /* The conditional pager (more than 10 rows), as in the custodian panel; a secondary list, so no toolbar. */
+    var ncAll = rows, ncSize = pgSize.cvnc || 10, ncPages = Math.max(1, Math.ceil(ncAll.length / ncSize));
+    pgPage.cvnc = Math.min(pgPage.cvnc || 1, ncPages);
+    rows = ncAll.slice((pgPage.cvnc - 1) * ncSize, pgPage.cvnc * ncSize);
+    pgTotal.cvnc = ncAll.length;
+    var ncFoot = document.getElementById("cvNcFoot"), NSn = window.Nimbus && Nimbus.Select;
+    if (NSn) ncFoot.querySelectorAll("select[data-cnds-select-init]").forEach(function (x) { var i = NSn.getInstance(x); if (i) i.dispose(); });
+    ncFoot.innerHTML = ncAll.length > 10 ? D.pager("cvnc", ncAll.length, pgPage.cvnc, ncSize, "Sources per page:") : "";
+    if (NSn) NSn.initAll(ncFoot);
     document.getElementById("cvNcNote").textContent = gapsOn() ? rows.length + " of " + all.length + " sources are data gaps." : "No single custodian, so they are counted once for the case.";
     var note = document.getElementById("cvGapNote");
     note.hidden = !gapsOn();
@@ -533,6 +543,28 @@
         '</span><span class="cv-tl-who text-muted">' + esc(e[3]) + "</span>" + badgeHtml(e[4], TONE[e[4]] || "light") + "</li>";
     }).join("") + "</ul>";
   }
+  /* ── Default order, stated where the list is (Scott, 10-15) ──
+     Every nested list has one deliberate order, named in a "SORT BY:" meta line (Hold Status's wording), shown when
+     the list has two or more items. Notifications and surveys: needs action first, then newest. Timelines: oldest
+     first (the story of what was done). Sources: least protected / least collected first, Hold Status's ranking. */
+  var SEVERITY = { "Not applied": 0, "Overdue": 1, "Partial": 2, "Applying": 3, "Removing": 3, "Unknown": 4, "Applied": 5, "Attested": 6 };
+  var COLLECTED = { Failed: 0, Retrying: 1, "Not started": 2, "In progress": 3, Collected: 4 };
+  function sortLine(text) { return '<p class="cv-meta text-muted mb-2"><span class="demo-label d-inline me-1">Sort By:</span>' + esc(text) + "</p>"; }
+  function firstDate(x) { return ((x.events || [])[0] || [""])[0]; }
+  function actionThenNewest(isAction) {
+    return function (a, b) { return (isAction(a) ? 0 : 1) - (isAction(b) ? 0 : 1) || (firstDate(a) < firstDate(b) ? 1 : firstDate(a) > firstDate(b) ? -1 : 0); };
+  }
+  function protectionRank(s) { return s.pending ? 2.5 : s.hold in SEVERITY ? SEVERITY[s.hold] : 9; }
+  /* Conditional pager (the nested-list rule): a source table longer than 10 rows gets the standard pager, 10 per page;
+     no toolbar. Pages reset when the panel moves to another custodian. */
+  var pgPage = {}, pgSize = {}, pgTotal = {};
+  function paged(key, rows, label) {
+    pgTotal[key] = rows.length;
+    if (rows.length <= 10 && !pgSize[key]) return { rows: rows, pager: "" };
+    var size = pgSize[key] || 10, pages = Math.max(1, Math.ceil(rows.length / size)), page = Math.min(pgPage[key] || 1, pages);
+    pgPage[key] = page;
+    return { rows: rows.slice((page - 1) * size, page * size), pager: rows.length > 10 ? D.pager(key, rows.length, page, size, label, panel ? "#" + panel.id : null) : "" };
+  }
   /* Sources as the PM canvas lists them (Scott, 10-15): a table with SOURCE · STATUS · FROM, the source over its
      location, the status with its qualifier under it, FROM the provenance (request · mechanism, CV43). The
      drawer's footer carries the next steps, so the rows have no actions. */
@@ -608,7 +640,8 @@
     var sum = (c.lhn || []).length ? [notices.length ? plural(notices.length, "notification") : "", unack ? unack + " not acknowledged" : "", esc8 ? "escalated " + short(esc8) : "",
       silentN ? "In " + plural(silentN, "silent legal hold") : ""].filter(Boolean).join(" · ") : "None sent";
     /* One tile per notification or silent legal hold the custodian is on, in the order they started. */
-    var rows = (c.lhn || []).map(function (n) {
+    var lhn = (c.lhn || []).slice().sort(actionThenNewest(function (n) { return n.status !== "Acknowledged" && n.status !== "Sent" && n.status !== "Silent"; }));
+    var rows = lhn.map(function (n) {
       var h = M.legalHolds.filter(function (x) { return x.id === n.id; })[0] || { title: "" };
       var to = custodians.filter(function (x) { return (x.lhn || []).some(function (y) { return y.id === n.id; }); }).length;
       var silent = n.status === "Silent";
@@ -620,7 +653,7 @@
       return tile({ id: n.id, view: 'data-cv-view-lh="' + n.id + '"', title: h.title, badge: badge,
         aside: silent ? "Nothing sent to the custodian" : "Sent to " + plural(to, "custodian"), events: n.events, acts: acts });
     });
-    var body = rows.length ? tiles(rows) : empty("No legal hold notification", "No legal hold notification has been sent to this custodian.");
+    var body = rows.length ? (rows.length > 1 ? sortLine("Needs action first, then newest · each timeline oldest first") : "") + tiles(rows) : empty("No legal hold notification", "No legal hold notification has been sent to this custodian.");
     var regular = M.legalHolds.filter(function (h) { return !h.silent; }), silentHolds = M.legalHolds.filter(function (h) { return h.silent; });
     var menu = item("", "New Legal Hold Notification…", "Opens the notification form with this custodian as the recipient", "not-in-demo.html?what=New+legal+hold+notification&amp;ships=1") +
       '<li><h6 class="dropdown-header">Settings from a notification in this case</h6></li>' +
@@ -643,7 +676,7 @@
     var sum = na ? "Not required" : !exp ? "Not expected on this case" + (sv.length ? " · " + plural(sv.length, "survey") + " sent" : "") : !sv.length ? "Not sent" :
       [plural(sv.length, "survey"), answered + " answered", late ? late + " overdue" : ""].filter(Boolean).join(" · ");
     /* One tile per survey sent to the custodian. */
-    var rows = sv.map(function (x) {
+    var rows = sv.slice().sort(actionThenNewest(function (x) { return x.status !== "Answered" && x.status !== "Sent"; })).map(function (x) {
       var def = M.surveys.filter(function (d) { return d.id === x.id; })[0];
       var done = x.status === "Answered";
       var reported = (x.events || []).some(function (e) { return /reported/.test(e[2]); });
@@ -656,7 +689,7 @@
         aside: done ? "Answered " + short(x.on) : "Due " + short(x.due || def.due), events: x.events, acts: acts });
     });
     var body = expectLine(c, "survey") + (na ? '<p class="cv-meta mb-0">Not required: ' + esc(na) + "</p>" : !sv.length ? (exp ? empty("No survey sent", "The case expects a survey from this custodian, and none has been sent.") : "") :
-      (exp ? "" : OFF_PLAN) + tiles(rows) + '<p class="cv-meta text-muted mt-2 mb-0">Locations named in survey answers are added as reported locations for review.</p>');
+      (exp ? "" : OFF_PLAN) + (rows.length > 1 ? sortLine("Needs action first, then newest · each timeline oldest first") : "") + tiles(rows) + '<p class="cv-meta text-muted mt-2 mb-0">Locations named in survey answers are added as reported locations for review.</p>');
     var menu = item("", "New Survey…", "Opens the survey form with this custodian", "not-in-demo.html?what=New+survey&amp;ships=1") +
       '<li><h6 class="dropdown-header">Questions and reminders from a survey in this case</h6></li>' +
       M.surveys.map(function (d) { return item('data-send-survey="' + d.id + '" data-one="' + pid + '"', d.id + " · " + d.title, d.questions + " questions"); }).join("");
@@ -688,7 +721,7 @@
     var src = M.sourcesOf(c.personId), rep = c.reported || [];
     var sum = v.preservation.state === "na" ? "Not required" : v.preservation.text.replace(" on hold", " sources on hold") + (rep.length ? " · " + rep.length + " reported, not added" : "");
     var hs = ' · see <a href="case-hold-status.html">Hold status</a>';
-    var rows = src.map(function (s) {
+    var rows = src.slice().sort(function (a, b) { return protectionRank(a) - protectionRank(b); }).map(function (s) {
       var status = s.pending ? badgeHtml("Not requested", "warning") + (s.priorWork ? qual(esc(s.priorWork.what + " on " + s.priorWork.caseId + " · " + s.priorWork.request), "info") : "") :
         badgeHtml(s.hold, s.hold === "Applied" ? "success" : s.hold === "Attested" ? "info" : s.hold === "Applying" ? "warning" : "danger") +
         (s.hold === "Not applied" ? qual("Removed from the Purview hold " + esc(short(s.exception.since)) + hs, "warning") : "") +
@@ -699,7 +732,9 @@
     }).concat(rep.map(function (r) {
       return [ident(r.what, "Reported in " + esc(r.from) + " · not yet added"), badgeHtml("Not held", "warning") + qual(esc(r.kind + " · " + r.status), "warning"), '<span class="text-muted">—</span>'];
     }));
-    var body = v.preservation.state === "na" ? '<p class="cv-meta mb-0">Not required: ' + esc(c.notRequired.preservation) + "</p>" : srcTable(rows);
+    var pg = paged("cvp-preservation", rows, "Sources per page:");
+    var body = v.preservation.state === "na" ? '<p class="cv-meta mb-0">Not required: ' + esc(c.notRequired.preservation) + "</p>" :
+      (rows.length > 1 ? sortLine("Least protected first" + (rep.length ? " · reported locations last" : "")) : "") + srcTable(pg.rows) + pg.pager;
     return drawer("preservation", "Preservation", sum, body,
       link("ADD TO PRESERVATION REQUEST", "case-new-preservation.html?custodians=" + c.personId, "btn-secondary") + link("OPEN HOLD STATUS", "case-hold-status.html", "btn-secondary"));
   }
@@ -709,12 +744,13 @@
     var tone = { Collected: "success", Failed: "danger", Retrying: "warning", "Not started": "secondary", "In progress": "info" };
     var items = (col && col.items) || [];
     var failed = items.some(function (x) { return x.status === "Failed"; });
-    var body = expectLine(c, "collection") + (!exp ? "" : !items.length ? empty("No collection yet", "The case expects a collection from this custodian, and none has been requested.") : srcTable(items.map(function (x) {
+    var body = expectLine(c, "collection") + (!exp ? "" : !items.length ? empty("No collection yet", "The case expects a collection from this custodian, and none has been requested.") : colTable(items.slice().sort(function (a, b) { return COLLECTED[a.status] - COLLECTED[b.status]; }).map(function (x) {
       var s = M.sources.filter(function (y) { return y.id === x.source; })[0];
       /* FROM: the package for what was collected, the request otherwise; each a link to where it lives. */
       var ref = /^PKG-/.test(x.from) ? '<a href="not-in-demo.html?what=Collection+package+' + x.from + '">' + esc(x.from) + "</a>" : reqLink(x.from);
       return [ident(M.typeLabel(s.type), esc(s.name)), badgeHtml(x.status, tone[x.status] || "light"), ref + " · " + esc(x.note)];
     })));
+    function colTable(rows) { var pg = paged("cvp-collection", rows, "Sources per page:"); return (rows.length > 1 ? sortLine("Least collected first") : "") + srcTable(pg.rows) + pg.pager; }
     return drawer("collection", "Collection", !exp ? "Not expected on this case" : v.collection.text + (v.collection.state !== "done" && v.collection.detail ? " · " + v.collection.detail : ""), body,
       link("ADD TO COLLECTION REQUEST", "not-in-demo.html?what=Collection+request", "btn-secondary") +
       (failed ? link("VIEW FAILURES", "not-in-demo.html?what=Collection+failures", "btn-secondary") : off("VIEW FAILURES", "No collection from this custodian has failed.", "btn-secondary")), !exp);
@@ -807,6 +843,7 @@
     });
   }
   function openPanel(pid) {
+    if (pid !== panelId) pgPage = {};
     panelId = pid;
     if (!panel) {
       panel = D.offcanvas({ title: "Custodian coverage", width: "90vw", body: "",
@@ -991,6 +1028,15 @@
   document.getElementById("cvSearch").addEventListener("input", function () { page = 1; view(renderGrid); });
   /* Pager: arrows turn the page; a new page size returns to page 1. */
   function onPageSize(e) { if (e.target.getAttribute("data-pg-size") === "cv") { pageSize = +e.target.value; page = 1; view(renderGrid); } }
+  /* Nested pagers' page size: back to page 1 of that list. */
+  ["change", "valueChanged.cnds.select"].forEach(function (ty) {
+    document.addEventListener(ty, function (e) {
+      var k = e.target.getAttribute && e.target.getAttribute("data-pg-size");
+      if (!k || k === "cv" || +e.target.value === (pgSize[k] || 10)) return;
+      pgSize[k] = +e.target.value; pgPage[k] = 1;
+      if (k === "cvnc") view(renderNonCustodial); else renderPanel();
+    });
+  });
   ["change", "valueChanged.cnds.select"].forEach(function (t) { document.getElementById("cvGridFoot").addEventListener(t, onPageSize); });
   document.addEventListener("change", function (e) {
     var t = e.target;
@@ -1008,6 +1054,13 @@
     if (e.target.closest(".modal")) return;
     var t = e.target.closest("button, a, [data-cv]");
     if (!t) return;
+    /* Nested pagers (panel source tables, non-custodial sources). */
+    var pk = t.getAttribute("data-pg-for");
+    if (pk && pk !== "cv") {
+      pgPage[pk] = D.turnPage(pgPage[pk] || 1, t.getAttribute("data-pg"), pgTotal[pk] || 0, pgSize[pk] || 10);
+      if (pk === "cvnc") view(renderNonCustodial); else renderPanel();
+      return;
+    }
     if (t.getAttribute("data-pg-for") === "cv") { page = D.turnPage(page, t.getAttribute("data-pg"), custodians.filter(matches).length, pageSize); view(renderGrid); return; }
     if (t.hasAttribute("data-tile")) {
       var k = t.getAttribute("data-tile");
