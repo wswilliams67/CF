@@ -816,8 +816,8 @@
         return on ? '<li><span class="dropdown-item dropdown-group-item disabled" aria-disabled="true">' + esc(h.id + " · " + h.title) + '<span class="dropdown-item-secondary-text">Already tracked</span></span></li>' :
           groupItem('data-send-silent="' + h.id + '" data-one="' + pid + '"', h.id + " · " + h.title, "Track this custodian; nothing is sent");
       }).join("");
-    var release = releasable(c) ? btn("RELEASE FROM LEGAL HOLD", 'data-cv="panel-release"', "btn-secondary") :
-      off("RELEASE FROM LEGAL HOLD", c.released ? "Already released." : "Not on a legal hold: nothing to release.", "btn-secondary");
+    var release = releasable(c) ? btn("RELEASE FROM HOLD", 'data-cv="panel-release"', "btn-secondary") :
+      off("RELEASE FROM HOLD", c.released ? "Already released." : "Not on a legal hold: nothing to release.", "btn-secondary");
     return drawer("lhn", "Legal Hold Notification", sum, body, sendMenu("SEND LEGAL HOLD NOTIFICATION", menu) + release);
   }
 
@@ -889,7 +889,7 @@
     var body = v.preservation.state === "na" ? '<p class="cv-meta mb-0">Not required: ' + esc(c.notRequired.preservation) + "</p>" :
       (rows.length > 1 ? sortLine("Least protected first" + (rep.length ? " · reported locations last" : "")) : "") + srcTable(pg.rows) + pg.pager;
     return drawer("preservation", "Preservation", sum, body,
-      link("ADD TO PRESERVATION REQUEST", "case-new-preservation.html?custodians=" + c.personId, "btn-secondary") + link("OPEN HOLD STATUS", "case-hold-status.html", "btn-secondary") +
+      link("PRESERVATION REQUEST FOR GAPS", "case-new-preservation.html?custodians=" + c.personId, "btn-secondary") + link("OPEN HOLD STATUS", "case-hold-status.html", "btn-secondary") +
       /* Entry point to Release readiness (PRD 08 §7.4, CV65): every mechanism preserving this person's data, in every case. */
       link("RELEASE READINESS", "not-in-demo.html?what=Release+readiness+(PRD+13)", "btn-secondary"));
   }
@@ -907,7 +907,7 @@
     })));
     function colTable(rows) { var pg = paged("cvp-collection", rows, "Sources per page:"); return (rows.length > 1 ? sortLine("Least collected first") : "") + srcTable(pg.rows) + pg.pager; }
     return drawer("collection", "Collection", !exp ? "Not expected on this case" : v.collection.text + (v.collection.state !== "done" && v.collection.detail ? " · " + v.collection.detail : ""), body,
-      link("ADD TO COLLECTION REQUEST", "not-in-demo.html?what=Collection+request", "btn-secondary") +
+      link("COLLECTION REQUEST FOR GAPS", "not-in-demo.html?what=Collection+request", "btn-secondary") +
       (failed ? link("VIEW FAILURES", "not-in-demo.html?what=Collection+failures", "btn-secondary") : off("VIEW FAILURES", "No collection from this custodian has failed.", "btn-secondary")), !exp);
   }
 
