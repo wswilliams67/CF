@@ -213,7 +213,7 @@
       requires: "2 failed collections · 1 question", failed: 2, progress: [10, 17], dates: "01-01-2024 – 06-30-2026", handlers: "3 handlers (1 automatic)" },
     { id: "COL-0139", caseId: "MBP-0926", kind: "Collection", status: "Complete · receipt pending", sent: "2026-09-02", by: "p-reyes", due: "2026-09-16",
       title: "Labeling correspondence, 2024", updated: "10-05-2026", backup: true,
-      requires: "1 package waiting on your receipt", progress: [2, 2], dates: "01-01-2024 – 12-31-2024", handlers: "1 handler (automatic)" },
+      requires: "1 package awaiting receipt", progress: [2, 2], dates: "01-01-2024 – 12-31-2024", handlers: "1 handler (automatic)" },
     { id: "PRS-0088", caseId: "MBP-0811", kind: "Preservation", status: "Complete", sent: "2026-05-12", by: "p-hoffmann", title: "EMA inquiry custodians" }
   ];
   /* Who handles each source type, and where the work lands (routing rules, PRD 06). */
@@ -422,7 +422,7 @@
       why: "Box preservation · 10-12-2026 instead of 10-09-2026. “The folder owner is on leave until Monday.”",
       action: { label: "REVIEW", href: "not-in-demo.html?what=Due+date+request" } },
     { id: "mw7", chip: "CONFIRM", caseId: "MBP-0926", since: "2026-10-05",
-      what: "PKG-0139-02 is waiting on your receipt",
+      what: "PKG-0139-02 is awaiting receipt",
       why: "Elena Vasquez mailbox · 640 MB · delivered to the Meridian review workspace.",
       whyMasked: "1 custodian's mailbox · 640 MB · delivered to the Meridian review workspace.", maskPerson: "p-vasquez",
       action: { label: "CONFIRM RECEIPT", href: "not-in-demo.html?what=Confirm+receipt" }, second: { label: "MANIFEST", href: "not-in-demo.html?what=Deliverable+manifest" } },
@@ -442,7 +442,7 @@
       what: "Case closed 38 days ago with 7 holds in force",
       why: "Closed 08-31-2026 with the reason “Related case expected”. The reminder is now 8 days overdue.",
       action: { label: "CREATE CLEANUP REQUEST", href: "not-in-demo.html?what=Data+cleanup+request" } },
-    /* Snoozed by this person. Still counted in Needs you (MW48). */
+    /* Snoozed by this person. Still counted in Needs Action (MW48). */
     { id: "mw12", chip: "GAP", found: true, caseId: "MBP-0774", since: "2026-10-01", snoozedUntil: "2026-10-15",
       what: "2 custodians have not acknowledged", why: "Reminders sent on 10-04-2026 and 10-07-2026. Holds are applied.",
       action: { label: "SEND REMINDER", toast: "Reminder sent to 2 custodians on Thorne Medical." } },

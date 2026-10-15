@@ -295,7 +295,7 @@
           var p = person(c), held = M.heldElsewhere[c.personId], st = sourcesStill(c);
           var holdsText = (c.lhn || []).map(function (n) { return n.id + (n.status === "Silent" ? " · silent legal hold" : n.status === "Acknowledged" ? " · acknowledged " + short(n.on) : " · " + n.status.toLowerCase()); }).join(", ") || "None sent";
           var warn = function (t) { return '<span class="d-block small text-warning-emphasis">' + t + "</span>"; };
-          var after = held ? "Still on hold for " + esc(held.caseName) + warn("Held on another case you can open") : c.released ? "Already released" :
+          var after = held ? "Still on hold for " + esc(held.caseName) + warn("Held on another accessible case") : c.released ? "Already released" :
             st.n + " source" + (st.n === 1 ? " stays" : "s stay") + " preserved" + (p.departed && !c.notRequired ? warn("Mailbox stays inactive and preserved while any hold remains") : "") +
             (c.silent ? warn("Nothing was sent, so no release notice is sent") : "");
           return '<tr><td><div class="form-check mb-0"><input type="checkbox" class="form-check-input" data-tick="' + c.personId + '"' + (ticked[c.personId] ? " checked" : "") + (held || c.released ? " disabled" : "") +

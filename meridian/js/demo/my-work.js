@@ -2,7 +2,7 @@
    My Work controller (PRD 11 §7).
    One queue across every case the viewer can open. It resolves nothing:
    every action opens the screen that owns the condition. Snooze is
-   personal, at most 30 days, stays counted in Needs you, and is refused on
+   personal, at most 30 days, stays counted in Needs Action, and is refused on
    preservation-at-risk rows.
    ═══════════════════════════════════════════════════════════════════════ */
 (function () {
@@ -62,7 +62,7 @@
         '</span><span class="card-title demo-tile-value">' + value + '</span><span class="card-text demo-tile-label">' + esc(sub) + "</span></button>";
     }
     document.getElementById("mwTiles").innerHTML =
-      tile("needs", rows.length, "Needs You", "Across " + cases + " of " + access.open + " cases", chip === "open", !rows.length) +
+      tile("needs", rows.length, "Needs Action", "Across " + cases + " of " + access.open + " cases", chip === "open", !rows.length) +
       tile("risk", uTotal, "Preservation at Risk", uParts.join(" · ") || "Nothing at risk", chip === "risk", !uTotal) +
       tile("overdue", od.length, "Overdue with Response Teams", od.length ? "Oldest " + od[0].days + " days · " + od[0].team : "None") +
       tile("week", req + ack, "Due This Week", req + " requests · " + ack + " acknowledgment" + (ack === 1 ? "" : "s"), false, !(req + ack));
@@ -171,8 +171,8 @@
     }
     q.removeAttribute("aria-busy");
     q.innerHTML = shown.map(rowHtml).join("") ||
-      '<li class="list-group-item">' + emptyState(chip === "snoozed" ? "Nothing is snoozed" : "Nothing needs you",
-        chip === "snoozed" ? "Snoozed items return to the action queue on their date." : "New items appear here as soon as a case needs action.") + "</li>";
+      '<li class="list-group-item">' + emptyState(chip === "snoozed" ? "Nothing is snoozed" : "No items need action",
+        chip === "snoozed" ? "Snoozed items return to the action queue on their date." : "New items appear here when an action is required.") + "</li>";
     /* Column widths never shift between filters (Scott, 10-14): the action column is measured once, across every item in
        the queue (open and snoozed), so the longest button anywhere sets the width for every filter. */
     if (!actionsFitted) {
@@ -326,12 +326,12 @@
   function renderDid() {
     var did = M.whatCaseFusionDid.filter(function (d) { return access.cases.indexOf(d.caseId) !== -1; })
       .sort(function (a, b) { return (b.on + b.time).localeCompare(a.on + a.time); });  /* newest first */
-    document.getElementById("mwDidSince").textContent = "Since you signed off, " + M.signedOff;
+    document.getElementById("mwDidSince").textContent = "Since the last sign-off, " + M.signedOff;  /* formal tone, no "you" (design decision 19) */
     document.getElementById("mwDid").innerHTML = did.map(function (d) {
       /* MDI check in success green; the time reads "Today at 6:12 AM" (M.fmtWhen). */
       return '<li class="list-group-item"><div class="mw-row-did"><i class="mdi mdi-check text-success" aria-hidden="true"></i><span class="fw-bold">' + d.n + " " + esc(d.what) +
         '</span><span class="text-muted">' + esc(d.context) + '</span><span class="text-muted text-end">' + esc(M.fmtWhen(d.on, d.time)) + "</span></div></li>";
-    }).join("") || '<li class="list-group-item">' + emptyState("Nothing to report", "CaseFusion did not need to do anything since you signed off.") + "</li>";
+    }).join("") || '<li class="list-group-item">' + emptyState("Nothing to report", "No automatic tasks ran since the last sign-off.") + "</li>";
   }
   function render() { renderTop(); renderChips(); renderQueue(); }
 
@@ -387,10 +387,10 @@
       var until = new Date(Date.parse(M.DEMO_TODAY) + parseInt(t.getAttribute("data-snooze-days"), 10) * 86400000).toISOString().slice(0, 10);
       r.snoozedUntil = until;
       render();
-      D.toast("Snoozed until " + M.fmtDate(until) + ". It stays counted in Needs you and returns early if it gets worse.");
+      D.toast("Snoozed until " + M.fmtDate(until) + ". The item stays counted in Needs Action and returns early if its condition worsens.");
       return;
     }
-    if (t.hasAttribute("data-unsnooze")) { delete rows.filter(function (x) { return x.id === t.getAttribute("data-unsnooze"); })[0].snoozedUntil; render(); D.toast("Back in your queue."); return; }
+    if (t.hasAttribute("data-unsnooze")) { delete rows.filter(function (x) { return x.id === t.getAttribute("data-unsnooze"); })[0].snoozedUntil; render(); D.toast("The item is back in the action queue."); return; }
     if (t.hasAttribute("data-toast-row")) {
       var row = rows.filter(function (x) { return x.id === t.getAttribute("data-toast-row").replace(/-2$/, ""); })[0];
       D.toast(row.action.toast || "Done."); return;
@@ -400,7 +400,7 @@
     if (a === "week-all") smoothly(function () { renderWeek(true); });
     if (a === "week-fewer") smoothly(function () { renderWeek("fewer"); });
     if (a === "export") {
-      csv("my-work.csv", [["Kind", "What needs you", "Why now", "Case", "Waiting", "Found by CaseFusion", "Preservation at risk"]].concat(filtered().map(function (r) {
+      csv("my-work.csv", [["Kind", "Item", "Why now", "Case", "Waiting", "Found by CaseFusion", "Preservation at risk"]].concat(filtered().map(function (r) {
         var m = masked(r);
         return [r.chip, m && r.whatMasked ? r.whatMasked : r.what, m && r.whyMasked ? r.whyMasked : r.why, caseName(r.caseId), waiting(r), r.found ? "Yes" : "", r.locked ? "Yes" : ""];
       })));
