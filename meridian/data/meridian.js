@@ -126,16 +126,26 @@
   M.custodians = [
     { personId: "p-vasquez", added: "2026-08-20", addedFrom: "Search",
       lhn: [{ id: "LH-0031", status: "Acknowledged", on: "2026-08-29",
-              events: [["2026-08-28", "09:00", "Notification", "CaseFusion · email and Teams", "Sent"], ["2026-08-29", "08:41", "Acknowledged", "Elena Vasquez", "Acknowledged"]] }],
+              events: [["2026-08-28", "09:00", "Notification", "CaseFusion · email and Teams", "Sent"], ["2026-08-29", "08:41", "Acknowledged", "Elena Vasquez", "Acknowledged"]] },
+            { id: "LH-0044", status: "Acknowledged", on: "2026-09-12",
+              events: [["2026-09-12", "14:00", "Notification", "Claire Donovan", "Sent"], ["2026-09-12", "16:20", "Acknowledged", "Elena Vasquez", "Acknowledged"]] }],
       surveys: [{ id: "SUR-0012", status: "Answered", on: "2026-09-02",
               events: [["2026-08-28", "09:00", "Survey", "Claire Donovan", "Sent"], ["2026-09-02", "16:10", "Answered · 1 location reported", "Elena Vasquez", "Answered"]] }],
       collection: { text: "2 of 2 collected", detail: "to Mar 2026", request: "COL-0139",
         /* Per source, for custodian coverage's Collection table (PRD 08 §7.2): status and where it came from. */
         items: [{ source: "s-ex-vasquez", status: "Collected", from: "PKG-0139-01", note: "09-18-2026 · to Mar 2026" },
                 { source: "s-od-vasquez", status: "Collected", from: "PKG-0139-02", note: "09-18-2026 · to Mar 2026" }] } },
-    { personId: "p-torres", added: "2026-08-20", addedFrom: "Search",
-      lhn: [{ id: "LH-0031", status: "Acknowledged", on: "2026-09-01",
-              events: [["2026-08-28", "09:00", "Notification", "CaseFusion · email and Teams", "Sent"], ["2026-08-31", "09:00", "Reminder 1", "CaseFusion", "Sent"], ["2026-09-01", "11:02", "Acknowledged", "Michael Torres", "Acknowledged"]] }],
+    { personId: "p-torres", added: "2026-08-20", addedFrom: "Search", silent: true,
+      /* Three holds at once, as the PM canvas draws Samir Haddad (CustodianCoverage.dc.html): LH-0031 never
+         acknowledged (reminders every 3 days, escalated at 13 days, per its settings), the supplemental LH-0044
+         acknowledged, and a silent legal hold, LH-0052. */
+      lhn: [{ id: "LH-0031", status: "Not acknowledged",
+              events: [["2026-08-28", "09:00", "Notification", "CaseFusion · email and Teams", "Sent"], ["2026-08-31", "09:00", "Reminder 1", "CaseFusion", "Sent"],
+                       ["2026-09-03", "09:00", "Reminder 2", "CaseFusion", "Sent"], ["2026-09-06", "09:00", "Reminder 3", "CaseFusion", "Sent"],
+                       ["2026-09-10", "09:00", "Escalated to the manager", "SLA rule · 13 days without acknowledgment", "Escalated"]] },
+            { id: "LH-0044", status: "Acknowledged", on: "2026-09-13",
+              events: [["2026-09-12", "14:00", "Notification", "Claire Donovan", "Sent"], ["2026-09-13", "08:15", "Acknowledged", "Michael Torres", "Acknowledged"]] },
+            { id: "LH-0052", status: "Silent", events: [["2026-08-20", "10:15", "Added to the silent legal hold", "Claire Donovan", "Tracked"]] }],
       surveys: [{ id: "SUR-0012", status: "Answered", on: "2026-09-05",
               events: [["2026-08-28", "09:00", "Survey", "Claire Donovan", "Sent"], ["2026-09-05", "10:30", "Answered · 1 personal device reported", "Michael Torres", "Answered"]] }],
       /* A location named in a survey answer that is not a source yet (PRD 08 CV44, PRD 02 L43): shown on custodian
@@ -143,7 +153,9 @@
       reported: [{ what: "Personal phone", from: "SUR-0012", kind: "Personal device", status: "Awaiting decision" }] },
     { personId: "p-wong", added: "2026-08-20", addedFrom: "Search",
       lhn: [{ id: "LH-0031", status: "Acknowledged", on: "2026-08-28",
-              events: [["2026-08-28", "09:00", "Notification", "CaseFusion · email and Teams", "Sent"], ["2026-08-28", "13:20", "Acknowledged", "Lisa Wong", "Acknowledged"]] }],
+              events: [["2026-08-28", "09:00", "Notification", "CaseFusion · email and Teams", "Sent"], ["2026-08-28", "13:20", "Acknowledged", "Lisa Wong", "Acknowledged"]] },
+            { id: "LH-0044", status: "Acknowledged", on: "2026-09-13",
+              events: [["2026-09-12", "14:00", "Notification", "Claire Donovan", "Sent"], ["2026-09-13", "09:05", "Acknowledged", "Lisa Wong", "Acknowledged"]] }],
       surveys: [{ id: "SUR-0012", status: "Answered", on: "2026-09-03",
               events: [["2026-08-28", "09:00", "Survey", "Claire Donovan", "Sent"], ["2026-09-03", "09:12", "Answered", "Lisa Wong", "Answered"]] },
                 { id: "SUR-0019", status: "Sent", due: "2026-10-14",
@@ -663,11 +675,16 @@
     else if (!notices.length && silent) out.lhn = { state: "silent", text: "Silent legal hold", detail: silent.id + " · not notified" };
     else if (!notices.length) out.lhn = { state: "action", text: "Not sent", why: "notify" };
     else {
+      /* The cell reads the worst open notification, not the latest (PRD 08 canvas: "Not acknowledged · 1 of 2 ·
+         escalated"): one acknowledged supplement does not cover an unacknowledged original. */
       var latest = notices[notices.length - 1];
       var acked = notices.filter(function (n) { return n.status === "Acknowledged"; }).length;
-      var st = latest.status;
+      var worst = notices.filter(function (n) { return n.status !== "Acknowledged" && n.status !== "Sent"; })[0] || notices.filter(function (n) { return n.status === "Sent"; })[0];
+      var escOn = null;
+      if (worst) (worst.events || []).forEach(function (e) { if (e[4] === "Escalated") escOn = e[0]; });
+      var st = worst ? worst.status : latest.status;
       var state = st === "Acknowledged" ? "done" : st === "Sent" ? "progress" : "action";
-      out.lhn = { state: state, text: st, detail: acked + " of " + notices.length + " · latest " + M.fmtDate(latest.on || latest.sentOn || today).replace(/ \d{4}$/, "") };
+      out.lhn = { state: state, text: st, detail: acked + " of " + notices.length + " · " + (escOn ? "escalated " + M.fmtDate(escOn) : "latest " + M.fmtDate(latest.on || latest.sentOn || today).replace(/ \d{4}$/, "")) };
     }
     /* Survey */
     var sv = c.surveys || [];

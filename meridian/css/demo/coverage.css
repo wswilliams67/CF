@@ -26,11 +26,26 @@
 /* The section's next steps: a footer row under a rule, forward right. */
 .cv-sec-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: var(--cnds-spacer-2);
   margin-top: var(--cnds-spacer-3); padding-top: var(--cnds-spacer-3); border-top: var(--cnds-border-width, 1px) solid var(--cnds-border-color); }
-/* Instance cards (a notification, a survey, the interview), 8px apart: reference link, title, badge, aside at the right. */
-.cv-icard + .cv-icard { margin-top: var(--cnds-spacer-2); }
-.cv-icard-head { display: flex; align-items: center; flex-wrap: wrap; column-gap: var(--cnds-spacer-2); row-gap: var(--cnds-spacer-1); margin-bottom: var(--cnds-spacer-2); }
-.cv-icard .card-body { gap: 0; }  /* the head, timeline and actions set their own spacing */
-.cv-icard .card-actions { padding-top: var(--cnds-spacer-2); }
+/* Record rows (Hold Status / My Work grammar): identity · two labelled columns · blurry divider · stacked actions.
+   Data columns top-align so their in-row labels line up; the divider stretches; the actions stay centred. The
+   action column is the panel's widest button (--demo-actions-w, set by D.fitActions). */
+.cv-rec { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.3fr) minmax(0, 1fr) auto var(--demo-actions-w, 170px);
+  column-gap: var(--cnds-spacer-3); align-items: center; }
+.cv-rec > :nth-child(-n+3) { align-self: start; }
+.cv-rec > .vr { align-self: stretch; height: auto; min-height: 0; }
+.cv-rec-actions { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--cnds-spacer-1); }
+.cv-recs > .list-group-item:first-child { padding-top: 0; }
+.cv-recs > .list-group-item:last-child { border-bottom: 0; padding-bottom: 0; }
+/* Nested tiles (a notification, a survey, the interview), stacked 8px apart: a header band (reference, name, badge,
+   aside at the right) on a one-step-darker surface, then the timeline and the tile's actions. */
+.cv-tiles { display: flex; flex-direction: column; gap: var(--cnds-spacer-2); }
+.cv-tile { overflow: hidden; align-items: stretch; }  /* Nimbus .card centres its children; a tile's band and body span it */
+.cv-tile-head { display: flex; align-items: center; flex-wrap: wrap; column-gap: var(--cnds-spacer-2); row-gap: var(--cnds-spacer-1);
+  padding: var(--cnds-spacer-2) var(--cnds-spacer-3); background-color: var(--cnds-surface-light-200, #ebebeb);
+  border-bottom: var(--cnds-border-width, 1px) solid var(--cnds-border-color); font-size: var(--cnds-paragraph-font-size); }
+[data-cnds-theme="dark"] .cv-tile-head { background-color: var(--cnds-surface-dark-600, #171717); }
+.cv-tile-body { padding: var(--cnds-spacer-1) var(--cnds-spacer-3) var(--cnds-spacer-2); }
+.cv-tile-body .card-actions { padding-top: var(--cnds-spacer-1); }
 /* Timeline (CV41): date · event · actor · outcome on one row; solid row dividers, none under the last row. */
 .cv-tl { --cnds-list-group-bg: transparent; }
 .cv-tl > .list-group-item { display: grid; grid-template-columns: 12rem minmax(0, 1.4fr) minmax(0, 1fr) 9rem; column-gap: var(--cnds-spacer-3); align-items: center;
@@ -40,9 +55,6 @@
 .cv-tl-when { color: var(--cnds-text-muted); white-space: nowrap; }
 /* Two-column variant (a recipient list): name, then status at the right. */
 .cv-tl > .list-group-item.cv-tl-2 { grid-template-columns: minmax(0, 1fr) auto; }
-/* Per-source tables: SOURCE wide, STATUS with its qualifier, FROM the provenance. */
-.cv-src th:nth-child(1) { width: 34%; }
-.cv-src th:nth-child(2) { width: 36%; }
 
 /* Filter By holds its longest option, "Added After the First Notification", without truncating (design decision, 14 Oct). */
 .select-wrapper:has(> select#cvFilter) { min-width: 17rem; }
@@ -117,5 +129,3 @@
 /* Rows top-align (Scott, 10-14): a lone badge (N/A, a dash) sits level with the badges that carry a summary line under
    them, and the checkbox sits on the name's line. OPEN stays centred, as the row actions on Hold status. */
 .cv-grid tbody td:not(.cv-row-action) { vertical-align: top; }
-/* The last row of a list or table in a card has no bottom border (list divider convention). */
-.cv-src > tbody > tr:last-child > * { border-bottom: 0; }
