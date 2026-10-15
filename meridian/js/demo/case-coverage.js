@@ -528,8 +528,9 @@
     });
     var reqs = {};
     src.forEach(function (s) { if (s.request) reqs[s.request] = true; });
-    if (c.notRequired && c.notRequired.preservation) return { n: 1, kinds: ["mailbox (on MBP-0811)"], from: "PRS-0088" };
-    return { n: src.length, kinds: kinds, from: Object.keys(reqs).join(", ") || "—" };
+    if (c.notRequired && c.notRequired.preservation) return { n: 1, kinds: ["mailbox (on MBP-0811)"], from: "PRS-0088", items: [{ kind: "Mailbox (on MBP-0811)", from: "PRS-0088" }] };
+    return { n: src.length, kinds: kinds, from: Object.keys(reqs).join(", ") || "—",
+      items: src.map(function (x, i) { return { kind: kinds[i].charAt(0).toUpperCase() + kinds[i].slice(1), from: x.request || "—" }; }) };
   }
   /* The release dialog, starting from `startIds` (the selection, or the panel's custodian). */
   function openRelease(startIds) {
@@ -584,7 +585,7 @@
           var after = held ? (D.canOpenCase(held.caseId) ? "Still on hold for " + esc(held.caseName) + warn("Held on another accessible case") : "Still on hold on another case" + warn("Held on another case")) : c.released ? "Already released" :
             !(c.lhn || []).length ? "Not on a legal hold" + '<span class="d-block small text-muted">Nothing to release</span>' :
             st.n + " source" + (st.n === 1 ? " stays" : "s stay") + " preserved" +
-              (st.n ? '<span class="d-block small text-muted">' + esc(st.kinds.join(", ")) + " · " + esc(st.from) + "</span>" : "") + (p.departed && !c.notRequired ? warn("Mailbox stays inactive and preserved while any hold remains") : "") +
+ (p.departed && !c.notRequired ? warn("Mailbox stays inactive and preserved while any hold remains") : "") +
             (c.silent && !wasNotified(c) ? warn("Nothing was sent, so no release notice is sent") : "");
           return '<tr><td><div class="form-check mb-0"><input type="checkbox" class="form-check-input" data-tick="' + c.personId + '"' + (ticked[c.personId] ? " checked" : "") + (releasable(c) && !readOnly ? "" : " disabled") +
             ' aria-label="Release ' + esc(D.nameFor(p)) + '" /></div></td><td><span class="fw-bold' + (D.canSee(p) ? "" : " demo-masked") + '">' + esc(D.nameFor(p)) + '</span><span class="d-block small text-muted">' +
@@ -595,12 +596,20 @@
         '<div class="row g-3 mb-3"><div class="col-md-6">' + D.select("cvRelNotice", [["standard", "Standard Release Notice"], ["retention", "Release Notice with Retention Reminder"], ["none", "No Notice"]], notice, "Notice", { container: "#" + m.id }) +
           /* Who gets the notice is a choice, as in the canvas (ReleaseLegalHold.dc.html): checked by default, unchecked and
              disabled under No Notice. A silent-hold custodian is named as receiving nothing. */
-          '</div><div class="col-md-6"><div class="form-check mt-md-4"><input type="checkbox" class="form-check-input" id="cvRelSend"' + (sendTo && notice !== "none" && notified.length ? " checked" : "") +
+          /* The checkbox sits level with the select's field (not the whole component with its label), the note below. */
+          '</div><div class="col-md-6"><div class="cv-rel-send"><div class="form-check mb-0"><input type="checkbox" class="form-check-input" id="cvRelSend"' + (sendTo && notice !== "none" && notified.length ? " checked" : "") +
             (notice === "none" || !notified.length || readOnly ? " disabled" : "") + ' /><label class="form-check-label" for="cvRelSend">' + (!on.length ? "No one selected" : !notified.length ? "No one selected was notified" :
-            "Send to the " + notified.length + " custodian" + (notified.length === 1 ? " who was" : "s who were") + " notified") + "</label>" +
-          (silentOnly.length ? '<span class="d-block small text-muted">' + esc(silentOnly.map(function (c) { return D.nameFor(person(c)); }).join(", ")) + " " + (silentOnly.length === 1 ? "is" : "are") + " on a silent legal hold and receive" + (silentOnly.length === 1 ? "s" : "") + " nothing.</span>" : "") + "</div></div></div>" +
+            "Send to the " + notified.length + " custodian" + (notified.length === 1 ? " who was" : "s who were") + " notified") + "</label></div></div>" +
+          (silentOnly.length ? '<span class="d-block small text-muted mt-1">' + esc(silentOnly.map(function (c) { return D.nameFor(person(c)); }).join(", ")) + " " + (silentOnly.length === 1 ? "is" : "are") + " on a silent legal hold and receive" + (silentOnly.length === 1 ? "s" : "") + " nothing.</span>" : "") + "</div></div>" +
         '<div class="cf-category cf-cat-6 highlight-casefusion mt-5">What Stays Preserved</div>' +
         '<p>Releasing a custodian from the legal hold does not release their sources or delete collected data.</p>' +
+        /* One source per line with the request that holds it (multi-value rows), for each custodian being released. */
+        (on.length ? (on.length > 1 ? '<p class="cv-meta text-muted mb-2 cv-meta-line"><span class="demo-label d-inline me-1">Sorted By:</span>Name</p>' : "") +
+          tbl(["Custodian", "Sources Still Preserved", "Held By"], on.map(function (c) {
+            var st = sourcesStill(c);
+            var lines = function (k) { return st.items.map(function (x) { return '<div class="cv-rel-src">' + esc(x[k]) + "</div>"; }).join("") || "—"; };
+            return '<tr class="align-top"><td class="fw-bold">' + esc(D.nameFor(person(c))) + "</td><td>" + lines("kind") + "</td><td>" + lines("from") + "</td></tr>";
+          }).join("")) : "") +
         '<p>Non-custodial sources they use (Box folder, Webex space, Teams teams) belong to the case and stay. 1 collection request is still open: COL-0142.</p>' +
         /* Entry point to Release readiness (PRD 08 §7.4, CV65; the screen is PRD 13's): every mechanism, in every case. */
         '<p class="mb-0 d-flex flex-wrap align-items-center gap-2">Other cases, retention policies and delay holds can also preserve their data; release readiness lists every one. ' +
