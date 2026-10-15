@@ -233,6 +233,42 @@
   function reqLink(id) { return !id ? '<span class="text-muted">—</span>' : M.requests.some(function (r) { return r.id === id; }) ? '<a href="case-requests.html">' + esc(id) + "</a>" : esc(id); }
   /* DATA GAPS counts sources, so it filters both tables (design decision 12): the custodian grid to the custodians
      with a gap source, and this table to its own gap sources; a note above the grid adds the two up. */
+  /* View changes crossfade (Scott, 10-14): the old table is copied into a ghost layer over its .cv-xfade host, the new
+     rows render underneath at opacity 0, then the ghost fades out as the new rows fade in (0.2s, as the selection
+     toolbar's zoom) while the host eases from the old height to the new so the page below does not jump. Selection
+     changes are not view changes and redraw in place. A change mid-fade finishes the running one first. */
+  var xfTimer = null;
+  function xfEnd() {
+    clearTimeout(xfTimer);
+    document.querySelectorAll(".cv-xfade").forEach(function (h) {
+      h.querySelectorAll(".cv-xfade-ghost").forEach(function (g) { g.remove(); });
+      h.classList.remove("cv-xf-start"); h.style.height = ""; h.style.overflow = ""; h.style.transition = "";
+    });
+  }
+  function view(update) {
+    xfEnd();
+    var hosts = ["cvGridView", "cvNcView"].map(function (id) { return document.getElementById(id); });
+    if (REDUCE) { update(); return; }
+    var snap = hosts.map(function (h) {
+      var g = document.createElement("div");
+      g.className = "cv-xfade-ghost"; g.setAttribute("aria-hidden", "true"); g.inert = true;
+      g.innerHTML = h.innerHTML;
+      g.querySelectorAll("[id]").forEach(function (x) { x.removeAttribute("id"); });
+      return { h: h, g: g, from: h.offsetHeight, html: h.querySelector(".table-responsive").innerHTML };
+    });
+    update();
+    snap.forEach(function (s) {
+      /* The non-custodial table often does not change: no fade where nothing changed. */
+      if (s.h.querySelector(".table-responsive").innerHTML === s.html) return;
+      var to = s.h.offsetHeight;
+      s.h.classList.add("cv-xf-start"); s.h.appendChild(s.g);
+      s.h.style.overflow = "hidden"; s.h.style.height = s.from + "px";
+      void s.h.offsetHeight;
+      s.h.classList.remove("cv-xf-start"); s.g.classList.add("cv-xf-out");
+      s.h.style.transition = "height .2s ease"; s.h.style.height = to + "px";
+    });
+    xfTimer = setTimeout(xfEnd, 220);
+  }
   function gapsOn() { return tileFilter === "gaps" || val("cvFilter") === "gaps"; }
   /* Preservation reads Hold status's own words (PRD 08 CV19: Coverage reads, it does not relabel): Applied → On hold,
      Attested, Partial, Unknown (decision 20). */
@@ -573,15 +609,15 @@
   /* A filter the reader picks clears any card filter. setFilter() below changes the select from code, and Nimbus
      Select fires its change event then too; `syncing` stops that echo from clearing the card the reader just chose. */
   var syncing = false;
-  function onFilter() { if (syncing) return; tileFilter = null; page = 1; renderTiles(); renderGrid(); }
+  function onFilter() { if (syncing) return; tileFilter = null; page = 1; renderTiles(); view(renderGrid); }
   ["cvFilter", "cvWorkflow"].forEach(function (id) {
     var el = document.getElementById(id);
     el.addEventListener("change", onFilter);
     el.addEventListener("valueChanged.cnds.select", onFilter);
   });
-  document.getElementById("cvSearch").addEventListener("input", function () { page = 1; renderGrid(); });
+  document.getElementById("cvSearch").addEventListener("input", function () { page = 1; view(renderGrid); });
   /* Pager: arrows turn the page; a new page size returns to page 1. */
-  function onPageSize(e) { if (e.target.getAttribute("data-pg-size") === "cv") { pageSize = +e.target.value; page = 1; renderGrid(); } }
+  function onPageSize(e) { if (e.target.getAttribute("data-pg-size") === "cv") { pageSize = +e.target.value; page = 1; view(renderGrid); } }
   ["change", "valueChanged.cnds.select"].forEach(function (t) { document.getElementById("cvGridFoot").addEventListener(t, onPageSize); });
   document.addEventListener("change", function (e) {
     var t = e.target;
@@ -599,11 +635,11 @@
     if (e.target.closest(".modal")) return;
     var t = e.target.closest("button, a, [data-cv]");
     if (!t) return;
-    if (t.getAttribute("data-pg-for") === "cv") { page = D.turnPage(page, t.getAttribute("data-pg"), custodians.filter(matches).length, pageSize); renderGrid(); return; }
+    if (t.getAttribute("data-pg-for") === "cv") { page = D.turnPage(page, t.getAttribute("data-pg"), custodians.filter(matches).length, pageSize); view(renderGrid); return; }
     if (t.hasAttribute("data-tile")) {
       var k = t.getAttribute("data-tile");
       tileFilter = tileFilter === k || k === "all" ? null : k; page = 1;
-      setFilter("all"); renderTiles(); renderGrid(); return;
+      setFilter("all"); renderTiles(); view(renderGrid); return;
     }
     if (t.hasAttribute("data-open")) { e.preventDefault(); openPanel(t.getAttribute("data-open")); return; }
     if (t.hasAttribute("data-send-lhn")) { sendNotice(t.getAttribute("data-send-lhn")); return; }
@@ -613,7 +649,7 @@
     var a = t.getAttribute("data-cv");
     if (!a) return;
     if (a === "select-after") { page = 1; selected = {}; afterNoticeUnsent().forEach(function (c) { selected[c.personId] = true; }); tileFilter = null; setFilter("after"); render(); }
-    if (a === "review-after") { page = 1; tileFilter = null; setFilter("after"); renderTiles(); renderGrid(); }
+    if (a === "review-after") { page = 1; tileFilter = null; setFilter("after"); renderTiles(); view(renderGrid); }
     if (a === "clear") { selected = {}; renderGrid(); }
     if (a === "not-required") markNotRequired();
     if (a === "release") openRelease(selectedList().map(function (c) { return c.personId; }));
