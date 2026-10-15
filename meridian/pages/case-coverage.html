@@ -1,26 +1,27 @@
 <!doctype html>
 <!--
-  Coverage (PRD 08 §7.1–7.3) — Meridian Biopharma demo.
-  Nimbus styleguide components only: alert (banner), card tiles (gap #1), gray list
-  toolbar with Nimbus Select, shared selection toolbar with dropdowns, table (the
-  PRD's grid), card + cf-category (counting rules), offcanvas (custodian panel),
-  modal (release, mark not required). Page CSS is layout only.
-  The PRD wins over the board: five tiles that partition, "Non-custodial held
-  sources", the fifth counting rule and the dash in the key, no MARK INTERVIEW COMPLETE.
+  Coverage (PRD 08 §7.1–7.3, v2.0) — Meridian Biopharma demo.
+  Files:  css/demo/demo.css       shared demo patterns (tiles, toolbars, empty states, section heads)
+          css/demo/coverage.css   this page's layout only
+          js/demo/case-coverage.js renders tiles, banner, grid, selection toolbar, custodian panel and release dialog
+  Nimbus styleguide components only: alert (banner), card tiles, two-line gray list toolbar with Nimbus Select,
+  shared selection toolbar with dropdowns, table (the custodian matrix: the one table on purpose), card +
+  cf-category (counting rules), offcanvas (custodian panel, 90%), modal (release, mark not required).
+  PRD 08 v2.0 cites the screen's design decisions 1–9 (14 Oct).
 -->
 <html lang="en" data-cnds-theme="dark">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <title>Coverage · Meridian Biopharma · CaseFusion</title>
-    <link rel="stylesheet" href="../css/nimbus.css?v=20261014205450" />
-    <link rel="stylesheet" href="../css/app.css?v=20261014205450" />
-    <link rel="stylesheet" href="../css/themes/primitives.css?v=20261014205450" />
-    <link rel="stylesheet" href="../css/themes/light.css?v=20261014205450" />
-    <link rel="stylesheet" href="../css/themes/dark.css?v=20261014205450" />
-    <link rel="stylesheet" href="../css/pages/frame-ca-sidenav.css?v=20261014205450" />
-    <link rel="stylesheet" href="../css/demo/demo.css?v=20261014205450" />
-    <link rel="stylesheet" href="../css/demo/coverage.css?v=20261014205450" />
+    <link rel="stylesheet" href="../css/nimbus.css?v=20261014215737" />
+    <link rel="stylesheet" href="../css/app.css?v=20261014215737" />
+    <link rel="stylesheet" href="../css/themes/primitives.css?v=20261014215737" />
+    <link rel="stylesheet" href="../css/themes/light.css?v=20261014215737" />
+    <link rel="stylesheet" href="../css/themes/dark.css?v=20261014215737" />
+    <link rel="stylesheet" href="../css/pages/frame-ca-sidenav.css?v=20261014215737" />
+    <link rel="stylesheet" href="../css/demo/demo.css?v=20261014215737" />
+    <link rel="stylesheet" href="../css/demo/coverage.css?v=20261014215737" />
     <link rel="icon" type="image/png" sizes="32x32" href="../img/favicon/favicon-32x32.png" />
   </head>
   <body class="cnds-product-casefusion" data-demo-tab="coverage">
@@ -38,8 +39,11 @@
 
         <div class="demo-tiles cv-tiles" id="cvTiles" role="group" aria-label="Coverage summary"></div>
 
-        <div class="btn-toolbar-gray btn-toolbar-list mb-2" role="toolbar" aria-label="Coverage tools">
-          <div class="toolbar-list-search">
+        <!-- List toolbar on two lines (design decision, 14 Oct): what narrows the grid (search, Filter By, Workflow), then
+             what acts on it (the count, which follows the filters, and EXPORT COVERAGE). At 1440 the five parts do not
+             fit one line without truncating a select. -->
+        <div class="btn-toolbar-gray btn-toolbar-list cv-tools mb-2" role="toolbar" aria-label="Coverage tools">
+          <div class="toolbar-list-search cv-toolbar-search">
             <div class="cf-input-field cf-input-field-casefusion"><div class="cf-input-wrapper">
               <input type="text" id="cvSearch" class="cf-input-control" placeholder="Search custodians…" aria-label="Search custodians" data-cnds-input-clear-init />
               <button type="button" class="mdi mdi-close-circle cf-input-clear" aria-label="Clear field" hidden></button>
@@ -69,10 +73,10 @@
               <option value="preservation">Preservation</option>
               <option value="collection">Collection</option>
             </select>
-            <span class="toolbar-list-divider" aria-hidden="true"></span>
-            <span class="toolbar-list-total" id="cvTotal"></span>
-            <span class="toolbar-list-divider" aria-hidden="true"></span>
-            <button type="button" class="btn btn-secondary btn-sm toolbar-list-action" data-cv="export">EXPORT COVERAGE</button>
+          </div>
+          <div class="cv-tools-row">
+            <span class="toolbar-list-total mw-showing cv-showing" id="cvTotal" aria-live="polite"></span>
+            <button type="button" class="btn btn-secondary btn-sm toolbar-list-action ms-auto" data-cv="export">EXPORT COVERAGE</button>
           </div>
         </div>
 
@@ -115,12 +119,12 @@
             <p class="card-text small">A workflow this case does not expect of a custodian shows a dash and is not a gap. Surveys, interviews and collections are expected only where the case says so; notification and preservation always are.</p>
             <h3 class="cf-category cf-cat-6 highlight-casefusion mt-2">Status Key</h3>
             <div class="d-flex flex-wrap gap-2 mb-2">
-              <span class="badge badge-pill badge-success">Complete</span>
-              <span class="badge badge-pill badge-info">In Progress</span>
-              <span class="badge badge-pill badge-warning">Not Started</span>
-              <!-- Verbatim: Nimbus capitalize would print "Or" (Title Case keeps it lower; Scott, 10-14). -->
-              <span class="badge badge-pill badge-danger badge-verbatim">Not Acknowledged or Not Answered</span>
-              <span class="badge badge-pill badge-secondary">Silent Legal Hold</span>
+              <!-- Sentence case, as the grid cells read (PRD 08 §7.1 key; badge-verbatim, gap #10). -->
+              <span class="badge badge-pill badge-verbatim badge-success">Complete</span>
+              <span class="badge badge-pill badge-verbatim badge-info">In progress</span>
+              <span class="badge badge-pill badge-verbatim badge-warning">Not started</span>
+              <span class="badge badge-pill badge-verbatim badge-danger">Not acknowledged or not answered</span>
+              <span class="badge badge-pill badge-verbatim badge-secondary">Silent legal hold</span>
             </div>
             <p class="card-text small text-muted">n/a = not required for this custodian, with a reason on the record · — = not expected on this case</p>
             <!-- Report label is a demo-label naming the two buttons; buttons right-aligned (Scott, 10-14). -->
@@ -133,11 +137,11 @@
         </div>
       </div>
     </main>
-    <script src="../data/meridian.js?v=20261014205450"></script>
-    <script src="../js/demo/shell.js?v=20261014205450"></script>
-    <script src="../js/nimbus.js?v=20261014205450"></script>
-    <script src="../js/app.js?v=20261014205450"></script>
-    <script src="../js/pages/frame-ca-sidenav.js?v=20261014205450"></script>
-    <script src="../js/demo/case-coverage.js?v=20261014205450"></script>
+    <script src="../data/meridian.js?v=20261014215737"></script>
+    <script src="../js/demo/shell.js?v=20261014215737"></script>
+    <script src="../js/nimbus.js?v=20261014215737"></script>
+    <script src="../js/app.js?v=20261014215737"></script>
+    <script src="../js/pages/frame-ca-sidenav.js?v=20261014215737"></script>
+    <script src="../js/demo/case-coverage.js?v=20261014215737"></script>
   </body>
 </html>
