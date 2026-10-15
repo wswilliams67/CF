@@ -533,7 +533,7 @@
       '<span class="cv-tile-name">' + esc(o.title) + "</span>" + o.badge + '<span class="cv-meta text-muted ms-auto">' + esc(o.aside || "") + "</span></div>" +
       '<div class="cv-tile-body">' + timeline(o.events) + (o.acts ? '<div class="card-actions justify-content-end">' + o.acts + "</div>" : "") + "</div></div>";
   }
-  function tiles(list) { return '<div class="cv-tiles">' + list.join("") + "</div>"; }
+  function tiles(list) { return '<div class="cv-tile-stack">' + list.join("") + "</div>"; }
   function recs(items) { return '<ul class="list-group list-group-flush demo-rows cv-recs">' + items.join("") + "</ul>"; }
   /* Identity: the record's name (14px bold), then a 12px line; `sub` is HTML (a reference link, inline so only its
      text is clickable). */

@@ -178,11 +178,12 @@
     if (a.href) return '<a class="' + cls + '" href="' + a.href + '">' + esc(a.label) + "</a>";
     return '<button type="button" class="' + cls + '" data-toast-row="' + id + '">' + esc(a.label) + "</button>";
   }
-  /* Snooze is the last action. A locked (preservation-at-risk) item shows SNOOZE… disabled, with its reason in the
-     title (design decision 5); a snoozed item offers UNSNOOZE. */
+  /* Snooze is the last action. A locked (preservation-at-risk) item shows SNOOZE… disabled, with its reason in a Nimbus
+     tooltip (design decision 5); the component wraps the disabled button so hover and keyboard focus reach it (a native
+     title never shows on a disabled control: PM, 10-15). A snoozed item offers UNSNOOZE. */
   function snoozeHtml(r) {
     if (r.snoozedUntil) return '<button type="button" class="btn btn-tertiary btn-sm" data-unsnooze="' + r.id + '">UNSNOOZE</button>';
-    if (r.locked) return '<button type="button" class="btn btn-tertiary btn-sm" disabled title="An item with preservation at risk cannot be snoozed." aria-label="Snooze is not available: preservation at risk">SNOOZE…</button>';
+    if (r.locked) return '<button type="button" class="btn btn-tertiary btn-sm" disabled data-cnds-tooltip-init data-cnds-placement="top" title="An item with preservation at risk cannot be snoozed." aria-label="Snooze is not available: preservation at risk">SNOOZE…</button>';
     return '<div class="dropdown"><button type="button" class="btn btn-tertiary btn-sm" data-cnds-toggle="dropdown" aria-expanded="false" aria-haspopup="menu">SNOOZE…</button>' +
       '<ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion dropdown-menu-end mw-snooze-menu">' +
       [["1", "Tomorrow"], ["3", "3 days"], ["7", "7 days"], ["30", "30 days (the longest)"]].map(function (o) {
@@ -246,9 +247,14 @@
       D.fitActions(q, ".mw-item-actions");
       actionsFitted = true;
     }
+    /* Tooltips on the rows being replaced are disposed first, so none is left showing; the new rows' are initialised
+       after (markup injected after boot is not auto-initialised). */
+    var NT = window.Nimbus && Nimbus.Tooltip;
+    if (NT) q.querySelectorAll("[data-cnds-tooltip-init]").forEach(function (x) { var i = NT.getInstance(x); if (i) i.dispose(); });
     q.innerHTML = shown.map(rowHtml).join("") || '<li class="list-group-item">' + (chip === "snoozed"
       ? emptyState("Nothing is snoozed", "Snoozed items return to the action queue on their date.")
       : emptyState("No items need action", "New items appear here when an action is required.")) + "</li>";
+    if (window.Nimbus && Nimbus.DataAPI) Nimbus.DataAPI.initAll(q);
     /* Pager under the list (design decision 7): the shared Nimbus pagination toolbar; empty when the list is. Nimbus
        selects are disposed before their markup is replaced. */
     var foot = document.getElementById("mwQueueFoot"), NS = window.Nimbus && Nimbus.Select;
@@ -259,16 +265,20 @@
   function render() { renderTop(); renderChips(); renderQueue(); }
   /* After a click: tiles and filter buttons update at once; the count line, rows and pager fade out and back in
      (Nimbus .fade, 0.15s linear: Scott, 10-14). A click during the fade restarts it with the newest choice. No fade
-     under reduced motion, or while the skeleton shows. */
+     under reduced motion, or while the skeleton shows. `after` runs once the new rows are in place. */
   var fadeTimer;
-  function refresh() {
+  function refresh(after) {
     renderTop(); renderChips();
     var parts = ["mwShowing", "mwQueue", "mwQueueFoot"].map(function (id) { return document.getElementById(id); });
-    if (reduceMotion || !fontsReady) { renderQueue(); return; }
+    if (reduceMotion || !fontsReady) { renderQueue(); if (after) after(); return; }
     clearTimeout(fadeTimer);
     parts.forEach(function (p) { p.classList.remove("show"); });
-    fadeTimer = setTimeout(function () { renderQueue(); parts.forEach(function (p) { p.classList.add("show"); }); }, 150);
+    fadeTimer = setTimeout(function () { renderQueue(); parts.forEach(function (p) { p.classList.add("show"); }); if (after) after(); }, 150);
   }
+  /* A page turn or a page-size change brings the list toolbar to the top of the window, so the new page's first row is
+     in view (PM, 10-15). It runs after the rows swap: scrolling before a long page shrinks to a short one lets the
+     browser move the view off the list. */
+  function toQueueTop() { document.getElementById("mwQueueTools").scrollIntoView({ block: "start" }); }
 
   /* ── Cases Needing Attention (PRD 11 §7.4; design decisions 9–10) ── */
   /* Badge colour by the worst problem: danger for holds removed or not on hold, warning for not acknowledged or
@@ -395,7 +405,8 @@
   /* ── Weekly status report (PRD 11 §7.7, MW80–84; design decision 20) ── */
   /* A read-only side panel at 50%, so My Work stays in view behind it. It renders the screen's own data (MW82);
      snoozed items are included and marked (MW84). The demo has no resolved-items data (PM question 6), so Resolved
-     shows its empty state. DOWNLOAD exports the outstanding items as CSV. */
+     shows its empty state. EXPORT AS (the CaseFusion export pattern) offers CSV, which downloads the outstanding items,
+     and PDF, which the final build needs (PM, 10-15) and the demo does not produce. It opens upward from the footer. */
   function report() {
     var me = M.person(v.personId), did = didList(), due = weekDates();
     function section(title, count, inner) {
@@ -425,7 +436,11 @@
           '<div class="text-end small fw-bold">' + esc(w.day) + "</div>");
       })));
     var panel = D.offcanvas({ title: "Weekly Status Report", width: "50vw", body: body,
-      footer: '<button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas">CLOSE</button><button type="button" class="btn btn-primary" data-report-dl>DOWNLOAD</button>' });
+      footer: '<button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas">CLOSE</button>' +
+        '<div class="dropup"><button type="button" class="btn btn-secondary dropdown-toggle" data-cnds-toggle="dropdown" aria-expanded="false" aria-haspopup="menu">Export As <i class="mdi mdi-chevron-up" aria-hidden="true"></i></button>' +
+        '<ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion dropdown-menu-end demo-menu-hug" role="menu">' +
+        '<li role="none"><button type="button" class="dropdown-item" role="menuitem" data-report-dl>CSV</button></li>' +
+        '<li role="none"><a class="dropdown-item" role="menuitem" href="not-in-demo.html?what=Weekly+status+report+(PDF)">PDF</a></li></ul></div>' });
     panel.el.querySelector("[data-report-dl]").addEventListener("click", function () {
       csv("weekly-status-report.csv", [["Kind", "Item", "Case", "Waiting", "Snoozed until"]].concat(rows.map(function (r) {
         return [r.chip, whatOf(r), M.caseById(r.caseId).name, waiting(r), r.snoozedUntil ? M.fmtDate(r.snoozedUntil) : ""]; })));
@@ -437,7 +452,7 @@
   onSelect(document.getElementById("mwSort"), function () { page = 1; refresh(); });
   onSelect(document.getElementById("mwCasesSort"), renderCases);
   /* Pager size select (rendered into the queue footer): back to page 1. */
-  onSelect(document.getElementById("mwQueueFoot"), function (e) { if (e.target.getAttribute("data-pg-size") === "mw") { pageSize = +e.target.value; page = 1; refresh(); } });
+  onSelect(document.getElementById("mwQueueFoot"), function (e) { if (e.target.getAttribute("data-pg-size") === "mw") { pageSize = +e.target.value; page = 1; refresh(toQueueTop); } });
   /* Queue filters are radios: one change event per selection. */
   document.getElementById("mwChips").addEventListener("change", function (e) { if (e.target.name === "mwFilter") { chip = e.target.value; page = 1; refresh(); } });
 
@@ -446,7 +461,7 @@
     var t = e.target.closest("button, a");
     if (!t) return;
     /* Pager arrows. */
-    if (t.getAttribute("data-pg-for") === "mw") { page = D.turnPage(page, t.getAttribute("data-pg"), filtered().length, pageSize); refresh(); document.getElementById("mwQueueH").scrollIntoView({ block: "start" }); return; }
+    if (t.getAttribute("data-pg-for") === "mw") { page = D.turnPage(page, t.getAttribute("data-pg"), filtered().length, pageSize); refresh(toQueueTop); return; }
     /* Tiles: Needs Action / Preservation at Risk filter the queue; Due This Week expands This Week; Overdue opens Requests. */
     if (t.hasAttribute("data-tile")) {
       var k = t.getAttribute("data-tile");
