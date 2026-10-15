@@ -215,7 +215,7 @@
     host.innerHTML = '<div class="pb-2"><div class="btn-toolbar-gray cv-seltool" role="toolbar" aria-label="Actions for selected custodians">' +
       '<div class="toolbar-shared-count"><i class="mdi mdi-close pointer toolbar-list-total" role="button" tabindex="0" aria-label="Clear selection" data-cv="clear"></i><div class="vr vr-blurry" aria-hidden="true"></div><span class="toolbar-list-total">' + n + " selected" + "</span></div><div>" +
       dropdown("SEND LEGAL HOLD NOTIFICATION",
-        item("", "New Legal Hold Notification…", "Opens the notification form with the " + n + " selected custodians as recipients", "not-in-demo.html?what=New+legal+hold+notification&amp;ships=1") +
+        item("", "New Legal Hold Notification …", "Opens the notification form with the " + n + " selected custodians as recipients", "not-in-demo.html?what=New+legal+hold+notification&amp;ships=1") +
         '<li><h6 class="dropdown-header">Settings from a notification in this case</h6></li>' +
         regular.map(function (h) { return item('data-send-lhn="' + h.id + '"', h.id + " · " + h.title.split(" · ")[0], h.settings); }).join("") +
         '<li><h6 class="dropdown-header">Silent legal hold · nothing is sent</h6></li>' +
@@ -223,9 +223,9 @@
           var tracked = custodians.filter(function (c) { return (c.lhn || []).some(function (x) { return x.id === h.id; }); }).length;
           return item('data-send-silent="' + h.id + '"', h.id + " · " + h.title, "Add " + n + " selected · " + tracked + " custodian" + (tracked === 1 ? "" : "s") + " tracked");
         }).join("") +
-        item("", "New Silent Legal Hold…", "Nothing is sent. The custodians are tracked and their data is held", "not-in-demo.html?what=New+silent+legal+hold&amp;ships=1")) +
+        item("", "New Silent Legal Hold …", "Nothing is sent. The custodians are tracked and their data is held", "not-in-demo.html?what=New+silent+legal+hold&amp;ships=1")) +
       dropdown("SEND SURVEY",
-        item("", "New Survey…", "Opens the survey form with the " + n + " selected custodians", "not-in-demo.html?what=New+survey&amp;ships=1") +
+        item("", "New Survey …", "Opens the survey form with the " + n + " selected custodians", "not-in-demo.html?what=New+survey&amp;ships=1") +
         '<li><h6 class="dropdown-header">Questions and reminders from a survey in this case</h6></li>' +
         M.surveys.map(function (sv) { return item('data-send-survey="' + sv.id + '"', sv.id + " · " + sv.title, sv.questions + " questions"); }).join("")) +
       '<div class="btn-group" role="group"><a class="btn btn-tertiary btn-sm" href="not-in-demo.html?what=Schedule+interview&amp;ships=1">SCHEDULE INTERVIEW</a></div>' +
@@ -240,7 +240,11 @@
       "</div></div></div>";
     if (entering && !REDUCE) {
       var bar = host.querySelector(".cv-seltool"); bar.classList.remove("cv-zoom-out"); bar.style.opacity = "0";
-      slide(host, 0, host.scrollHeight, function () { bar.style.opacity = ""; bar.classList.add("cv-zoom-in"); });
+      slide(host, 0, host.scrollHeight, function () {
+        bar.style.opacity = ""; bar.classList.add("cv-zoom-in");
+        /* Once zoomed in, drop the animation so no transform lingers on the bar. */
+        bar.addEventListener("animationend", function () { bar.classList.remove("cv-zoom-in"); }, { once: true });
+      });
     }
   }
 
@@ -681,7 +685,7 @@
     });
     var body = rows.length ? (rows.length > 1 ? sortLine("Needs action first, then newest · each timeline oldest first") : "") + tiles(rows) : empty("No legal hold notification", "No legal hold notification has been sent to this custodian.");
     var regular = M.legalHolds.filter(function (h) { return !h.silent; }), silentHolds = M.legalHolds.filter(function (h) { return h.silent; });
-    var menu = item("", "New Legal Hold Notification…", "Opens the notification form with this custodian as the recipient", "not-in-demo.html?what=New+legal+hold+notification&amp;ships=1") +
+    var menu = item("", "New Legal Hold Notification …", "Opens the notification form with this custodian as the recipient", "not-in-demo.html?what=New+legal+hold+notification&amp;ships=1") +
       '<li><h6 class="dropdown-header">Settings from a notification in this case</h6></li>' +
       regular.map(function (h) { return item('data-send-lhn="' + h.id + '" data-one="' + pid + '"', h.id + " · " + h.title.split(" · ")[0], h.settings); }).join("") +
       '<li><h6 class="dropdown-header">Silent legal hold · nothing is sent</h6></li>' +
@@ -716,7 +720,7 @@
     });
     var body = expectLine(c, "survey") + (na ? '<p class="cv-meta mb-0">Not required: ' + esc(na) + "</p>" : !sv.length ? (exp ? empty("No survey sent", "The case expects a survey from this custodian, and none has been sent.") : "") :
       (rows.length > 1 ? sortLine("Needs action first, then newest · each timeline oldest first") : "") + (exp ? "" : OFF_PLAN) + tiles(rows) + '<p class="cv-meta text-muted mt-2 mb-0">Locations named in survey answers are added as reported locations for review.</p>');
-    var menu = item("", "New Survey…", "Opens the survey form with this custodian", "not-in-demo.html?what=New+survey&amp;ships=1") +
+    var menu = item("", "New Survey …", "Opens the survey form with this custodian", "not-in-demo.html?what=New+survey&amp;ships=1") +
       '<li><h6 class="dropdown-header">Questions and reminders from a survey in this case</h6></li>' +
       M.surveys.map(function (d) { return item('data-send-survey="' + d.id + '" data-one="' + pid + '"', d.id + " · " + d.title, d.questions + " questions"); }).join("");
     var nr = na ? off("MARK NOT REQUIRED", "Already not required.", "btn-secondary") : !exp ? off("MARK NOT REQUIRED", EXPECT_WHY, "btn-secondary") : btn("MARK NOT REQUIRED", 'data-cv-nr="survey"', "btn-secondary");
