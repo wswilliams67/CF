@@ -756,8 +756,12 @@
           esc(x[2].state === "dash" ? "Not expected" : x[2].text) + "</span></button>";
       }).join("") +
       /* Back to top, at the bar's end behind a blurry divider: the thick MDI arrow in link blue (Scott, 10-15). */
-      '<div class="vr vr-blurry" aria-hidden="true"></div><button type="button" class="cv-bar-top" data-cv="panel-top" tabindex="-1" aria-label="Back to top" title="Back to top">' +
+      '<div class="vr vr-blurry" aria-hidden="true"></div><button type="button" class="cv-bar-top" data-cv="panel-top" tabindex="-1" aria-label="Back to top" title="Back to top" data-cnds-tooltip-init data-cnds-placement="bottom">' +
       '<i class="mdi mdi-arrow-up-bold" aria-hidden="true"></i></button>' + "</nav></div>";
+    /* Nimbus tooltips (the back-to-top arrow): dispose the old ones before the body is replaced, so none is left
+       showing, and initialise the new ones after (markup injected after boot is not auto-initialised). */
+    var NT = window.Nimbus && Nimbus.Tooltip;
+    if (NT) panel.el.querySelectorAll("[data-cnds-tooltip-init]").forEach(function (x) { var i = NT.getInstance(x); if (i) i.dispose(); });
     panel.setBody('<div class="cv-scope">' + bar +
       '<div class="d-flex align-items-start gap-3 mb-3">' + D.avatar(p) + '<div class="flex-grow-1"><div class="h5 mb-0">' + esc(p.name) + "</div>" +
         '<div class="cv-meta text-muted">' + esc(p.title + " · " + p.upn + "@" + M.tenant.domain + " · added to the case " + short(c.added)) + (p.departed ? " · departed " + esc(M.fmtDate(p.departed)) : "") + "</div>" +
@@ -769,6 +773,7 @@
           '<li role="none"><a class="dropdown-item" role="menuitem" href="not-in-demo.html?what=Custodian+coverage+(PDF)">PDF</a></li></ul></div></div></div>' +
       strip + '<div class="cv-drawers">' + lhnDrawer(c) + surveyDrawer(c, v) + interviewDrawer(c, v) + preservationDrawer(c, v) + collectionDrawer(c, v) + "</div></div>");
     if (keep) keep.scrollTop = top;
+    if (window.Nimbus && Nimbus.DataAPI) Nimbus.DataAPI.initAll(panel.el.querySelector(".offcanvas-body"));
     syncBar();
   }
   /* Show the contents bar once the summary cards are out of view, and mark the drawer whose heading has passed
