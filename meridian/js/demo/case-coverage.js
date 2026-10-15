@@ -749,7 +749,7 @@
     /* Contents bar (Sally, Scott 10-15): pinned to the top of the panel body, shown only once the summary cards have
        scrolled away. The name, then one entry per workflow (its name and state word in its severity colour) that
        jumps to its drawer; the drawer being read is marked (aria-current). Below 1200px the state words drop. */
-    var bar = '<div class="cv-bar-pin" aria-hidden="true"><nav class="cv-bar" aria-label="Workflows for ' + esc(p.name) + '"><span class="cv-bar-name">' + esc(p.name) + "</span>" +
+    var bar = '<div class="cv-bar-pin" aria-hidden="true"><nav class="cv-bar" aria-label="Workflows for ' + esc(p.name) + '"><span class="cv-bar-name">' + D.avatar(p, 32) + esc(p.name) + "</span>" +
       [["lhn", "Notification", v.lhn], ["survey", "Survey", v.survey], ["interview", "Interview", v.interview], ["preservation", "Preservation", v.preservation], ["collection", "Collection", v.collection]].map(function (x) {
         var tone = x[2].state === "action" ? " text-danger-emphasis" : x[2].state === "todo" ? " text-warning-emphasis" : "";
         return '<button type="button" class="cv-bar-item" data-cv-jump="' + x[0] + '"' + (tone ? ' data-tone="' + (x[2].state === "action" ? "danger" : "warning") + '"' : "") + ' tabindex="-1"><span class="cv-bar-wf">' + x[1] + '</span><span class="cv-bar-value' + tone + '">' +

@@ -490,9 +490,11 @@
     initials: initials,
     /** A person's profile photo as a 42px Nimbus avatar (Nimbus/Avatar Mode=Avatar, Size=42px, Border=Yes);
         the initials monogram when the person has no photo. Callers show a limited profile's lock monogram instead. */
-    avatar: function (p) {
-      return M.avatars[p.id] ? '<img class="demo-avatar" src="../img/avatars/' + p.id + ".jpg" + STAMP + '" alt="' + esc(p.name) + ' profile photo" width="42" height="42" data-initials="' + esc(initials(p.name)) + '" />' :
-        '<span class="monogram demo-avatar">' + esc(initials(p.name)) + "</span>";
+    /* size 32: the compact form (Nimbus/Avatar Size=32px), as in the custodian panel's contents bar. */
+    avatar: function (p, size) {
+      var sm = size === 32 ? " demo-avatar-32" : "", px = size === 32 ? 32 : 42;
+      return M.avatars[p.id] ? '<img class="demo-avatar' + sm + '" src="../img/avatars/' + p.id + ".jpg" + STAMP + '" alt="' + esc(p.name) + ' profile photo" width="' + px + '" height="' + px + '" data-initials="' + esc(initials(p.name)) + '" />' :
+        '<span class="monogram demo-avatar' + sm + '">' + esc(initials(p.name)) + "</span>";
     },
     viewer: viewer,
     /** True when the demo viewer holds this role ("Case Administrator", "Case User", …). */
