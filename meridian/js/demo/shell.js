@@ -18,8 +18,8 @@
    A case page puts <div data-demo-case-header></div> where the case title,
    toolbar and tabs belong.
 
-   Viewer switch: the account menu offers both demo viewers (US and Rest of
-   world). The choice is kept in localStorage per browser and the page
+   Viewer switch: the account menu offers the demo viewers (Case Administrators in the US and Rest of world, and a
+   US Case User for PRD 08 CV72). The choice is kept in localStorage per browser and the page
    reloads, so every screen re-renders for that viewer. Pages read it from
    MeridianDemo.viewer().
    ═══════════════════════════════════════════════════════════════════════ */
@@ -42,7 +42,7 @@
   function viewerId() {
     var v = null;
     try { v = localStorage.getItem(KEY); } catch (e) { v = null; }
-    return v === "v-row" ? "v-row" : "v-us";
+    return M.viewers.some(function (x) { return x.id === v; }) ? v : "v-us";
   }
   function viewer() {
     var id = viewerId();
@@ -107,7 +107,7 @@
       var p = M.person(x.personId);
       var on = x.id === v.id;
       return '<a class="account-menu-item' + (on ? " active" : "") + '" href="#" role="menuitem" data-demo-viewer="' + x.id + '">' +
-        esc(p.name) + ' · ' + (x.region === "US" ? "United States" : "Rest of world") + '</a>';
+        esc(p.name) + ' · ' + esc(x.roles[0]) + ' · ' + (x.region === "US" ? "United States" : "Rest of world") + '</a>';
     }).join("");
     return '<div class="sticky-top" id="caHeader">' +
       '<nav class="nav nav-cf-utility" id="UtilityNav" aria-label="Utility navigation">' +
@@ -464,6 +464,10 @@
     esc: esc,
     initials: initials,
     viewer: viewer,
+    /** True when the demo viewer holds this role ("Case Administrator", "Case User", …). */
+    hasRole: function (r) { return viewer().roles.indexOf(r) !== -1; },
+    /** True when the demo viewer can open this case (M.viewerCases). */
+    canOpenCase: function (id) { var a = M.viewerCases[viewer().id]; return !!a && a.cases.indexOf(id) !== -1; },
     canSee: canSee,
     caseId: caseId,
     /** Name as the current viewer may see it. */

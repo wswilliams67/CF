@@ -4,7 +4,7 @@
   var KEY = "mbp-demo-viewer";
   var M = window.MERIDIAN;
   function current() {
-    try { return localStorage.getItem(KEY) === "v-row" ? "v-row" : "v-us"; } catch (e) { return "v-us"; }
+    try { var v = localStorage.getItem(KEY); return M.viewers.some(function (x) { return x.id === v; }) ? v : "v-us"; } catch (e) { return "v-us"; }
   }
   function render() {
     var id = current();

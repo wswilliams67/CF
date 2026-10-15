@@ -36,13 +36,19 @@
       group: "CF-Legal-US" },
     { id: "v-row", personId: "p-hoffmann", region: "RoW",
       roles: ["Case Administrator"],
-      group: "CF-Legal-RoW" }
+      group: "CF-Legal-RoW" },
+    /* A Case User (PRD 08 CV72): may open the release dialog read-only but not release. Can open Veltrazine and
+       Halvorsen, not INV-26-014, so a custodian also held there reads "Held on another case" with no name (CV64). */
+    { id: "v-cu",  personId: "p-brooks", region: "US",
+      roles: ["Case User"],
+      group: "CF-Legal-US" }
   ];
 
   /* ── People. region drives masking for a viewer in the other region. ─ */
   M.people = [
     /* case team and tenant */
     { id: "p-donovan",  name: "Claire Donovan",  title: "Senior Paralegal",               dept: "Legal",                 region: "US",  location: "Boston, MA",        upn: "claire.donovan" },
+    { id: "p-brooks",   name: "Nathan Brooks",   title: "Legal Analyst",                  dept: "Legal",                 region: "US",  location: "Chicago, IL",       upn: "nathan.brooks" },
     { id: "p-hoffmann", name: "Lena Hoffmann",   title: "Legal Counsel, Europe",          dept: "Legal",                 region: "RoW", location: "Frankfurt, DE",     upn: "lena.hoffmann" },
     { id: "p-reyes",    name: "Angela Reyes",    title: "Regulatory Counsel",             dept: "Legal",                 region: "US",  location: "Boston, MA",        upn: "angela.reyes" },
     { id: "p-okonkwo",  name: "Rita Okonkwo",    title: "Legal Technology Manager",       dept: "Legal",                 region: "US",  location: "Boston, MA",        upn: "rita.okonkwo" },
@@ -389,7 +395,8 @@
         maskPerson: if the viewer cannot see this person, use whyMasked (R3).   */
   M.viewerCases = {
     "v-us":  { open: 18, cases: ["MBP-0926", "MBP-0931", "MBP-0842", "MBP-0774", "MBP-0811", "MBP-0691", "MBP-0788"] },
-    "v-row": { open: 4,  cases: ["MBP-0926", "MBP-0842", "MBP-0811"] }
+    "v-row": { open: 4,  cases: ["MBP-0926", "MBP-0842", "MBP-0811"] },
+    "v-cu":  { open: 2,  cases: ["MBP-0926", "MBP-0931"] }
   };
   M.signedOff = "10-07-2026 at 4:40 PM";
   M.myWork = [
