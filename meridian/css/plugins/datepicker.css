@@ -1,0 +1,649 @@
+/* ============================================================
+   CNDS Datepicker Plugin
+   Cloudficient Nimbus Design System v1.0.0
+
+   Calendar-based date picker with month/year navigation,
+   range selection, disabled dates, and inline mode.
+   ============================================================ */
+
+/* --- Input Wrapper --- */
+.datepicker {
+  --cnds-dp-bg: var(--cnds-body-bg, #fff);
+  --cnds-dp-color: var(--cnds-body-color, #4f4f4f);
+  --cnds-dp-border: var(--cnds-border-color, #dee2e6);
+  --cnds-dp-radius: 4px;                 /* Figma: 4px panel radius */
+  --cnds-dp-primary: var(--cnds-surface-blue-600, #215aab);
+  --cnds-dp-primary-text: #fff;
+  --cnds-dp-hover-bg: rgba(0, 0, 0, 0.04);
+  --cnds-dp-today-color: var(--cnds-surface-blue-600, #215aab); /* button blue if no product defined */
+  --cnds-dp-disabled-color: #adb5bd;
+  --cnds-dp-muted-color: #adb5bd;
+  --cnds-dp-shadow: 0 2px 15px 0 rgba(0, 0, 0, 0.07), 0 10px 20px 0 rgba(0, 0, 0, 0.04);
+  --cnds-dp-cell-size: 2rem;             /* 32px — Figma day cell size */
+  --cnds-dp-cell-gap: 13.33px;           /* Figma: gap between day cells */
+  --cnds-dp-row-gap: 4px;               /* Figma: gap between week rows */
+  --cnds-dp-font-size: 0.75rem;          /* Figma: 12px for day/weekday labels */
+
+  position: relative;
+  width: 100%;
+}
+
+/* When the datepicker is embedded inside a cf-input-field wrapper, JS adds .datepicker
+   to the same element. Preserve the flex column layout from forms.css so the label
+   stays above the input. Standalone .datepicker (no cf-input-field) still needs
+   inline-block, but only when it is NOT also a cf-input-field. */
+.datepicker:not(.cf-input-field) {
+  display: inline-block;
+}
+
+.datepicker-input {
+  position: relative;
+  width: 100%;
+}
+
+/* Standalone usage (no cf-input-field): provide baseline input styling */
+.datepicker-input input:not(.cf-input-control) {
+  width: 100%;
+  padding: 0.75rem 2.875rem 0.75rem 1.25rem;
+  border: 1px solid var(--cnds-dp-border);
+  border-radius: var(--cnds-dp-radius);
+  font-size: var(--cnds-dp-font-size);
+  line-height: 1.5;
+  color: var(--cnds-dp-color);
+  background-color: var(--cnds-dp-bg);
+  outline: none;
+  transition:
+    border-color 0.15s ease-in-out,
+    box-shadow 0.15s ease-in-out;
+}
+
+.datepicker-input input:not(.cf-input-control):focus {
+  border-color: var(--cnds-dp-primary);
+  box-shadow: inset 0 0 0 1px var(--cnds-dp-primary);
+  outline: 0;
+}
+
+/* cf-input-control: let forms.css own all appearance; just suppress outline */
+.datepicker-input .cf-input-control {
+  outline: none;
+}
+
+/* Right-padding overrides to make room for the toggle button.
+   These must beat .cf-input-wrapper:not(:has(.cf-input-icon)) .cf-input-control (0,3,0)
+   which would otherwise collapse the right-padding to the no-icon value. */
+.datepicker .datepicker-input .cf-input-control {
+  padding-right: 2.875rem; /* Default: 20px h-pad + 18px icon + 8px gap */
+}
+.cf-input-field-sm.datepicker .datepicker-input .cf-input-control,
+.cf-input-field-sm .datepicker .datepicker-input .cf-input-control {
+  padding-right: 2.125rem; /* Small: 12px h-pad + 16px icon + 6px gap */
+}
+.cf-input-field-lg.datepicker .datepicker-input .cf-input-control,
+.cf-input-field-lg .datepicker .datepicker-input .cf-input-control {
+  padding-right: 3.375rem; /* Large: 24px h-pad + 22px icon + 8px gap */
+}
+
+.datepicker-input input[readonly] {
+  cursor: default;
+}
+
+/* The datepicker sets readonly on the trigger input to prevent keyboard entry.
+   Override the disabled-bg that dark.css / forms.css applies to [readonly] inputs —
+   the trigger should look like a normal interactive input, not a disabled one.
+   Specificity 0-4-0 beats [data-cnds-theme="dark"] .cf-input-control[readonly] (0-3-0). */
+.datepicker .datepicker-input .cf-input-control[readonly] {
+  background-color: var(--cnds-input-bg, #fff);
+  opacity: 1;
+}
+
+.datepicker .datepicker-input .form-control[readonly] {
+  background-color: var(--cnds-input-bg, #fff);
+  opacity: 1;
+}
+
+/* Restore full 2px focus ring on the readonly cf-input-control trigger.
+   forms.css .cf-input-control[readonly] (0-2-0, line 793) sets border-color to the
+   normal border color (#cccccc) and appears after .cf-input-control:focus (0-2-0, line 779)
+   in document order — so it wins, collapsing the focus ring to only the 1px inset shadow.
+   Specificity 0-4-0 beats both conflicting rules and restores the full ring. */
+.datepicker .datepicker-input .cf-input-control[readonly]:focus {
+  border-color: var(--cnds-input-focus-border-color, #ab2328);
+  box-shadow: inset 0 0 0 1px var(--cnds-input-focus-border-color, #ab2328);
+  outline: 0;
+}
+
+/* Calendar icon toggle — matches cf-input-icon: body-color at 0.6 opacity */
+.datepicker-toggle {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 1;
+  width: 2.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--cnds-dp-color);   /* tracks --cnds-body-color like cf-input-icon */
+  opacity: 0.6;                   /* matches cf-input-icon opacity */
+  border: none;
+  background: transparent;
+  padding: 0;
+  transition: opacity 0.15s, color 0.15s;
+}
+
+.datepicker-toggle:hover {
+  color: var(--cnds-dp-color);
+  opacity: 1;
+}
+
+
+.datepicker-toggle svg {
+  width: 1rem;
+  height: 1rem;
+  fill: currentColor;
+}
+
+/* --- Dropdown Panel --- */
+.datepicker-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1050;
+  margin-top: 0.25rem;
+  background: var(--cnds-dp-bg);
+  border: 1px solid var(--cnds-dp-border);
+  border-radius: var(--cnds-dp-radius);
+  box-shadow: var(--cnds-dp-shadow);
+  padding: 24px 24px 0;
+  width: 352px;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-4px);
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease,
+    visibility 0.2s;
+}
+
+.datepicker-dropdown.show {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+/* Position above if needed */
+.datepicker-dropdown.drop-up {
+  top: auto;
+  bottom: 100%;
+  margin-top: 0;
+  margin-bottom: 0.25rem;
+  transform: translateY(4px);
+}
+
+.datepicker-dropdown.drop-up.show {
+  transform: translateY(0);
+}
+
+/* Inline mode (no dropdown) */
+.datepicker-inline .datepicker-dropdown {
+  position: static;
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  box-shadow: none;
+  border: 1px solid var(--cnds-dp-border);
+  margin-top: 0;
+}
+
+/* --- Header (month/year nav) --- */
+/* Figma: title anchored LEFT, both chevron navs on RIGHT */
+.datepicker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 20px;
+  margin-bottom: 0; /* spacing handled by pt-12px on day grid */
+}
+
+.datepicker-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-weight: 500;                    /* Figma: Typography/Weight/medium */
+  font-size: 0.875rem;                 /* Figma: 14px datepicker/medium */
+  color: var(--cnds-dp-color);
+  cursor: pointer;
+  padding: 0;
+  border: none;
+  background: transparent;
+  letter-spacing: 0.01em;
+}
+
+.datepicker-title-arrow {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+  flex-shrink: 0;
+}
+
+.datepicker-nav-group {
+  display: flex;
+  align-items: center;
+  gap: 20px;                           /* Figma: right-0 and right-40px = 20px gap between 20px buttons */
+}
+
+.datepicker-nav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;                         /* Figma: size-[20px] */
+  height: 20px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--cnds-dp-color);
+  padding: 0;
+  transition: opacity 0.15s;
+}
+
+.datepicker-nav svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+
+.datepicker-nav:hover {
+  opacity: 0.7;
+}
+
+.datepicker-nav:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+/* --- Day-of-Week Headers --- */
+/* Figma: same 32px cell / 13.33px gap grid as day rows */
+.datepicker-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, var(--cnds-dp-cell-size));
+  column-gap: var(--cnds-dp-cell-gap);
+  margin-top: 12px;                    /* Figma: pt-12px on month sheet */
+}
+
+.datepicker-weekday {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--cnds-dp-cell-size);
+  height: var(--cnds-dp-cell-size);
+  font-size: var(--cnds-dp-font-size); /* Figma: 12px */
+  font-weight: 400;
+  color: var(--cnds-dp-color);         /* Figma: same as day labels, not muted */
+  letter-spacing: 0.015em;
+}
+
+/* --- Day Grid --- */
+/* Figma: 7 × 32px cells, 13.33px h-gap, 4px row-gap */
+.datepicker-days {
+  display: grid;
+  grid-template-columns: repeat(7, var(--cnds-dp-cell-size));
+  column-gap: var(--cnds-dp-cell-gap);
+  row-gap: var(--cnds-dp-row-gap);
+}
+
+.datepicker-day {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--cnds-dp-cell-size);
+  height: var(--cnds-dp-cell-size);
+  margin: 0 auto;
+  border-radius: 50%;
+  font-size: var(--cnds-dp-font-size);
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: var(--cnds-dp-color);
+  transition:
+    background-color 0.15s,
+    color 0.15s;
+  padding: 0;
+  line-height: 1;
+}
+
+.datepicker-day:hover {
+  background-color: var(--cnds-dp-hover-bg);
+}
+
+/* Other month days */
+.datepicker-day.other-month {
+  color: var(--cnds-dp-muted-color);
+  opacity: 0.5;
+}
+
+/* Today — Figma: 1px border ring, 16px border-radius, no color/weight override */
+.datepicker-day.today {
+  border: 1px solid var(--cnds-dp-today-color);
+  border-radius: 16px;
+}
+
+/* Selected */
+.datepicker-day.selected {
+  background-color: var(--cnds-dp-primary);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.datepicker-day.selected:hover {
+  background-color: var(--cnds-dp-primary);
+}
+
+/* Range selection */
+.datepicker-day.range-start {
+  background-color: var(--cnds-dp-primary);
+  color: var(--cnds-dp-primary-text);
+  border-radius: 50% 0 0 50%;
+}
+
+.datepicker-day.range-end {
+  background-color: var(--cnds-dp-primary);
+  color: var(--cnds-dp-primary-text);
+  border-radius: 0 50% 50% 0;
+}
+
+.datepicker-day.in-range {
+  background-color: rgba(190, 26, 45, 0.1);
+  border-radius: 0;
+  color: var(--cnds-dp-primary);
+}
+
+/* Disabled */
+.datepicker-day.disabled {
+  color: var(--cnds-dp-disabled-color);
+  cursor: not-allowed;
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* --- Month/Year Grid (for month/year picker views) --- */
+.datepicker-months,
+.datepicker-years {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.25rem;
+  padding: 0.25rem 0;
+}
+
+.datepicker-month,
+.datepicker-year {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  border-radius: 20px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--cnds-dp-color);
+  transition:
+    background-color 0.15s,
+    border-color 0.15s,
+    color 0.15s;
+}
+
+/* Figma: month labels 14px/500, year labels 16px/400 */
+.datepicker-month {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.datepicker-year {
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.datepicker-month:hover,
+.datepicker-year:hover {
+  background-color: var(--cnds-dp-hover-bg);
+}
+
+/* Figma: selected month/year = blue border ring, no fill */
+.datepicker-month.selected,
+.datepicker-year.selected {
+  border-color: var(--cnds-dp-today-color);
+  background: transparent;
+  color: var(--cnds-dp-color);
+}
+
+.datepicker-month.disabled,
+.datepicker-year.disabled {
+  color: var(--cnds-dp-disabled-color);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* --- Footer (today/clear buttons) --- */
+.datepicker-footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.25rem 0 0.5rem;
+}
+
+/* btn btn-tertiary btn-sm governs all appearance — no datepicker overrides. */
+
+/* --- Dark Theme --- */
+[data-cnds-theme="dark"] .datepicker {
+  --cnds-dp-bg: var(--cnds-dark-bg, #1e1e1e);
+  --cnds-dp-color: var(--cnds-dark-color, #e0e0e0);
+  --cnds-dp-border: var(--cnds-dark-border, #4a4a4a);
+  --cnds-dp-hover-bg: rgba(255, 255, 255, 0.06);
+  --cnds-dp-primary: var(--cnds-surface-blue-400, #6790ca);
+  --cnds-dp-today-color: var(--cnds-surface-blue-400, #6790ca); /* button blue (dark) if no product */
+  --cnds-dp-muted-color: #6c757d;
+  --cnds-dp-disabled-color: #495057;
+  --cnds-dp-shadow: 0 2px 15px 0 rgba(0, 0, 0, 0.4), 0 10px 20px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* --- Product theme overrides — today ring only --- */
+
+.cf-input-field-casefusion.datepicker { --cnds-dp-today-color: #2e892a; }
+[data-cnds-theme="dark"] .cf-input-field-casefusion.datepicker { --cnds-dp-today-color: #7dd67a; }
+
+.cf-input-field-expireon.datepicker { --cnds-dp-today-color: #4e45d6; }
+[data-cnds-theme="dark"] .cf-input-field-expireon.datepicker { --cnds-dp-today-color: #b6b4ee; }
+
+.cf-input-field-hyperlize.datepicker { --cnds-dp-today-color: #926a08; }
+[data-cnds-theme="dark"] .cf-input-field-hyperlize.datepicker { --cnds-dp-today-color: #f6bf37; }
+
+/* --- Modal mode --- */
+
+/* Backdrop: full-viewport overlay that dims page content */
+.datepicker-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.65);
+  z-index: 1040;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.datepicker-backdrop.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Modal panel — theme-aware. The panel lives on <body> but CSS custom
+   properties cascade from html[data-cnds-theme], so semantic tokens work. */
+.datepicker-modal-panel {
+  /* Light-mode color tokens (cascade from html[data-cnds-theme="light"]) */
+  --cnds-dp-bg: var(--cnds-body-bg, #fff);
+  --cnds-dp-color: var(--cnds-body-color, #4f4f4f);
+  --cnds-dp-border: var(--cnds-border-color, #dee2e6);
+  --cnds-dp-hover-bg: rgba(0, 0, 0, 0.04);
+  --cnds-dp-muted-color: #adb5bd;
+  --cnds-dp-disabled-color: #adb5bd;
+  --cnds-dp-primary: var(--cnds-surface-blue-600, #215aab);
+  --cnds-dp-primary-text: #fff;
+  --cnds-dp-shadow: none;
+  --cnds-dp-today-color: var(--cnds-surface-blue-600, #215aab); /* button blue if no product defined */
+  /* Layout tokens (not inherited from .datepicker — panel is outside that scope) */
+  --cnds-dp-radius: 4px;
+  --cnds-dp-cell-size: 2rem;
+  --cnds-dp-cell-gap: 13.33px;
+  --cnds-dp-row-gap: 4px;
+  --cnds-dp-font-size: 0.75rem;
+
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.95);
+  z-index: 1050;
+  width: 352px;
+  background-color: var(--cnds-dp-bg);
+  border-radius: 7px;
+  box-shadow:
+    0 7px 8px -4px rgba(0, 0, 0, 0.2),
+    0 5px 22px 4px rgba(0, 0, 0, 0.12),
+    0 12px 17px 2px rgba(0, 0, 0, 0.14);
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+}
+
+/* Dark-mode overrides — tokens cascade from html[data-cnds-theme="dark"] */
+[data-cnds-theme="dark"] .datepicker-modal-panel {
+  --cnds-dp-bg: var(--cnds-dark-bg, #1e1e1e);
+  --cnds-dp-color: var(--cnds-dark-color, #e0e0e0);
+  --cnds-dp-border: var(--cnds-dark-border, #4a4a4a);
+  --cnds-dp-hover-bg: rgba(255, 255, 255, 0.06);
+  --cnds-dp-muted-color: #6c757d;
+  --cnds-dp-disabled-color: #495057;
+  --cnds-dp-primary: var(--cnds-surface-blue-400, #6790ca);
+  --cnds-dp-today-color: var(--cnds-surface-blue-400, #6790ca);
+}
+
+/* Product theme overrides (modal panel — class copied from wrapper by JS) */
+.cf-input-field-casefusion.datepicker-modal-panel { --cnds-dp-today-color: #2e892a; }
+[data-cnds-theme="dark"] .cf-input-field-casefusion.datepicker-modal-panel { --cnds-dp-today-color: #7dd67a; }
+
+.cf-input-field-expireon.datepicker-modal-panel { --cnds-dp-today-color: #4e45d6; }
+[data-cnds-theme="dark"] .cf-input-field-expireon.datepicker-modal-panel { --cnds-dp-today-color: #b6b4ee; }
+
+.cf-input-field-hyperlize.datepicker-modal-panel { --cnds-dp-today-color: #926a08; }
+[data-cnds-theme="dark"] .cf-input-field-hyperlize.datepicker-modal-panel { --cnds-dp-today-color: #f6bf37; }
+
+.datepicker-modal-panel.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* Header: "Select Date" + × close */
+.datepicker-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  border-bottom: 1px solid var(--cnds-dp-border);
+}
+
+.datepicker-modal-title {
+  flex: 1;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--cnds-dp-color);
+  text-transform: capitalize;
+  line-height: 1.4;
+}
+
+.datepicker-modal-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  color: var(--cnds-dp-color);
+  cursor: pointer;
+  padding: 0;
+  border-radius: 4px;
+  transition: opacity 0.15s;
+}
+
+.datepicker-modal-close:hover {
+  opacity: 0.7;
+}
+
+.datepicker-modal-close svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+/* Large selected-date display: "Fri, Apr 10" */
+.datepicker-modal-date-display {
+  width: 100%;
+  padding: 16px 24px 4px;
+  font-size: 31.5px;  /* Font Size/fs-2 from Figma */
+  font-weight: 400;
+  color: var(--cnds-dp-color);
+  text-align: center;
+  line-height: 1.375;
+  background-color: var(--cnds-dp-bg);
+}
+
+/* Calendar body: the .datepicker-dropdown embedded inline (no floating) */
+.datepicker-modal-body {
+  position: static !important;
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: none !important;
+  box-shadow: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  padding: 8px 24px 16px !important;
+  background-color: var(--cnds-dp-bg) !important;
+}
+
+/* Footer: Clear | · | Cancel | OK */
+.datepicker-modal-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  border-top: 1px solid var(--cnds-dp-border);
+}
+
+.datepicker-modal-spacer {
+  flex: 1;
+}
+
+
+/* Backdrop opacity is the same for both themes when modal is always dark */
+[data-cnds-theme="dark"] .datepicker-backdrop {
+  background-color: rgba(0, 0, 0, 0.65);
+}
+
+/* --- Responsive --- */
+@media (max-width: 320px) {
+  .datepicker-dropdown {
+    min-width: 260px;
+  }
+
+  .datepicker-day {
+    --cnds-dp-cell-size: 2rem;
+    font-size: 0.8125rem;
+  }
+}

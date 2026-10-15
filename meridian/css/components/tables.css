@@ -1,0 +1,285 @@
+/* ============================================================
+   CNDS Tables
+   Cloudficient Nimbus Design System v1.0.0
+   ============================================================ */
+
+.table {
+  --cnds-table-color-type: initial;
+  --cnds-table-bg-type: initial;
+  --cnds-table-color-state: initial;
+  --cnds-table-bg-state: initial;
+  --cnds-table-color: var(--cnds-body-color, #141414);
+  --cnds-table-bg: var(--cnds-body-bg, #fafafa);
+  --cnds-table-border-color: var(--cnds-border-color, #e0e0e0);
+  --cnds-table-accent-bg: transparent;
+  --cnds-table-striped-color: var(--cnds-body-color, #141414);
+  --cnds-table-striped-bg: rgba(0, 0, 0, 0.05);
+  --cnds-table-active-color: var(--cnds-body-color, #141414);
+  --cnds-table-active-bg: rgba(0, 0, 0, 0.1);
+  --cnds-table-hover-color: var(--cnds-body-color, #141414);
+  --cnds-table-hover-bg: rgba(0, 0, 0, 0.075);
+  --cnds-table-divider-color: var(--cnds-table-border-color);
+
+  /* --- Typography and cell rhythm -----------------------------------------
+     ONE definition, shared with the DataTable plugin.
+
+     `.table` is the basic table and `.datatable` is the dynamic one, but they
+     are the same object to a reader and must be indistinguishable. They were
+     not: the DataTable carried this typography and the basic table carried
+     none, so a plain <table> fell back to the 16px body size at weight 400 and
+     rendered visibly heavier than a DataTable beside it.
+
+     THE DATATABLE'S VALUES WIN, per Scott 08-28-2026. plugins/datatable.css
+     now consumes these tokens rather than restating them, so the two cannot
+     drift again — change a value here and both tables move together.
+
+     Note the header weight is 700 and tracking 0.03em. The Figma text style
+     `Table/Row/Header` says ExtraBold 800 at tracking 0; the ruling is that
+     the shipped DataTable is correct, so the STYLE is what needs updating.  */
+  --cnds-table-cell-padding-y: 1rem;
+  --cnds-table-cell-padding-x: 1.4rem;
+  --cnds-table-font-size: 0.875rem;
+  --cnds-table-font-weight: var(--cnds-font-weight-normal, 400);
+  --cnds-table-line-height: var(--cnds-body-line-height, 1.5);
+
+  --cnds-table-header-font-size: 12px;
+  --cnds-table-header-font-weight: 700;
+  --cnds-table-header-letter-spacing: 0.03em;
+  --cnds-table-header-text-transform: uppercase;
+
+  width: 100%;
+  margin-bottom: 1rem;
+  vertical-align: top;
+  border-color: var(--cnds-table-border-color);
+}
+
+.table > :not(caption) > * > * {
+  padding: var(--cnds-table-cell-padding-y) var(--cnds-table-cell-padding-x);
+  font-size: var(--cnds-table-font-size);
+  font-weight: var(--cnds-table-font-weight);
+  line-height: var(--cnds-table-line-height);
+  color: var(
+    --cnds-table-color-state,
+    var(--cnds-table-color-type, var(--cnds-table-color))
+  );
+  background-color: var(--cnds-table-bg);
+  border-bottom-width: var(--cnds-border-width, 1px);
+  box-shadow: inset 0 0 0 9999px
+    var(
+      --cnds-table-bg-state,
+      var(--cnds-table-bg-type, var(--cnds-table-accent-bg))
+    );
+}
+
+.table > tbody {
+  vertical-align: inherit;
+}
+.table > thead {
+  vertical-align: bottom;
+}
+
+/* Header cells — `Table/Row/Header`. Scoped to > thead > tr > th so a `th`
+   used as a ROW header inside tbody keeps the data typography: it labels a
+   row, it does not head a column, and shouting it in 12px caps would be
+   wrong twice over. */
+.table > thead > tr > th {
+  font-size: var(--cnds-table-header-font-size);
+  font-weight: var(--cnds-table-header-font-weight);
+  letter-spacing: var(--cnds-table-header-letter-spacing);
+  text-transform: var(--cnds-table-header-text-transform);
+}
+
+/* --- Bordered --- */
+.table-bordered > :not(caption) > * {
+  border-width: var(--cnds-border-width, 1px) 0;
+}
+.table-bordered > :not(caption) > * > * {
+  border-width: 0 var(--cnds-border-width, 1px);
+}
+
+/* --- Borderless --- */
+.table-borderless > :not(caption) > * > * {
+  border-bottom-width: 0;
+}
+.table-borderless > :not(:first-child) {
+  border-top-width: 0;
+}
+
+/* --- Striped --- */
+.table-striped > tbody > tr:nth-of-type(odd) > * {
+  --cnds-table-color-type: var(--cnds-table-striped-color);
+  --cnds-table-bg-type: var(--cnds-table-striped-bg);
+}
+.table-striped-columns > :not(caption) > tr > :nth-child(even) {
+  --cnds-table-color-type: var(--cnds-table-striped-color);
+  --cnds-table-bg-type: var(--cnds-table-striped-bg);
+}
+
+/* --- Hover --- */
+.table-hover > tbody > tr:hover > * {
+  --cnds-table-color-state: var(--cnds-table-hover-color);
+  --cnds-table-bg-state: var(--cnds-table-hover-bg);
+}
+
+/* --- Active --- */
+.table-active {
+  --cnds-table-color-state: var(--cnds-table-active-color);
+  --cnds-table-bg-state: var(--cnds-table-active-bg);
+}
+
+/* --- Small ---
+   Matches `.datatable-sm`: the vertical padding halves and the type steps
+   down, but the horizontal rhythm holds so a compact table still lines up
+   with a default one beside it. */
+.table-sm {
+  --cnds-table-cell-padding-y: 0.5rem;
+  --cnds-table-font-size: 0.8125rem;
+}
+
+/* --- Table Color Variants --- */
+.table-primary {
+  --cnds-table-color: #000;
+  --cnds-table-bg: #f2d4d5;
+  --cnds-table-border-color: #d9bfc0;
+  --cnds-table-striped-bg: #e6c9ca;
+  --cnds-table-striped-color: #000;
+  --cnds-table-active-bg: #d9bfc0;
+  --cnds-table-active-color: #000;
+  --cnds-table-hover-bg: #e0c4c5;
+  --cnds-table-hover-color: #000;
+}
+.table-secondary {
+  --cnds-table-color: #000;
+  --cnds-table-bg: #d9dde0;
+  --cnds-table-border-color: #c3c7ca;
+  --cnds-table-striped-bg: #ced2d5;
+  --cnds-table-striped-color: #000;
+  --cnds-table-active-bg: #c3c7ca;
+  --cnds-table-active-color: #000;
+  --cnds-table-hover-bg: #c9cdd0;
+  --cnds-table-hover-color: #000;
+}
+.table-success {
+  --cnds-table-color: #000;
+  --cnds-table-bg: #cceedf;
+  --cnds-table-border-color: #b8d6c9;
+  --cnds-table-striped-bg: #c2e2d4;
+  --cnds-table-striped-color: #000;
+  --cnds-table-active-bg: #b8d6c9;
+  --cnds-table-active-color: #000;
+  --cnds-table-hover-bg: #bddcce;
+  --cnds-table-hover-color: #000;
+}
+.table-danger {
+  --cnds-table-color: #000;
+  --cnds-table-bg: #f8d7da;
+  --cnds-table-border-color: #dfc2c4;
+  --cnds-table-striped-bg: #eccccf;
+  --cnds-table-striped-color: #000;
+  --cnds-table-active-bg: #dfc2c4;
+  --cnds-table-active-color: #000;
+  --cnds-table-hover-bg: #e5c7ca;
+  --cnds-table-hover-color: #000;
+}
+.table-warning {
+  --cnds-table-color: #000;
+  --cnds-table-bg: #fff3cd;
+  --cnds-table-border-color: #e6dbb9;
+  --cnds-table-striped-bg: #f2e7c3;
+  --cnds-table-striped-color: #000;
+  --cnds-table-active-bg: #e6dbb9;
+  --cnds-table-active-color: #000;
+  --cnds-table-hover-bg: #ece1be;
+  --cnds-table-hover-color: #000;
+}
+.table-info {
+  --cnds-table-color: #000;
+  --cnds-table-bg: #ddeefb;
+  --cnds-table-border-color: #c7d6e2;
+  --cnds-table-striped-bg: #d2e2ee;
+  --cnds-table-striped-color: #000;
+  --cnds-table-active-bg: #c7d6e2;
+  --cnds-table-active-color: #000;
+  --cnds-table-hover-bg: #cddce8;
+  --cnds-table-hover-color: #000;
+}
+.table-light {
+  --cnds-table-color: #000;
+  --cnds-table-bg: #fbfbfb;
+  --cnds-table-border-color: #e2e2e2;
+  --cnds-table-striped-bg: #eeeeee;
+  --cnds-table-striped-color: #000;
+  --cnds-table-active-bg: #e2e2e2;
+  --cnds-table-active-color: #000;
+  --cnds-table-hover-bg: #e8e8e8;
+  --cnds-table-hover-color: #000;
+}
+.table-dark {
+  --cnds-table-color: #fff;
+  --cnds-table-bg: #333;
+  --cnds-table-border-color: #525252;
+  --cnds-table-striped-bg: #3e3e3e;
+  --cnds-table-striped-color: #fff;
+  --cnds-table-active-bg: #474747;
+  --cnds-table-active-color: #fff;
+  --cnds-table-hover-bg: #434343;
+  --cnds-table-hover-color: #fff;
+}
+
+/* --- Responsive Tables --- */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+@media (max-width: 575.98px) {
+  .table-responsive-sm {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+@media (max-width: 767.98px) {
+  .table-responsive-md {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+@media (max-width: 991.98px) {
+  .table-responsive-lg {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+@media (max-width: 1199.98px) {
+  .table-responsive-xl {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+@media (max-width: 1399.98px) {
+  .table-responsive-xxl {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* --- Caption --- */
+/* Figma: Font Size/caption = 11px, weight 400, line-height 1.5 */
+.table caption {
+  font-size: var(--cnds-caption-font-size, 11px);
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--cnds-body-color);
+}
+
+.caption-top {
+  caption-side: top;
+}
+
+/* --- Group Divider --- */
+.table-group-divider {
+  border-top: calc(var(--cnds-border-width, 1px) * 2) solid;
+  border-top-color: inherit;
+}
+.table-divider-color {
+  border-top-color: var(--cnds-table-divider-color);
+}

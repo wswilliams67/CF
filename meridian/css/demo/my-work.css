@@ -1,0 +1,96 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   My Work (PRD 11 §7). Layout only: every component is Nimbus, and the
+   shared demo patterns (tiles, drawer cards, record rows, empty states,
+   the 12px .small rule) live in demo.css. Sections, top to bottom:
+     1. Title row and lead line
+     2. Action Queue: filters, toolbar, record rows, snooze menu
+     3. Two-up row: Cases Needing Attention + This Week (equal heights)
+     4. What CaseFusion Did
+     5. Weekly status report panel
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. Title row and lead line ───────────────────────────────────────── */
+/* The page title's own 16px bottom padding moves under the whole row, so WEEKLY STATUS REPORT centres on the title
+   text, not on the padded title box (Scott, 10-14). */
+.mw-head { display: flex; align-items: center; gap: var(--cnds-spacer-3); margin-bottom: var(--cnds-spacer-2); }
+.mw-head .cf-page-title { margin: 0; padding-bottom: 0; }
+/* Lead line: the page's opening sentence (PRD 11 MW4), 16px, directly above the summary cards (Sally, Scott 10-14). */
+.mw-lead { font-size: var(--cnds-body-font-size, 16px); line-height: var(--cnds-paragraph-line-height); margin: var(--cnds-spacer-2) 0 var(--cnds-spacer-3); }
+.mw-tiles { grid-template-columns: repeat(4, 1fr); }
+
+/* ── 2. Action Queue ──────────────────────────────────────────────────── */
+/* Filter row above the toolbar: two toggle groups split by a blurry divider (Sally, Scott 10-14). Square Nimbus
+   buttons; labels keep their case as in the PM's layout (Nimbus .btn forces capitals: gap #10), with 2px less side
+   padding than the default so both sets hold one line inside the card. */
+.mw-filters { display: flex; flex-wrap: wrap; align-items: center; gap: var(--cnds-spacer-2) var(--cnds-spacer-3); }
+.mw-filters > .vr { align-self: stretch; }
+.mw-filters-wrapped > .vr { display: none; }  /* wrapped onto two lines: the break is the divider (my-work.js wrapFilters) */
+.mw-filters .btn-group > .btn { text-transform: none; --cnds-btn-padding-x: 14px; }
+
+/* List toolbars (queue and cases): the count on the left, Sort By and actions pushed right. The count clears the
+   bar's edge by 8px on top of its own padding, as Hold Status's pinned bar text. */
+.mw-queue-tools { width: 100%; }
+.mw-queue-end { display: flex; align-items: center; gap: var(--cnds-spacer-2); margin-left: auto; }
+.mw-queue-end .vr { align-self: stretch; margin: 0 var(--cnds-spacer-1); }
+.mw-showing { padding-left: var(--cnds-spacer-2); }
+
+/* Queue row: the standard record row (Hold Status model, Scott 10-14).
+     Item · Why Now · Waiting · blurry divider · stacked actions
+   Item and Why Now share the flexible width (most item names hold one line; the why-now sentence wraps to two at
+   most). Waiting is 150px, its widest line ("Snoozed until 10-15-2026") never wrapping. The actions column is one
+   width for every row, set by D.fitActions from the longest button anywhere in the queue, so nothing shifts between
+   filters. Data columns top-align so the in-row labels line up; the actions stay centred. */
+.mw-item { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.4fr) 150px auto var(--demo-actions-w, 210px); column-gap: var(--cnds-spacer-3); align-items: center; }
+.mw-item > :nth-child(-n+3) { align-self: start; }
+.mw-item > :nth-child(3) { white-space: nowrap; }
+.mw-item > .vr { align-self: stretch; }
+.mw-item-what { font-weight: 700; }
+/* The item column fills the row's height so Found by CaseFusion sits at its foot, apart from the name and case. */
+.mw-item > .mw-item-id { align-self: stretch; display: flex; flex-direction: column; }
+.mw-item-flag { margin-top: auto; padding-top: var(--cnds-spacer-2); }
+.mw-item-actions { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--cnds-spacer-1); }
+/* Snooze menu hugs its longest option ("30 days (the longest)") instead of Nimbus's 264px dropdown minimum. */
+.mw-snooze-menu { min-width: 0; width: max-content; }
+.mw-snooze-menu .dropdown-item { white-space: nowrap; }
+
+/* ── 3. Two-up row ────────────────────────────────────────────────────── */
+/* Side by side only above 1600px: boxed at 1440 the cases list needs the full width. minmax(0) lets the cases list
+   yield rather than push This Week off the page. One 16px gap across and down, matching the gap between cards. */
+.mw-two { display: grid; grid-template-columns: minmax(0, 2.3fr) minmax(280px, 1fr); gap: var(--cnds-spacer-3); margin-bottom: var(--cnds-spacer-3); align-items: stretch; }
+@media (max-width: 1600px) { .mw-two { grid-template-columns: 1fr; } }
+.mw-two > .demo-drawer { margin: 0; }
+/* Equal heights (MW73, Scott 10-14): both cards stretch to the taller, and their footers pin to the bottom so extra
+   height sits above SHOW ALL, not under it. A collapsed card drops both back to their own height (a shut card never
+   stretches into an empty box), and so does .mw-measuring while my-work.js counts how many dates fit. */
+.mw-two:has(.card-drawer-body:not(.show)), .mw-two.mw-measuring { align-items: start; }
+.mw-two > .demo-drawer > .card-body { display: flex; flex-direction: column; }
+.mw-two > .demo-drawer .card-drawer-body.show { flex: 1; display: flex; flex-direction: column; }
+.mw-cases-foot, #mwWeekFoot { margin-top: auto; }
+
+/* Cases Needing Attention row: Case · Needs Attention · On Hold · Open Requests, top-aligned. The lone count is
+   centred under its label. */
+.mw-case { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.2fr) 200px 130px; column-gap: var(--cnds-spacer-3); align-items: start; }
+.mw-case > :nth-child(4) { text-align: center; }
+
+/* This Week and What CaseFusion Did keep the small list variant's 8px rows, so they take the type rule here rather
+   than .demo-rows' 16px padding: 14px rows, 12px meta. */
+.mw-list > .list-group-item { font-size: var(--cnds-paragraph-font-size); line-height: var(--cnds-paragraph-line-height); }
+.mw-row-week { display: grid; grid-template-columns: 56px 1fr; gap: var(--cnds-spacer-2); }  /* day · what */
+
+/* ── 4. What CaseFusion Did ───────────────────────────────────────────── */
+/* "Since the last sign-off, …" beside the heading: 12px scanned meta. */
+.mw-cat-count { font-size: var(--cnds-paragraph-font-size-sm); color: var(--cnds-text-muted); white-space: nowrap; }
+/* icon · what · context · time. The time never wraps; 190px fits its longest form, "10-05-2026 at 12:55 PM". */
+.mw-row-did { display: grid; grid-template-columns: 24px minmax(0, 1.2fr) minmax(0, 1.6fr) 190px; gap: var(--cnds-spacer-2); }
+.mw-row-did > :last-child { white-space: nowrap; }
+
+/* ── 5. Weekly status report (side panel) ─────────────────────────────── */
+/* Each section is its own card: heading and count badge, then rows of the item (bold) with its case under it and
+   the kind / time / day on the right (Sally, Scott 10-14). */
+.mw-report-card { margin-bottom: var(--cnds-spacer-3); }
+.mw-report-card > .card-body { padding: var(--cnds-spacer-3); }
+.mw-report-head { margin-bottom: var(--cnds-spacer-2); }
+.mw-report-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: var(--cnds-spacer-3); align-items: start; }
+.mw-report-list.list-group { --cnds-list-group-bg: transparent; }
+.mw-report-list > .list-group-item { background-color: transparent; padding-top: var(--cnds-spacer-2); padding-bottom: var(--cnds-spacer-2); }
+.mw-report-card .list-group > .list-group-item:last-child { padding-bottom: 0; }

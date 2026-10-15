@@ -1,0 +1,192 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   DEMO SHARED LAYOUT — loaded after frame-ca-sidenav.css on every page.
+   Layout only. Every visual component on the demo pages is a Nimbus
+   component from the styleguide (nimbus-v1/). Anything the library does not
+   have is listed in tools/nimbus-gaps.md with the stopgap used here.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── Header additions (frame) ─────────────────────────────────────────── */
+.demo-region-badge { margin-left: 8px; text-transform: none; }
+
+/* ── Case header: from the 1.6 page (pge_case_datamap.html inline style; Nimbus has no case title, gap #12) ── */
+.case-title-bar { display: flex; align-items: center; gap: 12px; padding: 0 0 12px; }
+.case-back { display: flex; color: var(--cnds-link-color); text-decoration: none; }
+.case-title { margin: 0; font-size: 15px; font-weight: 800; letter-spacing: 4px; text-transform: uppercase; color: var(--cnds-body-color); flex-shrink: 0; }
+.case-toolbar { display: flex; align-items: center; gap: 8px; padding: 0 0 16px; }
+.case-search-bar { flex: 1 0 0; min-width: 0; }
+.case-search-field { position: relative; flex: 1 0 0; min-width: 0; }
+.case-search-field .form-control { padding-right: 30px; }
+.case-search-chevron { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; font-size: var(--cnds-paragraph-font-size); line-height: 1; opacity: .85; }
+.case-adv { flex-shrink: 0; margin: 0; padding-top: 0; }
+.case-new { white-space: nowrap; }
+.case-subnav { margin-bottom: 16px; }
+
+/* ── Page title spacing (component: .cf-page-title) ───────────────────── */
+.ca-content > .cf-page-title { margin-bottom: 12px; }
+
+/* ── Stat / segment tiles. GAP #1: no stat-tile component; Nimbus .card is used.
+      Layout only: grid, inner stacking, button reset. Selected = .card-outline.card-brand-green. */
+.demo-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; margin-bottom: 16px; }
+.demo-tile { display: flex; flex-direction: column; gap: 4px; padding: 16px; margin: 0; width: 100%; font: inherit; text-align: left; }  /* no color override: .card supplies --cnds-card-color per theme */
+.demo-tile { align-items: stretch; }
+.demo-tile > * { text-align: left; }
+/* card-subtitle has a fixed 24px height for one-line card titles; a tile label can wrap (gap #1). */
+.demo-tile .card-subtitle { height: auto; }
+/* .card-title is a fixed 24px box (overflow hidden) for 20px titles; a tile's count can be larger (24.5px in the v1.5 design), so free it too (gap #1). */
+.demo-tile .card-title { height: auto; overflow: visible; }
+button.demo-tile { cursor: pointer; }
+
+/* ── Masked person. GAP #2: no "limited profile" component. ───────────── */
+/* Lock icon + "Profile details limited" in the normal style, no italics (Scott, 10-14). */
+.demo-masked { font-style: normal; }
+.demo-masked .mdi { margin-right: 4px; }
+
+/* ── Not in this demo (layout of a Nimbus card) ───────────────────────── */
+.demo-stub { max-width: 640px; margin: 48px auto; }
+
+/* ── Dropdown item with a description line. GAP #4: .dropdown-item is a flex row,
+      so the description is stacked under the label here. ─────────────────── */
+.dropdown-item:has(> .d-block) { flex-direction: column; align-items: flex-start; gap: 2px; white-space: normal; height: auto; min-height: 0; padding-top: 6px; padding-bottom: 6px; }
+
+/* ── Verbatim badge. GAP #10: Nimbus .badge forces text-transform: capitalize. This keeps every other Nimbus
+      badge text style (12px, 700, 0.24px tracking) and shows the words as written. ───────────────────── */
+.badge.badge-verbatim { text-transform: none; }
+
+/* Summary tiles keep the default card ground in every state (Scott, 10-14-2026). A selected tile and the
+   Needs Attention tile switch to Nimbus .card-outline for their coloured border and text, and an outline
+   card is transparent by design, so restore the default card background here: the same tokens Nimbus
+   gives .card in each theme (cards.css and themes/dark.css). */
+.demo-tile.card-outline { --cnds-card-bg: var(--cnds-surface-light-100, #f5f5f5); }
+[data-cnds-theme="dark"] .demo-tile.card-outline { --cnds-card-bg: var(--cnds-surface-dark-500, #1e1e1e); }
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SHARED SCREEN PATTERNS — modelled on Hold Status (Scott, 10-14-2026).
+   Every case and work page uses these, so the demo reads as one product.
+   The hs-* names are Hold Status's original classes, kept as aliases.
+
+   Type rule: 14px for what is read before acting (record names, values,
+   reasons, notes); 12px for what is scanned (labels, badges, meta lines,
+   counts). Never below 12px.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── Summary cards (stat tiles: a card with a value) ──────────────────── */
+/* Centred; name 14px bold uppercase (the source text stays Title Case for screen readers); value 24.5px (Figma
+   fs-3, no Nimbus token: gap #11); label 12px. Sizes from the v1.5 Case Administrator summary cards. */
+.demo-tile:has(.demo-tile-value) { align-items: center; text-align: center; }
+.demo-tile:has(.demo-tile-value) > * { text-align: center; }
+.demo-tile .demo-tile-name { font-size: var(--cnds-paragraph-font-size); line-height: var(--cnds-paragraph-line-height); font-weight: 700; text-transform: uppercase; }
+.demo-tile:not(:has(.demo-tile-value)) .demo-tile-name { text-transform: none; }  /* choice cards (no value) keep their case */
+.demo-tile .demo-tile-value { font-size: 24.5px; line-height: 1.375; }
+.demo-tile .demo-tile-label { font-size: var(--cnds-paragraph-font-size-sm); line-height: var(--cnds-paragraph-line-height); }
+/* Clickable cards carry the Nimbus link colour as their border, CaseFusion's affordance for clickable things.
+   Not a danger card, not a disabled card, not the selected one (green). */
+button.demo-tile:not(:disabled):not([data-tone]):not([aria-pressed="true"]) { --cnds-card-border-color: var(--cnds-link-color); }
+/* A danger card (data-tone="danger") fades only its border when it is not the selected filter; its text stays at
+   full contrast (5.46:1, WCAG AA; an opacity dim measured 3.30:1). Full border when selected or focused. */
+.demo-tile[data-tone="danger"] { transition: border-color .15s ease-in-out; }
+.demo-tile[data-tone="danger"][aria-pressed="false"] { --cnds-card-border-color: color-mix(in srgb, var(--cnds-danger-300) 35%, transparent); }
+.demo-tile[data-tone="danger"][aria-pressed="false"]:focus-visible { --cnds-card-border-color: var(--cnds-danger-300); }
+/* A filter with nothing in it is disabled and dimmed, never hidden (WCAG exempts inactive controls). */
+button.demo-tile:disabled { cursor: default; opacity: .5; }
+
+/* ── In-row label (STATUS, LAST READ, …) ──────────────────────────────── */
+/* No header row: each value carries its label. Type matches the Nimbus table header (12px, 700, uppercase,
+   0.03em; those tokens are scoped to .table). Muted: a label, not data. */
+.demo-label, .hs-col-label { display: block; margin-bottom: var(--cnds-spacer-1); font-size: var(--cnds-paragraph-font-size-sm); font-weight: 700;
+  text-transform: uppercase; letter-spacing: .03em; color: var(--cnds-text-muted); }
+
+/* ── Expandable record rows ───────────────────────────────────────────── */
+/* A Nimbus flush list-group whose items are records (.demo-rows). 14px row text (the list item would hand it
+   16px), 16px above and below. An item whose details are open gets .demo-open (shell.js sets it as the slide
+   starts): a flat surface fill on the row and its details, fading with the 0.35s collapse, plus 16px more room
+   inside. Only the open item is filled; rows are never striped. Muted text on the fill: 7.2:1 light, 7.1:1 dark. */
+.demo-rows > .list-group-item { font-size: var(--cnds-paragraph-font-size); line-height: var(--cnds-paragraph-line-height);
+  padding-top: var(--cnds-spacer-3); padding-bottom: var(--cnds-spacer-3); transition: background-color .35s ease, padding-bottom .35s ease; }
+@media (prefers-reduced-motion: reduce) { .demo-rows > .list-group-item { transition: none; } }
+.demo-rows > .list-group-item.demo-open { background-color: var(--cnds-surface-light-100, #f5f5f5); padding-bottom: calc(var(--cnds-spacer-3) * 2); }
+[data-cnds-theme="dark"] .demo-rows > .list-group-item.demo-open { background-color: var(--cnds-surface-dark-600, #171717); }
+.demo-rows .small { font-size: var(--cnds-paragraph-font-size-sm); }
+/* An accordion holding rows clips to its own rounded corners (square rows would paint over them). */
+.accordion-item:has(.demo-rows) { overflow: hidden; }
+
+/* ── Cards nested in a record (detail cards) ──────────────────────────── */
+/* Head: the Nimbus category type (cf-cat-6: 14px bold tracked capitals, body colour) WITHOUT its bar or the
+   24px indent that clears it: the bar marks page sections, and these cards sit inside one (gap #13).
+   Use a div with role="heading": Nimbus card h4 rules would override the type. 24px minimum = a count badge. */
+.demo-card-head, .hs-dcard-head { display: flex; align-items: center; justify-content: space-between; gap: var(--cnds-spacer-2); }
+.card .demo-card-head { min-height: 24px; margin-bottom: var(--cnds-spacer-2); }
+.demo-card-head .cf-category.cf-cat-6, .hs-dcard-head .cf-category.cf-cat-6 { --cnds-category-padding-bottom: 4px; text-indent: 0; }
+.demo-card-head .cf-category::before, .hs-dcard-head .cf-category::before { display: none; }
+.demo-card-head .demo-label, .hs-dcard-head .hs-col-label { margin-bottom: 0; }
+
+/* ── Name / value pairs ───────────────────────────────────────────────── */
+/* dl.row: 12px bold labels nudged 2px onto the 14px value's baseline (Nimbus gap #9: no key-value component). */
+.demo-kv, .demo-kv dd, .hs-kv, .hs-kv dd { font-size: var(--cnds-paragraph-font-size); line-height: var(--cnds-paragraph-line-height); }
+.demo-kv dt, .hs-kv dt { font-size: var(--cnds-paragraph-font-size-sm); line-height: var(--cnds-paragraph-line-height); padding-top: 2px; }
+
+/* ── Empty state inside a card or list ────────────────────────────────── */
+/* CaseFusion pattern: 2XL icon, H6 bold title, muted note, centred, no box. */
+.demo-empty, .hs-empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--cnds-spacer-2); text-align: center; padding-top: var(--cnds-spacer-3); }
+.demo-empty .mdi, .hs-empty .mdi { color: var(--cnds-text-muted); line-height: 1; }
+.demo-empty-title, .hs-empty-title { font-size: var(--cnds-h6-font-size); font-weight: 700; }
+.demo-empty-note, .hs-empty-note { font-size: var(--cnds-paragraph-font-size-sm); color: var(--cnds-text-muted); }
+
+/* ── Section heading row (category + counts at the right) ─────────────── */
+/* Baseline, not centre: all-caps headings have no descenders, so centring makes 12px text beside them look low. */
+.demo-section-head { display: flex; align-items: baseline; gap: var(--cnds-spacer-3); margin-bottom: var(--cnds-spacer-4); }
+.demo-section-head .cf-category.cf-cat-6 { --cnds-category-padding-bottom: 4px; }
+
+/* ── Shared type and spacing fixes found in the sweep (10-14) ─────────── */
+/* Nimbus .small only shrinks p.small and <small>; inside tables it resolves to 14px and in toolbars, forms,
+   panels and dialogs to 16px. Meta lines are 12px everywhere (the 14/12 rule). */
+.ca-content .small, .offcanvas .small, .modal .small { font-size: var(--cnds-paragraph-font-size-sm); }
+/* Nimbus .card-actions has no gap, so adjacent buttons touch. */
+.card-actions { gap: var(--cnds-spacer-2); }
+/* Inside a card (light ground #f5f5f5) the light open-row fill would match the card, so it steps one darker
+   (#ebebeb; muted text 6.55:1). Dark mode is unchanged. */
+.card .demo-rows > .list-group-item.demo-open { background-color: var(--cnds-surface-light-200, #ebebeb); }
+[data-cnds-theme="dark"] .card .demo-rows > .list-group-item.demo-open { background-color: var(--cnds-surface-dark-600, #171717); }
+
+/* Action buttons never wrap (Scott, 10-14): a label stays on one line, and its column or bar makes room. */
+.ca-content .btn, .modal .btn, .offcanvas .btn, .dropdown-menu .btn { white-space: nowrap; }
+
+/* ── Drawer card (section card whose body collapses) ─────────────────── */
+/* Nimbus documents .card-drawer on the styleguide's Cards page, but its CSS lives only in that page's inline <style>,
+   not in the library (gap #14). This is that styling, adapted: the top row is a flex line (heading, optional count,
+   chevron), and the body is a Nimbus .collapse, so it slides to its real height instead of a fixed max-height.
+   Markup: section.card.card-basic.card-drawer.demo-drawer > .card-body > .card-top.demo-drawer-top
+           (h2.cf-category + optional count + button.card-drawer-toggle[data-cnds-toggle=collapse]) + .collapse.card-drawer-body */
+/* Even padding open or shut, with no :has() (Scott, 10-14): the card pads 16 top / 8 bottom, the top row always has 8 under
+   it, and the body adds 8 at its own foot. Collapsed, the body is gone, so the card reads 16 above and 8 + 8 below; open,
+   the content still ends 16 from the edge. */
+.demo-drawer > .card-body { padding: var(--cnds-spacer-3) var(--cnds-spacer-3) var(--cnds-spacer-2); }
+.demo-drawer-top { display: flex; align-items: center; gap: var(--cnds-spacer-3); padding-bottom: var(--cnds-spacer-2); }
+.demo-drawer > .card-body > .card-drawer-body > :last-child { margin-bottom: var(--cnds-spacer-2); }
+.demo-drawer-top .cf-category.cf-cat-6 { --cnds-category-padding-bottom: 4px; }
+.card-drawer-toggle { flex: 0 0 auto; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
+  padding: 0; border: 0; background: none; cursor: pointer; color: var(--cnds-link-color); }
+.card-drawer-toggle .mdi { transition: transform .25s ease; }
+.card-drawer-toggle[aria-expanded="false"] .mdi { transform: rotate(180deg); }
+@media (prefers-reduced-motion: reduce) { .card-drawer-toggle .mdi { transition: none; } }
+/* Lists and tables inside a drawer take the card's surface. */
+.demo-drawer .list-group { --cnds-list-group-bg: transparent; }
+.demo-drawer .list-group > .list-group-item { background-color: transparent; }
+.demo-drawer .table { --cnds-table-bg: transparent; }
+/* Data Map's Notable Non-Custodians drawer toggles a .collapsed class (the styleguide's JS-free variant). */
+.card-drawer-body.collapsed { display: none; }
+.card-drawer .card-top:not(.demo-drawer-top) { display: flex; align-items: center; gap: var(--cnds-spacer-3); }
+.card-drawer .card-top:not(.demo-drawer-top) > .card-titles { flex: 1; }
+
+/* Toolbar dividers are blurry (Scott, 10-14): the house rule for dividers between parts of one bar. The Nimbus
+   .toolbar-list-divider is a solid 1px fill, so it takes the .vr-blurry gradient here (same colour token), keeping its
+   own size and spacing. Applies to every demo toolbar, including the ones the JS draws. */
+.toolbar-list-divider { background-color: transparent; background-image: linear-gradient(180deg, transparent, var(--cnds-divider-blurry-color, #808080), transparent); }
+
+/* Card footer rule: a blurry divider with 8px either side, between a list card's last row and its footer action (the
+   footer is part of the card, not another record, so blurry, not solid: Scott, Sally 10-14). */
+.demo-card-foot-rule { margin: var(--cnds-spacer-2) 0; }
+
+/* Page titles: an h1.cf-page-title-text keeps the browser's default bottom margin, which lifts it above its divider and
+   subtitle in the flex row. Zero it on every page (found on My Work, Scott 10-14). */
+.cf-page-title > h1.cf-page-title-text { margin: 0; }

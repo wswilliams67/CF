@@ -1,0 +1,125 @@
+<!doctype html>
+<!--
+  My Work (PRD 11 §7, v2.0) — Meridian Biopharma demo. The landing screen.
+  Files:  css/demo/demo.css    shared demo patterns (tiles, drawer cards, record rows, empty states)
+          css/demo/my-work.css this page's layout only
+          js/demo/shell.js     shared helpers (D.pager, D.fitActions, D.offcanvas, D.toast, unsaved-changes guard)
+          js/demo/my-work.js   renders every section from data/meridian.js; its header documents data and state
+  Built from Nimbus styleguide components only (nimbus-v1): cf-page-title (primary + secondary), card (summary
+  tiles, drawer cards), toggle button groups (filters), btn-toolbar-list, list-group record rows, dropdown (snooze),
+  pagination, offcanvas (weekly report). PRD 11 v2.1 cites the screen's design decisions 1–21 (14 Oct).
+-->
+<html lang="en" data-cnds-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>My Work · Meridian Biopharma · CaseFusion</title>
+    <link rel="stylesheet" href="../css/nimbus.css?v=20261014204457" />
+    <link rel="stylesheet" href="../css/app.css?v=20261014204457" />
+    <link rel="stylesheet" href="../css/themes/primitives.css?v=20261014204457" />
+    <link rel="stylesheet" href="../css/themes/light.css?v=20261014204457" />
+    <link rel="stylesheet" href="../css/themes/dark.css?v=20261014204457" />
+    <link rel="stylesheet" href="../css/pages/frame-ca-sidenav.css?v=20261014204457" />
+    <link rel="stylesheet" href="../css/demo/demo.css?v=20261014204457" />
+    <link rel="stylesheet" href="../css/demo/my-work.css?v=20261014204457" />
+    <link rel="icon" type="image/png" sizes="32x32" href="../img/favicon/favicon-32x32.png" />
+  </head>
+  <body class="cnds-product-casefusion" data-demo-nav="mywork">
+    <main id="main-content" class="ca-main">
+      <div class="ca-content" id="caContent">
+
+        <div class="mw-head">
+          <div class="cf-page-title">
+            <h1 class="cf-page-title-text">My Work</h1>
+            <span class="cf-page-title-divider" aria-hidden="true"></span>
+            <span class="cf-page-title-text">All Cases</span>  <!-- Nimbus secondary page title: the page's scope (design decision 17, 14 Oct) -->
+          </div>
+          <!-- The page action sits on the title row, small secondary (Sally, Scott 10-14). The person and case count are not
+               repeated here: the name is in the header bar and the count is in the lead line. -->
+          <button type="button" class="btn btn-secondary btn-sm ms-auto" data-mw="report">WEEKLY STATUS REPORT</button>
+        </div>
+
+        <!-- The lead line opens the page (PRD 11 MW4): no "Your Work" heading over it (design decision 16, 14 Oct). -->
+        <p class="mw-lead" id="mwLead"></p>
+
+        <div class="demo-tiles mw-tiles" id="mwTiles" role="group" aria-label="My Work summary"></div>
+
+        <!-- Each section is a Nimbus drawer card (Scott, 10-14): the category heading, its count and the chevron sit in the
+             card's top row; only the body collapses (Nimbus Collapse, so it slides to the content's real height). -->
+        <section class="card card-basic card-drawer demo-drawer mb-3" aria-labelledby="mwQueueH"><div class="card-body">
+          <div class="card-top demo-drawer-top"><h2 class="cf-category cf-cat-6 highlight-casefusion mb-0 flex-grow-1" id="mwQueueH">Action Queue</h2><button type="button" class="card-drawer-toggle" data-cnds-toggle="collapse" data-cnds-target="#mwQueueBody" aria-expanded="true" aria-controls="mwQueueBody" aria-label="Collapse Action Queue"><i class="mdi mdi-chevron-up mdi-24px" aria-hidden="true"></i></button></div>
+          <div class="collapse show card-drawer-body" id="mwQueueBody">
+            <!-- Filters choose what is in the list; the toolbar holds what acts on the chosen list: the count (which follows
+                 the filter), Sort By and EXPORT LIST (Sally, Scott 10-14). -->
+            <div class="mw-filters mb-2" id="mwChips" role="group" aria-label="Filter the queue"></div>
+            <div class="btn-toolbar-gray btn-toolbar-list mb-2" role="toolbar" aria-label="Action queue tools">
+              <div class="toolbar-list-controls mw-queue-tools">
+                <span class="toolbar-list-total mw-showing" id="mwShowing" aria-live="polite"></span>
+                <div class="mw-queue-end">
+                  <span class="toolbar-list-label">Sort By</span>
+                  <select id="mwSort" class="form-control-sm" data-cnds-select-init aria-label="Sort by">
+                    <option value="urgent" selected>Most Urgent</option>
+                    <option value="oldest">Oldest First</option>
+                    <option value="case">Case</option>
+                  </select>
+                  <div class="vr vr-blurry" aria-hidden="true"></div>  <!-- blurry: parts of one bar (house rule) -->
+                  <button type="button" class="btn btn-secondary btn-sm toolbar-list-action" data-mw="export">EXPORT LIST</button>  <!-- toolbar action: secondary small -->
+                </div>
+              </div>
+            </div>
+            <!-- demo-rows: the shared record-row type (14px rows, 12px meta), as Hold Status (Scott, 10-14). -->
+            <ul class="list-group list-group-light list-group-casefusion demo-rows" id="mwQueue" aria-label="Action queue"></ul>
+            <div id="mwQueueFoot"></div>
+          </div>
+        </div></section>
+
+        <div class="mw-two">
+          <section class="card card-basic card-drawer demo-drawer" aria-labelledby="mwCasesH"><div class="card-body">
+            <div class="card-top demo-drawer-top"><h2 class="cf-category cf-cat-6 highlight-casefusion mb-0 flex-grow-1" id="mwCasesH">Cases Needing Attention</h2><button type="button" class="card-drawer-toggle" data-cnds-toggle="collapse" data-cnds-target="#mwCasesBody" aria-expanded="true" aria-controls="mwCasesBody" aria-label="Collapse Cases Needing Attention"><i class="mdi mdi-chevron-up mdi-24px" aria-hidden="true"></i></button></div>
+            <div class="collapse show card-drawer-body" id="mwCasesBody">
+              <!-- List toolbar, as the Action Queue: the count on the left, Sort By on the right (Scott, 10-14). -->
+              <div class="btn-toolbar-gray btn-toolbar-list mb-2" role="toolbar" aria-label="Cases tools">
+                <div class="toolbar-list-controls mw-queue-tools">
+                  <span class="toolbar-list-total mw-showing" id="mwCasesShowing" aria-live="polite"></span>
+                  <div class="mw-queue-end">
+                    <span class="toolbar-list-label">Sort By</span>
+                    <select id="mwCasesSort" class="form-control-sm" data-cnds-select-init aria-label="Sort cases by">
+                      <option value="attention" selected>Most Attention</option>
+                      <option value="name">Case Name</option>
+                      <option value="requests">Open Requests</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <!-- Standard record rows (Hold Status model): the case as identity, then labelled values; no header row. -->
+              <ul class="list-group list-group-light demo-rows" id="mwCases" aria-label="Cases needing attention"></ul>
+              <!-- Card footer below a blurry divider: an action for the whole card, not part of the last row (Scott, Sally 10-14). -->
+              <!-- SHOW ALL {m} CASES opens My Cases with its Status filter on Active (its options: All · Active · Closed), the same {m} the count names (Scott, 10-14; PRD 11 §7.4). -->
+              <div class="mw-cases-foot"><hr class="hr hr-blurry demo-card-foot-rule"><div class="d-flex justify-content-end"><a class="btn btn-tertiary btn-sm" id="mwAllCases" href="not-in-demo.html?what=My+Cases&amp;ships=1&amp;filter=Active">SHOW ALL CASES</a></div></div>
+            </div>
+          </div></section>
+          <section class="card card-basic card-drawer demo-drawer" aria-labelledby="mwWeekH"><div class="card-body">
+            <div class="card-top demo-drawer-top"><h2 class="cf-category cf-cat-6 highlight-casefusion mb-0 flex-grow-1" id="mwWeekH">This Week</h2><span class="badge badge-secondary" id="mwWeekCount"></span><button type="button" class="card-drawer-toggle" data-cnds-toggle="collapse" data-cnds-target="#mwWeekBody" aria-expanded="true" aria-controls="mwWeekBody" aria-label="Collapse This Week"><i class="mdi mdi-chevron-up mdi-24px" aria-hidden="true"></i></button></div>
+            <div class="collapse show card-drawer-body" id="mwWeekBody"><ul class="list-group list-group-light list-group-small mw-list" id="mwWeek"></ul><div id="mwWeekFoot"></div></div>
+          </div></section>
+        </div>
+
+        <section class="card card-basic card-drawer demo-drawer mb-4" aria-labelledby="mwDidH"><div class="card-body">
+          <div class="card-top demo-drawer-top"><h2 class="cf-category cf-cat-6 highlight-casefusion mb-0 flex-grow-1" id="mwDidH">What CaseFusion Did</h2><span class="mw-cat-count" id="mwDidSince"></span><button type="button" class="card-drawer-toggle" data-cnds-toggle="collapse" data-cnds-target="#mwDidBody" aria-expanded="true" aria-controls="mwDidBody" aria-label="Collapse What CaseFusion Did"><i class="mdi mdi-chevron-up mdi-24px" aria-hidden="true"></i></button></div>
+          <div class="collapse show card-drawer-body" id="mwDidBody">
+            <ul class="list-group list-group-light list-group-small mw-list" id="mwDid"></ul>
+            <!-- FULL ACTIVITY: the activity log (PRD 11 D5), not built yet; destination is an open PM question. -->
+            <hr class="hr hr-blurry demo-card-foot-rule"><div class="d-flex justify-content-between align-items-center"><span class="small text-muted">Every item that needs action is in the action queue above. All of it is in each case's record.</span>
+              <a class="btn btn-tertiary btn-sm" href="not-in-demo.html?what=Full+activity">FULL ACTIVITY</a></div>
+          </div>
+        </div></section>
+      </div>
+    </main>
+    <script src="../data/meridian.js?v=20261014204457"></script>
+    <script src="../js/demo/shell.js?v=20261014204457"></script>
+    <script src="../js/nimbus.js?v=20261014204457"></script>
+    <script src="../js/app.js?v=20261014204457"></script>
+    <script src="../js/pages/frame-ca-sidenav.js?v=20261014204457"></script>
+    <script src="../js/demo/my-work.js?v=20261014204457"></script>
+  </body>
+</html>

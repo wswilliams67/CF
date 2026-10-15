@@ -1,0 +1,522 @@
+/* ============================================================
+   CNDS Datetimepicker Plugin
+   Cloudficient Nimbus Design System v1.0.0
+
+   Combined date and time picker. Extends datepicker and
+   timepicker styles with a tabbed or stacked layout.
+   ============================================================ */
+
+.datetimepicker {
+  --cnds-dtp-bg: var(--cnds-body-bg, #fff);
+  --cnds-dtp-color: var(--cnds-body-color, #4f4f4f);
+  --cnds-dtp-border: var(--cnds-border-color, #dee2e6);
+  --cnds-dtp-radius: var(--cnds-border-radius, 0.375rem);
+  --cnds-dtp-primary: var(--cnds-primary, #be1a2d);
+  --cnds-dtp-primary-text: #fff;
+  --cnds-dtp-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+
+  position: relative;
+  width: 100%;
+}
+
+/* When .datetimepicker is on the same element as .cf-input-field (JS adds it),
+   preserve the flex column layout so the label stays above the input.
+   Standalone usage (no cf-input-field) still gets inline-block. */
+.datetimepicker:not(.cf-input-field) {
+  display: inline-block;
+}
+
+/* --- Input --- */
+.datetimepicker-input {
+  position: relative;
+}
+
+/* Standalone (non-cf-input-control) input inside datetimepicker-input wrapper */
+.datetimepicker-input input:not(.cf-input-control) {
+  width: 100%;
+  padding: 0.375rem 2.25rem 0.375rem 0.75rem;
+  border: 1px solid var(--cnds-dtp-border);
+  border-radius: var(--cnds-dtp-radius);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--cnds-dtp-color);
+  background-color: var(--cnds-dtp-bg);
+  outline: none;
+  transition:
+    border-color 0.15s ease-in-out,
+    box-shadow 0.15s ease-in-out;
+}
+
+.datetimepicker-input input:not(.cf-input-control):focus {
+  border-color: var(--cnds-dtp-primary);
+  box-shadow: 0 0 0 0.2rem rgba(190, 26, 45, 0.15);
+}
+
+.datetimepicker-toggle {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 2.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--cnds-dtp-color);  /* tracks --cnds-body-color like cf-input-icon */
+  opacity: 0.6;                   /* matches cf-input-icon opacity */
+  border: none;
+  background: transparent;
+  padding: 0;
+  transition: opacity 0.15s, color 0.15s;
+}
+
+.datetimepicker-toggle:hover {
+  color: var(--cnds-dtp-color);
+  opacity: 1;
+}
+
+.datetimepicker-toggle .mdi {
+  font-size: 1rem;
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* Sizing tokens — set on the wrapper, consumed by the trigger rule below.
+   CSS custom properties cascade through the DOM, bypassing specificity entirely. */
+.datetimepicker {
+  --dtp-trigger-font-size:    0.875rem;
+  --dtp-trigger-padding-v:    0.75rem;
+  --dtp-trigger-padding-left: 1.25rem;
+  --dtp-trigger-padding-right: 2.875rem;
+}
+.cf-input-field-sm.datetimepicker {
+  --dtp-trigger-font-size:    0.8125rem;
+  --dtp-trigger-padding-v:    0.5rem;
+  --dtp-trigger-padding-left: 0.75rem;
+  --dtp-trigger-padding-right: 2.625rem;
+}
+.cf-input-field-lg.datetimepicker {
+  --dtp-trigger-font-size:    1rem;
+  --dtp-trigger-padding-v:    0.875rem;
+  --dtp-trigger-padding-left: 1.5rem;
+  --dtp-trigger-padding-right: 3rem;
+}
+
+/* cf-input-control inside datetimepicker-input: restore forms.css appearance,
+   override any residual datetimepicker-input input rules.
+   Specificity (0,3,0) beats .datetimepicker-input input:not(.cf-input-control) (0,2,1). */
+.datetimepicker .datetimepicker-input .cf-input-control {
+  padding: var(--dtp-trigger-padding-v) var(--dtp-trigger-padding-right) var(--dtp-trigger-padding-v) var(--dtp-trigger-padding-left);
+  border: 1px solid var(--cnds-input-border-color, #cccccc);
+  border-radius: var(--cnds-radius-m, 8px);
+  background-color: var(--cnds-input-bg, #fafafa);
+  color: var(--cnds-body-color, #141414);
+  font-size: var(--dtp-trigger-font-size);
+  line-height: 1.2;
+}
+
+/* Readonly trigger: datetimepicker sets readonly to block keyboard entry.
+   Override forms.css secondary-bg so it looks like a normal interactive input.
+   Specificity (0,4,0) beats [data-cnds-theme="dark"] .cf-input-control[readonly] (0,3,0). */
+.datetimepicker .datetimepicker-input .cf-input-control[readonly] {
+  background-color: var(--cnds-input-bg, #fafafa);
+  opacity: 1;
+  cursor: pointer;
+}
+
+/* Restore 2px focus ring on the readonly trigger.
+   cf-input-control[readonly] (0,2,0) loads after cf-input-control:focus (0,2,0)
+   and resets border-color, collapsing the ring. Specificity (0,5,0) beats both. */
+.datetimepicker .datetimepicker-input .cf-input-control[readonly]:focus {
+  border-color: var(--cnds-input-focus-border-color, #ab2328);
+  box-shadow: inset 0 0 0 1px var(--cnds-input-focus-border-color, #ab2328);
+  outline: 0;
+}
+
+[data-cnds-theme="dark"] .datetimepicker .datetimepicker-input .cf-input-control {
+  background-color: var(--cnds-input-bg, #4a4a4a);
+  border-color: var(--cnds-input-border-color, #787878);
+  color: var(--cnds-input-color, #e8e8e8);
+}
+
+[data-cnds-theme="dark"] .datetimepicker .datetimepicker-input .cf-input-control[readonly] {
+  background-color: var(--cnds-input-bg, #4a4a4a);
+}
+
+/* --- Dropdown --- */
+.datetimepicker-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1050;
+  margin-top: 0.25rem;
+  background: var(--cnds-dtp-bg);
+  border: 1px solid var(--cnds-dtp-border);
+  border-radius: var(--cnds-dtp-radius);
+  box-shadow: var(--cnds-dtp-shadow);
+  min-width: 300px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease,
+    visibility 0.2s;
+}
+
+.datetimepicker-dropdown.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* --- Tabs (Date / Time toggle) --- */
+.datetimepicker-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--cnds-dtp-border);
+}
+
+.datetimepicker-tab {
+  flex: 1;
+  padding: 0.5rem 1rem;
+  text-align: center;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #6c757d;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition:
+    color 0.15s,
+    border-color 0.15s;
+}
+
+.datetimepicker-tab:hover {
+  color: var(--cnds-dtp-color);
+}
+
+.datetimepicker-tab.active {
+  color: var(--cnds-dtp-primary);
+  border-bottom-color: var(--cnds-dtp-primary);
+}
+
+/* --- Panels --- */
+.datetimepicker-panel {
+  display: none;
+  padding: 0.5rem;
+}
+
+.datetimepicker-panel.active {
+  display: block;
+}
+
+/* The date panel reuses datepicker styles */
+.datetimepicker-panel .datepicker-header,
+.datetimepicker-panel .datepicker-weekdays,
+.datetimepicker-panel .datepicker-days,
+.datetimepicker-panel .datepicker-months,
+.datetimepicker-panel .datepicker-years {
+  /* Inherit from datepicker.css */
+}
+
+/* The time panel reuses timepicker styles */
+.datetimepicker-panel .timepicker-spinners {
+  padding: 1rem 0;
+}
+
+/* --- Footer --- */
+.datetimepicker-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-top: 1px solid var(--cnds-dtp-border);
+}
+
+.datetimepicker-footer-btn {
+  padding: 0.25rem 0.75rem;
+  border: none;
+  background: transparent;
+  color: var(--cnds-dtp-primary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: var(--cnds-dtp-radius);
+  transition: background-color 0.15s;
+}
+
+.datetimepicker-footer-btn:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.datetimepicker-footer-btn.primary {
+  background-color: var(--cnds-dtp-primary);
+  color: var(--cnds-dtp-primary-text);
+}
+
+.datetimepicker-footer-btn.primary:hover {
+  opacity: 0.9;
+}
+
+/* --- Inline ---
+   Panel renders in the document flow (not floating) when triggered.
+   opacity/visibility are intentionally omitted — .show controls them. */
+.datetimepicker-inline .datetimepicker-dropdown {
+  position: static;
+  transform: none;
+  box-shadow: none;
+  margin-top: 0;
+  width: 100%;
+  min-width: 0;
+}
+
+/* Keep both panels the same height; center the time spinners vertically */
+.datetimepicker-inline .datetimepicker-panel {
+  min-height: 280px;
+}
+
+.datetimepicker-inline .datetimepicker-panel[data-cnds-panel="time"].active {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ============================================================
+   Sequential Inline (Desktop) — sub-picker elements
+   A datepicker and timepicker embedded inside the datetimepicker
+   wrapper as zero-height anchors. Their dropdowns float below
+   the trigger; the plugin's own toggle buttons are hidden.
+   ============================================================ */
+
+/* Remove parent flex gap so sub-pickers anchor flush against the trigger bottom.
+   The gap: 4px from .cf-input-field would otherwise push each 0-height sub-picker
+   down 4px per sibling, offsetting the dropdowns below their standalone equivalents. */
+.datetimepicker.cf-input-field {
+  row-gap: 0;
+}
+
+/* Reinstate label→trigger spacing that was provided by the parent gap */
+.datetimepicker .cf-input-label {
+  margin-bottom: 4px;
+}
+
+.datetimepicker .dtpil-sub-picker {
+  height: 0;
+  min-height: 0;
+  overflow: visible;
+  padding: 0;
+  margin: 0;
+  gap: 0;
+}
+
+/* Hide the plugin-generated toggle buttons — opening is done programmatically */
+.datetimepicker .dtpil-sub-picker .datepicker-toggle,
+.datetimepicker .dtpil-sub-picker .timepicker-toggle,
+.datetimepicker .dtpil-sub-picker .timepicker-toggle-button {
+  display: none;
+}
+
+/* Collapse the input wrapper height so the dropdown anchors right below the trigger */
+.datetimepicker .dtpil-sub-picker .datepicker-input,
+.datetimepicker .dtpil-sub-picker .timepicker-input {
+  height: 0;
+  overflow: visible;
+}
+
+/* Extra bottom breathing room on the datepicker calendar popup */
+.datetimepicker .dtpil-sub-picker .datepicker-dropdown {
+  padding-bottom: 0.75rem;
+}
+
+/* --- Dark Theme --- */
+[data-cnds-theme="dark"] .datetimepicker {
+  --cnds-dtp-bg: var(--cnds-dark-bg, #1a1a2e);
+  --cnds-dtp-color: var(--cnds-dark-color, #e0e0e0);
+  --cnds-dtp-border: var(--cnds-dark-border, #2d2d44);
+  --cnds-dtp-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.4);
+}
+
+/* ============================================================
+   Dropdown Mode (Desktop)
+   Tab strip + embedded inline datepicker + timepicker inside
+   the .datetimepicker-dropdown panel.
+   ============================================================ */
+
+/* Consistent height for both tab panes — sized to the calendar */
+.datetimepicker-dropdown .tab-content {
+  min-height: 300px;
+}
+
+/* Date pane: center the inline calendar */
+.datetimepicker-dropdown .dtp-datepicker-inline {
+  padding: 0 0 1rem;
+  display: flex;
+  justify-content: center;
+}
+
+/* Strip border from inline datepicker inside the dropdown */
+.datetimepicker-dropdown .datepicker-inline .datepicker-dropdown {
+  border: none;
+  padding-top: 8px;
+}
+
+/* Time pane: fill height, center the spinner widget */
+.datetimepicker-dropdown .dtp-timepicker-inline {
+  min-height: 300px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Timepicker widget inside dropdown: fill width, no border/shadow */
+.datetimepicker-dropdown .dtp-timepicker-inline .timepicker-ui {
+  display: flex;
+  width: 100%;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+/* Hide the timepicker's own footer buttons — datetimepicker-footer handles actions */
+.datetimepicker-dropdown .dtp-timepicker-inline .timepicker-footer {
+  display: none;
+}
+
+/* ============================================================
+   Modal Mode (Mobile)
+   Figma: DateTimePicker section, node 3934-32564
+   Two-tab modal (Date / Time) using existing modal, nav-tabs,
+   datepicker, and timepicker components.
+   ============================================================ */
+
+/* Constrain to Figma's 352 px mobile width */
+.datetimepicker-modal .modal-dialog {
+  max-width: 352px;
+}
+
+/* --- Header --- */
+.datetimepicker-modal .modal-header {
+  min-height: 56px;
+  padding: 1rem;
+  align-items: center;
+}
+
+.datetimepicker-modal .modal-title {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+/* --- Tab strip ---
+   nav-tabs-nimbus nav-tabs-casefusion owns all tab styling.
+   .dtp-modal-tabs is a structural wrapper only. */
+.dtp-modal-tabs {
+  overflow: hidden;
+}
+
+/* --- Date display bar (e.g. "Fri, Apr 10") --- */
+.dtp-date-display {
+  padding: 1rem 1.5rem 0.25rem; /* 16px 24px 4px — matches datepicker-modal-date-display */
+  font-size: 1.96875rem; /* 31.5px */
+  font-weight: 400;
+  line-height: 1.375;
+  color: var(--cnds-body-color, #141414);
+  text-align: center;
+}
+
+/* --- Modal body --- */
+.datetimepicker-modal .modal-body {
+  padding: 0;
+  overflow: hidden;
+  min-height: 370px; /* date tab at max 6-row calendar */
+}
+
+/* Padding containers for the inline pickers */
+.dtp-datepicker-inline {
+  padding: 0 0 1rem;
+  display: flex;
+  justify-content: center;
+}
+
+.dtp-timepicker-inline {
+  padding: 0;
+  min-height: 370px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Timepicker widget inside modal: fill width, no border/shadow, no internal footer */
+.datetimepicker-modal .dtp-timepicker-inline .timepicker-ui {
+  display: flex;
+  width: 100%;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+.datetimepicker-modal .dtp-timepicker-inline .timepicker-footer {
+  display: none;
+}
+
+/* Strip the border from the datepicker calendar when embedded inline inside the modal */
+.datetimepicker-modal .datepicker-inline .datepicker-dropdown {
+  border: none;
+  padding-top: 8px;
+}
+
+.datetimepicker-modal .modal-footer {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 4px;
+  padding: 0.75rem 0.5rem;
+  min-height: 69px;
+  justify-content: flex-start;
+  border-top: 1px solid var(--cnds-border-color, #dee2e6);
+}
+
+.datetimepicker-modal .modal-footer .btn {
+  flex: 1;
+  white-space: nowrap;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.datetimepicker-modal .modal-footer .dtp-spacer {
+  flex: 1;
+}
+
+/* ============================================================
+   Dark theme overrides
+   Modal bg #1e1e1e; tab strip same bg; border #787878;
+   active tab indicator #7dd67a (CaseFusion green, dark);
+   footer link text #6790ca; Ok bg #355d97.
+   ============================================================ */
+[data-cnds-theme="dark"] .datetimepicker-modal .modal-content {
+  background-color: #1e1e1e;
+  border-color: #4a4a4a;
+}
+
+[data-cnds-theme="dark"] .datetimepicker-modal .modal-header {
+  border-bottom-color: #4a4a4a;
+}
+
+[data-cnds-theme="dark"] .datetimepicker-modal .modal-title {
+  color: #e8e8e8;
+}
+
+[data-cnds-theme="dark"] .datetimepicker-modal .btn-close {
+  filter: invert(1) grayscale(1);
+}
+
+[data-cnds-theme="dark"] .dtp-date-display {
+  color: #e8e8e8;
+  border-bottom-color: #4a4a4a;
+}
+
+[data-cnds-theme="dark"] .datetimepicker-modal .modal-footer {
+  border-top-color: #4a4a4a;
+}
+

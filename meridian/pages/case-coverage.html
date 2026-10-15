@@ -1,0 +1,143 @@
+<!doctype html>
+<!--
+  Coverage (PRD 08 §7.1–7.3) — Meridian Biopharma demo.
+  Nimbus styleguide components only: alert (banner), card tiles (gap #1), gray list
+  toolbar with Nimbus Select, shared selection toolbar with dropdowns, table (the
+  PRD's grid), card + cf-category (counting rules), offcanvas (custodian panel),
+  modal (release, mark not required). Page CSS is layout only.
+  The PRD wins over the board: five tiles that partition, "Non-custodial held
+  sources", the fifth counting rule and the dash in the key, no MARK INTERVIEW COMPLETE.
+-->
+<html lang="en" data-cnds-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>Coverage · Meridian Biopharma · CaseFusion</title>
+    <link rel="stylesheet" href="../css/nimbus.css?v=20261014204457" />
+    <link rel="stylesheet" href="../css/app.css?v=20261014204457" />
+    <link rel="stylesheet" href="../css/themes/primitives.css?v=20261014204457" />
+    <link rel="stylesheet" href="../css/themes/light.css?v=20261014204457" />
+    <link rel="stylesheet" href="../css/themes/dark.css?v=20261014204457" />
+    <link rel="stylesheet" href="../css/pages/frame-ca-sidenav.css?v=20261014204457" />
+    <link rel="stylesheet" href="../css/demo/demo.css?v=20261014204457" />
+    <link rel="stylesheet" href="../css/demo/coverage.css?v=20261014204457" />
+    <link rel="icon" type="image/png" sizes="32x32" href="../img/favicon/favicon-32x32.png" />
+  </head>
+  <body class="cnds-product-casefusion" data-demo-tab="coverage">
+    <main id="main-content" class="ca-main">
+      <div class="ca-content" id="caContent">
+        <div data-demo-case-header></div>
+
+        <!-- Added-after-the-notice banner (CV22): only when the population is non-empty. -->
+        <div class="alert alert-warning" role="alert" id="cvBanner" hidden>
+          <span class="alert-icon" aria-hidden="true"><i class="mdi mdi-alert"></i></span>
+          <span class="alert-message" id="cvBannerText"></span>
+          <button type="button" class="btn btn-primary btn-sm" data-cv="select-after">SELECT 3 CUSTODIANS</button>
+          <button type="button" class="btn btn-secondary btn-sm" data-cv="review-after">REVIEW</button>
+        </div>
+
+        <div class="demo-tiles cv-tiles" id="cvTiles" role="group" aria-label="Coverage summary"></div>
+
+        <div class="btn-toolbar-gray btn-toolbar-list mb-2" role="toolbar" aria-label="Coverage tools">
+          <div class="toolbar-list-search">
+            <div class="cf-input-field cf-input-field-casefusion"><div class="cf-input-wrapper">
+              <input type="text" id="cvSearch" class="cf-input-control" placeholder="Search custodians…" aria-label="Search custodians" data-cnds-input-clear-init />
+              <button type="button" class="mdi mdi-close-circle cf-input-clear" aria-label="Clear field" hidden></button>
+            </div></div>
+          </div>
+          <span class="toolbar-list-divider" aria-hidden="true"></span>
+          <div class="toolbar-list-controls">
+            <span class="toolbar-list-label">Filter By</span>
+            <select id="cvFilter" class="form-control-sm" data-cnds-select-init aria-label="Filter by">
+              <option value="all" selected>All Statuses</option>
+              <option value="action">Action Needed</option>
+              <option value="notack">Not Acknowledged</option>
+              <option value="notanswered">Not Answered</option>
+              <option value="escalated">Escalated</option>
+              <option value="after">Added After the First Notification</option>
+              <option value="silent">Silent Legal Hold</option>
+              <option value="departed">Departed</option>
+              <option value="gaps">Data Gaps</option>
+              <option value="fully">Fully Covered</option>
+            </select>
+            <span class="toolbar-list-label">Workflow</span>
+            <select id="cvWorkflow" class="form-control-sm" data-cnds-select-init aria-label="Workflow">
+              <option value="all" selected>All Workflows</option>
+              <option value="lhn">Legal Hold Notification</option>
+              <option value="survey">Survey</option>
+              <option value="interview">Interview</option>
+              <option value="preservation">Preservation</option>
+              <option value="collection">Collection</option>
+            </select>
+            <span class="toolbar-list-divider" aria-hidden="true"></span>
+            <span class="toolbar-list-total" id="cvTotal"></span>
+            <span class="toolbar-list-divider" aria-hidden="true"></span>
+            <button type="button" class="btn btn-secondary btn-sm toolbar-list-action" data-cv="export">EXPORT COVERAGE</button>
+          </div>
+        </div>
+
+        <!-- Selection toolbar (btn-toolbar-shared): mounted only while custodians are selected. -->
+        <div id="cvSelTool"></div>
+
+        <div class="table-responsive mb-4">
+          <table class="table table-hover align-middle mb-0 cv-grid">
+            <thead>
+              <tr>
+                <th scope="col"><div class="form-check mb-0"><input type="checkbox" class="form-check-input" id="cvAll" aria-label="Select all custodians" /></div></th>
+                <th scope="col">Custodian</th><th scope="col">Legal Hold Notification</th><th scope="col">Survey</th><th scope="col">Interview</th><th scope="col">Preservation</th><th scope="col">Collection</th><th scope="col"></th>
+              </tr>
+            </thead>
+            <tbody id="cvBody"></tbody>
+          </table>
+        </div>
+
+        <div class="cv-lower">
+          <section aria-labelledby="cvNcTitle">
+            <!-- Heading fills the line, the note sits at its right on the baseline (demo-section-head; Scott, 10-14). -->
+            <div class="demo-section-head">
+              <h2 class="cf-category cf-cat-6 highlight-casefusion mb-0 flex-grow-1" id="cvNcTitle">Non-Custodial Held Sources</h2>
+              <span class="text-muted cv-meta">No single custodian, so they are counted once for the case.</span>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead><tr><th scope="col">Source</th><th scope="col">Used By</th><th scope="col">Preservation</th><th scope="col">Collection</th><th scope="col">Request</th></tr></thead>
+                <tbody id="cvNcBody"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <aside class="card card-basic" aria-labelledby="cvRulesTitle"><div class="card-body">
+            <h2 class="cf-category cf-cat-6 highlight-casefusion" id="cvRulesTitle">Counting Rules</h2>
+            <p class="card-text small"><b>Custodian workflows</b> — legal hold notification, survey, interview — can run more than once per person, so the cell shows the latest status and a count.</p>
+            <p class="card-text small"><b>Silent legal holds</b> send nothing. A custodian tracked only under one reads “Silent Legal Hold”, not a gap, and is left out of the not-sent counts.</p>
+            <p class="card-text small"><b>Data workflows</b> — preservation, collection — are one per source, so the cell rolls up that custodian's sources and the numbers say how many.</p>
+            <p class="card-text small">Marking a workflow not required requires a reason; it comes out of the gap count and shows in the coverage report as n/a.</p>
+            <p class="card-text small">A workflow this case does not expect of a custodian shows a dash and is not a gap. Surveys, interviews and collections are expected only where the case says so; notification and preservation always are.</p>
+            <h3 class="cf-category cf-cat-6 highlight-casefusion mt-2">Status Key</h3>
+            <div class="d-flex flex-wrap gap-2 mb-2">
+              <span class="badge badge-pill badge-success">Complete</span>
+              <span class="badge badge-pill badge-info">In Progress</span>
+              <span class="badge badge-pill badge-warning">Not Started</span>
+              <!-- Verbatim: Nimbus capitalize would print "Or" (Title Case keeps it lower; Scott, 10-14). -->
+              <span class="badge badge-pill badge-danger badge-verbatim">Not Acknowledged or Not Answered</span>
+              <span class="badge badge-pill badge-secondary">Silent Legal Hold</span>
+            </div>
+            <p class="card-text small text-muted">n/a = not required for this custodian, with a reason on the record · — = not expected on this case</p>
+            <!-- Report label is a demo-label naming the two buttons; buttons right-aligned (Scott, 10-14). -->
+            <div class="card-actions mt-auto justify-content-end align-items-center">
+              <span class="demo-label mb-0 me-auto">Case Preservation Report</span>
+              <button type="button" class="btn btn-tertiary btn-sm" data-cv="report-xlsx">EXCEL</button>
+              <a class="btn btn-tertiary btn-sm" href="not-in-demo.html?what=Case+preservation+report+(PDF)">PDF</a>
+            </div>
+          </div></aside>
+        </div>
+      </div>
+    </main>
+    <script src="../data/meridian.js?v=20261014204457"></script>
+    <script src="../js/demo/shell.js?v=20261014204457"></script>
+    <script src="../js/nimbus.js?v=20261014204457"></script>
+    <script src="../js/app.js?v=20261014204457"></script>
+    <script src="../js/pages/frame-ca-sidenav.js?v=20261014204457"></script>
+    <script src="../js/demo/case-coverage.js?v=20261014204457"></script>
+  </body>
+</html>
