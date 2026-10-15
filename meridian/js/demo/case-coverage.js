@@ -531,7 +531,8 @@
   function tile(o) {
     return '<div class="card card-basic cv-tile"><div class="cv-tile-head"><a href="' + o.href + '" class="fw-bold">' + esc(o.id) + "</a>" +
       '<span class="cv-tile-name">' + esc(o.title) + "</span>" + o.badge + '<span class="cv-meta text-muted ms-auto">' + esc(o.aside || "") + "</span></div>" +
-      '<div class="cv-tile-body">' + timeline(o.events) + (o.acts ? '<div class="card-actions justify-content-end">' + o.acts + "</div>" : "") + "</div></div>";
+      /* A blurry rule sets the tile's actions apart from its timeline rows (Scott, 10-15). */
+      '<div class="cv-tile-body">' + timeline(o.events) + (o.acts ? '<hr class="hr hr-blurry cv-tile-rule" aria-hidden="true" /><div class="card-actions justify-content-end">' + o.acts + "</div>" : "") + "</div></div>";
   }
   function tiles(list) { return '<div class="cv-tile-stack">' + list.join("") + "</div>"; }
   function recs(items) { return '<ul class="list-group list-group-flush demo-rows cv-recs">' + items.join("") + "</ul>"; }

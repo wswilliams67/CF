@@ -448,8 +448,11 @@
       whyMasked: "On legal hold in 2 cases. The mailbox is inactive and stays preserved while a hold remains.",
       action: { label: "REVIEW LEAVER", href: "not-in-demo.html?what=Persona+Case+Profile+%C2%B7+Data+sources&ships=1" } },
     { id: "mw4", chip: "ANSWER", caseId: "MBP-0926", waitingText: "2 hours", age: 0.08,
-      what: "Owen Fitzgerald asks which laptop to preserve",
-      why: "“James Park has two laptops: LT-44821 and a loaner, LT-50112. Preserve both?” · PRS-0101",
+      /* A question's title is a template, "{Asker} asked a question about {subject}", the subject being the record it was
+         raised on; the asker's own words stay verbatim as the why. Free text is never summarised (PM, 10-15). */
+      what: "Owen Fitzgerald asked a question about James Park",
+      whatMasked: "Owen Fitzgerald asked a question about a custodian",
+      why:"“James Park has two laptops: LT-44821 and a loaner, LT-50112. Preserve both?” · PRS-0101",
       whyMasked: "“The custodian has two laptops: LT-44821 and a loaner, LT-50112. Preserve both?” · PRS-0101", maskPerson: "p-park",
       action: { label: "ANSWER", href: "not-in-demo.html?what=Question+on+PRS-0101" } },
     { id: "mw5", chip: "DECIDE", caseId: "MBP-0926", since: "2026-10-07",
