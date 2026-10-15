@@ -1277,8 +1277,9 @@
     rows.push([]);
     rows.push(["This export covers the " + visible.length + " custodians you can see. " + hiddenN + " are outside your regions."]);
     download(name, rows);
-    /* No success toast: a page cannot tell whether the download was saved or cancelled, so the browser's own download
-       prompt is the feedback (Scott, 10-15: the toast showed after a cancelled download). */
+    /* The toast reports the export succeeding (in production the server API sends it), not the file being saved, so it
+       shows whether the reader keeps or cancels the download (Scott, 10-15). */
+    D.toast("Exported " + visible.length + " custodians." + (hiddenN ? " " + hiddenN + " outside your regions are counted, not named." : ""));
   }
   /* Custodian coverage's EXPORT AS · CSV (CV47): the five workflows, then every event. */
   function exportOne(c) {
@@ -1293,6 +1294,7 @@
       (n.events || []).forEach(function (e) { rows.push([(n.id ? n.id + " · " : "Interview · ") + e[2], M.fmtDateTime(e[0], e[1]), e[3], e[4]]); });
     });
     download("coverage-" + D.caseId + "-" + p.upn.replace(/\W+/g, "-") + ".csv", rows);
+    D.toast("Exported coverage for " + p.name + ".");
   }
 
   /* ── Events ───────────────────────────────────────────────────────── */

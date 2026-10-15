@@ -489,7 +489,7 @@
         csv("my-work.csv", [["Kind", "Item", "Why now", "Case", "Waiting", "Found by CaseFusion", "Preservation at risk"]].concat(list.map(function (r) {
           return [r.chip, whatOf(r), whyOf(r), caseName(r.caseId), waiting(r), r.found ? "Yes" : "", r.locked ? "Yes" : ""];
         })));
-        /* No success toast: the page cannot tell a saved download from a cancelled one (Scott, 10-15). */
+        D.toast("Exported " + list.length + " items.");
     }
   });
 
