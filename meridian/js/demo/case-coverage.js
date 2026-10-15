@@ -596,11 +596,12 @@
         '<div class="row g-3 mb-3"><div class="col-md-6">' + D.select("cvRelNotice", [["standard", "Standard Release Notice"], ["retention", "Release Notice with Retention Reminder"], ["none", "No Notice"]], notice, "Notice", { container: "#" + m.id }) +
           /* Who gets the notice is a choice, as in the canvas (ReleaseLegalHold.dc.html): checked by default, unchecked and
              disabled under No Notice. A silent-hold custodian is named as receiving nothing. */
-          /* The checkbox sits level with the select's field (not the whole component with its label), the note below. */
+          /* The checkbox sits level with the select's field (not the whole component with its label); the silent-hold note is
+             the checkbox's Nimbus helper text (.form-text), indented under its label. */
           '</div><div class="col-md-6"><div class="cv-rel-send"><div class="form-check mb-0"><input type="checkbox" class="form-check-input" id="cvRelSend"' + (sendTo && notice !== "none" && notified.length ? " checked" : "") +
             (notice === "none" || !notified.length || readOnly ? " disabled" : "") + ' /><label class="form-check-label" for="cvRelSend">' + (!on.length ? "No one selected" : !notified.length ? "No one selected was notified" :
-            "Send to the " + notified.length + " custodian" + (notified.length === 1 ? " who was" : "s who were") + " notified") + "</label></div></div>" +
-          (silentOnly.length ? '<span class="d-block small text-muted mt-1">' + esc(silentOnly.map(function (c) { return D.nameFor(person(c)); }).join(", ")) + " " + (silentOnly.length === 1 ? "is" : "are") + " on a silent legal hold and receive" + (silentOnly.length === 1 ? "s" : "") + " nothing.</span>" : "") + "</div></div>" +
+            "Send to the " + notified.length + " custodian" + (notified.length === 1 ? " who was" : "s who were") + " notified") + "</label>" +
+          (silentOnly.length ? '<div class="form-text">' + esc(silentOnly.map(function (c) { return D.nameFor(person(c)); }).join(", ")) + " " + (silentOnly.length === 1 ? "is" : "are") + " on a silent legal hold and receive" + (silentOnly.length === 1 ? "s" : "") + " nothing.</div>" : "") + "</div></div></div></div>" +
         '<div class="cf-category cf-cat-6 highlight-casefusion mt-5">What Stays Preserved</div>' +
         '<p>Releasing a custodian from the legal hold does not release their sources or delete collected data.</p>' +
         /* One source per line with the request that holds it (multi-value rows), for each custodian being released. */
