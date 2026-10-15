@@ -85,7 +85,7 @@
 
   /* ── Custodians on MBP-0926 and their custodian workflows.
         expected: which workflows apply here. A workflow not listed is "—".
-        notRequired: an exclusion with a reason ("n/a" on Coverage).        */
+        notRequired: an exclusion with a reason ("N/A" on Coverage).        */
   /* Legal hold notifications and surveys issued on MBP-0926. */
   M.legalHolds = [
     { id: "LH-0031", title: "Initial legal hold notification", sent: "2026-08-28", time: "09:00",
@@ -644,7 +644,7 @@
     }
     /* Survey */
     var sv = c.surveys || [];
-    if (c.notRequiredWf && c.notRequiredWf.survey) out.survey = { state: "na", text: "n/a" };
+    if (c.notRequiredWf && c.notRequiredWf.survey) out.survey = { state: "na", text: "N/A" };
     else if (!sv.length) out.survey = { state: "dash", text: "—" };
     else {
       var s = sv[sv.length - 1];
@@ -655,9 +655,9 @@
       out.survey = { state: sState, text: s.status, detail: sDetail };
     }
     /* Interview: not expected on this case. */
-    out.interview = (c.notRequiredWf && c.notRequiredWf.interview) ? { state: "na", text: "n/a" } : { state: "dash", text: "—" };
+    out.interview = (c.notRequiredWf && c.notRequiredWf.interview) ? { state: "na", text: "N/A" } : { state: "dash", text: "—" };
     /* Preservation */
-    if (c.notRequired && c.notRequired.preservation) out.preservation = { state: "na", text: "n/a", detail: "not required · reason on record" };
+    if (c.notRequired && c.notRequired.preservation) out.preservation = { state: "na", text: "N/A", detail: "not required · reason on record" };
     else {
       var src = M.sourcesOf(c.personId);
       var held = src.filter(function (x) { return x.hold === "Applied" || x.hold === "Attested"; });

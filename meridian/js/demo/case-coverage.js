@@ -262,7 +262,7 @@
       /* One custodian: name the record the dialog acts on (demo-kv; Scott, 10-14). Several: the count above says it. */
       extra: (list.length === 1 ? '<dl class="row demo-kv mb-3"><dt class="col-4 fw-bold">Custodian</dt><dd class="col-8 mb-0' + (seen(list[0]) ? "" : " demo-masked") + '">' +
         (seen(list[0]) ? "" : '<i class="mdi mdi-lock-outline" aria-hidden="true"></i>') + esc(visibleName(list[0])) + "</dd></dl>" : "") + D.select("cvNrWf", [["survey", "Survey"], ["interview", "Interview"], ["preservation", "Preservation"]], "survey", "Workflow", { container: "{{modal}}", cls: "mb-3" }),
-      effect: "The workflow reads n/a, leaves the gap count, and shows in the coverage report with this reason.",
+      effect: "The workflow reads N/A, leaves the gap count, and shows in the coverage report with this reason.",
       confirm: "MARK NOT REQUIRED"
     }).then(function (r) {
       if (!r) return;
