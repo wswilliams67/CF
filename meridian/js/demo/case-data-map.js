@@ -453,7 +453,7 @@
     var a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob([rows.map(function (r) { return r.map(function (x) { return '"' + String(x == null ? "" : x).replace(/"/g, '""') + '"'; }).join(","); }).join("\n")], { type: "text/csv" }));
     a.download = name; document.body.appendChild(a); a.click(); a.remove();
-    D.toast("Exported " + (rows.length - 1) + " rows.");
+    /* No success toast: the page cannot tell a saved download from a cancelled one (Scott, 10-15). */
   }
 
   /* ── Source details (Nimbus offcanvas): Location / Item / Accessed / Participants ── */
