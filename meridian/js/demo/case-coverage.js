@@ -554,7 +554,7 @@
         '<button type="button" class="card-drawer-toggle" data-cv-sec="' + key + '" aria-expanded="' + open + '" aria-controls="cvSec-' + key + '" aria-label="' + (open ? "Collapse " : "Expand ") + esc(title) + '">' +
         '<i class="mdi mdi-chevron-up mdi-24px" aria-hidden="true"></i></button></div>' +
       '<div class="collapse card-drawer-body' + (open ? " show" : "") + '" id="cvSec-' + key + '">' + body +
-        (acts ? '<div class="cv-sec-actions">' + acts + "</div>" : "") + "</div></div></section>";
+        (acts ? '<hr class="hr hr-blurry cv-sec-rule" aria-hidden="true" /><div class="cv-sec-actions">' + acts + "</div>" : "") + "</div></div></section>";
   }
   function btn(label, attrs, cls) { return '<button type="button" class="btn ' + (cls || "btn-tertiary") + ' btn-sm" ' + attrs + ">" + label + "</button>"; }
   function link(label, href, cls) { return '<a class="btn ' + (cls || "btn-tertiary") + ' btn-sm" href="' + href + '">' + label + "</a>"; }
