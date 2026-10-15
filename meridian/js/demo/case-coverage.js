@@ -478,7 +478,7 @@
     var strip = '<div class="row g-2 mb-4">' + [["Legal Hold Notification", v.lhn], ["Survey", v.survey], ["Interview", v.interview], ["Preservation", v.preservation], ["Collection", v.collection]].map(function (x) {
       return '<div class="col"><div class="card card-basic demo-tile h-100"><span class="demo-label mb-0">' + x[0] + '</span><span class="cv-value">' + esc(x[1].text) + "</span></div></div>"; }).join("") + "</div>";
     if (!ok) {
-      /* The monogram carries the lock (no photo: a photo is a profile detail), sized as the 52px photo avatar, so the name line does not repeat it; normal style, no italics (Scott, 10-14). */
+      /* The monogram carries the lock (no photo: a photo is a profile detail), sized as the 48px photo avatar, so the name line does not repeat it; normal style, no italics (Scott, 10-14). */
       panel.setBody('<div class="cv-scope"><div class="d-flex align-items-center gap-3 mb-3"><span class="monogram demo-avatar">' + LOCK + '</span><div><div class="h5 mb-0 demo-masked">Profile details limited</div>' +
         '<div class="cv-meta text-muted">This custodian is outside your regions. Their coverage counts on this case; their details are visible to the case team in their region.</div></div></div>' + strip + "</div>");
       return;
