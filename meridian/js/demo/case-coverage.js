@@ -756,7 +756,7 @@
           esc(x[2].state === "dash" ? "Not expected" : x[2].text) + "</span></button>";
       }).join("") +
       /* Back to top, at the bar's end behind a blurry divider: the thick MDI arrow in link blue (Scott, 10-15). */
-      '<div class="vr vr-blurry" aria-hidden="true"></div><button type="button" class="cv-bar-top" data-cv="panel-top" tabindex="-1" aria-label="Back to top" title="Back to top" data-cnds-tooltip-init data-cnds-placement="bottom">' +
+      '<div class="vr vr-blurry" aria-hidden="true"></div><button type="button" class="cv-bar-top" data-cv="panel-top" tabindex="-1" aria-label="Back to top" title="Back to top" data-cnds-tooltip-init data-cnds-placement="left">' +
       '<i class="mdi mdi-arrow-up-bold" aria-hidden="true"></i></button>' + "</nav></div>";
     /* Nimbus tooltips (the back-to-top arrow): dispose the old ones before the body is replaced, so none is left
        showing, and initialise the new ones after (markup injected after boot is not auto-initialised). */
