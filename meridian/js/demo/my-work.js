@@ -27,7 +27,8 @@
      weekAll  This Week expanded past what fits beside the Cases card
 
    RENDER CYCLE
-     render()      tiles + lead line, filters, queue  (after any queue change)
+     render()      tiles + lead line, filters, queue  (first paint)
+     refresh()     the same after a click, the queue fading out and in
      renderCases() Cases Needing Attention            (on load and on sort)
      renderWeek()  This Week, fitted to the Cases card (on load, resize,
                    collapse, SHOW ALL / SHOW FEWER)
@@ -64,6 +65,7 @@
   var KIND_BADGE = { GAP: "warning", ANSWER: "info", DECIDE: "danger", APPROVE: "caution", CONFIRM: "success", REVIEW: "secondary" };
   var SEVERITY = ["GAP", "DECIDE", "ANSWER", "APPROVE", "CONFIRM", "REVIEW"];  /* Most Urgent sort order */
 
+  var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   function plural(n, word) { return n + " " + word + (n === 1 ? "" : "s"); }
   function sum(list) { return list.reduce(function (n, x) { return n + x.n; }, 0); }
   function caseName(id) { var c = M.caseById(id); return c.name + " · " + c.id; }
@@ -254,6 +256,18 @@
     if (NS) NS.initAll(foot);
   }
   function render() { renderTop(); renderChips(); renderQueue(); }
+  /* After a click: tiles and filter buttons update at once; the count line, rows and pager fade out and back in
+     (Nimbus .fade, 0.15s linear: Scott, 10-14). A click during the fade restarts it with the newest choice. No fade
+     under reduced motion, or while the skeleton shows. */
+  var fadeTimer;
+  function refresh() {
+    renderTop(); renderChips();
+    var parts = ["mwShowing", "mwQueue", "mwQueueFoot"].map(function (id) { return document.getElementById(id); });
+    if (reduceMotion || !fontsReady) { renderQueue(); return; }
+    clearTimeout(fadeTimer);
+    parts.forEach(function (p) { p.classList.remove("show"); });
+    fadeTimer = setTimeout(function () { renderQueue(); parts.forEach(function (p) { p.classList.add("show"); }); }, 150);
+  }
 
   /* ── Cases Needing Attention (PRD 11 §7.4; design decisions 9–10) ── */
   /* Badge colour by the worst problem: danger for holds removed or not on hold, warning for not acknowledged or
@@ -335,7 +349,6 @@
 
   /* Smooth height changes in the two-up row (design decision 12): record each card's height, let the change happen,
      then animate from the old height to the new (0.35s, the Nimbus collapse timing). Skipped for reduced motion. */
-  var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   function twoUpCards() { return [].slice.call(document.querySelectorAll(".mw-two > .demo-drawer")); }
   function heights(cards) { return cards.map(function (c) { return c.getBoundingClientRect().height; }); }
   function animateFrom(cards, before) {
@@ -419,36 +432,36 @@
   }
 
   /* ── Events ───────────────────────────────────────────────────────── */
-  onSelect(document.getElementById("mwSort"), function () { page = 1; renderQueue(); });
+  onSelect(document.getElementById("mwSort"), function () { page = 1; refresh(); });
   onSelect(document.getElementById("mwCasesSort"), renderCases);
   /* Pager size select (rendered into the queue footer): back to page 1. */
-  onSelect(document.getElementById("mwQueueFoot"), function (e) { if (e.target.getAttribute("data-pg-size") === "mw") { pageSize = +e.target.value; page = 1; renderQueue(); } });
+  onSelect(document.getElementById("mwQueueFoot"), function (e) { if (e.target.getAttribute("data-pg-size") === "mw") { pageSize = +e.target.value; page = 1; refresh(); } });
   /* Queue filters are radios: one change event per selection. */
-  document.getElementById("mwChips").addEventListener("change", function (e) { if (e.target.name === "mwFilter") { chip = e.target.value; page = 1; render(); } });
+  document.getElementById("mwChips").addEventListener("change", function (e) { if (e.target.name === "mwFilter") { chip = e.target.value; page = 1; refresh(); } });
 
   /* Every click on the page, by the data attribute it carries. */
   document.addEventListener("click", function (e) {
     var t = e.target.closest("button, a");
     if (!t) return;
     /* Pager arrows. */
-    if (t.getAttribute("data-pg-for") === "mw") { page = D.turnPage(page, t.getAttribute("data-pg"), filtered().length, pageSize); renderQueue(); document.getElementById("mwQueueH").scrollIntoView({ block: "start" }); return; }
+    if (t.getAttribute("data-pg-for") === "mw") { page = D.turnPage(page, t.getAttribute("data-pg"), filtered().length, pageSize); refresh(); document.getElementById("mwQueueH").scrollIntoView({ block: "start" }); return; }
     /* Tiles: Needs Action / Preservation at Risk filter the queue; Due This Week expands This Week; Overdue opens Requests. */
     if (t.hasAttribute("data-tile")) {
       var k = t.getAttribute("data-tile");
       if (k === "week") { renderWeek(true); document.getElementById("mwWeekH").scrollIntoView({ behavior: "smooth", block: "center" }); return; }
       if (k === "overdue") { window.location.href = "case-requests.html"; return; }
       chip = k === "risk" ? "risk" : "open"; page = 1;
-      render(); document.getElementById("mwQueueH").scrollIntoView({ behavior: "smooth", block: "start" }); return;
+      refresh(); document.getElementById("mwQueueH").scrollIntoView({ behavior: "smooth", block: "start" }); return;
     }
     /* Snooze from the row menu: the item leaves Open but stays counted in Needs Action. */
     if (t.hasAttribute("data-snooze-days")) {
       var until = new Date(Date.parse(M.DEMO_TODAY) + parseInt(t.getAttribute("data-snooze-days"), 10) * 86400000).toISOString().slice(0, 10);
       rowById(t.getAttribute("data-row")).snoozedUntil = until;
-      render();
+      refresh();
       D.toast("Snoozed until " + M.fmtDate(until) + ". The item stays counted in Needs Action and returns early if its condition worsens.");
       return;
     }
-    if (t.hasAttribute("data-unsnooze")) { delete rowById(t.getAttribute("data-unsnooze")).snoozedUntil; render(); D.toast("The item is back in the action queue."); return; }
+    if (t.hasAttribute("data-unsnooze")) { delete rowById(t.getAttribute("data-unsnooze")).snoozedUntil; refresh(); D.toast("The item is back in the action queue."); return; }
     if (t.hasAttribute("data-toast-row")) { D.toast(rowById(t.getAttribute("data-toast-row").replace(/-2$/, "")).action.toast || "Done."); return; }
     switch (t.getAttribute("data-mw")) {
       case "report": report(); break;

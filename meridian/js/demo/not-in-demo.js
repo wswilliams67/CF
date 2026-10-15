@@ -10,7 +10,7 @@
   document.getElementById("demoStubText").textContent = ships
     ? what + " ships in CaseFusion today. It is not part of this demo."
     : what + " is not part of this demo.";
-  /* &filter=<status>: the screen opens pre-filtered (e.g. My Cases from My Work's SHOW ALL 18 CASES opens filtered to Open). */
+  /* &filter=<status>: the screen opens pre-filtered (e.g. My Cases from My Work's SHOW ALL 18 CASES opens filtered to Active). */
   var filter = q.get("filter");
   if (filter) document.getElementById("demoStubText").textContent += " It opens filtered to " + filter + " cases.";
   document.title = what + " · Meridian Biopharma · CaseFusion";
