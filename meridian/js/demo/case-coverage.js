@@ -590,7 +590,8 @@
             ' aria-label="Release ' + esc(D.nameFor(p)) + '" /></div></td><td><span class="fw-bold' + (D.canSee(p) ? "" : " demo-masked") + '">' + esc(D.nameFor(p)) + '</span><span class="d-block small text-muted">' +
             (D.canSee(p) ? esc(p.title) + (p.departed ? " · departed" : "") : "Outside your regions") + "</span></td><td>" + holdsCell + "</td><td>" + after + "</td></tr>";
         }).join("")) +
-        '<div class="cf-category cf-cat-6 highlight-casefusion">Release Notice</div>' +
+        /* 48px (mt-5) between the flyout's sections, the house section step (Scott, 10-15). */
+        '<div class="cf-category cf-cat-6 highlight-casefusion mt-5">Release Notice</div>' +
         '<div class="row g-3 mb-3"><div class="col-md-6">' + D.select("cvRelNotice", [["standard", "Standard Release Notice"], ["retention", "Release Notice with Retention Reminder"], ["none", "No Notice"]], notice, "Notice", { container: "#" + m.id }) +
           /* Who gets the notice is a choice, as in the canvas (ReleaseLegalHold.dc.html): checked by default, unchecked and
              disabled under No Notice. A silent-hold custodian is named as receiving nothing. */
@@ -598,14 +599,14 @@
             (notice === "none" || !notified.length || readOnly ? " disabled" : "") + ' /><label class="form-check-label" for="cvRelSend">' + (!on.length ? "No one selected" : !notified.length ? "No one selected was notified" :
             "Send to the " + notified.length + " custodian" + (notified.length === 1 ? " who was" : "s who were") + " notified") + "</label>" +
           (silentOnly.length ? '<span class="d-block small text-muted">' + esc(silentOnly.map(function (c) { return D.nameFor(person(c)); }).join(", ")) + " " + (silentOnly.length === 1 ? "is" : "are") + " on a silent legal hold and receive" + (silentOnly.length === 1 ? "s" : "") + " nothing.</span>" : "") + "</div></div></div>" +
-        '<div class="cf-category cf-cat-6 highlight-casefusion">What Stays Preserved</div>' +
+        '<div class="cf-category cf-cat-6 highlight-casefusion mt-5">What Stays Preserved</div>' +
         '<p>Releasing a custodian from the legal hold does not release their sources or delete collected data.</p>' +
         '<p>Non-custodial sources they use (Box folder, Webex space, Teams teams) belong to the case and stay. 1 collection request is still open: COL-0142.</p>' +
         /* Entry point to Release readiness (PRD 08 §7.4, CV65; the screen is PRD 13's): every mechanism, in every case. */
         '<p class="mb-0 d-flex flex-wrap align-items-center gap-2">Other cases, retention policies and delay holds can also preserve their data; release readiness lists every one. ' +
           '<a class="btn btn-tertiary btn-sm" href="not-in-demo.html?what=Release+readiness+(PRD+13)">RELEASE READINESS</a></p>' +
         /* The reason comes last, after the consequences, next to the commit buttons (design decision 53). */
-        '<hr class="hr hr-blurry my-4" aria-hidden="true" />' +
+        '<hr class="hr hr-blurry mt-5 mb-4" aria-hidden="true" />' +
         '<div class="cf-input-field cf-input-field-casefusion mb-0"><label class="cf-input-label" for="cvRelReason">Reason <span class="cf-input-required">*</span></label>' +
           '<div class="cf-input-wrapper"><textarea id="cvRelReason" class="cf-input-control" rows="2"' + (readOnly ? " disabled" : "") + ">" + esc(reason) + "</textarea></div>" +
           '<div class="cf-input-helper"><span class="cf-input-helper-text">The reason is kept with the case record.</span></div></div>' +
