@@ -558,6 +558,8 @@
       var holds = on.reduce(function (n, c) { return n + (c.lhn || []).length; }, 0);
       m.el.querySelector(".offcanvas-title").textContent = "Release from legal hold · " + plural(on.length, "custodian");
       m.el.querySelector(".offcanvas-body").innerHTML =
+        (readOnly ? '<div class="alert alert-warning mb-4" role="alert"><span class="alert-icon" aria-hidden="true"><i class="mdi mdi-alert"></i></span>' +
+          '<span class="alert-message">Read only. Only a Case Administrator can release custodians from a legal hold.</span></div>' : "") +
         '<div class="cf-category cf-cat-6 highlight-casefusion">Custodians</div>' +
         /* Who to show and the selection shortcuts act on the list, so they share one list toolbar: a Nimbus toggle button
            group (radio btn-check, single select, as on My Work), a blurry rule, then SELECT ALL and CLEAR (Scott, 10-15). */
@@ -606,11 +608,11 @@
         '<hr class="hr hr-blurry my-4" aria-hidden="true" />' +
         '<div class="cf-input-field cf-input-field-casefusion mb-0"><label class="cf-input-label" for="cvRelReason">Reason <span class="cf-input-required">*</span></label>' +
           '<div class="cf-input-wrapper"><textarea id="cvRelReason" class="cf-input-control" rows="2"' + (readOnly ? " disabled" : "") + ">" + esc(reason) + "</textarea></div>" +
-          '<div class="cf-input-helper"><span class="cf-input-helper-text">The reason is kept with the case record.</span></div></div>';
+          '<div class="cf-input-helper"><span class="cf-input-helper-text">The reason is kept with the case record.</span></div></div>' +
+        (readOnly ? "" : '<p class="cv-meta text-muted mt-3 mb-0">RELEASE AND CREATE CLEANUP REQUEST opens a cleanup request with these custodians\' sources selected and the reason <em>Custodian released from legal hold</em>.</p>');
       var ok = on.length && reason.trim() && !readOnly;
-      m.el.querySelector(".offcanvas-footer").innerHTML = (readOnly ?
-          '<span class="small cv-meta cv-footer-note text-warning-emphasis fw-bold">Read only: only a Case Administrator can release custodians from a legal hold.</span>' :
-          '<span class="small text-muted cv-meta cv-footer-note">The cleanup request opens with these custodians\' sources selected and the reason Custodian released from legal hold.</span>') +
+      /* The footer holds only the actions (Scott, 10-15): the cleanup note sits under Reason, the read-only notice at the top. */
+      m.el.querySelector(".offcanvas-footer").innerHTML =
         '<button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas">' + (stacked ? "BACK" : readOnly ? "CLOSE" : "CANCEL") + "</button>" +
         '<button type="button" class="btn btn-secondary" data-rel="release"' + (ok ? "" : " disabled") + ">RELEASE ONLY</button>" +
         '<button type="button" class="btn btn-primary" data-rel="cleanup"' + (ok ? "" : " disabled") + ">RELEASE AND CREATE CLEANUP REQUEST</button>";
