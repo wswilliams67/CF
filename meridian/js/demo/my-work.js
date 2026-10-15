@@ -345,7 +345,7 @@
     var did = M.whatCaseFusionDid.filter(function (x) { return access.cases.indexOf(x.caseId) !== -1; });
     var tbl = function (head, body) { return '<div class="table-responsive mb-3"><table class="table table-sm align-middle mb-0"><thead><tr>' + head.map(function (h) { return '<th scope="col">' + h + "</th>"; }).join("") + "</tr></thead><tbody>" + body + "</tbody></table></div>"; };
     var m = D.modal({ title: "Weekly Status Report", size: "lg",
-      body: '<p class="text-muted">' + esc(me.name) + " · every case you can open · 10-02-2026 – 10-08-2026. Generated from My Work; snoozed items are included and marked.</p>" +
+      body: '<p class="text-muted">' + esc(me.name) + " · all cases · 10-02-2026 – 10-08-2026. Generated from My Work; snoozed items are included and marked.</p>" +
         '<div class="cf-category cf-cat-4">Outstanding</div>' + tbl(["Kind", "What", "Case", "Waiting"], rows.map(function (r) {
           return "<tr><td>" + esc(r.chip) + "</td><td>" + esc(masked(r) && r.whatMasked ? r.whatMasked : r.what) + "</td><td>" + esc(M.caseById(r.caseId).name) + "</td><td>" + esc(waiting(r)) +
             (r.snoozedUntil ? ' <span class="badge badge-pill badge-warning">Snoozed until ' + esc(M.fmtDate(r.snoozedUntil)) + "</span>" : "") + "</td></tr>"; }).join("")) +
