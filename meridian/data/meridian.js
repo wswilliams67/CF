@@ -732,8 +732,10 @@
       var s = sv.filter(function (x) { return x.status !== "Answered" && x.status !== "Sent"; })[0] || sv.filter(function (x) { return x.status === "Sent"; })[0] || sv[sv.length - 1];
       var answered = sv.filter(function (x) { return x.status === "Answered"; }).length;
       var sState = s.status === "Answered" ? "done" : s.status === "Sent" ? "progress" : "action";
-      var sDetail = s.status === "Escalated" ? (s.reminders || 0) + " reminders · escalated" :
-        s.status === "Not answered" ? answered + " of " + sv.length + " answered · overdue" :
+      /* Details are one line in a 134px grid cell (~22 characters at 12px), in the notification cell's grammar,
+         "a of n · state" (Scott, 10-15: some wrapped, some didn't). The panel shows the full story. */
+      var sDetail = s.status === "Escalated" ? answered + " of " + sv.length + " · escalated" :
+        s.status === "Not answered" ? answered + " of " + sv.length + " · overdue" :
         s.status === "Sent" ? "due " + M.fmtDate(s.due).replace(/ \d{4}$/, "") : answered + " of " + sv.length;
       out.survey = { state: sState, text: s.status, detail: sDetail };
     }
@@ -746,7 +748,7 @@
       iv && iv.status === "Complete" ? { state: "done", text: "Complete", detail: M.fmtDate(iv.completed) } :
       iv ? { state: "progress", text: "Scheduled", detail: M.fmtDate(iv.date) } : { state: "todo", text: "Not scheduled" };
     /* Preservation */
-    if (c.notRequired && c.notRequired.preservation) out.preservation = { state: "na", text: "N/A", detail: "not required · reason on record" };
+    if (c.notRequired && c.notRequired.preservation) out.preservation = { state: "na", text: "N/A", detail: "reason on record" };
     else {
       var src = M.sourcesOf(c.personId);
       var held = src.filter(function (x) { return x.hold === "Applied" || x.hold === "Attested"; });
@@ -756,7 +758,7 @@
       var overdue = src.filter(function (x) { return x.hold === "Overdue"; }).length;
       var pending = src.filter(function (x) { return x.pending; }).length;
       var attested = src.filter(function (x) { return x.hold === "Attested"; }).length;
-      if (removed) notes.push(removed + " removed from Purview hold");
+      if (removed) notes.push(removed + " removed from hold");
       if (applying) notes.push(applying + " applying");
       if (overdue) notes.push(overdue + " attestation overdue");
       if (pending) notes.push(pending + " not requested");

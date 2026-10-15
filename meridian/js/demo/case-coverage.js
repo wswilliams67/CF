@@ -43,7 +43,7 @@
     if (x.state === "dash") return '<span class="text-muted" title="Not expected on this case">—</span>';
     var pill = '<span class="' + BADGE[x.state] + '">' + esc(x.text) + "</span>";
     if (link) pill = '<a href="' + link + '" title="Open Hold status">' + pill + "</a>";
-    return pill + (x.detail ? '<span class="d-block small text-muted mt-1">' + keepDates(esc(x.detail)) + "</span>" : "");
+    return pill + (x.detail ? '<span class="d-block small text-muted mt-1" title="' + esc(x.detail) + '">' + keepDates(esc(x.detail)) + "</span>" : "");
   }
 
   /* ── Tiles ──────────────────────────────────────────────────────────── */
@@ -128,8 +128,22 @@
     if (w !== "all" && (v[w].state === "done" || v[w].state === "dash" || v[w].state === "na" || v[w].state === "silent")) return false;
     return true;
   }
+  /* The grid's order (Sort By, Scott 10-15): Most Urgent by default, as My Work. Most Urgent = needs action first
+     (the most workflows needing action first), then in progress, then fully covered, then by name. Names sort by
+     what the viewer sees, so a limited profile's real name never decides its place. PREVIOUS / NEXT follow it. */
+  function ordered() {
+    var by = val("cvSort") || "urgent", B = { action: 0, progress: 1, fully: 2 };
+    var nm = function (c) { return visibleName(c).toLowerCase(); };
+    var acts = function (v) { return ["lhn", "survey", "interview", "preservation", "collection"].filter(function (k) { return v[k].state === "action"; }).length; };
+    return custodians.filter(matches).slice().sort(function (a, b) {
+      if (by === "name") return nm(a) < nm(b) ? -1 : nm(a) > nm(b) ? 1 : 0;
+      if (by === "added") return a.added < b.added ? 1 : a.added > b.added ? -1 : nm(a) < nm(b) ? -1 : 1;
+      var va = cov(a), vb = cov(b);
+      return B[va.bucket] - B[vb.bucket] || acts(vb) - acts(va) || (nm(a) < nm(b) ? -1 : nm(a) > nm(b) ? 1 : 0);
+    });
+  }
   function renderGrid() {
-    var rows = custodians.filter(matches);
+    var rows = ordered();
     var pages = Math.max(1, Math.ceil(rows.length / pageSize));
     if (page > pages) page = pages;
     var shown = rows.slice((page - 1) * pageSize, page * pageSize);
@@ -549,7 +563,7 @@
      first (the story of what was done). Sources: least protected / least collected first, Hold Status's ranking. */
   var SEVERITY = { "Not applied": 0, "Overdue": 1, "Partial": 2, "Applying": 3, "Removing": 3, "Unknown": 4, "Applied": 5, "Attested": 6 };
   var COLLECTED = { Failed: 0, Retrying: 1, "Not started": 2, "In progress": 3, Collected: 4 };
-  function sortLine(text) { return '<p class="cv-meta text-muted mb-2"><span class="demo-label d-inline me-1">Sorted By:</span>' + esc(text) + "</p>"; }
+  function sortLine(text) { return '<p class="cv-meta text-muted mb-2 cv-meta-line"><span class="demo-label d-inline me-1">Sorted By:</span>' + esc(text) + "</p>"; }
   function firstDate(x) { return ((x.events || [])[0] || [""])[0]; }
   function actionThenNewest(isAction) {
     return function (a, b) { return (isAction(a) ? 0 : 1) - (isAction(b) ? 0 : 1) || (firstDate(a) < firstDate(b) ? 1 : firstDate(a) > firstDate(b) ? -1 : 0); };
@@ -597,8 +611,18 @@
      .collapse holding the records, then the section's next steps on a footer row (forward right).
      A workflow the case does not expect starts shut (`quiet`), so the panel opens on what matters (Scott, 10-15);
      once the reader opens or shuts a drawer, that choice holds for every custodian. */
+  /* The meta lines that lead a drawer (EXPECTED, SORTED BY) share one line, divided by a blurry rule, so they take
+     one line of the drawer, not two (Scott, 10-15). They wrap onto two lines only when the panel is too narrow. */
+  var META = /^(?:<p class="cv-meta text-muted mb-2 cv-meta-line">[\s\S]*?<\/p>)+/;
+  function metaRow(body) {
+    var m = META.exec(body);
+    if (!m) return body;
+    var items = m[0].match(/<p class="cv-meta text-muted mb-2 cv-meta-line">[\s\S]*?<\/p>/g).map(function (x) { return x.replace(/^<p[^>]*>|<\/p>$/g, ""); });
+    return '<div class="cv-meta-row">' + items.map(function (i) { return "<span>" + i + "</span>"; }).join('<span class="vr vr-blurry" aria-hidden="true"></span>') + "</div>" + body.slice(m[0].length);
+  }
   function drawer(key, title, summary, body, acts, quiet) {
     var open = key in secOpen ? secOpen[key] : !quiet;
+    body = metaRow(body);
     return '<section class="card card-basic card-drawer demo-drawer cv-drawer" aria-labelledby="cvSecH-' + key + '"><div class="card-body">' +
       '<div class="card-top demo-drawer-top"><h4 class="cf-category cf-cat-6 highlight-casefusion mb-0 flex-grow-1" id="cvSecH-' + key + '">' + esc(title) + "</h4>" +
         '<span class="cv-meta text-muted cv-sec-sum">' + esc(summary) + "</span>" +
@@ -623,7 +647,7 @@
     var outside = { survey: "Not on LH-0031, so the case does not expect a survey.", interview: "Not tagged Key Custodian, so the case does not expect an interview.",
       collection: "No collection is marked for this custodian." }[wf];
     var ex = M.cases.filter(function (x) { return x.id === D.caseId; })[0].expects[wf], rule = ex.rule || ex.text;
-    return '<p class="cv-meta text-muted mb-2"><span class="demo-label d-inline me-1">' + (e.yes ? "Expected:" : "Not Expected:") + "</span>" +
+    return '<p class="cv-meta text-muted mb-2 cv-meta-line"><span class="demo-label d-inline me-1">' + (e.yes ? "Expected:" : "Not Expected:") + "</span>" +
       esc(e.yes ? e.why : rule + ". " + outside) + "</p>";
   }
   /* Work done for a custodian it is not expected of (a survey sent or an interview booked off-plan) is shown, but does
@@ -689,7 +713,7 @@
         aside: done ? "Answered " + short(x.on) : "Due " + short(x.due || def.due), events: x.events, acts: acts });
     });
     var body = expectLine(c, "survey") + (na ? '<p class="cv-meta mb-0">Not required: ' + esc(na) + "</p>" : !sv.length ? (exp ? empty("No survey sent", "The case expects a survey from this custodian, and none has been sent.") : "") :
-      (exp ? "" : OFF_PLAN) + (rows.length > 1 ? sortLine("Needs action first, then newest · each timeline oldest first") : "") + tiles(rows) + '<p class="cv-meta text-muted mt-2 mb-0">Locations named in survey answers are added as reported locations for review.</p>');
+      (rows.length > 1 ? sortLine("Needs action first, then newest · each timeline oldest first") : "") + (exp ? "" : OFF_PLAN) + tiles(rows) + '<p class="cv-meta text-muted mt-2 mb-0">Locations named in survey answers are added as reported locations for review.</p>');
     var menu = item("", "New Survey…", "Opens the survey form with this custodian", "not-in-demo.html?what=New+survey&amp;ships=1") +
       '<li><h6 class="dropdown-header">Questions and reminders from a survey in this case</h6></li>' +
       M.surveys.map(function (d) { return item('data-send-survey="' + d.id + '" data-one="' + pid + '"', d.id + " · " + d.title, d.questions + " questions"); }).join("");
@@ -858,7 +882,7 @@
   /* PREVIOUS / NEXT walk the grid's current filter. The panel crossfades between custodians, as the grid does
      between views (0.15s out, then in); no motion under reduced motion. */
   function stepPanel(dir) {
-    var list = custodians.filter(matches);
+    var list = ordered();
     if (!list.length) return;
     var i = list.map(function (c) { return c.personId; }).indexOf(panelId);
     var next = list[(i + dir + list.length) % list.length].personId, body = panel.el.querySelector(".offcanvas-body");
@@ -868,7 +892,7 @@
   }
   /* "3 of 9 custodians": where this custodian sits in the grid's current filter. */
   function panelPos() {
-    var el = document.getElementById("cvPanelPos"), list = custodians.filter(matches), i = list.map(function (c) { return c.personId; }).indexOf(panelId);
+    var el = document.getElementById("cvPanelPos"), list = ordered(), i = list.map(function (c) { return c.personId; }).indexOf(panelId);
     if (el) el.textContent = i === -1 ? "Not in the current filter" : (i + 1) + " of " + list.length + " custodian" + (list.length === 1 ? "" : "s");
   }
   /* From the summary strip: open the workflow's drawer (if shut) and bring it to the top of the panel. */
@@ -1020,6 +1044,9 @@
      Select fires its change event then too; `syncing` stops that echo from clearing the card the reader just chose. */
   var syncing = false;
   function onFilter() { if (syncing) return; tileFilter = null; page = 1; renderTiles(); view(renderGrid); }
+  /* A new order is a view change (crossfade); it keeps the filters and returns to page 1. */
+  function onSort() { page = 1; view(renderGrid); if (panel) panelPos(); }
+  ["change", "valueChanged.cnds.select"].forEach(function (ty) { document.getElementById("cvSort").addEventListener(ty, onSort); });
   ["cvFilter", "cvWorkflow"].forEach(function (id) {
     var el = document.getElementById(id);
     el.addEventListener("change", onFilter);
