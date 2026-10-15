@@ -116,10 +116,14 @@
         notRequired: an exclusion with a reason ("N/A" on Coverage).        */
   /* Legal hold notifications and surveys issued on MBP-0926. */
   M.legalHolds = [
-    { id: "LH-0031", title: "Initial legal hold notification", sent: "2026-08-28", time: "09:00",
-      settings: "Body as edited · 2 attachments · reminders every 3 days · escalation at 13 days · SUR-0012 attached", survey: "SUR-0012" },
-    { id: "LH-0044", title: "Supplemental notification · scope widened to Teams and devices", sent: "2026-09-12", time: "14:00",
-      settings: "Body as edited · no attachments · reminders every 4 days · escalation at 7 days" },
+    /* respondBy: the acknowledgment deadline (production's View Hold shows "Time to respond"). scope: what the notice
+       asks the custodian to keep, used in the notice text. */
+    { id: "LH-0031", title: "Initial legal hold notification", sent: "2026-08-28", time: "09:00", respondBy: "2026-09-04",
+      settings: "Body as edited · 2 attachments · reminders every 3 days · escalation at 13 days · SUR-0012 attached", survey: "SUR-0012",
+      scope: "Clinical development, pharmacovigilance and regulatory records for Veltrazine, including email, OneDrive, Teams chats, Copilot interactions and laptops" },
+    { id: "LH-0044", title: "Supplemental notification · scope widened to Teams and devices", sent: "2026-09-12", time: "14:00", respondBy: "2026-09-19",
+      settings: "Body as edited · no attachments · reminders every 4 days · escalation at 7 days",
+      scope: "Teams channels and chats, and every work-issued or personal device used for Veltrazine work, in addition to LH-0031" },
     { id: "LH-0052", title: "Executive review", silent: true, sent: "2026-08-20", time: "10:15" }
   ];
   M.surveys = [

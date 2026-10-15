@@ -830,7 +830,7 @@
       var to = custodians.filter(function (x) { return (x.lhn || []).some(function (y) { return y.id === n.id; }); }).length;
       var silent = n.status === "Silent";
       var acts = silent ? btn("VIEW LEGAL HOLD", 'data-cv-view-lh="' + n.id + '"') + link("REMOVE FROM LEGAL HOLD", "not-in-demo.html?what=Remove+from+legal+hold&amp;ships=1") :
-        n.status === "Acknowledged" ? btn("VIEW NOTIFICATION", 'data-cv-view-lh="' + n.id + '"') :
+        n.status === "Acknowledged" ? btn("VIEW LEGAL HOLD", 'data-cv-view-lh="' + n.id + '"') :
         btn("SEND REMINDER", 'data-cv-remind="' + n.id + '"') + btn("RESEND NOTIFICATION", 'data-cv-resend="' + n.id + '"') + btn("RECORD ACKNOWLEDGMENT", 'data-cv-ack="' + n.id + '"');
       return recordTile({ id: n.id, view: 'data-cv-view-lh="' + n.id + '"', title: h.title, badge: lhnBadge(n.status, "Silent legal hold"),
         aside: silent ? "Nothing sent to the custodian" : "Sent to " + plural(to, "custodian"), events: n.events, acts: acts });
@@ -1080,36 +1080,71 @@
   }
 
   /* ── Stacked drawers (forms and read-only detail, 50%) ────────────── */
-  /* The notification or legal hold, read-only: a detail with a recipient list. */
-  /* Engagement (Legal Holds in production, Case Administrator v1.5 Figma 689:37056): acknowledged out of every
-     recipient of this notification, not only the custodian the panel is open on. Not shown for a silent legal hold,
-     which is never sent. The bar is Nimbus progress; the legend uses the meta-line labels. */
+  /* ── View Hold: CaseFusion's existing View Hold flyout (production Legal Holds, 10-15 screenshot), mirrored, not
+        respecified (decision 54): header (time to respond, sent), ENGAGEMENT, RECIPIENT NOTIFICATION (the email as
+        sent), RECIPIENTS (with delegates), LEGAL HOLD (the notice); CLOSE and UPDATE. Stacked over the custodian
+        panel, so CLOSE reads BACK. The email is shown as this panel's custodian received it. A silent legal hold sends
+        nothing: no engagement, email or notice, only who is tracked. ────────────────────────────────────────── */
+  function vhSection(key, title, body, extra) {
+    var open = key in secOpen ? secOpen[key] : true;
+    return '<section class="card card-basic card-drawer demo-drawer cv-drawer" aria-labelledby="cvSecH-' + key + '"><div class="card-body">' +
+      '<div class="card-top demo-drawer-top"><h4 class="cf-category cf-cat-6 highlight-casefusion mb-0 flex-grow-1" id="cvSecH-' + key + '">' + esc(title) + (extra || "") + "</h4>" +
+        '<button type="button" class="card-drawer-toggle" data-cv-sec="' + key + '" aria-expanded="' + open + '" aria-controls="cvSec-' + key + '" aria-label="' + (open ? "Collapse " : "Expand ") + esc(title) + '">' +
+        '<i class="mdi mdi-chevron-up mdi-24px" aria-hidden="true"></i></button></div>' +
+      '<div class="collapse card-drawer-body' + (open ? " show" : "") + '" id="cvSec-' + key + '">' + body + "</div></div></section>";
+  }
+  /* Engagement, as production: one bar, "Acknowledged: n  Not Acknowledged: n", the percentage at the right. It counts
+     every recipient of the notification, not only this panel's custodian. */
   function meter(id, on) {
     var ack = on.filter(function (c) { return c.lhn.some(function (n) { return n.id === id && n.status === "Acknowledged"; }); }).length;
     var pct = on.length ? Math.round(ack / on.length * 100) : 0;
-    return '<div class="cf-category cf-cat-6 highlight-casefusion">Engagement</div>' +
-      '<div class="cv-meter mb-4"><div class="cv-meter-main">' +
+    return '<div class="cv-meter"><div class="cv-meter-main">' +
         '<div class="progress cv-meter-bar" role="progressbar" aria-label="Acknowledged" aria-valuenow="' + pct + '" aria-valuemin="0" aria-valuemax="100">' +
           '<div class="progress-bar bg-success" style="width:' + pct + '%"></div></div>' +
-        '<div class="cv-meta-row cv-meta mt-2"><span><span class="demo-label d-inline me-1">Acknowledged:</span>' + ack + '</span>' +
-          '<span class="vr vr-blurry" aria-hidden="true"></span><span><span class="demo-label d-inline me-1">Not Acknowledged:</span>' + (on.length - ack) + "</span></div></div>" +
-        '<div class="vr vr-blurry" aria-hidden="true"></div><div class="cv-meter-pct">' + pct + "%</div></div>";
+        '<div class="cv-meter-legend mt-2"><span>Acknowledged: ' + ack + "</span><span>Not Acknowledged: " + (on.length - ack) + "</span></div></div>" +
+      '<div class="vr vr-blurry" aria-hidden="true"></div><div class="cv-meter-pct">' + pct + "%</div></div>";
+  }
+  function holdEmail(h, p) {
+    return '<div class="cv-doc"><p>Dear ' + esc(D.nameFor(p)) + ",</p>" +
+      "<p>This email is an important notification about your obligation to preserve documents and materials in connection with the " + esc(M.caseById("MBP-0926").name) + " matter. As an employee who may hold relevant information or materials, you are required to take immediate action.</p>" +
+      "<p>Please open the following link to:</p><ul><li>Review detailed information about this legal hold</li><li>Understand your specific preservation obligations</li><li>Acknowledge your receipt and compliance with these requirements</li></ul>" +
+      '<p><a href="not-in-demo.html?what=Legal+hold+acknowledgment+portal">https://' + esc(M.tenant.domain) + "/legal-hold-notifications?legalHoldId=" + esc(h.id) + "</a></p>" +
+      "<p>You must complete this acknowledgment by " + esc(M.fmtDate(h.respondBy)) + ".</p>" +
+      "<h5>Important Notes:</h5><ul><li>This is a confidential legal matter.</li><li>Do not delete potentially relevant materials until further notice.</li><li>For questions about the legal hold, contact Meridian Biopharma Legal.</li></ul>" +
+      "<p>Best regards,<br />Meridian Biopharma Legal Department</p></div>";
+  }
+  function holdNotice(h) {
+    var cs = M.caseById("MBP-0926");
+    return '<div class="cv-doc"><h3>LEGAL HOLD NOTICE</h3><p><strong>MATTER:</strong> ' + esc(cs.name) + "</p><p><strong>Issue Date:</strong> " + esc(M.fmtDate(h.sent)) + "</p>" +
+      "<h4>IMPORTANT NOTICE - READ CAREFULLY</h4><p>This Legal Hold Notice requires your immediate attention and compliance. As a custodian of potentially relevant information, you are legally obligated to preserve all materials that may relate to this matter.</p>" +
+      "<h4>PRESERVATION OBLIGATIONS</h4><p>" + esc(h.scope || "") + ".</p>" +
+      "<h4>DO NOT DESTROY OR ALTER</h4><p><strong>You must not:</strong> delete, alter, dispose of, or allow automatic deletion of relevant materials.</p>" +
+      "<h4>DURATION OF HOLD</h4><p>This hold remains in effect until written notice of release is provided. You will receive periodic reminders.</p>" +
+      '<h4>ACKNOWLEDGMENT REQUIRED</h4><p>You must acknowledge receipt and understanding of this notice by opening the Acknowledge link below.</p><p><a href="not-in-demo.html?what=Legal+hold+acknowledgment+portal">Acknowledge</a></p></div>';
   }
   function viewHold(id) {
     var h = holdById(id);
     var on = custodians.filter(function (c) { return (c.lhn || []).some(function (n) { return n.id === id; }); });
-    var kv = function (k, val) { return '<dt class="col-4 fw-bold">' + k + '</dt><dd class="col-8">' + val + "</dd>"; };
-    D.offcanvas({ title: id + " · " + h.title, width: "50vw",
-      body: '<div class="cv-scope"><dl class="row demo-kv mb-3">' +
-        kv("Type", h.silent ? "Silent legal hold · nothing is sent" : "Legal hold notification") + kv(h.silent ? "Started" : "Sent", esc(M.fmtDateTime(h.sent, h.time))) +
-        (h.settings ? kv("Settings", esc(h.settings)) : "") + (h.survey ? kv("Survey", esc(h.survey)) : "") + kv(h.silent ? "Tracked" : "Recipients", plural(on.length, "custodian")) + "</dl>" +
-        (h.silent ? "" : meter(id, on)) +
-        '<div class="cf-category cf-cat-6 highlight-casefusion">' + (h.silent ? "Custodians Tracked" : "Recipients") + "</div>" +
-        '<ul class="list-group list-group-flush cv-tl">' + on.map(function (c) {
-          var n = c.lhn.filter(function (x) { return x.id === id; })[0], p = person(c);
-          return '<li class="list-group-item cv-tl-2"><span class="' + (seen(c) ? "fw-bold" : "fw-bold demo-masked") + '">' + (seen(c) ? "" : LOCK) + esc(D.nameFor(p)) + "</span>" + lhnBadge(n.status, "Tracked") + "</li>";
-        }).join("") + "</ul></div>",
-      footer: '<button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas">BACK</button>' });
+    var me = panelId ? person(byPid(panelId)) : person(on[0]);
+    var late = !h.silent && h.respondBy && h.respondBy < TODAY;
+    var head = '<div class="cv-vh-head cv-meta mb-3">' +
+      (h.silent ? '<span>Silent legal hold · nothing is sent to the custodians</span><span>Started: ' + esc(M.fmtDate(h.sent)) + "</span>" :
+        '<span class="' + (late ? "text-danger-emphasis" : "") + '">Time to respond: ' + (late ? "Expired" : esc(M.fmtDate(h.respondBy))) + "</span><span>Sent: " + esc(M.fmtDate(h.sent)) + "</span>") + "</div>";
+    var recips = '<p class="cv-meta text-muted">' + (h.silent ? "The custodians tracked by this silent legal hold. Nothing is sent to them." :
+        "The following is a compilation of custodians and their respective delegates, if any, designated to receive this legal hold. This list is not included in the legal hold notification sent to the recipients and is intended solely for the author\'s review.") + "</p>" +
+      '<ul class="list-group list-group-flush cv-vh-list">' + on.map(function (c) {
+        var n = c.lhn.filter(function (x) { return x.id === id; })[0], p = person(c);
+        return '<li class="list-group-item cv-vh-rec">' + D.avatar(p, 32) + '<span class="flex-grow-1"><span class="d-block ' + (seen(c) ? "" : "demo-masked") + '">' + (seen(c) ? "" : LOCK) + esc(D.nameFor(p)) + "</span>" +
+          (c.delegate ? '<span class="d-block small text-muted">Delegate: ' + esc(c.delegate) + "</span>" : "") + '</span><span class="vr vr-blurry" aria-hidden="true"></span>' + lhnBadge(n.status, "Tracked") + "</li>";
+      }).join("") + "</ul>";
+    var count = '<span class="badge badge-secondary cv-vh-count">' + on.length + "</span>";
+    D.offcanvas({ title: id + " · " + h.title, width: "70vw",
+      body: '<div class="cv-scope cv-drawers">' + head +
+        (h.silent ? "" : vhSection("vh-eng", "Engagement", meter(id, on)) + vhSection("vh-mail", "Recipient Notification", holdEmail(h, me))) +
+        vhSection("vh-rec", h.silent ? "Custodians Tracked" : "Recipients", recips, count) +
+        (h.silent ? "" : vhSection("vh-notice", "Legal Hold", holdNotice(h))) + "</div>",
+      footer: '<button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas">BACK</button>' +
+        '<a class="btn btn-secondary" href="not-in-demo.html?what=' + encodeURIComponent("Update legal hold " + id + " (the existing CaseFusion page)") + '&amp;ships=1">UPDATE</a>' });
   }
   /* Form drawers: BACK closes only this drawer (with the Please Confirm guard when something was entered); SAVE
      records it, closes this drawer and redraws the panel underneath with a toast. */
