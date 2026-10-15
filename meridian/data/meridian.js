@@ -476,12 +476,14 @@
     { day: "Tue",   kind: "ack",     n: 1, caseId: "MBP-0774", what: "1 acknowledgment due" },
     { day: "Wed",   kind: "request", n: 1, caseId: "MBP-0774", what: "PRS-0122 due · shared mailbox preservation" }
   ];
+  /* What CaseFusion did since the viewer signed off (M.signedOff, 10-07-2026 at 4:40 PM): every entry is after that time.
+     on + time (24h) are shown through M.fmtWhen: "Today at 6:12 AM", "Yesterday at 5:22 PM", else "10-05-2026 at 3:14 PM". */
   M.whatCaseFusionDid = [
-    { n: 14, what: "Purview holds applied", context: "Halvorsen Class Action · new custodians from the 10-06-2026 import", when: "Today, 06:12", caseId: "MBP-0931" },
-    { n: 3,  what: "work items routed to response teams", context: "Veltrazine Product Liability · PRS-0101 follow-ups", when: "Today, 02:40", caseId: "MBP-0926" },
-    { n: 22, what: "reminders sent", context: "4 cases · legal hold notifications and surveys", when: "Today, 09:00", caseId: "MBP-0931" },
-    { n: 1,  what: "custodian acknowledged", context: "Pellworth Arbitration · within the SLA", when: "Yesterday, 16:22", caseId: "MBP-0842" },
-    { n: 2,  what: "escalations sent", context: "Halvorsen Class Action · surveys past due", when: "Yesterday, 11:05", caseId: "MBP-0931" }
+    { n: 14, what: "Purview holds applied", context: "Halvorsen Class Action · new custodians from the 10-06-2026 import", on: "2026-10-08", time: "06:12", caseId: "MBP-0931" },
+    { n: 3,  what: "work items routed to response teams", context: "Veltrazine Product Liability · PRS-0101 follow-ups", on: "2026-10-08", time: "02:40", caseId: "MBP-0926" },
+    { n: 22, what: "reminders sent", context: "4 cases · legal hold notifications and surveys", on: "2026-10-08", time: "09:00", caseId: "MBP-0931" },
+    { n: 1,  what: "custodian acknowledged", context: "Pellworth Arbitration · within the SLA", on: "2026-10-07", time: "17:22", caseId: "MBP-0842" },
+    { n: 2,  what: "escalations sent", context: "Halvorsen Class Action · surveys past due", on: "2026-10-07", time: "18:05", caseId: "MBP-0931" }
   ];
 
   /* ── Header notifications (the frame's bell). ─────────────────────── */
@@ -699,6 +701,14 @@
   /* A time beside a date is 12-hour, joined by "at": 10-03-2026 at 11:20 AM (casefusion-date-format). */
   M.fmtTime = function (hhmm) { var t = hhmm.split(":"), h = parseInt(t[0], 10); return ((h % 12) || 12) + ":" + t[1] + " " + (h < 12 ? "AM" : "PM"); };
   M.fmtDateTime = function (iso, hhmm) { return M.fmtDate(iso) + (hhmm ? " at " + M.fmtTime(hhmm) : ""); };
+  /* Relative day for recent activity: Today / Yesterday against the demo clock, otherwise the house date (mm-dd-yyyy),
+     always joined to a 12-hour time by "at" (Scott, 10-14). */
+  M.fmtWhen = function (iso, hhmm) {
+    var d = new Date(M.DEMO_TODAY + "T00:00:00"); d.setDate(d.getDate() - 1);
+    var y = d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2);
+    var day = iso === M.DEMO_TODAY ? "Today" : iso === y ? "Yesterday" : M.fmtDate(iso);
+    return day + (hhmm ? " at " + M.fmtTime(hhmm) : "");
+  };
   M.daysBetween = function (a, b) {
     return Math.round((Date.parse(b) - Date.parse(a)) / 86400000);
   };

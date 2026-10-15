@@ -38,7 +38,8 @@
   /* ── Header, lead line, tiles ───────────────────────────────────────── */
   function renderTop() {
     var me = M.person(v.personId);
-    var did = M.whatCaseFusionDid.filter(function (d) { return access.cases.indexOf(d.caseId) !== -1; });
+    var did = M.whatCaseFusionDid.filter(function (d) { return access.cases.indexOf(d.caseId) !== -1; })
+      .sort(function (a, b) { return (b.on + b.time).localeCompare(a.on + a.time); });  /* newest first */
     var handled = did.reduce(function (n, d) { return n + d.n; }, 0);
     var cases = caseIds(rows).length;
     document.getElementById("mwWho").textContent = me.name + " · " + access.open + " open cases";
@@ -324,11 +325,13 @@
     body.addEventListener("hidden.cnds.collapse", function (e) { if (e.target === body) renderWeek(false); });
   });
   function renderDid() {
-    var did = M.whatCaseFusionDid.filter(function (d) { return access.cases.indexOf(d.caseId) !== -1; });
+    var did = M.whatCaseFusionDid.filter(function (d) { return access.cases.indexOf(d.caseId) !== -1; })
+      .sort(function (a, b) { return (b.on + b.time).localeCompare(a.on + a.time); });  /* newest first */
     document.getElementById("mwDidSince").textContent = "Since you signed off, " + M.signedOff;
     document.getElementById("mwDid").innerHTML = did.map(function (d) {
+      /* MDI check in success green; the time reads "Today at 6:12 AM" (M.fmtWhen). */
       return '<li class="list-group-item"><div class="mw-row-did"><i class="mdi mdi-check text-success" aria-hidden="true"></i><span class="fw-bold">' + d.n + " " + esc(d.what) +
-        '</span><span class="text-muted">' + esc(d.context) + '</span><span class="text-muted text-end">' + esc(d.when) + "</span></div></li>";
+        '</span><span class="text-muted">' + esc(d.context) + '</span><span class="text-muted text-end">' + esc(M.fmtWhen(d.on, d.time)) + "</span></div></li>";
     }).join("") || '<li class="list-group-item">' + emptyState("Nothing to report", "CaseFusion did not need to do anything since you signed off.") + "</li>";
   }
   function render() { renderTop(); renderChips(); renderQueue(); }
