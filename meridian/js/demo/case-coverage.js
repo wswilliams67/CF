@@ -164,14 +164,35 @@
     var inner = esc(title) + (sub ? '<span class="d-block small text-muted">' + esc(sub) + "</span>" : "");
     return "<li>" + (href ? '<a class="dropdown-item" href="' + href + '">' + inner + "</a>" : '<button type="button" class="dropdown-item" ' + attrs + ">" + inner + "</button>") + "</li>";
   }
+  /* The selection toolbar zooms in when the first custodian is selected and out when the last is cleared (Scott,
+     10-14): Nimbus cnds-scale-in / cnds-scale-out (scale 0.95 ↔ 1 with a fade), while its slot's height opens or closes
+     over the same 0.2s so the grid below eases instead of jumping. No motion under reduced motion. */
+  var REDUCE = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var selShown = false, selTimer = null;
+  function slide(host, from, to, done) {
+    clearTimeout(selTimer);
+    host.style.overflow = "hidden"; host.style.height = from + "px";
+    void host.offsetHeight;
+    host.style.transition = "height .2s ease"; host.style.height = to + "px";
+    selTimer = setTimeout(function () { host.style.transition = ""; host.style.height = ""; host.style.overflow = ""; if (done) done(); }, 220);
+  }
   function renderSelTool() {
     var list = selectedList(), n = list.length, host = document.getElementById("cvSelTool");
-    if (!n) { host.innerHTML = ""; return; }
+    if (!n) {
+      if (!selShown) { host.innerHTML = ""; return; }
+      selShown = false;
+      var bar = host.querySelector(".cv-seltool");
+      if (REDUCE || !bar) { host.innerHTML = ""; return; }
+      bar.classList.remove("cv-zoom-in"); bar.classList.add("cv-zoom-out");
+      slide(host, host.offsetHeight, 0, function () { if (!selShown) host.innerHTML = ""; });
+      return;
+    }
+    var entering = !selShown; selShown = true;
     var regular = M.legalHolds.filter(function (h) { return !h.silent; }), silent = M.legalHolds.filter(function (h) { return h.silent; });
     var ids = list.map(function (c) { return c.personId; }).join(",");
     /* Selection toolbar in the default toolbar colour, not the green shared state (design decision 11). The clear (X)
        and the count use the list toolbar's text colour so they read on the default bar in both themes. */
-    host.innerHTML = '<div class="btn-toolbar-gray cv-seltool mb-2" role="toolbar" aria-label="Actions for selected custodians">' +
+    host.innerHTML = '<div class="pb-2"><div class="btn-toolbar-gray cv-seltool" role="toolbar" aria-label="Actions for selected custodians">' +
       '<div class="toolbar-shared-count"><i class="mdi mdi-close pointer toolbar-list-total" role="button" tabindex="0" aria-label="Clear selection" data-cv="clear"></i><div class="vr vr-blurry" aria-hidden="true"></div><span class="toolbar-list-total">' + n + " selected" + "</span></div><div>" +
       dropdown("SEND LEGAL HOLD NOTIFICATION",
         item("", "New Legal Hold Notification…", "Opens the notification form with the " + n + " selected custodians as recipients", "not-in-demo.html?what=New+legal+hold+notification&amp;ships=1") +
@@ -196,7 +217,11 @@
       /* Disabled, never hidden, when no selected custodian is on a legal hold: there is nothing to release. */
       (list.some(releasable) ? '<div class="btn-group" role="group"><button type="button" class="btn btn-tertiary btn-sm" data-cv="release">RELEASE FROM HOLD</button></div>' :
         '<div class="btn-group" role="group" title="None of the selected custodians is on a legal hold."><button type="button" class="btn btn-tertiary btn-sm" disabled>RELEASE FROM HOLD</button></div>') +
-      "</div></div>";
+      "</div></div></div>";
+    if (entering && !REDUCE) {
+      var bar = host.querySelector(".cv-seltool"); bar.classList.remove("cv-zoom-out"); bar.classList.add("cv-zoom-in");
+      slide(host, 0, host.scrollHeight);
+    }
   }
 
   /* ── Non-custodial held sources (Nimbus table) ──────────────────────── */
