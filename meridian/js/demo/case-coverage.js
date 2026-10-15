@@ -166,8 +166,10 @@
     if (!n) { host.innerHTML = ""; return; }
     var regular = M.legalHolds.filter(function (h) { return !h.silent; }), silent = M.legalHolds.filter(function (h) { return h.silent; });
     var ids = list.map(function (c) { return c.personId; }).join(",");
-    host.innerHTML = '<div class="btn-toolbar-gray btn-toolbar-shared mb-2" role="toolbar" aria-label="Actions for selected custodians">' +
-      '<div class="toolbar-shared-count"><i class="mdi mdi-close pointer" role="button" tabindex="0" aria-label="Clear selection" data-cv="clear"></i><span>' + n + (n === 1 ? " custodian selected" : " custodians selected") + "</span></div><div>" +
+    /* Selection toolbar in the default toolbar colour, not the green shared state, and with no clear (X): the grid's
+       checkboxes select and clear (Scott, 10-14; design decision 11). The count uses the list toolbar's text style. */
+    host.innerHTML = '<div class="btn-toolbar-gray mb-2" role="toolbar" aria-label="Actions for selected custodians">' +
+      '<div class="toolbar-shared-count"><span class="toolbar-list-total">' + n + (n === 1 ? " custodian selected" : " custodians selected") + "</span></div><div>" +
       dropdown("SEND LEGAL HOLD NOTIFICATION",
         item("", "New Legal Hold Notification…", "Opens the notification form with the " + n + " selected custodians as recipients", "not-in-demo.html?what=New+legal+hold+notification&amp;ships=1") +
         '<li><h6 class="dropdown-header">Settings from a notification in this case</h6></li>' +
@@ -548,7 +550,6 @@
     if (!a) return;
     if (a === "select-after") { page = 1; selected = {}; afterNoticeUnsent().forEach(function (c) { selected[c.personId] = true; }); tileFilter = null; setFilter("after"); render(); }
     if (a === "review-after") { page = 1; tileFilter = null; setFilter("after"); renderTiles(); renderGrid(); }
-    if (a === "clear") { selected = {}; renderGrid(); }
     if (a === "not-required") markNotRequired();
     if (a === "release") openRelease(selectedList().map(function (c) { return c.personId; }));
     if (a === "export") exportCoverage("coverage-" + D.caseId + ".csv");
