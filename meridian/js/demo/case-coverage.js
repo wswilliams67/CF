@@ -461,15 +461,42 @@
   }
   /* From the toolbar: the selection, workflow chosen in the dialog. From custodian coverage: `only` that custodian,
      with the section's workflow preselected (wf0). */
+  /* ── People an action applies to, as Nimbus chips (Scott, 10-15) ──
+     Every action dialog names who it reaches with one chip per custodian: their photo and name, or the grey lock
+     avatar and "Profile details limited" for someone outside the viewer's regions. No remove (✕): the selection is
+     changed on the grid. Replaces the "N selected" sentence and the Custodian label/value pair. */
+  function personChip(c) {
+    var p = person(c);
+    return seen(c) ? '<span class="chip"><img class="chip-img" src="../img/avatars/' + p.id + '.jpg" alt="" />' + esc(p.name) + "</span>" :
+      '<span class="chip"><span class="chip-img monogram demo-avatar-locked">' + LOCK + "</span>Profile details limited</span>";
+  }
+  function peopleField(list) {
+    return '<div class="mb-3"><span class="cf-input-label d-block mb-1">' + (list.length === 1 ? "Custodian" : "Custodians · " + list.length) + "</span>" +
+      '<div class="d-flex flex-wrap gap-1">' + list.map(personChip).join("") + "</div></div>";
+  }
+  /* Who an effect sentence names: one visible custodian by name, otherwise a count. */
+  function whom(list) { return list.length === 1 ? (seen(list[0]) ? visibleName(list[0]) : "this custodian") : "the " + list.length + " selected custodians"; }
+  var WF_NAME = { survey: "Survey", interview: "Interview", preservation: "Preservation" };
+  /* The effect note follows the Workflow select (tone model: declarative, no instruction). */
+  function nrEffect(wf, list) {
+    return WF_NAME[wf] + " becomes N/A for " + whom(list) + ". It is no longer counted as a gap, and the case preservation report shows it as N/A with this reason.";
+  }
+  var nrList = [];
+  ["change", "valueChanged.cnds.select"].forEach(function (ty) {
+    document.addEventListener(ty, function (e) {
+      if (!e.target || e.target.id !== "cvNrWf") return;
+      var note = e.target.closest(".modal") && e.target.closest(".modal").querySelector(".note");
+      if (note) note.textContent = nrEffect(e.target.value, nrList);
+    });
+  });
   function markNotRequired(only, wf0) {
     var list = only || selectedList();
+    nrList = list;
     D.reasonDialog({
       title: "Mark Not Required",
-      intro: plural(list.length, "custodian") + " selected.",
-      /* One custodian: name the record the dialog acts on (demo-kv; Scott, 10-14). Several: the count above says it. */
-      extra: (list.length === 1 ? '<dl class="row demo-kv mb-3"><dt class="col-4 fw-bold">Custodian</dt><dd class="col-8 mb-0' + (seen(list[0]) ? "" : " demo-masked") + '">' +
-        (seen(list[0]) ? "" : LOCK) + esc(visibleName(list[0])) + "</dd></dl>" : "") + D.select("cvNrWf", [["survey", "Survey"], ["interview", "Interview"], ["preservation", "Preservation"]], wf0 || "survey", "Workflow", { container: "{{modal}}", cls: "mb-3" }),
-      effect: "The workflow reads N/A, leaves the gap count, and shows in the coverage report with this reason.",
+      extra: peopleField(list) + D.select("cvNrWf", [["survey", "Survey"], ["interview", "Interview"], ["preservation", "Preservation"]], wf0 || "survey", "Workflow", { container: "{{modal}}", cls: "mb-3" }),
+      help: "The reason is kept with the case record and appears in the case preservation report.",
+      effect: nrEffect(wf0 || "survey", list),
       confirm: "MARK NOT REQUIRED"
     }).then(function (r) {
       if (!r) return;
@@ -479,7 +506,7 @@
         else { c.notRequiredWf = c.notRequiredWf || {}; c.notRequiredWf[wf] = r.reason; }
       });
       if (!only) selected = {};
-      D.toast(wf.charAt(0).toUpperCase() + wf.slice(1) + " marked not required for " + list.length + ".");
+      D.toast(WF_NAME[wf] + " marked not required for " + whom(list) + ".");
       render();
     });
   }
