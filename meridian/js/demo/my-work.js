@@ -82,6 +82,15 @@
   function snoozed() { return rows.filter(function (r) { return r.snoozedUntil; }); }
   function didList() { return mine(M.whatCaseFusionDid).sort(function (a, b) { return (b.on + b.time).localeCompare(a.on + a.time); }); }  /* newest first */
   function weekDates() { return mine(M.thisWeek); }
+  /* Preservation at risk counts units, not rows (MW32): holds, custodians, attestations and leavers on the locked
+     rows, named term by term. One row can hold several (3 custodians not on hold is one row, three units). */
+  function riskUnits() {
+    var u = { removed: 0, notOnHold: 0, attestation: 0, leaver: 0 };
+    rows.filter(function (r) { return r.locked; }).forEach(function (r) { Object.keys(r.units || {}).forEach(function (k) { u[k] += r.units[k]; }); });
+    var parts = [[u.removed, "hold removed"], [u.notOnHold, "not on hold"], [u.attestation, "attestation overdue"], [u.leaver, "leaver"]]
+      .filter(function (p) { return p[0]; }).map(function (p) { return p[0] + " " + p[1]; });
+    return { total: u.removed + u.notOnHold + u.attestation + u.leaver, parts: parts };
+  }
 
   /* Shared empty state (demo.css .demo-empty): icon, bold title, muted note, centred. */
   function emptyState(title, note, cls) {
@@ -102,12 +111,7 @@
     /* Lead line (MW4) in the formal tone: a statement of fact, no "you", nothing personified (design decision 18). */
     document.getElementById("mwLead").innerHTML = "<b>" + rows.length + " items need action</b> across " + cases + " of " + access.open +
       " cases. CaseFusion completed " + sum(didList()) + " tasks automatically since the last sign-off yesterday.";
-    /* Preservation at risk: the locked rows' units, named term by term. */
-    var u = { removed: 0, notOnHold: 0, attestation: 0, leaver: 0 };
-    rows.filter(function (r) { return r.locked; }).forEach(function (r) { Object.keys(r.units || {}).forEach(function (k) { u[k] += r.units[k]; }); });
-    var uTotal = u.removed + u.notOnHold + u.attestation + u.leaver;
-    var uParts = [[u.removed, "hold removed"], [u.notOnHold, "not on hold"], [u.attestation, "attestation overdue"], [u.leaver, "leaver"]]
-      .filter(function (p) { return p[0]; }).map(function (p) { return p[0] + " " + p[1]; });
+    var risk = riskUnits();
     var od = mine(M.overdueWithTeams).sort(function (a, b) { return b.days - a.days; });
     var wk = weekDates();
     var req = sum(wk.filter(function (w) { return w.kind === "request"; })), ack = sum(wk.filter(function (w) { return w.kind === "ack"; }));
@@ -119,7 +123,7 @@
     }
     document.getElementById("mwTiles").innerHTML =
       tile("needs", rows.length, "Needs Action", "Across " + cases + " of " + access.open + " cases", chip === "open", !rows.length) +
-      tile("risk", uTotal, "Preservation at Risk", uParts.join(" · ") || "Nothing at risk", chip === "risk", !uTotal) +
+      tile("risk", risk.total, "Preservation at Risk", risk.parts.join(" · ") || "Nothing at risk", chip === "risk", !risk.total) +
       tile("overdue", od.length, "Overdue with Response Teams", od.length ? "Oldest " + od[0].days + " days · " + od[0].team : "None") +
       tile("week", req + ack, "Due This Week", plural(req, "request") + " · " + plural(ack, "acknowledgment"), false, !(req + ack));
   }
@@ -137,7 +141,7 @@
       return '<div class="btn-group" role="group" aria-label="' + label + '">' + list.map(function (d) {
         var id = "mwF-" + d[0], on = chip === d[0];
         return '<input type="radio" class="btn-check" name="mwFilter" id="' + id + '" value="' + d[0] + '" autocomplete="off"' + (on ? " checked" : "") + (d[2] || on ? "" : " disabled") + ">" +
-          '<label class="btn btn-secondary" for="' + id + '">' + esc(d[1]) + " (" + d[2] + ")</label>";
+          '<label class="btn btn-secondary btn-sm" for="' + id + '">' + esc(d[1]) + " (" + d[2] + ")</label>";
       }).join("") + "</div>";
     }
     document.getElementById("mwChips").innerHTML = group(status, "Queue status") + '<div class="vr vr-blurry" aria-hidden="true"></div>' + group(kinds, "Kind of work");
@@ -219,9 +223,12 @@
     var pages = Math.max(1, Math.ceil(list.length / pageSize));
     if (page > pages) page = pages;
     var shown = list.slice((page - 1) * pageSize, page * pageSize);
-    /* The queue's one count line, in the toolbar, following the filter (design decision 3). */
+    /* The queue's one count line, in the toolbar, following the filter (design decision 3). On Preservation at Risk it
+       reconciles the button's row count with the tile's unit count (design decision 22). */
+    var risk = riskUnits();
     document.getElementById("mwShowing").textContent = chip === "snoozed"
       ? "Showing " + list.length + " of " + snoozed().length + " snoozed"
+      : chip === "risk" ? "Showing " + list.length + " of " + open().length + " · " + risk.total + " at risk: " + risk.parts.join(" · ")
       : "Showing " + list.length + " of " + open().length + " · " + list.filter(function (r) { return r.found; }).length + " found by CaseFusion · " + snoozed().length + " snoozed";
     if (!fontsReady) {
       q.setAttribute("aria-busy", "true");
@@ -291,7 +298,7 @@
   /* footer: "more" (some left out: remainder + SHOW ALL), "fewer" (all shown after SHOW ALL: SHOW FEWER) or none. */
   function drawWeek(n, footer) {
     var wk = weekDates(), shown = wk.slice(0, n), more = wk.length - shown.length, foot = "";
-    document.getElementById("mwWeekCount").textContent = plural(wk.length, "date");  /* Nimbus badge capitalisation shows "6 Dates" */
+    document.getElementById("mwWeekCount").textContent = sum(wk) + " due";  /* obligations, as the Due This Week tile counts them; each row states its own n (design decision 23). Nimbus badge capitalisation shows "9 Due" */
     /* Day · what is due, the case as a 12px link, then the urgency flag in words (danger text). */
     document.getElementById("mwWeek").innerHTML = shown.map(function (w) {
       return '<li class="list-group-item"><div class="mw-row-week"><span class="fw-bold">' + esc(w.day) + "</span><div>" + esc(w.what) +
