@@ -41,6 +41,12 @@
   }
 
   /* ── Viewer ─────────────────────────────────────────────────────────── */
+  /* ?viewer=v-us|v-row|v-cu opens any page as that persona (review guides link straight to a viewer's view); the
+     choice is remembered like a pick from the account menu. */
+  (function () {
+    var q = /[?&]viewer=([\w-]+)/.exec(location.search);
+    if (q && M.viewers.some(function (x) { return x.id === q[1]; })) { try { localStorage.setItem(KEY, q[1]); } catch (e) { /* private mode: default viewer */ } }
+  }());
   function viewerId() {
     var v = null;
     try { v = localStorage.getItem(KEY); } catch (e) { v = null; }

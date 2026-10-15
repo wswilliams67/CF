@@ -500,8 +500,8 @@
      Summary strip: the grid row restated, the sections' contents page. Then the five workflows as drawer cards (the
      house .card-drawer, as My Work), open by default; a drawer the reader shuts
      stays shut from custodian to custodian. Inside: the custodian's notifications, surveys and
-     interview as nested tiles with their timelines (CV41), and sources as Hold Status record rows with their
-     provenance (CV43); then the section's own next steps on a footer row (CV45). A workflow the case does not expect starts shut.
+     interview as nested tiles with their timelines (CV41), and sources as SOURCE · STATUS · FROM tables with
+     their provenance (CV43); then the section's own next steps on a footer row (CV45). A workflow the case does not expect starts shut.
      Follow-on steps (view a notification, record an acknowledgment, schedule an interview) open as stacked
      drawers over the panel (casefusion stacked-offcanvas pattern: BACK closes only the stacked drawer). */
   var panel = null, panelId = null, secOpen = {};
@@ -522,13 +522,12 @@
         '</span><span class="cv-tl-who text-muted">' + esc(e[3]) + "</span>" + pill(e[4], TONE[e[4]] || "light") + "</li>";
     }).join("") + "</ul>";
   }
-  /* A source row, in the Hold Status / My Work grammar (Scott's review, 10-15): identity · two labelled columns (in-row
-     labels, no header row) · blurry divider · stacked small tertiary actions, centred. The action column is one
-     width across the whole panel (D.fitActions). */
-  function rec(id, cols, acts) {
-    return '<li class="list-group-item"><div class="cv-rec"><div class="cv-rec-id">' + id + "</div>" +
-      cols.map(function (c) { return '<div><span class="demo-label">' + c[0] + "</span>" + c[1] + "</div>"; }).join("") +
-      '<div class="vr vr-blurry" aria-hidden="true"></div><div class="cv-rec-actions">' + (acts || "") + "</div></div></li>";
+  /* Sources as the PM canvas lists them (Scott, 10-15): a table with SOURCE · STATUS · FROM, the source over its
+     location, the status with its qualifier under it, FROM the provenance (request · mechanism, CV43). The
+     drawer's footer carries the next steps, so the rows have no actions. */
+  function srcTable(rows) {
+    return '<div class="table-responsive"><table class="table align-middle mb-0 cv-src"><thead><tr><th scope="col">Source</th><th scope="col">Status</th><th scope="col">From</th></tr></thead><tbody>' +
+      rows.map(function (r) { return "<tr><td>" + r[0] + "</td><td>" + r[1] + "</td><td>" + r[2] + "</td></tr>"; }).join("") + "</tbody></table></div>";
   }
   /* A nested tile, as the PM canvas lists a custodian's notifications and surveys (Scott, 10-15): one tile per
      instance, stacked 8px apart. Header band: reference link, name, status badge, and the aside at the right
@@ -540,7 +539,6 @@
       '<div class="cv-tile-body">' + timeline(o.events) + (o.acts ? '<hr class="hr hr-blurry cv-tile-rule" aria-hidden="true" /><div class="card-actions justify-content-end">' + o.acts + "</div>" : "") + "</div></div>";
   }
   function tiles(list) { return '<div class="cv-tile-stack">' + list.join("") + "</div>"; }
-  function recs(items) { return '<ul class="list-group list-group-flush demo-rows cv-recs">' + items.join("") + "</ul>"; }
   /* Identity: the record's name (14px bold), then a 12px line; `sub` is HTML (a reference link, inline so only its
      text is clickable). */
   function ident(name, sub) { return '<span class="d-block fw-bold">' + esc(name) + "</span>" + (sub ? '<div class="small text-muted">' + sub + "</div>" : ""); }
@@ -666,9 +664,8 @@
     return drawer("interview", "Interview", sum, body, sched + nr, !exp && !iv && !na);
   }
 
-  /* Preservation: one row per source, as Hold Status lists them: source · STATUS with its qualifier · FROM, the
-     provenance (request · mechanism, CV43) · the row's next step. A location reported in a survey but not added
-     yet shows as such and counts in neither number (CV44). */
+  /* Preservation: one row per source. A location reported in a survey but not added yet shows as such, with a dash
+     for FROM, and counts in neither number (CV44). */
   function preservationDrawer(c, v) {
     var src = M.sourcesOf(c.personId), rep = c.reported || [];
     var sum = v.preservation.state === "na" ? "Not required" : v.preservation.text.replace(" on hold", " sources on hold") + (rep.length ? " · " + rep.length + " reported, not added" : "");
@@ -680,13 +677,11 @@
         (s.hold === "Overdue" ? qual("Attestation overdue" + hs, "warning") : "") +
         (s.hold === "Applying" ? qual("Applying since " + esc(short(s.exception.since)) + hs, "warning") : "");
       var from = s.pending ? '<span class="text-muted">—</span>' : reqLink(s.request) + " · " + (s.evidence === "attested" ? "attested" : "Purview");
-      var act = s.pending ? link("ADD TO REQUEST", "case-new-preservation.html?custodians=" + c.personId) : link("OPEN IN HOLD STATUS", "case-hold-status.html");
-      return rec(ident(M.typeLabel(s.type), esc(s.name)), [["Status", status], ["From", from]], act);
+      return [ident(M.typeLabel(s.type), esc(s.name)), status, from];
     }).concat(rep.map(function (r) {
-      return rec(ident(r.what, "Reported in " + esc(r.from) + " · not yet added"), [["Status", pill("Not held", "warning") + qual(esc(r.kind + " · " + r.status), "warning")], ["From", '<span class="text-muted">—</span>']],
-        link("ADD AS SOURCE", "case-add-sources.html"));
+      return [ident(r.what, "Reported in " + esc(r.from) + " · not yet added"), pill("Not held", "warning") + qual(esc(r.kind + " · " + r.status), "warning"), '<span class="text-muted">—</span>'];
     }));
-    var body = v.preservation.state === "na" ? '<p class="cv-meta mb-0">Not required: ' + esc(c.notRequired.preservation) + "</p>" : recs(rows);
+    var body = v.preservation.state === "na" ? '<p class="cv-meta mb-0">Not required: ' + esc(c.notRequired.preservation) + "</p>" : srcTable(rows);
     return drawer("preservation", "Preservation", sum, body,
       link("ADD TO PRESERVATION REQUEST", "case-new-preservation.html?custodians=" + c.personId, "btn-secondary") + link("OPEN HOLD STATUS", "case-hold-status.html", "btn-secondary"));
   }
@@ -696,12 +691,13 @@
     var tone = { Collected: "success", Failed: "danger", Retrying: "warning", "Not started": "secondary", "In progress": "info" };
     var items = (col && col.items) || [];
     var failed = items.some(function (x) { return x.status === "Failed"; });
-    var body = expectLine(c, "collection") + (!exp ? "" : !items.length ? empty("No collection yet", "The case expects a collection from this custodian, and none has been requested.") : recs(items.map(function (x) {
+    var body = expectLine(c, "collection") + (!exp ? "" : !items.length ? empty("No collection yet", "The case expects a collection from this custodian, and none has been requested.") : srcTable(items.map(function (x) {
       var s = M.sources.filter(function (y) { return y.id === x.source; })[0];
-      return rec(ident(M.typeLabel(s.type), esc(s.name)), [["Status", pill(x.status, tone[x.status] || "light")], ["From", esc(x.from) + qual(esc(x.note))]],
-        x.status === "Failed" ? link("VIEW FAILURE", "not-in-demo.html?what=Collection+failures") : link("VIEW PACKAGE", "not-in-demo.html?what=Collection+package+" + x.from));
+      /* FROM: the package for what was collected, the request otherwise; each a link to where it lives. */
+      var ref = /^PKG-/.test(x.from) ? '<a href="not-in-demo.html?what=Collection+package+' + x.from + '">' + esc(x.from) + "</a>" : reqLink(x.from);
+      return [ident(M.typeLabel(s.type), esc(s.name)), pill(x.status, tone[x.status] || "light"), ref + " · " + esc(x.note)];
     })));
-    return drawer("collection", "Collection", !exp ? "Not expected on this case" : v.collection.text, body,
+    return drawer("collection", "Collection", !exp ? "Not expected on this case" : v.collection.text + (v.collection.state !== "done" && v.collection.detail ? " · " + v.collection.detail : ""), body,
       link("ADD TO COLLECTION REQUEST", "not-in-demo.html?what=Collection+request", "btn-secondary") +
       (failed ? link("VIEW FAILURES", "not-in-demo.html?what=Collection+failures", "btn-secondary") : off("VIEW FAILURES", "No collection from this custodian has failed.", "btn-secondary")), !exp);
   }
@@ -740,12 +736,8 @@
           '<ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion dropdown-menu-end demo-menu-hug" role="menu"><li role="none"><button type="button" class="dropdown-item" role="menuitem" data-cv="export-one">CSV</button></li>' +
           '<li role="none"><a class="dropdown-item" role="menuitem" href="not-in-demo.html?what=Custodian+coverage+(PDF)">PDF</a></li></ul></div></div></div>' +
       strip + '<div class="cv-drawers">' + lhnDrawer(c) + surveyDrawer(c, v) + interviewDrawer(c, v) + preservationDrawer(c, v) + collectionDrawer(c, v) + "</div></div>");
-    fitPanel();
     if (keep) keep.scrollTop = top;
   }
-  /* One action-column width across every drawer's rows, so the dividers line up down the panel. A shut drawer has
-     no layout to measure, so the panel measures again whenever a drawer finishes opening. */
-  function fitPanel() { if (panel) D.fitActions(panel.el.querySelector(".cv-drawers"), ".cv-rec-actions"); }
   function openPanel(pid) {
     panelId = pid;
     if (!panel) {
@@ -753,7 +745,6 @@
         /* Previous and next are equal actions, so both are secondary: no primary in this footer (Scott, 10-14). */
         footer: '<button type="button" class="btn btn-secondary" data-cv="panel-prev">PREVIOUS CUSTODIAN</button><button type="button" class="btn btn-secondary" data-cv="panel-next">NEXT CUSTODIAN</button>',
         onHidden: function () { panel = null; panelId = null; } });
-      panel.el.addEventListener("shown.cnds.collapse", fitPanel);
     }
     renderPanel();
     var b = panel.el.querySelector(".offcanvas-body"); if (b) b.scrollTop = 0;
@@ -977,4 +968,19 @@
   });
 
   render();
+
+  /* Deep links for the review guides: ?open=<person id> opens that custodian's coverage, and &drawer=<lhn|survey|
+     interview|preservation|collection> opens that drawer and scrolls to it, so each edge case is one click away. */
+  (function () {
+    var q = function (k) { var m = new RegExp("[?&]" + k + "=([\\w-]+)").exec(location.search); return m && m[1]; };
+    var pid = q("open"), sec = q("drawer");
+    if (!pid || !byPid(pid)) return;
+    if (sec) secOpen[sec] = true;
+    /* Nimbus loads its components after this script (phase 2), so wait for them before opening the panel. */
+    var go = function () {
+      openPanel(pid);
+      if (sec) setTimeout(function () { var h = document.getElementById("cvSecH-" + sec); if (h) h.scrollIntoView({ block: "start" }); }, 450);
+    };
+    if (window.Nimbus && Nimbus.Offcanvas) go(); else document.addEventListener("cnds.ready", go, { once: true });
+  }());
 }());

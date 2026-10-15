@@ -146,7 +146,12 @@
         /* Per source, for custodian coverage's Collection table (PRD 08 §7.2): status and where it came from. */
         items: [{ source: "s-ex-vasquez", status: "Collected", from: "PKG-0139-01", note: "09-18-2026 · to Mar 2026" },
                 { source: "s-od-vasquez", status: "Collected", from: "PKG-0139-02", note: "09-18-2026 · to Mar 2026" }] } },
-    { personId: "p-torres", added: "2026-08-20", addedFrom: "Search", silent: true, tags: ["Key Custodian"],  /* interview expected, not scheduled */
+    { personId: "p-torres", added: "2026-08-20", addedFrom: "Search", silent: true, tags: ["Key Custodian"], expectMarks: ["collection"],  /* interview expected, not scheduled */
+      /* Collection marked for him on COL-0142, mid-flight as the canvas draws it: one collected, one failed, one retrying. */
+      collection: { request: "COL-0142",
+        items: [{ source: "s-ex-torres", status: "Collected", from: "PKG-0142-04", note: "09-15-2026" },
+                { source: "s-od-torres", status: "Failed", from: "COL-0142", note: "Graph 403 after 3 attempts" },
+                { source: "s-cp-torres", status: "Retrying", from: "COL-0142", note: "throttled, next retry 03:40" }] },
       /* Three holds at once, as the PM canvas draws Samir Haddad (CustodianCoverage.dc.html): LH-0031 never
          acknowledged (reminders every 3 days, escalated at 13 days, per its settings), the supplemental LH-0044
          acknowledged, and a silent legal hold, LH-0052. */
@@ -760,8 +765,15 @@
       out.preservation = { state: pState, text: held.length + " of " + src.length + " on hold", detail: notes.join(" · ") };
     }
     /* Collection: expected only where the case says so. */
+    /* Collection: per source when the sources are listed. A group is never labelled with its worst member (CV15):
+       "1 of 3 collected · 1 failed · 1 retrying", coloured by the worst (failed = action, still running = progress). */
+    var col = c.collection, items = (col && col.items) || [];
+    var n = function (st) { return items.filter(function (x) { return x.status === st; }).length; };
     out.collection = !M.expectation(c, "collection").yes ? { state: "dash", text: "—" } :
-      c.collection ? { state: "done", text: c.collection.text, detail: c.collection.detail } : { state: "todo", text: "Not requested" };
+      !col ? { state: "todo", text: "Not requested" } :
+      !items.length || n("Collected") === items.length ? { state: "done", text: col.text || items.length + " of " + items.length + " collected", detail: col.detail } :
+      { state: n("Failed") ? "action" : "progress", text: n("Collected") + " of " + items.length + " collected",
+        detail: [n("Failed") ? n("Failed") + " failed" : "", n("Retrying") ? n("Retrying") + " retrying" : "", n("Not started") ? n("Not started") + " not started" : ""].filter(Boolean).join(" · ") };
 
     var states = [out.lhn, out.survey, out.interview, out.preservation, out.collection].map(function (x) { return x.state; });
     /* Something expected and not started yet ("todo": Not scheduled, Not sent) is outstanding, not late. */
