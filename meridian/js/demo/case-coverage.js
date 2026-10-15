@@ -165,16 +165,17 @@
     return "<li>" + (href ? '<a class="dropdown-item" href="' + href + '">' + inner + "</a>" : '<button type="button" class="dropdown-item" ' + attrs + ">" + inner + "</button>") + "</li>";
   }
   /* The selection toolbar zooms in when the first custodian is selected and out when the last is cleared (Scott,
-     10-14): Nimbus cnds-scale-in / cnds-scale-out (scale 0.95 ↔ 1 with a fade), while its slot's height opens or closes
-     over the same 0.2s so the grid below eases instead of jumping. No motion under reduced motion. */
+     10-14): Nimbus cnds-scale-in / cnds-scale-out (scale 0.95 ↔ 1 with a fade, from its centre). The two steps run in
+     sequence so it reads as a zoom, not a slide: in, the slot opens (0.15s) and then the bar zooms in (0.2s); out, the
+     bar zooms out in place (0.2s) and then the empty slot closes (0.15s). No motion under reduced motion. */
   var REDUCE = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var selShown = false, selTimer = null;
   function slide(host, from, to, done) {
     clearTimeout(selTimer);
     host.style.overflow = "hidden"; host.style.height = from + "px";
     void host.offsetHeight;
-    host.style.transition = "height .2s ease"; host.style.height = to + "px";
-    selTimer = setTimeout(function () { host.style.transition = ""; host.style.height = ""; host.style.overflow = ""; if (done) done(); }, 220);
+    host.style.transition = "height .15s ease"; host.style.height = to + "px";
+    selTimer = setTimeout(function () { host.style.transition = ""; host.style.height = ""; host.style.overflow = ""; if (done) done(); }, 170);
   }
   function renderSelTool() {
     var list = selectedList(), n = list.length, host = document.getElementById("cvSelTool");
@@ -184,7 +185,9 @@
       var bar = host.querySelector(".cv-seltool");
       if (REDUCE || !bar) { host.innerHTML = ""; return; }
       bar.classList.remove("cv-zoom-in"); bar.classList.add("cv-zoom-out");
-      slide(host, host.offsetHeight, 0, function () { if (!selShown) host.innerHTML = ""; });
+      var h = host.offsetHeight; host.style.height = h + "px";
+      clearTimeout(selTimer);
+      selTimer = setTimeout(function () { if (selShown) return; slide(host, h, 0, function () { if (!selShown) host.innerHTML = ""; }); }, 200);
       return;
     }
     var entering = !selShown; selShown = true;
@@ -219,8 +222,8 @@
         '<div class="btn-group" role="group" title="None of the selected custodians is on a legal hold."><button type="button" class="btn btn-tertiary btn-sm" disabled>RELEASE FROM HOLD</button></div>') +
       "</div></div></div>";
     if (entering && !REDUCE) {
-      var bar = host.querySelector(".cv-seltool"); bar.classList.remove("cv-zoom-out"); bar.classList.add("cv-zoom-in");
-      slide(host, 0, host.scrollHeight);
+      var bar = host.querySelector(".cv-seltool"); bar.classList.remove("cv-zoom-out"); bar.style.opacity = "0";
+      slide(host, 0, host.scrollHeight, function () { bar.style.opacity = ""; bar.classList.add("cv-zoom-in"); });
     }
   }
 
