@@ -41,8 +41,9 @@
       .sort(function (a, b) { return (b.on + b.time).localeCompare(a.on + a.time); });  /* newest first */
     var handled = did.reduce(function (n, d) { return n + d.n; }, 0);
     var cases = caseIds(rows).length;
-    document.getElementById("mwLead").innerHTML = "<b>" + rows.length + " things need you</b> across " + cases + " of your " + access.open +
-      " cases. CaseFusion handled " + handled + " others since you signed off yesterday.";
+    /* Lead line (PRD 11 MW4), formal tone: a statement of fact, no "you", nothing personified (design decision 18). */
+    document.getElementById("mwLead").innerHTML = "<b>" + rows.length + " items need action</b> across " + cases + " of " + access.open +
+      " cases. CaseFusion completed " + handled + " tasks automatically since the last sign-off yesterday.";
     var u = units(rows.filter(function (r) { return r.locked; }));
     var uTotal = u.removed + u.notOnHold + u.attestation + u.leaver;
     var uParts = [];
