@@ -559,10 +559,16 @@
       m.el.querySelector(".offcanvas-title").textContent = "Release from legal hold · " + plural(on.length, "custodian");
       m.el.querySelector(".offcanvas-body").innerHTML =
         '<div class="cf-category cf-cat-6 highlight-casefusion">Custodians</div>' +
-        '<div class="d-flex align-items-center flex-wrap gap-2 mb-2"><ul class="nav nav-pills nav-pills-nimbus nav-pills-casefusion" role="group" aria-label="Who to show">' +
+        /* Who to show and the selection shortcuts act on the list, so they share one list toolbar: a Nimbus toggle button
+           group (radio btn-check, single select, as on My Work), a blurry rule, then SELECT ALL and CLEAR (Scott, 10-15). */
+        '<div class="btn-toolbar-gray btn-toolbar-list mb-2" role="toolbar" aria-label="Custodians to release"><div class="toolbar-list-controls cv-rel-tools">' +
+          '<div class="btn-group" role="group" aria-label="Who to show">' +
           [["all", "All on This Case", custodians.length], ["selected", stacked ? "This Custodian" : "Selected on Coverage", startIds.length], ["departed", "Departed", custodians.filter(function (c) { return person(c).departed; }).length]].map(function (x) {
-            return '<li class="nav-item"><button type="button" class="nav-link' + (chip === x[0] ? " active" : "") + '" data-chip="' + x[0] + '" aria-pressed="' + (chip === x[0]) + '">' + x[1] + ' <span class="nav-pill-badge">' + x[2] + "</span></button></li>"; }).join("") +
-          '</ul><span class="ms-auto"><button type="button" class="btn btn-tertiary btn-sm" data-rel="all"' + (readOnly ? " disabled" : "") + '>SELECT ALL</button><button type="button" class="btn btn-tertiary btn-sm" data-rel="none"' + (readOnly ? " disabled" : "") + ">CLEAR</button></span></div>" +
+            var id = m.id + "-who-" + x[0];
+            return '<input type="radio" class="btn-check" name="cvRelWho" id="' + id + '" value="' + x[0] + '" autocomplete="off"' + (chip === x[0] ? " checked" : "") + ">" +
+              '<label class="btn btn-secondary btn-sm" for="' + id + '">' + x[1] + " (" + x[2] + ")</label>"; }).join("") + "</div>" +
+          '<div class="cv-rel-tools-end"><div class="vr vr-blurry" aria-hidden="true"></div>' +
+          '<button type="button" class="btn btn-tertiary btn-sm" data-rel="all"' + (readOnly ? " disabled" : "") + '>SELECT ALL</button><button type="button" class="btn btn-tertiary btn-sm" data-rel="none"' + (readOnly ? " disabled" : "") + ">CLEAR</button></div></div></div>" +
         metaRow('<p class="cv-meta text-muted mb-2 cv-meta-line"><span class="demo-label d-inline me-1">Sorted By:</span>Name</p>' +
           '<p class="cv-meta text-muted mb-2 cv-meta-line"><span class="demo-label d-inline me-1">Selected:</span>' + on.length + " · " + plural(holds, "legal hold") + (left.length ? " · " + plural(left.length, "custodian") + " held on another case, left out" : "") + "</p>") +
         tbl(["", "Custodian", "Legal Holds", "After Release"], list.map(function (c) {
@@ -623,13 +629,13 @@
       if (pid) { ticked[pid] = e.target.checked; draw(); }
       if (e.target.id === "cvRelNotice" && notice !== e.target.value) { notice = e.target.value; draw(); }
       if (e.target.id === "cvRelSend") sendTo = e.target.checked;
+      if (e.target.name === "cvRelWho") { chip = e.target.value; tickDefault(); draw(); }
     }
     m.el.addEventListener("change", onChange);
     m.el.addEventListener("valueChanged.cnds.select", onChange);
     m.el.addEventListener("click", function (e) {
       var t = e.target.closest("button");
       if (!t) return;
-      if (t.hasAttribute("data-chip")) { chip = t.getAttribute("data-chip"); tickDefault(); draw(); return; }
       var a = t.getAttribute("data-rel");
       if (a === "all") { tickDefault(); draw(); }
       if (a === "none") { ticked = {}; draw(); }
