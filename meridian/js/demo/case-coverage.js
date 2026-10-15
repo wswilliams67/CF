@@ -1082,8 +1082,8 @@
   /* ── Stacked drawers (forms and read-only detail, 50%) ────────────── */
   /* ── View Hold: CaseFusion's existing View Hold flyout (production Legal Holds, 10-15 screenshot), mirrored, not
         respecified (decision 54): header (time to respond, sent), ENGAGEMENT, RECIPIENT NOTIFICATION (the email as
-        sent), RECIPIENTS (with delegates), LEGAL HOLD (the notice); CLOSE and UPDATE. Stacked over the custodian
-        panel, so CLOSE reads BACK. The email is shown as this panel's custodian received it. A silent legal hold sends
+        sent), RECIPIENTS (with delegates), LEGAL HOLD (the notice). Stacked over the custodian panel, so CLOSE reads
+        BACK; production's UPDATE is replaced by OPEN IN LEGAL HOLDS (question 14). The email is shown as this panel's custodian received it. A silent legal hold sends
         nothing: no engagement, email or notice, only who is tracked. ────────────────────────────────────────── */
   function vhSection(key, title, body, extra) {
     var open = key in secOpen ? secOpen[key] : true;
@@ -1156,7 +1156,8 @@
         vhSection("vh-rec", h.silent ? "Custodians Tracked" : "Recipients", recips, count) +
         (h.silent ? "" : vhSection("vh-notice", "Legal Hold", holdNotice(h))) + "</div>",
       footer: '<button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas">BACK</button>' +
-        '<a class="btn btn-secondary" href="not-in-demo.html?what=' + encodeURIComponent("Update legal hold " + id + " (the existing CaseFusion page)") + '&amp;ships=1">UPDATE</a>' });
+        /* No UPDATE here: PRD 08 gives Coverage no way to edit a hold; editing stays on Legal Holds (question 14). */
+        '<a class="btn btn-secondary" href="not-in-demo.html?what=' + encodeURIComponent("Legal Holds, with " + id + " open (the existing CaseFusion page)") + '&amp;ships=1">OPEN IN LEGAL HOLDS</a>' });
   }
   /* Form drawers: BACK closes only this drawer (with the Please Confirm guard when something was entered); SAVE
      records it, closes this drawer and redraws the panel underneath with a toast. */
