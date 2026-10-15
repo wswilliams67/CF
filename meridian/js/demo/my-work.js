@@ -349,30 +349,32 @@
     var did = M.whatCaseFusionDid.filter(function (x) { return access.cases.indexOf(x.caseId) !== -1; })
       .sort(function (a, b) { return (b.on + b.time).localeCompare(a.on + a.time); });
     var due = M.thisWeek.filter(function (w) { return access.cases.indexOf(w.caseId) !== -1; });
-    var head = function (title, count) {
-      return '<div class="demo-section-head mw-report-head"><h3 class="cf-category cf-cat-6 highlight-casefusion mb-0 flex-grow-1">' + title + "</h3>" +
-        (count !== null ? '<span class="badge badge-secondary">' + count + "</span>" : "") + "</div>";
+    /* Each section is its own card (heading and count in its top row), like My Work's sections, so the four read as
+       separate blocks (Scott, 10-14). */
+    var section = function (title, count, inner) {
+      return '<section class="card card-basic mw-report-card"><div class="card-body"><div class="demo-section-head mw-report-head">' +
+        '<h3 class="cf-category cf-cat-6 highlight-casefusion mb-0 flex-grow-1">' + title + '</h3><span class="badge badge-secondary">' + count + "</span></div>" + inner + "</div></section>";
     };
-    var list = function (items) { return '<ul class="list-group list-group-light demo-rows mw-report-list mb-4">' + items.join("") + "</ul>"; };
+    var list = function (items) { return '<ul class="list-group list-group-light demo-rows mw-report-list">' + items.join("") + "</ul>"; };
     var body =
       '<p class="small text-muted mb-1">' + esc(me.name) + " · All Cases · 10-02-2026 – 10-08-2026</p>" +
-      '<p class="small text-muted mb-4">Generated from My Work. Snoozed items are included and marked.</p>' +
-      head("Outstanding", rows.length) + list(rows.map(function (r) {
+      '<p class="small text-muted mb-3">Generated from My Work. Snoozed items are included and marked.</p>' +
+      section("Outstanding", rows.length, list(rows.map(function (r) {
         return '<li class="list-group-item"><div class="mw-report-row"><div><span class="d-block fw-bold">' + esc(masked(r) && r.whatMasked ? r.whatMasked : r.what) + "</span>" +
           '<span class="d-block small text-muted">' + esc(caseName(r.caseId)) + "</span>" +
           (r.snoozedUntil ? '<span class="d-block small fw-bold text-warning-emphasis">Snoozed until ' + esc(M.fmtDate(r.snoozedUntil)) + "</span>" : "") + "</div>" +
           '<div class="text-end"><span class="badge badge-' + KIND_BADGE[r.chip] + '">' + r.chip + '</span><span class="d-block small mt-1">' + esc(waiting(r)) + "</span></div></div></li>";
-      })) +
-      head("Resolved", 0) + '<div class="demo-empty mb-4"><i class="mdi mdi-cancel cnds-icon-2xl" aria-hidden="true"></i><span class="demo-empty-title">No items were resolved this period</span>' +
-        '<span class="demo-empty-note">Items closed in the last seven days appear here.</span></div>' +
-      head("What CaseFusion Did", did.reduce(function (n, x) { return n + x.n; }, 0)) + list(did.map(function (x) {
+      }))) +
+      section("Resolved", 0, '<div class="demo-empty pb-2"><i class="mdi mdi-cancel cnds-icon-2xl" aria-hidden="true"></i><span class="demo-empty-title">No items were resolved this period</span>' +
+        '<span class="demo-empty-note">Items closed in the last seven days appear here.</span></div>') +
+      section("What CaseFusion Did", did.reduce(function (n, x) { return n + x.n; }, 0), list(did.map(function (x) {
         return '<li class="list-group-item"><div class="mw-report-row"><div><span class="d-block fw-bold">' + x.n + " " + esc(x.what) + '</span><span class="d-block small text-muted">' + esc(x.context) + "</span></div>" +
           '<div class="text-end small text-nowrap">' + esc(M.fmtWhen(x.on, x.time)) + "</div></div></li>";
-      })) +
-      head("Due Next", due.length) + list(due.map(function (w) {
+      }))) +
+      section("Due Next", due.length, list(due.map(function (w) {
         return '<li class="list-group-item"><div class="mw-report-row"><div><span class="d-block fw-bold">' + esc(w.what) + '</span><span class="d-block small text-muted">' + esc(M.caseById(w.caseId).name) + "</span>" +
           (w.flag ? '<span class="d-block small fw-bold text-danger">' + esc(w.flag) + "</span>" : "") + '</div><div class="text-end small fw-bold">' + esc(w.day) + "</div></div></li>";
-      }));
+      })));
     var panel = D.offcanvas({ title: "Weekly Status Report", width: "50vw", body: body,
       footer: '<button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas">CLOSE</button><button type="button" class="btn btn-primary" data-report-dl>DOWNLOAD</button>' });
     panel.el.querySelector("[data-report-dl]").addEventListener("click", function () {
