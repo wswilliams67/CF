@@ -41,7 +41,8 @@
   }
 
   /* ── Viewer ─────────────────────────────────────────────────────────── */
-  /* ?viewer=v-us|v-row|v-cu opens any page as that persona (review guides link straight to a viewer's view); the
+  /* DEMO ONLY: do not build. Not in any PRD; it exists so the PM review guides can link to a persona's view.
+     ?viewer=v-us|v-row|v-cu opens any page as that persona (review guides link straight to a viewer's view); the
      choice is remembered like a pick from the account menu. */
   (function () {
     var q = /[?&]viewer=([\w-]+)/.exec(location.search);
@@ -111,6 +112,8 @@
     var v = viewer();
     var me = M.person(v.personId);
     var regionName = v.region === "US" ? "United States" : "Rest of world";
+    /* DEMO ONLY: do not build. The account menu's persona switcher lets a reviewer see each role and region; the
+       product signs in one person. */
     var switchItems = M.viewers.map(function (x) {
       var p = M.person(x.personId);
       var on = x.id === v.id;

@@ -1138,7 +1138,8 @@
 
   render();
 
-  /* Deep links for the review guides: ?open=<person id> opens that custodian's coverage, and &drawer=<lhn|survey|
+  /* DEMO ONLY: do not build. Not in PRD 08; it exists so the PM review's edge-case links open the right view.
+     Deep links for the review guides: ?open=<person id> opens that custodian's coverage, and &drawer=<lhn|survey|
      interview|preservation|collection> opens that drawer and scrolls to it, so each edge case is one click away. */
   (function () {
     var q = function (k) { var m = new RegExp("[?&]" + k + "=([\\w-]+)").exec(location.search); return m && m[1]; };
