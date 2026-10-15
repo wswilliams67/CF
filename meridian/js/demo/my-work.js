@@ -253,35 +253,43 @@
      date shows. SHOW ALL lists them all (Scott, 10-14). */
   var weekAll = false;
   function weekDates() { return M.thisWeek.filter(function (w) { return access.cases.indexOf(w.caseId) !== -1; }); }
-  function drawWeek(n) {
+  function caseHref(id) { return id === "MBP-0926" ? "case-coverage.html" : "not-in-demo.html?what=" + encodeURIComponent(caseName(id)); }
+  /* footer: "more" (n left out, SHOW ALL), "fewer" (all shown after SHOW ALL, SHOW FEWER) or none. */
+  function drawWeek(n, footer) {
     var wk = weekDates(), shown = wk.slice(0, n);
-    /* THIS WEEK · {n} dates (PRD 11 §7.5), shown as a secondary count badge in the drawer header, as Hold Status's segment counts. */
     var cnt = document.getElementById("mwWeekCount");
-    cnt.textContent = wk.length + " date" + (wk.length === 1 ? "" : "s");  /* Nimbus badge capitalisation shows "6 Dates" */
+    cnt.textContent = wk.length + " date" + (wk.length === 1 ? "" : "s");  /* THIS WEEK · {n} dates (PRD 11 §7.5); Nimbus badge capitalisation shows "6 Dates" */
     document.getElementById("mwWeek").innerHTML = shown.map(function (w) {
-      /* Urgency is said in words, 12px bold danger text under the case, as Preservation at Risk in the queue; no icon-only
-         signal (Scott, 10-14). */
-      return '<li class="list-group-item"><div class="mw-row-week"><span class="fw-bold">' + esc(w.day) + "</span><div>" + esc(w.what) + '<div class="small text-muted">' + esc(M.caseById(w.caseId).name) + "</div>" +
+      /* Day · what is due, then the case as a 12px link (as every case name on the page), then the urgency flag in words. */
+      return '<li class="list-group-item"><div class="mw-row-week"><span class="fw-bold">' + esc(w.day) + "</span><div>" + esc(w.what) +
+        '<a class="d-block small" href="' + caseHref(w.caseId) + '">' + esc(M.caseById(w.caseId).name) + "</a>" +
         (w.flag ? '<div class="small fw-bold text-danger">' + esc(w.flag) + "</div>" : "") + "</div></div></li>";
     }).join("");
-    /* Card footer below a blurry divider: the remainder and SHOW ALL, only when dates are left out (MW73). */
-    var more = wk.length - shown.length;
-    document.getElementById("mwWeekFoot").innerHTML = more ? '<hr class="hr hr-blurry demo-card-foot-rule"><div class="d-flex justify-content-between align-items-center"><span class="small text-muted">' +
-      more + " more date" + (more === 1 ? "" : "s") + ' later this week</span><button type="button" class="btn btn-tertiary btn-sm" data-mw="week-all">SHOW ALL</button></div>' : "";
+    /* Card footer below a blurry divider (MW73): the remainder with SHOW ALL, or SHOW FEWER once expanded. */
+    var more = wk.length - shown.length, foot = "";
+    if (footer === "more") foot = '<span class="small text-muted">' + more + " more date" + (more === 1 ? "" : "s") + ' later this week</span><button type="button" class="btn btn-tertiary btn-sm" data-mw="week-all">SHOW ALL</button>';
+    if (footer === "fewer") foot = '<span></span><button type="button" class="btn btn-tertiary btn-sm" data-mw="week-fewer">SHOW FEWER</button>';
+    document.getElementById("mwWeekFoot").innerHTML = foot ? '<hr class="hr hr-blurry demo-card-foot-rule"><div class="d-flex justify-content-between align-items-center">' + foot + "</div>" : "";
   }
-  function renderWeek(all) {
-    if (all) weekAll = true;
+  /* How many dates fit beside the Cases card (null when there is no height to match: stacked, or either card shut). */
+  function weekFit() {
     var wk = weekDates(), two = document.querySelector(".mw-two"), cases = document.querySelector('[aria-labelledby="mwCasesH"]'), week = document.querySelector('[aria-labelledby="mwWeekH"]');
     var sideBySide = getComputedStyle(two).gridTemplateColumns.split(" ").length > 1;
-    var casesOpen = document.getElementById("mwCasesBody").classList.contains("show"), weekOpen = document.getElementById("mwWeekBody").classList.contains("show");
-    if (weekAll || !sideBySide || !casesOpen || !weekOpen) { drawWeek(wk.length); return; }
-    /* Measure at natural heights (the row normally stretches both cards to the taller one), then drop dates until the
-       card, footer included, fits within the Cases card. */
+    if (!sideBySide || !document.getElementById("mwCasesBody").classList.contains("show") || !document.getElementById("mwWeekBody").classList.contains("show")) return null;
+    /* Measure at natural heights (the row normally stretches both cards to the taller one). */
     two.classList.add("mw-measuring");
     var limit = cases.getBoundingClientRect().height, n = wk.length;
-    drawWeek(n);
-    while (n > 1 && week.getBoundingClientRect().height > limit) { n--; drawWeek(n); }
+    drawWeek(n, null);
+    if (week.getBoundingClientRect().height > limit) { do { n--; drawWeek(n, "more"); } while (n > 1 && week.getBoundingClientRect().height > limit); }
     two.classList.remove("mw-measuring");
+    return n;
+  }
+  function renderWeek(all) {
+    if (all === true) weekAll = true;
+    if (all === "fewer") weekAll = false;
+    var total = weekDates().length, fit = weekFit();
+    if (fit === null || fit >= total) { weekAll = false; drawWeek(total, null); return; }  /* everything fits: no footer */
+    if (weekAll) drawWeek(total, "fewer"); else drawWeek(fit, "more");
   }
   /* Refit when the space changes: a resize, or either card opening or closing. */
   var refit; window.addEventListener("resize", function () { clearTimeout(refit); refit = setTimeout(function () { renderWeek(false); }, 150); });
@@ -361,6 +369,7 @@
     var a = t.getAttribute("data-mw");
     if (a === "report") report();
     if (a === "week-all") renderWeek(true);
+    if (a === "week-fewer") renderWeek("fewer");
     if (a === "export") {
       csv("my-work.csv", [["Kind", "What needs you", "Why now", "Case", "Waiting", "Found by CaseFusion", "Preservation at risk"]].concat(filtered().map(function (r) {
         var m = masked(r);
