@@ -300,7 +300,10 @@
         item("", "New Survey …", "Opens the survey form with the " + n + " selected custodians", "not-in-demo.html?what=New+survey&amp;ships=1") +
         '<li><h6 class="dropdown-header">Questions and reminders from a survey in this case</h6></li>' +
         M.surveys.map(function (sv) { return item('data-send-survey="' + sv.id + '"', sv.id + " · " + sv.title, sv.questions + " questions"); }).join("")) +
-      '<div class="btn-group" role="group"><a class="btn btn-tertiary btn-sm" href="not-in-demo.html?what=Schedule+interview&amp;ships=1">SCHEDULE INTERVIEW</a></div>' +
+      /* SCHEDULE INTERVIEW opens the same Schedule drawer as the panel; an interview is with one person, so it needs one
+         custodian selected (disabled with the reason otherwise). */
+      (n === 1 && seen(list[0]) ? '<div class="btn-group" role="group"><button type="button" class="btn btn-tertiary btn-sm" data-cv="toolbar-schedule">SCHEDULE INTERVIEW</button></div>' :
+        '<div class="btn-group" role="group" title="' + (n === 1 ? "Outside your regions: the case team in the custodian's region schedules the interview." : "An interview is with one custodian: select one to schedule it.") + '"><button type="button" class="btn btn-tertiary btn-sm" disabled>SCHEDULE INTERVIEW</button></div>') +
       dropdown("REQUEST FOR GAPS",
         item("", "Preservation Request", "Opens New request with the selected custodians and only their gap sources", "case-new-preservation.html?custodians=" + ids) +
         item("", "Collection Request", "Collection is not part of this demo", "not-in-demo.html?what=Collection+request") +
@@ -467,8 +470,8 @@
      changed on the grid. Replaces the "N selected" sentence and the Custodian label/value pair. */
   function personChip(c) {
     var p = person(c);
-    return seen(c) ? '<span class="chip"><img class="chip-img" src="../img/avatars/' + p.id + '.jpg" alt="" />' + esc(p.name) + "</span>" :
-      '<span class="chip"><span class="chip-img monogram demo-avatar-locked">' + LOCK + "</span>Profile details limited</span>";
+    return seen(c) ? '<span class="chip cv-chip-info"><img class="chip-img" src="../img/avatars/' + p.id + '.jpg" alt="" />' + esc(p.name) + "</span>" :
+      '<span class="chip cv-chip-info"><span class="chip-img monogram demo-avatar-locked">' + LOCK + "</span>Profile details limited</span>";
   }
   function peopleField(list) {
     return '<div class="mb-3"><span class="cf-input-label d-block mb-1">' + (list.length === 1 ? "Custodian" : "Custodians · " + list.length) + "</span>" +
@@ -526,9 +529,9 @@
     render();
   }
   /* MARK COMPLETE (CV42a, new): writes the completion as an event; it is not marking the interview not required (CV42c). */
-  function completeInterview(c) {
-    c.interview.status = "Complete"; c.interview.completed = TODAY;
-    c.interview.events.push([TODAY, nowTime(), "Marked complete", me(), "Complete"]);
+  function completeInterview(c, on, note) {
+    c.interview.status = "Complete"; c.interview.completed = on || TODAY;
+    c.interview.events.push([on || TODAY, on && on !== TODAY ? "" : nowTime(), "Marked complete", me(), "Complete", note || ""]);
     D.toast("Interview marked complete.");
     render();
   }
@@ -597,11 +600,14 @@
           (silentOnly.length ? '<span class="d-block small text-muted">' + esc(silentOnly.map(function (c) { return D.nameFor(person(c)); }).join(", ")) + " " + (silentOnly.length === 1 ? "is" : "are") + " on a silent legal hold and receive" + (silentOnly.length === 1 ? "s" : "") + " nothing.</span>" : "") + "</div></div></div>" +
         '<div class="cf-input-field cf-input-field-casefusion mb-3"><label class="cf-input-label" for="cvRelReason">Reason <span class="cf-input-required">*</span></label>' +
           '<div class="cf-input-wrapper"><input type="text" id="cvRelReason" class="cf-input-control" value="' + esc(reason) + '"' + (readOnly ? " disabled" : "") + " /></div>" +
-          '<div class="cf-input-helper"><span class="cf-input-helper-text">Say why. The reason is kept with the case.</span></div></div>' +
+          '<div class="cf-input-helper"><span class="cf-input-helper-text">The reason is kept with the case record.</span></div></div>' +
         '<div class="cf-category cf-cat-6 highlight-casefusion">What Stays Preserved</div>' +
         '<p>Releasing a custodian from the legal hold does not release their sources or delete collected data.</p>' +
         tbl(["Custodian", "Sources Still Preserved", "From"], on.map(function (c) { var st = sourcesStill(c); return "<tr><td>" + esc(D.nameFor(person(c))) + "</td><td>" + st.n + " · " + esc(st.kinds.join(", ")) + "</td><td>" + esc(st.from) + "</td></tr>"; }).join("")) +
-        '<p class="mb-0">Non-custodial sources they use (Box folder, Webex space, Teams teams) belong to the case and stay. 1 collection request is still open: COL-0142.</p>';
+        '<p>Non-custodial sources they use (Box folder, Webex space, Teams teams) belong to the case and stay. 1 collection request is still open: COL-0142.</p>' +
+        /* Entry point to Release readiness (PRD 08 §7.4, CV65; the screen is PRD 13's): every mechanism, in every case. */
+        '<p class="mb-0 d-flex flex-wrap align-items-center gap-2">Other cases, retention policies and delay holds can also preserve their data; release readiness lists every one. ' +
+          '<a class="btn btn-tertiary btn-sm" href="not-in-demo.html?what=Release+readiness+(PRD+13)">RELEASE READINESS</a></p>';
       var ok = on.length && reason.trim() && !readOnly;
       m.el.querySelector(".modal-footer").innerHTML = (readOnly ?
           '<span class="small cv-meta cv-footer-note text-warning-emphasis fw-bold">Read only: only a Case Administrator can release custodians from a legal hold.</span>' :
@@ -898,7 +904,9 @@
     var body = v.preservation.state === "na" ? '<p class="cv-meta mb-0">Not required: ' + esc(c.notRequired.preservation) + "</p>" :
       (rows.length > 1 ? sortLine("Least protected first" + (rep.length ? " · reported locations last" : "")) : "") + srcTable(pg.rows) + pg.pager;
     return drawer("preservation", "Preservation", sum, body,
-      link("ADD TO PRESERVATION REQUEST", "case-new-preservation.html?custodians=" + c.personId, "btn-secondary") + link("OPEN HOLD STATUS", "case-hold-status.html", "btn-secondary"));
+      link("ADD TO PRESERVATION REQUEST", "case-new-preservation.html?custodians=" + c.personId, "btn-secondary") + link("OPEN HOLD STATUS", "case-hold-status.html", "btn-secondary") +
+      /* Entry point to Release readiness (PRD 08 §7.4, CV65): every mechanism preserving this person's data, in every case. */
+      link("RELEASE READINESS", "not-in-demo.html?what=Release+readiness+(PRD+13)", "btn-secondary"));
   }
 
   function collectionDrawer(c, v) {
@@ -1106,11 +1114,43 @@
     var p = text.split("-");
     return p.length === 3 ? p[2] + "-" + p[0] + "-" + p[1] : fallback;
   }
+  /* ── Before anything reaches a person or changes their legal standing (Scott, 10-15) ──
+     A send that copies an issued notification opens the notification form, pre-filled (PRD 08 §5.13: Coverage does
+     not send the form, it opens it; decision 123d, CV21). The rest confirm first: a question that names the act,
+     who it reaches (chips), what is recorded, and a commit button that names the act. No "don't ask again". */
+  function confirmAct(o) {
+    var m = D.modal({ title: o.title, noGuard: true,
+      body: peopleField(o.list) + '<p class="mb-0">' + o.body + "</p>",
+      footer: '<button type="button" class="btn btn-secondary" data-cnds-dismiss="modal">CANCEL</button><button type="button" class="btn btn-primary" data-cv-go>' + o.confirm + "</button>" });
+    m.el.querySelector("[data-cv-go]").addEventListener("click", function () { m.hide(); o.go(); });
+  }
+  /* The notification form, pre-filled with the recipients and the issued notification's settings; each row says what
+     it copies (CV21). The issued notification itself does not change; SEND NOTIFICATION creates the new one. */
+  function notifForm(lhId, only) {
+    var list = only || selectedList(), h = holdById(lhId);
+    var rows = (h.settings || "").split(" · ").map(function (x) { return "<li class=\"list-group-item\">" + esc(x.charAt(0).toUpperCase() + x.slice(1)) + "</li>"; }).join("");
+    formDrawer("New Legal Hold Notification", "",
+      peopleField(list) +
+      '<span class="cf-input-label d-block mb-1">Settings Copied from ' + esc(lhId) + "</span>" +
+      '<ul class="list-group list-group-flush cv-tl mb-3">' + rows + "</ul>" +
+      '<p class="cv-meta text-muted mb-0">' + esc(nextHoldId()) + " is created and sent by email and Teams. " + esc(lhId) + " does not change.</p>",
+      function () { sendNotice(lhId, only); }, { save: "SEND NOTIFICATION" });
+  }
+  /* MARK COMPLETE (CV42a): the date completed and an optional note, written as an event with who marked it. */
+  function completeForm(c) {
+    formDrawer("Mark Interview Complete", "With " + esc(person(c).name) + ". Complete records that the interview took place. Not required is a separate action with a reason.",
+      dateField("cvIvDone", "Date Completed", M.fmtDate(TODAY)) + noteField("cvIvDoneNote"),
+      function (val) { completeInterview(c, toIso(val("cvIvDone")) || TODAY, val("cvIvDoneNote")); }, { save: "MARK COMPLETE" });
+  }
   /* A stacked form drawer; SAVE is disabled until every required text field has a value. onSave gets a field reader. */
-  function formDrawer(title, intro, fields, onSave) {
+  /* opts.save: the commit label (default SAVE). The way out is BACK when stacked on the custodian panel, CANCEL when
+     opened on its own from the grid (the stacked-drawer pattern). */
+  function formDrawer(title, intro, fields, onSave, opts) {
+    opts = opts || {};
+    var stacked = !!document.querySelector(".offcanvas.show");
     var d = D.offcanvas({ title: title, width: "50vw",
       body: '<div class="cv-scope">' + (intro ? '<p class="mb-3">' + intro + "</p>" : "") + fields + "</div>",
-      footer: '<button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas">BACK</button><button type="button" class="btn btn-primary" data-cv-save>SAVE</button>' });
+      footer: '<button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas">' + (stacked ? "BACK" : "CANCEL") + '</button><button type="button" class="btn btn-primary" data-cv-save>' + (opts.save || "SAVE") + "</button>" });
     /* Start the pickers (markup added after boot is not auto-initialised). A click anywhere on the read-only field
        opens its picker: Nimbus 9.0.106 restored this (inputToggle; D14). */
     if (window.Nimbus && Nimbus.Datepicker) d.el.querySelectorAll("[data-cnds-datepicker-init]").forEach(function (x) { if (!Nimbus.Datepicker.getInstance(x)) new Nimbus.Datepicker(x, { format: "mm-dd-yyyy" }); });
@@ -1128,7 +1168,7 @@
   /* RECORD ACKNOWLEDGMENT: an acknowledgment made outside CaseFusion, recorded as the custodian's, entered by the viewer. */
   function recordAck(c, id) {
     var n = instance(c, id);
-    formDrawer("Record acknowledgment · " + id, "For " + esc(person(c).name) + ", who acknowledged outside CaseFusion. It is recorded as acknowledged by them, entered by you.",
+    formDrawer("Record acknowledgment · " + id, esc(person(c).name) + " acknowledged outside CaseFusion. It is recorded as acknowledged by " + esc(person(c).name) + " and entered by " + esc(me()) + ".",
       dateField("cvAckDate", "Date", M.fmtDate(TODAY)) + timeField("cvAckTime", "Time", "09:30") +
       D.select("cvAckHow", [["Email reply", "Email reply"], ["Signed form", "Signed form"], ["Verbal, in a meeting", "Verbal, in a meeting"]], "Email reply", "How", { cls: "mb-3" }) + noteField("cvAckNote"),
       function (val) {
@@ -1254,9 +1294,19 @@
     if (t.hasAttribute("data-open")) { e.preventDefault(); openPanel(t.getAttribute("data-open")); return; }
     /* data-one: a send from custodian coverage, for that custodian only. */
     var one = t.getAttribute("data-one") ? [byPid(t.getAttribute("data-one"))] : null;
-    if (t.hasAttribute("data-send-lhn")) { sendNotice(t.getAttribute("data-send-lhn"), one); return; }
-    if (t.hasAttribute("data-send-silent")) { addSilent(t.getAttribute("data-send-silent"), one); return; }
-    if (t.hasAttribute("data-send-survey")) { sendSurvey(t.getAttribute("data-send-survey"), one); return; }
+    if (t.hasAttribute("data-send-lhn")) { notifForm(t.getAttribute("data-send-lhn"), one); return; }
+    if (t.hasAttribute("data-send-silent")) {
+      var sh = t.getAttribute("data-send-silent"), sl = one || selectedList();
+      confirmAct({ title: "Add to silent legal hold " + sh + "?", list: sl, confirm: "ADD TO SILENT LEGAL HOLD",
+        body: "Nothing is sent. " + (sl.length === 1 ? "The custodian is" : "The custodians are") + " tracked on " + esc(sh) + ", and their data is held.", go: function () { addSilent(sh, one); } });
+      return;
+    }
+    if (t.hasAttribute("data-send-survey")) {
+      var sid = t.getAttribute("data-send-survey"), svl = one || selectedList(), sdef = M.surveys.filter(function (x) { return x.id === sid; })[0];
+      confirmAct({ title: "Send survey " + sid + "?", list: svl, confirm: "SEND SURVEY",
+        body: esc(sdef.title) + " (" + sdef.questions + " questions) is sent by email and Teams, due 10-22-2026. It is recorded on the case.", go: function () { sendSurvey(sid, one); } });
+      return;
+    }
     /* Custodian coverage: drawers, instance actions and the stacked drawers they open. */
     if (t.hasAttribute("data-cv-sec")) { toggleSection(t); return; }
     if (t.hasAttribute("data-cv-tl")) { var tk = t.getAttribute("data-cv-tl"); tlOpen[tk] = !tlOpen[tk]; renderPanel(); return; }
@@ -1264,12 +1314,22 @@
     var pc = panelId && byPid(panelId);
     if (pc) {
       if (t.hasAttribute("data-cv-view-lh")) { e.preventDefault(); viewHold(t.getAttribute("data-cv-view-lh")); return; }
-      if (t.hasAttribute("data-cv-remind")) { remind(pc, t.getAttribute("data-cv-remind")); return; }
-      if (t.hasAttribute("data-cv-resend")) { resend(pc, t.getAttribute("data-cv-resend")); return; }
+      if (t.hasAttribute("data-cv-remind")) {
+        var rid = t.getAttribute("data-cv-remind"), rn = (instance(pc, rid).events || []).filter(function (e) { return /^Reminder/.test(e[2]); }).length + 1;
+        confirmAct({ title: "Send reminder " + rn + " for " + rid + "?", list: [pc], confirm: "SEND REMINDER",
+          body: "The reminder is sent by email and Teams. It is recorded on the case as sent by " + esc(me()) + ".", go: function () { remind(pc, rid); } });
+        return;
+      }
+      if (t.hasAttribute("data-cv-resend")) {
+        var sid2 = t.getAttribute("data-cv-resend");
+        confirmAct({ title: "Resend " + sid2 + "?", list: [pc], confirm: "RESEND NOTIFICATION",
+          body: esc(sid2) + " is sent again by email and Teams. It is recorded on the case as resent by " + esc(me()) + ".", go: function () { resend(pc, sid2); } });
+        return;
+      }
       if (t.hasAttribute("data-cv-ack")) { recordAck(pc, t.getAttribute("data-cv-ack")); return; }
       if (t.hasAttribute("data-cv-nr")) { markNotRequired([pc], t.getAttribute("data-cv-nr")); return; }
       if (t.hasAttribute("data-cv-schedule")) { scheduleInterview(pc); return; }
-      if (t.hasAttribute("data-cv-iv-done")) { completeInterview(pc); return; }
+      if (t.hasAttribute("data-cv-iv-done")) { completeForm(pc); return; }
     }
     var a = t.getAttribute("data-cv");
     if (!a) return;
@@ -1284,6 +1344,7 @@
     if (a === "panel-top" && panel) panel.el.querySelector(".offcanvas-body").scrollTo({ top: 0, behavior: REDUCE ? "auto" : "smooth" });
     if (a === "panel-prev") stepPanel(-1);
     if (a === "panel-next") stepPanel(1);
+    if (a === "toolbar-schedule") { var sc = selectedList()[0]; if (sc) scheduleInterview(sc); return; }
     if (a === "panel-release") { var pid = panelId; panel.hide(); openRelease([pid]); }
   });
   /* The clear (X) is an icon with role="button": Enter and Space work as a click. */
