@@ -249,11 +249,16 @@
     return '<div class="btn-group dropdown" role="group"><button type="button" class="btn btn-tertiary btn-sm dropdown-toggle" data-cnds-toggle="dropdown" aria-expanded="false">' + label +
       ' <i class="mdi mdi-chevron-down" aria-hidden="true"></i></button><ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion">' + items + "</ul></div>";
   }
-  /* A menu item: a link when it leaves the page (href), a button carrying data attributes otherwise. */
-  function item(attrs, title, sub, href) {
-    var inner = esc(title) + (sub ? '<span class="d-block small text-muted">' + esc(sub) + "</span>" : "");
-    return "<li>" + (href ? '<a class="dropdown-item" href="' + href + '">' + inner + "</a>" : '<button type="button" class="dropdown-item" ' + attrs + ">" + inner + "</button>") + "</li>";
+  /* A menu item: a link when it leaves the page (href), a button carrying data attributes otherwise; the
+     description is Nimbus secondary text under the label. */
+  function item(attrs, title, sub, href, grouped) {
+    var cls = "dropdown-item" + (grouped ? " dropdown-group-item" : "");
+    var inner = esc(title) + (sub ? '<span class="dropdown-item-secondary-text">' + esc(sub) + "</span>" : "");
+    return "<li>" + (href ? '<a class="' + cls + '" href="' + href + '">' + inner + "</a>" : '<button type="button" class="' + cls + '" ' + attrs + ">" + inner + "</button>") + "</li>";
   }
+  /* A Nimbus product-menu group: its header, then its items indented under it. */
+  function groupHead(label) { return '<li><span class="dropdown-group-header">' + esc(label) + "</span></li>"; }
+  function groupItem(attrs, title, sub, href) { return item(attrs, title, sub, href, true); }
   /* The selection toolbar zooms in when the first custodian is selected and out when the last is cleared (Scott,
      10-14): Nimbus cnds-scale-in / cnds-scale-out (scale 0.95 ↔ 1 with a fade, from its centre). The two steps run in
      sequence so it reads as a zoom, not a slide: in, the slot opens (0.15s) and then the bar zooms in (0.2s); out, the
@@ -288,18 +293,18 @@
       '<div class="toolbar-shared-count"><i class="mdi mdi-close pointer toolbar-list-total" role="button" tabindex="0" aria-label="Clear selection" data-cv="clear"></i><div class="vr vr-blurry" aria-hidden="true"></div><span class="toolbar-list-total">' + n + " selected" + "</span></div><div>" +
       dropdown("SEND LEGAL HOLD NOTIFICATION",
         item("", "New Legal Hold Notification …", "Opens Create Legal Hold with the " + n + " selected custodians as recipients", createHoldPage(selectedList())) +
-        '<li><h6 class="dropdown-header">Settings from a notification in this case</h6></li>' +
-        holdsOf(false).map(function (h) { return item("", h.id + " · " + h.title.split(" · ")[0], h.settings, createHoldPage(selectedList(), h.id)); }).join("") +
-        '<li><h6 class="dropdown-header">Silent legal hold · nothing is sent</h6></li>' +
+        groupHead("Settings From a Notification") +
+        holdsOf(false).map(function (h) { return groupItem("", h.id + " · " + h.title.split(" · ")[0], h.settings, createHoldPage(selectedList(), h.id)); }).join("") +
+        groupHead("Silent Legal Hold") +
         holdsOf(true).map(function (h) {
           var tracked = custodians.filter(function (c) { return (c.lhn || []).some(function (x) { return x.id === h.id; }); }).length;
-          return item('data-send-silent="' + h.id + '"', h.id + " · " + h.title, "Add " + n + " selected · " + plural(tracked, "custodian") + " tracked");
+          return groupItem('data-send-silent="' + h.id + '"', h.id + " · " + h.title, "Add " + n + " selected · nothing is sent · " + plural(tracked, "custodian") + " tracked");
         }).join("") +
-        item("", "New Silent Legal Hold …", "Nothing is sent. The custodians are tracked and their data is held", "not-in-demo.html?what=New+silent+legal+hold&amp;ships=1")) +
+        groupItem("", "New Silent Legal Hold …", "Nothing is sent. The custodians are tracked and their data is held", "not-in-demo.html?what=New+silent+legal+hold&amp;ships=1")) +
       dropdown("SEND SURVEY",
         item("", "New Survey …", "Opens the survey form with the " + n + " selected custodians", "not-in-demo.html?what=New+survey&amp;ships=1") +
-        '<li><h6 class="dropdown-header">Questions and reminders from a survey in this case</h6></li>' +
-        M.surveys.map(function (sv) { return item('data-send-survey="' + sv.id + '"', sv.id + " · " + sv.title, sv.questions + " questions"); }).join("")) +
+        groupHead("Settings From a Survey") +
+        M.surveys.map(function (sv) { return groupItem('data-send-survey="' + sv.id + '"', sv.id + " · " + sv.title, sv.questions + " questions"); }).join("")) +
       /* SCHEDULE INTERVIEW opens the existing Schedule Interview page (schedulePage); its Interview With takes one person,
          so it needs one custodian selected (disabled with the reason otherwise). */
       (n === 1 && seen(list[0]) ? '<div class="btn-group" role="group"><a class="btn btn-tertiary btn-sm" href="' + schedulePage(list[0], false) + '">SCHEDULE INTERVIEW</a></div>' :
@@ -801,13 +806,13 @@
     });
     var body = rows.length ? (rows.length > 1 ? sortLine("Needs action first, then newest · each timeline oldest first") : "") + tileStack(rows) : empty("No legal hold notification", "No legal hold notification has been sent to this custodian.");
     var menu = item("", "New Legal Hold Notification …", "Opens Create Legal Hold with this custodian as the recipient", createHoldPage([byPid(pid)])) +
-      '<li><h6 class="dropdown-header">Settings from a notification in this case</h6></li>' +
-      holdsOf(false).map(function (h) { return item("", h.id + " · " + h.title.split(" · ")[0], h.settings, createHoldPage([byPid(pid)], h.id)); }).join("") +
-      '<li><h6 class="dropdown-header">Silent legal hold · nothing is sent</h6></li>' +
+      groupHead("Settings From a Notification") +
+      holdsOf(false).map(function (h) { return groupItem("", h.id + " · " + h.title.split(" · ")[0], h.settings, createHoldPage([byPid(pid)], h.id)); }).join("") +
+      groupHead("Silent Legal Hold") +
       holdsOf(true).map(function (h) {
         var on = (c.lhn || []).some(function (x) { return x.id === h.id; });
-        return on ? '<li><span class="dropdown-item disabled" aria-disabled="true">' + esc(h.id + " · " + h.title) + '<span class="d-block small text-muted">Already tracked</span></span></li>' :
-          item('data-send-silent="' + h.id + '" data-one="' + pid + '"', h.id + " · " + h.title, "Track this custodian; nothing is sent");
+        return on ? '<li><span class="dropdown-item dropdown-group-item disabled" aria-disabled="true">' + esc(h.id + " · " + h.title) + '<span class="dropdown-item-secondary-text">Already tracked</span></span></li>' :
+          groupItem('data-send-silent="' + h.id + '" data-one="' + pid + '"', h.id + " · " + h.title, "Track this custodian; nothing is sent");
       }).join("");
     var release = releasable(c) ? btn("RELEASE FROM LEGAL HOLD", 'data-cv="panel-release"', "btn-secondary") :
       off("RELEASE FROM LEGAL HOLD", c.released ? "Already released." : "Not on a legal hold: nothing to release.", "btn-secondary");
@@ -836,8 +841,8 @@
     var body = expectLine(c, "survey") + (na ? '<p class="cv-meta mb-0">Not required: ' + esc(na) + "</p>" : !sv.length ? (exp ? empty("No survey sent", "The case expects a survey from this custodian, and none has been sent.") : "") :
       (rows.length > 1 ? sortLine("Needs action first, then newest · each timeline oldest first") : "") + (exp ? "" : OFF_PLAN) + tileStack(rows) + '<p class="cv-meta text-muted mt-2 mb-0">Locations named in survey answers are added as reported locations for review.</p>');
     var menu = item("", "New Survey …", "Opens the survey form with this custodian", "not-in-demo.html?what=New+survey&amp;ships=1") +
-      '<li><h6 class="dropdown-header">Questions and reminders from a survey in this case</h6></li>' +
-      M.surveys.map(function (d) { return item('data-send-survey="' + d.id + '" data-one="' + pid + '"', d.id + " · " + d.title, d.questions + " questions"); }).join("");
+      groupHead("Settings From a Survey") +
+      M.surveys.map(function (d) { return groupItem('data-send-survey="' + d.id + '" data-one="' + pid + '"', d.id + " · " + d.title, d.questions + " questions"); }).join("");
     var nr = na ? off("MARK NOT REQUIRED", "Already not required.", "btn-secondary") : !exp ? off("MARK NOT REQUIRED", EXPECT_WHY, "btn-secondary") : btn("MARK NOT REQUIRED", 'data-cv-nr="survey"', "btn-secondary");
     return drawer("survey", "Survey", sum, body, sendMenu("SEND SURVEY", menu) + nr, !exp && !sv.length && !na);
   }
