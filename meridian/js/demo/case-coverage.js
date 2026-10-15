@@ -549,7 +549,8 @@
     m.el.classList.add("cv-scope");  /* page type rules (12px .small) reach this flyout (Scott, 10-14) */
     var tbl = function (head, body) { return '<div class="table-responsive mb-3"><table class="table align-middle mb-0"><thead><tr>' + head.map(function (h) { return '<th scope="col">' + h + "</th>"; }).join("") + "</tr></thead><tbody>" + body + "</tbody></table></div>"; };
     function draw() {
-      var list = candidates();
+      /* Sorted by the name the viewer sees (a limited profile sorts as shown). */
+      var list = candidates().slice().sort(function (x, y) { return D.nameFor(person(x)).localeCompare(D.nameFor(person(y))); });
       var on = list.filter(function (c) { return ticked[c.personId]; });
       var notified = on.filter(wasNotified);
       var silentOnly = on.filter(function (c) { return !wasNotified(c) && (c.lhn || []).length; });
@@ -557,24 +558,31 @@
       var holds = on.reduce(function (n, c) { return n + (c.lhn || []).length; }, 0);
       m.el.querySelector(".offcanvas-title").textContent = "Release from legal hold · " + plural(on.length, "custodian");
       m.el.querySelector(".offcanvas-body").innerHTML =
+        '<div class="cf-category cf-cat-6 highlight-casefusion">Custodians</div>' +
         '<div class="d-flex align-items-center flex-wrap gap-2 mb-2"><ul class="nav nav-pills nav-pills-nimbus nav-pills-casefusion" role="group" aria-label="Who to show">' +
           [["all", "All on This Case", custodians.length], ["selected", stacked ? "This Custodian" : "Selected on Coverage", startIds.length], ["departed", "Departed", custodians.filter(function (c) { return person(c).departed; }).length]].map(function (x) {
             return '<li class="nav-item"><button type="button" class="nav-link' + (chip === x[0] ? " active" : "") + '" data-chip="' + x[0] + '" aria-pressed="' + (chip === x[0]) + '">' + x[1] + ' <span class="nav-pill-badge">' + x[2] + "</span></button></li>"; }).join("") +
           '</ul><span class="ms-auto"><button type="button" class="btn btn-tertiary btn-sm" data-rel="all"' + (readOnly ? " disabled" : "") + '>SELECT ALL</button><button type="button" class="btn btn-tertiary btn-sm" data-rel="none"' + (readOnly ? " disabled" : "") + ">CLEAR</button></span></div>" +
+        metaRow('<p class="cv-meta text-muted mb-2 cv-meta-line"><span class="demo-label d-inline me-1">Sorted By:</span>Name</p>' +
+          '<p class="cv-meta text-muted mb-2 cv-meta-line"><span class="demo-label d-inline me-1">Selected:</span>' + on.length + " · " + plural(holds, "legal hold") + (left.length ? " · " + plural(left.length, "custodian") + " held on another case, left out" : "") + "</p>") +
         tbl(["", "Custodian", "Legal Holds", "After Release"], list.map(function (c) {
           var p = person(c), held = M.heldElsewhere[c.personId], st = sourcesStill(c);
-          var holdsText = (c.lhn || []).map(function (n) { return n.id + (n.status === "Silent" ? " · silent legal hold" : n.status === "Acknowledged" ? " · acknowledged " + short(n.on) : " · " + n.status.toLowerCase()); }).join(", ") || "None sent";
+          /* One hold per line: the reference, its status badge, and the date it was acknowledged (multi-value rows). */
+          var holdsCell = (c.lhn || []).map(function (n) {
+            return '<div class="cv-rel-hold"><span class="cv-rel-hold-id">' + esc(n.id) + "</span>" + lhnBadge(n.status, "Silent legal hold") +
+              (n.status === "Acknowledged" && n.on ? '<span class="text-muted small text-nowrap">' + esc(short(n.on)) + "</span>" : "") + "</div>";
+          }).join("") || "None sent";
           var warn = function (t) { return '<span class="d-block small text-warning-emphasis">' + t + "</span>"; };
           /* The other case is named only when the viewer can open it; otherwise it is a hold and nothing more (CV64). */
           var after = held ? (D.canOpenCase(held.caseId) ? "Still on hold for " + esc(held.caseName) + warn("Held on another accessible case") : "Still on hold on another case" + warn("Held on another case")) : c.released ? "Already released" :
             !(c.lhn || []).length ? "Not on a legal hold" + '<span class="d-block small text-muted">Nothing to release</span>' :
-            st.n + " source" + (st.n === 1 ? " stays" : "s stay") + " preserved" + (p.departed && !c.notRequired ? warn("Mailbox stays inactive and preserved while any hold remains") : "") +
+            st.n + " source" + (st.n === 1 ? " stays" : "s stay") + " preserved" +
+              (st.n ? '<span class="d-block small text-muted">' + esc(st.kinds.join(", ")) + " · " + esc(st.from) + "</span>" : "") + (p.departed && !c.notRequired ? warn("Mailbox stays inactive and preserved while any hold remains") : "") +
             (c.silent && !wasNotified(c) ? warn("Nothing was sent, so no release notice is sent") : "");
           return '<tr><td><div class="form-check mb-0"><input type="checkbox" class="form-check-input" data-tick="' + c.personId + '"' + (ticked[c.personId] ? " checked" : "") + (releasable(c) && !readOnly ? "" : " disabled") +
             ' aria-label="Release ' + esc(D.nameFor(p)) + '" /></div></td><td><span class="fw-bold' + (D.canSee(p) ? "" : " demo-masked") + '">' + esc(D.nameFor(p)) + '</span><span class="d-block small text-muted">' +
-            (D.canSee(p) ? esc(p.title) + (p.departed ? " · departed" : "") : "Outside your regions") + "</span></td><td>" + esc(holdsText) + "</td><td>" + after + "</td></tr>";
+            (D.canSee(p) ? esc(p.title) + (p.departed ? " · departed" : "") : "Outside your regions") + "</span></td><td>" + holdsCell + "</td><td>" + after + "</td></tr>";
         }).join("")) +
-        '<p class="small text-muted">' + on.length + " selected · " + plural(holds, "legal hold") + (left.length ? " · " + left.length + " custodian" + (left.length === 1 ? " is" : "s are") + " held on another case and " + (left.length === 1 ? "is" : "are") + " left out." : ".") + "</p>" +
         '<div class="cf-category cf-cat-6 highlight-casefusion">Release Notice</div>' +
         '<div class="row g-3 mb-3"><div class="col-md-6">' + D.select("cvRelNotice", [["standard", "Standard Release Notice"], ["retention", "Release Notice with Retention Reminder"], ["none", "No Notice"]], notice, "Notice", { container: "#" + m.id }) +
           /* Who gets the notice is a choice, as in the canvas (ReleaseLegalHold.dc.html): checked by default, unchecked and
@@ -582,16 +590,17 @@
           '</div><div class="col-md-6"><div class="form-check mt-md-4"><input type="checkbox" class="form-check-input" id="cvRelSend"' + (sendTo && notice !== "none" ? " checked" : "") +
             (notice === "none" || !notified.length || readOnly ? " disabled" : "") + ' /><label class="form-check-label" for="cvRelSend">Send to the ' + notified.length + " custodian" + (notified.length === 1 ? " who was" : "s who were") + " notified</label>" +
           (silentOnly.length ? '<span class="d-block small text-muted">' + esc(silentOnly.map(function (c) { return D.nameFor(person(c)); }).join(", ")) + " " + (silentOnly.length === 1 ? "is" : "are") + " on a silent legal hold and receive" + (silentOnly.length === 1 ? "s" : "") + " nothing.</span>" : "") + "</div></div></div>" +
-        '<div class="cf-input-field cf-input-field-casefusion mb-3"><label class="cf-input-label" for="cvRelReason">Reason <span class="cf-input-required">*</span></label>' +
-          '<div class="cf-input-wrapper"><input type="text" id="cvRelReason" class="cf-input-control" value="' + esc(reason) + '"' + (readOnly ? " disabled" : "") + " /></div>" +
-          '<div class="cf-input-helper"><span class="cf-input-helper-text">The reason is kept with the case record.</span></div></div>' +
         '<div class="cf-category cf-cat-6 highlight-casefusion">What Stays Preserved</div>' +
         '<p>Releasing a custodian from the legal hold does not release their sources or delete collected data.</p>' +
-        tbl(["Custodian", "Sources Still Preserved", "From"], on.map(function (c) { var st = sourcesStill(c); return "<tr><td>" + esc(D.nameFor(person(c))) + "</td><td>" + st.n + " · " + esc(st.kinds.join(", ")) + "</td><td>" + esc(st.from) + "</td></tr>"; }).join("")) +
         '<p>Non-custodial sources they use (Box folder, Webex space, Teams teams) belong to the case and stay. 1 collection request is still open: COL-0142.</p>' +
         /* Entry point to Release readiness (PRD 08 §7.4, CV65; the screen is PRD 13's): every mechanism, in every case. */
         '<p class="mb-0 d-flex flex-wrap align-items-center gap-2">Other cases, retention policies and delay holds can also preserve their data; release readiness lists every one. ' +
-          '<a class="btn btn-tertiary btn-sm" href="not-in-demo.html?what=Release+readiness+(PRD+13)">RELEASE READINESS</a></p>';
+          '<a class="btn btn-tertiary btn-sm" href="not-in-demo.html?what=Release+readiness+(PRD+13)">RELEASE READINESS</a></p>' +
+        /* The reason comes last, after the consequences, next to the commit buttons (design decision 53). */
+        '<hr class="hr hr-blurry my-4" aria-hidden="true" />' +
+        '<div class="cf-input-field cf-input-field-casefusion mb-0"><label class="cf-input-label" for="cvRelReason">Reason <span class="cf-input-required">*</span></label>' +
+          '<div class="cf-input-wrapper"><textarea id="cvRelReason" class="cf-input-control" rows="2"' + (readOnly ? " disabled" : "") + ">" + esc(reason) + "</textarea></div>" +
+          '<div class="cf-input-helper"><span class="cf-input-helper-text">The reason is kept with the case record.</span></div></div>';
       var ok = on.length && reason.trim() && !readOnly;
       m.el.querySelector(".offcanvas-footer").innerHTML = (readOnly ?
           '<span class="small cv-meta cv-footer-note text-warning-emphasis fw-bold">Read only: only a Case Administrator can release custodians from a legal hold.</span>' :
