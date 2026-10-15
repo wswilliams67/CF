@@ -300,9 +300,9 @@
         item("", "New Survey …", "Opens the survey form with the " + n + " selected custodians", "not-in-demo.html?what=New+survey&amp;ships=1") +
         '<li><h6 class="dropdown-header">Questions and reminders from a survey in this case</h6></li>' +
         M.surveys.map(function (sv) { return item('data-send-survey="' + sv.id + '"', sv.id + " · " + sv.title, sv.questions + " questions"); }).join("")) +
-      /* SCHEDULE INTERVIEW opens the same Schedule drawer as the panel; an interview is with one person, so it needs one
-         custodian selected (disabled with the reason otherwise). */
-      (n === 1 && seen(list[0]) ? '<div class="btn-group" role="group"><button type="button" class="btn btn-tertiary btn-sm" data-cv="toolbar-schedule">SCHEDULE INTERVIEW</button></div>' :
+      /* SCHEDULE INTERVIEW opens the existing Schedule Interview page (schedulePage); its Interview With takes one person,
+         so it needs one custodian selected (disabled with the reason otherwise). */
+      (n === 1 && seen(list[0]) ? '<div class="btn-group" role="group"><a class="btn btn-tertiary btn-sm" href="' + schedulePage(list[0], false) + '">SCHEDULE INTERVIEW</a></div>' :
         '<div class="btn-group" role="group" title="' + (n === 1 ? "Outside your regions: the case team in the custodian's region schedules the interview." : "An interview is with one custodian: select one to schedule it.") + '"><button type="button" class="btn btn-tertiary btn-sm" disabled>SCHEDULE INTERVIEW</button></div>') +
       dropdown("REQUEST FOR GAPS",
         item("", "Preservation Request", "Opens New request with the selected custodians and only their gap sources", "case-new-preservation.html?custodians=" + ids) +
@@ -662,7 +662,7 @@
      custodian to custodian. Inside: the custodian's notifications, surveys and interview as nested tiles with their
      timelines (CV41), and sources as SOURCE · STATUS · FROM tables with their provenance (CV43); then the section's
      own next steps on a footer row (CV45). A workflow the case does not expect starts shut.
-     Follow-on steps (view a notification, record an acknowledgment, schedule an interview) open as stacked
+     Follow-on steps (view a notification, record an acknowledgment, mark an interview complete) open as stacked
      drawers over the panel (casefusion stacked-offcanvas pattern: BACK closes only the stacked drawer). */
   var panel = null, panelId = null, secOpen = {};
 
@@ -866,7 +866,8 @@
   }
 
   /* Interview (CV42–CV42c): states the fact and does not advise. SCHEDULE is open on every custodian (CV42aa);
-     a booked interview offers RESCHEDULE and MARK COMPLETE, and both dates stay in its history (CV42b). */
+     a booked interview offers RESCHEDULE and MARK COMPLETE. SCHEDULE and RESCHEDULE open the existing Schedule Interview
+     page (schedulePage); MARK COMPLETE is a small form here, the capability being new (CV42a). */
   function interviewDrawer(c) {
     var iv = c.interview, na = c.notRequiredWf && c.notRequiredWf.interview, exp = M.expectation(c, "interview").yes;
     var state = !iv ? "" : iv.status === "Complete" ? "Complete " + short(iv.completed) : "Scheduled " + short(iv.date);
@@ -876,8 +877,8 @@
       tileStack([recordTile({ id: "Interview", href: "not-in-demo.html?what=Interview&amp;ships=1", title: "with " + iv.with + " · " + iv.where,
         badge: iv.status === "Complete" ? badgeHtml("Complete", "success") : badgeHtml("Scheduled", "info"),
         aside: iv.status === "Complete" ? "Completed " + short(iv.completed) : M.fmtDateTime(iv.date, iv.time), events: iv.events,
-        acts: iv.status === "Complete" ? "" : btn("RESCHEDULE", "data-cv-schedule") + btn("MARK COMPLETE", "data-cv-iv-done") })]));
-    var sched = iv && iv.status !== "Complete" ? off("SCHEDULE", "An interview is already scheduled: use RESCHEDULE.", "btn-secondary") : btn("SCHEDULE", "data-cv-schedule", "btn-secondary");
+        acts: iv.status === "Complete" ? "" : link("RESCHEDULE", schedulePage(c, true)) + btn("MARK COMPLETE", "data-cv-iv-done") })]));
+    var sched = iv && iv.status !== "Complete" ? off("SCHEDULE", "An interview is already scheduled: use RESCHEDULE.", "btn-secondary") : link("SCHEDULE", schedulePage(c, false), "btn-secondary");
     var nr = na ? off("MARK NOT REQUIRED", "Already not required.", "btn-secondary") : !exp ? off("MARK NOT REQUIRED", EXPECT_WHY, "btn-secondary") :
       iv && iv.status === "Complete" ? off("MARK NOT REQUIRED", "The interview happened: complete is not the same as not required (CV42c).", "btn-secondary") : btn("MARK NOT REQUIRED", 'data-cv-nr="interview"', "btn-secondary");
     return drawer("interview", "Interview", sum, body, sched + nr, !exp && !iv && !na);
@@ -1179,23 +1180,12 @@
         render();
       });
   }
-  /* SCHEDULE / RESCHEDULE: a reschedule keeps the old date in the interview's history (CV42b). */
-  function scheduleInterview(c) {
-    var iv = c.interview, re = iv && iv.status !== "Complete";
-    var team = thisCase().team.map(function (id) { var p = M.person(id); return [p.name, p.name]; });
-    formDrawer(re ? "Reschedule interview" : "Schedule interview", "With " + esc(person(c).name) + ". Scheduling does not make the interview expected on this case; the case setting does.",
-      dateField("cvIvDate", "Date", re ? M.fmtDate(iv.date) : "10-22-2026") + timeField("cvIvTime", "Time", re ? iv.time : "10:00") +
-      D.select("cvIvWith", team, re ? iv.with : team[0][0], "Interviewer", { cls: "mb-3" }) +
-      D.select("cvIvWhere", [["Teams meeting", "Teams meeting"], ["In person", "In person"], ["Phone", "Phone"]], re ? iv.where : "Teams meeting", "Where", { cls: "mb-3" }) + noteField("cvIvNote"),
-      function (val) {
-        var iso = toIso(val("cvIvDate"), "2026-10-22");
-        var hhmm = toHhmm(val("cvIvTime"), "10:00");
-        if (re) iv.events.push([TODAY, nowTime(), "Rescheduled from " + M.fmtDateTime(iv.date, iv.time) + " to " + M.fmtDateTime(iso, hhmm), me(), "Rescheduled"]);
-        else c.interview = iv = { status: "Scheduled", events: [[TODAY, nowTime(), "Scheduled for " + M.fmtDateTime(iso, hhmm), me(), "Scheduled"]] };
-        iv.date = iso; iv.time = hhmm; iv.with = val("cvIvWith"); iv.where = val("cvIvWhere");
-        D.toast("Interview " + (re ? "rescheduled" : "scheduled") + " for " + M.fmtDateTime(iso, hhmm) + ".");
-        render();
-      });
+  /* SCHEDULE / RESCHEDULE open CaseFusion's existing Schedule Interview page (Case Administrator v1.5, Figma
+     1569:136825), pre-filled with Interview With: the custodian, rather than a second, simpler form here (Scott, 10-15;
+     the §5.13 pattern: Coverage opens the product's forms, it does not replace them). The page is not in this demo.
+     PM question 10 asks whether it opens as the page, in a flyout, or as a simpler form. */
+  function schedulePage(c, re) {
+    return "not-in-demo.html?what=" + encodeURIComponent((re ? "Reschedule Interview" : "Schedule Interview") + " (the existing CaseFusion page) · Interview With: " + visibleName(c)) + "&amp;ships=1";
   }
 
   /* ── Exports ──────────────────────────────────────────────────────── */
@@ -1328,7 +1318,6 @@
       }
       if (t.hasAttribute("data-cv-ack")) { recordAck(pc, t.getAttribute("data-cv-ack")); return; }
       if (t.hasAttribute("data-cv-nr")) { markNotRequired([pc], t.getAttribute("data-cv-nr")); return; }
-      if (t.hasAttribute("data-cv-schedule")) { scheduleInterview(pc); return; }
       if (t.hasAttribute("data-cv-iv-done")) { completeForm(pc); return; }
     }
     var a = t.getAttribute("data-cv");
@@ -1344,7 +1333,6 @@
     if (a === "panel-top" && panel) panel.el.querySelector(".offcanvas-body").scrollTo({ top: 0, behavior: REDUCE ? "auto" : "smooth" });
     if (a === "panel-prev") stepPanel(-1);
     if (a === "panel-next") stepPanel(1);
-    if (a === "toolbar-schedule") { var sc = selectedList()[0]; if (sc) scheduleInterview(sc); return; }
     if (a === "panel-release") { var pid = panelId; panel.hide(); openRelease([pid]); }
   });
   /* The clear (X) is an icon with role="button": Enter and Space work as a click. */
