@@ -149,7 +149,10 @@
         /* Per source, for custodian coverage's Collection table (PRD 08 §7.2): status and where it came from. */
         items: [{ source: "s-ex-vasquez", status: "Collected", from: "PKG-0139-01", note: "09-18-2026 · to Mar 2026" },
                 { source: "s-od-vasquez", status: "Collected", from: "PKG-0139-02", note: "09-18-2026 · to Mar 2026" }] } },
-    { personId: "p-torres", added: "2026-08-20", addedFrom: "Search", silent: true, tags: ["Key Custodian"], expectMarks: ["collection"],  /* interview expected, not scheduled */
+    { personId: "p-torres", added: "2026-08-20", addedFrom: "Search", silent: true, tags: ["Key Custodian"], expectMarks: ["collection"],
+      /* Key Custodian, so an interview is expected; booked and not yet held (RESCHEDULE and MARK COMPLETE apply). */
+      interview: { status: "Scheduled", date: "2026-10-20", time: "14:00", with: "Angela Reyes", where: "Teams meeting",
+        events: [["2026-10-06", "16:10", "Scheduled for 10-20-2026 at 2:00 PM", "Angela Reyes", "Scheduled", "Teams meeting"]] },
       /* Collection marked for him on COL-0142, mid-flight as the canvas draws it: one collected, one failed, one retrying. */
       collection: { request: "COL-0142",
         items: [{ source: "s-ex-torres", status: "Collected", from: "PKG-0142-04", note: "09-15-2026" },
@@ -188,7 +191,7 @@
               events: [["2026-08-28", "09:00", "Notification", "CaseFusion", "Sent", "email and Teams"], ["2026-08-31", "09:00", "Reminder 1", "CaseFusion", "Sent", "automatic, on its reminder schedule"], ["2026-09-03", "08:15", "Acknowledged", "Katrin Bauer", "Acknowledged"]] }],
       surveys: [{ id: "SUR-0012", status: "Escalated", reminders: 2,
               events: [["2026-08-28", "09:00", "Survey", "Claire Donovan", "Sent"], ["2026-09-08", "", "Due date passed", "CaseFusion", "Not answered"], ["2026-09-11", "09:00", "Reminder 1", "CaseFusion", "Sent", "automatic, on its reminder schedule"], ["2026-09-14", "09:00", "Reminder 2", "CaseFusion", "Sent", "automatic, on its reminder schedule"], ["2026-09-21", "09:00", "Escalated to Angela Reyes", "CaseFusion", "Escalated", "SLA rule · 13 days without an answer"]] }] },
-    { personId: "p-park", added: "2026-08-20", addedFrom: "Search",
+    { personId: "p-park", added: "2026-08-20", addedFrom: "Search", tags: ["Key Custodian"],  /* interview expected, not scheduled (E6) */
       lhn: [{ id: "LH-0031", status: "Acknowledged", on: "2026-08-31",
               events: [["2026-08-28", "09:00", "Notification", "CaseFusion", "Sent", "email and Teams"], ["2026-08-31", "07:55", "Acknowledged", "James Park", "Acknowledged"]] }],
       surveys: [{ id: "SUR-0012", status: "Answered", on: "2026-09-04",

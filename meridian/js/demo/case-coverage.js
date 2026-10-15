@@ -518,7 +518,8 @@
     render();
   }
 
-  /* ── Release from legal hold (PRD 08 §7.3) in a Nimbus modal ──────── */
+  /* ── Release from legal hold (PRD 08 §7.3) in a Nimbus offcanvas at 70% ── */
+  /* A flyout, not a modal (Scott, 10-15): two tables and a form need the room, and the case stays visible beside it. */
   /* What stays preserved after release: the held sources, their kinds and the requests that hold them. */
   function sourcesStill(c) {
     var src = M.sourcesOf(c.personId).filter(function (s) { return s.hold === "Applied" || s.hold === "Attested" || s.hold === "Applying" || s.hold === "Overdue"; });
@@ -543,8 +544,8 @@
     /* Only a Case Administrator may release (PRD 08 CV72). A Case User sees the same dialog read-only: the selection,
        the holds, what stays preserved and the exclusions, with every control disabled and the reason stated. */
     var readOnly = !D.hasRole("Case Administrator");
-    var m = D.modal({ title: "Release from legal hold", size: "xl", body: "", footer: " " });
-    m.el.classList.add("cv-scope");  /* page type rules (12px .small) reach this modal (Scott, 10-14) */
+    var m = D.offcanvas({ title: "Release from legal hold", width: "70vw", body: "", footer: " " });
+    m.el.classList.add("cv-scope");  /* page type rules (12px .small) reach this flyout (Scott, 10-14) */
     var tbl = function (head, body) { return '<div class="table-responsive mb-3"><table class="table align-middle mb-0"><thead><tr>' + head.map(function (h) { return '<th scope="col">' + h + "</th>"; }).join("") + "</tr></thead><tbody>" + body + "</tbody></table></div>"; };
     function draw() {
       var list = candidates();
@@ -553,8 +554,8 @@
       var silentOnly = on.filter(function (c) { return !wasNotified(c) && (c.lhn || []).length; });
       var left = list.filter(function (c) { return M.heldElsewhere[c.personId]; });
       var holds = on.reduce(function (n, c) { return n + (c.lhn || []).length; }, 0);
-      m.el.querySelector(".modal-title").textContent = "Release from legal hold · " + plural(on.length, "custodian");
-      m.el.querySelector(".modal-body").innerHTML =
+      m.el.querySelector(".offcanvas-title").textContent = "Release from legal hold · " + plural(on.length, "custodian");
+      m.el.querySelector(".offcanvas-body").innerHTML =
         '<div class="d-flex align-items-center flex-wrap gap-2 mb-2"><ul class="nav nav-pills nav-pills-nimbus nav-pills-casefusion" role="group" aria-label="Who to show">' +
           [["all", "All on This Case", custodians.length], ["selected", "Selected on Coverage", startIds.length], ["departed", "Departed", custodians.filter(function (c) { return person(c).departed; }).length]].map(function (x) {
             return '<li class="nav-item"><button type="button" class="nav-link' + (chip === x[0] ? " active" : "") + '" data-chip="' + x[0] + '" aria-pressed="' + (chip === x[0]) + '">' + x[1] + ' <span class="nav-pill-badge">' + x[2] + "</span></button></li>"; }).join("") +
@@ -591,10 +592,10 @@
         '<p class="mb-0 d-flex flex-wrap align-items-center gap-2">Other cases, retention policies and delay holds can also preserve their data; release readiness lists every one. ' +
           '<a class="btn btn-tertiary btn-sm" href="not-in-demo.html?what=Release+readiness+(PRD+13)">RELEASE READINESS</a></p>';
       var ok = on.length && reason.trim() && !readOnly;
-      m.el.querySelector(".modal-footer").innerHTML = (readOnly ?
+      m.el.querySelector(".offcanvas-footer").innerHTML = (readOnly ?
           '<span class="small cv-meta cv-footer-note text-warning-emphasis fw-bold">Read only: only a Case Administrator can release custodians from a legal hold.</span>' :
           '<span class="small text-muted cv-meta cv-footer-note">The cleanup request opens with these custodians\' sources selected and the reason Custodian released from legal hold.</span>') +
-        '<button type="button" class="btn btn-secondary" data-cnds-dismiss="modal">' + (readOnly ? "CLOSE" : "CANCEL") + "</button>" +
+        '<button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas">' + (readOnly ? "CLOSE" : "CANCEL") + "</button>" +
         '<button type="button" class="btn btn-secondary" data-rel="release"' + (ok ? "" : " disabled") + ">RELEASE ONLY</button>" +
         '<button type="button" class="btn btn-primary" data-rel="cleanup"' + (ok ? "" : " disabled") + ">RELEASE AND CREATE CLEANUP REQUEST</button>";
       if (window.Nimbus && Nimbus.Select) Nimbus.Select.initAll(m.el);
