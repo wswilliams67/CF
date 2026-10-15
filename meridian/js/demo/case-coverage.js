@@ -135,7 +135,8 @@
       var sub = ok ? esc(p.title) + (p.departed ? " · departed " + esc(M.fmtDate(p.departed).replace(/^\d+ /, "")) : "") : "Outside your regions";
       return '<tr class="' + (selected[c.personId] ? "table-active" : "") + '">' +
         '<td><div class="form-check mb-0"><input type="checkbox" class="form-check-input" data-sel="' + c.personId + '"' + (selected[c.personId] ? " checked" : "") + ' aria-label="Select ' + esc(visibleName(c)) + '" /></div></td>' +
-        '<td><a href="#" class="fw-bold' + (ok ? "" : " demo-masked") + '" data-open="' + c.personId + '">' + (ok ? "" : '<i class="mdi mdi-lock-outline" aria-hidden="true"></i>') + esc(visibleName(c)) + "</a>" +
+        /* The name is the row's identity, not a link: OPEN is the one way into custodian coverage (design decision 15). */
+        '<td><span class="d-block fw-bold' + (ok ? "" : " demo-masked") + '">' + (ok ? "" : '<i class="mdi mdi-lock-outline" aria-hidden="true"></i>') + esc(visibleName(c)) + "</span>" +
           '<span class="d-block small text-muted">' + sub + "</span>" + (c.addedNote ? '<span class="d-block small text-warning-emphasis">' + esc(c.addedNote) + "</span>" : "") + "</td>" +
         "<td>" + cell(v.lhn) + "</td><td>" + cell(v.survey) + "</td><td>" + cell(v.interview) + "</td>" +
         "<td>" + cell(v.preservation, v.preservation.state === "action" || v.preservation.state === "progress" ? "case-hold-status.html" : null) + "</td>" +
