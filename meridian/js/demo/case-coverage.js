@@ -535,7 +535,8 @@
     panelId = pid;
     if (!panel) {
       panel = D.offcanvas({ title: "Custodian coverage", width: "90vw", body: "",
-        footer: '<button type="button" class="btn btn-secondary" data-cv="panel-prev">PREVIOUS CUSTODIAN</button><button type="button" class="btn btn-primary" data-cv="panel-next">NEXT CUSTODIAN</button>',
+        /* Previous and next are equal actions, so both are secondary: no primary in this footer (Scott, 10-14). */
+        footer: '<button type="button" class="btn btn-secondary" data-cv="panel-prev">PREVIOUS CUSTODIAN</button><button type="button" class="btn btn-secondary" data-cv="panel-next">NEXT CUSTODIAN</button>',
         onHidden: function () { panel = null; panelId = null; } });
     }
     renderPanel();
