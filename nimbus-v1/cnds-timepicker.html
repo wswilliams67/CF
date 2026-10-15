@@ -958,8 +958,8 @@ timepickerValue.addEventListener('change.cnds.timepicker', (e) => {
                 <section id="section-just-input">
                   <!-- Section title -->
                   <h3 class="mb-3">Just Input</h3>
-                  <p>Render the timepicker without a visible toggle icon using <code>withIcon: false</code>, then wire the input's click event to <code>tp.open()</code> so clicking the field opens the picker directly.</p>
-                  <!-- Angular: Pass { withIcon: false } and bind (click) on the <input> to a component method that calls tp.open(); the tp reference is guaranteed to exist by click time.
+                  <p>Render the timepicker without a visible toggle icon using <code>withIcon: false</code>. Since 9.0.106 a click on the input opens the picker on its own (<code>inputToggle</code>, on by default), so no click listener is needed. Earlier versions had to wire the input's click event to <code>tp.open()</code> so clicking the field opens the picker directly.</p>
+                  <!-- Angular: Pass { withIcon: false }; since 9.0.106 the input's click opens the picker (inputToggle), so no (click) binding is needed. Older builds: bind (click) on the <input> to a component method that calls tp.open(); the tp reference is guaranteed to exist by click time.
                        Example: <input (click)="openPicker()" /> with openPicker() { this.tp?.open(); } in the component class.
                        This pattern removes all icon markup and lets the field itself serve as the picker trigger. -->
                   <!--Section: Demo-->
@@ -1005,9 +1005,7 @@ timepickerValue.addEventListener('change.cnds.timepicker', (e) => {
                                             <code class="language-js">
 const el = document.querySelector('#tp-just-input');
 const tp = new Nimbus.Timepicker(el, { withIcon: false });
-el.querySelector('input').addEventListener('click', function () {
-    tp.open();
-});
+// 9.0.106: clicking the input opens the picker (inputToggle, on by default); no listener needed.
                                             </code>
                                         </pre>
                     </div>
@@ -1540,6 +1538,12 @@ const timepickerDisableFuture = new Nimbus.Timepicker(pickerDisableFuture, {
                             <td><p>Make the text input read-only so the user can only set the time via the picker spinners.</p></td>
                           </tr>
                           <tr>
+                            <td class="highlighter-rouge"><code>inputToggle</code></td>
+                            <td><i>Boolean</i></td>
+                            <td><code>true</code></td>
+                            <td><p>A click anywhere on the input opens the picker, not only the clock icon, and the input shows the pointer cursor (9.0.106). Set <code>false</code> to open from the icon only.</p></td>
+                          </tr>
+                          <tr>
                             <td class="highlighter-rouge"><code>withIcon</code></td>
                             <td><i>Boolean</i></td>
                             <td><code>true</code></td>
@@ -1805,7 +1809,6 @@ myTimepicker.addEventListener('change.cnds.timepicker', (e) => {
         el = document.querySelector('#tp-just-input');
         if (el) {
           var tpJustInput = new Nimbus.Timepicker(el, { withIcon: false });
-          el.querySelector('input').addEventListener('click', function () { tpJustInput.open(); });
         }
 
         // --- Increment (minuteStep: 5) ---

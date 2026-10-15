@@ -35,6 +35,7 @@
     minTime: null,
     maxTime: null,
     inline: false,
+    inputToggle: true, // a click on the field opens the picker (restored 9.0.106)
     readonly: true,
     withIcon: true,
     showArrows: true
@@ -48,6 +49,7 @@
     minTime: "(string|null)",
     maxTime: "(string|null)",
     inline: "boolean",
+    inputToggle: "boolean",
     readonly: "boolean",
     withIcon: "boolean",
     showArrows: "boolean"
@@ -318,6 +320,21 @@
       this._liveRegion.setAttribute("aria-atomic", "true");
       this._liveRegion.className = "visually-hidden";
       this._element.appendChild(this._liveRegion);
+
+      // A click anywhere on the field opens the picker (restored in 9.0.106, as the Datepicker; the "Just Input"
+      // recipe is no longer needed). A read-only field has nothing else to do on click. Opt out with inputToggle: false.
+      if (this._config.inputToggle && !this._config.inline) {
+        this._input.classList.add("picker-input-toggle");
+        EventHandler.on(
+          this._input,
+          "click",
+          function (e) {
+            if (this._input.disabled) return;
+            e.stopPropagation();
+            this.open();
+          }.bind(this)
+        );
+      }
 
       // 2.1.1: Escape closes the dropdown and returns focus to toggle
       // 2.1.1 / dialog pattern: Tab/Shift+Tab trapped within the open dropdown

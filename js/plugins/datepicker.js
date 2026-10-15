@@ -76,6 +76,7 @@
     disabledDates: null, // Array of Date objects or date strings
     disabledDays: null, // Array of day numbers (0=Sun, 6=Sat)
     inline: false,
+    inputToggle: true, // a click on the field opens the picker (restored 9.0.106: lost in the vanilla JS conversion)
     modal: false, // true: opens as a centred modal overlay instead of a positioned dropdown
     autoClose: true,
     todayButton: true,
@@ -97,6 +98,7 @@
     disabledDates: "(array|null)",
     disabledDays: "(array|null)",
     inline: "boolean",
+    inputToggle: "boolean",
     modal: "boolean",
     autoClose: "boolean",
     todayButton: "boolean",
@@ -331,6 +333,18 @@
 
       // Keyboard
       EventHandler.on(this._input, "keydown", (e) => this._handleKeydown(e));
+
+      // A click anywhere on the field opens the picker, as the docs describe ("Clicking the input or the calendar
+      // toggle icon opens the dropdown panel"). Restored in 9.0.106: it was lost in the conversion to vanilla JS.
+      // A read-only field has nothing else to do on click. Opt out with inputToggle: false.
+      if (this._config.inputToggle && !this._config.inline) {
+        this._input.classList.add("picker-input-toggle");
+        EventHandler.on(this._input, "click", (e) => {
+          if (this._input.disabled) return;
+          e.stopPropagation();
+          this.open();
+        });
+      }
 
       // If inline, show immediately
       if (this._config.inline) {

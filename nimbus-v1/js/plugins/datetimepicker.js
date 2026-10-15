@@ -65,6 +65,7 @@
     minDate: null,
     maxDate: null,
     inline: false,
+    inputToggle: true, // a click on the field opens the picker (restored 9.0.106)
     autoClose: false,
     showTodayButton: true,
     showClearButton: true,
@@ -84,6 +85,7 @@
     minDate: "(string|null)",
     maxDate: "(string|null)",
     inline: "boolean",
+    inputToggle: "boolean",
     autoClose: "boolean",
     showTodayButton: "boolean",
     showClearButton: "boolean",
@@ -254,6 +256,21 @@
             e.preventDefault();
             e.stopPropagation();
             this.toggle();
+          }.bind(this)
+        );
+      }
+
+      // A click anywhere on the field opens the picker (restored in 9.0.106, as the Datepicker; the "Input toggle"
+      // recipe is no longer needed). Opt out with inputToggle: false.
+      if (this._config.inputToggle && !this._config.inline) {
+        this._input.classList.add("picker-input-toggle");
+        EventHandler.on(
+          this._input,
+          "click",
+          function (e) {
+            if (this._input.disabled || this._config.disabled) return;
+            e.stopPropagation();
+            this.open();
           }.bind(this)
         );
       }
