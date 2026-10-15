@@ -1113,14 +1113,26 @@
       "<h5>Important Notes:</h5><ul><li>This is a confidential legal matter.</li><li>Do not delete potentially relevant materials until further notice.</li><li>For questions about the legal hold, contact Meridian Biopharma Legal.</li></ul>" +
       "<p>Best regards,<br />Meridian Biopharma Legal Department</p></div>";
   }
+  /* The notice, in production's structure (15 Oct screenshot), with Meridian's matter in it. */
   function holdNotice(h) {
     var cs = M.caseById("MBP-0926");
+    var li = function (xs) { return "<ul>" + xs.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>"; };
     return '<div class="cv-doc"><h3>LEGAL HOLD NOTICE</h3><p><strong>MATTER:</strong> ' + esc(cs.name) + "</p><p><strong>Issue Date:</strong> " + esc(M.fmtDate(h.sent)) + "</p>" +
       "<h4>IMPORTANT NOTICE - READ CAREFULLY</h4><p>This Legal Hold Notice requires your immediate attention and compliance. As a custodian of potentially relevant information, you are legally obligated to preserve all materials that may relate to this matter.</p>" +
-      "<h4>PRESERVATION OBLIGATIONS</h4><p>" + esc(h.scope || "") + ".</p>" +
+      "<h4>MATTER DESCRIPTION</h4><p><strong>Subject:</strong> Product liability claims concerning Veltrazine.</p><p><strong>Type of Proceeding:</strong> Litigation</p>" +
+        "<p><strong>Relevant Date Range:</strong> " + esc(M.fmtDate(cs.window[0])) + " to " + esc(M.fmtDate(cs.window[1])) + "</p><p><strong>Relevant Parties:</strong> Meridian Biopharma and the plaintiffs</p>" +
+      "<h4>PRESERVATION OBLIGATIONS</h4><p>You must preserve ALL relevant materials, including:</p><p>" + esc(h.scope || "") + ".</p>" +
+        "<p><strong>Physical Materials:</strong> Paper documents, handwritten notes, printed emails, notebooks and meeting agendas.</p>" +
+        "<p><strong>Devices:</strong> Work-issued and personal devices used for work, mobile phones, USB drives and external storage.</p>" +
       "<h4>DO NOT DESTROY OR ALTER</h4><p><strong>You must not:</strong> delete, alter, dispose of, or allow automatic deletion of relevant materials.</p>" +
+      "<h4>PRESERVATION INSTRUCTIONS</h4>" + li(["Suspend routine document destruction immediately.", "Preserve all existing materials in their current state.", "Continue preserving new materials during the hold period.",
+        "Maintain the organization and structure of materials.", "Consult IT before replacing or disposing of hardware or software.", "If leaving the company, do not take or delete materials and notify the Legal Department."]) +
+      "<h4>CONFIDENTIALITY</h4><p>This Legal Hold is <strong>CONFIDENTIAL</strong>. Discuss it only with:</p>" + li(["Legal Department personnel", "Your manager (for time or resource concerns)", "IT personnel assisting with preservation"]) +
+      "<h4>ASSISTANCE AND QUESTIONS</h4><p><strong>Legal Department Contact:</strong> Meridian Biopharma Legal</p><p><strong>IT Support Contact:</strong> Meridian IT Service Desk</p>" +
       "<h4>DURATION OF HOLD</h4><p>This hold remains in effect until written notice of release is provided. You will receive periodic reminders.</p>" +
-      '<h4>ACKNOWLEDGMENT REQUIRED</h4><p>You must acknowledge receipt and understanding of this notice by opening the Acknowledge link below.</p><p><a href="not-in-demo.html?what=Legal+hold+acknowledgment+portal">Acknowledge</a></p></div>';
+      '<h4>ACKNOWLEDGMENT REQUIRED</h4><p>You must acknowledge receipt and understanding of this notice by opening the Acknowledge link below.</p><p><a href="not-in-demo.html?what=Legal+hold+acknowledgment+portal">Acknowledge</a></p>' +
+      "<p>By opening “Acknowledge,” you confirm:</p>" + li(["You have read and understand this Legal Hold Notice.", "You will comply with preservation requirements.",
+        "You will contact the Legal Department if you have questions.", "You understand your legal obligation to preserve relevant information."]) + "</div>";
   }
   function viewHold(id) {
     var h = holdById(id);
