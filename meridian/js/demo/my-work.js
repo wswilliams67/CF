@@ -37,12 +37,10 @@
 
   /* ── Header, lead line, tiles ───────────────────────────────────────── */
   function renderTop() {
-    var me = M.person(v.personId);
     var did = M.whatCaseFusionDid.filter(function (d) { return access.cases.indexOf(d.caseId) !== -1; })
       .sort(function (a, b) { return (b.on + b.time).localeCompare(a.on + a.time); });  /* newest first */
     var handled = did.reduce(function (n, d) { return n + d.n; }, 0);
     var cases = caseIds(rows).length;
-    document.getElementById("mwWho").textContent = me.name + " · " + access.open + " open cases";
     document.getElementById("mwLead").innerHTML = "<b>" + rows.length + " things need you</b> across " + cases + " of your " + access.open +
       " cases. CaseFusion handled " + handled + " others since you signed off yesterday.";
     var u = units(rows.filter(function (r) { return r.locked; }));
