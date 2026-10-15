@@ -93,7 +93,15 @@
   M.cases = [
     { id: "MBP-0926", name: "Veltrazine Product Liability", region: "US", category: "Legal", status: "Open",
       window: ["2024-01-01", "2026-06-30"], opened: "2026-08-20", primary: true,
-      team: ["p-donovan", "p-reyes", "p-hoffmann"] },
+      team: ["p-donovan", "p-reyes", "p-hoffmann"],
+      /* What this case expects beyond notification and preservation, which are always expected (PRD 08 CV14a).
+         Each is one of CV14b's three deliberate ways: a case default, a rule reading a custodian tag, or a
+         per-custodian mark. Nothing is expected because work happens to exist (M.expectation). */
+      expects: {
+        survey: { by: "case", hold: "LH-0031", text: "Case default: every custodian on LH-0031 (SUR-0012 is attached to it)" },
+        interview: { by: "tag", tag: "Key Custodian", text: "Rule: Key Custodians are interviewed" },
+        collection: { by: "mark", text: "Marked for this custodian", rule: "Collections: marked per custodian" }
+      } },
     { id: "MBP-0931", name: "Halvorsen Class Action",       region: "US",  category: "Legal",         status: "Open" },
     { id: "MBP-0842", name: "Pellworth Arbitration",        region: "RoW", category: "Legal",         status: "Open" },
     { id: "MBP-0774", name: "Thorne Medical",               region: "US",  category: "Legal",         status: "Open" },
@@ -124,7 +132,10 @@
      the page sorts). lhn / surveys: one entry per notification or survey received.
      events: the timeline shown on the custodian panel.                          */
   M.custodians = [
-    { personId: "p-vasquez", added: "2026-08-20", addedFrom: "Search",
+    { personId: "p-vasquez", added: "2026-08-20", addedFrom: "Search", tags: ["Key Custodian"], expectMarks: ["collection"],
+      /* Key Custodian, so an interview is expected (case rule); held and marked complete. */
+      interview: { status: "Complete", date: "2026-09-09", time: "10:00", completed: "2026-09-09", with: "Angela Reyes", where: "Teams meeting",
+        events: [["2026-09-02", "11:30", "Scheduled for 09-09-2026 at 10:00 AM", "Angela Reyes", "Scheduled"], ["2026-09-09", "11:05", "Marked complete", "Angela Reyes", "Complete"]] },
       lhn: [{ id: "LH-0031", status: "Acknowledged", on: "2026-08-29",
               events: [["2026-08-28", "09:00", "Notification", "CaseFusion · email and Teams", "Sent"], ["2026-08-29", "08:41", "Acknowledged", "Elena Vasquez", "Acknowledged"]] },
             { id: "LH-0044", status: "Acknowledged", on: "2026-09-12",
@@ -135,7 +146,7 @@
         /* Per source, for custodian coverage's Collection table (PRD 08 §7.2): status and where it came from. */
         items: [{ source: "s-ex-vasquez", status: "Collected", from: "PKG-0139-01", note: "09-18-2026 · to Mar 2026" },
                 { source: "s-od-vasquez", status: "Collected", from: "PKG-0139-02", note: "09-18-2026 · to Mar 2026" }] } },
-    { personId: "p-torres", added: "2026-08-20", addedFrom: "Search", silent: true,
+    { personId: "p-torres", added: "2026-08-20", addedFrom: "Search", silent: true, tags: ["Key Custodian"],  /* interview expected, not scheduled */
       /* Three holds at once, as the PM canvas draws Samir Haddad (CustodianCoverage.dc.html): LH-0031 never
          acknowledged (reminders every 3 days, escalated at 13 days, per its settings), the supplemental LH-0044
          acknowledged, and a silent legal hold, LH-0052. */
@@ -672,6 +683,18 @@
   M.sourcesOf = function (personId) {
     return M.sources.filter(function (s) { return s.owner === personId && !s.nonCustodial; });
   };
+  /** Is this workflow expected of this custodian, and by what deliberate act (PRD 08 CV14a–b)?
+      → { yes, why }. Notification and preservation always are; the rest only by the case's setting. */
+  M.expectation = function (c, wf) {
+    if (wf === "lhn" || wf === "preservation") return { yes: true, why: "Always expected" };
+    var cs = M.cases.filter(function (x) { return x.id === "MBP-0926"; })[0];
+    var e = cs.expects && cs.expects[wf];
+    if (!e) return { yes: false, why: "" };
+    if (e.by === "case") return { yes: (c.lhn || []).some(function (n) { return n.id === e.hold; }), why: e.text };
+    if (e.by === "tag") return { yes: (c.tags || []).indexOf(e.tag) !== -1, why: e.text };
+    if (e.by === "mark") return { yes: (c.expectMarks || []).indexOf(wf) !== -1, why: e.text };
+    return { yes: false, why: "" };
+  };
   M.coverageOf = function (c) {
     var out = {};
     var today = M.DEMO_TODAY;
@@ -696,7 +719,8 @@
     /* Survey */
     var sv = c.surveys || [];
     if (c.notRequiredWf && c.notRequiredWf.survey) out.survey = { state: "na", text: "N/A" };
-    else if (!sv.length) out.survey = { state: "dash", text: "—" };
+    else if (!M.expectation(c, "survey").yes) out.survey = { state: "dash", text: "—" };  /* a survey sent off-plan does not count */
+    else if (!sv.length) out.survey = { state: "todo", text: "Not sent" };
     else {
       /* As the notification cell: the worst open survey, not the latest (one answered survey does not cover an
          overdue one). */
@@ -709,10 +733,13 @@
       out.survey = { state: sState, text: s.status, detail: sDetail };
     }
     /* Interview: not expected on this case unless one is booked (CV42aa: SCHEDULE is open on every custodian). */
+    /* Interview: expected only where the case says so (here, Key Custodians). An interview booked for someone it is
+       not expected of stays a dash in the grid: holding one and expecting one are different (CV42aa). */
     var iv = c.interview;
     out.interview = (c.notRequiredWf && c.notRequiredWf.interview) ? { state: "na", text: "N/A" } :
+      !M.expectation(c, "interview").yes ? { state: "dash", text: "—" } :
       iv && iv.status === "Complete" ? { state: "done", text: "Complete", detail: M.fmtDate(iv.completed) } :
-      iv ? { state: "progress", text: "Scheduled", detail: M.fmtDate(iv.date) } : { state: "dash", text: "—" };
+      iv ? { state: "progress", text: "Scheduled", detail: M.fmtDate(iv.date) } : { state: "todo", text: "Not scheduled" };
     /* Preservation */
     if (c.notRequired && c.notRequired.preservation) out.preservation = { state: "na", text: "N/A", detail: "not required · reason on record" };
     else {
@@ -733,10 +760,12 @@
       out.preservation = { state: pState, text: held.length + " of " + src.length + " on hold", detail: notes.join(" · ") };
     }
     /* Collection: expected only where the case says so. */
-    out.collection = c.collection ? { state: "done", text: c.collection.text, detail: c.collection.detail } : { state: "dash", text: "—" };
+    out.collection = !M.expectation(c, "collection").yes ? { state: "dash", text: "—" } :
+      c.collection ? { state: "done", text: c.collection.text, detail: c.collection.detail } : { state: "todo", text: "Not requested" };
 
     var states = [out.lhn, out.survey, out.interview, out.preservation, out.collection].map(function (x) { return x.state; });
-    out.bucket = states.indexOf("action") !== -1 ? "action" : states.indexOf("progress") !== -1 ? "progress" : "fully";
+    /* Something expected and not started yet ("todo": Not scheduled, Not sent) is outstanding, not late. */
+    out.bucket = states.indexOf("action") !== -1 ? "action" : (states.indexOf("progress") !== -1 || states.indexOf("todo") !== -1) ? "progress" : "fully";
     return out;
   };
   /** Sources on the case that are not preserved (custodial and non-custodial). */

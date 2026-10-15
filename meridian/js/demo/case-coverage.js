@@ -297,8 +297,13 @@
         '<td class="text-nowrap">' + reqLink(col ? col.request : s.request) + "</td></tr>";
     }).join("");
   }
+  /* Counting rules name what this case expects (CV14b), from the case setting the cells read. */
+  function renderExpects() {
+    var e = M.cases.filter(function (x) { return x.id === D.caseId; })[0].expects;
+    document.getElementById("cvExpects").textContent = "On this case: " + [e.survey.rule || e.survey.text, e.interview.rule || e.interview.text, e.collection.rule || e.collection.text].join(" · ") + ".";
+  }
   function render() {
-    renderBanner(); renderTiles(); renderGrid(); renderNonCustodial();
+    renderBanner(); renderTiles(); renderGrid(); renderNonCustodial(); renderExpects();
     if (panel) renderPanel();
     flash = {};
   }
@@ -565,7 +570,19 @@
     return '<div class="dropdown dropup"><button type="button" class="btn btn-secondary btn-sm dropdown-toggle" data-cnds-toggle="dropdown" aria-expanded="false" aria-haspopup="menu">' + label +
       ' <i class="mdi mdi-chevron-up" aria-hidden="true"></i></button><ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion dropdown-menu-end" role="menu">' + items + "</ul></div>";
   }
-  function notExpected(what) { return '<p class="cv-meta text-muted mb-0">' + what + " are expected only where the case says so.</p>"; }
+  /* Why a workflow is or is not expected of this custodian (CV14b), as a meta line with an inline label. A
+     not-expected workflow names the case's rule and why this custodian falls outside it. */
+  function expectLine(c, wf) {
+    var e = M.expectation(c, wf);
+    var outside = { survey: "Not on LH-0031, so the case does not expect a survey.", interview: "Not tagged Key Custodian, so the case does not expect an interview.",
+      collection: "No collection is marked for this custodian." }[wf];
+    var ex = M.cases.filter(function (x) { return x.id === D.caseId; })[0].expects[wf], rule = ex.rule || ex.text;
+    return '<p class="cv-meta text-muted mb-2"><span class="demo-label d-inline me-1">' + (e.yes ? "Expected:" : "Not Expected:") + "</span>" +
+      esc(e.yes ? e.why : rule + ". " + outside) + "</p>";
+  }
+  /* Work done for a custodian it is not expected of (a survey sent or an interview booked off-plan) is shown, but does
+     not count toward coverage (CV14a, CV42aa). */
+  var OFF_PLAN = '<p class="cv-meta text-warning-emphasis mb-2">Not expected on this case, so this does not count toward coverage.</p>';
   var EXPECT_WHY = "Not expected on this case, so there is nothing to mark not required.";
 
   function lhnDrawer(c) {
@@ -607,9 +624,9 @@
 
   function surveyDrawer(c, v) {
     var pid = c.personId, sv = c.surveys || [];
-    var na = c.notRequiredWf && c.notRequiredWf.survey, dash = v.survey.state === "dash";
+    var na = c.notRequiredWf && c.notRequiredWf.survey, dash = v.survey.state === "dash", exp = M.expectation(c, "survey").yes;
     var answered = sv.filter(function (x) { return x.status === "Answered"; }).length, late = sv.filter(function (x) { return x.status === "Escalated" || x.status === "Not answered"; }).length;
-    var sum = na ? "Not required" : !sv.length ? (dash ? "Not expected on this case" : "None sent") :
+    var sum = na ? "Not required" : !exp ? "Not expected on this case" + (sv.length ? " · " + plural(sv.length, "survey") + " sent" : "") : !sv.length ? "Not sent" :
       [plural(sv.length, "survey"), answered + " answered", late ? late + " overdue" : ""].filter(Boolean).join(" · ");
     /* One tile per survey sent to the custodian. */
     var rows = sv.map(function (x) {
@@ -622,28 +639,31 @@
       return tile({ id: x.id, href: "not-in-demo.html?what=Survey+" + x.id + "&amp;ships=1", title: def.title + " · " + def.questions + " questions", badge: badge,
         aside: done ? "Answered " + short(x.on) : "Due " + short(x.due || def.due), events: x.events, acts: acts });
     });
-    var body = na ? '<p class="cv-meta mb-0">Not required: ' + esc(na) + "</p>" : !sv.length ? (dash ? notExpected("Surveys") : empty("No survey sent", "No survey has been sent to this custodian.")) :
-      tiles(rows) + '<p class="cv-meta text-muted mt-2 mb-0">Locations named in survey answers are added as reported locations for review.</p>';
+    var body = expectLine(c, "survey") + (na ? '<p class="cv-meta mb-0">Not required: ' + esc(na) + "</p>" : !sv.length ? (exp ? empty("No survey sent", "The case expects a survey from this custodian, and none has been sent.") : "") :
+      (exp ? "" : OFF_PLAN) + tiles(rows) + '<p class="cv-meta text-muted mt-2 mb-0">Locations named in survey answers are added as reported locations for review.</p>');
     var menu = item("", "New Survey…", "Opens the survey form with this custodian", "not-in-demo.html?what=New+survey&amp;ships=1") +
       '<li><h6 class="dropdown-header">Questions and reminders from a survey in this case</h6></li>' +
       M.surveys.map(function (d) { return item('data-send-survey="' + d.id + '" data-one="' + pid + '"', d.id + " · " + d.title, d.questions + " questions"); }).join("");
-    var nr = na ? off("MARK NOT REQUIRED", "Already not required.", "btn-secondary") : dash && !sv.length ? off("MARK NOT REQUIRED", EXPECT_WHY, "btn-secondary") : btn("MARK NOT REQUIRED", 'data-cv-nr="survey"', "btn-secondary");
-    return drawer("survey", "Survey", sum, body, sendMenu("SEND SURVEY", menu) + nr, dash && !sv.length && !na);
+    var nr = na ? off("MARK NOT REQUIRED", "Already not required.", "btn-secondary") : !exp ? off("MARK NOT REQUIRED", EXPECT_WHY, "btn-secondary") : btn("MARK NOT REQUIRED", 'data-cv-nr="survey"', "btn-secondary");
+    return drawer("survey", "Survey", sum, body, sendMenu("SEND SURVEY", menu) + nr, !exp && !sv.length && !na);
   }
 
   /* Interview (CV42–CV42c): states the fact and does not advise. SCHEDULE is open on every custodian (CV42aa);
      a booked interview offers RESCHEDULE and MARK COMPLETE, and both dates stay in its history (CV42b). */
   function interviewDrawer(c, v) {
-    var iv = c.interview, na = c.notRequiredWf && c.notRequiredWf.interview;
-    var sum = na ? "Not required" : !iv ? "Not expected on this case" : iv.status === "Complete" ? "Complete " + short(iv.completed) : "Scheduled " + short(iv.date);
-    var body = na ? '<p class="cv-meta mb-0">Not required: ' + esc(na) + "</p>" : !iv ? notExpected("Interviews") :
+    var iv = c.interview, na = c.notRequiredWf && c.notRequiredWf.interview, exp = M.expectation(c, "interview").yes;
+    var state = !iv ? "" : iv.status === "Complete" ? "Complete " + short(iv.completed) : "Scheduled " + short(iv.date);
+    var sum = na ? "Not required" : !exp ? "Not expected on this case" + (iv ? " · " + state.toLowerCase() : "") : !iv ? "Not scheduled" : state;
+    var body = expectLine(c, "interview") + (na ? '<p class="cv-meta mb-0">Not required: ' + esc(na) + "</p>" :
+      !iv ? (exp ? '<p class="mb-0">Not scheduled.</p>' : "") : (exp ? "" : OFF_PLAN) +
       tiles([tile({ id: "Interview", href: "not-in-demo.html?what=Interview&amp;ships=1", title: "with " + iv.with + " · " + iv.where,
         badge: iv.status === "Complete" ? pill("Complete", "success") : pill("Scheduled", "info"),
         aside: iv.status === "Complete" ? "Completed " + short(iv.completed) : M.fmtDateTime(iv.date, iv.time), events: iv.events,
-        acts: iv.status === "Complete" ? "" : btn("RESCHEDULE", "data-cv-schedule") + btn("MARK COMPLETE", "data-cv-iv-done") })]);
+        acts: iv.status === "Complete" ? "" : btn("RESCHEDULE", "data-cv-schedule") + btn("MARK COMPLETE", "data-cv-iv-done") })]));
     var sched = iv && iv.status !== "Complete" ? off("SCHEDULE", "An interview is already scheduled: use RESCHEDULE.", "btn-secondary") : btn("SCHEDULE", "data-cv-schedule", "btn-secondary");
-    var nr = na ? off("MARK NOT REQUIRED", "Already not required.", "btn-secondary") : !iv ? off("MARK NOT REQUIRED", EXPECT_WHY, "btn-secondary") : btn("MARK NOT REQUIRED", 'data-cv-nr="interview"', "btn-secondary");
-    return drawer("interview", "Interview", sum, body, sched + nr, !iv && !na);
+    var nr = na ? off("MARK NOT REQUIRED", "Already not required.", "btn-secondary") : !exp ? off("MARK NOT REQUIRED", EXPECT_WHY, "btn-secondary") :
+      iv && iv.status === "Complete" ? off("MARK NOT REQUIRED", "The interview happened: complete is not the same as not required (CV42c).", "btn-secondary") : btn("MARK NOT REQUIRED", 'data-cv-nr="interview"', "btn-secondary");
+    return drawer("interview", "Interview", sum, body, sched + nr, !exp && !iv && !na);
   }
 
   /* Preservation: one row per source, as Hold Status lists them: source · STATUS with its qualifier · FROM, the
@@ -672,18 +692,18 @@
   }
 
   function collectionDrawer(c, v) {
-    var col = c.collection, dash = v.collection.state === "dash";
+    var col = c.collection, exp = M.expectation(c, "collection").yes;
     var tone = { Collected: "success", Failed: "danger", Retrying: "warning", "Not started": "secondary", "In progress": "info" };
     var items = (col && col.items) || [];
     var failed = items.some(function (x) { return x.status === "Failed"; });
-    var body = dash ? notExpected("Collections") : recs(items.map(function (x) {
+    var body = expectLine(c, "collection") + (!exp ? "" : !items.length ? empty("No collection yet", "The case expects a collection from this custodian, and none has been requested.") : recs(items.map(function (x) {
       var s = M.sources.filter(function (y) { return y.id === x.source; })[0];
       return rec(ident(M.typeLabel(s.type), esc(s.name)), [["Status", pill(x.status, tone[x.status] || "light")], ["From", esc(x.from) + qual(esc(x.note))]],
         x.status === "Failed" ? link("VIEW FAILURE", "not-in-demo.html?what=Collection+failures") : link("VIEW PACKAGE", "not-in-demo.html?what=Collection+package+" + x.from));
-    }));
-    return drawer("collection", "Collection", dash ? "Not expected on this case" : v.collection.text, body,
+    })));
+    return drawer("collection", "Collection", !exp ? "Not expected on this case" : v.collection.text, body,
       link("ADD TO COLLECTION REQUEST", "not-in-demo.html?what=Collection+request", "btn-secondary") +
-      (failed ? link("VIEW FAILURES", "not-in-demo.html?what=Collection+failures", "btn-secondary") : off("VIEW FAILURES", "No collection from this custodian has failed.", "btn-secondary")), dash);
+      (failed ? link("VIEW FAILURES", "not-in-demo.html?what=Collection+failures", "btn-secondary") : off("VIEW FAILURES", "No collection from this custodian has failed.", "btn-secondary")), !exp);
   }
 
   function renderPanel() {
