@@ -989,14 +989,16 @@
     if (window.Nimbus && Nimbus.Timepicker) d.el.querySelectorAll("[data-cnds-timepicker-init]").forEach(function (x) {
       if (!Nimbus.Timepicker.getInstance(x)) new Nimbus.Timepicker(x, { format12: true, minuteStep: 5 });
     });
-    /* The fields are read-only (no typing, Scott 10-15), so a click on the field opens its picker, not only the icon.
-       Nimbus opens them from the icon alone (gap D14, logged in tools/nimbus-gaps.md). */
+    /* The fields are read-only (no typing, Scott 10-15), so a click anywhere on the field opens its picker. This is
+       the documented Nimbus recipe: the Timepicker's "Just Input" pattern (input click → open()), and what the
+       Datepicker docs say it does on its own ("Clicking the input or the calendar toggle icon opens the dropdown"),
+       though its plugin wires only the icon (Nimbus defect D14). The icons stay, as the Datepicker docs show them. */
     [["[data-cnds-datepicker-init]", "Datepicker"], ["[data-cnds-timepicker-init]", "Timepicker"]].forEach(function (k) {
       d.el.querySelectorAll(k[0]).forEach(function (x) {
         var inst = window.Nimbus && Nimbus[k[1]] && Nimbus[k[1]].getInstance(x), input = x.querySelector("input");
         if (!inst || !input) return;
         input.style.cursor = "pointer";
-        input.addEventListener("click", function (e) { e.stopPropagation(); inst.toggle(); });
+        input.addEventListener("click", function (e) { e.stopPropagation(); inst.open(); });
       });
     });
     d.el.querySelectorAll("[data-demo-changed]").forEach(function (f) { f.removeAttribute("data-demo-changed"); });
