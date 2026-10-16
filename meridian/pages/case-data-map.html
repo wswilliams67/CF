@@ -14,14 +14,14 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <title>Data Map · Meridian Biopharma · CaseFusion</title>
-    <link rel="stylesheet" href="../css/nimbus.css?v=20261016165330" />
-    <link rel="stylesheet" href="../css/app.css?v=20261016165330" />
-    <link rel="stylesheet" href="../css/themes/primitives.css?v=20261016165330" />
-    <link rel="stylesheet" href="../css/themes/light.css?v=20261016165330" />
-    <link rel="stylesheet" href="../css/themes/dark.css?v=20261016165330" />
-    <link rel="stylesheet" href="../css/pages/frame-ca-sidenav.css?v=20261016165330" />
-    <link rel="stylesheet" href="../css/demo/demo.css?v=20261016165330" />
-    <link rel="stylesheet" href="../css/demo/data-map.css?v=20261016165330" />
+    <link rel="stylesheet" href="../css/nimbus.css?v=20261016165653" />
+    <link rel="stylesheet" href="../css/app.css?v=20261016165653" />
+    <link rel="stylesheet" href="../css/themes/primitives.css?v=20261016165653" />
+    <link rel="stylesheet" href="../css/themes/light.css?v=20261016165653" />
+    <link rel="stylesheet" href="../css/themes/dark.css?v=20261016165653" />
+    <link rel="stylesheet" href="../css/pages/frame-ca-sidenav.css?v=20261016165653" />
+    <link rel="stylesheet" href="../css/demo/demo.css?v=20261016165653" />
+    <link rel="stylesheet" href="../css/demo/data-map.css?v=20261016165653" />
     <link rel="icon" type="image/png" sizes="32x32" href="../img/favicon/favicon-32x32.png" />
   </head>
   <body class="cnds-product-casefusion" data-demo-tab="datamap">
@@ -149,19 +149,6 @@
              By Source / By People switch + CSV export. Angular: view toggle emits
              a mode; Export triggers a server-side CSV of the current aggregation. -->
         <div class="dm-tools" role="toolbar" aria-label="View options">
-          <!-- PRD 01 7.6 (held, F20): + ADD SOURCE ▾ — three doors, each naming the list it searches (M20a, M21).
-               1.9 placed it in the By people toolbar; here it sits once above both views so it serves both. -->
-          <div class="dropdown" id="dmAddSourceWrap">
-            <button type="button" class="btn btn-secondary dropdown-toggle" id="dmAddSource" data-cnds-toggle="dropdown" aria-expanded="false">
-              <i class="mdi mdi-plus" aria-hidden="true"></i>Add Source <i class="mdi mdi-chevron-down" aria-hidden="true"></i>
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-product dropdown-menu-casefusion dm-add-menu" aria-labelledby="dmAddSource">
-              <li><a class="dropdown-item" id="dmDoorM365" href="case-add-sources.html?door=m365">From Microsoft 365<span class="dropdown-item-secondary-text">Teams, SharePoint sites, shared mailboxes and Viva Engage communities, from the permissions sync</span></a></li>
-              <li><a class="dropdown-item" id="dmDoorSources" href="case-add-noncustodial-source.html">From Sources<span class="dropdown-item-secondary-text">Box, Slack, applications, file shares and records systems, added by the tenant</span></a></li>
-              <li><a class="dropdown-item" id="dmDoorCustodians" href="case-add-custodian-source.html">For Custodians<span class="dropdown-item-secondary-text">A device or account that is not one of their standard sources</span></a></li>
-            </ul>
-          </div>
-          <span class="dm-divider" aria-hidden="true"></span>
           <div id="dmViewToggle" class="btn-group" role="group" aria-label="Group by">
             <button type="button" class="btn btn-secondary active" aria-pressed="true" data-dm-view="source">By Source</button>
             <button type="button" class="btn btn-secondary" aria-pressed="false" data-dm-view="people">By People</button>
@@ -284,6 +271,18 @@
               <button type="button" class="btn btn-secondary btn-sm active" aria-pressed="true" data-dm-scope="top">Top Sources</button>
               <button type="button" class="btn btn-secondary btn-sm" aria-pressed="false" data-dm-scope="all">All Sources</button>
             </div>
+            <!-- PRD 01 7.6 (held, F20): ADD SOURCE ▾ sits in the table card's head, after the view's own controls, in both
+                 views (PM board DataMap.dc.html; Scott, 10-16). No plus: only + NEW carries an icon. Three doors (M20a, M21). -->
+            <div class="dropdown dm-add-source">
+              <button type="button" class="btn btn-secondary btn-sm dropdown-toggle" id="dmAddSource" data-cnds-toggle="dropdown" aria-expanded="false">
+                Add Source <i class="mdi mdi-chevron-down" aria-hidden="true"></i>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end dropdown-menu-product dropdown-menu-casefusion dm-add-menu" aria-labelledby="dmAddSource">
+                <li><a class="dropdown-item" data-dm-door="m365" href="case-add-sources.html?door=m365">From Microsoft 365<span class="dropdown-item-secondary-text">Teams, SharePoint sites, shared mailboxes and Viva Engage communities, from the permissions sync</span></a></li>
+                <li><a class="dropdown-item" data-dm-door="sources" href="case-add-noncustodial-source.html">From Sources<span class="dropdown-item-secondary-text">Box, Slack, applications, file shares and records systems, added by the tenant</span></a></li>
+                <li><a class="dropdown-item" data-dm-door="custodians" href="case-add-custodian-source.html">For Custodians<span class="dropdown-item-secondary-text">A device or account that is not one of their standard sources</span></a></li>
+              </ul>
+            </div>
             </div>
           </div>
   
@@ -399,6 +398,18 @@
                       data-cnds-toggle="tooltip" data-cnds-trigger="hover" data-cnds-placement="top">
                 <svg class="dm-tools-svg" width="20" height="20" viewBox="0 0 16.668 16.6673" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M16.4257 15.2417L15.2423 16.425C15.0862 16.5802 14.875 16.6673 14.6548 16.6673C14.4347 16.6673 14.2235 16.5802 14.0673 16.425L4.16733 6.54167C3.89634 6.62017 3.61609 6.66221 3.33399 6.66667C2.80341 6.66629 2.28059 6.53926 1.80899 6.29614C1.33738 6.05302 0.930631 5.70083 0.622546 5.26886C0.31446 4.83688 0.113943 4.33761 0.037666 3.81254C-0.0386113 3.28747 0.011555 2.75178 0.183994 2.25L2.30066 4.36667L2.74233 3.925L3.92566 2.74167L4.36733 2.3L2.25066 0.183333C2.75244 0.0108944 3.28813 -0.0392719 3.8132 0.0370053C4.33827 0.113283 4.83755 0.3138 5.26952 0.621885C5.70149 0.929971 6.05368 1.33672 6.2968 1.80833C6.53992 2.27993 6.66695 2.80275 6.66733 3.33333C6.66287 3.61543 6.62083 3.89568 6.54233 4.16667L16.4257 14.0667C16.5809 14.2228 16.668 14.434 16.668 14.6542C16.668 14.8743 16.5809 15.0855 16.4257 15.2417ZM0.242327 14.0667C0.0871181 14.2228 0 14.434 0 14.6542C0 14.8743 0.0871181 15.0855 0.242327 15.2417L1.42566 16.425C1.5818 16.5802 1.79301 16.6673 2.01316 16.6673C2.23332 16.6673 2.44453 16.5802 2.60066 16.425L7.15899 11.875L4.80066 9.51667M15.0007 0L11.6673 1.66667V3.33333L9.85899 5.14167L11.5257 6.80833L13.334 5H15.0007L16.6673 1.66667L15.0007 0Z" fill="currentColor"/></svg>
               </button>
+              <!-- PRD 01 7.6 (held, F20): ADD SOURCE ▾ sits in the table card's head, after the view's own controls, in both
+                 views (PM board DataMap.dc.html; Scott, 10-16). No plus: only + NEW carries an icon. Three doors (M20a, M21). -->
+            <div class="dropdown dm-add-source">
+              <button type="button" class="btn btn-secondary btn-sm dropdown-toggle" id="dmAddSourcePeople" data-cnds-toggle="dropdown" aria-expanded="false">
+                Add Source <i class="mdi mdi-chevron-down" aria-hidden="true"></i>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end dropdown-menu-product dropdown-menu-casefusion dm-add-menu" aria-labelledby="dmAddSourcePeople">
+                <li><a class="dropdown-item" data-dm-door="m365" href="case-add-sources.html?door=m365">From Microsoft 365<span class="dropdown-item-secondary-text">Teams, SharePoint sites, shared mailboxes and Viva Engage communities, from the permissions sync</span></a></li>
+                <li><a class="dropdown-item" data-dm-door="sources" href="case-add-noncustodial-source.html">From Sources<span class="dropdown-item-secondary-text">Box, Slack, applications, file shares and records systems, added by the tenant</span></a></li>
+                <li><a class="dropdown-item" data-dm-door="custodians" href="case-add-custodian-source.html">For Custodians<span class="dropdown-item-secondary-text">A device or account that is not one of their standard sources</span></a></li>
+              </ul>
+            </div>
             </div>
   
             <div class="table-responsive">
@@ -796,14 +807,14 @@
         </div>
       </div>
     </main>
-    <script src="../data/meridian.js?v=20261016165330"></script>
+    <script src="../data/meridian.js?v=20261016165653"></script>
     <!-- PRD 01 7.6–7.9: the Add Source doors' hand-back (owned by the doors' build; read here, never edited). -->
-    <script src="../data/meridian-add-sources.js?v=20261016165330"></script>
-    <script src="../js/demo/shell.js?v=20261016165330"></script>
-    <script src="../js/nimbus.js?v=20261016165330"></script>
-    <script src="../js/app.js?v=20261016165330"></script>
-    <script src="../js/pages/frame-ca-sidenav.js?v=20261016165330"></script>
-    <script src="../js/demo/case-data-map-source.js?v=20261016165330"></script>
-    <script src="../js/demo/case-data-map.js?v=20261016165330"></script>
+    <script src="../data/meridian-add-sources.js?v=20261016165653"></script>
+    <script src="../js/demo/shell.js?v=20261016165653"></script>
+    <script src="../js/nimbus.js?v=20261016165653"></script>
+    <script src="../js/app.js?v=20261016165653"></script>
+    <script src="../js/pages/frame-ca-sidenav.js?v=20261016165653"></script>
+    <script src="../js/demo/case-data-map-source.js?v=20261016165653"></script>
+    <script src="../js/demo/case-data-map.js?v=20261016165653"></script>
   </body>
 </html>

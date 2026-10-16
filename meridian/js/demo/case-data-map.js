@@ -3938,8 +3938,9 @@
       /* PRD 01 7.6: the three doors carry the case (and nothing else the PRD names). */
       var cq = /[?&]case=([\w-]+)/.exec(location.search), cs = cq ? cq[1] : null;
       if (cs) {
-        [['dmDoorM365', 'case-add-sources.html?door=m365&case='], ['dmDoorSources', 'case-add-noncustodial-source.html?case='], ['dmDoorCustodians', 'case-add-custodian-source.html?case=']]
-          .forEach(function (d) { document.getElementById(d[0]).href = d[1] + encodeURIComponent(cs); });
+        /* Both ADD SOURCE menus (Top Sources and Custodians card heads) carry the case. */
+        var doors = { m365: 'case-add-sources.html?door=m365&case=', sources: 'case-add-noncustodial-source.html?case=', custodians: 'case-add-custodian-source.html?case=' };
+        Array.prototype.forEach.call(document.querySelectorAll('[data-dm-door]'), function (a) { a.href = doors[a.getAttribute('data-dm-door')] + encodeURIComponent(cs); });
       }
       /* Sources just added through a door (the doors' hand-back): say so once. */
       var fresh = (window.DM_ALL_SOURCES.rows || []).filter(function (r) { return r.added; });

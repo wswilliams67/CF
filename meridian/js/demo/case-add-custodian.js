@@ -77,9 +77,9 @@
       return '<li><button type="button" class="dropdown-item" data-addc="' + pid + '">' + esc(D.nameFor(p)) + '<span class="dropdown-item-secondary-text">' + esc(ok ? p.title : "Outside your regions") + "</span></button></li>";
     }).join("");
     var addBtn = left.length ?
-      '<div class="dropdown"><button type="button" class="btn btn-tertiary btn-sm dropdown-toggle" data-cnds-toggle="dropdown" aria-expanded="false"><i class="mdi mdi-plus" aria-hidden="true"></i> ADD CUSTODIAN</button>' +
+      '<div class="dropdown"><button type="button" class="btn btn-tertiary btn-sm dropdown-toggle" data-cnds-toggle="dropdown" aria-expanded="false">ADD CUSTODIAN</button>' +
         '<ul class="dropdown-menu dropdown-menu-product dropdown-menu-casefusion">' + menu + "</ul></div>" :
-      '<span title="Every custodian on this case is chosen."><button type="button" class="btn btn-tertiary btn-sm" disabled><i class="mdi mdi-plus" aria-hidden="true"></i> ADD CUSTODIAN</button></span>';
+      '<span title="Every custodian on this case is chosen."><button type="button" class="btn btn-tertiary btn-sm" disabled>ADD CUSTODIAN</button></span>';
     var typeOpts = [["", "", "", true]].concat(F.types.map(function (t) { return [t.key, t.name]; }));
     return '<div class="ad-fields mb-3">' +
       '<div><span class="cf-input-label d-block mb-1">Custodians <span class="cf-input-required">*</span></span>' +
