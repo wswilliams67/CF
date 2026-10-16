@@ -191,7 +191,7 @@
             '<li><a class="dropdown-item" href="not-in-demo.html?what=New+Survey&ships=1">New Survey</a></li>' +
             '<li><a class="dropdown-item" href="case-new-preservation.html">New Preservation Request</a></li></ul></div>' +
       '</div>' +
-      '<nav aria-label="Case sections"><ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-casefusion nav-justified case-subnav" role="tablist">' + tabs + '</ul></nav>';
+      '<nav aria-label="Case sections" class="case-subnav-scroll"><ul class="nav nav-tabs nav-tabs-nimbus nav-tabs-casefusion nav-justified case-subnav" role="tablist">' + tabs + '</ul></nav>';
   }
 
   /* ── Render ─────────────────────────────────────────────────────────── */
@@ -205,7 +205,15 @@
     sidenavHtml(nav) + headerHtml());
 
   var slot = document.querySelector("[data-demo-case-header]");
-  if (slot && tab) slot.outerHTML = caseHeaderHtml(caseId, tab);
+  if (slot && tab) {
+    slot.outerHTML = caseHeaderHtml(caseId, tab);
+    /* Keep the active tab in view when the strip scrolls (narrow viewports). */
+    var strip = document.querySelector(".case-subnav-scroll"), on = strip && strip.querySelector(".nav-link.active");
+    if (on && strip.scrollWidth > strip.clientWidth) {
+      var sr = strip.getBoundingClientRect(), r = on.getBoundingClientRect();
+      if (r.right > sr.right) strip.scrollLeft += r.right - sr.right + 16;
+    }
+  }
 
   document.addEventListener("click", function (e) {
     var a = e.target.closest && e.target.closest("[data-demo-viewer]");
