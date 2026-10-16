@@ -1,0 +1,56 @@
+/* Case › Add source doors (PRD 01 §7.7–7.9). Layout only; every component is Nimbus.
+   Type rule (Scott, 10-14): 14px for what is read, 12px for what is scanned. Nimbus .small resolves to 14px inside
+   .table and the page body is 16px, so the door bodies set 14px and their meta lines 12px. */
+.ad-body, .ad-foot { font-size: var(--cnds-paragraph-font-size); line-height: var(--cnds-paragraph-line-height); }
+.ad-meta { font-size: var(--cnds-paragraph-font-size-sm); }
+.ad-intro { max-width: 1100px; }
+
+/* List toolbar: search grows, the pills and Show keep their size, and the bar wraps under 1280 rather than scroll. */
+.ad-tools { flex-wrap: wrap; row-gap: var(--cnds-spacer-2); }
+.ad-tools .toolbar-list-search { flex: 1 1 18rem; min-width: 14rem; }
+.ad-tools .toolbar-list-search .cf-input-field { flex: 1; }
+.ad-tools .toolbar-list-controls { flex-wrap: wrap; row-gap: var(--cnds-spacer-2); }
+.ad-show { display: block; }
+.select-wrapper:has(> select#adShow) { min-width: 21rem; }
+#adSync { white-space: nowrap; }
+
+/* Tables: the checkbox column hugs its box, names keep room for the badge beside them. */
+.ad-table th:first-child, .ad-table td:first-child { width: 1%; }
+.ad-table .ad-name { min-width: 15rem; }
+.ad-table td { vertical-align: middle; }
+.ad-loc-cell, .ad-table td.ad-wrap-narrow { white-space: nowrap; }
+/* The expansion belongs to its row and is drawn under it, indented (M71b). */
+.ad-expand > td { padding-top: 0; }
+.ad-expand-body { margin-left: var(--cnds-spacer-3); padding: var(--cnds-spacer-3); border-left: 3px solid var(--cnds-border-color); }
+.ad-expand-body .list-group { --cnds-list-group-bg: transparent; }
+.ad-expand-body .list-group-item { background-color: transparent; padding-left: 0; padding-right: 0; }
+
+/* Footer: the consequence line leads; buttons stay together at the right. */
+.ad-foot { flex-wrap: wrap; row-gap: var(--cnds-spacer-2); }
+.ad-foot .ad-foot-text { flex: 1 1 22rem; min-width: 0; }
+.ad-foot .toolbar-action-end { flex-wrap: nowrap; align-items: center; }
+
+/* For custodians: two fields per row above the table, one per row under 1100. */
+.ad-fields { display: grid; grid-template-columns: 1fr 1fr; gap: var(--cnds-spacer-3) var(--cnds-spacer-4); }
+@media (max-width: 1100px) { .ad-fields { grid-template-columns: 1fr; } }
+.ad-chips { display: flex; flex-wrap: wrap; gap: var(--cnds-spacer-2); align-items: center; }
+.ad-cust-table .cf-input-field { margin: 0; }
+.ad-cust-table td { vertical-align: top; }
+.ad-cust-table td:nth-child(1) { min-width: 13rem; width: 24%; }  /* name + title on two lines, not four: the input columns had taken the spare width (Scott review, 10-16) */
+.ad-cust-table td:nth-child(2) { min-width: 17rem; }
+.ad-cust-table td:nth-child(3) { min-width: 8rem; }
+.ad-cust-table td:nth-child(4) { min-width: 8rem; }
+.ad-cust-table .select-wrapper-casefusion .select-input { margin: 0; }
+.ad-person { display: flex; gap: var(--cnds-spacer-2); align-items: center; }
+.ad-person .demo-avatar { width: 32px; height: 32px; }
+
+/* Narrow layouts (1366 and below, where the side navigation leaves about 1000px, 740px at 1024): the tables keep
+   every column on screen by tightening the Nimbus cell padding token rather than scrolling sideways. */
+@media (max-width: 1400px) {
+  .ad-table { --cnds-table-cell-padding-x: .5rem; }
+  .ad-table .ad-name { min-width: 9rem; overflow-wrap: anywhere; }
+  .ad-cust-table td:nth-child(1) { min-width: 11rem; }
+  .ad-cust-table td:nth-child(2) { min-width: 14.5rem; }
+  .ad-cust-table td:nth-child(4) { min-width: 6.5rem; }
+  .ad-table td.ad-wrap-narrow { white-space: normal; }
+}

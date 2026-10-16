@@ -6,6 +6,8 @@
 (function () {
   "use strict";
   var M = window.MERIDIAN, D = window.MeridianDemo, esc = D.esc;
+  /* ?door=m365 is the PRD 01 §7.7 Microsoft 365 door (js/demo/case-add-m365.js); this script is the PRD 03 §7.7 view. */
+  if (/[?&]door=m365\b/.test(location.search)) return;
   var Y = M.yammer;
   var st = { ticked: { exchange: true, sharepoint: true, viva: true, yammer: false, skype: false }, redirect: "open", showSkype: false };
   var rows = [

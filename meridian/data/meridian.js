@@ -23,6 +23,9 @@
     oneDriveHost: "meridianbiopharma-my.sharepoint.com",
     sharePointHost: "meridianbiopharma.sharepoint.com",
     hosting: "EU",
+    /* CaseFusion has indexed the unified audit log since 11-14-2023 (PRD 12). A period that ends before then has no
+       activity data, so the data map draws its without-audit-logs form for it (PRD 01 7.2, 5.8). */
+    auditLog: { indexedFrom: "2023-11-14" },
     regions: [
       { id: "US",  name: "United States" },
       { id: "RoW", name: "Rest of world" }
@@ -345,11 +348,18 @@
   /* Notable non-custodians (data map design 17235:760021): people not on the custodian list with
      20+ UAL events against an in-scope source in the case window, or a top collaborator with a
      custodian. Each reason traces to M.dataMap.accessed below (check.js). */
+  /* PRD 01 M10 leaves "top collaborator" undefined; the demo defines it (build notes, scan/prd-01-build-notes.md):
+     a non-custodian among the five people a custodian collaborated with most in the case window (shared files,
+     chats and meetings together), counted in `collab`. collab: [shared files, chats, meetings] with the custodians
+     (PRD 01 7.1 held columns, M12). dismissed: a finding the case team considered and rejected (M14, M14a), kept
+     with who, when and why; it is hidden from the list, never discarded. */
   M.notableNonCustodians = [
-    { personId: "p-okafor",    kind: "Source activity",  workload: "Exchange",   source: "s-ex-okafor",  events: 570, note: "His own mailbox is on this case" },
-    { personId: "p-nair",      kind: "Source activity",  workload: "Teams",      source: "s-tm-program", events: 38 },
-    { personId: "p-weber",     kind: "Source activity",  workload: "Teams",      source: "s-tm-raeu",    events: 48 },
-    { personId: "p-lindqvist", kind: "Top collaborator", workload: "Teams",      source: "s-tm-program", events: 30, guest: true, with: "p-wong" }
+    { personId: "p-okafor",    kind: "Source activity",  workload: "Exchange",   source: "s-ex-okafor",  events: 570, note: "His own mailbox is on this case", collab: [4, 11, 2] },
+    { personId: "p-nair",      kind: "Source activity",  workload: "Teams",      source: "s-tm-program", events: 38, collab: [21, 9, 4] },
+    { personId: "p-weber",     kind: "Source activity",  workload: "Teams",      source: "s-tm-raeu",    events: 48, collab: [12, 14, 6] },
+    { personId: "p-lindqvist", kind: "Top collaborator", workload: "Teams",      source: "s-tm-program", events: 30, guest: true, with: "p-wong", collab: [9, 17, 5] },
+    { personId: "p-whitaker",  kind: "Source activity",  workload: "Exchange",   source: "s-ex-torres",  events: 26, collab: [0, 2, 0],
+      dismissed: { by: "p-donovan", on: "2026-09-14", time: "11:20", reason: "IT activity: converted the mailbox to an inactive mailbox during the offboarding run. Not Veltrazine work." } }
   ];
   /* Source details for the Regulatory Submissions site (PRD 01 §7.3–7.4). */
   M.sourceDetails = {
@@ -360,6 +370,11 @@
       alsoAdded: "Survey answers SUR-0012 · Lisa Wong",
       retention: "Compliance retention until Jan 2031 (reported by SharePoint)",
       history: "On hold in 1 case since 08-21-2026 · 2 of 5 locations held · see Hold status",
+      /* PRD 01 M33b, PRD 02 L55–L59: each location's confidence tier (Observed · Confirmed · Reported) and what
+         earned it. Observed = a hold placed or a collection; Confirmed = the response team confirmed it. */
+      tiers: { "Shared Documents": ["Observed", "Hold placed 08-21-2026 (PRS-0101)"], "Module 2 Drafts": ["Observed", "Hold placed 08-21-2026 (PRS-0101)"],
+               "eCTD Archive": ["Confirmed", "Confirmed by Enterprise Content 09-02-2026"], "Module 5 CSR": ["Confirmed", "Confirmed by Enterprise Content 09-02-2026"],
+               "Labeling Archive": ["Reported", "Named by Lisa Wong in SUR-0012, 09-03-2026"] },
       locationsDetail: [
         { name: "Shared Documents", items: 1420, last: "2026-06-24", perms: "Inherits from site" },
         { name: "eCTD Archive", items: 1204, last: "2024-12-18", perms: "Unique permissions · broken 03-03-2025" },
@@ -367,6 +382,12 @@
         { name: "Module 5 CSR", items: 563, last: "2026-05-30", perms: "Unique permissions · broken 01-09-2026" },
         { name: "Labeling Archive", items: 323, last: "2025-08-02", perms: "Unique permissions · broken 08-02-2025" }
       ],
+    },
+    /* AC2: found by the audit log first, then matched by an import and an interview (M33, kept as corroboration). */
+    "s-tm-program": {
+      team: "Collaboration Apps", discovery: "Audit logs (data map) · first seen 01-15-2024",
+      alsoAdded: "Bulk import 06-02-2026 · interview with Lisa Wong 09-09-2026",
+      retention: "Teams retention: 7 years (reported by Microsoft Purview)"
     }
   };
 
@@ -377,7 +398,7 @@
   M.dataMap = {
     accessed: {
       "s-ex-vasquez": [["p-vasquez", 4280], ["p-nair", 30]],
-      "s-ex-torres":  [["p-torres", 3870]],
+      "s-ex-torres":  [["p-torres", 3844], ["p-whitaker", 26]],
       "s-ex-wong":    [["p-wong", 2215]],
       "s-ex-bauer":   [["p-bauer", 2668], ["p-weber", 22]],
       "s-ex-park":    [["p-park", 1985]],
@@ -423,13 +444,88 @@
     /* Custodian tags (managed on the Custodians tab). */
     tags: { "Regulatory": ["p-vasquez", "p-wong", "p-bauer"], "Clinical": ["p-torres", "p-kohler"], "Quality": ["p-park", "p-ellis"], "Manufacturing": ["p-chen"], "Germany": ["p-bauer", "p-kohler"] },
     savedScopes: [
+      /* PRD 01 8.2: a scope holds its filters (custodians, source types, tags), date basis and range, the sources
+         in it and every exclusion with who and when (M80, M84). `sources` is filled by the data map adapter from the
+         scope's filters as the map stood when it was saved; `gone` lists sources the scope held that are no longer
+         on the case (W7). Exclusions: { sid, key (location path or person id; omitted = the whole source), by, at }. */
       { name: "Regulatory custodians v3", detail: "Case window · 5 custodians · no exclusions", saved: "2026-09-12", time: "3:14 PM", by: "p-donovan",
-        custodians: ["p-vasquez", "p-torres", "p-wong", "p-bauer", "p-park"], excluded: [] },
-      { name: "Regulatory custodians v2", detail: "Case window · 4 custodians · 1 exclusion", saved: "2026-08-28", time: "10:02 AM", by: "p-donovan",
-        custodians: ["p-vasquez", "p-torres", "p-wong", "p-park"], excluded: ["s-webex"] },
-      { name: "EU regulatory team", detail: "All time · 2 custodians", saved: "2026-09-03", time: "8:40 AM", by: "p-hoffmann",
-        custodians: ["p-bauer", "p-kohler"], excluded: [], basis: "all" }
-    ]
+        custodians: ["p-vasquez", "p-torres", "p-wong", "p-bauer", "p-park"], excluded: [], exclusions: [] },
+      { name: "Regulatory custodians v2", detail: "Case window · 5 custodians · 1 exclusion", saved: "2026-08-28", time: "10:02 AM", by: "p-donovan",
+        custodians: ["p-vasquez", "p-torres", "p-wong", "p-park", "p-ellis"], excluded: ["s-webex"],
+        exclusions: [{ sid: "s-webex", by: "p-donovan", at: ["2026-08-28", "9:58 AM"] }], gone: ["s-ex-ellis"] },
+      { name: "EU regulatory team", detail: "All time · 2 custodians · 1 exclusion", saved: "2026-09-03", time: "8:40 AM", by: "p-hoffmann",
+        custodians: ["p-bauer", "p-kohler"], excluded: [], basis: "all", tags: ["Germany"],
+        exclusions: [{ sid: "s-sp-subs", key: "eCTD Archive", by: "p-hoffmann", at: ["2026-09-03", "8:36 AM"] }] }
+    ],
+    /* A source a saved scope held that has since left the case (W7). Robert Ellis's mailbox was removed on 09-02-2026
+       because it is preserved on MBP-0811 (his custodian record: notRequired). */
+    removedSources: {
+      "s-ex-ellis": { name: "Robert Ellis mailbox", type: "Exchange Online", owner: "p-ellis", removed: "2026-09-02", by: "p-donovan",
+                      reason: "Already preserved on MBP-0811 (PRS-0088)" }
+    },
+    /* A source whose type is decommissioned stays on the map as a normal read-only row (M87). Yammer was decommissioned
+       on 03-14-2025 (M.yammer; MBP-0926 is in its Effect of decommissioning table) and its content migrated to Viva
+       Engage. The community reached this case through the permissions sync (Jürgen Köhler is a member). No unified
+       audit log activity is read for a decommissioned workload, so it is a "No activity data" source. */
+    readOnlySources: [
+      { id: "s-ym-eu", owner: null, type: "Yammer", name: "Veltrazine EU Regulatory community", found: "Permissions", items: 214, events: null,
+        location: "Yammer · /groups/VeltrazineEURegulatory", members: [["p-kohler", "2023-04-18"], ["p-weber", "2024-02-02"], ["p-hoffmann", "2023-04-18"]],
+        decommissioned: { on: "2025-03-14", outcome: "Migrated to Viva Engage", contentUntil: "Mar 2025",
+          successor: { id: "s-ve-eu", type: "Viva Engage", name: "Veltrazine EU Regulatory community", location: "Viva Engage · /communities/VeltrazineEURegulatory", items: 61 } } }
+    ],
+    /* Permission snapshots (PRD 01 5.7, M51, M64): the Microsoft 365 permissions sync keeps one per run. The earliest
+       is 04-06-2026, so access before then cannot be seen (an evidence gap, W1). */
+    snapshots: { earliest: "2026-04-06", latest: "2026-10-07",
+      dates: ["2026-04-06", "2026-05-04", "2026-06-01", "2026-06-29", "2026-07-27", "2026-08-18", "2026-09-21", "2026-10-07"] },
+    /* Granted access (Has access, PRD 01 7.4, held F9). grants: who is assigned what on the source, directly or through a
+       group; a person's paths are expanded from these through `groups` (nested groups included), so a person reached
+       several ways is listed once at the highest role with every path (M52). The Teams teams, OneDrive and mailbox
+       grants are derived by the adapter from their rosters and owners; mailbox delegates are listed here. */
+    grants: {
+      "s-sp-subs": [
+        { who: "p-vasquez", role: "Full Control", note: "Site owner", since: "2024-01-14" },
+        { who: "g-subs-owners", role: "Full Control", since: "2024-01-14" },
+        { who: "g-ra-all", role: "Edit", since: "2024-01-14" },
+        { who: "g-subs-members", role: "Contribute", since: "2025-03-02" },
+        { who: "g-clin-leads", role: "Read", since: "2024-02-01" },
+        { who: "g-qa-review", role: "Read", since: "2024-02-03" },
+        { who: "p-whitaker", role: "Read", note: "Added by the site owner", since: "2025-06-10" },
+        { who: "g-safety-read", role: "Read", since: "2024-06-02" },
+        { who: "g-mfg-read", role: "Read", since: "2025-02-20" },
+        { who: "g-subs-visitors", role: "Read", since: "2025-11-03" }
+      ],
+      "s-sp-label": [
+        { who: "p-wong", role: "Full Control", note: "Site owner", since: "2024-02-01" },
+        { who: "g-label-members", role: "Edit", since: "2024-02-01" },
+        { who: "p-vogt", role: "Contribute", note: "Added for artwork uploads", since: "2025-01-13" },
+        { who: "tenant", role: "Read", since: "2024-02-01" }
+      ]
+    },
+    /* Mailbox delegates (Full Access) — the only mailbox grants besides the owner. Tom Whitaker's was granted for the
+       offboarding run. */
+    delegates: { "s-ex-vasquez": [["p-nair", "2025-02-10"]], "s-ex-bauer": [["p-weber", "2026-05-06"]], "s-ex-torres": [["p-whitaker", "2026-10-01"]] },
+    /* Activity through a sharing link: in the audit log, not in the permission snapshot (M57, W6). */
+    sharingLinks: { "s-od-vasquez": ["p-nair"] },
+    /* Groups (Group Members drawer, M53). members: [person, member since]; nested: groups inside this one. */
+    groups: {
+      "g-subs-owners":   { name: "SG-RegSub-Owners", kind: "Security group", members: [["p-okafor", "2024-01-14"]] },
+      "g-subs-members":  { name: "Regulatory Submissions Members", kind: "SharePoint group", members: [["p-wong", "2025-03-02"], ["p-nair", "2024-05-01"]] },
+      "g-subs-visitors": { name: "External Collaborators", kind: "SharePoint group", members: [["p-lindqvist", "2025-11-03"]] },
+      "g-ra-all":        { name: "RA-All", kind: "Security group", members: [], nested: ["g-ra-team", "g-ra-de"] },
+      "g-ra-team":       { name: "Regulatory Affairs Team", kind: "Security group", members: [["p-wong", "2024-01-14"]] },
+      "g-ra-de":         { name: "Regulatory Affairs Germany", kind: "Security group", members: [["p-bauer", "2024-03-11"], ["p-weber", "2026-05-04"]] },
+      "g-clin-leads":    { name: "Clinical Leads", kind: "Security group", members: [["p-torres", "2024-02-01"]] },
+      "g-qa-review":     { name: "QA Reviewers", kind: "Security group", members: [["p-park", "2024-02-03"]] },
+      "g-safety-read":   { name: "Drug Safety Readers", kind: "Security group", members: [["p-kohler", "2024-06-02"]] },
+      "g-mfg-read":      { name: "Manufacturing Readers", kind: "Security group", members: [["p-vogt", "2025-02-20"]] },
+      "g-label-members": { name: "Veltrazine Labeling Members", kind: "SharePoint group", members: [["p-vasquez", "2024-02-01"], ["p-chen", "2025-02-14"]] }
+    },
+    /* Locations with their own permissions (M56): who a location with broken inheritance grants, beyond the site owner. */
+    uniquePerms: {
+      "eCTD Archive":     [["p-wong", "Edit"], ["p-vasquez", "Full Control"]],
+      "Module 5 CSR":     [["p-torres", "Edit"], ["p-park", "Read"], ["p-vasquez", "Full Control"]],
+      "Labeling Archive": [["p-bauer", "Edit"], ["p-vogt", "Read"], ["p-vasquez", "Full Control"]]
+    }
   };
   /* OneDrive locations follow one split (Documents, Desktop, Teams chat files), summing to items. */
   ["s-od-vasquez", "s-od-torres", "s-od-wong", "s-od-bauer", "s-od-park"].forEach(function (id) {

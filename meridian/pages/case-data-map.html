@@ -14,14 +14,14 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <title>Data Map · Meridian Biopharma · CaseFusion</title>
-    <link rel="stylesheet" href="../css/nimbus.css?v=20261016152852" />
-    <link rel="stylesheet" href="../css/app.css?v=20261016152852" />
-    <link rel="stylesheet" href="../css/themes/primitives.css?v=20261016152852" />
-    <link rel="stylesheet" href="../css/themes/light.css?v=20261016152852" />
-    <link rel="stylesheet" href="../css/themes/dark.css?v=20261016152852" />
-    <link rel="stylesheet" href="../css/pages/frame-ca-sidenav.css?v=20261016152852" />
-    <link rel="stylesheet" href="../css/demo/demo.css?v=20261016152852" />
-    <link rel="stylesheet" href="../css/demo/data-map.css?v=20261016152852" />
+    <link rel="stylesheet" href="../css/nimbus.css?v=20261016163633" />
+    <link rel="stylesheet" href="../css/app.css?v=20261016163633" />
+    <link rel="stylesheet" href="../css/themes/primitives.css?v=20261016163633" />
+    <link rel="stylesheet" href="../css/themes/light.css?v=20261016163633" />
+    <link rel="stylesheet" href="../css/themes/dark.css?v=20261016163633" />
+    <link rel="stylesheet" href="../css/pages/frame-ca-sidenav.css?v=20261016163633" />
+    <link rel="stylesheet" href="../css/demo/demo.css?v=20261016163633" />
+    <link rel="stylesheet" href="../css/demo/data-map.css?v=20261016163633" />
     <link rel="icon" type="image/png" sizes="32x32" href="../img/favicon/favicon-32x32.png" />
   </head>
   <body class="cnds-product-casefusion" data-demo-tab="datamap">
@@ -42,7 +42,7 @@
             <div class="dm-chip-set">
               <span id="dmChipCustodians" class="chip">Custodians: All</span>
               <span id="dmChipSourceTypes" class="chip">Source Types: All</span>
-              <span id="dmChipTags" class="chip">Custodian Tags: 0 applied</span>
+              <span id="dmChipTags" class="chip">Custodian Tags: 0 Applied</span>
             </div>
   
             <!-- Window toggle + date / edit actions -->
@@ -50,6 +50,12 @@
               <div id="dmWindowToggle" class="btn-group" role="group" aria-label="Time window">
                 <button type="button" class="btn btn-secondary btn-sm active" aria-pressed="true" data-dm-window="caseWindow">Case Window</button>
                 <button type="button" class="btn btn-secondary btn-sm" aria-pressed="false" data-dm-window="allTime">All Time</button>
+              </div>
+              <!-- PRD 01 7.2, M68 (held, F20): without audit logs the date basis is "Access as of" a permission snapshot,
+                   in place of Case Window / All Time. Shown when the period has no audit-log coverage (see the JS header). -->
+              <div id="dmAsOfWrap" class="dm-asof" hidden>
+                <span class="toolbar-list-label">Access As Of</span>
+                <select id="dmAsOf" class="form-control-sm" data-cnds-select-init aria-label="Access as of"></select>
               </div>
               <!-- Add Date Range — button toggles a popover with two Nimbus DatePickers (From / To) -->
               <div id="dmDateRangeWrap" class="dm-daterange">
@@ -84,41 +90,32 @@
             </div>
           </div>
   
-          <!-- Edit-filters field row — slide toggled by the Edit Filters button (default collapsed) -->
+          <!-- PRD 01 M5a, 7.1: EDIT FILTERS opens all three checkbox menus at once, side by side — Custodians (with
+               search), Source Types and Custodian Tags, each headed by an All row with a count. Production had three
+               closed Nimbus multi-selects and APPLY FILTERS; a tick now narrows the whole map at once (M5), so there
+               is no apply step. Lists are rendered from window.DM_EDIT_FILTERS (Nimbus list group with checkboxes). -->
           <div id="dmEditFilters" class="dm-collapse">
             <div class="dm-collapse-inner">
-            <!-- Options are populated from data arrays (window.DM_EDIT_FILTERS) below,
-                 modelling a future API fetch; Nimbus Select renders the multi-select UI. -->
             <div class="dm-filter-fields">
-              <div class="dm-field">
-                <label for="dmCustodians">Custodians</label>
-                <select id="dmCustodians" class="dm-filter-select" multiple data-cnds-select-init
-                        data-cnds-filter="true" data-cnds-filter-placeholder="Search …"
-                        data-cnds-visible-options="6" data-cnds-count-label="custodians"
-                        data-cnds-placeholder="All" aria-label="Custodians">
-                  <option value="" data-cnds-all-option selected>All Custodians</option>
-                </select>
-              </div>
-              <div class="dm-field">
-                <label for="dmSourceTypes">Source Types</label>
-                <select id="dmSourceTypes" class="dm-filter-select" multiple data-cnds-select-init
-                        data-cnds-count-label="source types" data-cnds-placeholder="All" aria-label="Source Types">
-                  <option value="" data-cnds-all-option selected>All Source Types</option>
-                </select>
-              </div>
-              <div class="dm-field">
-                <label for="dmCustodianTags">Custodian Tags</label>
-                <select id="dmCustodianTags" class="dm-filter-select" multiple data-cnds-select-init
-                        data-cnds-count-label="custodian tags" data-cnds-placeholder="All"
-                        data-cnds-helper-text="Custodian tags are managed from the Custodians tab."
-                        aria-label="Custodian Tags">
-                  <option value="" data-cnds-all-option selected>All Custodian Tags</option>
-                </select>
-              </div>
+              <section class="dm-check-menu" aria-labelledby="dmFltCustH">
+                <h3 class="dm-check-head" id="dmFltCustH">Custodians</h3>
+                <div class="cf-input-field cf-input-field-sm cf-input-field-casefusion">
+                  <input id="dmFltCustSearch" type="search" class="cf-input-control" placeholder="Search …" aria-label="Search custodians" autocomplete="off" />
+                </div>
+                <ul class="list-group list-group-light list-group-small dm-check-list" id="dmFltCust" data-dm-filter="custodians"></ul>
+              </section>
+              <section class="dm-check-menu" aria-labelledby="dmFltTypeH">
+                <h3 class="dm-check-head" id="dmFltTypeH">Source Types</h3>
+                <ul class="list-group list-group-light list-group-small dm-check-list" id="dmFltType" data-dm-filter="types"></ul>
+              </section>
+              <section class="dm-check-menu" aria-labelledby="dmFltTagH">
+                <h3 class="dm-check-head" id="dmFltTagH">Custodian Tags</h3>
+                <ul class="list-group list-group-light list-group-small dm-check-list" id="dmFltTag" data-dm-filter="tags"></ul>
+                <p class="dm-check-foot">Custodian tags are managed from the Custodians tab.</p>
+              </section>
             </div>
             <div class="dm-filter-actions">
-              <button type="button" id="dmClearFilters" class="btn btn-tertiary btn-sm">Clear All Filters</button>
-              <button id="dmApplyFilters" type="button" class="btn btn-secondary btn-sm">Apply Filters</button>
+              <span class="dm-clear-wrap" id="dmClearFiltersWrap"><button type="button" id="dmClearFilters" class="btn btn-tertiary btn-sm">Clear All Filters</button></span>
             </div>
             </div>
           </div>
@@ -131,10 +128,12 @@
                button shows only when it has something to clear. -->
           <div id="dmRefined" class="dm-refined" aria-label="Refined results" hidden>
             <div class="dm-refined-head">
-              <span class="dm-refined-title">Refined results — applied to the filters above</span>
+              <span class="dm-refined-title">Refined results - applied to the filters above</span>
+              <!-- PRD 01 M5b, AC28: CLEAR ALL DATES and CLEAR ALL (the exclusions). Production hid each when it had
+                   nothing to clear; disabled, never hidden, with the reason (house rule). -->
               <div class="dm-refined-actions">
-                <button type="button" id="dmRefinedClearDates" class="btn btn-tertiary btn-sm">Clear Date Ranges</button>
-                <button type="button" id="dmRefinedClearExclusions" class="btn btn-tertiary btn-sm">Clear All Exclusions</button>
+                <span class="dm-clear-wrap"><button type="button" id="dmRefinedClearDates" class="btn btn-tertiary btn-sm">Clear All Dates</button></span>
+                <span class="dm-clear-wrap"><button type="button" id="dmRefinedClearExclusions" class="btn btn-tertiary btn-sm">Clear All</button></span>
               </div>
             </div>
             <div id="dmRefinedChips" class="dm-chip-set">
@@ -150,6 +149,19 @@
              By Source / By People switch + CSV export. Angular: view toggle emits
              a mode; Export triggers a server-side CSV of the current aggregation. -->
         <div class="dm-tools" role="toolbar" aria-label="View options">
+          <!-- PRD 01 7.6 (held, F20): + ADD SOURCE ▾ — three doors, each naming the list it searches (M20a, M21).
+               1.9 placed it in the By people toolbar; here it sits once above both views so it serves both. -->
+          <div class="dropdown" id="dmAddSourceWrap">
+            <button type="button" class="btn btn-secondary dropdown-toggle" id="dmAddSource" data-cnds-toggle="dropdown" aria-expanded="false">
+              <i class="mdi mdi-plus" aria-hidden="true"></i>Add Source <i class="mdi mdi-chevron-down" aria-hidden="true"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-product dropdown-menu-casefusion dm-add-menu" aria-labelledby="dmAddSource">
+              <li><a class="dropdown-item" id="dmDoorM365" href="case-add-sources.html?door=m365">From Microsoft 365<span class="dropdown-item-secondary-text">Teams, SharePoint sites, shared mailboxes and Viva Engage communities, from the permissions sync</span></a></li>
+              <li><a class="dropdown-item" id="dmDoorSources" href="case-add-noncustodial-source.html">From Sources<span class="dropdown-item-secondary-text">Box, Slack, applications, file shares and records systems, added by the tenant</span></a></li>
+              <li><a class="dropdown-item" id="dmDoorCustodians" href="case-add-custodian-source.html">For Custodians<span class="dropdown-item-secondary-text">A device or account that is not one of their standard sources</span></a></li>
+            </ul>
+          </div>
+          <span class="dm-divider" aria-hidden="true"></span>
           <div id="dmViewToggle" class="btn-group" role="group" aria-label="Group by">
             <button type="button" class="btn btn-secondary active" aria-pressed="true" data-dm-view="source">By Source</button>
             <button type="button" class="btn btn-secondary" aria-pressed="false" data-dm-view="people">By People</button>
@@ -166,6 +178,15 @@
         <!-- ══ TOTALS — single card set; values swap with the Case Window / All Time
              toggle in the Filters card. Rendered from DM_TOTALS (see script) for future API use. -->
         <p id="dmSummary" class="dm-summary"></p>
+        <!-- PRD 01 7.1, W5 (held, F20): the reported-locations banner. The queue it opens is PRD 02's. -->
+        <div class="alert alert-warning dm-reported" id="dmReported" role="status" hidden>
+          <span class="alert-icon" aria-hidden="true"><i class="mdi mdi-help-circle-outline"></i></span>
+          <span class="alert-message" id="dmReportedText"></span>
+          <a class="btn btn-secondary btn-sm" href="not-in-demo.html?what=Reported%20locations%20(PRD%2002)">Review Reported Locations</a>
+        </div>
+        <!-- PRD 01 M60, M64, W1 (rendered on the held 7.2 form): an evidence gap is not a coverage gap, so it is a line
+             of its own with a neutral tag, never a warning. -->
+        <p class="dm-evidence-gap" id="dmEvidenceGap" hidden></p>
         <!-- Both views live in one positioned stack so the toggle can crossfade them:
              the outgoing view is taken out of flow (absolute) while the stack's height
              animates to the incoming view's. Angular: wrap in a host with [@viewFade]. -->
@@ -233,7 +254,19 @@
             <div class="dm-stat-meta"><span></span><span class="dm-meta-divider"></span><span></span></div>
             <span class="badge badge-caution dm-stat-badge">Not in filter</span>
           </div>
+          <!-- PRD 01 F10 (held): the sixth card. The five workload cards count only what the audit log reports; this
+               one counts the sources it does not, so the six cards sum to the summary line's sources and items
+               (decision 190). -->
+          <div class="dm-stat dm-stat-quiet" tabindex="0" role="button" aria-pressed="false" data-dm-source="noactivity" data-dm-label="No Activity Data">
+            <div class="dm-stat-type"><i class="mdi mdi-database-off-outline dm-src-svg dm-src-mdi" role="img" aria-label="No activity data"></i>No Activity Data</div>
+            <div class="dm-stat-count"><b></b><small>SOURCES</small></div>
+            <div class="dm-stat-meta"><span></span><span class="dm-meta-divider"></span><span>not in the audit log</span></div>
+            <span class="badge badge-caution dm-stat-badge">Not in filter</span>
+          </div>
         </div>
+        <p class="dm-card-caption" id="dmCardCaption">By Microsoft 365 audit-log workload. Sources the audit log does not report are counted in No Activity Data, never as zero.</p>
+        <!-- PRD 01 7.2, M62 (held): without audit logs the cards count sources by origin. -->
+        <div id="dmOriginGrid" class="dm-people-grid dm-origin-grid" aria-label="Sources by origin" hidden></div>
   
         <!-- ══ TOP SOURCES TABLE ════════════════════════════════════════════════
              Angular: <app-data-table [rows]="topSources" [columns]="cols">.
@@ -242,17 +275,23 @@
         <section class="dm-card" aria-label="Top sources">
           <div class="dm-card-head">
             <p class="dm-eyebrow dm-topsrc-head"><span class="dm-topsrc-label">Top Sources</span><span class="dm-topsrc-crumb" hidden> › <span class="dm-topsrc-crumb-label"></span></span><button type="button" class="dm-topsrc-clear" hidden>Clear</button></p>
+            <div class="dm-card-tools">
+            <!-- PRD 01 M34, F11 (held): Found through is filterable. -->
+            <span class="toolbar-list-label">Found Through</span>
+            <select id="dmFoundFilter" class="form-control-sm" data-cnds-select-init data-cnds-visible-options="7" aria-label="Found through"></select>
             <div class="btn-group" role="group" aria-label="Source scope" id="dmSourceScope">
               <button type="button" class="btn btn-secondary btn-sm active" aria-pressed="true" data-dm-scope="top">Top Sources</button>
               <button type="button" class="btn btn-secondary btn-sm" aria-pressed="false" data-dm-scope="all">All Sources</button>
+            </div>
             </div>
           </div>
   
           <div class="table-responsive">
             <table class="dm-table">
-              <thead>
+              <thead id="dmSrcHead">
                 <tr>
                   <th scope="col">Source</th>
+                  <th scope="col" class="dm-col-found">Found Through</th>
                   <th scope="col" class="dm-col-items">Items</th>
                   <th scope="col" class="dm-col-people">People Accessed</th>
                   <th scope="col" class="dm-col-act"><span class="visually-hidden">Exclude from scope</span></th>
@@ -264,6 +303,8 @@
             </table>
           </div>
   
+          <!-- PRD 01 M65, W3 (held 7.2): sources open to everyone are left out, with a count and SHOW THEM. -->
+          <p class="dm-open-note" id="dmOpenNote" hidden></p>
           <!-- Nimbus/Pagination — toolbar variant (CSS only; page-size uses Nimbus/Select) -->
           <div class="pagination-toolbar">
             <label class="pagination-toolbar-label" for="dmPageSize">Results per page:</label>
@@ -311,23 +352,29 @@
                   <div class="toolbar-list-controls">
                     <!-- Plain spans, not <label for> — Nimbus/Select absorbs an associated
                          label into its own floating .select-label row. -->
-                    <span class="toolbar-list-label">Show</span>
-                    <!-- 6 options: raise the panel cap so Unreleased isn't below the fold
-                         (Nimbus/Select defaults to 5 visible). -->
-                    <select id="dmPeopleShow" data-cnds-select-init data-cnds-visible-options="6" aria-label="Show">
+                    <!-- PRD 01 7.1, AC37: the table tools carry a filter select. Its label is open (F12); the demo
+                         labels it Filter By and filters by relevance signal. -->
+                    <span class="toolbar-list-label">Filter By</span>
+                    <select id="dmPeopleFilter" data-cnds-select-init aria-label="Filter by relevance">
                       <option value="all" selected>All</option>
-                      <option value="Active">Active</option>
-                      <option value="Pending">Pending</option>
-                      <option value="No">No</option>
-                      <option value="Released">Released</option>
-                      <option value="Unreleased">Unreleased</option>
+                      <option value="High">High Relevance</option>
+                      <option value="Medium">Medium Relevance</option>
+                      <option value="Low">Low Relevance</option>
                     </select>
+                    <!-- PRD 01 7.1: 1.9's Show options (All · On hold · Not requested) are kept; production's
+                         Active / Pending / No / Released / Unreleased are dropped (ON HOLD has three values, M3a). -->
+                    <span class="toolbar-list-label">Show</span>
+                    <select id="dmPeopleShow" data-cnds-select-init aria-label="Show">
+                      <option value="all" selected>All</option>
+                      <option value="onhold">On Hold</option>
+                      <option value="notrequested">Not Requested</option>
+                    </select>
+                    <!-- PRD 01 7.1: Sort by Events · Sources · Name (1.9's, kept; production's Relevance dropped). -->
                     <span class="toolbar-list-label">Sort By</span>
                     <select id="dmPeopleSort" data-cnds-select-init aria-label="Sort by">
                       <option value="events" selected>Events</option>
                       <option value="sources">Sources</option>
-                      <option value="name">Custodian</option>
-                      <option value="signal">Relevance</option>
+                      <option value="name">Name</option>
                     </select>
                     <!-- ASC/DSC — tertiary button; the circled-arrow glyph isn't in this
                          MDI subset, so the Figma path is inlined and flipped for DESC. -->
@@ -355,7 +402,7 @@
   
             <div class="table-responsive">
               <table class="dm-table dm-table-people">
-                <thead>
+                <thead id="dmPeopleHead">
                   <tr>
                     <th scope="col" class="dm-col-rank">#</th>
                     <th scope="col">Custodian</th>
@@ -397,6 +444,11 @@
         <section class="dm-insight" id="dmNonCustodianCard" aria-label="Notable non-custodians">
           <div class="dm-insight-head">
             <span class="dm-insight-title">Notable Non-Custodians</span>
+            <!-- PRD 01 M11 (held, F20): Rank by — a ranking, never a score. -->
+            <span class="dm-rank">
+              <span class="toolbar-list-label">Rank By</span>
+              <select id="dmRankBy" class="form-control-sm" data-cnds-select-init aria-label="Rank by"></select>
+            </span>
             <button type="button" class="dm-drawer-toggle" aria-expanded="true"
                     aria-controls="dmNonCustodianBody" aria-label="Collapse notable non-custodians">
               <i class="mdi mdi-chevron-up mdi-24px" aria-hidden="true"></i>
@@ -404,13 +456,28 @@
           </div>
           <div class="dm-drawer-body" id="dmNonCustodianBody">
             <div class="dm-drawer-inner">
-              <p class="dm-insight-note">People with meaningful overlap on case sources who are not on this case's custodian list. Shown when: 20+ UAL events against an in-scope source in the case window, or a top collaborator with an existing custodian.</p>
+              <p class="dm-insight-note" id="dmInsightRule">People with meaningful overlap on case sources who are not on this case's custodian list. Shown when: 20+ UAL events against an in-scope source in the case window, or a top collaborator with an existing custodian.</p>
+              <!-- PRD 01 7.1 held (F20): the 1.9 sub-line, footnote and evidence (M12) sit with the design's reason line. -->
+              <p class="dm-insight-note" id="dmInsightSubline"></p>
               <div class="dm-insight-list"><!-- Demo: rendered from DM_NOTABLE (M.notableNonCustodians) -->
+              </div>
+              <div class="dm-insight-foot">
+                <span>Their sources are already in the data map.</span>
+                <!-- PRD 01 M14a, AC24: dismissed findings are hidden, never discarded. -->
+                <span class="dm-clear-wrap"><button type="button" class="btn btn-tertiary btn-sm btn-show-hidden" id="dmShowHidden" aria-expanded="false" aria-controls="dmHiddenList">Show Hidden Non-Custodians (0)</button></span>
+              </div>
+              <div class="dm-hidden-list" id="dmHiddenList" hidden>
+                <p class="dm-insight-note mb-0">Dismissed findings, with who dismissed them, when and why. Restore one to the list, or mark them as a custodian.</p>
+                <div class="dm-insight-list" id="dmHiddenRows"></div>
               </div>
             </div>
           </div>
         </section>
   
+        <!-- PRD 01 M88, W7: what loading a scope found — a source that can no longer be requested (with its successor
+             offered for confirmation) and sources that have left the case. The scope itself is never rewritten. -->
+        <div id="dmScopeNotice" class="dm-scope-notice" hidden></div>
+
         <!-- ══ FOOTER ACTION BAR ════════════════════════════════════════════════
              Angular: sticky commit bar. "Finalize scope and save" is the primary
              action; "Load saved scope" opens a saved-scope picker. -->
@@ -458,10 +525,23 @@
                 <span class="dm-drawer-name" id="dmDrawerName"></span>
                 <span class="dm-drawer-path" id="dmDrawerPath"></span>
               </span>
+              <!-- PRD 01 7.3 held (F20): EDIT DETAILS opens the source in the PRD 03 editor. -->
+              <a class="btn btn-secondary btn-sm dm-edit-details" id="dmEditDetails" href="not-in-demo.html?what=Source%20editor%20(PRD%2003)">Edit Details</a>
             </div>
+            <!-- PRD 01 7.3 held (F20): the facts line and badges. -->
+            <div id="dmDrawerFacts" class="dm-drawer-factsbox"></div>
             <!-- tabs (rendered per source type) -->
             <div class="btn-group dm-drawer-tabs" role="group" aria-label="Source detail view" id="dmDrawerTabs"></div>
             <p class="dm-drawer-hint" id="dmDrawerHint"></p>
+            <!-- PRD 01 7.4 (held, F9): Has access controls — Access as of, fidelity, permission history, the filter chips. -->
+            <div class="dm-access-bar" id="dmAccessBar" hidden>
+              <span class="toolbar-list-label">Access As Of</span>
+              <select id="dmAccessAsOf" class="form-control-sm" data-cnds-select-init aria-label="Access as of"></select>
+              <span id="dmAccessFidelity"></span>
+              <button type="button" class="btn btn-tertiary btn-sm ms-auto" id="dmPermHistory">Permission History</button>
+            </div>
+            <p class="dm-evidence-gap" id="dmAccessGap" hidden></p>
+            <ul class="nav nav-pills nav-pills-nimbus nav-pills-casefusion dm-access-chips" id="dmAccessChips" aria-label="Filter people with access" hidden></ul>
             <!-- Staged-exclusion banner. The slot always reserves its height (see
                  .dm-excl-slot) so the table below never moves; the banner fades in
                  and out inside it. Present on every tab, including those that cannot
@@ -481,6 +561,9 @@
               </div>
               <span class="toolbar-list-divider" aria-hidden="true"></span>
               <div class="toolbar-list-controls">
+                <!-- PRD 01 M42d, AC14: every view's toolbar has a filter select. Label open (F12): Filter By. -->
+                <span class="toolbar-list-label">Filter By</span>
+                <select id="dmDrawerFilter" class="form-control-sm" data-cnds-select-init aria-label="Filter by"></select>
                 <span class="toolbar-list-label">Sort By</span>
                 <select id="dmDrawerSort" class="form-control-sm" data-cnds-select-init aria-label="Sort by"></select>
                 <button type="button" class="btn btn-tertiary btn-sm dm-sort-dir" id="dmDrawerSortDir"
@@ -511,9 +594,15 @@
                 <button type="button" class="pagination-toolbar-btn" aria-label="Last page"><i class="mdi mdi-skip-next" aria-hidden="true"></i></button>
               </nav>
             </div>
+            <!-- PRD 01 7.4 (held): locations with their own permissions, and what the snapshot does not capture (M56, M57, W6). -->
+            <div id="dmAccessExtra" hidden></div>
+            <!-- PRD 01 7.3 held (F20): Ownership and CaseFusion details, Preservation and collection history. -->
+            <div id="dmSdDrawers" class="dm-sd-drawers"></div>
           </div>
           <div class="offcanvas-footer dm-drawer-foot">
             <button type="button" class="btn btn-secondary" data-cnds-dismiss="offcanvas" id="dmDrawerCancel">Cancel</button>
+            <!-- PRD 01 7.3 held (F9): 1.9's Has access footer, EXPORT CSV / CLOSE. -->
+            <button type="button" class="btn btn-primary" id="dmDrawerExport" hidden>Export CSV</button>
             <button type="button" class="btn btn-primary" id="dmDrawerApply">Apply Exclusions</button>
           </div>
         </div>
@@ -545,14 +634,14 @@
                   <option value="Viewed">Viewed</option>
                   <option value="Uploaded">Uploaded</option>
                   <option value="Downloaded">Downloaded</option>
-                  <option value="Deleted">Deleted</option>
-                  <option value="Other">etc</option>
+                  <option value="Modified">Modified</option>
+                  <option value="Shared">Shared</option>
                 </select>
               </div>
             </div>
             <div class="table-responsive">
               <table class="dm-table">
-                <thead><tr><th scope="col">Event</th><th scope="col" class="dm-col-when">Date / Time</th></tr></thead>
+                <thead><tr><th scope="col">Event</th><th scope="col" class="dm-col-when">Date</th></tr></thead>
                 <tbody id="dmItemRows"></tbody>
               </table>
             </div>
@@ -585,7 +674,7 @@
           <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
               <div class="modal-header">
-                <h5 class="modal-title" id="dmRenameScopeTitle">Rename scope</h5>
+                <h5 class="modal-title" id="dmRenameScopeTitle">Rename Saved Scope</h5>
                 <button type="button" class="btn-close" data-cnds-dismiss="modal" aria-label="Close"></button>
               </div>
               <div class="modal-body dm-finalize-body">
@@ -616,15 +705,18 @@
           <div class="modal-dialog modal-dialog-centered dm-modal-confirm">
             <div class="modal-content">
               <div class="modal-header">
-                <h5 class="modal-title" id="dmDeleteScopeTitle">Please confirm</h5>
+                <!-- PRD 01 M84c draws "Please Confirm" / YES; the PM's copy rule wants a question title (F15 open). The
+                     house destructive-confirm pattern is used: a question, a warning note, CANCEL and a danger action. -->
+                <h5 class="modal-title" id="dmDeleteScopeTitle">Delete Saved Scope?</h5>
                 <button type="button" class="btn-close" data-cnds-dismiss="modal" aria-label="Close"></button>
               </div>
               <div class="modal-body">
-                <p class="dm-confirm-text">Are you sure you want to delete the saved scope? This action cannot be undone.</p>
+                <p class="dm-confirm-text" id="dmDeleteScopeText">The saved scope will be deleted.</p>
+                <p class="note note-warning note-sm mt-3 mb-0">This action cannot be undone. A request already started from this scope keeps what it read.</p>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-cnds-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="dmDeleteScopeYes">Yes</button>
+                <button type="button" class="btn btn-danger" id="dmDeleteScopeYes">Delete Scope</button>
               </div>
             </div>
           </div>
@@ -641,16 +733,19 @@
           <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
               <div class="modal-header">
-                <h5 class="modal-title" id="dmFinalizeModalTitle">Finalize scope and save</h5>
+                <h5 class="modal-title" id="dmFinalizeModalTitle">Finalize Scope And Save</h5>
                 <button type="button" class="btn-close" data-cnds-dismiss="modal" aria-label="Close"></button>
               </div>
               <div class="modal-body dm-finalize-body">
                 <p class="dm-finalize-lead">Saved scopes are named, reusable data maps definitions — retrievable later from Preserve in Place, Data Collections, and other workflows across the system.</p>
-                <div class="cf-input-field cf-input-field-casefusion">
+                <!-- PRD 01 V4: a name already used on the case is refused, with the way out (a new version). -->
+                <div class="cf-input-field cf-input-field-casefusion" id="dmScopeNameField">
                   <input type="text" class="cf-input-control" id="dmScopeName" maxlength="120"
                          placeholder="e.g. Regulatory Submissions Review — Case Window"
-                         aria-label="Scope name" autocomplete="off" />
+                         aria-label="Scope name" autocomplete="off" aria-describedby="dmScopeNameError" />
+                  <div class="cf-input-helper"><span class="cf-input-error" id="dmScopeNameError"></span></div>
                 </div>
+                <div id="dmScopeVersionWrap" hidden><button type="button" class="btn btn-tertiary btn-sm px-0" id="dmScopeVersion">Save As New Version</button></div>
                 <!-- Rebuilt on open so the counts track the active time window -->
                 <div class="alert alert-info dm-export-note" id="dmFinalizeSummary"></div>
               </div>
@@ -689,11 +784,14 @@
         </div>
       </div>
     </main>
-    <script src="../data/meridian.js?v=20261016152852"></script>
-    <script src="../js/demo/shell.js?v=20261016152852"></script>
-    <script src="../js/nimbus.js?v=20261016152852"></script>
-    <script src="../js/app.js?v=20261016152852"></script>
-    <script src="../js/pages/frame-ca-sidenav.js?v=20261016152852"></script>
-    <script src="../js/demo/case-data-map.js?v=20261016152852"></script>
+    <script src="../data/meridian.js?v=20261016163633"></script>
+    <!-- PRD 01 7.6–7.9: the Add Source doors' hand-back (owned by the doors' build; read here, never edited). -->
+    <script src="../data/meridian-add-sources.js?v=20261016163633"></script>
+    <script src="../js/demo/shell.js?v=20261016163633"></script>
+    <script src="../js/nimbus.js?v=20261016163633"></script>
+    <script src="../js/app.js?v=20261016163633"></script>
+    <script src="../js/pages/frame-ca-sidenav.js?v=20261016163633"></script>
+    <script src="../js/demo/case-data-map-source.js?v=20261016163633"></script>
+    <script src="../js/demo/case-data-map.js?v=20261016163633"></script>
   </body>
 </html>
