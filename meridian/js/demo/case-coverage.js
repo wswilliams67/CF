@@ -290,7 +290,7 @@
     /* Selection toolbar in the default toolbar colour, not the green shared state (design decision 11). The clear (X)
        and the count use the list toolbar's text colour so they read on the default bar in both themes. */
     host.innerHTML = '<div class="pb-2"><div class="btn-toolbar-gray cv-seltool" role="toolbar" aria-label="Actions for selected custodians">' +
-      '<div class="toolbar-shared-count"><i class="mdi mdi-close pointer toolbar-list-total" role="button" tabindex="0" aria-label="Clear selection" data-cv="clear"></i><div class="vr vr-blurry" aria-hidden="true"></div><span class="toolbar-list-total">' + n + " selected" + "</span></div><div>" +
+      '<div class="toolbar-shared-count"><i class="mdi mdi-close pointer toolbar-list-total" role="button" tabindex="0" aria-label="Clear selection" data-cv="clear"></i><div class="vr vr-blurry" aria-hidden="true"></div><span class="toolbar-list-total">' + n + " selected" + '</span></div><div class="cv-seltool-actions">' +
       /* Grouped by what they affect, split by blurry rules (Scott, 10-15): the legal hold | the custodian's workflows |
          their data. Groups and the actions in each run in damage order: most consequential leftmost (house rule). */
       /* Disabled, never hidden, when no selected custodian is on a legal hold: there is nothing to release. */
