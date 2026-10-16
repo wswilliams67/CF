@@ -36,9 +36,23 @@
 /* Sort By holds its longest option, "Most Urgent" (Scott, 10-15). */
 .select-wrapper:has(> select#cvSort) { min-width: 8.5rem; }
 .cv-toolbar-search { flex: 1 1 9rem; min-width: 9rem; }  /* 9rem holds "Search custodians…"; the rest went to Sort By (10-15) */
+/* Responsive (Scott, 10-16): when the window is too narrow for one line, the controls wrap onto a second line
+   instead of running off the edge; each label stays with its select. */
+@media (max-width: 1439.98px) {
+  .cv-list-tools { flex-wrap: wrap; }
+  .cv-list-tools .toolbar-list-controls { flex-wrap: wrap; row-gap: var(--cnds-spacer-2); }
+}
 
 /* ── 3. Custodian grid ────────────────────────────────────────────────── */
 .cv-grid { table-layout: fixed; }
+/* Responsive (Scott, 10-16): the grid never squeezes the custodian column. It keeps the width its fixed status
+   columns need plus a 220px custodian column (72rem); below that the table scrolls sideways inside its wrapper and
+   the checkbox and custodian columns stay pinned on the left, so the name is always beside its statuses. Pinned
+   cells keep the Nimbus table background, so hover and selection still read through. */
+.cv-grid { min-width: 72rem; }
+#cvGridView .table-responsive { overflow-x: auto; }
+.cv-grid th:nth-child(1), .cv-grid td:nth-child(1) { position: sticky; left: 0; z-index: 2; }
+.cv-grid th:nth-child(2), .cv-grid td:nth-child(2) { position: sticky; left: 2.5rem; z-index: 2; }
 .cv-grid th:not(:nth-child(2)), .cv-grid td:not(:nth-child(2)) { text-align: center; }
 /* Grid header: every label on one line and every cell centred vertically, so the select-all checkbox and the labels
    share one line (Scott, 10-14). */
