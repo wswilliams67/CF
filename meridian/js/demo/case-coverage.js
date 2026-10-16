@@ -291,6 +291,12 @@
        and the count use the list toolbar's text colour so they read on the default bar in both themes. */
     host.innerHTML = '<div class="pb-2"><div class="btn-toolbar-gray cv-seltool" role="toolbar" aria-label="Actions for selected custodians">' +
       '<div class="toolbar-shared-count"><i class="mdi mdi-close pointer toolbar-list-total" role="button" tabindex="0" aria-label="Clear selection" data-cv="clear"></i><div class="vr vr-blurry" aria-hidden="true"></div><span class="toolbar-list-total">' + n + " selected" + "</span></div><div>" +
+      /* Damage order (house rule): the most consequential action leftmost, the least rightmost (Scott, 10-15):
+         release, mark not required, the two sends, then the two that only open a page. */
+      /* Disabled, never hidden, when no selected custodian is on a legal hold: there is nothing to release. */
+      (list.some(releasable) ? '<div class="btn-group" role="group"><button type="button" class="btn btn-tertiary btn-sm" data-cv="release">RELEASE FROM HOLD</button></div>' :
+        '<div class="btn-group" role="group" title="None of the selected custodians is on a legal hold."><button type="button" class="btn btn-tertiary btn-sm" disabled>RELEASE FROM HOLD</button></div>') +
+      '<div class="btn-group" role="group"><button type="button" class="btn btn-tertiary btn-sm" data-cv="not-required">MARK NOT REQUIRED</button></div>' +
       dropdown("SEND LEGAL HOLD NOTIFICATION",
         item("", "New Legal Hold Notification …", "Opens Create Legal Hold with the " + n + " selected custodians as recipients", createHoldPage(selectedList())) +
         groupHead("Settings From a Notification") +
@@ -305,18 +311,14 @@
         item("", "New Survey …", "Opens the survey form with the " + n + " selected custodians", "not-in-demo.html?what=New+survey&amp;ships=1") +
         groupHead("Settings From a Survey") +
         M.surveys.map(function (sv) { return groupItem('data-send-survey="' + sv.id + '"', sv.id + " · " + sv.title, sv.questions + " questions"); }).join("")) +
-      /* SCHEDULE INTERVIEW opens the existing Schedule Interview page (schedulePage); its Interview With takes one person,
-         so it needs one custodian selected (disabled with the reason otherwise). */
-      (n === 1 && seen(list[0]) ? '<div class="btn-group" role="group"><a class="btn btn-tertiary btn-sm" href="' + schedulePage(list[0], false) + '">SCHEDULE INTERVIEW</a></div>' :
-        '<div class="btn-group" role="group" title="' + (n === 1 ? "Outside your regions: the case team in the custodian's region schedules the interview." : "An interview is with one custodian: select one to schedule it.") + '"><button type="button" class="btn btn-tertiary btn-sm" disabled>SCHEDULE INTERVIEW</button></div>') +
       dropdown("REQUEST FOR GAPS",
         item("", "Preservation Request", "Opens New request with the selected custodians and only their gap sources", "case-new-preservation.html?custodians=" + ids) +
         item("", "Collection Request", "Collection is not part of this demo", "not-in-demo.html?what=Collection+request") +
         item("", "Both", "Collection is not part of this demo", "not-in-demo.html?what=Preservation+and+collection+request")) +
-      '<div class="btn-group" role="group"><button type="button" class="btn btn-tertiary btn-sm" data-cv="not-required">MARK NOT REQUIRED</button></div>' +
-      /* Disabled, never hidden, when no selected custodian is on a legal hold: there is nothing to release. */
-      (list.some(releasable) ? '<div class="btn-group" role="group"><button type="button" class="btn btn-tertiary btn-sm" data-cv="release">RELEASE FROM HOLD</button></div>' :
-        '<div class="btn-group" role="group" title="None of the selected custodians is on a legal hold."><button type="button" class="btn btn-tertiary btn-sm" disabled>RELEASE FROM HOLD</button></div>') +
+      /* SCHEDULE INTERVIEW opens the existing Schedule Interview page (schedulePage); its Interview With takes one person,
+         so it needs one custodian selected (disabled with the reason otherwise). */
+      (n === 1 && seen(list[0]) ? '<div class="btn-group" role="group"><a class="btn btn-tertiary btn-sm" href="' + schedulePage(list[0], false) + '">SCHEDULE INTERVIEW</a></div>' :
+        '<div class="btn-group" role="group" title="' + (n === 1 ? "Outside your regions: the case team in the custodian's region schedules the interview." : "An interview is with one custodian: select one to schedule it.") + '"><button type="button" class="btn btn-tertiary btn-sm" disabled>SCHEDULE INTERVIEW</button></div>') +
       "</div></div></div>";
     if (entering && !REDUCE) {
       var bar = host.querySelector(".cv-seltool"); bar.classList.remove("cv-zoom-out"); bar.style.opacity = "0";
