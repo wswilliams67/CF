@@ -1071,48 +1071,61 @@
     var hidden = pids.length - shown.length;
     return shown.join(", ") + (hidden ? (shown.length ? ", " : "") + hidden + " outside your regions" : "");
   }
-  /* Production's insight row, plus masking, the Guest badge, the evidence line and DISMISS. */
+  /* The Notable Non-Custodians table (Scott, 10-16: the card matches the rest of the page). Columns follow the variant:
+     activity (M10–M12) or, without audit logs, access (M63). The person cell keeps production's name, role and reason line,
+     plus masking, the Guest badge and, on a hidden row, who dismissed it. Actions stack: the forward action, then DISMISS. */
+  var DM_NOTABLE_COLS = 6;
+  function dmNotableHeadHtml() {
+    var cols = window.dmNoAudit
+      ? [["Person", ""], ["Shared Sources", "dm-col-num"], ["Highest Role", "dm-np-role"], ["Custodians In Common", "dm-np-common"], ["Access To", "dm-np-wide"], ['<span class="visually-hidden">Actions</span>', "dm-np-act"]]
+      : [["Person", ""], ["Custodians In Common", "dm-np-common"], ["Overlap Events", "dm-col-num"], ["Collaboration", "dm-np-wide"], ["Sources Seen", "dm-col-num"], ['<span class="visually-hidden">Actions</span>', "dm-np-act"]];
+    return "<tr>" + cols.map(function (c) { return '<th scope="col" class="' + c[1] + '">' + c[0] + "</th>"; }).join("") + "</tr>";
+  }
   function dmNotableRowHtml(p) {
     var name = p.masked ? dmMaskedHtml() : (p.guest
       /* PRD 01 M17, AC23: a guest's name opens the Guest Identity drawer, not a profile. */
       ? '<button type="button" class="dm-link-btn" data-dm-guest="' + esc(p.pid) + '">' + esc(p.name) + "</button>"
-      : '<a href="' + DM_PROFILE_HREF + '">' + esc(p.name) + "</a>") + " <span>— " + esc(p.role) + "</span>";
-    var total = dmAllCustodians().length;
-    var meta = window.dmNoAudit
-      ? [["Shared Sources", String(p.shared.length)], ["Highest Role", p.highest], ["Custodians In Common", p.common.length + " of " + total + (p.common.length ? " · " + dmNamesShort(p.common) : "")],
-         ["Access To", p.shared.join(", ")]]
-      : [["Custodians In Common", p.common.length + " of " + total + (p.common.length ? " · " + dmNamesShort(p.common) : "")], ["Overlap Events", nf(p.overlap)],
-         ["Collaboration With Custodians", p.collab[0] + " shared files · " + p.collab[1] + " chats · " + p.collab[2] + " meetings"], ["Sources Seen", String(p.seen.length)]];
+      : '<a href="' + DM_PROFILE_HREF + '">' + esc(p.name) + "</a>");
+    var total = dmAllCustodians().length, dash = '<span class="dm-muted">—</span>';
+    var common = '<div>' + p.common.length + " of " + total + "</div>" + (p.common.length ? '<div class="dm-np-sub">' + esc(dmNamesShort(p.common)) + "</div>" : "");
+    var cells = p.masked
+      ? [dash, dash, dash, dash]
+      : window.dmNoAudit
+        ? [String(p.shared.length), esc(p.highest), common, '<span class="dm-np-sub">' + esc(p.shared.join(", ")) + "</span>"]
+        : [common, nf(p.overlap), '<span class="dm-np-sub">' + p.collab[0] + " shared files · " + p.collab[1] + " chats · " + p.collab[2] + " meetings</span>", String(p.seen.length)];
+    var cls = window.dmNoAudit ? ["dm-col-num", "dm-np-role", "dm-np-common", "dm-np-wide"] : ["dm-np-common", "dm-col-num", "dm-np-wide", "dm-col-num"];
     var action = p.masked ? dmBlockedMark(DM_REASON_MASKED, "btn-mark") : p.guest ? dmGuestAction(p.pid, "btn-guest-np")
       : '<button type="button" class="btn btn-tertiary btn-sm btn-mark">Mark as Custodian</button>';
     var dismissed = p.dismissed;
-    var acts = dismissed
-      ? '<button type="button" class="btn btn-tertiary btn-sm btn-restore" data-dm-restore="' + esc(p.pid) + '">Restore</button>' + action
-      : '<button type="button" class="btn btn-tertiary btn-sm btn-dismiss" data-dm-dismiss="' + esc(p.pid) + '">Dismiss</button>' + action;
-    return '<div class="dm-insight-body"><div class="dm-insight-name">' + name + (p.guest && !p.masked ? dmGuestBadge() : "") + "</div>" +
-        (window.dmNoAudit ? "" : '<div class="dm-insight-sub">' + esc(p.detail) + "</div>") +
-        (p.masked ? "" : '<div class="dm-insight-meta">' + meta.map(function (m) { return "<span><b>" + esc(m[0]) + ":</b> " + esc(m[1]) + "</span>"; }).join("") + "</div>") +
-        (dismissed ? '<div class="dm-insight-dismissed">Dismissed ' + esc(M.fmtDateTime(dismissed.on, dismissed.time)) + " by " + esc(dmPersonText(dismissed.by)) +
-          (p.masked ? "" : " · " + esc(dismissed.reason)) + "</div>" : "") +
-      '</div><div class="dm-insight-actions">' + acts + "</div>";
+    var second = dismissed
+      ? '<button type="button" class="btn btn-tertiary btn-sm btn-restore" data-dm-restore="' + esc(p.pid) + '">Restore</button>'
+      : '<button type="button" class="btn btn-tertiary btn-sm btn-dismiss" data-dm-dismiss="' + esc(p.pid) + '">Dismiss</button>';
+    var person = '<div class="dm-np-name">' + name + (p.guest && !p.masked ? dmGuestBadge() : "") + "</div>" +
+      (p.masked ? '<div class="dm-np-sub">Outside your regions</div>' : '<div class="dm-np-sub">' + esc(p.role) + "</div>") +
+      (window.dmNoAudit || p.masked ? "" : '<div class="dm-np-why">' + esc(p.detail) + "</div>") +
+      (dismissed ? '<div class="dm-np-why">Dismissed ' + esc(M.fmtDateTime(dismissed.on, dismissed.time)) + " by " + esc(dmPersonText(dismissed.by)) +
+        (p.masked ? "" : " · " + esc(dismissed.reason)) + "</div>" : "");
+    return '<td class="dm-np-person">' + person + "</td>" +
+      cells.map(function (c, i) { return '<td class="' + cls[i] + '">' + c + "</td>"; }).join("") +
+      '<td class="dm-np-act"><div class="dm-np-actions">' + action + second + "</div></td>";
   }
+  function dmNotableRowTr(p) { return '<tr class="dm-insight-row" data-dm-pid="' + esc(p.pid) + '">' + dmNotableRowHtml(p) + "</tr>"; }
   function dmRenderNotable() {
     var card = document.getElementById("dmNonCustodianCard"), list = card.querySelector(".dm-insight-list");
     var hiddenWrap = document.getElementById("dmHiddenList"), toggle = document.getElementById("dmShowHidden");
     window.DM_NOTABLE = window.dmNoAudit ? dmNotableByAccess() : dmNotable(false);
     list.removeAttribute("aria-busy");
-    list.innerHTML = window.DM_NOTABLE.length ? window.DM_NOTABLE.map(function (p) {
-      return '<div class="dm-insight-row" data-dm-pid="' + esc(p.pid) + '">' + dmNotableRowHtml(p) + "</div>";
-    }).join("") : '<p class="dm-insight-empty">No one outside the custodian list meets the threshold for the current filters.</p>';
+    Array.prototype.forEach.call(card.querySelectorAll(".dm-notable-thead"), function (h) { h.innerHTML = dmNotableHeadHtml(); });
+    document.getElementById("dmNotableCount").textContent = String(window.DM_NOTABLE.length);
+    list.innerHTML = window.DM_NOTABLE.length ? window.DM_NOTABLE.map(dmNotableRowTr).join("")
+      : '<tr><td colspan="' + DM_NOTABLE_COLS + '" class="dm-insight-empty">No one outside the custodian list meets the threshold for the current filters.</td></tr>';
     /* PRD 01 M14a, AC24: hidden, never discarded — Show hidden non-custodians brings them back. */
     var hidden = window.dmNoAudit ? [] : dmNotable(true).filter(function (p) { return !!p.dismissed; });
     toggle.textContent = (hiddenWrap.hidden ? "Show" : "Hide") + " Hidden Non-Custodians (" + hidden.length + ")";
     toggle.disabled = !hidden.length;
     toggle.title = hidden.length ? "" : "No finding has been dismissed.";
     if (!hidden.length) hiddenWrap.hidden = true;
-    document.getElementById("dmHiddenRows").innerHTML = hidden.map(function (p) {
-      return '<div class="dm-insight-row" data-dm-pid="' + esc(p.pid) + '">' + dmNotableRowHtml(p) + "</div>";
-    }).join("");
+    document.getElementById("dmHiddenRows").innerHTML = hidden.map(dmNotableRowTr).join("");
     /* Rank by follows the variant (M11 vs M63). */
     var rank = document.getElementById("dmRankBy");
     if (rank && rank.getAttribute("data-dm-variant") !== String(!!window.dmNoAudit)) {
@@ -1312,8 +1325,11 @@
       '</td><td class="dm-col-signal"><div class="dm-signal">' + skRect("100%", "5px") + skRect("48px", "14px") + "</div></td></tr>";
     busy(document.getElementById("dmCustodianRows")).innerHTML = new Array(11).join(pRow);
     /* Notable non-custodians: three rows, name over reason, action. */
+    document.querySelector("#dmNonCustodianCard .dm-notable-thead").innerHTML = dmNotableHeadHtml();
     busy(document.querySelector("#dmNonCustodianCard .dm-insight-list")).innerHTML = new Array(5).join(
-      '<div class="dm-insight-row" aria-hidden="true"><div class="dm-sk-body">' + skRect("220px", "14px") + skRect("320px", "12px") + "</div>" + skRect("132px", "28px") + "</div>");
+      '<tr aria-hidden="true"><td><div class="dm-sk-body">' + skRect("160px", "14px") + skRect("120px", "12px") + skRect("260px", "12px") + "</div></td>" +
+      '<td>' + skRect("60px", "14px") + '</td><td class="dm-col-num">' + skRect("40px", "14px") + "</td><td>" + skRect("160px", "12px") +
+      '</td><td class="dm-col-num">' + skRect("20px", "14px") + '</td><td class="dm-np-act"><div class="dm-np-actions">' + skRect("130px", "28px") + skRect("80px", "28px") + "</div></td></tr>");
     ["dmPagerRange", "dmPeoplePagerRange"].forEach(function (id) { document.getElementById(id).textContent = ""; });
     busy(document.querySelector(".dm-main"));
   }
@@ -1633,7 +1649,7 @@
       var card = document.getElementById('dmNonCustodianCard');
       var list = card && card.querySelector('.dm-insight-list');
       if (!list || !p || !p.pid) return;
-      var row = document.createElement('div');
+      var row = document.createElement('tr');   // Demo: the card is a table now (Scott, 10-16)
       row.className = 'dm-insight-row';
       row.setAttribute('data-dm-pid', p.pid);
       // Demo: the row is built by dmNotableRowHtml (masking, Guest badge, disabled

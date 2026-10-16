@@ -14,14 +14,14 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <title>Data Map · Meridian Biopharma · CaseFusion</title>
-    <link rel="stylesheet" href="../css/nimbus.css?v=20261016163956" />
-    <link rel="stylesheet" href="../css/app.css?v=20261016163956" />
-    <link rel="stylesheet" href="../css/themes/primitives.css?v=20261016163956" />
-    <link rel="stylesheet" href="../css/themes/light.css?v=20261016163956" />
-    <link rel="stylesheet" href="../css/themes/dark.css?v=20261016163956" />
-    <link rel="stylesheet" href="../css/pages/frame-ca-sidenav.css?v=20261016163956" />
-    <link rel="stylesheet" href="../css/demo/demo.css?v=20261016163956" />
-    <link rel="stylesheet" href="../css/demo/data-map.css?v=20261016163956" />
+    <link rel="stylesheet" href="../css/nimbus.css?v=20261016164625" />
+    <link rel="stylesheet" href="../css/app.css?v=20261016164625" />
+    <link rel="stylesheet" href="../css/themes/primitives.css?v=20261016164625" />
+    <link rel="stylesheet" href="../css/themes/light.css?v=20261016164625" />
+    <link rel="stylesheet" href="../css/themes/dark.css?v=20261016164625" />
+    <link rel="stylesheet" href="../css/pages/frame-ca-sidenav.css?v=20261016164625" />
+    <link rel="stylesheet" href="../css/demo/demo.css?v=20261016164625" />
+    <link rel="stylesheet" href="../css/demo/data-map.css?v=20261016164625" />
     <link rel="icon" type="image/png" sizes="32x32" href="../img/favicon/favicon-32x32.png" />
   </head>
   <body class="cnds-product-casefusion" data-demo-tab="datamap">
@@ -439,37 +439,50 @@
         </div><!-- /#dmViewByPeople -->
         </div><!-- /#dmViewStack -->
   
-        <!-- ══ NOTABLE NON-CUSTODIANS — collapsible warning insight ═════════════
-             Angular: InsightCardComponent [collapsed] two-way; "Mark as custodian"
-             emits (markCustodian)="add(person)". Drawer collapse is CSS-grid. -->
-        <section class="dm-insight" id="dmNonCustodianCard" aria-label="Notable non-custodians">
-          <div class="dm-insight-head">
-            <span class="dm-insight-title">Notable Non-Custodians</span>
-            <!-- PRD 01 M11 (held, F20): Rank by — a ranking, never a score. -->
-            <span class="dm-rank">
-              <span class="toolbar-list-label">Rank By</span>
-              <select id="dmRankBy" class="form-control-sm" data-cnds-select-init aria-label="Rank by"></select>
-            </span>
-            <button type="button" class="dm-drawer-toggle" aria-expanded="true"
-                    aria-controls="dmNonCustodianBody" aria-label="Collapse notable non-custodians">
-              <i class="mdi mdi-chevron-up mdi-24px" aria-hidden="true"></i>
-            </button>
+        <!-- ══ NOTABLE NON-CUSTODIANS — a standard data map card (Scott, 10-16) ══════════════════════════
+             Production's light warning panel no longer held the PRD's evidence columns, so the panel takes the
+             same card, heading and table as Top Sources and Custodians. Rows are rendered from DM_NOTABLE.
+             Angular: NotableCardComponent [collapsed] two-way; (markCustodian), (dismiss), (restore). -->
+        <section class="dm-card dm-notable" id="dmNonCustodianCard" aria-label="Notable non-custodians">
+          <div class="dm-card-head">
+            <p class="dm-eyebrow dm-notable-title">Notable Non-Custodians <span class="badge badge-secondary" id="dmNotableCount" aria-label="Findings"></span></p>
+            <div class="dm-card-tools">
+              <!-- PRD 01 M11 (held, F20): Rank by — a ranking, never a score. -->
+              <span class="dm-rank">
+                <span class="toolbar-list-label">Rank By</span>
+                <select id="dmRankBy" class="form-control-sm" data-cnds-select-init aria-label="Rank by"></select>
+              </span>
+              <button type="button" class="btn btn-tertiary btn-sm dm-drawer-toggle" aria-expanded="true"
+                      aria-controls="dmNonCustodianBody" aria-label="Collapse notable non-custodians">
+                <i class="mdi mdi-chevron-up mdi-24px" aria-hidden="true"></i>
+              </button>
+            </div>
           </div>
           <div class="dm-drawer-body" id="dmNonCustodianBody">
             <div class="dm-drawer-inner">
-              <p class="dm-insight-note" id="dmInsightRule">People with meaningful overlap on case sources who are not on this case's custodian list. Shown when: 20+ UAL events against an in-scope source in the case window, or a top collaborator with an existing custodian.</p>
-              <!-- PRD 01 7.1 held (F20): the 1.9 sub-line, footnote and evidence (M12) sit with the design's reason line. -->
-              <p class="dm-insight-note" id="dmInsightSubline"></p>
-              <div class="dm-insight-list"><!-- Demo: rendered from DM_NOTABLE (M.notableNonCustodians) -->
+              <p class="dm-people-note" id="dmInsightRule">People with meaningful overlap on case sources who are not on this case's custodian list. Shown when: 20+ UAL events against an in-scope source in the case window, or a top collaborator with an existing custodian.</p>
+              <!-- PRD 01 7.1 held (F20): the 1.9 sub-line (M12). -->
+              <p class="dm-people-note" id="dmInsightSubline"></p>
+              <div class="table-responsive">
+                <table class="dm-table dm-table-notable">
+                  <thead class="dm-notable-thead"></thead>
+                  <tbody class="dm-insight-list"><!-- Demo: rendered from DM_NOTABLE (M.notableNonCustodians) --></tbody>
+                </table>
               </div>
               <div class="dm-insight-foot">
-                <span>Their sources are already in the data map.</span>
+                <span class="dm-people-note">Their sources are already in the data map.</span>
                 <!-- PRD 01 M14a, AC24: dismissed findings are hidden, never discarded. -->
                 <span class="dm-clear-wrap"><button type="button" class="btn btn-tertiary btn-sm btn-show-hidden" id="dmShowHidden" aria-expanded="false" aria-controls="dmHiddenList">Show Hidden Non-Custodians (0)</button></span>
               </div>
               <div class="dm-hidden-list" id="dmHiddenList" hidden>
-                <p class="dm-insight-note mb-0">Dismissed findings, with who dismissed them, when and why. Restore one to the list, or mark them as a custodian.</p>
-                <div class="dm-insight-list" id="dmHiddenRows"></div>
+                <p class="dm-eyebrow">Hidden Non-Custodians</p>
+                <p class="dm-people-note">Dismissed findings, with who dismissed them, when and why. Restore one to the list, or mark them as a custodian.</p>
+                <div class="table-responsive">
+                  <table class="dm-table dm-table-notable">
+                    <thead class="dm-notable-thead"></thead>
+                    <tbody class="dm-insight-list" id="dmHiddenRows"></tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>
@@ -482,7 +495,8 @@
         <!-- ══ FOOTER ACTION BAR ════════════════════════════════════════════════
              Angular: sticky commit bar. "Finalize scope and save" is the primary
              action; "Load saved scope" opens a saved-scope picker. -->
-        <div class="btn-toolbar-gray dm-footer">
+        <!-- Pinned 16px above the viewport bottom while the page scrolls, as on Hold Status (Nimbus floating toolbar; Scott, 10-16). -->
+        <div class="btn-toolbar-gray btn-toolbar-action btn-toolbar-floating dm-footer" role="toolbar" aria-label="Scope actions">
           <span class="dm-footer-left"></span>
           <div class="dm-footer-right">
             <!-- Load Saved Scope — dropup menu (Figma: fr_saved-scopes-menu 17322:1014651).
@@ -785,14 +799,14 @@
         </div>
       </div>
     </main>
-    <script src="../data/meridian.js?v=20261016163956"></script>
+    <script src="../data/meridian.js?v=20261016164625"></script>
     <!-- PRD 01 7.6–7.9: the Add Source doors' hand-back (owned by the doors' build; read here, never edited). -->
-    <script src="../data/meridian-add-sources.js?v=20261016163956"></script>
-    <script src="../js/demo/shell.js?v=20261016163956"></script>
-    <script src="../js/nimbus.js?v=20261016163956"></script>
-    <script src="../js/app.js?v=20261016163956"></script>
-    <script src="../js/pages/frame-ca-sidenav.js?v=20261016163956"></script>
-    <script src="../js/demo/case-data-map-source.js?v=20261016163956"></script>
-    <script src="../js/demo/case-data-map.js?v=20261016163956"></script>
+    <script src="../data/meridian-add-sources.js?v=20261016164625"></script>
+    <script src="../js/demo/shell.js?v=20261016164625"></script>
+    <script src="../js/nimbus.js?v=20261016164625"></script>
+    <script src="../js/app.js?v=20261016164625"></script>
+    <script src="../js/pages/frame-ca-sidenav.js?v=20261016164625"></script>
+    <script src="../js/demo/case-data-map-source.js?v=20261016164625"></script>
+    <script src="../js/demo/case-data-map.js?v=20261016164625"></script>
   </body>
 </html>
