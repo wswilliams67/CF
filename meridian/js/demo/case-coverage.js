@@ -829,9 +829,12 @@
       var h = holdById(n.id) || { title: "" };
       var to = custodians.filter(function (x) { return (x.lhn || []).some(function (y) { return y.id === n.id; }); }).length;
       var silent = n.status === "Silent";
-      var acts = silent ? btn("VIEW LEGAL HOLD", 'data-cv-view-lh="' + n.id + '"') + link("REMOVE FROM LEGAL HOLD", "not-in-demo.html?what=Remove+from+legal+hold&amp;ships=1") :
-        n.status === "Acknowledged" ? btn("VIEW LEGAL HOLD", 'data-cv-view-lh="' + n.id + '"') :
-        btn("SEND REMINDER", 'data-cv-remind="' + n.id + '"') + btn("RESEND NOTIFICATION", 'data-cv-resend="' + n.id + '"') + btn("RECORD ACKNOWLEDGMENT", 'data-cv-ack="' + n.id + '"');
+      /* Damage order (house rule): VIEW LEGAL HOLD, on every tile, is rightmost; each action to its left changes more,
+         so the most consequential is leftmost (Scott, 10-15). */
+      var view = btn("VIEW LEGAL HOLD", 'data-cv-view-lh="' + n.id + '"');
+      var acts = silent ? link("REMOVE FROM LEGAL HOLD", "not-in-demo.html?what=Remove+from+legal+hold&amp;ships=1") + view :
+        n.status === "Acknowledged" ? view :
+        btn("RECORD ACKNOWLEDGMENT", 'data-cv-ack="' + n.id + '"') + btn("RESEND NOTIFICATION", 'data-cv-resend="' + n.id + '"') + btn("SEND REMINDER", 'data-cv-remind="' + n.id + '"') + view;
       return recordTile({ id: n.id, view: 'data-cv-view-lh="' + n.id + '"', title: h.title, badge: lhnBadge(n.status, "Silent legal hold"),
         aside: silent ? "Nothing sent to the custodian" : "Sent to " + plural(to, "custodian"), events: n.events, acts: acts });
     });
