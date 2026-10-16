@@ -1109,7 +1109,7 @@
         (p.masked ? "" : " · " + esc(dismissed.reason)) + "</small>" : "");
     return '<td class="dm-np-person">' + person + "</td>" +
       cells.map(function (c, i) { return '<td class="' + cls[i] + '">' + c + "</td>"; }).join("") +
-      '<td class="dm-np-act"><div class="dm-np-actions">' + action + second + "</div></td>";
+      '<td class="dm-np-act"><div class="vr vr-blurry" aria-hidden="true"></div><div class="dm-np-actions">' + action + second + "</div></td>";
   }
   function dmNotableRowTr(p) { return '<tr class="dm-insight-row" data-dm-pid="' + esc(p.pid) + '">' + dmNotableRowHtml(p) + "</tr>"; }
   function dmRenderNotable() {
@@ -1318,7 +1318,7 @@
     var srcRow = '<tr aria-hidden="true"><td><div class="dm-source">' + skRect("22px", "22px") + '<span class="dm-source-body dm-sk-body">' + skRect("180px", "14px") + skRect("260px", "12px") + "</span></div></td>" +
       '<td class="dm-col-found">' + skRect("96px", "14px") + "</td>" +
       '<td class="dm-col-items"><div class="dm-items">' + skRect("100%", "5px") + skRect("40px", "14px") + "</div></td>" +
-      '<td class="dm-col-people">' + skRect("64px", "14px") + '</td><td class="dm-col-act">' + skRect("72px", "28px") + "</td></tr>";
+      '<td class="dm-col-people">' + skRect("64px", "14px") + '</td><td class="dm-col-act"><div class="vr vr-blurry" aria-hidden="true"></div>' + skRect("72px", "28px") + "</td></tr>";
     busy(document.querySelector("#dmViewBySource .dm-table tbody")).innerHTML = new Array(7).join(srcRow);
     /* By People: four total cards and ten custodian rows. */
     busy(document.getElementById("dmPeopleGrid")).innerHTML = new Array(5).join('<div class="dm-people-stat" aria-hidden="true">' + skRect("70%", "14px") + skRect("40px", "26px") + "</div>");
@@ -1331,7 +1331,7 @@
     busy(document.querySelector("#dmNonCustodianCard .dm-insight-list")).innerHTML = new Array(5).join(
       '<tr aria-hidden="true"><td><div class="dm-sk-body">' + skRect("160px", "14px") + skRect("120px", "12px") + skRect("260px", "12px") + "</div></td>" +
       '<td>' + skRect("60px", "14px") + '</td><td class="dm-col-num">' + skRect("40px", "14px") + "</td><td>" + skRect("160px", "12px") +
-      '</td><td class="dm-col-num">' + skRect("20px", "14px") + '</td><td class="dm-np-act"><div class="dm-np-actions">' + skRect("130px", "28px") + skRect("80px", "28px") + "</div></td></tr>");
+      '</td><td class="dm-col-num">' + skRect("20px", "14px") + '</td><td class="dm-np-act"><div class="vr vr-blurry" aria-hidden="true"></div><div class="dm-np-actions">' + skRect("130px", "28px") + skRect("80px", "28px") + "</div></td></tr>");
     ["dmPagerRange", "dmPeoplePagerRange"].forEach(function (id) { document.getElementById(id).textContent = ""; });
     busy(document.querySelector(".dm-main"));
   }
@@ -2613,7 +2613,7 @@
       function exclCell(key) {
         var ro = S.data.readOnly, whole = isSourceWhole(), ex = isExcluded(key);
         var btn = '<button type="button" class="btn btn-tertiary btn-sm dm-excl-btn" data-dm-excl="' + dmEsc(key) + '"' + (whole || ro ? ' disabled' : '') + '>' + (ex ? 'Excluded' : 'Exclude') + '</button>';
-        return '<td class="dm-col-act">' + (ro ? '<span class="dm-mark-blocked" title="' + READ_ONLY_WHY + '">' + btn + '</span>' : btn) + '</td>';
+        return '<td class="dm-col-act"><div class="vr vr-blurry" aria-hidden="true"></div>' + (ro ? '<span class="dm-mark-blocked" title="' + READ_ONLY_WHY + '">' + btn + '</span>' : btn) + '</td>';
       }
       function rowHtml(r) {
         if (S.tab === 'location') {
@@ -2636,13 +2636,13 @@
         if (S.tab === 'accessed') {
           var ac = personCells(r), copilot = exclCfg().tab === 'accessed';
           return '<tr' + (copilot && isExcluded(r._pid) ? ' class="dm-row-excluded"' : '') + '><td>' + ac.name + '</td><td>' + dmEsc(r.role) + '</td>' +
-            '<td class="dm-col-num">' + dmEsc(r.events) + '</td><td class="dm-col-status">' + ac.status + '</td>' + (copilot ? exclCell(r._pid) : '') + '</tr>';
+            '<td class="dm-col-num">' + dmEsc(r.events) + '</td><td class="dm-col-status"><div class="vr vr-blurry" aria-hidden="true"></div>' + ac.status + '</td>' + (copilot ? exclCell(r._pid) : '') + '</tr>';
         }
         if (S.tab === 'has') {
           if (r._tenant) {
             var tw = S.access.tenantWide;
             return '<tr class="dm-tenant-row"><td class="dm-col-exp"></td><td><b>Everyone except external users</b><small class="d-block text-muted">All internal users · not listed individually</small></td>' +
-              '<td class="dm-col-role">' + dmEsc(tw.role) + '</td><td>Tenant-wide claim</td><td class="dm-col-num">—</td><td class="dm-col-status">—</td></tr>';
+              '<td class="dm-col-role">' + dmEsc(tw.role) + '</td><td>Tenant-wide claim</td><td class="dm-col-num">—</td><td class="dm-col-status"><div class="vr vr-blurry" aria-hidden="true"></div>—</td></tr>';
           }
           var hc = personCells(r), open = !!S.open[r._pid], strong = r._rank >= DMS.EDIT_OR_HIGHER;
           var main = '<tr class="dm-access-row' + (open ? ' is-open' : '') + '"><td class="dm-col-exp"><button type="button" class="btn btn-tertiary btn-sm btn-floating dm-exp-btn" data-dm-exp="' + dmEsc(r._pid) + '" aria-expanded="' + open + '" aria-label="' + (open ? 'Hide' : 'Show') + ' how this person has access">' +
@@ -2651,7 +2651,7 @@
             '<td class="dm-col-role">' + (strong ? '<b>' + dmEsc(r.role) + '</b>' : dmEsc(r.role)) + '</td>' +
             '<td><span class="d-block">' + dmEsc(r.via) + '</span><small class="text-muted">' + dmEsc(r._viaSub) + '</small></td>' +
             (window.dmNoAudit ? '<td class="dm-col-when">' + dmEsc(r.firstSeen) + '</td>' : '<td class="dm-col-num">' + dmEsc(r.events) + '</td>') +
-            '<td class="dm-col-status">' + hc.status + '</td></tr>';
+            '<td class="dm-col-status"><div class="vr vr-blurry" aria-hidden="true"></div>' + hc.status + '</td></tr>';
           if (!open) return main;
           var noun = DMS.nounFor(S.data.source);
           return main + '<tr class="dm-access-paths"><td></td><td colspan="5">' + r._paths.map(function (p) { return DMS.pathHtml(r._pid, p, noun); }).join('') + '</td></tr>';
@@ -3519,7 +3519,7 @@
           '</div></td>' +
           // Demo (PRD 01): a source with no audit-log activity says so here.
           '<td class="dm-col-people">' + esc(r.people) + '</td>') +
-          '<td class="dm-col-act">' + (r.readOnly ? '<span class="dm-mark-blocked" title="' + READ_ONLY_WHY + '">' + btn + '</span>' : btn) + '</td>' +
+          '<td class="dm-col-act"><div class="vr vr-blurry" aria-hidden="true"></div>' + (r.readOnly ? '<span class="dm-mark-blocked" title="' + READ_ONLY_WHY + '">' + btn + '</span>' : btn) + '</td>' +
         '</tr>';
       }
       function renderHead() {
