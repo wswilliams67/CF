@@ -1079,7 +1079,7 @@
   function dmNotableHeadHtml() {
     var cols = window.dmNoAudit
       ? [["Person", ""], ["Shared Sources", "dm-col-count"], ["Highest Role", "dm-np-role"], ["Custodians In Common", "dm-np-common"], ["Access To", "dm-np-wide"], ['<span class="visually-hidden">Actions</span>', "dm-np-act"]]
-      : [["Person", ""], ["Custodians In Common", "dm-np-common"], ["Overlap Events", "dm-col-num"], ["Collaboration", "dm-np-wide"], ["Sources Seen", "dm-col-count"], ['<span class="visually-hidden">Actions</span>', "dm-np-act"]];
+      : [["Person", ""], ["Custodians In Common", "dm-np-common"], ["Overlap Events", "dm-col-count"], ["Collaboration", "dm-np-wide"], ["Sources Seen", "dm-col-count"], ['<span class="visually-hidden">Actions</span>', "dm-np-act"]];
     return "<tr>" + cols.map(function (c) { return '<th scope="col" class="' + c[1] + '">' + c[0] + "</th>"; }).join("") + "</tr>";
   }
   function dmNotableRowHtml(p) {
@@ -1094,7 +1094,7 @@
       : window.dmNoAudit
         ? [String(p.shared.length), esc(p.highest), common, '<small class="text-muted">' + esc(p.shared.join(", ")) + "</small>"]
         : [common, nf(p.overlap), '<small class="text-muted">' + p.collab[0] + " shared files · " + p.collab[1] + " chats · " + p.collab[2] + " meetings</small>", String(p.seen.length)];
-    var cls = window.dmNoAudit ? ["dm-col-count", "dm-np-role", "dm-np-common", "dm-np-wide"] : ["dm-np-common", "dm-col-num", "dm-np-wide", "dm-col-count"];
+    var cls = window.dmNoAudit ? ["dm-col-count", "dm-np-role", "dm-np-common", "dm-np-wide"] : ["dm-np-common", "dm-col-count", "dm-np-wide", "dm-col-count"];
     var action = p.masked ? dmBlockedMark(DM_REASON_MASKED, "btn-mark") : p.guest ? dmGuestAction(p.pid, "btn-guest-np")
       : '<button type="button" class="btn btn-tertiary btn-sm btn-mark">Mark as Custodian</button>';
     var dismissed = p.dismissed;
@@ -1330,7 +1330,7 @@
     document.querySelector("#dmNonCustodianCard .dm-notable-thead").innerHTML = dmNotableHeadHtml();
     busy(document.querySelector("#dmNonCustodianCard .dm-insight-list")).innerHTML = new Array(5).join(
       '<tr aria-hidden="true"><td><div class="dm-sk-body">' + skRect("160px", "14px") + skRect("120px", "12px") + skRect("260px", "12px") + "</div></td>" +
-      '<td>' + skRect("60px", "14px") + '</td><td class="dm-col-num">' + skRect("40px", "14px") + "</td><td>" + skRect("160px", "12px") +
+      '<td>' + skRect("60px", "14px") + '</td><td class="dm-col-count">' + skRect("40px", "14px") + "</td><td>" + skRect("160px", "12px") +
       '</td><td class="dm-col-count">' + skRect("20px", "14px") + '</td><td class="dm-np-act"><div class="vr vr-blurry" aria-hidden="true"></div><div class="dm-np-actions">' + skRect("130px", "28px") + skRect("80px", "28px") + "</div></td></tr>");
     ["dmPagerRange", "dmPeoplePagerRange"].forEach(function (id) { document.getElementById(id).textContent = ""; });
     busy(document.querySelector(".dm-main"));
