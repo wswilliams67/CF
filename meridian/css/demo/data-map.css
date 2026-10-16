@@ -1,46 +1,789 @@
-/* Data map (design 17235:760021). Layout only; the summary cards use the shared
-   demo-tile pattern in demo.css (Scott, 10-14). */
+/* ═══════════════════════════════════════════════════════════════════════
+   Data Map (PRD 01) — page CSS, ported from the PRODUCTION CaseFusion 1.6
+   data map (casefusion/1.6/pages/pge_case_datamap.html, inline <style>
+   lines 850–1513). Production's shell CSS (utility nav, sidenav, case title
+   bar, search toolbar, sub-nav tabs: lines 472–849 and 1515–1530) is not
+   copied; css/pages/frame-ca-sidenav.css and the demo shell provide it.
 
-/* Filters card: chip menus open together under their chips (Edit Filters). */
-.dm-filters { overflow: visible; }  /* chip menus and the date menu drop out of the card (gap D4) */
-.dm-filters #dmChips { position: relative; }
-.dm-filter-menus { position: absolute; top: calc(100% + 6px); left: 0; z-index: 30; display: flex; gap: 6px; align-items: flex-start; }
-.dm-chip { cursor: pointer; background: transparent; font: inherit; font-weight: 700; }  /* size from Nimbus .chip (13px) */
-.dm-filter-menu { position: static; display: block; width: 280px; padding: 4px 0; margin: 0; }
-.dm-menu-list { max-height: 248px; overflow-y: auto; }
-.dm-menu-head { border-bottom: 1px solid var(--cnds-border-color); }
-.dm-date-menu { width: 300px; }
-.dm-refined .chip .close { cursor: pointer; }
+   Changes from production, each marked "Demo:" where it happens:
+   · Rules production wrote unscoped (they re-styled every page) are scoped:
+     the list-toolbar search field and pagination toolbar under .dm-main, the
+     multi-select "All" divider to the three filter dropdowns.
+   · Production's :root --cnds-tooltip-* / --cnds-btn-tertiary-* /
+     --cnds-menu-item-* / --cnds-list-* redefinitions (lines 479–509) are
+     dropped: they belonged to its shell, and the tertiary-button values equal
+     Nimbus's own defaults (components/buttons.css, themes/dark.css).
+   · DEMO ADDITIONS at the end: masked people, the Guest badge, glyphs for
+     sources with no card, skeletons, and the narrow-window rules (below
+     1440px production had no breakpoint between 900px and full width).
+   The --dm-* tokens stay on :root: they are page-namespaced, and the
+   crossfade ghosts (.dm-ghost) are appended to <body>, outside .dm-main.
+   ═══════════════════════════════════════════════════════════════════════ */
 
-/* Summary cards: the shared demo-tile pattern (demo.css SHARED SCREEN PATTERNS) styles them, including the
-   clickable (link border), selected (green outline) and disabled states (Scott, 10-14). The v1.5 surface-blue
-   hover/selected fills are gone. This file only sets the grid and the icon-name and sources | events lines. */
-.dm-tiles { grid-template-columns: repeat(5, 1fr); }
-.dm-tiles-4 { grid-template-columns: repeat(4, 1fr); }
-.dm-tile-name { display: inline-flex; align-items: center; justify-content: center; gap: var(--cnds-spacer-2); }
-.dm-tile-sub { display: inline-flex; align-items: stretch; justify-content: center; gap: var(--cnds-spacer-2); }
-.dm-tile-div { width: 1px; background: currentColor; opacity: .35; }  /* a divider, not data */
-.dm-tile-badge { align-self: center; margin-top: 4px; }
-.dm-icon { width: 22px; height: 22px; flex-shrink: 0; }
-.dm-icon-mdi { line-height: 1; width: var(--cnds-icon-ml); flex-shrink: 0; }  /* size from Nimbus .cnds-icon-ml (22px) */
+/* ══════════════════════════════════════════════════════════════════
+   DATA MAP · BY SOURCE — screen-scoped styles
+   Layout/spacing tokens are resolved from the Nimbus manifest; Nimbus
+   component classes (.btn, .chip, .badge, .card, .progress, .table,
+   select) carry the base look. Only bespoke layout lives here.
+   ══════════════════════════════════════════════════════════════════ */
 
-/* Tables */
-.dm-col-bar { width: 140px; }
-.dm-bar { width: 110px; }
-/* 12px for the scanned lines in a table cell (a source's location line, "No activity data") (Scott, 10-14). */
-.dm-table .small { font-size: var(--cnds-paragraph-font-size-sm); line-height: var(--cnds-paragraph-line-height); }
-.dm-table tr.dm-excluded td, .dm-table tr.dm-excluded a { color: var(--cnds-danger-text-emphasis, #e35d6a); }
+/* Datamap tokens alias the portable Nimbus theme-aware tokens; the design
+   system (themes/light.css + dark.css) and the template handle theme switching. */
+:root {
+  --dm-page-fg:       var(--cnds-body-color);
+  --dm-muted:         var(--cnds-secondary-color);
+  --dm-link:          var(--cnds-link-color);
+  --dm-card-bg:       var(--cnds-surface-expansion-bg);
+  --dm-card-2-bg:     var(--cnds-frame-bg);
+  --dm-toolbar-bg:    var(--cnds-frame-bg);
+  --dm-toolbar-border:var(--cnds-border-color);
+  --dm-line:          var(--cnds-border-color);
+  --dm-line-strong:   var(--cnds-border-color);
+  --dm-input-bg:      var(--cnds-body-bg);
+  --dm-fg-strong:     var(--cnds-body-color);
+}
 
-/* Notable non-custodians, saved scopes, scope bar */
-.dm-notable, .dm-notable p, .dm-notable .cf-category, .dm-notable .card-drawer-toggle { color: var(--cnds-card-color); }
-.dm-notable .list-group-item { background: transparent; color: inherit; border-color: transparent; padding-left: 0; padding-right: 0; }
-.dm-scopes-menu { width: 480px; max-height: 380px; overflow-y: auto; padding: 4px 0; }
-/* Saved scope rows: 14px (the list item would hand them 16px), detail lines 12px (Scott, 10-14). */
-.dm-scope-list > .list-group-item { font-size: var(--cnds-paragraph-font-size); line-height: var(--cnds-paragraph-line-height); }
-.dm-scope-list .small { font-size: var(--cnds-paragraph-font-size-sm); }
-.dm-scope > span { margin-right: auto; }
+/* Datamap body sits inside the AppFrame content area */
+.dm-main {
+  display: flex; flex-direction: column; gap: 16px; padding-bottom: 40px;
+  color: var(--dm-page-fg);
+  font-family: "Nunito Sans", system-ui, sans-serif;
+}
 
-@media (max-width: 1200px) { .dm-tiles { grid-template-columns: repeat(3, 1fr); } .dm-tiles-4 { grid-template-columns: repeat(2, 1fr); } }
-.dm-notable .list-group-item { font-size: var(--cnds-paragraph-font-size); padding-top: var(--cnds-spacer-1); padding-bottom: var(--cnds-spacer-1); }
-.dm-notable .small, .dm-notable .list-group-item .small { font-size: var(--cnds-paragraph-font-size-sm); }
-.dm-filter-menus > .dropdown-menu.dm-filter-menu { width: 280px; min-width: 0; max-width: 280px; flex: 0 0 280px; position: static; transform: none; inset: auto; }
+/* ── Small uppercase section eyebrow (FILTERS / TOP SOURCES / …) ── */
+.dm-eyebrow {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--dm-page-fg);
+  margin: 0;
+}
+
+/* ── Toolbar surface ── */
+.dm-toolbar {
+  background: var(--dm-toolbar-bg);
+  border: 1px solid var(--dm-toolbar-border);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.dm-toolbar-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.dm-chip-set { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+/* Applied-filter chips — Nimbus .chip restyled to the Figma Nimbus/Chips outline:
+   transparent fill + Surface/Chip/Border/Secondary (light #a3a3a3 / dark #787878). */
+.dm-chip-set .chip { background: transparent; border-color: #a3a3a3; }
+[data-cnds-theme="dark"] .dm-chip-set .chip { border-color: #787878; }
+.dm-btn-set  { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+/* Vertical divider between button clusters */
+.dm-divider {
+  width: 1px;
+  align-self: stretch;
+  min-height: 25px;
+  background: var(--dm-line);
+}
+
+/* ── View wrappers (By Source / By People) — keep .dm-main's column rhythm.
+   The [hidden] rules must win over display:flex or the view never hides. ── */
+#dmViewBySource, #dmViewByPeople { display: flex; flex-direction: column; gap: 16px; }
+#dmViewBySource[hidden], #dmViewByPeople[hidden] { display: none; }
+
+/* ══ MOTION ═══════════════════════════════════════════════════════════════
+   Two durations, used consistently:
+     --dm-swap  content changing inside a stable frame (table rows, tab bodies)
+     --dm-card  a whole card entering or leaving the page
+   Every transition below is disabled under prefers-reduced-motion.
+   ════════════════════════════════════════════════════════════════════════ */
+.dm-main { --dm-swap: 220ms; --dm-card: 350ms; }
+
+/* View toggle (By Source ↔ By People) — real crossfade: during the swap the
+   outgoing view is pulled out of flow so both occupy the same box. */
+.dm-view-stack { position: relative; }
+.dm-view-stack.is-swapping > div { transition: opacity var(--dm-swap) ease; }
+.dm-view-stack.is-swapping > .dm-view-out {
+  position: absolute; inset: 0 0 auto 0; opacity: 0; pointer-events: none;
+}
+.dm-view-stack.is-swapping > .dm-view-in { opacity: 1; }
+.dm-view-stack.is-sizing { overflow: hidden; transition: height var(--dm-swap) ease; }
+
+/* Content swaps (table bodies, drawer tabs). The outgoing pixels are held by a
+   fixed-position ghost (built in JS) while the live element fades up under it. */
+.dm-fade-in { animation: dmFadeIn var(--dm-swap) ease both; }
+@keyframes dmFadeIn { from { opacity: 0; } to { opacity: 1; } }
+.dm-ghost { position: fixed; pointer-events: none; z-index: 2; margin: 0;
+            transition: opacity var(--dm-swap) ease; }
+
+/* Whole-card fade (Refined results). Height collapses with the fade so the
+   column below closes up smoothly instead of snapping. */
+.dm-card-fade {
+  /* Standard ease-out — noticeably smoother than `ease` for a collapse.
+     Padding and border must animate too: with box-sizing:border-box the box
+     cannot go below padding+border (34px here), so height alone stalls and
+     then snaps. min-height:0 defeats the flex-item `min-height:auto` floor. */
+  transition: opacity var(--dm-card) cubic-bezier(0.4, 0, 0.2, 1),
+              height var(--dm-card) cubic-bezier(0.4, 0, 0.2, 1),
+              padding-top var(--dm-card) cubic-bezier(0.4, 0, 0.2, 1),
+              padding-bottom var(--dm-card) cubic-bezier(0.4, 0, 0.2, 1),
+              border-top-width var(--dm-card) cubic-bezier(0.4, 0, 0.2, 1),
+              border-bottom-width var(--dm-card) cubic-bezier(0.4, 0, 0.2, 1),
+              margin-bottom var(--dm-card) cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  min-height: 0;
+}
+.dm-card-fade.is-out {
+  opacity: 0;
+  padding-top: 0; padding-bottom: 0;
+  border-top-width: 0; border-bottom-width: 0;
+}
+/* Applied while the start frame is written, so setting the "from" values does
+   not itself animate — the classic add-class-then-reflow-then-transition. */
+.dm-card-fade.dm-no-anim { transition: none !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  .dm-view-stack.is-swapping > div,
+  .dm-view-stack.is-sizing,
+  .dm-fade-in, .dm-ghost, .dm-card-fade,
+  .dm-refined-actions .btn { transition: none !important; animation: none !important; }
+}
+
+/* ── By People view — totals cards + custodians table ── */
+.dm-people-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.dm-people-stat {
+  background: var(--dm-card-bg);
+  border: 1px solid var(--dm-line);
+  border-radius: 8px;
+  padding: 8px;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  text-align: center;
+}
+.dm-people-stat-label { font-size: 14px; line-height: 1.43; color: var(--dm-muted); }
+.dm-people-stat-value { font-size: 24.5px; font-weight: 700; line-height: 1.375; color: var(--dm-fg-strong); }
+.dm-people-note { margin: 0; font-size: 12px; line-height: 1.43; text-align: left; color: var(--dm-page-fg); }
+
+/* Table-tools toggle — Nimbus tertiary button holding the inlined tools glyph.
+   Active state matches Figma: icon flips from link blue to default text. */
+/* Default-size Nimbus button (min-h 44px, 16px/12px padding) — no size override. */
+.dm-tools-toggle { flex-shrink: 0; display: inline-flex; align-items: center; }
+.dm-tools-toggle .dm-tools-svg { display: block; }
+/* No colour override when selected: .btn.active already applies the button's
+   own --cnds-btn-active-color, and the glyph is fill="currentColor", so the
+   icon tracks the selected button's font colour automatically. */
+
+/* Tools bar slot — always holds the trailing space (matches Figma's
+   fr_table_tools: flex 1, justify-end) and clips the toolbar as it slides.
+   Nimbus Select renders its dropdown to <body>, so clipping is safe here. */
+.dm-tools-slot {
+  flex: 1 1 auto; min-width: 0;
+  display: flex; justify-content: flex-end;
+  overflow: hidden;
+}
+.dm-people-tools {
+  width: 100%;
+  transform: translateX(100%);
+  opacity: 0;
+  visibility: hidden;
+  transition: transform 300ms ease-in-out, opacity 300ms ease-in-out, visibility 300ms;
+}
+.dm-tools-slot.open .dm-people-tools { transform: translateX(0); opacity: 1; visibility: visible; }
+@media (prefers-reduced-motion: reduce) { .dm-people-tools { transition-duration: 0ms; } }
+
+/* Field metrics inside the tools bar — Figma Nimbus/Toolbars list variant
+   (component 17253:829949). Bar itself is p-8/gap-8 from toolbars.css; these
+   are the inner field paddings the design specifies. Scoped to the component
+   class so every list toolbar matches (By People + both drawers), not just one. */
+/* Demo: production wrote this unscoped, so it re-styled every list toolbar in
+   the app. Scoped to the page root (the drawers sit inside .dm-main). */
+.dm-main .btn-toolbar-list .toolbar-list-search .cf-input-control {
+  padding: 12px;
+  font-size: 13px;
+}
+.dm-people-tools .select-wrapper { width: 150px !important; max-width: 150px; }
+.dm-people-tools .select-input {
+  padding-top: 10px;
+  padding-bottom: 11px;
+  padding-left: 12px;
+  font-size: 14px;
+}
+
+/* ASC/DSC button — 12px uppercase tertiary label + circled arrow (rotates for desc) */
+.dm-sort-dir { display: inline-flex; align-items: center; gap: 10px; padding: 8px 12px; white-space: nowrap; }
+.dm-sort-dir .dm-sortdir-svg { transition: transform 200ms ease-in-out; }
+.dm-sort-dir[data-dir="desc"] .dm-sortdir-svg { transform: rotate(180deg); }
+.dm-sort-dir .dm-sort-dir-label { font-size: 12px; font-weight: 800; text-transform: uppercase; }
+
+/* Custodians table columns (Figma widths) */
+.dm-table-people .dm-col-rank   { width: 50px;  text-align: center; }
+.dm-table-people .dm-col-num    { width: 90px;  text-align: right; }
+.dm-table-people .dm-col-hold   { width: 105px; text-align: center; }
+.dm-table-people .dm-col-signal { width: 230px; }
+.dm-custodian-name { color: var(--dm-link); text-decoration: none; }
+.dm-custodian-name:hover { text-decoration: underline; }
+/* On-hold status — theme-aware success/warning emphasis tokens */
+.dm-hold-active  { color: var(--cnds-success-text-emphasis, #72b23e); }
+.dm-hold-pending { color: var(--cnds-warning-text-emphasis, #f3bc00); }
+/* Relevance signal — 5px progress bar + High/Medium/Low label */
+.dm-signal { display: flex; align-items: center; gap: 24px; }
+.dm-signal .progress { flex: 1 1 0; min-width: 0; height: 5px; }
+.dm-signal-label { font-size: 14px; white-space: nowrap; }
+.dm-people-empty td { text-align: center; padding: 24px 16px; color: var(--dm-muted); }
+
+/* All datamap progress bars (Top Sources items + By People relevance) use
+   Surface/Progress/Bar/CaseFusion/Default = #7dd67a (product green 400) — the
+   same value in both themes. Set via the component's own custom property rather
+   than overriding background-color; without it they fall back to
+   --cnds-primary, which is the wrong green. */
+.dm-main .progress { --cnds-progress-bar-bg: var(--cnds-product-casefusion-green-400, #7dd67a); }
+
+/* ── Export CSV modal ── */
+.dm-export-lead { margin: 0 0 8px; font-size: 14px; line-height: 1.43; }
+/* ── Saved Scopes menu (Figma fr_saved-scopes-menu 17322:1014651) ── */
+.dm-scopes-menu {
+  /* Size to the widest row so names/details don't truncate; 500px floor,
+     capped so a very long scope name can't run off-screen. */
+  min-width: 500px; width: max-content; max-width: min(90vw, 780px);
+  padding: 0; overflow: hidden;
+  background: var(--cnds-surface-dark-400, #252525);
+  border: 1px solid var(--cnds-surface-dark-200, #787878);
+  border-radius: 8px;
+  box-shadow: 0 10px 20px -2px rgba(0,0,0,.1), 0 2px 15px -3px rgba(0,0,0,.07);
+}
+.dm-scopes-head {
+  display: flex; align-items: center; gap: 8px;
+  height: 44px; padding: 12.5px 16px;
+}
+.dm-scopes-title {
+  flex: 1 0 0; font-size: 14px; font-weight: 700; line-height: 1.4;
+  letter-spacing: 1.4px; text-transform: uppercase; color: var(--dm-page-fg);
+}
+/* Secondary count badge — 12px bold on the neutral badge surface */
+.dm-scopes-count {
+  --cnds-badge-bg: var(--cnds-surface-dark-300, #4a4a4a);
+  --cnds-badge-color: var(--dm-page-fg);
+  --cnds-badge-padding-x: 10px; --cnds-badge-padding-y: 6px;
+  --cnds-badge-border-radius: 4px; --cnds-badge-letter-spacing: 0.24px;
+}
+.dm-scope-item { display: flex; align-items: center; gap: 8px; padding: 6px 16px; }
+.dm-scope-titles { flex: 1 0 0; min-width: 0; display: flex; flex-direction: column; color: var(--dm-page-fg); }
+.dm-scope-name    { font-size: 16px; font-weight: 700; line-height: 1.6; }
+.dm-scope-details { font-size: 14px; line-height: 1.43; }
+.dm-scope-shared  { font-size: 12px; line-height: 1.43; }
+.dm-scope-name, .dm-scope-details, .dm-scope-shared { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dm-scope-actions { display: flex; align-items: center; flex-shrink: 0; }
+.dm-scope-actions .btn { min-height: 36px; padding: 8px 12px; font-size: 12px; }
+.dm-scope-empty { padding: 12px 16px; font-size: 14px; color: var(--dm-page-fg); }
+
+/* ── View Source drawers (Nimbus/Offcanvas, right side) ──
+   Figma panel is ~770px; the item drawer stacks on top, inset further left. */
+.dm-drawer { --cnds-offcanvas-width: 75vw; max-width: 100%; }
+.dm-drawer .offcanvas-body { display: flex; flex-direction: column; gap: 16px; padding: 16px; }
+/* Item Details stacks over Source Details: drawer above it, and its own
+   backdrop sits directly behind it (dm-backdrop-item, set in JS on show)
+   so the source drawer is dimmed rather than showing through. */
+.dm-drawer-item { --cnds-offcanvas-width: 65vw; z-index: 1075; }
+.offcanvas-backdrop.dm-backdrop-item { z-index: 1070; }
+
+.dm-drawer-id { display: flex; align-items: center; gap: 12px; }
+.dm-drawer-icon .dm-src-svg { width: 32px; height: 32px; color: var(--dm-page-fg); flex-shrink: 0; }
+.dm-drawer-idtext { display: flex; flex-direction: column; min-width: 0; }
+.dm-drawer-name { font-size: 16px; font-weight: 700; }
+.dm-drawer-path { font-size: 12px; color: var(--dm-muted); overflow-wrap: anywhere; }
+.dm-drawer-hint { margin: 0; font-size: 13px; color: var(--dm-page-fg); }
+/* Not justified — the group hugs its buttons (the flex column would
+   otherwise stretch it to full width). */
+.dm-drawer-tabs { flex-wrap: wrap; align-self: flex-start; }
+.dm-drawer-tabs[hidden] { display: none; }
+/* Directory chips = Nimbus/Pills (casefusion product colours) */
+.dm-drawer-locs { align-self: flex-start; flex-wrap: wrap; gap: 8px; }
+.dm-drawer-locs[hidden] { display: none; }
+/* Staged-exclusion banner — warning alert, light in both themes like the insight card */
+/* Exclusion banner: fades AND collapses over 350ms so the toolbar and table
+   below slide rather than jump. grid-template-rows 0fr↔1fr animates to the
+   exact content height (same mechanism as .dm-collapse). The negative
+   margin cancels the parent flex `gap: 16px` while collapsed, so a hidden
+   banner contributes no space at all. */
+/* The exclusion banner's space is RESERVED PERMANENTLY, on every tab and
+   every source type — including Exchange/Teams/Participants, which can never
+   exclude anything. The banner then only fades in and out inside that space,
+   so the table below never shifts and all Source Details views line up
+   identically. Previously the slot collapsed (grid 0fr↔1fr), which pushed the
+   table down by 58px whenever an exclusion was staged.
+   42px = 14px line-height + 12px×2 padding + 2px×2 border of the banner. */
+.dm-excl-slot { min-height: 42px; }
+.dm-exclusion-banner {
+  margin: 0; padding: 12px 16px; border-radius: 8px; font-size: 14px;
+  background: #fff3cc; border: 2px solid #f3bc00; color: #a65300;
+  opacity: 0;
+  pointer-events: none;          /* invisible banner must not swallow clicks */
+  transition: opacity 350ms ease-in-out;
+}
+.dm-excl-slot.show .dm-exclusion-banner { opacity: 1; pointer-events: auto; }
+@media (prefers-reduced-motion: reduce) {
+  .dm-exclusion-banner { transition-duration: 0ms; }
+}
+.dm-exclusion-banner b { font-weight: 800; }
+
+/* 8px top/bottom per the design; the 16px sides keep the buttons aligned with
+   the drawer body's gutter. Nimbus's own .offcanvas-footer default is 8px all
+   round — only the horizontal inset is a page-level override. */
+.dm-drawer-foot { display: flex; justify-content: flex-end; gap: 8px; padding: 8px 16px; }
+.dm-drawer-table .dm-col-num { width: 110px; text-align: right; }
+.dm-drawer-table .dm-col-when { width: 170px; }
+/* Custodian Status — centred, and never wraps (holds Mark as Custodian) */
+.dm-drawer-table .dm-col-status { width: 170px; white-space: nowrap; text-align: center; }
+.dm-drawer-table .dm-col-act { width: 130px; text-align: right; }
+.dm-col-when { width: 200px; }
+/* Excluded rows read as removed from scope */
+.dm-row-excluded td { color: var(--cnds-danger-text-emphasis, #ff97aa); }
+.dm-row-excluded .dm-loc-name { color: inherit; }
+.dm-excl-btn { --cnds-btn-color: var(--dm-link); }
+.dm-row-excluded .dm-excl-btn { --cnds-btn-color: var(--cnds-danger-text-emphasis, #ff97aa); }
+/* Sources-table excluded rows. Unlike the drawer's plain cells, these hold a
+   link (.dm-source-name), a muted path (.dm-source-path), a green progress bar
+   and the .dm-src-excl-btn action — each carries its own colour that beats the
+   `td` inherit, so every one is re-pointed to the danger emphasis here. */
+.dm-row-excluded .dm-source-name,
+.dm-row-excluded .dm-source-path { color: var(--cnds-danger-text-emphasis, #ff97aa); }
+.dm-row-excluded .dm-src-excl-btn { --cnds-btn-color: var(--cnds-danger-text-emphasis, #ff97aa); }
+.dm-row-excluded .progress { --cnds-progress-bar-bg: var(--cnds-danger-text-emphasis, #ff97aa); }
+/* The brand glyph is fill="currentColor", so re-pointing color reddens it.
+   Three classes to outrank `.dm-source .dm-tbl-svg`, which is defined later. */
+.dm-row-excluded .dm-source .dm-tbl-svg { color: var(--cnds-danger-text-emphasis, #ff97aa); }
+.dm-loc-name, .dm-item-link { color: var(--dm-link); text-decoration: none; cursor: pointer; background: none; border: 0; padding: 0; font: inherit; }
+.dm-loc-name:hover, .dm-item-link:hover { text-decoration: underline; }
+.dm-item-name { margin: 0; font-size: 16px; font-weight: 700; }
+.dm-item-sub { margin: 0; font-size: 13px; color: var(--dm-muted); }
+/* Mark as Custodian sits in the Custodian Status column on every Accessed /
+   Participants view — keep it on one line; the column widens to fit. */
+.dm-status-mark { color: var(--dm-link); white-space: nowrap; }
+
+/* ── Rename Scope modal — "Current Name" block (Forms/Label/Default/Bold) ── */
+.dm-rename-current { display: flex; flex-direction: column; }
+.dm-rename-label { font-size: 14px; font-weight: 800; line-height: 1.375; letter-spacing: -0.2px; }
+.dm-rename-value { font-size: 14px; line-height: 1.43; }
+
+/* ── Confirm modal (Delete Saved Scope) — Figma width 400px ── */
+.dm-modal-confirm { max-width: 400px; }
+.dm-confirm-text { margin: 0; font-size: 14px; line-height: 1.43; }
+
+/* ── Finalize and Save modal — Figma body uses a 24px stack ── */
+.dm-finalize-body { display: flex; flex-direction: column; gap: 24px; }
+.dm-finalize-lead { margin: 0; font-size: 14px; line-height: 1.43; }
+/* Figma alert text is 14px (--font-size/alert/default); .alert defaults to 16px.
+   Margin cleared since the modal body owns the 8px spacing. */
+.dm-export-note { margin-bottom: 0; font-size: 14px; line-height: 1.2; }
+
+/* ── Refined-results sub-card (secondary surface) ── */
+.dm-refined {
+  background: var(--dm-card-2-bg);
+  border: 1px solid var(--dm-line-strong);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+/* The head is sized by Clear All Filters (a .btn-sm), which fades in and out
+   with the Edit Filters panel. The button keeps its box while hidden
+   (visibility, not display) so the title never shifts; min-height is a floor
+   for the case where the button is absent entirely. */
+.dm-refined-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  min-height: 2rem;
+}
+/* Clear Date Ranges + Clear All Exclusions sit side by side, right-aligned.
+   Each shows only when it has something to clear, so either, both or neither
+   may be present — `gap` collapses on its own when one is absent because the
+   hidden one is taken out of flow by display:none (set on .is-gone). */
+.dm-refined-actions { display: flex; align-items: center; gap: 8px; }
+.dm-refined-actions .btn {
+  opacity: 1; visibility: visible; white-space: nowrap;
+  transition: opacity var(--dm-swap, 220ms) ease, visibility 0s;
+}
+/* .is-hidden keeps the box (used when the row must not reflow); .is-gone
+   removes it so the remaining button sits flush against the edge. */
+.dm-refined-actions .btn.is-hidden {
+  opacity: 0; visibility: hidden; pointer-events: none;
+  /* Hold visibility until the fade finishes, then drop it in one step. */
+  transition: opacity var(--dm-swap, 220ms) ease, visibility 0s linear var(--dm-swap, 220ms);
+}
+.dm-refined-actions .btn.is-gone { display: none; }
+.dm-refined-title { font-size: 11px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
+
+/* ── Add Date Range popover (two Nimbus DatePickers) ── */
+.dm-daterange { position: relative; display: inline-flex; }
+.dm-daterange-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  /* Below the sticky header (1030) so the portal/account menus stay on top;
+     still above page content. */
+  z-index: 1020;
+  width: 300px;
+  background: var(--cnds-surface-expansion-bg, var(--dm-card-bg));
+  border: 1px solid var(--dm-line-strong);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.28);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.dm-daterange-menu[hidden] { display: none; }
+.dm-daterange-title { font-size: 11px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--dm-page-fg); }
+.dm-daterange-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+/* Let each datepicker's calendar dropdown escape the menu box */
+.dm-daterange-menu, .dm-date-field { overflow: visible; }
+/* The 352px calendar is wider than the 300px menu — right-align it so it
+   extends leftward and stays on-screen near the toolbar's right edge. */
+.dm-daterange-menu .datepicker-dropdown { left: auto; right: 0; }
+
+/* ── Edit-filters row: three selects + actions ── */
+.dm-filter-fields {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.dm-field { display: flex; flex-direction: column; gap: 6px; }
+.dm-field label { font-size: 13px; font-weight: 700; color: var(--dm-page-fg); }
+/* Multi-select "All" option — divider separating it from the individual items.
+   Demo: production wrote .select-option[data-value=""] unscoped, so every Nimbus
+   Select in the app with an empty-valued option got the divider. Nimbus renders
+   each dropdown to <body> as #<select id>-dropdown, so scope to these three. */
+#dmCustodians-dropdown .select-option[data-value=""],
+#dmSourceTypes-dropdown .select-option[data-value=""],
+#dmCustodianTags-dropdown .select-option[data-value=""] { border-bottom: 1px solid var(--cnds-border-color, #4a4a4a); margin-bottom: 4px; padding-bottom: 8px; }
+.dm-filter-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px; padding-top: 1rem; }
+
+/* Edit Filters reveal — slide up/down (grid-rows collapse, 300ms) */
+.dm-collapse { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 300ms ease-in-out; }
+.dm-collapse.open { grid-template-rows: 1fr; }
+.dm-collapse-inner { min-height: 0; overflow: hidden; }
+
+/* ── View-tools row (By Source / By People · Export) ── */
+.dm-tools { display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+
+/* ── Summary line above each stat set ── */
+.dm-summary { font-size: 14px; color: var(--dm-muted); margin: 8px 0 0; }
+
+/* ── Stat-card grid (5 source-type totals) ── */
+.dm-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+}
+.dm-stat {
+  background: var(--dm-card-bg);
+  border: 1px solid var(--dm-line);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+}
+.dm-stat-type { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 700; }
+.dm-stat-count { display: flex; flex-direction: column; align-items: center; margin-top: 4px; }
+.dm-stat-count b { font-size: 28px; font-weight: 800; line-height: 1.1; }
+.dm-stat-count small { font-size: 12px; font-weight: 800; letter-spacing: 2px; color: var(--dm-muted); }
+.dm-stat-meta { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--dm-muted); margin-top: 4px; }
+.dm-meta-divider { width: 1px; height: 12px; background: var(--dm-line); }
+
+/* ── Source glyphs ── */
+/* Figma colours the summary-card source icons with Text/Default (theme text),
+   not brand colours — resolve to the theme-aware token. */
+.dm-stat-type .dm-src-svg { width: 22px; height: 22px; color: var(--dm-page-fg); flex-shrink: 0; }
+
+/* ── Summary card interaction states — Figma: Default / Hover / Selected + NOT IN FILTER.
+   Hover/Selected reuse the secondary-button blue states (theme-independent). ── */
+.dm-stat { cursor: pointer; transition: background-color .15s ease, border-color .15s ease, color .15s ease, opacity .15s ease; }
+.dm-stat:focus-visible { outline: 2px solid var(--cnds-surface-blue-400, #6790ca); outline-offset: 2px; }
+/* Hover applies only to enabled cards (disabled = NOT IN FILTER get no hover) */
+.dm-stat:not(.dm-not-in-filter):hover, .dm-stat.dm-selected { border-color: var(--cnds-surface-blue-400, #6790ca); }
+.dm-stat:not(.dm-not-in-filter):hover { background: var(--cnds-surface-blue-200, #b4c8e5); color: var(--cnds-surface-blue-700, #1a4480); }
+.dm-stat.dm-selected { background: var(--cnds-surface-blue-300, #8fadd6); color: var(--cnds-surface-blue-800, #112d56); }
+.dm-stat:not(.dm-not-in-filter):hover .dm-stat-count small, .dm-stat:not(.dm-not-in-filter):hover .dm-stat-meta, .dm-stat:not(.dm-not-in-filter):hover .dm-src-svg { color: var(--cnds-surface-blue-700, #1a4480); }
+.dm-stat.dm-selected .dm-stat-count small, .dm-stat.dm-selected .dm-stat-meta, .dm-stat.dm-selected .dm-src-svg { color: var(--cnds-surface-blue-800, #112d56); }
+/* Disabled (NOT IN FILTER) card — dimmed, no-access cursor, no hover affordance */
+.dm-stat.dm-not-in-filter { opacity: .55; cursor: not-allowed; }
+.dm-stat-badge { display: none; margin-top: 8px; text-transform: uppercase; }
+.dm-stat.dm-not-in-filter .dm-stat-badge { display: inline-flex; }
+
+/* Toasts slide up on enter, down on exit (bottom-anchored). The Nimbus toast
+   uses .showing as the transition endpoint; swap its opacity-fade for a Y slide. */
+.dm-toast.fade { transition: opacity .3s ease, transform .3s ease; }
+.dm-toast.showing { opacity: 0; transform: translateY(100%); }
+/* Table source glyphs keep brand tints (stand-in for licensed logos) */
+/* Source-column icons reuse the summary-card glyphs in the default text
+   colour (they carry fill="currentColor"), replacing the old brand-tinted
+   MDI classes. */
+.dm-source .dm-tbl-svg { width: 22px; height: 22px; color: var(--dm-page-fg); flex-shrink: 0; }
+
+/* ── Generic Nimbus card wrapper for table / insight sections ── */
+.dm-card {
+  background: var(--dm-card-bg);
+  border: 1px solid var(--dm-line);
+  border-radius: 8px;
+  padding: 16px;
+}
+.dm-card-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 8px; }
+/* Top Sources breadcrumb (shown when a summary card filters the table) */
+.dm-topsrc-head { display: inline-flex; align-items: center; gap: 4px; }
+.dm-topsrc-clear { margin-left: 8px; padding: 0; background: none; border: none; cursor: pointer;
+  font: inherit; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--dm-link); }
+.dm-topsrc-clear:hover { text-decoration: underline; }
+
+/* ── Top Sources table ── */
+.dm-table { width: 100%; border-collapse: collapse; }
+.dm-table thead th {
+  font-size: 12px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
+  color: var(--dm-muted);
+  text-align: left;
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--dm-line);
+  white-space: nowrap;
+}
+.dm-table tbody td {
+  padding: 8px; vertical-align: middle;
+  border-bottom: 1px solid var(--dm-line);
+}
+.dm-table tbody tr:last-child td { border-bottom: 0; }
+.dm-col-items  { width: 200px; }
+/* Data cells only — the class is shared by <th> and <td>, and only the
+   values are right-aligned per the design; the header stays as authored. */
+.dm-col-people { width: 144px; white-space: nowrap; }
+td.dm-col-people { text-align: right; }
+/* Trailing Exclude column on the sources tables — matches the drawer's. */
+#dmViewBySource .dm-col-act { width: 130px; text-align: right; white-space: nowrap; }
+
+.dm-source { display: flex; align-items: center; gap: 12px; }
+.dm-source-body { display: flex; flex-direction: column; min-width: 0; }
+.dm-source-name { font-size: 14px; color: var(--dm-link); }
+.dm-source-path { font-size: 12px; color: var(--dm-muted); overflow-wrap: anywhere; }
+.dm-source-flag { margin-left: auto; padding-left: 12px; flex-shrink: 0; }
+
+/* Inline items = thin progress bar + count */
+.dm-items { display: flex; align-items: center; gap: 16px; }
+.dm-items .progress { flex: 1 0 0; min-width: 60px; }
+.dm-items b { font-size: 14px; font-weight: 700; min-width: 40px; text-align: right; }
+
+/* ── Pagination toolbar ── */
+/* Pagination uses Nimbus/Pagination (toolbar variant) — see pagination.css.
+   Only the page-size select needs pinning: one initialised inside a hidden
+   view has no layout to measure and would otherwise stretch. */
+.dm-main .pagination-toolbar .select-wrapper { flex: 0 0 auto; }   /* demo: scoped (production: unscoped) */
+.dm-main .pagination-toolbar .mdi { font-size: 20px; line-height: 1; }
+/* No elevation on the datamap pagination bars — cleared via the component's
+   own custom property rather than overriding box-shadow. */
+.dm-main .pagination-toolbar { --cnds-pagination-toolbar-shadow: none; }
+
+/* ── Notable Non-Custodians — warning insight card ──
+   Warning-alert surface stays light in both themes (matches Figma). */
+.dm-insight {
+  background: #fff3cc;
+  border: 1px solid #f3bc00;
+  border-radius: 8px;
+  padding: 16px;
+  color: #a65300;
+  transition: opacity 350ms ease;
+}
+/* The card only exists while there is something notable to report: it fades
+   out when the last row is promoted and fades back in when a new one lands.
+   `hidden` is applied after the fade so it stops occupying layout space —
+   a fully transparent card would otherwise leave a hole in the column. */
+.dm-insight.is-hiding { opacity: 0; }
+.dm-insight[hidden] { display: none; }
+@media (prefers-reduced-motion: reduce) { .dm-insight { transition: none; } }
+/* Title and collapse chevron share a horizontal centre line (the 14px title
+   and 24px toggle differ in height, so flex-start would offset them). */
+.dm-insight-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+/* Heading — Font Size/Category/category-6 14px, ExtraBold, 2px tracking */
+.dm-insight-title { font-size: 14px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
+/* typography.css sets a global `p { color: var(--cnds-body-color) }`, which beats
+   the panel's inherited colour (inheritance only applies when nothing sets it).
+   Re-inherit so paragraphs take the warning text colour. */
+.dm-insight p { color: inherit; }
+/* Description — Typography/Paragraph/Small 12px */
+.dm-insight-note { font-size: 12px; line-height: 1.43; margin: 8px 0 0; }
+/* Row spacing is a margin, not flex `gap`, so a departing row can animate
+   its own spacing to 0 — `gap` is owned by the container and would leave an
+   8px hole for the whole 350ms collapse. */
+.dm-insight-list { display: flex; flex-direction: column; margin-top: 16px; }
+.dm-insight-row + .dm-insight-row { margin-top: 8px; }
+.dm-insight-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+/* Promoted rows leave the list: fade + collapse in one 350ms pass. height is
+   pinned in px by JS first, because `auto` is not an animatable start value. */
+.dm-insight-row.is-leaving {
+  overflow: hidden;
+  transition: height 350ms ease, opacity 350ms ease,
+              margin-top 350ms ease, transform 350ms ease;
+}
+.dm-insight-row.is-gone { height: 0 !important; opacity: 0; margin-top: 0 !important; transform: translateX(8px); }
+@media (prefers-reduced-motion: reduce) {
+  .dm-insight-row.is-leaving { transition: none; }
+}
+
+.dm-insight-name { font-size: 14px; }
+.dm-insight-name a { color: #6790ca; font-weight: 700; }   /* Text/Link */
+.dm-insight-name span { font-size: 12px; color: #a65300; font-weight: 700; }
+.dm-insight-sub { font-size: 12px; color: #a65300; }
+/* "Mark as Custodian" = Nimbus tertiary button, small (.btn.btn-tertiary.btn-sm
+   already gives 12px ExtraBold uppercase, 8px/12px padding, 8px radius,
+   transparent bg/border). Only the label colour and min-height need pinning:
+   this panel is a fixed-light warning surface in both themes, so the tertiary
+   label is held at Surface/Button/Label/Tertiary rather than the theme value. */
+.dm-insight .btn-mark {
+  --cnds-btn-color: #6790ca;
+  --cnds-btn-hover-color: #1a4480;
+  --cnds-btn-active-color: #112d56;
+  --cnds-btn-focus-color: #1a4480;
+  min-height: 36px;
+  white-space: nowrap;
+}
+/* Replaces .btn-mark once the promotion succeeds. Matches the button's
+   12px ExtraBold uppercase footprint so the row height does not jump, and
+   holds the fixed-light warning-surface ink like the rest of the panel. */
+.dm-insight .dm-status-done {
+  font-size: 12px; font-weight: 800; text-transform: uppercase;
+  color: #a65300; white-space: nowrap; min-height: 36px;
+  display: inline-flex; align-items: center; padding: 8px 12px;
+}
+
+/* ── Drawer collapse (card header chevron) — CSS-grid, no JS lib ──
+   (Same mechanism as the card-drawer pattern in ca-mycases.html.) */
+.dm-drawer-toggle {
+  width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
+  background: none; border: none; padding: 0; cursor: pointer; color: inherit; flex-shrink: 0;
+}
+/* Figma: the collapse chevron on the warning panel is link blue, not the
+   warning text colour it would otherwise inherit. */
+.dm-insight .dm-drawer-toggle { color: #6790ca; }
+.dm-drawer-toggle .mdi { transition: transform 0.3s ease-in-out; }
+.dm-drawer-toggle[aria-expanded="false"] .mdi { transform: rotate(180deg); }
+.dm-drawer-body { display: grid; grid-template-rows: 1fr; transition: grid-template-rows 300ms ease-in-out; }
+.dm-drawer-body.collapsed { grid-template-rows: 0fr; }
+.dm-drawer-inner { min-height: 0; overflow: hidden; }
+
+/* ── Sticky footer action bar ── */
+/* Commit bar = Nimbus toolbar surface (.btn-toolbar-gray gives the #121212
+   background, #4a4a4a border and 8px radius). Figma fr_action-buttons
+   (17239:809503): px-16 py-8, justify-between, Elevation drop-shadow. */
+.dm-footer {
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 16px;
+  box-shadow: 0 2px 3px rgba(0, 0, 0, .07), 0 6px 9px rgba(0, 0, 0, .04);
+}
+.dm-footer-left { font-size: 14px; font-weight: 700; color: var(--dm-page-fg); }
+.dm-footer-right { display: flex; align-items: center; gap: 16px; }
+
+/* Responsive: collapse the multi-column grids on narrow viewports
+   (production's only breakpoint; the demo's narrow-window rules are at the end). */
+@media (max-width: 900px) {
+  .dm-stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .dm-filter-fields { grid-template-columns: 1fr; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   DEMO ADDITIONS
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* Sources with no summary card (not integrated: Box, Webex, file share) use an
+   MDI glyph, sized and coloured like the harvested SVG glyphs. */
+.dm-src-mdi { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; font-size: 22px; line-height: 1; color: var(--dm-page-fg); }
+.dm-drawer-icon .dm-src-mdi { width: 32px; height: 32px; font-size: 32px; }
+
+/* Regional access: a masked person reads as a lock + "Profile details limited"
+   in the surrounding text colour (never dimmed; demo.css .demo-masked). */
+.dm-source-name .demo-masked, .dm-insight-name .demo-masked { font-weight: 700; }
+/* Guests: Nimbus badge beside the name. */
+.dm-guest-badge { margin-left: 4px; vertical-align: middle; }
+/* The Notable Non-Custodians panel is a fixed light surface in both themes
+   (production), so its badge keeps the light theme's secondary badge colours
+   rather than the dark theme's, which read as a dark block on the light panel. */
+.dm-insight .dm-guest-badge { --cnds-badge-bg: var(--cnds-surface-light-300, #e0e0e0); --cnds-badge-color: var(--cnds-surface-light-800, #525252); }
+/* A MARK AS CUSTODIAN that cannot apply is disabled; its wrapper carries the
+   reason (title), since a disabled button gets no pointer events. */
+.dm-mark-blocked { display: inline-block; cursor: not-allowed; }
+
+/* Skeletons (Nimbus loading.css) inline in the real cells while the data loads. */
+.dm-sk-inline { display: inline-block; vertical-align: middle; margin: 0; }
+.dm-sk-body { display: flex; flex-direction: column; gap: 6px; flex: 1 1 auto; min-width: 0; }
+.dm-sk-body .dm-sk-inline { max-width: 100%; }
+.dm-sk-line { display: block; }
+.dm-items .dm-sk-inline:first-child { flex: 1 0 0; min-width: 60px; }
+/* The Notable Non-Custodians panel is light in both themes, so its skeletons
+   take the panel's warning ink at low strength instead of the theme's grey. */
+.dm-insight .skeleton { --cnds-skeleton-bg: rgba(166, 83, 0, .16); --cnds-skeleton-highlight: rgba(166, 83, 0, .07); }
+
+/* ══ Narrow windows (below 1440) ══════════════════════════════════════════
+   Production had no rule between 900px and full width, so at 1024 the five
+   cards squeezed their meta lines to a word per line and the people tools bar
+   crushed its search field. These rules keep the page from scrolling sideways
+   and keep every label on its line; only tables scroll, inside .table-responsive. */
+
+/* Cards drop to fewer columns rather than narrower ones: each card needs ~190px
+   for "6 sources | 15,640 UAL events" on one line (people cards ~220px for
+   "MEANINGFUL UAL ACTIVITY"). Replaces production's fixed 5 / 4 columns and its
+   900px two-column rule; at 1280 and up all five (four) still sit in one row. */
+.dm-stat-grid { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
+/* The four people cards go 4 → 2 × 2 (never 3 + an orphan) when a card would
+   drop below ~220px, i.e. below ~1100px of window with the sidenav open. */
+@media (max-width: 1100px) { .dm-people-grid { grid-template-columns: repeat(2, 1fr); } }
+.dm-stat-meta span { white-space: nowrap; }
+
+/* Tables keep a floor width so no column wraps to a word per line (source names,
+   roles, paths); below it they scroll inside .table-responsive, never the page. */
+#dmViewBySource .dm-table { min-width: 760px; }
+/* Below 1200 those floors made both tables scroll inside their cards at 1024, hiding EXCLUDE and
+   RELEVANCE SIGNAL off the right edge (Scott, 10-16: nothing hidden). Production's fixed columns
+   (Items 200, People 144, action 130; Relevance 230, numbers 90, On Hold 105) shrink instead, so
+   both tables fit the card; the floors drop to what the narrower columns need. */
+@media (max-width: 1199.98px) {
+  #dmViewBySource .dm-table { min-width: 600px; }
+  .dm-col-items { width: 130px; }
+  .dm-col-people { width: 104px; }
+  #dmViewBySource .dm-col-act { width: 92px; }
+  .dm-items { gap: 8px; }
+  .dm-items .progress { min-width: 40px; }
+  #dmViewByPeople .dm-table-people { min-width: 600px; }  /* id: beats the later 860px floor below */
+  .dm-table-people .dm-col-rank { width: 36px; }
+  .dm-table-people .dm-col-num { width: 68px; }
+  .dm-table-people .dm-col-hold { width: 84px; }
+  .dm-table-people .dm-col-signal { width: 128px; }
+}
+/* The scroller must contain the absolutely positioned .visually-hidden header
+   label, or it escapes the scroll box and widens the page. */
+.dm-main .table-responsive { position: relative; }
+.dm-table-people { min-width: 860px; }
+.dm-drawer-table { min-width: 640px; }
+.dm-drawer-item .dm-table { min-width: 480px; }
+
+/* Commit bar: the status text and the two buttons wrap as groups, buttons never
+   wrap their labels (production had no wrap rule). */
+.dm-footer { flex-wrap: wrap; }
+.dm-footer-left { flex: 1 1 240px; }
+.dm-footer-right { flex-wrap: wrap; justify-content: flex-end; margin-left: auto; }   /* wrapped: stays right, so the drop-up menu (anchored to its right edge, 500px+) opens on screen */
+.dm-footer-right .btn, .dm-btn-set .btn, .dm-tools .btn { white-space: nowrap; }
+
+/* Custodians card head: below ~1200px the slide-in tools bar no longer fits
+   beside the title (its search field was crushed to nothing), so it takes its
+   own row under the title and the tools button. It is removed while closed, so
+   the closed head keeps its height; the slide-in still plays when it opens. */
+@media (max-width: 1200px) {
+  #dmViewByPeople .dm-card-head { flex-wrap: wrap; }
+  #dmViewByPeople .dm-tools-slot { order: 3; flex: 1 0 100%; }
+  #dmViewByPeople .dm-tools-slot:not(.open) { display: none; }
+  .dm-tools-slot.open .dm-people-tools { animation: dmToolsIn 300ms ease-in-out both; }
+  @keyframes dmToolsIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+}
+@media (prefers-reduced-motion: reduce) { .dm-tools-slot.open .dm-people-tools { animation: none; } }
