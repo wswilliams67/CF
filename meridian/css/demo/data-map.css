@@ -699,18 +699,16 @@ td.dm-col-people { text-align: right; }
 
 /* Sources with no summary card (not integrated: Box, Webex, file share) use an
    MDI glyph, sized and coloured like the harvested SVG glyphs. */
-.dm-src-mdi { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; font-size: 22px; line-height: 1; color: var(--dm-page-fg); }
-.dm-drawer-icon .dm-src-mdi { width: 32px; height: 32px; font-size: 32px; }
+.dm-src-mdi { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; color: var(--cnds-body-color); }
+/* Nimbus: glyph size is the icon scale — cnds-icon-ml (22px) on the element; the drawer's 32px box takes 2XL (36px,
+   the nearest Nimbus size; 32 is not on the scale). */
+.dm-drawer-icon .dm-src-mdi { width: 32px; height: 32px; font-size: var(--cnds-icon-2xl); }
 
 /* Regional access: a masked person reads as a lock + "Profile details limited"
-   in the surrounding text colour (never dimmed; demo.css .demo-masked). */
-.dm-source-name .demo-masked, .dm-insight-name .demo-masked { font-weight: 700; }
+   in the surrounding text colour (never dimmed; demo.css .demo-masked).
+   Nimbus: the bold masked source name is .fw-bold in the markup (dmMaskedHtml). */
 /* Guests: Nimbus badge beside the name. */
 .dm-guest-badge { margin-left: 4px; vertical-align: middle; }
-/* The Notable Non-Custodians panel is a fixed light surface in both themes
-   (production), so its badge keeps the light theme's secondary badge colours
-   rather than the dark theme's, which read as a dark block on the light panel. */
-.dm-insight .dm-guest-badge { --cnds-badge-bg: var(--cnds-surface-light-300, #e0e0e0); --cnds-badge-color: var(--cnds-surface-light-800, #525252); }
 /* A MARK AS CUSTODIAN that cannot apply is disabled; its wrapper carries the
    reason (title), since a disabled button gets no pointer events. */
 .dm-mark-blocked { display: inline-block; cursor: not-allowed; }
@@ -721,9 +719,6 @@ td.dm-col-people { text-align: right; }
 .dm-sk-body .dm-sk-inline { max-width: 100%; }
 .dm-sk-line { display: block; }
 .dm-items .dm-sk-inline:first-child { flex: 1 0 0; min-width: 60px; }
-/* The Notable Non-Custodians panel is light in both themes, so its skeletons
-   take the panel's warning ink at low strength instead of the theme's grey. */
-.dm-insight .skeleton { --cnds-skeleton-bg: rgba(166, 83, 0, .16); --cnds-skeleton-highlight: rgba(166, 83, 0, .07); }
 
 /* ══ Narrow windows (below 1440) ══════════════════════════════════════════
    Production had no rule between 900px and full width, so at 1024 the five
@@ -788,27 +783,21 @@ td.dm-col-people { text-align: right; }
 }
 @media (prefers-reduced-motion: reduce) { .dm-tools-slot.open .dm-people-tools { animation: none; } }
 
-/* ══ PRD 01 ADDITIONS (10-16) — layout only; looks come from Nimbus components ══════════════════════════════ */
-.dm-sub { font-size: 12px; color: var(--dm-muted); }
-.dm-link-btn { background: none; border: 0; padding: 0; font: inherit; color: var(--dm-link); cursor: pointer; text-align: left; }
-.dm-link-btn:hover { text-decoration: underline; }
-.dm-insight .dm-link-btn { color: #6790ca; font-weight: 700; }
+/* ══ PRD 01 ADDITIONS (10-16) — layout only; looks come from Nimbus components ══════════════════════════════
+   Nimbus (10-16 clean-up): the type and colour that used to live here are Nimbus classes in the markup now —
+   meta lines are <small class="text-muted"> (12px, --cnds-paragraph-font-size-sm), notes are <p class="text-muted">
+   (paragraph, 14px), names .fw-bold, paths .font-monospace, a guest name is a plain link (<a role="button">).
+   Removed: .dm-sub, .dm-link-btn, .dm-mono, .dm-empty-note, .dm-check-head/-sub/-count/-foot/-none/-all. */
 .dm-clear-wrap { display: inline-block; }
-.dm-mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; overflow-wrap: anywhere; }
-.dm-empty-note { margin: 0; font-size: 13px; color: var(--dm-muted); }
 .dm-table-compact tbody td { padding: 6px 8px; }
 
-/* Edit Filters (M5a): three checkbox menus, open together, side by side. */
+/* Edit Filters (M5a): three checkbox menus, open together, side by side.
+   Nimbus: each menu is a Nimbus/ListGroup of checkboxes (cnds-listgroup.html, Checkboxes) holding the checkbox's own
+   .form-check + .form-text helper (cnds-checkbox.html), headed by a .cf-label; the scroll box is .border.rounded-3.
+   Page CSS keeps only the column layout and the scroll height. */
 .dm-check-menu { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
-.dm-check-head { margin: 0; font-size: 13px; font-weight: 700; color: var(--dm-page-fg); }
-.dm-check-list { max-height: 264px; overflow-y: auto; border: 1px solid var(--dm-line); border-radius: 8px; }
-.dm-check-list .list-group-item { display: flex; align-items: flex-start; gap: 4px; }
-.dm-check-list .form-check-label { display: flex; flex-direction: column; min-width: 0; }
-.dm-check-all { border-bottom: 1px solid var(--dm-line); }
-.dm-check-sub { font-size: 12px; font-weight: 400; color: var(--dm-muted); }
-.dm-check-count { font-weight: 400; color: var(--dm-muted); }
-.dm-check-foot { margin: 0; font-size: 12px; color: var(--dm-muted); }
-.dm-check-none { font-size: 13px; color: var(--dm-muted); }
+.dm-check-list { max-height: 264px; overflow-y: auto; }
+.dm-check-list .form-check { margin-bottom: 0; }
 @media (max-width: 1100px) { .dm-filter-fields { grid-template-columns: 1fr 1fr; } }
 
 /* Access as of (7.2) in place of the window toggle. */
@@ -817,14 +806,16 @@ td.dm-col-people { text-align: right; }
 .dm-asof .select-wrapper { width: 260px !important; }
 
 /* Summary-line tag, evidence gap (M60: not a warning), reported-locations banner. */
-.dm-summary b { color: var(--dm-page-fg); }
+.dm-summary b { color: var(--cnds-body-color); }   /* Nimbus token (was the --dm-page-fg alias) */
 .dm-noaudit-tag { margin-left: 6px; vertical-align: middle; }
-.dm-evidence-gap { margin: 0; font-size: 13px; color: var(--dm-page-fg); }
+/* Nimbus: the evidence-gap line is a plain paragraph (<p class="mb-0">, 14px) with a Nimbus badge. */
 .dm-gap-tag { margin-right: 6px; }
 .dm-reported { display: flex; align-items: center; gap: 12px; margin: 0; }
 .dm-reported[hidden] { display: none; }
 .dm-reported .alert-message { flex: 1; }
-.dm-alert-sm { display: flex; align-items: center; gap: 12px; margin: 0 0 8px; font-size: 14px; }
+/* Nimbus: scope notices and the guest note are standard Nimbus alerts (.alert-icon + .alert-message, the alert's own
+   type and gap); only the stacking margin is set here. */
+.dm-alert-sm { margin: 0 0 8px; }
 .dm-alert-sm .alert-message { flex: 1; }
 
 /* Six cards (F10): one row from 1360px, otherwise two rows of three; the meta line may wrap at its divider. */
@@ -832,11 +823,11 @@ td.dm-col-people { text-align: right; }
 @media (min-width: 1360px) { .dm-stat-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
 .dm-stat-meta { flex-wrap: wrap; justify-content: center; row-gap: 2px; }
 .dm-stat-grid[hidden], .dm-origin-grid[hidden], .dm-card-caption[hidden] { display: none; }
-.dm-card-caption { margin: -8px 0 0; font-size: 12px; color: var(--dm-muted); }
+.dm-card-caption { margin: -8px 0 0; }   /* Nimbus: p.small.text-muted in the markup */
 .dm-people-grid-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 .dm-origin-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 @media (max-width: 1280px) { .dm-people-grid-5, .dm-origin-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-.dm-people-stat-sub { font-size: 12px; color: var(--dm-muted); }
+/* Nimbus: the tile sub-line is <small class="text-muted">. */
 
 /* Sources table: Found through column and filter, row badges, open-to-everyone note. */
 .dm-card-tools { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
@@ -844,8 +835,7 @@ td.dm-col-people { text-align: right; }
 .dm-card-head { flex-wrap: wrap; }
 .dm-col-found { width: 150px; }
 .dm-row-badge { margin-left: 6px; vertical-align: middle; white-space: nowrap; }
-.dm-open-note { margin: 8px 0 0; font-size: 13px; color: var(--dm-muted); }
-.dm-open-note[hidden] { display: none; }
+/* Nimbus: the open-to-everyone note is <p class="text-muted mt-2 mb-0"> (paragraph, 14px). */
 #dmViewBySource .dm-table { min-width: 0; }
 @media (max-width: 1199.98px) { .dm-col-found { width: 110px; } }
 
@@ -855,24 +845,13 @@ td.dm-col-people { text-align: right; }
 .dm-table-people { min-width: 0; }
 #dmViewByPeople .dm-table-people { min-width: 0; }
 
-/* Notable non-custodians: rank, evidence line, actions, hidden list. */
-.dm-insight-head .dm-rank { margin-left: auto; display: inline-flex; align-items: center; gap: 8px; }
-.dm-insight-head .dm-rank .toolbar-list-label { color: #a65300; font-size: 12px; font-weight: 700; }
-.dm-insight-head .dm-rank .select-wrapper { width: 200px !important; }
-.dm-insight-body { min-width: 0; flex: 1 1 auto; }
-.dm-insight-row { align-items: flex-start; }
-.dm-insight-meta { display: flex; flex-wrap: wrap; gap: 2px 16px; margin-top: 4px; font-size: 12px; color: #a65300; }
-.dm-insight-meta b { font-weight: 800; text-transform: uppercase; letter-spacing: .5px; font-size: 11px; }
-.dm-insight-dismissed { margin-top: 4px; font-size: 12px; color: #a65300; font-style: italic; }
-.dm-insight-actions { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
-.dm-insight .btn-dismiss, .dm-insight .btn-restore, .dm-insight .btn-guest-np, .dm-insight .btn-show-hidden {
-  --cnds-btn-color: #1a4480; --cnds-btn-hover-color: #112d56; --cnds-btn-disabled-color: #8a6a3a; min-height: 36px; white-space: nowrap; }
-.dm-insight-foot { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 12px; font-size: 12px; flex-wrap: wrap; }
-.dm-insight-empty { margin: 0; font-size: 12px; }
-.dm-hidden-list { margin-top: 8px; padding-top: 16px; border-top: 1px solid var(--dm-line); }
+/* Notable non-custodians: footer row and hidden list.
+   Removed (dead since the card became a table, 10-16 — no element carries these classes): the warning panel's
+   .dm-insight-head .dm-rank (+ label, select), .dm-insight-body, .dm-insight-meta (+ b), .dm-insight-dismissed,
+   .dm-insight-actions, the .dm-insight button colours, .dm-insight-empty and the 1100px row wrap.
+   Nimbus: the hidden list's divider is the .border-top utility; the guest note is <small class="fw-bold text-nowrap">. */
+.dm-insight-foot { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 12px; flex-wrap: wrap; }
 .dm-hidden-list[hidden] { display: none; }
-.dm-guest-note { font-size: 12px; font-weight: 700; white-space: nowrap; }
-@media (max-width: 1100px) { .dm-insight-row { flex-wrap: wrap; } .dm-insight-actions { margin-left: auto; } }
 
 /* Scope notice above the scope bar (M88, W7). */
 .dm-scope-notice[hidden] { display: none; }
@@ -884,24 +863,23 @@ td.dm-col-people { text-align: right; }
 /* Source details: facts, badges, EDIT DETAILS, Has access, drawers. */
 .dm-drawer-id .dm-edit-details { margin-left: auto; flex-shrink: 0; }
 .dm-drawer-factsbox { display: flex; flex-direction: column; gap: 6px; margin-top: -8px; }
-.dm-drawer-facts { margin: 0; font-size: 13px; color: var(--dm-muted); }
+/* Nimbus: the facts line is <p class="text-muted mb-0"> (paragraph, 14px). */
 .dm-drawer-badges { display: flex; flex-wrap: wrap; gap: 6px; }
-.dm-access-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 8px 12px; border: 1px solid var(--dm-line); border-radius: 8px; }
+/* Nimbus: the Access as of bar is a Nimbus/Toolbars list toolbar (.btn-toolbar-gray.btn-toolbar-list), not a hand-drawn box. */
 .dm-access-bar[hidden], .dm-access-chips[hidden], #dmAccessExtra[hidden], .dm-evidence-gap[hidden] { display: none; }
-.dm-access-bar .select-wrapper { width: 280px !important; }
+.dm-access-bar .select-wrapper { width: 280px !important; max-width: none; }   /* the list toolbar caps selects at 9rem; the snapshot labels need 280 */
 .dm-access-chips { flex-wrap: wrap; gap: 8px; }
 .dm-col-exp { width: 36px; }
 .dm-col-role { width: 120px; }
 .dm-col-tier { width: 210px; }
-.dm-exp-btn { background: none; border: 0; padding: 2px; color: var(--dm-link); cursor: pointer; }
+/* Nimbus: the row's expand control is an icon-only tertiary button (.btn.btn-tertiary.btn-sm.btn-floating). */
 .dm-exp-btn .mdi { display: inline-block; transition: transform .2s ease; }
 .dm-exp-btn[aria-expanded="true"] .mdi { transform: rotate(180deg); }
 .dm-access-paths td { padding-top: 0; }
-.dm-path { font-size: 13px; line-height: 2; }
-.dm-path .mdi { color: var(--dm-muted); margin: 0 2px; }
-.dm-path-label { font-weight: 700; }
-.dm-group-chip { cursor: pointer; font: inherit; font-size: 12px; }
-.dm-group-kind { color: var(--dm-muted); }
+/* Nimbus: an access path is a paragraph (14px) whose label is .fw-bold and whose groups are Nimbus chips at the chip's
+   own size; .lh-lg (--cnds-line-height-lg, 2) in the markup gives the 32px chips room when the line wraps. */
+.dm-path .mdi { color: var(--cnds-text-muted); }
+.dm-group-chip { cursor: pointer; }   /* the chip is a button (opens Group Members); Nimbus chips default to the arrow */
 .dm-tenant-row td { font-style: normal; }
 .dm-ownperms { display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; }
 .dm-ownperms-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
@@ -910,22 +888,20 @@ td.dm-col-people { text-align: right; }
 .dm-sd-sum { text-align: right; }
 .dm-sd-cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 @media (max-width: 1280px) { .dm-sd-cols { grid-template-columns: 1fr; } }
-.dm-sd-h { margin: 0 0 6px; font-size: 12px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
-.dm-kv-table th { width: 38%; font-size: 13px; font-weight: 400; color: var(--dm-muted); text-transform: none; letter-spacing: 0; vertical-align: top; padding: 6px 8px; border-bottom: 1px solid var(--dm-line); white-space: normal; }
-.dm-kv-table td { font-size: 13px; vertical-align: top; }
+/* Nimbus: the drawer sub-headings are the demo's in-row label (.demo-label: Nimbus table-header type, 12px bold capitals,
+   muted) and the facts are the demo's dl.row name/value list (.demo-kv, Nimbus gap #9), as on Hold Status. */
 .dm-drawer-table { min-width: 0; }
 @media (max-width: 1199.98px) { .dm-drawer { --cnds-offcanvas-width: 92vw; } }
 
 /* Guest Identity and Group Members drawers (D.offcanvas). */
-.dm-guest-panel .offcanvas-body, .offcanvas .dm-kv { display: flex; flex-direction: column; gap: 12px; }
+.dm-guest-panel .offcanvas-body { display: flex; flex-direction: column; gap: 12px; }
+/* The body scrolls as a whole: its parts keep their height (the sources table was squeezed to 0px, 10-16). */
+.dm-guest-panel .offcanvas-body > * { flex-shrink: 0; }
 .dm-guest-id { display: flex; align-items: center; gap: 12px; }
-.dm-kv-row { display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 12px; font-size: 14px; }
-.dm-kv-k { color: var(--cnds-secondary-color); }
 .dm-np-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 16px; margin-bottom: 12px; }
 @media (max-width: 1100px) { .dm-np-grid { grid-template-columns: 1fr; } }
 .dm-group-head { display: flex; align-items: center; gap: 8px; }
-.dm-group-nested { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 13px; }
-.dm-meta-line { font-size: 13px; }
+.dm-group-nested { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 /* The drawer body scrolls as a whole: its parts keep their height (the table was squeezed to nothing once the
    Has access block and the two drawers joined it). */
 .dm-drawer .offcanvas-body > * { flex-shrink: 0; }
@@ -945,7 +921,7 @@ td.dm-col-people { text-align: right; }
   .dm-drawer-tools .toolbar-list-search { flex: 1 0 100%; }
   .dm-drawer-tools > .toolbar-list-divider { display: none; }
 }
-.dm-table-people .dm-sub, .dm-drawer-table .dm-sub { overflow-wrap: anywhere; }
+.dm-table-people small, .dm-drawer-table small { overflow-wrap: anywhere; }
 @media (max-width: 1200px) { .dm-table-people .dm-col-num { width: 60px; } .dm-table-people .dm-col-hold { width: 66px; } }
 
 /* ══ Notable Non-Custodians as a standard card (Scott, 10-16) ═══════════════════════════════════════════
@@ -957,7 +933,6 @@ td.dm-col-people { text-align: right; }
 .dm-notable[hidden] { display: none; }
 .dm-notable-title { display: inline-flex; align-items: center; gap: 8px; margin: 0; }
 .dm-notable .dm-people-note { margin: 0 0 8px; }
-.dm-notable .dm-drawer-toggle { width: 32px; height: 32px; padding: 0; }
 /* Rows are table rows: undo production's flex row (.dm-insight-row). */
 .dm-table-notable tbody.dm-insight-list { display: table-row-group; margin: 0; }   /* undo production's flex list */
 .dm-table-notable tr.dm-insight-row { display: table-row; }
@@ -969,10 +944,8 @@ td.dm-col-people { text-align: right; }
 .dm-table-notable .dm-np-act { width: 170px; vertical-align: middle; }
 .dm-np-actions { display: flex; flex-direction: column; align-items: center; gap: 4px; }   /* forward action, then DISMISS */
 .dm-np-actions .btn { white-space: nowrap; }
-.dm-np-name { font-weight: 700; }
-.dm-np-sub { font-size: 12px; color: var(--dm-muted); }
-.dm-np-why { font-size: 12px; margin-top: 2px; color: var(--dm-page-fg); }
-.dm-table-notable .dm-insight-empty { text-align: center; color: var(--dm-muted); font-size: 12px; padding: 16px 8px; }
+/* Nimbus: the person cell is .fw-bold name + <small class="d-block text-muted"> role + <small class="d-block mt-1"> reason;
+   the empty row is .text-center.text-muted.py-3 (removed .dm-np-name/-sub/-why, .dm-table-notable .dm-insight-empty). */
 .dm-notable .dm-insight-foot { margin-top: 8px; }
 .dm-notable .dm-insight-foot .dm-people-note { margin: 0; }
 /* Below 1440 the table keeps its full columns and scrolls inside the card; the Person column is frozen for reference
@@ -982,7 +955,7 @@ td.dm-col-people { text-align: right; }
   .dm-notable .table-responsive { overflow-x: auto; }
   .dm-table-notable { min-width: 1100px; }
   .dm-table-notable th:first-child, .dm-table-notable td:first-child {
-    position: sticky; left: 0; z-index: 2; width: 240px; min-width: 240px; max-width: 240px; background: var(--dm-card-bg); }
+    position: sticky; left: 0; z-index: 2; width: 240px; min-width: 240px; max-width: 240px; background: var(--cnds-surface-expansion-bg); }   /* = the card's fill (--dm-card-bg) */
 }
 
 /* Scope bar pinned to the viewport (Scott, 10-16): the same floating toolbar as Hold Status's action bar, held 16px
@@ -992,7 +965,8 @@ td.dm-col-people { text-align: right; }
 
 /* Rank By: label inline with its select, as in the other toolbars on the page. */
 .dm-notable .dm-rank { display: inline-flex; align-items: center; gap: 8px; }
-.dm-notable .dm-rank .toolbar-list-label { color: var(--dm-page-fg); white-space: nowrap; }
+.dm-notable .dm-rank .toolbar-list-label { color: var(--cnds-body-color); white-space: nowrap; }
 
-/* Rows at 14px, the Top Sources table's size: names (and a masked name) were inheriting the page's 16px (Scott, 10-16). */
-.dm-table-notable tbody td { font-size: 14px; }
+/* Rows at 14px, the Top Sources table's size: names (and a masked name) were inheriting the page's 16px (Scott, 10-16).
+   Nimbus: the paragraph size token, not a literal. */
+.dm-table-notable tbody td { font-size: var(--cnds-paragraph-font-size); line-height: var(--cnds-paragraph-line-height); }

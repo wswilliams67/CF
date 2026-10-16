@@ -144,10 +144,11 @@
   }
 
   /* ── Markup helpers ───────────────────────────────────────────────── */
+  /* Nimbus: a Nimbus chip at the chip's own type; the group kind is .text-muted. */
   function groupChip(gid) {
     var g = group(gid);
     return '<button type="button" class="chip dm-group-chip" data-dm-group="' + esc(gid) + '">' + esc(g.name) +
-      ' <span class="dm-group-kind">(' + esc(g.kind) + ")</span></button>";
+      '&nbsp;<span class="text-muted">(' + esc(g.kind) + ")</span></button>";
   }
   /** One access path, in words with group chips (7.4): Name → member of X → nested in Y → assigned Edit on the site · since … */
   function pathHtml(pid, path, noun) {
@@ -156,7 +157,8 @@
     path.groups.forEach(function (g, i) { parts.push((i ? "nested in " : "member of ") + groupChip(g)); });
     parts.push("assigned <b>" + esc(path.role) + "</b> on the " + noun + (path.note ? " (" + esc(path.note.toLowerCase()) + ")" : "") +
       " · since " + esc(path.since < SNAP.earliest ? fmt(SNAP.earliest) + ", the earliest snapshot" : fmt(path.since)));
-    return '<div class="dm-path"><span class="dm-path-label">Access Path:</span> ' + parts.join(' <i class="mdi mdi-arrow-right" aria-hidden="true"></i> ') + "</div>";
+    /* Nimbus: a paragraph (.lh-lg for the chips) with a .fw-bold label (was .dm-path-label, 13px, line-height 2). */
+    return '<p class="dm-path lh-lg mb-0"><span class="fw-bold">Access Path:</span> ' + parts.join(' <i class="mdi mdi-arrow-right" aria-hidden="true"></i> ') + "</p>";
   }
   function viaSummary(r) {
     var top = r.paths[0];
@@ -175,7 +177,7 @@
     var rows = direct.map(function (m) {
       var p = person(m[0]), ok = D.canSee(p);
       var status = p.guest && !ctx.isNatural(p.id) ? "Not a natural person in CaseFusion" : ctx.isCustodian(p.id) ? "Custodian" : "Not a custodian";
-      return "<tr><td>" + (ok ? '<span class="d-block fw-bold">' + esc(p.name) + '</span><span class="dm-sub">' + esc(emailOf(p)) + "</span>" : masked()) +
+      return "<tr><td>" + (ok ? '<span class="d-block fw-bold">' + esc(p.name) + '</span><small class="text-muted">' + esc(emailOf(p)) + "</small>" : masked()) +
         (p.guest && !ctx.isNatural(p.id) ? ' <span class="badge badge-secondary">Guest</span>' : "") + "</td>" +
         '<td class="dm-col-when">' + esc(fmt(m[1])) + '</td><td class="dm-col-status">' + esc(status) + "</td></tr>";
     }).join("");
@@ -183,9 +185,9 @@
     return '<div class="dm-group-head"><span class="dm-drawer-name">' + esc(g.name) + '</span> <span class="badge badge-secondary">' + esc(g.kind) + "</span></div>" +
       '<p class="dm-drawer-hint">' + all + (all === 1 ? " person" : " people") + " in this group" + (nested.length ? ", " + direct.length + " directly and the rest through the nested groups below." : ".") +
       " Membership is read from Microsoft Entra ID as of the latest permission snapshot (" + esc(fmt(SNAP.latest)) + ").</p>" +
-      (nested.length ? '<div class="dm-group-nested"><span class="dm-path-label">Nested Groups:</span> ' + nested.map(groupChip).join(" ") + "</div>" : "") +
+      (nested.length ? '<div class="dm-group-nested"><span class="fw-bold">Nested Groups:</span> ' + nested.map(groupChip).join(" ") + "</div>" : "") +
       (direct.length ? '<div class="table-responsive"><table class="dm-table dm-drawer-table dm-table-compact"><thead><tr><th scope="col">Name</th><th scope="col" class="dm-col-when">Member Since</th><th scope="col" class="dm-col-status">Custodian Status</th></tr></thead><tbody>' + rows + "</tbody></table></div>"
-        : '<p class="dm-empty-note">No direct members. Everyone in this group is in a nested group.</p>');
+        : '<p class="text-muted mb-0">No direct members. Everyone in this group is in a nested group.</p>');
   }
 
   /* ── Guest Identity drawer (M17, R5) + CREATE NATURAL PERSON (M16, V2, held F16) ── */
@@ -207,41 +209,43 @@
     reach.forEach(function (x) { ctx.custodiansOn(x.s.id).forEach(function (c) { common[c] = true; }); });
     var commonNames = Object.keys(common).map(function (c) { return D.nameFor(person(c)); });
     var isTA = D.hasRole("Tenant Administrator");
-    var kv = function (k, v) { return '<div class="dm-kv-row"><span class="dm-kv-k">' + esc(k) + '</span><span class="dm-kv-v">' + v + "</span></div>"; };
+    /* Nimbus: name/value pairs are the demo's dl.row list (.demo-kv: 12px bold labels, 14px values; Nimbus gap #9). */
+    var kv = function (k, v) { return '<dt class="col-4 fw-bold">' + esc(k) + '</dt><dd class="col-8 mb-1">' + v + "</dd>"; };
     var first = reach.reduce(function (m, x) { var r = (DM.participants[x.s.id] || []).filter(function (y) { return y[0] === pid; })[0]; return r && r[1] < m ? r[1] : m; }, "9999");
     var html =
       '<div class="dm-guest-id">' + '<span class="monogram demo-avatar">' + esc(D.initials(p.name)) + "</span>" +
         '<span class="dm-drawer-idtext"><span class="dm-drawer-name">' + esc(p.name) + ' <span class="badge badge-secondary">Guest</span></span>' +
         '<span class="dm-drawer-path">' + esc(emailOf(p)) + " · " + esc(p.dept) + "</span></span></div>" +
-      '<div class="alert alert-info dm-alert-sm mb-0" role="note"><b>Not a natural person in CaseFusion.</b> Only a natural person can be a custodian or receive a legal hold notification.</div>' +
+      '<div class="alert alert-info mb-0" role="note"><span class="alert-icon" aria-hidden="true"><i class="mdi mdi-information"></i></span>' +
+        '<span class="alert-message"><b>Not a natural person in CaseFusion.</b> Only a natural person can be a custodian or receive a legal hold notification.</span></div>' +
       '<h4 class="cf-category cf-cat-6 highlight-casefusion mb-0">Identity</h4>' +
-      '<div class="dm-kv">' + kv("Identity Source", "Microsoft Entra ID · guest account") + kv("Home Organization", esc(p.guest)) + kv("Account", "Enabled") +
-        kv("User Principal Name", '<span class="dm-mono">' + esc(p.upn + "_" + p.guest + "#EXT#@" + M.tenant.domain.replace(".com", "") + ".onmicrosoft.com") + "</span>") +
-        kv("Invitation", "Accepted · first seen " + esc(fmt(first === "9999" ? SNAP.earliest : first))) + "</div>" +
+      '<dl class="row demo-kv mb-0">' + kv("Identity Source", "Microsoft Entra ID · guest account") + kv("Home Organization", esc(p.guest)) + kv("Account", "Enabled") +
+        kv("User Principal Name", '<small class="font-monospace text-break">' + esc(p.upn + "_" + p.guest + "#EXT#@" + M.tenant.domain.replace(".com", "") + ".onmicrosoft.com") + "</small>") +
+        kv("Invitation", "Accepted · first seen " + esc(fmt(first === "9999" ? SNAP.earliest : first))) + "</dl>" +
       '<h4 class="cf-category cf-cat-6 highlight-casefusion mb-0">Access To This Case\'s Sources</h4>' +
       (reach.length ? '<div class="table-responsive"><table class="dm-table dm-drawer-table dm-table-compact"><thead><tr><th scope="col">Source</th><th scope="col">Access</th><th scope="col">Through</th><th scope="col" class="dm-col-num">Events In Case Window</th></tr></thead><tbody>' +
         reach.map(function (x) { return "<tr><td>" + esc(ctx.sourceTitle(x.s)) + "</td><td>" + esc(x.access) + "</td><td>" + esc(x.through) + '</td><td class="dm-col-num">' + esc(String(x.events)) + "</td></tr>"; }).join("") +
-        "</tbody></table></div>" : '<p class="dm-empty-note">No access to this case\'s sources in the latest permission snapshot.</p>') +
-      '<p class="dm-meta-line mb-0"><span class="dm-path-label">Custodians In Common:</span> ' + esc(commonNames.join(", ") || "None") + "</p>" +
-      '<p class="dm-sub mb-0">The home organization is shown because it identifies the guest; under regional access it is an external-party disclosure, flagged for the regional access work (PRD 01 R5).</p>';
+        "</tbody></table></div>" : '<p class="text-muted mb-0">No access to this case\'s sources in the latest permission snapshot.</p>') +
+      '<p class="mb-0"><span class="fw-bold">Custodians In Common:</span> ' + esc(commonNames.join(", ") || "None") + "</p>" +
+      '<p class="small text-muted mb-0">The home organization is shown because it identifies the guest; under regional access it is an external-party disclosure, flagged for the regional access work (PRD 01 R5).</p>';
     /* CREATE NATURAL PERSON (held, F16): a Tenant Administrator creates the person from this identity. */
     var dis = isTA ? "" : " disabled";
     html += '<section class="card card-basic dm-create-np"><div class="card-body">' +
       '<h4 class="cf-category cf-cat-6 highlight-casefusion mb-2">Create Natural Person</h4>' +
-      (isTA ? '<p class="dm-sub">Creates the natural person from this identity. The identity stays linked to them.</p>'
+      (isTA ? '<p class="small text-muted">Creates the natural person from this identity. The identity stays linked to them.</p>'
             : '<div class="note note-warning note-sm mb-3">Creating a natural person is a Tenant Administrator action.</div>') +
       '<div class="dm-np-grid">' +
         field("dmNpName", "Name", '<input id="dmNpName" type="text" class="cf-input-control" value="' + esc(p.name) + '"' + dis + " />", true) +
         '<div class="dm-np-field">' + D.select("dmNpType", [["", "Choose …"], ["Vendor", "Vendor"], ["Contractor", "Contractor"], ["Employee", "Employee"]], "", "Person Type *",
           { attrs: dis ? 'disabled aria-required="true"' : 'aria-required="true"' }) +
-          '<div class="dm-sub mt-1">Vendor adds no standard sources (set on Source Types).</div></div>' +
+          '<div class="form-text">Vendor adds no standard sources (set on Source Types).</div></div>' +
         field("dmNpOrg", "Organization", '<input id="dmNpOrg" type="text" class="cf-input-control" value="' + esc(p.dept) + '"' + dis + " />", false) +
         field("dmNpEmail", "Email For Legal Hold Notifications", '<input id="dmNpEmail" type="email" class="cf-input-control" value=""' + dis + ' placeholder="name@' + esc(p.guest) + '" />', true) +
       "</div>" +
       field("dmNpReason", "Reason", '<textarea id="dmNpReason" class="cf-input-control" rows="2"' + dis + "></textarea>", true, "Kept in the identity history with your name.") +
       '<div class="form-check mt-2"><input class="form-check-input" type="checkbox" id="dmNpAdd" checked' + dis + ' />' +
         '<label class="form-check-label" for="dmNpAdd">Add as custodian on ' + esc(M.caseById(D.caseId).name) + "</label></div>" +
-      '<p class="dm-sub mt-1 mb-0">Their data in this tenant is the shared sources above. Their own mailbox and OneDrive are in ' + esc(p.guest) + "'s Microsoft 365 tenant.</p>" +
+      '<p class="small text-muted mt-1 mb-0">Their data in this tenant is the shared sources above. Their own mailbox and OneDrive are in ' + esc(p.guest) + "'s Microsoft 365 tenant.</p>" +
       "</div></section>";
     return html;
   }
@@ -293,7 +297,7 @@
     if (col) b.push(badge("info", "In Expireon · " + esc(col.request)));
     b.push(integration(s) ? badge("success", "Integrated · " + esc(M.typeLabel(s.type))) : badge("secondary", "Not Integrated"));
     if (ctx.loadedScope && ctx.inScope(s.id)) b.push(badge("secondary", "In Scope · " + esc(ctx.loadedScope)));
-    return '<p class="dm-drawer-facts">' + esc(facts.join(" · ")) + "</p>" + '<div class="dm-drawer-badges">' + b.join("") + "</div>";
+    return '<p class="text-muted mb-0">' + esc(facts.join(" · ")) + "</p>" + '<div class="dm-drawer-badges">' + b.join("") + "</div>";
   }
 
   /* ── Ownership and CaseFusion details, Preservation and collection history (7.3 held, F20) ── */
@@ -309,16 +313,20 @@
   function drawer(key, title, summary, body, open) {
     return '<section class="card card-basic card-drawer demo-drawer dm-sd-drawer" aria-labelledby="dmSdH-' + key + '"><div class="card-body">' +
       '<div class="card-top demo-drawer-top"><h4 class="cf-category cf-cat-6 highlight-casefusion mb-0 flex-grow-1" id="dmSdH-' + key + '">' + esc(title) + "</h4>" +
-        '<span class="dm-sub dm-sd-sum">' + esc(summary) + "</span>" +
+        '<small class="text-muted dm-sd-sum">' + esc(summary) + "</small>" +
         '<button type="button" class="card-drawer-toggle" data-dm-sd-drawer="' + key + '" aria-expanded="' + !!open + '" aria-controls="dmSd-' + key + '" aria-label="' + (open ? "Collapse " : "Expand ") + esc(title) + '">' +
         '<i class="mdi mdi-chevron-up mdi-24px" aria-hidden="true"></i></button></div>' +
       '<div class="card-drawer-body' + (open ? "" : " collapsed") + '" id="dmSd-' + key + '">' + body + "</div></div></section>";
   }
+  /* Nimbus: name/value pairs are the demo's dl.row list (.demo-kv, Nimbus gap #9), not a hand-styled table (.dm-kv-table). */
   function kvTable(rows) {
-    return '<table class="dm-table dm-kv-table"><tbody>' + rows.map(function (r) {
-      return '<tr><th scope="row">' + esc(r[0]) + "</th><td>" + r[1] + "</td></tr>";
-    }).join("") + "</tbody></table>";
+    return '<dl class="row demo-kv mb-0">' + rows.map(function (r) {
+      return '<dt class="col-5 fw-bold">' + esc(r[0]) + '</dt><dd class="col-7 mb-2">' + r[1] + "</dd>";
+    }).join("") + "</dl>";
   }
+  /* Nimbus: sub-headings take the demo's in-row label (.demo-label: the Nimbus table-header type, muted). A div with
+     role="heading", since Nimbus card heading rules would override the type (demo.css). */
+  function subHead(t, cls) { return '<div class="demo-label' + (cls ? " " + cls : "") + '" role="heading" aria-level="5">' + esc(t) + "</div>"; }
   /** ctx: { noAudit, canRequest, open: { own, hist } } */
   function drawersHtml(s, ctx) {
     var sd = M.sourceDetails[s.id] || {};
@@ -331,12 +339,12 @@
     var found = ctx.noAudit && s.found === "Audit logs" ? "Permissions" : s.found;
     var disc = ctx.noAudit ? "Permissions (M365 ACL) · first seen " + fmt(SNAP.earliest) : (sd.discovery || (found + " (data map) · first seen " + fmt(firstSeen(s))));
     var col = collectedFor(s);
-    var own = '<div class="dm-sd-cols"><div><h5 class="dm-sd-h">Ownership</h5>' + kvTable([
+    var own = '<div class="dm-sd-cols"><div>' + subHead("Ownership") + kvTable([
         ["Business Owner", personLine(biz)],
         ["Response Team", "<b>" + esc(team) + "</b>"],
         ["System Owner", sd.systemOwner ? personLine(sd.systemOwner) + (D.canSee(person(sd.systemOwner)) ? " · " + esc(emailOf(person(sd.systemOwner))) : "") : "—"],
         ["Confirmed", conf + '<div><button type="button" class="btn btn-tertiary btn-sm px-0" data-dm-request-confirm' + (biz ? "" : ' disabled title="No business owner is named, so there is no one to ask."') + ">Request Confirmation</button></div>"]
-      ]) + "</div><div><h5 class=\"dm-sd-h\">In CaseFusion</h5>" + kvTable([
+      ]) + "</div><div>" + subHead("In CaseFusion") + kvTable([
         ["Integrated", integ ? badge("success", "Yes · " + esc(M.typeLabel(s.type))) + " Purview holds and Expireon collections run automatically" : "No · " + esc(h.handler) + (h.dest ? " · " + esc(h.dest) : "")],
         ["Discovery Method", esc(disc)],
         /* M33, M33a: every other route that has produced this source, never collapsed into one. */
@@ -372,11 +380,11 @@
     var tbl = function (head, rows, empty) {
       return rows.length ? '<div class="table-responsive"><table class="dm-table dm-table-compact"><thead><tr>' + head.map(function (x) { return '<th scope="col">' + x + "</th>"; }).join("") +
         "</tr></thead><tbody>" + rows.map(function (r) { return "<tr>" + r.map(function (c) { return "<td>" + c + "</td>"; }).join("") + "</tr>"; }).join("") + "</tbody></table></div>"
-        : '<p class="dm-empty-note">' + empty + "</p>";
+        : '<p class="text-muted mb-0">' + empty + "</p>";
     };
-    var hist = '<h5 class="dm-sd-h">Preservation</h5>' + tbl(["Date", "Request", "Case", "Event", "Status"], pres, "No preservation request covers this source.") +
-      '<h5 class="dm-sd-h mt-3">Collection</h5>' + tbl(["Date", "Kind", "Request Or Job", "Status", "Destination"], coll, "No collection has run on this source.") +
-      (elsewhere && !D.canOpenCase(elsewhere.caseId) ? '<p class="dm-sub mb-0 mt-2">Rows from cases you can\'t open show that something exists, never what it is.</p>' : "");
+    var hist = subHead("Preservation") + tbl(["Date", "Request", "Case", "Event", "Status"], pres, "No preservation request covers this source.") +
+      subHead("Collection", "mt-3") + tbl(["Date", "Kind", "Request Or Job", "Status", "Destination"], coll, "No collection has run on this source.") +
+      (elsewhere && !D.canOpenCase(elsewhere.caseId) ? '<p class="small text-muted mb-0 mt-2">Rows from cases you can\'t open show that something exists, never what it is.</p>' : "");
     return drawer("own", "Ownership And CaseFusion Details", ownSum, own, ctx.open.own) + drawer("hist", "Preservation And Collection History", histSum, hist, ctx.open.hist);
   }
 

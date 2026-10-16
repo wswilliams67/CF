@@ -534,7 +534,8 @@
   function dmAllCustodians() { return CUSTODIANS.concat(Object.keys(dmAdded).filter(function (id) { return CUSTODIANS.indexOf(id) === -1; })); }
   function dmIsGuest(pid) { var p = M.person(pid); return !!(p && p.guest) && !dmNatural[pid]; }
   function dmPersonText(pid) { return D.nameFor(M.person(pid)); }
-  function dmMaskedHtml() { return '<span class="demo-masked"><i class="mdi mdi-lock-outline" aria-hidden="true"></i>Profile details limited</span>'; }
+  /* Nimbus: extra classes (e.g. fw-bold for a bold source name) go on the span, not in page CSS. */
+  function dmMaskedHtml(cls) { return '<span class="demo-masked' + (cls ? " " + cls : "") + '"><i class="mdi mdi-lock-outline" aria-hidden="true"></i>Profile details limited</span>'; }
   function dmGuestBadge() { return ' <span class="badge badge-secondary dm-guest-badge">Guest</span>'; }
   /* MARK AS CUSTODIAN that cannot apply here: disabled, never hidden, with the
      reason on hover (title on the wrapper, since a disabled button gets no
@@ -548,7 +549,7 @@
   function dmGuestAction(pid, cls) {
     var p = M.person(pid);
     if (D.hasRole("Tenant Administrator")) return '<button type="button" class="btn btn-tertiary btn-sm ' + cls + '" data-dm-guest="' + esc(pid) + '">Create Natural Person</button>';
-    return '<span class="dm-guest-note" title="' + esc(dmReasonGuest(p.name)) + '">Guest · not a natural person</span>';
+    return '<small class="fw-bold text-nowrap" title="' + esc(dmReasonGuest(p.name)) + '">Guest · not a natural person</small>';   /* Nimbus: was .dm-guest-note */
   }
   function dmAlias(p) { var a = p.upn.split("."); return (a[0].charAt(0) + a[a.length - 1]).toLowerCase(); }
 
@@ -1084,15 +1085,15 @@
   function dmNotableRowHtml(p) {
     var name = p.masked ? dmMaskedHtml() : (p.guest
       /* PRD 01 M17, AC23: a guest's name opens the Guest Identity drawer, not a profile. */
-      ? '<button type="button" class="dm-link-btn" data-dm-guest="' + esc(p.pid) + '">' + esc(p.name) + "</button>"
+      ? '<a href="#" role="button" data-dm-guest="' + esc(p.pid) + '">' + esc(p.name) + "</a>"   /* Nimbus: a plain link (was the hand-built .dm-link-btn) */
       : '<a href="' + DM_PROFILE_HREF + '">' + esc(p.name) + "</a>");
     var total = dmAllCustodians().length, dash = '<span class="dm-muted">—</span>';
-    var common = '<div>' + p.common.length + " of " + total + "</div>" + (p.common.length ? '<div class="dm-np-sub">' + esc(dmNamesShort(p.common)) + "</div>" : "");
+    var common = '<div>' + p.common.length + " of " + total + "</div>" + (p.common.length ? '<small class="d-block text-muted">' + esc(dmNamesShort(p.common)) + "</small>" : "");
     var cells = p.masked
       ? [dash, dash, dash, dash]
       : window.dmNoAudit
-        ? [String(p.shared.length), esc(p.highest), common, '<span class="dm-np-sub">' + esc(p.shared.join(", ")) + "</span>"]
-        : [common, nf(p.overlap), '<span class="dm-np-sub">' + p.collab[0] + " shared files · " + p.collab[1] + " chats · " + p.collab[2] + " meetings</span>", String(p.seen.length)];
+        ? [String(p.shared.length), esc(p.highest), common, '<small class="text-muted">' + esc(p.shared.join(", ")) + "</small>"]
+        : [common, nf(p.overlap), '<small class="text-muted">' + p.collab[0] + " shared files · " + p.collab[1] + " chats · " + p.collab[2] + " meetings</small>", String(p.seen.length)];
     var cls = window.dmNoAudit ? ["dm-col-num", "dm-np-role", "dm-np-common", "dm-np-wide"] : ["dm-np-common", "dm-col-num", "dm-np-wide", "dm-col-num"];
     var action = p.masked ? dmBlockedMark(DM_REASON_MASKED, "btn-mark") : p.guest ? dmGuestAction(p.pid, "btn-guest-np")
       : '<button type="button" class="btn btn-tertiary btn-sm btn-mark">Mark as Custodian</button>';
@@ -1100,11 +1101,12 @@
     var second = dismissed
       ? '<button type="button" class="btn btn-tertiary btn-sm btn-restore" data-dm-restore="' + esc(p.pid) + '">Restore</button>'
       : '<button type="button" class="btn btn-tertiary btn-sm btn-dismiss" data-dm-dismiss="' + esc(p.pid) + '">Dismiss</button>';
-    var person = '<div class="dm-np-name">' + name + (p.guest && !p.masked ? dmGuestBadge() : "") + "</div>" +
-      (p.masked ? '<div class="dm-np-sub">Outside your regions</div>' : '<div class="dm-np-sub">' + esc(p.role) + "</div>") +
-      (window.dmNoAudit || p.masked ? "" : '<div class="dm-np-why">' + esc(p.detail) + "</div>") +
-      (dismissed ? '<div class="dm-np-why">Dismissed ' + esc(M.fmtDateTime(dismissed.on, dismissed.time)) + " by " + esc(dmPersonText(dismissed.by)) +
-        (p.masked ? "" : " · " + esc(dismissed.reason)) + "</div>" : "");
+    /* Nimbus: .fw-bold name, <small> meta lines (were .dm-np-name / -sub / -why). */
+    var person = '<div class="fw-bold">' + name + (p.guest && !p.masked ? dmGuestBadge() : "") + "</div>" +
+      (p.masked ? '<small class="d-block text-muted">Outside your regions</small>' : '<small class="d-block text-muted">' + esc(p.role) + "</small>") +
+      (window.dmNoAudit || p.masked ? "" : '<small class="d-block mt-1">' + esc(p.detail) + "</small>") +
+      (dismissed ? '<small class="d-block mt-1">Dismissed ' + esc(M.fmtDateTime(dismissed.on, dismissed.time)) + " by " + esc(dmPersonText(dismissed.by)) +
+        (p.masked ? "" : " · " + esc(dismissed.reason)) + "</small>" : "");
     return '<td class="dm-np-person">' + person + "</td>" +
       cells.map(function (c, i) { return '<td class="' + cls[i] + '">' + c + "</td>"; }).join("") +
       '<td class="dm-np-act"><div class="dm-np-actions">' + action + second + "</div></td>";
@@ -1118,7 +1120,7 @@
     Array.prototype.forEach.call(card.querySelectorAll(".dm-notable-thead"), function (h) { h.innerHTML = dmNotableHeadHtml(); });
     document.getElementById("dmNotableCount").textContent = String(window.DM_NOTABLE.length);
     list.innerHTML = window.DM_NOTABLE.length ? window.DM_NOTABLE.map(dmNotableRowTr).join("")
-      : '<tr><td colspan="' + DM_NOTABLE_COLS + '" class="dm-insight-empty">No one outside the custodian list meets the threshold for the current filters.</td></tr>';
+      : '<tr><td colspan="' + DM_NOTABLE_COLS + '" class="text-center text-muted py-3">No one outside the custodian list meets the threshold for the current filters.</td></tr>';
     /* PRD 01 M14a, AC24: hidden, never discarded — Show hidden non-custodians brings them back. */
     var hidden = window.dmNoAudit ? [] : dmNotable(true).filter(function (p) { return !!p.dismissed; });
     toggle.textContent = (hiddenWrap.hidden ? "Show" : "Hide") + " Hidden Non-Custodians (" + hidden.length + ")";
@@ -1872,7 +1874,7 @@
          zero with the reason on the row (M64, W2). */
       function nameCell(c) {
         return c.masked ? dmMaskedHtml() : '<a href="' + DM_PROFILE_HREF + '" class="dm-custodian-name">' + esc(c.name) + '</a>' +
-          '<span class="dm-sub d-block">' + esc(c.email) + '</span>';
+          '<small class="d-block text-muted">' + esc(c.email) + '</small>';
       }
       function rowHtml(c) {
         var holdCls = HOLD_CLASS[c.hold] || '';
@@ -1880,7 +1882,7 @@
           return '<tr>' +
             '<td class="dm-col-rank">' + c.rank + '</td><td>' + nameCell(c) + '</td><td>' + esc(c.masked ? '—' : c.role) + '</td>' +
             '<td class="dm-col-num">' + esc(c.sources) + '</td><td class="dm-col-num">' + esc(c.std) + '</td>' +
-            '<td class="dm-col-num">' + esc(c.perm) + (c.disabled ? '<span class="dm-sub d-block dm-zero-why">Account disabled before the earliest snapshot</span>' : '') + '</td>' +
+            '<td class="dm-col-num">' + esc(c.perm) + (c.disabled ? '<small class="d-block text-muted dm-zero-why">Account disabled before the earliest snapshot</small>' : '') + '</td>' +
             '<td class="dm-col-num">' + esc(c.asset) + '</td>' +
             '<td class="dm-col-hold ' + holdCls + '">' + esc(c.hold) + '</td></tr>';
         }
@@ -2027,7 +2029,7 @@
             return '<div class="dm-people-stat">' +
                      '<span class="dm-people-stat-label">' + esc(t.label) + '</span>' +
                      '<span class="dm-people-stat-value">' + esc(t.value) + '</span>' +
-                     (t.sub ? '<span class="dm-people-stat-sub">' + esc(t.sub) + '</span>' : '') +
+                     (t.sub ? '<small class="text-muted">' + esc(t.sub) + '</small>' : '') +
                    '</div>';
           }).join('');
         };
@@ -2596,10 +2598,10 @@
       function personCells(r) {
         var pending = r.status === 'Mark as Custodian' || r.status === 'Not a custodian';
         var name = r._masked ? dmMaskedHtml()
-          : r._guest ? '<button type="button" class="dm-link-btn" data-dm-guest="' + dmEsc(r._pid) + '">' + dmEsc(r.name) + '</button>' + dmGuestBadge()
+          : r._guest ? '<a href="#" role="button" data-dm-guest="' + dmEsc(r._pid) + '">' + dmEsc(r.name) + '</a>' + dmGuestBadge()   /* Nimbus: a plain link */
           : '<a href="' + DM_PROFILE_HREF + '" class="dm-custodian-name" data-dm-person="' + dmEsc(r._pid) + '">' + dmEsc(r.name) + '</a>';
         var status;
-        if (r._guest) status = S.tab === 'has' ? '<span class="dm-guest-note">' + dmEsc(r.status) + '</span>' : dmGuestAction(r._pid, 'dm-status-mark');
+        if (r._guest) status = S.tab === 'has' ? '<small class="fw-bold text-nowrap">' + dmEsc(r.status) + '</small>' : dmGuestAction(r._pid, 'dm-status-mark');
         else if (pending) {
           var mark = r._masked ? dmBlockedMark(DM_REASON_MASKED, 'dm-status-mark')
             : '<button type="button" class="btn btn-tertiary btn-sm dm-status-mark" data-dm-mark="' + dmEsc(r._pid) + '">Mark as Custodian</button>';
@@ -2623,7 +2625,7 @@
               : dmEsc(r.path)) + '</td>' +
             '<td class="dm-col-num">' + dmEsc(r.items) + '</td>' +
             '<td class="dm-col-when">' + dmEsc(r.lastActivity) + '</td>' +
-            '<td class="dm-col-tier"><span class="d-block">' + dmEsc(r.confidence) + '</span><span class="dm-sub">' + dmEsc(r._tierWhy) + '</span></td>' +
+            '<td class="dm-col-tier"><span class="d-block">' + dmEsc(r.confidence) + '</span><small class="text-muted">' + dmEsc(r._tierWhy) + '</small></td>' +
             exclCell(r.path) + '</tr>';
         }
         if (S.tab === 'participants') {
@@ -2639,15 +2641,15 @@
         if (S.tab === 'has') {
           if (r._tenant) {
             var tw = S.access.tenantWide;
-            return '<tr class="dm-tenant-row"><td class="dm-col-exp"></td><td><b>Everyone except external users</b><span class="dm-sub d-block">All internal users · not listed individually</span></td>' +
+            return '<tr class="dm-tenant-row"><td class="dm-col-exp"></td><td><b>Everyone except external users</b><small class="d-block text-muted">All internal users · not listed individually</small></td>' +
               '<td class="dm-col-role">' + dmEsc(tw.role) + '</td><td>Tenant-wide claim</td><td class="dm-col-num">—</td><td class="dm-col-status">—</td></tr>';
           }
           var hc = personCells(r), open = !!S.open[r._pid], strong = r._rank >= DMS.EDIT_OR_HIGHER;
-          var main = '<tr class="dm-access-row' + (open ? ' is-open' : '') + '"><td class="dm-col-exp"><button type="button" class="dm-exp-btn" data-dm-exp="' + dmEsc(r._pid) + '" aria-expanded="' + open + '" aria-label="' + (open ? 'Hide' : 'Show') + ' how this person has access">' +
+          var main = '<tr class="dm-access-row' + (open ? ' is-open' : '') + '"><td class="dm-col-exp"><button type="button" class="btn btn-tertiary btn-sm btn-floating dm-exp-btn" data-dm-exp="' + dmEsc(r._pid) + '" aria-expanded="' + open + '" aria-label="' + (open ? 'Hide' : 'Show') + ' how this person has access">' +
               '<i class="mdi mdi-chevron-down" aria-hidden="true"></i></button></td>' +
-            '<td>' + hc.name + (r.email ? '<span class="dm-sub d-block">' + dmEsc(r.email) + '</span>' : '') + '</td>' +
+            '<td>' + hc.name + (r.email ? '<small class="d-block text-muted">' + dmEsc(r.email) + '</small>' : '') + '</td>' +
             '<td class="dm-col-role">' + (strong ? '<b>' + dmEsc(r.role) + '</b>' : dmEsc(r.role)) + '</td>' +
-            '<td><span class="d-block">' + dmEsc(r.via) + '</span><span class="dm-sub">' + dmEsc(r._viaSub) + '</span></td>' +
+            '<td><span class="d-block">' + dmEsc(r.via) + '</span><small class="text-muted">' + dmEsc(r._viaSub) + '</small></td>' +
             (window.dmNoAudit ? '<td class="dm-col-when">' + dmEsc(r.firstSeen) + '</td>' : '<td class="dm-col-num">' + dmEsc(r.events) + '</td>') +
             '<td class="dm-col-status">' + hc.status + '</td></tr>';
           if (!open) return main;
@@ -2741,7 +2743,7 @@
         if (on) {
           var snaps = DMS.snapshots;
           el.fidelity.innerHTML = S.access.snap
-            ? '<span class="badge badge-success">Full fidelity</span> <span class="dm-sub">Snapshot ' + dmEsc(M.fmtDate(S.access.snap)) + '</span>' : '';
+            ? '<span class="badge badge-success">Full fidelity</span> <small class="text-muted">Snapshot ' + dmEsc(M.fmtDate(S.access.snap)) + '</small>' : '';
           // M60, M64, W1: an evidence gap is a line of its own, never an empty table that reads as "no access".
           if (S.access.gap) {
             gapOn = true;
@@ -2763,16 +2765,16 @@
           var lp = DMS.locationPerms(S.data.source), html = '';
           if (lp && lp.total) {
             html += '<section class="dm-ownperms"><div class="dm-ownperms-head"><h4 class="cf-category cf-cat-6 highlight-casefusion mb-0">Locations With Their Own Permissions</h4>' +
-              '<span class="dm-sub">Inherits to ' + lp.inherits + ' of ' + lp.total + ' locations</span></div><ul class="list-group list-group-light list-group-small dm-ownperms-list">' +
+              '<small class="text-muted">Inherits to ' + lp.inherits + ' of ' + lp.total + ' locations</small></div><ul class="list-group list-group-light list-group-small dm-ownperms-list">' +
               lp.list.map(function (l) {
                 return '<li class="list-group-item"><span>' + dmEsc(l.name) + '</span>' + (l.unique
                   ? '<span class="dm-ownperms-state"><span class="text-warning-emphasis fw-bold">Unique permissions</span> · broken ' + dmEsc(l.broken) +
                     ' <button type="button" class="btn btn-tertiary btn-sm" data-dm-uperm="' + dmEsc(l.name) + '">View</button></span>'
-                  : '<span class="dm-ownperms-state dm-sub">Inherits from site</span>') + '</li>';
+                  : '<small class="dm-ownperms-state text-muted">Inherits from site</small>') + '</li>';
               }).join('') + '</ul></section>';
           }
           var sl = DM.sharingLinks[S.id] || [];
-          html += '<p class="dm-sub mb-0">Sharing links and file- and item-level permissions are not in the snapshot, so they are not included.' +
+          html += '<p class="small text-muted mb-0">Sharing links and file- and item-level permissions are not in the snapshot, so they are not included.' +
             (sl.length && !window.dmNoAudit ? ' ' + sl.length + (sl.length === 1 ? ' person' : ' people') + ' in Accessed reached this source through a sharing link and ' + (sl.length === 1 ? 'is' : 'are') + ' not listed here.' : '') + '</p>';
           el.extra.innerHTML = html;
         }
@@ -3482,7 +3484,7 @@
         if (k && svg && !ICONS[k]) ICONS[k] = svg.outerHTML.replace('class="dm-src-svg"', 'class="dm-src-svg dm-tbl-svg"');
       });
       Object.keys(DM_MDI_ICONS).forEach(function (k) {
-        ICONS[k] = '<i class="mdi ' + DM_MDI_ICONS[k] + ' dm-src-svg dm-tbl-svg dm-src-mdi" role="img" aria-label="' + dmEsc(DM_TYPE_LABEL[k] || 'No activity data') + '"></i>';
+        ICONS[k] = '<i class="mdi ' + DM_MDI_ICONS[k] + ' dm-src-svg dm-tbl-svg dm-src-mdi cnds-icon-ml" role="img" aria-label="' + dmEsc(DM_TYPE_LABEL[k] || 'No activity data') + '"></i>';
       });
       var esc = dmEsc;
       var READ_ONLY_WHY = 'This source is read-only: its type is decommissioned, so it can no longer be requested.';
@@ -3505,7 +3507,7 @@
             '<span class="dm-source-body">' +
               // Demo: masked owner → lock + "Profile details limited"; the link
               // still opens Source Details (the source is in the case).
-              '<span><a href="#" class="dm-source-name">' + (r.masked ? dmMaskedHtml() : esc(r.name)) + '</a>' + badges + '</span>' +
+              '<span><a href="#" class="dm-source-name">' + (r.masked ? dmMaskedHtml('fw-bold') : esc(r.name)) + '</a>' + badges + '</span>' +
               '<span class="dm-source-path">' + esc(r.path) + '</span>' +
             '</span></div></td>' +
           // PRD 01 F11 (held): Found through, the route by which the source reached this case (M30–M32).
@@ -3784,7 +3786,7 @@
                      ['From Asset Import', o.asset, 'No asset import on this case'], ['From Sources', o.sources, 'Chosen from the tenant catalog'], ['From Survey Answers', o.survey, 'Named by custodians']];
         originGrid.innerHTML = tiles.map(function (t) {
           return '<div class="dm-people-stat"><span class="dm-people-stat-label">' + dmEsc(t[0].toUpperCase()) + '</span><span class="dm-people-stat-value">' + t[1] +
-            '</span><span class="dm-people-stat-sub">' + dmEsc(t[2]) + '</span></div>';
+            '</span><small class="text-muted">' + dmEsc(t[2]) + '</small></div>';
         }).join('');
       }
       function setVariant() {
@@ -3881,15 +3883,17 @@
         var L = LISTS[key], sel = window.dmFilters[key], opts = L.opts();
         var shown = key === 'custodians' && q ? opts.filter(function (o) { return (o.label + ' ' + o.secondary).toLowerCase().indexOf(q) !== -1; }) : opts;
         var id = function (v) { return 'dmFlt-' + key + '-' + String(v).replace(/[^\w-]/g, ''); };
-        L.el.innerHTML = '<li class="list-group-item dm-check-all"><input class="form-check-input me-1" type="checkbox" id="' + id('all') + '" data-dm-all="' + key + '"' + (sel ? '' : ' checked') + ' />' +
-            '<label class="form-check-label" for="' + id('all') + '">' + L.all + ' <span class="dm-check-count">(' + opts.length + ')</span></label></li>' +
+        /* Nimbus: list-group items holding the Nimbus checkbox (.form-check), its secondary line the checkbox's own
+           helper text (.form-text), the count .fw-normal.text-muted (were .dm-check-all/-count/-sub/-none). */
+        L.el.innerHTML = '<li class="list-group-item px-2"><div class="form-check"><input class="form-check-input" type="checkbox" id="' + id('all') + '" data-dm-all="' + key + '"' + (sel ? '' : ' checked') + ' />' +
+            '<label class="form-check-label" for="' + id('all') + '">' + L.all + ' <span class="fw-normal text-muted">(' + opts.length + ')</span></label></div></li>' +
           shown.map(function (o) {
-            return '<li class="list-group-item"><input class="form-check-input me-1" type="checkbox" id="' + id(o.value) + '" data-dm-opt="' + key + '" value="' + dmEsc(o.value) + '"' +
+            return '<li class="list-group-item px-2"><div class="form-check"><input class="form-check-input" type="checkbox" id="' + id(o.value) + '" data-dm-opt="' + key + '" value="' + dmEsc(o.value) + '"' +
               (sel && sel.indexOf(o.value) !== -1 ? ' checked' : '') + ' />' +
-              '<label class="form-check-label" for="' + id(o.value) + '">' + (o.masked ? dmMaskedHtml() : dmEsc(o.label)) +
-              (o.secondary ? '<span class="dm-check-sub">' + dmEsc(o.secondary) + '</span>' : '') + '</label></li>';
+              '<label class="form-check-label" for="' + id(o.value) + '">' + (o.masked ? dmMaskedHtml() : dmEsc(o.label)) + '</label>' +
+              (o.secondary ? '<div class="form-text mt-0">' + dmEsc(o.secondary) + '</div>' : '') + '</div></li>';
           }).join('') +
-          (shown.length ? '' : '<li class="list-group-item dm-check-none">No custodian matches the search.</li>');
+          (shown.length ? '' : '<li class="list-group-item px-2 text-muted">No custodian matches the search.</li>');
       }
       function setChips() {
         var f = window.dmFilters;
