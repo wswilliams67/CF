@@ -205,3 +205,19 @@ img.demo-avatar { object-fit: cover; border: 1px solid var(--cnds-product-casefu
    avatar on the panel ground in both themes; the navy monogram fill sank into the dark surface. */
 .monogram.demo-avatar-locked { background-color: var(--cnds-badge-bg-secondary, #525252); color: var(--cnds-badge-text-secondary, #fafafa); }
 .monogram.demo-avatar.demo-avatar-32 { font-size: .75rem; }
+
+/* ── Row hover on every table and list (Scott + Sally, 10-16) ─────────────────────────────────────────────
+   A reading guide, not a click promise: table rows and row-style lists (list-group items) take one subtle tint on
+   hover; tiles and cards don't, and the cursor stays an arrow (only real links and buttons show a pointer).
+   ONE colour on every screen: --demo-row-hover-bg carries Nimbus's own .table hover values (tables.css light,
+   dark.css dark), which Nimbus scopes to .table only (gap logged), so data map, list and Nimbus tables all match.
+   Painted as an inset shadow over each cell's own background, so frozen (sticky) cells stay opaque. Skeleton rows
+   (aria-hidden), an open Hold Status row (already filled) and active items don't take it. */
+:root, [data-cnds-theme="light"] { --demo-row-hover-bg: rgba(0, 0, 0, 0.075); }      /* = Nimbus .table hover, light */
+[data-cnds-theme="dark"] { --demo-row-hover-bg: rgba(255, 255, 255, 0.075); }          /* = Nimbus .table hover, dark */
+.ca-content table > tbody > tr:not([aria-hidden="true"]):hover > td,
+.offcanvas table > tbody > tr:not([aria-hidden="true"]):hover > td,
+.modal table > tbody > tr:not([aria-hidden="true"]):hover > td,
+.ca-content .list-group > .list-group-item:not([aria-hidden="true"]):not(.hs-open):not(.active):hover,
+.offcanvas .list-group > .list-group-item:not([aria-hidden="true"]):not(.hs-open):not(.active):hover,
+.modal .list-group > .list-group-item:not([aria-hidden="true"]):not(.hs-open):not(.active):hover { box-shadow: inset 0 0 0 9999px var(--demo-row-hover-bg); }
