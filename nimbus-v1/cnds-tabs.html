@@ -58,36 +58,6 @@
     <link rel="stylesheet" href="css/themes/light.css" />
     <link rel="stylesheet" href="css/themes/dark.css" />
 
-    <style>
-      /* Overflow tab menu -------------------------------------------- */
-      .nav-tabs-overflow { flex-wrap: nowrap; overflow: hidden; }
-      .nav-tabs-more-item { flex-shrink: 0; display: flex; align-self: stretch; }
-      .nav-tabs-more-btn { flex: 1; display: flex; align-items: center; justify-content: center; width: 40px; }
-      /* Icons inside .nav-tabs-nimbus .nav-link are forced to 18px (vs 14px text), making the
-         more button 4px taller than text tabs. Reduce T/B padding to compensate. Also clears
-         the 97px min-width that .nav-tabs-nimbus .nav-link sets — needs (0,3,0) specificity. */
-      .nav-tabs-nimbus .nav-link.nav-tabs-more-btn { min-width: 0; padding-top: 12px; padding-bottom: 11px; }
-      /* Fixed positioning lets the dropdown escape the nav's overflow:hidden clip.
-         Also restore display when the hidden attribute is absent — dropdown-menu's own
-         display:none would otherwise win and keep the panel invisible. */
-      /* Remap dropdown token variables to the tab bar's own theme-aware tokens so the
-         overflow menu inherits the same background, border, and text as the tab bar. */
-      .nav-tabs-more-dropdown {
-        --cnds-dropdown-bg:              var(--nimbus-tab-bg);
-        --cnds-dropdown-border-color:    var(--nimbus-tab-border);
-        --cnds-dropdown-link-color:      var(--nimbus-tab-text);
-        --cnds-dropdown-link-hover-color: var(--nimbus-tab-text);
-        --cnds-dropdown-link-hover-bg:   var(--nimbus-tab-hover-bg);
-        position: fixed !important;
-        /* 9999 — stacking contexts from isolation:isolate (tabs.css:47) and
-           will-change:width (app.css:319) cap comparisons within those contexts;
-           9999 ensures the dropdown wins against all of them */
-        z-index: 9999 !important;
-        min-width: 0 !important;
-        width: max-content;
-      }
-      .nav-tabs-more-dropdown:not([hidden]) { display: block !important; }
-    </style>
   </head>
 
   <body class="cnds-product-casefusion">
@@ -994,7 +964,7 @@
 
                   <!-- Section description -->
                   <p>
-                    When a horizontal tab bar contains more tabs than its container can display, excess tabs automatically collapse into a three-dot menu button at the trailing edge of the bar. This behavior is applied automatically to every horizontal <code>.nav-tabs-nimbus</code> tab bar — no extra attributes or markup are needed. The script measures available width on load and on every container resize, hides tabs that do not fit, and lists them in a dropdown. The three-dot button gains the <code>.active</code> class when the currently selected tab is among the hidden items.
+                    When a horizontal tab bar contains more tabs than its container can display, excess tabs automatically collapse into a three-dot menu button at the trailing edge of the bar. This behavior is applied automatically to every horizontal <code>.nav-tabs-nimbus</code> tab bar — no extra attributes or markup are needed. It ships in the library since 9.0.111 (<code>tabs.css</code> + <code>tabs.js</code>); a bar rendered after page load calls <code>Nimbus.TabOverflow.init(nav)</code>. The script measures available width on load and on every container resize, hides tabs that do not fit, and lists them in a dropdown. The three-dot button gains the <code>.active</code> class when the currently selected tab is among the hidden items.
                   </p>
                   <p class="note note-info">
                     <strong>Tip:</strong> Drag the lower-right resize handle of the demo container to make it narrower and watch the overflow behavior activate.
@@ -1930,137 +1900,6 @@ tabEl.addEventListener(‘shown.cnds.tab’, (e) => {
     <script src="js/sidenav-loader.js"></script>
 
     <!-- Overflow tab menu — auto-applied to all horizontal .nav-tabs-nimbus bars -->
-    <script>
-    (function () {
-      'use strict';
-
-      function initTabOverflow(nav) {
-        if (nav.classList.contains('flex-column')) return;
-
-        var productClass =
-          nav.classList.contains('nav-tabs-casefusion') ? 'dropdown-menu-casefusion' :
-          nav.classList.contains('nav-tabs-hyperlize')  ? 'dropdown-menu-hyperlize'  :
-          nav.classList.contains('nav-tabs-expireon')   ? 'dropdown-menu-expireon'   : '';
-
-        var moreItem = document.createElement('li');
-        moreItem.className = 'nav-item nav-tabs-more-item';
-        moreItem.setAttribute('role', 'presentation');
-        moreItem.hidden = true;
-        moreItem.innerHTML =
-          '<button type="button" class="nav-link nav-tabs-more-btn"' +
-          ' aria-haspopup="true" aria-expanded="false" aria-label="More tabs">' +
-          '<i class="mdi mdi-dots-vertical mdi-18px" aria-hidden="true"></i></button>' +
-          '<ul class="nav-tabs-more-dropdown dropdown-menu dropdown-menu-product ' + productClass + '" role="menu" hidden></ul>';
-        nav.appendChild(moreItem);
-        nav.classList.add('nav-tabs-overflow');
-
-        var items    = Array.from(nav.querySelectorAll(':scope > .nav-item:not(.nav-tabs-more-item)'));
-        var moreBtn  = moreItem.querySelector('.nav-tabs-more-btn');
-        var dropdown = moreItem.querySelector('.nav-tabs-more-dropdown');
-        var open     = false;
-
-        function close() {
-          dropdown.hidden = true;
-          moreBtn.setAttribute('aria-expanded', 'false');
-          open = false;
-        }
-
-        moreBtn.addEventListener('click', function (e) {
-          e.stopPropagation();
-          open = !open;
-          dropdown.hidden = !open;
-          moreBtn.setAttribute('aria-expanded', String(open));
-          if (open) {
-            var rect = moreBtn.getBoundingClientRect();
-            dropdown.style.top   = rect.bottom + 'px';
-            dropdown.style.right = (window.innerWidth - rect.right) + 'px';
-          }
-        });
-        document.addEventListener('click', close);
-        function reposition() {
-          if (open) {
-            var rect = moreBtn.getBoundingClientRect();
-            dropdown.style.top   = rect.bottom + 'px';
-            dropdown.style.right = (window.innerWidth - rect.right) + 'px';
-          }
-        }
-        window.addEventListener('resize', reposition);
-
-        function showItem(item) {
-          item.style.cssText = '';
-          var a = item.querySelector('.nav-link');
-          if (a) { a.removeAttribute('aria-hidden'); a.removeAttribute('tabindex'); }
-        }
-
-        function hideItem(item) {
-          item.style.cssText = 'width:0;min-width:0;overflow:hidden;padding:0;margin:0;flex-basis:0;flex-shrink:0';
-          var a = item.querySelector('.nav-link');
-          if (a) { a.setAttribute('aria-hidden', 'true'); a.setAttribute('tabindex', '-1'); }
-        }
-
-        function update() {
-          items.forEach(showItem);
-          moreItem.hidden = true;
-
-          var navW  = nav.clientWidth;
-          var total = items.reduce(function (s, it) { return s + it.offsetWidth; }, 0);
-          if (total <= navW) return;
-
-          moreItem.hidden = false;
-          var available = navW - moreItem.offsetWidth;
-          var cum = 0;
-          var split = items.length;
-
-          for (var i = 0; i < items.length; i++) {
-            cum += items[i].offsetWidth;
-            if (cum > available) { split = i; break; }
-          }
-
-          for (var j = split; j < items.length; j++) hideItem(items[j]);
-
-          dropdown.innerHTML = '';
-          var hasActive = false;
-
-          for (var k = split; k < items.length; k++) {
-            var link = items[k].querySelector('.nav-link');
-            if (!link) continue;
-            var isActive = link.classList.contains('active');
-            if (isActive) hasActive = true;
-
-            var li  = document.createElement('li');
-            li.setAttribute('role', 'menuitem');
-            var btn = document.createElement('button');
-            btn.type        = 'button';
-            btn.className   = 'dropdown-item' + (isActive ? ' active' : '');
-            btn.textContent = link.textContent.trim();
-
-            (function (origLink) {
-              btn.addEventListener('click', function (e) {
-                e.stopPropagation();
-                origLink.removeAttribute('aria-hidden');
-                origLink.click();
-                origLink.setAttribute('aria-hidden', 'true');
-                close();
-                update();
-              });
-            })(link);
-
-            li.appendChild(btn);
-            dropdown.appendChild(li);
-          }
-
-          moreBtn.classList.toggle('active', hasActive);
-          reposition();
-        }
-
-        nav.addEventListener('shown.cnds.tab', update);
-        new ResizeObserver(update).observe(nav.parentElement);
-        update();
-      }
-
-      document.querySelectorAll('.nav-tabs-nimbus:not(.flex-column)').forEach(initTabOverflow);
-    })();
-    </script>
 
     <!-- Inline: stamp the current year into the footer copyright span -->
     <script>

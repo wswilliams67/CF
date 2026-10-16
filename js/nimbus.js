@@ -22,7 +22,7 @@
   // Initialize global namespace
   // -----------------------------------------------------------------------
   window.Nimbus = window.Nimbus || {};
-  window.Nimbus.VERSION = "9.0.110";
+  window.Nimbus.VERSION = "9.0.111";
 
   // -----------------------------------------------------------------------
   // Script loader — loads scripts sequentially to respect dependencies

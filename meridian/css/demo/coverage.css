@@ -38,10 +38,25 @@
 .cv-toolbar-search { flex: 1 1 9rem; min-width: 9rem; }  /* 9rem holds "Search custodians…"; the rest went to Sort By (10-15) */
 /* Responsive (Scott, 10-16): when the window is too narrow for one line, the controls wrap onto a second line
    instead of running off the edge; each label stays with its select. */
+/* Each label travels with its select (cv-tool-field), so a wrap never strands a label at the end of a line. */
+.cv-tool-field { display: inline-flex; align-items: center; gap: var(--cnds-spacer-2); min-width: 0; }
 @media (max-width: 1439.98px) {
   .cv-list-tools { flex-wrap: wrap; }
-  .cv-list-tools .toolbar-list-controls { flex-wrap: wrap; row-gap: var(--cnds-spacer-2); }
+  /* Search fills its own row; the divider that separated it from the controls goes with the line break. */
+  .cv-list-tools .cv-toolbar-search { flex: 1 1 100%; }
+  .cv-list-tools > .toolbar-list-divider { display: none; }
+  /* The fields share the next row and fill it (Scott, 10-16); the button hugs its label. */
+  .cv-list-tools .toolbar-list-controls { flex: 1 1 100%; flex-wrap: wrap; row-gap: var(--cnds-spacer-2); }
+  /* Each field is at least as wide as its label + its select's longest option, so the selects never
+     overlay each other or the next label (Scott, 10-16); spare width is shared out so the row fills. */
+  .cv-list-tools .cv-tool-field { flex: 1 1 auto; min-width: max-content; }
+  .cv-list-tools .cv-tool-field .select-wrapper { flex: 1 1 auto; max-width: none; }
+  .cv-list-tools .toolbar-list-action { flex: 0 0 auto; }
+  .cv-list-tools .toolbar-list-controls { container-type: inline-size; }
 }
+/* When the button wraps below the fields, its divider would dangle at the end of the fields' row: drop it.
+   62rem = the three fields at their content width (label + longest option) + the button and gaps: the narrowest one-line row. */
+@container (max-width: 62rem) { .cv-list-tools .toolbar-list-controls > .toolbar-list-divider { display: none; } }
 
 /* ── 3. Custodian grid ────────────────────────────────────────────────── */
 .cv-grid { table-layout: fixed; }

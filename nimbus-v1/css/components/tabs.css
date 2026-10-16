@@ -485,3 +485,33 @@
 
 [data-cnds-theme="light"] .nav-tabs-expireon,
 :root:not([data-cnds-theme="dark"]) .nav-tabs-expireon   { --nimbus-tab-indicator: #17145c; }
+
+/* ============================================================
+   Overflow menu (9.0.111). Every horizontal .nav-tabs-nimbus bar collapses
+   the tabs that don't fit into a three-dot menu at its trailing edge, so
+   every tab stays reachable at any width. Behaviour: js/components/tabs.js
+   (Nimbus.TabOverflow). Moved here from the styleguide page, where it was
+   inline and so never reached product pages.
+   ============================================================ */
+.nav-tabs-overflow { flex-wrap: nowrap; overflow: hidden; }
+.nav-tabs-more-item { flex-shrink: 0; flex-grow: 0 !important; display: flex; align-self: stretch; }
+.nav-tabs-more-btn { flex: 1; display: flex; align-items: center; justify-content: center; width: 40px; }
+/* Icons inside .nav-tabs-nimbus .nav-link are 18px (vs 14px text), making the more
+   button 4px taller than text tabs; reduce T/B padding to compensate. Also clears the
+   97px min-width that .nav-tabs-nimbus .nav-link sets (needs 0,3,0 specificity). */
+.nav-tabs-nimbus .nav-link.nav-tabs-more-btn { min-width: 0; padding-top: 12px; padding-bottom: 11px; }
+/* Fixed position escapes the nav's overflow:hidden clip. Dropdown tokens map to the
+   tab bar's own tokens so the menu matches the bar in both themes. */
+.nav-tabs-more-dropdown {
+  --cnds-dropdown-bg:               var(--nimbus-tab-bg);
+  --cnds-dropdown-border-color:     var(--nimbus-tab-border);
+  --cnds-dropdown-link-color:       var(--nimbus-tab-text);
+  --cnds-dropdown-link-hover-color: var(--nimbus-tab-text);
+  --cnds-dropdown-link-hover-bg:    var(--nimbus-tab-hover-bg);
+  position: fixed !important;
+  /* isolation:isolate (tabs.css) and will-change:width (app.css) create stacking contexts; 9999 wins over them */
+  z-index: 9999 !important;
+  min-width: 0 !important;
+  width: max-content;
+}
+.nav-tabs-more-dropdown:not([hidden]) { display: block !important; }
