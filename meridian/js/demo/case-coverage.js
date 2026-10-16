@@ -261,16 +261,16 @@
   function groupItem(attrs, title, sub, href) { return item(attrs, title, sub, href, true); }
   /* The selection toolbar zooms in when the first custodian is selected and out when the last is cleared (Scott,
      10-14): Nimbus cnds-scale-in / cnds-scale-out (scale 0.95 ↔ 1 with a fade, from its centre). The two steps run in
-     sequence so it reads as a zoom, not a slide: in, the slot opens (0.15s) and then the bar zooms in (0.2s); out, the
-     bar zooms out in place (0.2s) and then the empty slot closes (0.15s). No motion under reduced motion. */
+     sequence so it reads as a zoom, not a slide: in, the slot opens (Nimbus collapse, 0.35s) and then the bar zooms in
+     (0.2s); out, the bar zooms out in place (0.2s) and then the empty slot closes (0.35s). No motion under reduced motion. */
   var selShown = false, selTimer = null;
   /* Animate the toolbar slot's height from → to, then clear the inline styles. */
   function slide(host, from, to, done) {
     clearTimeout(selTimer);
     host.style.overflow = "hidden"; host.style.height = from + "px";
     void host.offsetHeight;
-    host.style.transition = "height .15s ease"; host.style.height = to + "px";
-    selTimer = setTimeout(function () { host.style.transition = ""; host.style.height = ""; host.style.overflow = ""; if (done) done(); }, 170);
+    host.style.transition = COLLAPSE; host.style.height = to + "px";
+    selTimer = setTimeout(function () { host.style.transition = ""; host.style.height = ""; host.style.overflow = ""; if (done) done(); }, 370);
   }
   function renderSelTool() {
     var list = selectedList(), n = list.length, host = document.getElementById("cvSelTool");
@@ -371,44 +371,46 @@
   }
 
   /* ── Crossfade ────────────────────────────────────────────────────── */
-  /* View changes crossfade (Scott, 10-14): the old table is copied into a ghost layer over its .cv-xfade host, the new
-     rows render underneath at opacity 0, then the ghost fades out as the new rows fade in (0.2s, as the selection
-     toolbar's zoom) while the host eases from the old height to the new so the page below does not jump. Selection
-     changes are not view changes and redraw in place. A change mid-fade finishes the running one first. */
+  /* View changes crossfade (Scott, 10-14; one crossfade for every view change, 10-15). A host is any element with
+     data-xf="<key>": its old content is copied into a ghost layer over it, the new content renders underneath, then
+     the ghost fades out as the new content fades in while the host eases from the old height to the new, so nothing
+     below jumps. Timings are the Nimbus tokens (the styleguide is the law for motion): the fade is
+     --cnds-transition-fade (opacity 0.15s linear), the height --cnds-transition-collapse (height 0.35s ease). Hosts
+     are found again after the update, so it works when a render replaces them (the panel, the release flyout).
+     Unchanged hosts do not fade. Selection and data changes are not view changes and redraw in place. */
   var xfTimer = null;
+  var COLLAPSE = (getComputedStyle(document.documentElement).getPropertyValue("--cnds-transition-collapse") || "").trim() || "height 0.35s ease";
+  function xfHost(k) { return document.querySelector('[data-xf="' + k + '"]'); }
   /* Finish any running crossfade: drop the ghosts and the inline height. */
   function xfEnd() {
     clearTimeout(xfTimer);
-    document.querySelectorAll(".cv-xfade").forEach(function (h) {
+    document.querySelectorAll("[data-xf]").forEach(function (h) {
       h.querySelectorAll(".cv-xfade-ghost").forEach(function (g) { g.remove(); });
       h.classList.remove("cv-xf-start"); h.style.height = ""; h.style.overflow = ""; h.style.transition = "";
     });
   }
-  /* Run `update` (a render) as a view change over both tables. */
-  function view(update) {
+  function xfade(keys, update) {
     xfEnd();
-    var hosts = ["cvGridView", "cvNcView"].map(function (id) { return document.getElementById(id); });
     if (REDUCE) { update(); return; }
-    var snap = hosts.map(function (h) {
-      var g = document.createElement("div");
-      g.className = "cv-xfade-ghost"; g.setAttribute("aria-hidden", "true"); g.inert = true;
-      g.innerHTML = h.innerHTML;
-      g.querySelectorAll("[id]").forEach(function (x) { x.removeAttribute("id"); });
-      return { h: h, g: g, from: h.offsetHeight, html: h.querySelector(".table-responsive").innerHTML };
-    });
+    var snap = keys.map(function (k) { var h = xfHost(k); return h ? { k: k, html: h.innerHTML, from: h.offsetHeight } : null; }).filter(Boolean);
     update();
     snap.forEach(function (s) {
-      /* The non-custodial table often does not change: no fade where nothing changed. */
-      if (s.h.querySelector(".table-responsive").innerHTML === s.html) return;
-      var to = s.h.offsetHeight;
-      s.h.classList.add("cv-xf-start"); s.h.appendChild(s.g);
-      s.h.style.overflow = "hidden"; s.h.style.height = s.from + "px";
-      void s.h.offsetHeight;
-      s.h.classList.remove("cv-xf-start"); s.g.classList.add("cv-xf-out");
-      s.h.style.transition = "height .2s ease"; s.h.style.height = to + "px";
+      var h = xfHost(s.k);
+      if (!h || h.innerHTML === s.html) return;
+      var g = document.createElement("div");
+      g.className = "cv-xfade-ghost"; g.setAttribute("aria-hidden", "true"); g.inert = true; g.innerHTML = s.html;
+      g.querySelectorAll("[id]").forEach(function (x) { x.removeAttribute("id"); });
+      var to = h.offsetHeight;
+      h.classList.add("cv-xfade", "cv-xf-start"); h.appendChild(g);
+      h.style.overflow = "hidden"; h.style.height = s.from + "px";
+      void h.offsetHeight;
+      h.classList.remove("cv-xf-start"); g.classList.add("cv-xf-out");
+      h.style.transition = COLLAPSE; h.style.height = to + "px";
     });
-    xfTimer = setTimeout(xfEnd, 220);
+    xfTimer = setTimeout(xfEnd, 380);
   }
+  /* A view change on the page: both tables. */
+  function view(update) { xfade(["grid", "nc"], update); }
 
   /* ── Counting rules and the render cycle ──────────────────────────── */
   /* Counting rules name what this case expects (CV14b), from the case setting the cells read. */
@@ -574,7 +576,7 @@
             var id = m.id + "-who-" + x[0];
             return '<input type="radio" class="btn-check" name="cvRelWho" id="' + id + '" value="' + x[0] + '" autocomplete="off"' + (chip === x[0] ? " checked" : "") + ">" +
               '<label class="btn btn-secondary btn-sm" for="' + id + '">' + x[1] + " (" + x[2] + ")</label>"; }).join("") + "</div>" +
-        metaRow('<p class="cv-meta text-muted mb-2 cv-meta-line"><span class="demo-label d-inline me-1">Sorted By:</span>Custodian</p>' +
+        '<div data-xf="rel">' + metaRow('<p class="cv-meta text-muted mb-2 cv-meta-line"><span class="demo-label d-inline me-1">Sorted By:</span>Custodian</p>' +
           '<p class="cv-meta text-muted mb-2 cv-meta-line"><span class="demo-label d-inline me-1">Selected:</span>' + on.length + " · " + plural(holds, "legal hold") + (left.length ? " · " + plural(left.length, "custodian") + " held on another case, left out" : "") + "</p>") +
         tbl(['<div class="form-check mb-0"><input type="checkbox" class="form-check-input" id="cvRelAll"' + (releasableHere && !readOnly ? "" : " disabled") +
               (releasableHere && on.length === releasableHere ? " checked" : "") + ' aria-label="Select all custodians who can be released" /></div>', "Custodian", "Legal Holds", "After Release"], list.map(function (c) {
@@ -594,7 +596,7 @@
           return '<tr><td><div class="form-check mb-0"><input type="checkbox" class="form-check-input" data-tick="' + c.personId + '"' + (ticked[c.personId] ? " checked" : "") + (releasable(c) && !readOnly ? "" : " disabled") +
             ' aria-label="Release ' + esc(D.nameFor(p)) + '" /></div></td><td><span class="fw-bold' + (D.canSee(p) ? "" : " demo-masked") + '">' + esc(D.nameFor(p)) + '</span><span class="d-block small text-muted">' +
             (D.canSee(p) ? esc(p.title) + (p.departed ? " · Departed " + esc(M.fmtDate(p.departed)) : "") : "Outside your regions") + "</span></td><td>" + holdsCell + "</td><td>" + after + "</td></tr>";
-        }).join(""), "cv-rel-table") +
+        }).join(""), "cv-rel-table") + "</div>" +
         /* 48px (mt-5) between the flyout's sections, the house section step (Scott, 10-15). */
         '<div class="cf-category cf-cat-6 highlight-casefusion mt-5">Release Notice</div>' +
         '<div class="row g-3 mb-3"><div class="col-md-6">' + D.select("cvRelNotice", [["standard", "Standard Release Notice"], ["retention", "Release Notice with Retention Reminder"], ["none", "No Notice"]], notice, "Notice", { container: "#" + m.id }) +
@@ -647,7 +649,7 @@
       if (pid) { ticked[pid] = e.target.checked; draw(); }
       if (e.target.id === "cvRelNotice" && notice !== e.target.value) { notice = e.target.value; draw(); }
       if (e.target.id === "cvRelSend") sendTo = e.target.checked;
-      if (e.target.name === "cvRelWho") { chip = e.target.value; tickDefault(); draw(); }
+      if (e.target.name === "cvRelWho") { chip = e.target.value; tickDefault(); xfade(["rel"], draw); }
       if (e.target.id === "cvRelAll") { if (e.target.checked) tickDefault(); else ticked = {}; draw(); }
     }
     m.el.addEventListener("change", onChange);
@@ -699,12 +701,12 @@
   /* A timeline (CV41): date · event · actor · outcome, one list row each. Solid row dividers, none under the last. */
   function timeline(events, key) {
     var list = events || [], hide = hiddenCount(list, key);
-    return '<ul class="list-group list-group-flush cv-tl">' + list.slice(hide).map(function (e) {
+    return '<div data-xf="tl-' + esc(key || "") + '"><ul class="list-group list-group-flush cv-tl">' + list.slice(hide).map(function (e) {
       /* The event, with how it happened under it (12px, muted); then BY: and the actor, always a person or CaseFusion. */
       return '<li class="list-group-item"><span class="cv-tl-when">' + esc(M.fmtDateTime(e[0], e[1])) + '</span><span class="cv-tl-what">' + esc(e[2]) +
         (e[5] ? '<span class="d-block small text-muted">' + esc(e[5]) + "</span>" : "") +
         '</span><span class="cv-tl-who"><span class="demo-label d-inline me-1">By:</span>' + esc(e[3]) + "</span>" + badgeHtml(e[4], TONE[e[4]] || "light") + "</li>";
-    }).join("") + "</ul>";
+    }).join("") + "</ul></div>";
   }
 
   /* ── Panel: record tiles ── */
@@ -924,7 +926,7 @@
     }));
     var pg = paged("cvp-preservation", rows, "Sources per page:");
     var body = v.preservation.state === "na" ? '<p class="cv-meta mb-0">Not required: ' + esc(c.notRequired.preservation) + "</p>" :
-      (rows.length > 1 ? sortLine("Least protected first" + (rep.length ? " · reported locations last" : "")) : "") + srcTable(pg.rows) + pg.pager;
+      (rows.length > 1 ? sortLine("Least protected first" + (rep.length ? " · reported locations last" : "")) : "") + '<div data-xf="pg-cvp-preservation">' + srcTable(pg.rows) + pg.pager + "</div>";
     return drawer("preservation", "Preservation", sum, body,
       link("PRESERVATION REQUEST FOR GAPS", "case-new-preservation.html?custodians=" + c.personId, "btn-secondary") + link("OPEN HOLD STATUS", "case-hold-status.html", "btn-secondary") +
       /* Entry point to Release readiness (PRD 08 §7.4, CV65): every mechanism preserving this person's data, in every case. */
@@ -942,7 +944,7 @@
       var ref = /^PKG-/.test(x.from) ? '<a href="not-in-demo.html?what=Collection+package+' + x.from + '">' + esc(x.from) + "</a>" : reqLink(x.from);
       return [ident(M.typeLabel(s.type), esc(s.name)), badgeHtml(x.status, tone[x.status] || "light"), ref + " · " + esc(x.note)];
     })));
-    function colTable(rows) { var pg = paged("cvp-collection", rows, "Sources per page:"); return (rows.length > 1 ? sortLine("Least collected first") : "") + srcTable(pg.rows) + pg.pager; }
+    function colTable(rows) { var pg = paged("cvp-collection", rows, "Sources per page:"); return (rows.length > 1 ? sortLine("Least collected first") : "") + '<div data-xf="pg-cvp-collection">' + srcTable(pg.rows) + pg.pager + "</div>"; }
     return drawer("collection", "Collection", !exp ? "Not expected on this case" : v.collection.text + (v.collection.state !== "done" && v.collection.detail ? " · " + v.collection.detail : ""), body,
       link("COLLECTION REQUEST FOR GAPS", "not-in-demo.html?what=Collection+request", "btn-secondary") +
       (failed ? link("VIEW FAILURES", "not-in-demo.html?what=Collection+failures", "btn-secondary") : off("VIEW FAILURES", "No collection from this custodian has failed.", "btn-secondary")), !exp);
@@ -1325,7 +1327,7 @@
     var k = e.target.getAttribute && e.target.getAttribute("data-pg-size");
     if (!k || k === "cv" || +e.target.value === (pgSize[k] || 10)) return;
     pgSize[k] = +e.target.value; pgPage[k] = 1;
-    if (k === "cvnc") view(renderNonCustodial); else renderPanel();
+    if (k === "cvnc") view(renderNonCustodial); else xfade(["pg-" + k], renderPanel);
   }
   /* Native selects fire change; Nimbus Select fires valueChanged.cnds.select. Listen for both. */
   ["change", "valueChanged.cnds.select"].forEach(function (ty) {
@@ -1352,7 +1354,7 @@
     var pk = t.getAttribute("data-pg-for");
     if (pk && pk !== "cv") {
       pgPage[pk] = D.turnPage(pgPage[pk] || 1, t.getAttribute("data-pg"), pgTotal[pk] || 0, pgSize[pk] || 10);
-      if (pk === "cvnc") view(renderNonCustodial); else renderPanel();
+      if (pk === "cvnc") view(renderNonCustodial); else xfade(["pg-" + pk], renderPanel);
       return;
     }
     if (pk === "cv") { page = D.turnPage(page, t.getAttribute("data-pg"), custodians.filter(matches).length, pageSize); view(renderGrid); return; }
@@ -1378,7 +1380,7 @@
     }
     /* Custodian coverage: drawers, instance actions and the stacked drawers they open. */
     if (t.hasAttribute("data-cv-sec")) { toggleSection(t); return; }
-    if (t.hasAttribute("data-cv-tl")) { var tk = t.getAttribute("data-cv-tl"); tlOpen[tk] = !tlOpen[tk]; renderPanel(); return; }
+    if (t.hasAttribute("data-cv-tl")) { var tk = t.getAttribute("data-cv-tl"); tlOpen[tk] = !tlOpen[tk]; xfade(["tl-" + tk], renderPanel); return; }
     if (t.hasAttribute("data-cv-jump")) { jumpTo(t.getAttribute("data-cv-jump")); return; }
     var pc = panelId && byPid(panelId);
     if (pc) {
@@ -1401,7 +1403,7 @@
     }
     var a = t.getAttribute("data-cv");
     if (!a) return;
-    if (a === "select-after") { page = 1; selected = {}; afterNoticeUnsent().forEach(function (c) { selected[c.personId] = true; }); tileFilter = null; setFilter("after"); render(); }
+    if (a === "select-after") { page = 1; selected = {}; afterNoticeUnsent().forEach(function (c) { selected[c.personId] = true; }); tileFilter = null; setFilter("after"); view(render); }
     if (a === "review-after") { page = 1; tileFilter = null; setFilter("after"); renderTiles(); view(renderGrid); }
     if (a === "clear") clearSelection();
     if (a === "not-required") markNotRequired(null);

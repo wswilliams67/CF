@@ -112,8 +112,8 @@
 
 /* ── 6. Crossfade ─────────────────────────────────────────────────────── */
 /* Table crossfade on a view change (view() in case-coverage.js): the ghost holds the old table over the new one. */
-.cv-xfade { position: relative; }
-.cv-xfade > * { transition: opacity .2s ease; }
+.cv-xfade, [data-xf] { position: relative; }
+.cv-xfade > * { transition: var(--cnds-transition-fade, opacity 0.15s linear); }  /* Nimbus fade token */
 .cv-xfade.cv-xf-start > :not(.cv-xfade-ghost) { opacity: 0; transition: none; }
 .cv-xfade-ghost { position: absolute; top: 0; left: 0; right: 0; pointer-events: none; }
 .cv-xfade-ghost.cv-xf-out { opacity: 0; }
@@ -172,7 +172,7 @@
 .cv-src > tbody > tr:last-child > * { border-bottom: 0; }
 
 /* Stepping between custodians: the body fades out, the next custodian renders, the body fades back. */
-.offcanvas-body { transition: opacity .15s ease; }
+.offcanvas-body { transition: var(--cnds-transition-fade, opacity 0.15s linear); }  /* Nimbus fade token */
 .offcanvas-body.cv-step-out { opacity: 0; }
 @media (prefers-reduced-motion: reduce) { .offcanvas-body { transition: none; } }
 
@@ -186,8 +186,8 @@
 .cv-bar { position: absolute; left: 0; right: 0; top: 0; display: flex; align-items: stretch; gap: var(--cnds-spacer-1);
   padding: var(--cnds-spacer-1) var(--cnds-offcanvas-body-padding-x); background-color: var(--cnds-offcanvas-bg);
   border-bottom: var(--cnds-border-width, 1px) solid var(--cnds-border-color);
-  transform: translateY(-100%); opacity: 0; visibility: hidden; transition: transform .2s ease, opacity .2s ease, visibility 0s linear .2s; }
-.cv-bar-on .cv-bar { transform: none; opacity: 1; visibility: visible; transition: transform .2s ease, opacity .2s ease; }
+  transform: translateY(-100%); opacity: 0; visibility: hidden; transition: transform .2s ease-in-out, opacity .2s ease-in-out, visibility 0s linear .2s; }
+.cv-bar-on .cv-bar { transform: none; opacity: 1; visibility: visible; transition: transform .2s ease-in-out, opacity .2s ease-in-out; }  /* Nimbus base: 0.2s ease-in-out */
 @media (prefers-reduced-motion: reduce) { .cv-bar, .cv-bar-on .cv-bar { transition: none; } }
 .cv-bar-name { align-self: center; display: flex; align-items: center; gap: var(--cnds-spacer-2); font-weight: 700; white-space: nowrap; margin-right: var(--cnds-spacer-2); }
 /* Entries share the width; the workflow name (12px label) over its state word (14px), as a card in miniature. */
