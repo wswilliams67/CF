@@ -193,7 +193,9 @@
   function block(title, body, count) {
     var head = '<div class="hs-dcard-head"><div class="cf-category cf-cat-6 flex-grow-1 mb-0" role="heading" aria-level="4">' + title + "</div>" +
       (count ? '<span class="badge badge-secondary" aria-label="' + count + ' events">' + count + "</span>" : "") + "</div>";
-    return '<div class="col-md-4"><div class="card card-outline h-100 hs-dcard"><div class="card-body">' + head + body + "</div></div></div>";
+    /* Three across from 1200px; narrower, Events takes its own row and Exception + Hold share the next (Scott, 10-16: responsive below 1440). */
+    var col = title === "Events" ? "col-12 col-xl-4" : "col-md-6 col-xl-4";
+    return '<div class="' + col + '"><div class="card card-outline h-100 hs-dcard"><div class="card-body">' + head + body + "</div></div></div>";
   }
   /* A labelled list inside a card (Locations): blurry rule above, flush rows with blurry dividers. */
   function activity(label, items) {

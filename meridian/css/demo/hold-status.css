@@ -69,6 +69,16 @@
 .hs-row { display: grid; grid-template-columns: 240px minmax(0, 1fr) 200px auto 170px; column-gap: var(--cnds-spacer-3); align-items: center;
   font-size: var(--cnds-paragraph-font-size); line-height: var(--cnds-paragraph-line-height); }
 .hs-row > :nth-child(-n+3) { align-self: start; }
+/* Below 1200px the fixed columns left Status ~30px wide (one word per line at 1024). Last read moves under Status;
+   the divider and actions span both lines (Scott, 10-16: responsive below 1440). */
+@media (max-width: 1199.98px) {
+  .hs-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) auto 170px; grid-template-areas: "src status vr act" "src last vr act"; row-gap: var(--cnds-spacer-3); }
+  .hs-row > :nth-child(1) { grid-area: src; }
+  .hs-row > :nth-child(2) { grid-area: status; }
+  .hs-row > :nth-child(3) { grid-area: last; }
+  .hs-row > :nth-child(4) { grid-area: vr; }
+  .hs-row > :nth-child(5) { grid-area: act; }
+}
 .hs-row > .vr { align-self: stretch; }
 .hs-row .small { font-size: var(--cnds-paragraph-font-size-sm); line-height: var(--cnds-paragraph-line-height); }
 /* 4px between the two buttons, so one's hover fill and focus ring never butt into the other. */
