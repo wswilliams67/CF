@@ -63,6 +63,38 @@
   var tileFilter = null;
   var page = 1, pageSize = 10;   /* grid pager: the house default, 10 per page (design decision 10) */
   var REDUCE = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  /* API seam (Scott, 10-15; as Hold Status and My Work): in production the coverage, the non-custodial sources and each
+     custodian's panel come from APIs, and the server can be slow. While a request is pending its area shows Nimbus
+     skeletons (loading.css) in the real geometry: render the skeleton, await the call, then render the rows. In this
+     demo the data is local, so the web font loading is the stand-in for the wait (columns are measured in that font).
+     Keep each read behind one call so the API can replace it without touching rendering. */
+  var dataReady = !(document.fonts && document.fonts.status !== "loaded");
+  /* DEMO ONLY: do not build. ?skeleton=1 holds the loading state so the skeletons can be reviewed (PM review link). */
+  var holdSkeleton = /[?&]skeleton=1\b/.test(location.search);
+  if (holdSkeleton) dataReady = false;
+  function sk(w) { return '<span class="skeleton skeleton-text skeleton-w-' + w + '"></span>'; }
+  function skRect(w, h) { return '<span class="skeleton skeleton-rect" style="display: inline-block; vertical-align: middle; width: ' + w + "; height: " + h + ';"></span>'; }
+  /* Grid: one row per row about to appear; checkbox, name over title, five status cells (badge, then its line), OPEN. */
+  function skeletonGridRows(n) {
+    var status = '<td><div class="cv-sk-cell">' + skRect("8.25rem", "1.375rem") + sk(66) + "</div></td>";
+    var row = '<tr aria-hidden="true"><td>' + skRect("18px", "18px") + '</td><td><div class="skeleton-group">' + sk(75) + sk(50) + sk(33) + "</div></td>" +
+      new Array(6).join(status) + '<td class="cv-row-action"><div class="vr vr-blurry" aria-hidden="true"></div>' + skRect("3rem", "1.75rem") + "</td></tr>";
+    return new Array(Math.max(1, n) + 1).join(row);
+  }
+  /* Non-custodial sources: source, used by, two badges, request. */
+  function skeletonNcRows(n) {
+    var row = '<tr aria-hidden="true"><td>' + sk(75) + "</td><td>" + sk(50) + "</td><td>" + skRect("100%", "1.375rem") + "</td><td>" + skRect("100%", "1.375rem") + "</td><td>" + sk(66) + "</td></tr>";
+    return new Array(Math.max(1, n) + 1).join(row);
+  }
+  /* Custodian panel: the header, the five workflow cards, then two drawer cards of lines. */
+  function skeletonPanel() {
+    var card = '<div class="card card-basic demo-tile" aria-hidden="true">' + sk(75) + skRect("60%", "1.25rem") + sk(50) + "</div>";
+    var drawerSk = '<section class="card card-basic card-drawer demo-drawer cv-drawer" aria-hidden="true"><div class="card-body"><div class="skeleton-group">' +
+      skRect("40%", "1.25rem") + sk(100) + sk(100) + sk(75) + sk(100) + sk(66) + "</div></div></section>";
+    return '<div class="cv-scope" aria-busy="true"><div class="skeleton-media mb-3"><span class="skeleton skeleton-circle" style="width: 42px; height: 42px;"></span>' +
+      '<div class="skeleton-group">' + sk(33) + sk(66) + "</div></div>" + '<div class="demo-tiles cv-ptiles">' + new Array(6).join(card) + "</div>" +
+      '<div class="cv-drawers">' + drawerSk + drawerSk + "</div></div>";
+  }
   var WORKFLOWS = ["lhn", "survey", "interview", "preservation", "collection"];
   var LOCK = '<i class="mdi mdi-lock-outline" aria-hidden="true"></i>';
 
@@ -149,6 +181,9 @@
     var gaps = gapSources().length;
     /* A filter tile with nothing in it is disabled, never hidden; names are Title Case, the CSS uppercases them (Scott, 10-14). */
     function tile(key, value, label, sub, unit) {
+      /* Same card as the real tile (disabled while loading), so the name keeps its type and only the figures wait. */
+      if (!dataReady) return '<button type="button" class="card card-basic demo-tile" disabled tabindex="-1" aria-hidden="true"><span class="card-subtitle demo-tile-name">' + esc(label) + (unit ? " · " + unit : "") + "</span>" +
+        '<span class="card-title demo-tile-value">' + skRect("2.5rem", "1.75rem") + '</span><span class="card-text demo-tile-label">' + skRect("8rem", "0.75rem") + "</span></button>";
       var pressed = tileFilter === key || (key === "all" && !tileFilter && val("cvFilter") === "all");
       return '<button type="button" class="card card-basic demo-tile" data-tile="' + key + '" aria-pressed="' + pressed + '"' + (value ? "" : " disabled") + ">" +
         '<span class="card-subtitle demo-tile-name">' + esc(label) + (unit ? " · " + unit : "") + '</span><span class="card-title demo-tile-value">' + value + '</span><span class="card-text demo-tile-label">' + esc(sub) + "</span></button>";
@@ -167,7 +202,7 @@
   function renderBanner() {
     var list = afterNoticeUnsent();
     var el = document.getElementById("cvBanner");
-    el.hidden = list.length === 0;
+    el.hidden = !dataReady || list.length === 0;  /* the banner states a finding: it waits for the data */
     if (!list.length) return;
     /* Verbatim order from PRD 08 §7.1: data map, org chart, interview. */
     var ORDER = ["Data map", "Org chart", "Interview"];
@@ -221,7 +256,10 @@
     var pages = Math.max(1, Math.ceil(rows.length / pageSize));
     if (page > pages) page = pages;
     var shown = rows.slice((page - 1) * pageSize, page * pageSize);
-    document.getElementById("cvBody").innerHTML = shown.map(function (c) {
+    var bodyEl = document.getElementById("cvBody");
+    bodyEl.setAttribute("aria-busy", String(!dataReady));
+    if (!dataReady) { bodyEl.innerHTML = skeletonGridRows(Math.min(pageSize, rows.length || pageSize)); setPager(document.getElementById("cvGridFoot"), ""); renderNonCustodial(); renderSelTool(); return; }
+    bodyEl.innerHTML = shown.map(function (c) {
       var v = cov(c), p = person(c), ok = seen(c);
       var sub = ok ? esc(p.title) + (p.departed ? " · Departed " + esc(M.fmtDate(p.departed)) : "") : "Outside your regions";
       return '<tr class="' + (selected[c.personId] ? "table-active" : "") + '">' +
@@ -362,7 +400,10 @@
       var m = { "Applied": ["On hold", "success"], "Attested": ["Attested", "info"], "Partial": ["Partial", "warning"], "Unknown": ["Unknown", "danger"] }[s.hold] || [s.hold, "light"];
       return '<span class="badge badge-verbatim badge-' + m[1] + '">' + m[0] + "</span>";
     };
-    document.getElementById("cvNcBody").innerHTML = rows.map(function (s) {
+    var ncBody = document.getElementById("cvNcBody");
+    ncBody.setAttribute("aria-busy", String(!dataReady));
+    if (!dataReady) { ncBody.innerHTML = skeletonNcRows(Math.min(rows.length || 3, 10)); return; }
+    ncBody.innerHTML = rows.map(function (s) {
       var col = M.nonCustodialCollection[s.id];
       return "<tr><td>" + esc(M.typeLabel(s.type) + " · " + s.name) + '</td><td class="text-nowrap">' + (M.usedBy[s.id] || 0) + " custodians</td><td>" + pres(s) + "</td>" +
         "<td>" + (col ? '<span class="badge badge-verbatim badge-info">' + esc(col.text) + "</span>" : '<span class="text-muted">—</span>') + "</td>" +
@@ -957,6 +998,7 @@
   function severity(x) { return x.state === "action" ? "danger" : x.state === "todo" ? "warning" : ""; }
   /* Redraw the open panel in place, keeping its scroll position. */
   function renderPanel() {
+    if (!dataReady) { panel.setBody(skeletonPanel()); return; }
     var c = byPid(panelId), p = person(c), v = cov(c), ok = seen(c);
     var keep = panel.el.querySelector(".offcanvas-body"), top = keep ? keep.scrollTop : 0;
     /* Summary cards, the Hold Status pattern (Scott, 10-15): one card per workflow, each opening its drawer. A
@@ -1049,7 +1091,7 @@
     if (!panel) {
       panel = D.offcanvas({ title: "Custodian coverage", width: "90vw", body: "",
         /* Previous and next are equal actions, so both are secondary: no primary in this footer (Scott, 10-14). */
-        footer: '<span class="cv-meta text-muted me-auto" id="cvPanelPos" aria-live="polite"></span><button type="button" class="btn btn-secondary" data-cv="panel-prev">PREVIOUS CUSTODIAN</button><button type="button" class="btn btn-secondary" data-cv="panel-next">NEXT CUSTODIAN</button>',
+        footer: '<span class="cv-panel-pos text-muted me-auto" id="cvPanelPos" aria-live="polite"></span><button type="button" class="btn btn-secondary" data-cv="panel-prev">PREVIOUS CUSTODIAN</button><button type="button" class="btn btn-secondary" data-cv="panel-next">NEXT CUSTODIAN</button>',
         onHidden: function () { panel = null; panelId = null; } });
       panel.el.querySelector(".offcanvas-body").addEventListener("scroll", syncBar, { passive: true });
     }
@@ -1423,6 +1465,8 @@
   });
 
   render();
+  /* Demo stand-in for the API response (see dataReady): render the real content once the web font has loaded. */
+  if (!dataReady && !holdSkeleton) document.fonts.ready.then(function () { dataReady = true; render(); });
 
   /* ── Deep links ───────────────────────────────────────────────────── */
   /* DEMO ONLY: do not build. Not in PRD 08; it exists so the PM review's edge-case links open the right view.
