@@ -154,7 +154,9 @@
           '<span class="nav-cf-utility-divider" aria-hidden="true"></span>' +
           '<div class="user-info-wrapper" id="userAccountWrapper">' +
             '<span class="user-info" id="userAccountToggle" role="button" tabindex="0" aria-haspopup="menu" aria-expanded="false" aria-controls="accountMenu">' +
-            '<span class="user-avatar" aria-hidden="true">' + esc(initials(me.name)) + '</span>' +
+            /* The signed-in user's profile photo when the fixture has one (as in Figma's header), else Nimbus's initials circle (Scott, 10-16). */
+            (M.avatars[me.id] ? '<img class="user-avatar user-avatar-photo" src="../img/avatars/' + me.id + '.jpg' + STAMP + '" alt="" aria-hidden="true" width="24" height="24" />'
+              : '<span class="user-avatar" aria-hidden="true">' + esc(initials(me.name)) + '</span>') +
             '<span class="user-name-label">' + esc(me.name) + '</span>' +
             '<span class="badge badge-info demo-region-badge" title="Viewer region">' + esc(regionName) + '</span></span>' +
             '<div class="account-menu" id="accountMenu" role="menu" aria-hidden="true">' +
