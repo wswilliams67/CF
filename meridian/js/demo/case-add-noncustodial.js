@@ -68,7 +68,7 @@
       '<td class="ad-wrap-narrow">' + esc(r.type) + '<span class="d-block ad-meta text-muted">' + esc(r.team) + "</span></td>" +
       "<td>" + (D.canSee(owner) ? esc(owner.name) : '<span class="demo-masked"><i class="mdi mdi-lock" aria-hidden="true"></i>Profile details limited</span>') + "</td>" +
       '<td class="ad-wrap-narrow">' + esc(r.scale) + "</td>" +
-      '<td class="text-end text-nowrap">' + (here ? '<span class="ad-meta">' + (st.added[r.id] ? "Added to this case" : "Already on this case") + "</span>" :
+      '<td class="text-center text-nowrap">' + (here ? '<span class="ad-meta">' + (st.added[r.id] ? "Added to this case" : "Already on this case") + "</span>" :
         '<a class="btn btn-tertiary btn-sm" href="not-in-demo.html?what=' + encodeURIComponent("Source details · " + r.name) + '">DETAILS</a>') + "</td></tr>";
   }
   function render() {

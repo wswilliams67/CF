@@ -146,7 +146,7 @@
               (r.alreadyHeld ? '<span class="d-block small text-muted">Already under the all-content Purview hold (' + esc(r.alreadyHeld) + ")</span>" : "") + prior + "</td>" +
             "<td>" + esc(masked ? "Outside your regions" : r.name) + "</td><td>" + esc(r.found) + "</td><td>" + esc(r.handler) + (M.handlerFor[r.type].kind === "Automatic" ? " · automatic" : "") +
             ' <a class="btn btn-tertiary btn-sm" href="not-in-demo.html?what=Change+handler">CHANGE</a></td>' +
-            '<td class="text-end"><button type="button" class="btn btn-tertiary btn-sm" data-remove="' + r.id + '">' + (st.removed[r.id] ? "RESTORE" : "REMOVE") + "</button></td></tr>";
+            '<td class="text-center"><button type="button" class="btn btn-tertiary btn-sm" data-remove="' + r.id + '">' + (st.removed[r.id] ? "RESTORE" : "REMOVE") + "</button></td></tr>";
         }).join("") + "</tbody></table></div>";
     };
     var pill = function (k, label, n) { return '<li class="nav-item"><button type="button" class="nav-link' + (st.chip === k ? " active" : "") + '" data-chip="' + k + '" aria-pressed="' + (st.chip === k) + '">' + label + ' <span class="nav-pill-badge">' + n + "</span></button></li>"; };
