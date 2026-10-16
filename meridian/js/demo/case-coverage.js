@@ -850,7 +850,8 @@
       }).join("");
     var release = releasable(c) ? btn("RELEASE FROM HOLD", 'data-cv="panel-release"', "btn-secondary") :
       off("RELEASE FROM HOLD", c.released ? "Already released." : "Not on a legal hold: nothing to release.", "btn-secondary");
-    return drawer("lhn", "Legal Hold Notification", sum, body, sendMenu("SEND LEGAL HOLD NOTIFICATION", menu) + release);
+    /* Damage order throughout the panel: the most consequential action leftmost, views rightmost (Scott, 10-15). */
+    return drawer("lhn", "Legal Hold Notification", sum, body, release + sendMenu("SEND LEGAL HOLD NOTIFICATION", menu));
   }
 
   function surveyDrawer(c) {
@@ -865,7 +866,7 @@
       var done = x.status === "Answered";
       var reported = (x.events || []).some(function (e) { return /reported/.test(e[2]); });
       var badge = done ? badgeHtml("Answered", "success") : x.status === "Sent" ? badgeHtml("Sent", "info") : badgeHtml("Not answered", "danger");
-      var acts = done ? link("VIEW ANSWERS", "not-in-demo.html?what=Survey+answers&amp;ships=1") + (reported ? link("ADD REPORTED LOCATION", "case-add-sources.html") : "") :
+      var acts = done ? (reported ? link("ADD REPORTED LOCATION", "case-add-sources.html") : "") + link("VIEW ANSWERS", "not-in-demo.html?what=Survey+answers&amp;ships=1") :
         /* No MARK NOT REQUIRED here: not required covers the survey workflow for this custodian (CV14), which is the
            footer's action; a second copy on each survey read as a per-survey choice that doesn't exist. */
         btn("SEND REMINDER", 'data-cv-remind="' + x.id + '"') + link("VIEW SURVEY", "not-in-demo.html?what=Survey+" + x.id + "&amp;ships=1");
@@ -878,7 +879,7 @@
       groupHead("Settings From a Survey") +
       M.surveys.map(function (d) { return groupItem('data-send-survey="' + d.id + '" data-one="' + pid + '"', d.id + " · " + d.title, d.questions + " questions"); }).join("");
     var nr = na ? off("MARK NOT REQUIRED", "Already not required.", "btn-secondary") : !exp ? off("MARK NOT REQUIRED", EXPECT_WHY, "btn-secondary") : btn("MARK NOT REQUIRED", 'data-cv-nr="survey"', "btn-secondary");
-    return drawer("survey", "Survey", sum, body, sendMenu("SEND SURVEY", menu) + nr, !exp && !sv.length && !na);
+    return drawer("survey", "Survey", sum, body, nr + sendMenu("SEND SURVEY", menu), !exp && !sv.length && !na);
   }
 
   /* Interview (CV42–CV42c): states the fact and does not advise. SCHEDULE is open on every custodian (CV42aa);
@@ -893,11 +894,11 @@
       tileStack([recordTile({ id: "Interview", href: "not-in-demo.html?what=Interview&amp;ships=1", title: "with " + iv.with + " · " + iv.where,
         badge: iv.status === "Complete" ? badgeHtml("Complete", "success") : badgeHtml("Scheduled", "info"),
         aside: iv.status === "Complete" ? "Completed " + short(iv.completed) : M.fmtDateTime(iv.date, iv.time), events: iv.events,
-        acts: iv.status === "Complete" ? "" : link("RESCHEDULE", schedulePage(c, true)) + btn("MARK COMPLETE", "data-cv-iv-done") })]));
+        acts: iv.status === "Complete" ? "" : btn("MARK COMPLETE", "data-cv-iv-done") + link("RESCHEDULE", schedulePage(c, true)) })]));
     var sched = iv && iv.status !== "Complete" ? off("SCHEDULE", "An interview is already scheduled: use RESCHEDULE.", "btn-secondary") : link("SCHEDULE", schedulePage(c, false), "btn-secondary");
     var nr = na ? off("MARK NOT REQUIRED", "Already not required.", "btn-secondary") : !exp ? off("MARK NOT REQUIRED", EXPECT_WHY, "btn-secondary") :
       iv && iv.status === "Complete" ? off("MARK NOT REQUIRED", "The interview happened: complete is not the same as not required (CV42c).", "btn-secondary") : btn("MARK NOT REQUIRED", 'data-cv-nr="interview"', "btn-secondary");
-    return drawer("interview", "Interview", sum, body, sched + nr, !exp && !iv && !na);
+    return drawer("interview", "Interview", sum, body, nr + sched, !exp && !iv && !na);
   }
 
   /* Preservation: one row per source. A location reported in a survey but not added yet shows as such, with a dash
